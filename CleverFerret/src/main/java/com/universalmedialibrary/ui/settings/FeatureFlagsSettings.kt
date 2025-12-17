@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -44,7 +46,7 @@ fun FeatureFlagsSettingsScreen(
                 title = { Text("Feature Flags") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
@@ -234,7 +236,7 @@ private fun getIconForFlag(flag: FeatureFlags.FeatureFlag) = when (flag) {
     FeatureFlags.FeatureFlag.ENABLE_CLOUD_TTS -> Icons.Default.RecordVoiceOver
     FeatureFlags.FeatureFlag.ENABLE_EXOPLAYER -> Icons.Default.PlayCircle
     FeatureFlags.FeatureFlag.ENABLE_PODCASTS -> Icons.Default.MusicNote
-    FeatureFlags.FeatureFlag.ENABLE_ADVANCED_READER -> Icons.Default.MenuBook
+    FeatureFlags.FeatureFlag.ENABLE_ADVANCED_READER -> Icons.AutoMirrored.Filled.MenuBook
     FeatureFlags.FeatureFlag.ENABLE_AI_METADATA -> Icons.Default.Psychology
     FeatureFlags.FeatureFlag.ENABLE_AUDIOBOOK_PLAYER -> Icons.Default.Headphones
     FeatureFlags.FeatureFlag.ENABLE_SYNCHRONIZED_READING -> Icons.Default.Sync

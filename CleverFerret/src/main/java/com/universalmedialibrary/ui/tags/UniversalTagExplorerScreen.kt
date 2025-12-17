@@ -20,20 +20,20 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Headphones
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
@@ -107,7 +107,7 @@ fun UniversalTagExplorerScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -117,7 +117,7 @@ fun UniversalTagExplorerScreen(
                         }
                     }
                     IconButton(onClick = { showSortMenu = true }) {
-                        Icon(Icons.Filled.Sort, contentDescription = "Sort tags")
+                        Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort tags")
                     }
                     DropdownMenu(
                         expanded = showSortMenu,
@@ -427,7 +427,7 @@ private fun TagType.displayName(): String = when (this) {
 
 private fun mediaTypeIcon(key: String?): ImageVector? = when (key) {
     null -> Icons.Filled.Apps
-    "BOOK" -> Icons.Filled.MenuBook
+    "BOOK" -> Icons.AutoMirrored.Filled.MenuBook
     "AUDIOBOOK" -> Icons.Filled.Headphones
     "MUSIC_TRACK" -> Icons.Filled.MusicNote
     "MOVIE" -> Icons.Filled.Movie

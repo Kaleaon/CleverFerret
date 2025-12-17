@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.audiobook.maker
 
 import com.universalmedialibrary.services.ai.GeminiTTSService
 import com.universalmedialibrary.services.ai.VoiceProfile
+import com.universalmedialibrary.services.tts.TtsProviderManager
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -19,12 +20,14 @@ import org.junit.Test
 class CharacterVoiceServiceTest {
     
     private lateinit var mockGeminiTtsService: GeminiTTSService
+    private lateinit var mockTtsProviderManager: TtsProviderManager
     private lateinit var characterVoiceService: CharacterVoiceService
     
     @Before
     fun setup() {
         mockGeminiTtsService = mockk(relaxed = true)
-        characterVoiceService = CharacterVoiceService(mockGeminiTtsService)
+        mockTtsProviderManager = mockk(relaxed = true)
+        characterVoiceService = CharacterVoiceService(mockGeminiTtsService, mockTtsProviderManager)
     }
     
     @Test

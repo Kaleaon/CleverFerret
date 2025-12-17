@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PlexIntegrationViewModel @Inject constructor(
+class MediaIntegrationViewModel @Inject constructor(
     private val plexService: PlexIntegrationService
 ) : ViewModel() {
 

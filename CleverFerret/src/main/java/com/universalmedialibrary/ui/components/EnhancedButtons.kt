@@ -251,7 +251,7 @@ fun <T> SegmentedButtonGroup(
                 }
                 
                 if (index < options.lastIndex) {
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier
                             .width(1.dp)
                             .fillMaxHeight(),

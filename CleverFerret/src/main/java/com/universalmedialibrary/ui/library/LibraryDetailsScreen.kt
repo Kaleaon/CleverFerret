@@ -56,7 +56,7 @@ fun LibraryDetailsScreen(
         }
     }
 
-    // Plex-inspired colors
+    // media-centric colors
     val backgroundColor = Color(0xFF1A1A1A)
     val surfaceColor = Color(0xFF1F2326)
     val primaryColor = Color(0xFFE5A00D)

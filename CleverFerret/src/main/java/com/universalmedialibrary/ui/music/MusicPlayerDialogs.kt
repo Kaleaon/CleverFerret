@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -143,7 +144,7 @@ fun VolumeDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Icon(
-                    if (currentVolume > 0.5f) Icons.Default.VolumeUp 
+                    if (currentVolume > 0.5f) Icons.AutoMirrored.Filled.VolumeUp 
                     else if (currentVolume > 0f) Icons.Default.VolumeDown
                     else Icons.Default.VolumeOff,
                     contentDescription = null,
@@ -255,7 +256,7 @@ fun AddToPlaylistDialog(
                 }
                 
                 if (playlists.isNotEmpty()) {
-                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     
                     playlists.forEach { playlist ->
                         ListItem(

@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -77,7 +80,7 @@ fun UnifiedFanfictionHubScreen(
                         },
                         navigationIcon = {
                             IconButton(onClick = { navController.navigateUp() }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                             }
                         },
                         actions = {
@@ -108,7 +111,7 @@ fun UnifiedFanfictionHubScreen(
                         )
                     )
                     
-                    TabRow(
+                    PrimaryTabRow(
                         selectedTabIndex = selectedTab,
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -122,7 +125,7 @@ fun UnifiedFanfictionHubScreen(
                                     Icon(
                                         when (index) {
                                             HubTabs.DISCOVER -> Icons.Default.Explore
-                                            HubTabs.LIBRARY -> Icons.Default.LibraryBooks
+                                            HubTabs.LIBRARY -> Icons.AutoMirrored.Filled.LibraryBooks
                                             else -> Icons.Default.Download
                                         },
                                         contentDescription = null
@@ -1254,7 +1257,7 @@ private fun DownloadTab(
                         )
                     }
                     Icon(
-                        Icons.Default.ArrowForward,
+                        Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = "Open",
                         tint = MaterialTheme.colorScheme.secondary
                     )

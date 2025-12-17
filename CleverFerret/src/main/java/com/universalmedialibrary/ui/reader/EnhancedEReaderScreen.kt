@@ -10,6 +10,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -140,7 +142,7 @@ fun EnhancedEReaderScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
 
                     Column(
@@ -220,7 +222,7 @@ fun EnhancedEReaderScreen(
                         }
 
                         IconButton(onClick = { showTableOfContents = true }) {
-                            Icon(Icons.Default.MenuBook, contentDescription = "Table of Contents")
+                            Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Table of Contents")
                         }
 
                         IconButton(onClick = { showSearch = true }) {

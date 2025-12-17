@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.filepicker
 
+import android.os.Build
 import android.os.Environment
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -12,6 +13,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,11 +24,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.utils.PermissionsHandler
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,7 +53,27 @@ fun StorageBrowserScreen(
     filterMediaTypes: List<String> = listOf("epub", "pdf", "mp3", "mp4", "mkv", "cbz", "cbr"),
     viewModel: StorageBrowserViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    
+    // Check for full storage access permission (needed for documents/ebooks on Android 11+)
+    var permissionChecked by remember { 
+        mutableStateOf(PermissionsHandler.hasFullStorageAccess(context)) 
+    }
+    
+    // Re-check permission when screen resumes (user might have granted it in settings)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                permissionChecked = PermissionsHandler.hasFullStorageAccess(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -68,7 +98,7 @@ fun StorageBrowserScreen(
                             onNavigateBack()
                         }
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -98,7 +128,7 @@ fun StorageBrowserScreen(
                                 showMenu = false
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.ViewList, contentDescription = null)
+                                Icon(Icons.AutoMirrored.Filled.ViewList, contentDescription = null)
                             }
                         )
                         HorizontalDivider()
@@ -125,55 +155,69 @@ fun StorageBrowserScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Quick access shortcuts
-            QuickAccessBar(
-                onPathSelected = { path -> viewModel.navigateTo(path) },
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Show permission request card if needed (Android 11+)
+            if (!permissionChecked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                StoragePermissionCard(
+                    onRequestPermission = {
+                        PermissionsHandler.requestFullStorageAccess(context)
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                // Quick access shortcuts
+                QuickAccessBar(
+                    onPathSelected = { path -> viewModel.navigateTo(path) },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            HorizontalDivider()
+                HorizontalDivider()
 
-            // File list
-            when {
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
+                // File list
+                when {
+                    uiState.isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
-                }
-                uiState.error != null -> {
-                    ErrorView(
-                        message = uiState.error!!,
-                        onRetry = { viewModel.refresh() }
-                    )
-                }
-                uiState.files.isEmpty() -> {
-                    EmptyFolderView()
-                }
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        items(
-                            items = uiState.files,
-                            key = { it.absolutePath }
-                        ) { file ->
-                            FileItem(
-                                file = file,
-                                viewMode = uiState.viewMode,
-                                onClick = {
-                                    if (file.isDirectory) {
-                                        viewModel.navigateInto(file)
-                                    } else {
-                                        onFileSelected(file)
-                                    }
-                                },
-                                modifier = Modifier
-                            )
+                    uiState.error != null -> {
+                        ErrorView(
+                            message = uiState.error!!,
+                            onRetry = { viewModel.refresh() },
+                            showPermissionHint = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R,
+                            onRequestPermission = {
+                                PermissionsHandler.requestFullStorageAccess(context)
+                            }
+                        )
+                    }
+                    uiState.files.isEmpty() -> {
+                        EmptyFolderView()
+                    }
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            items(
+                                items = uiState.files,
+                                key = { it.absolutePath }
+                            ) { file ->
+                                FileItem(
+                                    file = file,
+                                    viewMode = uiState.viewMode,
+                                    onClick = {
+                                        if (file.isDirectory) {
+                                            viewModel.navigateInto(file)
+                                        } else {
+                                            onFileSelected(file)
+                                        }
+                                    },
+                                    modifier = Modifier
+                                )
+                            }
                         }
                     }
                 }
@@ -343,7 +387,7 @@ private fun FileIcon(file: File) {
             Icons.Default.AutoStories to listOf(Color(0xFFE65100), Color(0xFFFF9800))
         file.extension.lowercase() in listOf("jpg", "jpeg", "png", "gif") -> 
             Icons.Default.Image to listOf(Color(0xFF006064), Color(0xFF00BCD4))
-        else -> Icons.Default.InsertDriveFile to listOf(Color(0xFF37474F), Color(0xFF78909C))
+        else -> Icons.AutoMirrored.Filled.InsertDriveFile to listOf(Color(0xFF37474F), Color(0xFF78909C))
     }
 
     Box(
@@ -388,7 +432,12 @@ private fun EmptyFolderView() {
 }
 
 @Composable
-private fun ErrorView(message: String, onRetry: () -> Unit) {
+private fun ErrorView(
+    message: String, 
+    onRetry: () -> Unit,
+    showPermissionHint: Boolean = false,
+    onRequestPermission: () -> Unit = {}
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -407,12 +456,101 @@ private fun ErrorView(message: String, onRetry: () -> Unit) {
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center
             )
+            
+            if (showPermissionHint) {
+                Text(
+                    text = "This may be due to missing storage permissions. Grant 'All Files Access' permission to browse documents and ebooks.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                
+                OutlinedButton(onClick = onRequestPermission) {
+                    Icon(Icons.Default.Security, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Grant Permission")
+                }
+            }
+            
             Button(onClick = onRetry) {
                 Icon(Icons.Default.Refresh, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Retry")
+            }
+        }
+    }
+}
+
+@Composable
+private fun StoragePermissionCard(
+    onRequestPermission: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Icon(
+                    Icons.Default.Folder,
+                    contentDescription = null,
+                    modifier = Modifier.size(72.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                
+                Text(
+                    text = "Storage Access Required",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                
+                Text(
+                    text = "To browse and open ebooks, documents, and other files from your device storage, CleverFerret needs 'All Files Access' permission.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                
+                Text(
+                    text = "This permission allows the app to read files like EPUB, PDF, MOBI, and other document formats stored on your device.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Button(
+                    onClick = onRequestPermission,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Security, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Grant Access")
+                }
+                
+                Text(
+                    text = "You'll be taken to system settings. Find 'CleverFerret' and enable 'Allow access to manage all files'.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }

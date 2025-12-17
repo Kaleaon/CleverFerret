@@ -142,7 +142,6 @@ class MediaNotificationService : MediaSessionService() {
     }
 
     private fun ensureNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val notificationManager = getSystemService(NotificationManager::class.java)
         val existing = notificationManager.getNotificationChannel(CHANNEL_ID)
         if (existing == null) {

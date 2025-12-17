@@ -89,6 +89,33 @@ const AppContent: React.FC = () => {
   const [showSearchBar, setShowSearchBar] = React.useState(true);
   const [lastScrollY, setLastScrollY] = React.useState(0);
 
+  // Update the window/tab title based on the current route.
+  React.useEffect(() => {
+    const titleForPath = (path: string): string => {
+      if (path === '/' || path.startsWith('/library/')) return 'Library';
+      if (path.startsWith('/settings')) return 'Settings';
+      if (path.startsWith('/search')) return 'Search';
+      if (path.startsWith('/collections')) return 'Collections';
+      if (path.startsWith('/downloads')) return 'Downloads';
+      if (path.startsWith('/storage')) return 'Storage';
+      if (path.startsWith('/opds')) return 'OPDS';
+      if (path.startsWith('/statistics')) return 'Statistics';
+      if (path.startsWith('/music')) return 'Music';
+      if (path.startsWith('/podcasts')) return 'Podcasts';
+      if (path.startsWith('/radio')) return 'Radio';
+      if (path.startsWith('/visualizer')) return 'Visualizer';
+      if (path.startsWith('/servers')) return 'Servers';
+      if (path.startsWith('/maintenance')) return 'Maintenance';
+      if (path.startsWith('/open')) return 'Open';
+      if (path.startsWith('/reader') || path.startsWith('/pdf') || path.startsWith('/comic')) return 'Reader';
+      if (path.startsWith('/audio_player') || path.startsWith('/video_player') || path.startsWith('/queue')) return 'Player';
+      if (path.startsWith('/document')) return 'Documents';
+      return 'CleverFerret';
+    };
+
+    document.title = titleForPath(location.pathname);
+  }, [location.pathname]);
+
   // Handle file opening on app launch
   React.useEffect(() => {
     // Check for file launch

@@ -27,7 +27,8 @@
     <!-- Audio recording and playback -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO" tools:ignore="ProtectedPermissions" />
     
     <!-- System Permissions for FM Radio (Protected) -->
     <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" tools:ignore="ProtectedPermissions" />
@@ -103,13 +104,23 @@
             android:exported="false"
             android:theme="@style/Theme.CleverFerretMediaLibrary" />
         
+        <!-- New Media-centric Main Activity (Primary Launcher) -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".ui.media.MediaMainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.CleverFerretMediaLibrary"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        
+        <!-- Legacy MainActivity (for file handling and deep links) -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             
             <!-- File Type Associations for EPUB -->
             <intent-filter>

@@ -270,7 +270,7 @@ fun MetallicProgressBar(
     val metallic = LocalMetallicGradient.current
 
     LinearProgressIndicator(
-        progress = progress,
+        progress = { progress },
         modifier = modifier
             .height(6.dp)
             .clip(RoundedCornerShape(3.dp)),

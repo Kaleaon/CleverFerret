@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
- * Data class representing a library with Plex-inspired design
+ * Data class representing a library with media-centric design
  */
 data class LibraryItem(
     val id: Int,
@@ -39,7 +39,7 @@ enum class LibraryType {
 
 /**
  * A visually rich card component for displaying a single media library,
- * converted from React LibraryCard component with Plex-inspired design.
+ * converted from React LibraryCard component with media-centric design.
  */
 @Composable
 fun LibraryCard(

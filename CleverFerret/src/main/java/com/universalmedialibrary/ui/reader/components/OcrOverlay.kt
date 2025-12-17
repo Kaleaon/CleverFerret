@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -179,7 +180,7 @@ fun OcrOverlay(
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = if (isSpeaking) Icons.Default.Stop else Icons.Default.VolumeUp,
+                                        imageVector = if (isSpeaking) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
                                         contentDescription = if (isSpeaking) "Stop speaking" else "Read aloud"
                                     )
                                 }
