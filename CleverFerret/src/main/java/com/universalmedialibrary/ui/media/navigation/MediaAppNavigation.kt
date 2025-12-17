@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.media.navigation
 
+import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -106,7 +107,15 @@ object MediaRoutes {
     fun audioPlayerRoute(playerType: String) = "player/audio/$playerType"
     fun videoPlayerRoute(videoId: String) = "player/video/$videoId"
     fun collectionDetailRoute(collectionId: String) = "collection/$collectionId"
-    fun webFictionBrowseRoute(source: String) = "discover/webfiction/$source"
+    fun webFictionBrowseRoute(source: String) = "discover/webfiction/${Uri.encode(source)}"
+}
+
+private fun sanitizeRouteParamForDisplay(input: String, maxLen: Int = 60): String {
+    // Defensive: route params may come from deep links; keep UI strings printable and bounded.
+    return input
+        .replace(Regex("[\\p{Cc}\\p{Cf}]"), "")
+        .take(maxLen)
+        .trim()
 }
 
 /**
@@ -844,7 +853,9 @@ fun MediaAppNavHost(
             )
         ) { backStackEntry ->
             val source = backStackEntry.arguments?.getString("source").orEmpty()
-            val displaySource = source.ifBlank { stringResource(R.string.webfiction_browse_source_unknown) }
+            val decodedSource = remember(source) { Uri.decode(source) }
+            val displaySource = sanitizeRouteParamForDisplay(decodedSource)
+                .ifBlank { stringResource(R.string.webfiction_browse_source_unknown) }
             val snackbarMessage = stringResource(R.string.webfiction_browse_not_implemented, displaySource)
 
             LaunchedEffect(snackbarMessage) {
