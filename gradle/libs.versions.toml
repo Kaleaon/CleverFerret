@@ -60,7 +60,7 @@ okhttp = "5.2.1"
  mockito-kotlin = "5.4.0"
  arch-core-testing = "2.2.0"
  truth = "1.4.4"
- mockk = "1.13.13"
+ mockk = "1.14.6"
  robolectric = "4.14.1"
     
     # Document Parsing Libraries
