@@ -108,7 +108,8 @@
         <activity
             android:name=".ui.media.MediaMainActivity"
             android:exported="true"
-            android:theme="@style/Theme.CleverFerretMediaLibrary">
+            android:theme="@style/Theme.CleverFerretMediaLibrary"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -118,7 +119,8 @@
         <!-- Legacy MainActivity (for file handling and deep links) -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             
             <!-- File Type Associations for EPUB -->
             <intent-filter>
