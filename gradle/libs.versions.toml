@@ -29,7 +29,7 @@ room = "2.8.4"
 datastore = "1.2.0"
 
 # Networking
-retrofit = "2.11.0"
+retrofit = "3.0.0"
 okhttp = "5.2.1"
 
 # Media
@@ -42,7 +42,7 @@ okhttp = "5.2.1"
   retrofit-serialization = "1.0.0"
   jellyfin = "1.8.3"
   jcifs = "2.1.10"
-  commons-compress = "1.27.1"
+  commons-compress = "1.28.0"
   xz = "1.10"
   kotlin-csv = "1.10.0"
   customactivityoncrash = "2.4.0"
@@ -60,12 +60,12 @@ okhttp = "5.2.1"
  mockito-kotlin = "5.4.0"
  arch-core-testing = "2.2.0"
  truth = "1.4.4"
- mockk = "1.13.13"
+ mockk = "1.14.6"
  robolectric = "4.14.1"
     
     # Document Parsing Libraries
     apache-poi = "5.5.0"
-    apache-tika = "2.9.1"
+    apache-tika = "3.2.3"
     lib-mobi = "1.0.3"
 
 # Readium Toolkit - Modern EPUB/PDF/Audiobook/OPDS library
