@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -51,7 +53,7 @@ import java.util.Locale
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -72,13 +74,17 @@ import java.util.Locale
                 CurrentPlayingItem(
                     item = item,
                     playbackState = playbackState,
+                    shuffleEnabled = currentQueue?.shuffleEnabled ?: false,
+                    repeatMode = currentQueue?.repeatMode ?: "NONE",
                     onPlayPause = viewModel::togglePlayPause,
                     onSkipNext = viewModel::skipToNext,
                     onSkipPrevious = viewModel::skipToPrevious,
                     onSeek = viewModel::seekTo,
                     onSpeedChange = viewModel::setPlaybackSpeed,
                     onThumbsUp = { viewModel.likeCurrentTrack() },
-                    onAddToPlaylist = { showPlaylistDialog = true }
+                    onAddToPlaylist = { showPlaylistDialog = true },
+                    onToggleShuffle = viewModel::toggleShuffle,
+                    onToggleRepeat = viewModel::toggleRepeatMode
                 )
             }
 
@@ -115,13 +121,17 @@ import java.util.Locale
 private fun CurrentPlayingItem(
     item: QueueItem,
     playbackState: UnifiedPlaybackState,
+    shuffleEnabled: Boolean,
+    repeatMode: String,
     onPlayPause: () -> Unit,
     onSkipNext: () -> Unit,
     onSkipPrevious: () -> Unit,
     onSeek: (Long) -> Unit,
     onSpeedChange: (Float) -> Unit,
     onThumbsUp: () -> Unit,
-    onAddToPlaylist: () -> Unit
+    onAddToPlaylist: () -> Unit,
+    onToggleShuffle: () -> Unit,
+    onToggleRepeat: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -196,23 +206,14 @@ private fun CurrentPlayingItem(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Playback controls
+            // Primary Controls (Play, Pause, Skip)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onThumbsUp) {
-                    Icon(
-                        Icons.Default.ThumbUp,
-                        contentDescription = "Like",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                // Shuffle/Repeat would need to be added to viewModel interface
-                
                 IconButton(onClick = onSkipPrevious) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Previous")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous")
                 }
 
                 FloatingActionButton(
@@ -226,8 +227,45 @@ private fun CurrentPlayingItem(
                 }
 
                 IconButton(onClick = onSkipNext) {
-                    Icon(Icons.Default.ArrowForward, contentDescription = "Next")
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next")
                 }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Secondary Controls (Shuffle, Repeat, Like, Playlist)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                 IconButton(onClick = onToggleShuffle) {
+                    Icon(
+                        Icons.Default.Shuffle,
+                        contentDescription = "Shuffle",
+                        tint = if (shuffleEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                IconButton(onClick = onToggleRepeat) {
+                    Icon(
+                        when (repeatMode) {
+                            "ONE" -> Icons.Default.RepeatOne
+                            else -> Icons.Default.Repeat
+                        },
+                        contentDescription = "Repeat",
+                        tint = if (repeatMode != "NONE") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                IconButton(onClick = onThumbsUp) {
+                    Icon(
+                        Icons.Default.ThumbUp,
+                        contentDescription = "Like",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
                 IconButton(onClick = onAddToPlaylist) {
                     Icon(
                         Icons.Default.PlaylistAdd,
@@ -449,7 +487,7 @@ private fun PlaylistSelectionDialog(
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
-                                        text = "${playlist.itemCount} items",
+                                        text = playlist.description ?: "Playlist",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )

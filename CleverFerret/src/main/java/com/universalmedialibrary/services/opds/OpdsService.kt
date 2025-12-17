@@ -12,7 +12,7 @@ import javax.inject.Singleton
  * of electronic publications.
  */
 @Singleton
-class OpdsService @Inject constructor() {
+class OpdsFeedGenerator @Inject constructor() {
     
     /**
      * Generate root catalog feed
@@ -103,7 +103,7 @@ class OpdsService @Inject constructor() {
             .replace("&", "&amp;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
-            .replace("&quot;", "&quot;")
+            .replace("\"", "&quot;")
             .replace("'", "&apos;")
     }
     

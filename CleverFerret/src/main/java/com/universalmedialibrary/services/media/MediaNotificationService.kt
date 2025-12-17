@@ -38,11 +38,8 @@ class MediaNotificationService : MediaSessionService() {
 
         fun start(context: Context) {
             val intent = Intent(context, MediaNotificationService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            // minSdk is 26 (Android 8.0+), always use startForegroundService
+            context.startForegroundService(intent)
         }
 
         fun stop(context: Context) {
@@ -132,6 +129,7 @@ class MediaNotificationService : MediaSessionService() {
                 .setNotificationListener(notificationListener)
                 .build().apply {
                     setMediaSessionToken(session.platformToken)
+                    setUsePlayPauseActions(true)
                     setUseNextAction(true)
                     setUsePreviousAction(true)
                     setUseFastForwardAction(true)
@@ -144,7 +142,6 @@ class MediaNotificationService : MediaSessionService() {
     }
 
     private fun ensureNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val notificationManager = getSystemService(NotificationManager::class.java)
         val existing = notificationManager.getNotificationChannel(CHANNEL_ID)
         if (existing == null) {
@@ -162,12 +159,9 @@ class MediaNotificationService : MediaSessionService() {
     }
 
     private fun stopForegroundCompat(removeNotification: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val flag = if (removeNotification) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH
-            stopForeground(flag)
-        } else {
-            stopForeground(removeNotification)
-        }
+        // minSdk is 26 (Android 8.0+), which is > N (24), always use the new API
+        val flag = if (removeNotification) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH
+        stopForeground(flag)
     }
 
     private inner class MediaDescriptionAdapter : PlayerNotificationManager.MediaDescriptionAdapter {

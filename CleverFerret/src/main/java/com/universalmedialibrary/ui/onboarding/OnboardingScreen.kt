@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -255,7 +256,7 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
         OnboardingPageData(
             title = "Moon Reader-Level E-Reader",
             description = "Read EPUB, PDF, and comics with full customization.",
-            icon = Icons.Default.MenuBook,
+            icon = Icons.AutoMirrored.Filled.MenuBook,
             color = Color(0xFF4CAF50),
             features = listOf(
                 "EPUB, PDF, CBZ, CBR support",

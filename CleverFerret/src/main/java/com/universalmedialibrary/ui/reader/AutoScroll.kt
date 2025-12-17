@@ -4,6 +4,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -177,7 +178,7 @@ fun AutoScrollControl(
                         imageVector = when (state) {
                             AutoScrollState.SCROLLING -> Icons.Default.PlayArrow
                             AutoScrollState.PAUSED -> Icons.Default.Pause
-                            AutoScrollState.ACCELERATING -> Icons.Default.TrendingUp
+                            AutoScrollState.ACCELERATING -> Icons.AutoMirrored.Filled.TrendingUp
                             AutoScrollState.CHAPTER_END_PAUSE -> Icons.Default.HourglassEmpty
                             else -> Icons.Default.Stop
                         },

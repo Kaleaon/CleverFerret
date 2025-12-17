@@ -8,6 +8,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -44,7 +47,7 @@ fun FanfictionDownloaderScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -74,7 +77,7 @@ fun FanfictionDownloaderScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(
-                            Icons.Default.MenuBook,
+                            Icons.AutoMirrored.Filled.MenuBook,
                             contentDescription = null,
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary
@@ -209,7 +212,7 @@ fun FanfictionDownloaderScreen(
                                     )
                                 }
 
-                                Divider()
+                                HorizontalDivider()
 
                                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                     InfoRow("Title", result.title)
@@ -358,7 +361,7 @@ fun FanfictionDownloaderScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                Icons.Default.LibraryBooks,
+                                Icons.AutoMirrored.Filled.LibraryBooks,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier.size(32.dp)
@@ -382,7 +385,7 @@ fun FanfictionDownloaderScreen(
                             onClick = { navController.navigate("webfiction_manager") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.LibraryBooks, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Open Web Fiction Manager")
                         }

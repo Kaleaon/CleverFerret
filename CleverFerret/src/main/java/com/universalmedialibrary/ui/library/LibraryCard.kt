@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
- * Data class representing a library with Plex-inspired design
+ * Data class representing a library with media-centric design
  */
 data class LibraryItem(
     val id: Int,
@@ -39,7 +39,7 @@ enum class LibraryType {
 
 /**
  * A visually rich card component for displaying a single media library,
- * converted from React LibraryCard component with Plex-inspired design.
+ * converted from React LibraryCard component with media-centric design.
  */
 @Composable
 fun LibraryCard(
@@ -65,28 +65,25 @@ fun LibraryCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(280.dp)
-            .scale(scale)
+            .height(220.dp)
             .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = elevation.dp),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1F2326)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         border = BorderStroke(
             1.dp,
-            if (isHovered) Color(0xFFE5A00D) else Color(0xFF2D3136)
+            MaterialTheme.colorScheme.outlineVariant
         )
     ) {
         Column {
-            // Header with gradient background
+            // Header with solid background
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
-                    .background(
-                        brush = getLibraryGradient(library.type)
-                    ),
+                    .height(120.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 // Library type icon
@@ -94,7 +91,7 @@ fun LibraryCard(
                     imageVector = getLibraryIcon(library.type),
                     contentDescription = "${library.type} library",
                     modifier = Modifier.size(40.dp),
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 // Item count chip
@@ -103,15 +100,15 @@ fun LibraryCard(
                         .align(Alignment.TopEnd)
                         .padding(12.dp)
                         .background(
-                            Color.Black.copy(alpha = 0.7f),
-                            RoundedCornerShape(16.dp)
+                            MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
+                            RoundedCornerShape(4.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "${library.itemCount} items",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -121,8 +118,8 @@ fun LibraryCard(
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .padding(12.dp)
-                            .size(12.dp)
-                            .background(Color.Green, CircleShape)
+                            .size(8.dp)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape)
                     )
                 }
             }
@@ -136,66 +133,24 @@ fun LibraryCard(
                 Text(
                     text = library.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "${library.type.name.lowercase()} library",
+                    text = "${library.type.name.lowercase().capitalize()} library",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFB3B3B3)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = library.lastSyncTime,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color(0xFF90A4AE)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
     }
 }
 
-/**
- * Get the appropriate gradient for each library type
- */
-private fun getLibraryGradient(type: LibraryType): Brush {
-    return when (type) {
-        LibraryType.BOOK -> Brush.linearGradient(
-            colors = listOf(Color(0xFF2C5F2D), Color(0xFF97BC62)),
-            start = Offset(0f, 0f),
-            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-        )
-        LibraryType.MOVIE -> Brush.linearGradient(
-            colors = listOf(Color(0xFF1565C0), Color(0xFF42A5F5)),
-            start = Offset(0f, 0f),
-            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-        )
-        LibraryType.MUSIC -> Brush.linearGradient(
-            colors = listOf(Color(0xFF7B1FA2), Color(0xFFBA68C8)),
-            start = Offset(0f, 0f),
-            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-        )
-        LibraryType.PODCAST -> Brush.linearGradient(
-            colors = listOf(Color(0xFFEF6C00), Color(0xFFFFB74D)),
-            start = Offset(0f, 0f),
-            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-        )
-        LibraryType.MAGAZINE -> Brush.linearGradient(
-            colors = listOf(Color(0xFFD32F2F), Color(0xFFF48FB1)),
-            start = Offset(0f, 0f),
-            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-        )
-        LibraryType.DOCUMENT -> Brush.linearGradient(
-            colors = listOf(Color(0xFF455A64), Color(0xFF90A4AE)),
-            start = Offset(0f, 0f),
-            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-        )
-    }
+private fun String.capitalize(): String {
+    return this.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 }
 
 /**

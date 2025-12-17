@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 /**
- * Plex-Inspired Media Grid Component
+ * Media-Centric Media Grid Component
  * 
  * Beautiful grid layout for displaying media items with
  * poster images, progress indicators, and metadata.

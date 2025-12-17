@@ -108,6 +108,7 @@ class MusicRepository @Inject constructor(
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.ALBUM_ARTIST,
             MediaStore.Audio.Media.YEAR,
             MediaStore.Audio.Media.DURATION,
@@ -139,6 +140,7 @@ class MusicRepository @Inject constructor(
             val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
             val albumCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
             val albumArtistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
+            val albumIdCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
             val genreCol = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
             } else {
@@ -160,6 +162,7 @@ class MusicRepository @Inject constructor(
                 val artist = cursor.getString(artistCol)
                 val album = cursor.getString(albumCol)
                 val albumArtist = if (albumArtistCol >= 0) cursor.getString(albumArtistCol) else null
+                val albumId = if (albumIdCol >= 0) cursor.getLong(albumIdCol) else null
                 val genre = if (genreCol >= 0) cursor.getString(genreCol) else null
                 val year = if (yearCol >= 0) cursor.getInt(yearCol) else null
                 val duration = cursor.getLong(durationCol)
@@ -186,6 +189,7 @@ class MusicRepository @Inject constructor(
                         title = title,
                         artist = artist,
                         album = album,
+                        albumId = albumId,
                         albumArtist = albumArtist,
                         genre = genre,
                         year = year,
@@ -220,14 +224,14 @@ class MusicRepository @Inject constructor(
                         ?: albumTracks.firstOrNull()?.artist 
                         ?: "Unknown Artist"
                     
-                    Album(
-                        name = albumName ?: "Unknown Album",
-                        artist = artist,
-                        trackCount = albumTracks.size,
-                        year = albumTracks.mapNotNull { it.year }.maxOrNull(),
-                        tracks = sortedTracks,
-                        artworkUri = sortedTracks.firstOrNull()?.uri
-                    )
+                      Album(
+                          name = albumName ?: "Unknown Album",
+                          artist = artist,
+                          trackCount = albumTracks.size,
+                          year = albumTracks.mapNotNull { it.year }.maxOrNull(),
+                          tracks = sortedTracks,
+                          artworkUri = sortedTracks.firstOrNull()?.albumArtUri
+                      )
                 }
                 .sortedBy { it.name }
         } catch (e: Exception) {

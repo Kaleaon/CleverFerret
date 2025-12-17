@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,7 +32,7 @@ fun ThemeShowcaseScreen(
                 title = { Text("Theme Gallery") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -78,7 +79,7 @@ fun ThemeShowcaseScreen(
                             InfoRow("Description", config.description)
                             
                             if (currentTheme.isAncientArchitect()) {
-                                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                                 Text(
                                     text = "Special Features",
                                     style = MaterialTheme.typography.titleSmall

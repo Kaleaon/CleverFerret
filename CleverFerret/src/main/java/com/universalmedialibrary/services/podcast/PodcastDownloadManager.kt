@@ -14,11 +14,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
+import com.universalmedialibrary.utils.FileNameSanitizer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,7 +31,8 @@ import javax.inject.Singleton
 @Singleton
 class PodcastDownloadManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val episodeDao: PodcastEpisodeDao
+    private val episodeDao: PodcastEpisodeDao,
+    private val fileNameSanitizer: FileNameSanitizer
 ) {
     private val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -108,8 +111,7 @@ class PodcastDownloadManager @Inject constructor(
      * Cancel a download
      */
     fun cancelDownload(episodeId: Long) {
-        val downloadId = activeDownloads.entries.find { it.value == episodeId }?.key
-        if (downloadId != null) {
+        activeDownloads.entries.find { it.value == episodeId }?.key?.let { downloadId ->
             downloadManager.remove(downloadId)
             activeDownloads.remove(downloadId)
             _downloadProgress.value = _downloadProgress.value - episodeId
@@ -130,42 +132,44 @@ class PodcastDownloadManager @Inject constructor(
             while (!isComplete && activeDownloads.containsKey(downloadId)) {
                 val query = DownloadManager.Query().setFilterById(downloadId)
                 val cursor = downloadManager.query(query)
+                
+                try {
+                    if (cursor.moveToFirst()) {
+                        val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                        val bytesDownloadedIndex = cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                        val bytesTotalIndex = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
 
-                if (cursor.moveToFirst()) {
-                    val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-                    val bytesDownloadedIndex = cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
-                    val bytesTotalIndex = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                        val status = cursor.getInt(statusIndex)
+                        val bytesDownloaded = cursor.getLong(bytesDownloadedIndex)
+                        val bytesTotal = cursor.getLong(bytesTotalIndex)
 
-                    val status = cursor.getInt(statusIndex)
-                    val bytesDownloaded = cursor.getLong(bytesDownloadedIndex)
-                    val bytesTotal = cursor.getLong(bytesTotalIndex)
+                        val progress = if (bytesTotal > 0) {
+                            bytesDownloaded.toFloat() / bytesTotal.toFloat()
+                        } else {
+                            0f
+                        }
 
-                    val progress = if (bytesTotal > 0) {
-                        bytesDownloaded.toFloat() / bytesTotal.toFloat()
-                    } else {
-                        0f
+                        when (status) {
+                            DownloadManager.STATUS_RUNNING -> {
+                                _downloadProgress.value = _downloadProgress.value +
+                                    (episodeId to DownloadStatus.Downloading(progress))
+                            }
+                            DownloadManager.STATUS_SUCCESSFUL -> {
+                                isComplete = true
+                                _downloadProgress.value = _downloadProgress.value +
+                                    (episodeId to DownloadStatus.Completed)
+                            }
+                            DownloadManager.STATUS_FAILED -> {
+                                isComplete = true
+                                _downloadProgress.value = _downloadProgress.value +
+                                    (episodeId to DownloadStatus.Failed)
+                                activeDownloads.remove(downloadId)
+                            }
+                        }
                     }
-
-                    when (status) {
-                        DownloadManager.STATUS_RUNNING -> {
-                            _downloadProgress.value = _downloadProgress.value +
-                                (episodeId to DownloadStatus.Downloading(progress))
-                        }
-                        DownloadManager.STATUS_SUCCESSFUL -> {
-                            isComplete = true
-                            _downloadProgress.value = _downloadProgress.value +
-                                (episodeId to DownloadStatus.Completed)
-                        }
-                        DownloadManager.STATUS_FAILED -> {
-                            isComplete = true
-                            _downloadProgress.value = _downloadProgress.value +
-                                (episodeId to DownloadStatus.Failed)
-                            activeDownloads.remove(downloadId)
-                        }
-                    }
+                } finally {
+                    cursor.close()
                 }
-
-                cursor.close()
 
                 if (!isComplete) {
                     kotlinx.coroutines.delay(1000) // Update every second
@@ -182,26 +186,28 @@ class PodcastDownloadManager @Inject constructor(
             val query = DownloadManager.Query().setFilterById(downloadId)
             val cursor = downloadManager.query(query)
 
-            if (cursor.moveToFirst()) {
-                val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
-                val localUri = cursor.getString(uriIndex)
+            try {
+                if (cursor.moveToFirst()) {
+                    val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                    val localUri = cursor.getString(uriIndex)
 
-                // Update episode in database
-                episodeDao.updateDownloadStatus(
-                    id = episodeId,
-                    downloaded = true,
-                    filePath = localUri,
-                    timestamp = System.currentTimeMillis()
-                )
+                    // Update episode in database
+                    episodeDao.updateDownloadStatus(
+                        id = episodeId,
+                        downloaded = true,
+                        filePath = localUri,
+                        timestamp = System.currentTimeMillis()
+                    )
+                }
+            } finally {
+                cursor.close()
+                activeDownloads.remove(downloadId)
             }
-
-            cursor.close()
-            activeDownloads.remove(downloadId)
         }
     }
 
     private fun sanitizeFileName(name: String): String {
-        return name.replace(Regex("[^a-zA-Z0-9.-]"), "_").take(100)
+        return fileNameSanitizer.sanitizeFileName(name)
     }
 
     private fun getFileExtension(url: String): String {
@@ -225,6 +231,8 @@ class PodcastDownloadManager @Inject constructor(
         } catch (e: Exception) {
             // Already unregistered
         }
+        // Cancel coroutine scope to prevent memory leaks
+        scope.cancel()
     }
 }
 

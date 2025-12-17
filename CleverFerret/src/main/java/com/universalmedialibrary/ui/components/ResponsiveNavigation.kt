@@ -28,20 +28,29 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Sell
-import androidx.compose.material3.Divider
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.NavigationBarDefaults
@@ -52,14 +61,17 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -80,6 +92,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import com.universalmedialibrary.ui.theme.LocalIsAncientArchitect
 
 /**
  * Represents a navigation item for bottom navigation, navigation rail, and drawer destinations.
@@ -90,7 +103,8 @@ data class NavigationItem(
     val icon: @Composable () -> Unit,
     val selectedIcon: @Composable () -> Unit = icon,
     val routeMatch: String? = null,
-    val showInBottomNav: Boolean = true
+    val showInBottomNav: Boolean = true,
+    val preferenceId: String = route
 )
 
 /**
@@ -184,7 +198,7 @@ object NavigationItems {
         NavigationItem(
             route = "story_manager",
             label = "Story Manager",
-            icon = { Icon(Icons.Filled.List, contentDescription = "Story Manager") },
+            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Story Manager") },
             showInBottomNav = false
         ),
         NavigationItem(
@@ -203,6 +217,30 @@ object NavigationItems {
             route = "collections",
             label = "Collections",
             icon = { Icon(PhosphorIcons.Stack, contentDescription = "Collections") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "fanfiction_download",
+            label = "Downloads",
+            icon = { Icon(Icons.Filled.Download, contentDescription = "Downloads") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "storage_browser",
+            label = "Storage",
+            icon = { Icon(Icons.Filled.Storage, contentDescription = "Storage") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "opds_catalog",
+            label = "OPDS",
+            icon = { Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "OPDS") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "reading_statistics",
+            label = "Statistics",
+            icon = { Icon(Icons.Filled.BarChart, contentDescription = "Statistics") },
             showInBottomNav = false
         ),
         NavigationItem(
@@ -228,6 +266,9 @@ object NavigationItems {
 
     val bottomNavItems: List<NavigationItem> = items.filter { it.showInBottomNav }
     val settingsItem: NavigationItem = items.first { it.route == "settings" }
+    
+    /** All navigation items available for drawer, including those hidden from bottom bar */
+    val drawerItems: List<NavigationItem> = items
 }
 
 /**
@@ -266,31 +307,56 @@ fun BottomNavigationBar(navController: NavController) {
 fun NavigationRailBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    val isAncientArchitect = LocalIsAncientArchitect.current
 
-    NavigationRail(modifier = Modifier.fillMaxHeight()) {
-        NavigationItems.items.forEach { item ->
-            val selected = currentDestination.isDestinationSelected(item)
-            NavigationRailItem(
-                icon = { if (selected) item.selectedIcon() else item.icon() },
-                label = { Text(item.label) },
-                selected = selected,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+    if (isAncientArchitect) {
+        AncientArchitectNavigationRail(modifier = Modifier.fillMaxHeight()) {
+            NavigationItems.items.forEach { item ->
+                val selected = currentDestination.isDestinationSelected(item)
+                AncientArchitectNavigationRailItem(
+                    selected = selected,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
+                    },
+                    icon = { if (selected) item.selectedIcon() else item.icon() },
+                    label = { Text(item.label) }
+                )
+            }
+        }
+    } else {
+        NavigationRail(modifier = Modifier.fillMaxHeight()) {
+            NavigationItems.items.forEach { item ->
+                val selected = currentDestination.isDestinationSelected(item)
+                NavigationRailItem(
+                    icon = { if (selected) item.selectedIcon() else item.icon() },
+                    label = { Text(item.label) },
+                    selected = selected,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
 
 /**
  * High-level scaffold that adapts navigation chrome between bottom bar and drawer/rail combos.
+ * Now includes a navigation drawer accessible via hamburger menu in the top-left corner.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResponsiveNavigationScaffold(
     navController: NavController,
@@ -302,6 +368,7 @@ fun ResponsiveNavigationScaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
+    debugButton: @Composable (() -> Unit)? = null,
     mediaControlsState: MediaControlsState? = null,
     miniPlayerBackgroundMode: MiniPlayerBackgroundMode = MiniPlayerBackgroundMode.THEME,
     mediaControlActions: MediaControlActions = MediaControlActions(),
@@ -309,33 +376,73 @@ fun ResponsiveNavigationScaffold(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Scaffold(
-            topBar = topBar,
-            floatingActionButton = floatingActionButton,
-            bottomBar = {
-                AnimatedVisibility(
-                    visible = bottomBarVisible,
-                    enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
-                    exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
-                ) {
-                    BottomBarWithMediaControls(
-                        navController = navController,
-                        items = bottomNavItems,
-                        settingsItem = settingsItem,
-                        gearPosition = gearPosition,
-                        currentDestination = currentDestination,
-                        mediaControlsState = mediaControlsState,
-                        miniPlayerBackgroundMode = miniPlayerBackgroundMode,
-                        mediaControlActions = mediaControlActions
-                    )
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            NavigationDrawerContent(
+                navController = navController,
+                navigationItems = NavigationItems.drawerItems,
+                onItemClick = {
+                    scope.launch { drawerState.close() }
                 }
-            },
-            content = content
-        )
+            )
+        }
+    ) {
+        Box(
+            modifier = modifier.fillMaxSize()
+        ) {
+            Scaffold(
+                topBar = topBar,
+                floatingActionButton = floatingActionButton,
+                bottomBar = {
+                    AnimatedVisibility(
+                        visible = bottomBarVisible,
+                        enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                        exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
+                    ) {
+                        BottomBarWithMediaControls(
+                            navController = navController,
+                            items = bottomNavItems,
+                            settingsItem = settingsItem,
+                            gearPosition = gearPosition,
+                            currentDestination = currentDestination,
+                            mediaControlsState = mediaControlsState,
+                            miniPlayerBackgroundMode = miniPlayerBackgroundMode,
+                            mediaControlActions = mediaControlActions,
+                            debugButton = debugButton
+                        )
+                    }
+                },
+                content = content
+            )
+            
+            // Hamburger menu button in top-left corner
+            IconButton(
+                onClick = { scope.launch { drawerState.open() } },
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 8.dp, top = 8.dp)
+                    .size(48.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    tonalElevation = 4.dp,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "Open navigation menu",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -348,7 +455,8 @@ private fun BottomBarWithMediaControls(
     currentDestination: NavDestination?,
     mediaControlsState: MediaControlsState?,
     miniPlayerBackgroundMode: MiniPlayerBackgroundMode,
-    mediaControlActions: MediaControlActions
+    mediaControlActions: MediaControlActions,
+    debugButton: @Composable (() -> Unit)? = null
 ) {
     var controlsExpanded by rememberSaveable { mutableStateOf(false) }
     val controlsAvailable = mediaControlsState?.isVisible == true
@@ -446,6 +554,7 @@ private fun BottomBarWithMediaControls(
             settingsItem = settingsItem,
             gearPosition = gearPosition,
             currentDestination = currentDestination,
+            debugButton = debugButton,
             modifier = bottomBarModifier
         )
     }
@@ -458,6 +567,7 @@ private fun ScrollableBottomBar(
     settingsItem: NavigationItem,
     gearPosition: BottomGearPosition,
     currentDestination: NavDestination?,
+    debugButton: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -476,6 +586,9 @@ private fun ScrollableBottomBar(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Debug button on the left side (if provided)
+            debugButton?.invoke()
+            
             if (gearPosition == BottomGearPosition.LEFT) {
                 ScrollableNavigationBarEntry(
                     navController = navController,
@@ -608,36 +721,49 @@ private fun ScrollableNavigationBarEntry(
 fun NavigationDrawerContent(
     navController: NavController,
     navigationItems: List<NavigationItem>,
-    settingsItem: NavigationItem = NavigationItems.settingsItem,
     onItemClick: () -> Unit = {}
 ) {
-    ModalDrawerSheet {
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = "CleverFerret",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp)
-        )
-        Divider()
-        Spacer(Modifier.height(8.dp))
-
-        (navigationItems + settingsItem).forEach { item ->
-            val selected = currentRouteMatches(navController, item)
-            NavigationDrawerItem(
-                icon = { if (selected) item.selectedIcon() else item.icon() },
-                label = { Text(item.label) },
-                selected = selected,
-                onClick = {
-                    onItemClick()
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
+    val scrollState = rememberScrollState()
+    
+    ModalDrawerSheet(
+        modifier = Modifier.width(280.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .verticalScroll(scrollState)
+        ) {
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "CleverFerret",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(16.dp),
+                color = MaterialTheme.colorScheme.primary
             )
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+            Spacer(Modifier.height(8.dp))
+
+            navigationItems.forEach { item ->
+                val selected = currentRouteMatches(navController, item)
+                NavigationDrawerItem(
+                    icon = { if (selected) item.selectedIcon() else item.icon() },
+                    label = { Text(item.label) },
+                    selected = selected,
+                    onClick = {
+                        onItemClick()
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

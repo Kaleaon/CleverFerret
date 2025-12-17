@@ -255,7 +255,7 @@ class PlexIntegrationService @Inject constructor(
 
             _plexState.value = _plexState.value.copy(isAnalyzingDuplicates = true)
 
-            val allItems = mutableListOf<PlexMediaItem>()
+            val allItems = mutableListOf<MediaItem>()
 
             // Collect all media items from all libraries
             for (library in connection.libraries) {
@@ -437,7 +437,7 @@ class PlexIntegrationService @Inject constructor(
     }
 
     // Private helper methods
-    private suspend fun enhanceItemMetadata(api: PlexApi, item: PlexMediaItem): ItemEnhancementResult {
+    private suspend fun enhanceItemMetadata(api: PlexApi, item: MediaItem): ItemEnhancementResult {
         return try {
             // Use CleverFerret's AI to analyze and improve metadata
             // This would involve analyzing the item's current metadata and suggesting improvements
@@ -462,7 +462,7 @@ class PlexIntegrationService @Inject constructor(
         }
     }
 
-    private fun findDuplicateGroups(items: List<PlexMediaItem>): List<DuplicateGroup> {
+    private fun findDuplicateGroups(items: List<MediaItem>): List<DuplicateGroup> {
         val duplicateGroups = mutableListOf<DuplicateGroup>()
 
         // Group by title similarity
@@ -483,7 +483,7 @@ class PlexIntegrationService @Inject constructor(
         return duplicateGroups
     }
 
-    private suspend fun createThemeBasedCollections(items: List<PlexMediaItem>): List<SmartCollection> {
+    private suspend fun createThemeBasedCollections(items: List<MediaItem>): List<SmartCollection> {
         // This would use AI analysis to create theme-based collections
         // For now, return empty list as a placeholder
         return emptyList()
@@ -569,7 +569,7 @@ data class ItemEnhancementResult(
 data class DuplicateGroupLocal(
     val id: String,
     val title: String,
-    val items: List<PlexMediaItem>,
+    val items: List<MediaItem>,
     val similarity: Float,
     val reason: String
 )

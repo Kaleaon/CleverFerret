@@ -11,6 +11,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -93,7 +97,7 @@ fun TopReaderControls(
         ) {
             IconButton(onClick = onBack) {
                 Icon(
-                    Icons.Default.ArrowBack,
+                    Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)
@@ -237,7 +241,7 @@ fun BottomReaderControls(
                     enabled = canGoPrevious
                 ) {
                     Icon(
-                        Icons.Default.NavigateBefore,
+                        Icons.AutoMirrored.Filled.NavigateBefore,
                         contentDescription = "Previous Page",
                         tint = if (canGoPrevious) Color.White else Color.White.copy(alpha = 0.3f),
                         modifier = Modifier.size(32.dp)
@@ -261,7 +265,7 @@ fun BottomReaderControls(
                     enabled = canGoNext
                 ) {
                     Icon(
-                        Icons.Default.NavigateNext,
+                        Icons.AutoMirrored.Filled.NavigateNext,
                         contentDescription = "Next Page",
                         tint = if (canGoNext) Color.White else Color.White.copy(alpha = 0.3f),
                         modifier = Modifier.size(32.dp)
@@ -1018,7 +1022,7 @@ fun TableOfContentsSheet(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                Icons.Default.MenuBook,
+                                Icons.AutoMirrored.Filled.MenuBook,
                                 contentDescription = null,
                                 modifier = Modifier.size(48.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)

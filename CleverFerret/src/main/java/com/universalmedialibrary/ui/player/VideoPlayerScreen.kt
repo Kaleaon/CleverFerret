@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,7 +28,7 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 
 /**
- * Enhanced Video player screen using ExoPlayer with Plex-inspired UI
+ * Enhanced Video player screen using ExoPlayer with media-centric UI
  */
 @OptIn(ExperimentalMaterial3Api::class, UnstableApi::class)
 @Composable
@@ -378,7 +379,7 @@ fun VideoPlayerScreen(
                             ) {
                                 IconButton(onClick = { volume = if (volume > 0) 0f else 0.8f }) {
                                     Icon(
-                                        imageVector = if (volume > 0) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
+                                        imageVector = if (volume > 0) Icons.AutoMirrored.Filled.VolumeUp else Icons.Default.VolumeOff,
                                         contentDescription = "Volume",
                                         tint = Color.White,
                                         modifier = Modifier.size(20.dp)

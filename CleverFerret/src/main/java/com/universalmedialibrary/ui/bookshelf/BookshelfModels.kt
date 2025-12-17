@@ -3,6 +3,8 @@ package com.universalmedialibrary.ui.bookshelf
 import android.graphics.Bitmap
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -36,7 +38,7 @@ enum class SortOption(val displayName: String, val icon: ImageVector) {
     RATING_LOW("Rating (Low)", Icons.Default.Star),
     RATING("Rating", Icons.Default.Star),
     RECENTLY_READ("Recently Read", Icons.Default.History),
-    PROGRESS("Progress", Icons.Default.TrendingUp),
+    PROGRESS("Progress", Icons.AutoMirrored.Filled.TrendingUp),
     FILE_SIZE("File Size", Icons.Default.Storage);
 
     companion object {

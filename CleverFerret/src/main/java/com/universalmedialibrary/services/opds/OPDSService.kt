@@ -15,7 +15,7 @@ import javax.inject.Singleton
  * Default catalogs are seeded on first use to give new installations immediate access to free books.
  */
 @Singleton
-class OPDSService @Inject constructor(
+class OPDSCatalogService @Inject constructor(
     private val catalogDao: OPDSCatalogDao,
     private val opdsClient: OPDSClient
 ) {
@@ -116,6 +116,10 @@ class OPDSService @Inject constructor(
             val searchUrl = opdsClient.buildSearchUrl(catalog.searchUrl!!, query)
             opdsClient.fetchFeed(searchUrl)
         }
+    }
+
+    suspend fun fetchUrl(url: String): OPDSFeed = withContext(Dispatchers.IO) {
+        opdsClient.fetchFeed(url)
     }
 
     fun getAllCatalogs(): Flow<List<OPDSCatalog>> {

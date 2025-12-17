@@ -111,7 +111,8 @@ export const PodcastManagerScreen: React.FC = () => {
       setFeedUrl('');
       loadPodcasts();
     } catch (err) {
-      console.error('Failed to subscribe:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('PodcastManager', 'Failed to subscribe', undefined, err as Error);
     }
   };
 

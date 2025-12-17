@@ -162,13 +162,13 @@ internal object SaavnJsonMapper {
     }
 
     private fun JsonObject.string(key: String): String? =
-        this[key]?.jsonPrimitive?.contentOrNull
+        this[key]?.jsonPrimitive?.takeIf { !it.isString || it.content != "null" }?.content
 
     private fun JsonObject.int(key: String): Int? = this[key]?.let { element ->
         val primitive = element.jsonPrimitive
         primitive.intOrNull
             ?: primitive.doubleOrNull?.toInt()
-            ?: primitive.contentOrNull?.trim()?.let { value ->
+            ?: primitive.content.trim().let { value ->
                 value.toIntOrNull() ?: value.toDoubleOrNull()?.toInt()
             }
     }

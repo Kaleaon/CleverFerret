@@ -19,7 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
- * Main library list screen with Plex-inspired design.
+ * Main library list screen with media-centric design.
  * Converted from React LibraryListScreen component.
  * Now integrated with Room database via ViewModel.
  */
@@ -46,7 +46,7 @@ fun LibraryListScreen(
             .background(colorScheme.background)
     ) {
         Column {
-            // App Bar with Plex-inspired design
+            // App Bar with media-centric design
             TopAppBar(
                 title = {
                     Row(
@@ -165,7 +165,9 @@ fun LibraryListScreen(
                         columns = GridCells.Adaptive(minSize = 300.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f)
                     ) {
                         items(uiState.libraries) { libraryWithCount ->
                             LibraryCard(

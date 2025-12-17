@@ -95,12 +95,20 @@ fun MusicPlayerScreen(
                 },
                 actions = {
                     IconButton(onClick = onNavigateToQueue) {
-                        Badge(
-                            containerColor = MaterialTheme.colorScheme.primary
+                        BadgedBox(
+                            badge = {
+                                if (queue.isNotEmpty()) {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    ) {
+                                        Text("${queue.size}")
+                                    }
+                                }
+                            }
                         ) {
-                            Text("${queue.size}")
+                            Icon(PhosphorIcons.QueueMusic, contentDescription = "Queue")
                         }
-                        Icon(PhosphorIcons.QueueMusic, contentDescription = "Queue")
                     }
                     com.universalmedialibrary.ui.visualizer.VisualizerButton(
                         onClick = onNavigateToVisualizer
@@ -109,12 +117,18 @@ fun MusicPlayerScreen(
                     // Sleep timer indicator
                     if (sleepTimerState.isActive) {
                         IconButton(onClick = { showSleepTimerDialog = true }) {
-                            Badge(
-                                containerColor = MaterialTheme.colorScheme.primary
+                            BadgedBox(
+                                badge = {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    ) {
+                                        Text(sleepTimerState.minutesRemaining.toString())
+                                    }
+                                }
                             ) {
-                                Text(sleepTimerState.minutesRemaining.toString())
+                                Icon(Icons.Default.Timer, contentDescription = "Sleep Timer Active")
                             }
-                            Icon(Icons.Default.Timer, contentDescription = "Sleep Timer Active")
                         }
                     }
                     

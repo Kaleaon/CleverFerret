@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,7 +51,7 @@ fun MidiPlayerScreen(
                 title = { Text(midiFile.title) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -275,7 +277,7 @@ private fun TrackItem(
                     imageVector = if (track.isMuted) {
                         Icons.Default.VolumeOff
                     } else {
-                        Icons.Default.VolumeUp
+                        Icons.AutoMirrored.Filled.VolumeUp
                     },
                     contentDescription = if (track.isMuted) "Unmute" else "Mute",
                     tint = if (track.isMuted) {

@@ -36,7 +36,7 @@ fun QueueScreen(
                         }
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
     }

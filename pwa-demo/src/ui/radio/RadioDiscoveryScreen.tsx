@@ -85,6 +85,7 @@ export const RadioDiscoveryScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [playingStationId, setPlayingStationId] = useState<string | null>(null);
   const [playError, setPlayError] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
   const audioRef = React.useRef<HTMLAudioElement>(null);
 
   // Popular tags/genres from Radio-Browser
@@ -125,7 +126,8 @@ export const RadioDiscoveryScreen: React.FC = () => {
         setError('No stations found. Try a different search term.');
       }
     } catch (err) {
-      console.error('Station search error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('RadioDiscovery', 'Station search error', undefined, err as Error);
       setError('Failed to search stations. Please try again.');
       setResults([]);
     } finally {
@@ -150,7 +152,8 @@ export const RadioDiscoveryScreen: React.FC = () => {
       const stations: RadioBrowserStation[] = await response.json();
       setResults(stations);
     } catch (err) {
-      console.error('Popular stations error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('RadioDiscovery', 'Popular stations error', undefined, err as Error);
       setError('Failed to load popular stations. Please try again.');
       setResults([]);
     } finally {
@@ -180,7 +183,8 @@ export const RadioDiscoveryScreen: React.FC = () => {
         setError(`No stations found for genre: ${genre}`);
       }
     } catch (err) {
-      console.error('Genre search error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('RadioDiscovery', 'Genre search error', undefined, err as Error);
       setError('Failed to load genre stations. Please try again.');
       setResults([]);
     } finally {
@@ -198,7 +202,10 @@ export const RadioDiscoveryScreen: React.FC = () => {
       if (audioRef.current) {
         try {
           // Register click with Radio-Browser API
-          fetch(`${RADIO_BROWSER_BASE_URL}/url/${station.stationuuid}`).catch((err) => console.debug('Failed to register click:', err));
+          fetch(`${RADIO_BROWSER_BASE_URL}/url/${station.stationuuid}`).catch(async (err) => {
+            const { logger } = await import('../../services/logging');
+            logger.debug('RadioDiscovery', 'Failed to register click', undefined, err as Error);
+          });
           
           audioRef.current.src = station.url_resolved;
           
@@ -233,7 +240,8 @@ export const RadioDiscoveryScreen: React.FC = () => {
           setPlayingStationId(station.stationuuid);
           setPlayError(null);
         } catch (err) {
-          console.error('Failed to play station:', err);
+          const { logger } = await import('../../services/logging');
+          logger.error('RadioDiscovery', 'Failed to play station', undefined, err as Error);
           const errorMsg = err instanceof Error && err.name === 'NotAllowedError'
             ? `Cannot play automatically. Please click the Play button again to start playback.`
             : `Failed to play stream: ${station.name}. The stream may not be available or blocked by your browser.`;
@@ -256,7 +264,7 @@ export const RadioDiscoveryScreen: React.FC = () => {
         .first();
       
       if (existing) {
-        alert('Station is already in your library!');
+        setSnackbar({ open: true, message: 'Station is already in your library!', severity: 'info' });
         return;
       }
 
@@ -279,10 +287,11 @@ export const RadioDiscoveryScreen: React.FC = () => {
         playCount: 0,
       } as any);
 
-      alert('Station added successfully!');
+      setSnackbar({ open: true, message: 'Station added successfully!', severity: 'success' });
     } catch (err) {
-      console.error('Add station error:', err);
-      alert(`Failed to add station: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const { logger } = await import('../../services/logging');
+      logger.error('RadioDiscovery', 'Add station error', undefined, err as Error);
+      setSnackbar({ open: true, message: `Failed to add station: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
     }
   };
 
@@ -487,6 +496,18 @@ export const RadioDiscoveryScreen: React.FC = () => {
           </Box>
         )}
       </Box>
+
+      {/* General Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
       {/* Play Error Snackbar */}
       <Snackbar

@@ -10,6 +10,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,7 +35,7 @@ import com.universalmedialibrary.services.webfiction.*
  * - Story browsing by tags
  * - Advanced filtering
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MetabodsTagBrowserScreen(
     navController: NavController,
@@ -52,7 +55,7 @@ fun MetabodsTagBrowserScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
                     actions = {
@@ -114,7 +117,7 @@ fun MetabodsTagBrowserScreen(
                     )
                 }
 
-                Divider()
+                HorizontalDivider()
 
                 // Browse/Search button
                 if (uiState.selectedTags.isNotEmpty()) {
@@ -288,6 +291,7 @@ private fun TagCategoriesSection(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TagCategoryCard(
     category: TagCategory,
@@ -497,13 +501,13 @@ private fun StoryResultCard(
             ) {
                 if (story.wordCount != null) {
                     MetadataChip(
-                        icon = Icons.Default.Article,
+                        icon = Icons.AutoMirrored.Filled.Article,
                         text = "${story.wordCount / 1000}k words"
                     )
                 }
                 if (story.chapterCount != null) {
                     MetadataChip(
-                        icon = Icons.Default.MenuBook,
+                        icon = Icons.AutoMirrored.Filled.MenuBook,
                         text = "${story.chapterCount} chapters"
                     )
                 }
@@ -609,20 +613,6 @@ private fun ErrorCard(error: String, onDismiss: () -> Unit) {
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun FlowRow(
-    modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    content: @Composable () -> Unit
-) {
-    // Simple flow row implementation
-    // In production, use ExperimentalLayoutApi FlowRow
-    Column(modifier = modifier, verticalArrangement = verticalArrangement) {
-        content()
     }
 }
 

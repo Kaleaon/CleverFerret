@@ -278,6 +278,11 @@ private fun getThemePreviewColors(theme: CleverFerretTheme): List<Color> {
             Color(0xFFE5E4E2),
             Color(0xFFF5F4F2)
         )
+        CleverFerretTheme.PAPER_INK -> listOf(
+            Color(0xFF2C2C2C),
+            Color(0xFFF0F0EB),
+            Color(0xFFFAF9F6)
+        )
         CleverFerretTheme.COPPER_BRONZE -> listOf(
             Color(0xFF1A1510),
             Color(0xFFB87333),

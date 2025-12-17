@@ -26,6 +26,7 @@ import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.*
 import com.universalmedialibrary.services.audio.WaveformGenerator
 import com.universalmedialibrary.utils.ErrorLogger
+import com.universalmedialibrary.utils.media.AudioMetadataUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.io.File
@@ -75,7 +76,7 @@ class MediaScannerService : Service() {
         private const val MIN_AUDIO_FILE_SIZE_BYTES = 256 * 1024L
 
         // Supported file extensions
-        val BOOK_EXTENSIONS = setOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx")
+        val BOOK_EXTENSIONS = setOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx", "djvu", "html", "htm")
         val AUDIO_EXTENSIONS = setOf("mp3", "m4a", "m4b", "aac", "ogg", "opus", "flac", "wav", "wma")
         val VIDEO_EXTENSIONS = setOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "mpg", "mpeg")
         val IMAGE_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "tiff")
@@ -233,7 +234,7 @@ class MediaScannerService : Service() {
                     val file = File(path)
                     if (file.exists()) {
                         if (file.length() < MIN_AUDIO_FILE_SIZE_BYTES || duration < MIN_AUDIO_DURATION_MS) {
-                            return@while
+                            continue
                         }
                         processMediaFile(file, "MUSIC")
                     }
@@ -609,7 +610,7 @@ class MediaScannerService : Service() {
             val composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER)
             val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
             val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toIntOrNull()
-            val sampleRate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)?.toIntOrNull()
+            val sampleRate = AudioMetadataUtils.extractSampleRate(file)
             val trackPair = parseNumberPair(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER))
             val discPair = parseNumberPair(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER))
             val totalTracks = trackPair.second
@@ -826,7 +827,7 @@ class MediaScannerService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        // minSdk is 26 (Android 8.0+), so notification channels are always available
         val channel = NotificationChannel(
             CHANNEL_ID,
             "Media Scanner",

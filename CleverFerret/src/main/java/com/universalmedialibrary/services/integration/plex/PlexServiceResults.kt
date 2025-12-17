@@ -34,7 +34,7 @@ data class PlexServerInfo(
 )
 
 data class DuplicateGroup(
-    val items: List<PlexMediaItem>,
+    val items: List<MediaItem>,
     val similarity: Float,
     val reason: String
 )

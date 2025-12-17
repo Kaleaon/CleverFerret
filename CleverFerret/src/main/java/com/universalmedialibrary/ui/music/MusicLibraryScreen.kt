@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -84,7 +85,7 @@ fun MusicLibraryScreen(
                         // Sort menu
                         Box {
                             IconButton(onClick = viewModel::toggleSortMenu) {
-                                Icon(Icons.Default.Sort, "Sort")
+                                Icon(Icons.AutoMirrored.Filled.Sort, "Sort")
                             }
                             
                             DropdownMenu(
@@ -119,14 +120,24 @@ fun MusicLibraryScreen(
                         // Filter menu
                         Box {
                             IconButton(onClick = viewModel::toggleFilterMenu) {
-                                Badge(
-                                    containerColor = if (state.selectedGenre != null || 
-                                        state.selectedArtist != null || 
-                                        state.selectedAlbum != null) 
-                                        MaterialTheme.colorScheme.primary 
-                                    else MaterialTheme.colorScheme.surfaceVariant
+                                val hasFilters = state.selectedGenre != null || 
+                                    state.selectedArtist != null || 
+                                    state.selectedAlbum != null
+                                    
+                                BadgedBox(
+                                    badge = {
+                                        if (hasFilters) {
+                                            Badge(
+                                                containerColor = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
                                 ) {
-                                    Icon(Icons.Default.FilterList, "Filter")
+                                    Icon(
+                                        Icons.Default.FilterList, 
+                                        contentDescription = "Filter",
+                                        tint = if (hasFilters) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                                    )
                                 }
                             }
                         }
@@ -322,6 +333,7 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
     when (state.viewMode) {
         MusicViewMode.GRID -> {
             LazyVerticalGrid(
+                modifier = Modifier.fillMaxSize(),
                 columns = GridCells.Adaptive(minSize = 160.dp),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -337,6 +349,7 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
         }
         MusicViewMode.LIST, MusicViewMode.COMPACT -> {
             LazyColumn(
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 160.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
@@ -358,6 +371,7 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
 @Composable
 private fun AlbumsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel, navController: androidx.navigation.NavController) {
     LazyVerticalGrid(
+        modifier = Modifier.fillMaxSize(),
         columns = GridCells.Adaptive(minSize = 160.dp),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -374,6 +388,7 @@ private fun AlbumsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMod
 @Composable
 private fun ArtistsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel, navController: androidx.navigation.NavController) {
     LazyColumn(
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -388,6 +403,7 @@ private fun ArtistsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMo
 @Composable
 private fun GenresTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel, navController: androidx.navigation.NavController) {
     LazyColumn(
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -753,14 +769,24 @@ private fun TrackGridItem(track: Track, onClick: () -> Unit) {
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
             ) {
-                Icon(
-                    Icons.Default.MusicNote,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                val albumArt = track.albumArtUri
+                if (albumArt != null) {
+                    AsyncImage(
+                        model = albumArt,
+                        contentDescription = "${track.displayAlbum} artwork",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.MusicNote,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
@@ -811,11 +837,21 @@ internal fun TrackListItem(track: Track, compact: Boolean = false, onClick: () -
                 shape = RoundedCornerShape(4.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant
             ) {
-                Icon(
-                    Icons.Default.MusicNote,
-                    contentDescription = null,
-                    modifier = Modifier.padding(8.dp)
-                )
+                val albumArt = track.albumArtUri
+                if (albumArt != null) {
+                    AsyncImage(
+                        model = albumArt,
+                        contentDescription = "${track.displayAlbum} artwork",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.MusicNote,
+                        contentDescription = null,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
             }
         },
         trailingContent = {

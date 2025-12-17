@@ -103,6 +103,9 @@ export { default as OpdsSettingsScreen } from './opds/OpdsSettingsScreen';
 // Storage
 export { default as StorageBrowserScreen } from './storage/StorageBrowserScreen';
 
+// Downloads
+export { default as DownloadsManagerScreen } from './downloads/DownloadsManagerScreen';
+
 // Web Fiction
 export { default as WebFictionManagerScreen } from './webfiction/WebFictionManagerScreen';
 export { default as StoryManagerScreen } from './webfiction/StoryManagerScreen';
@@ -132,3 +135,6 @@ export { default as UniversalMediaLibraryScreen } from './universal/UniversalMed
 // Video
 export { default as UniversalVideoPlayerScreen } from './video/UniversalVideoPlayerScreen';
 export { default as VideoLibraryScreen } from './video/VideoLibraryScreen';
+
+// Error Pages
+export { default as NotFoundScreen } from './NotFoundScreen';

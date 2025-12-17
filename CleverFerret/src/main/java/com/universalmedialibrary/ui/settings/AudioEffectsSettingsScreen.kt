@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,6 +51,7 @@ import javax.inject.Inject
 fun AudioEffectsSettingsScreen(
     viewModel: AudioEffectsViewModel,
     onNavigateBack: () -> Unit = {},
+    onNavigateToShowcase: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
@@ -59,10 +62,13 @@ fun AudioEffectsSettingsScreen(
                 title = { Text("Audio Effects") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
+                    IconButton(onClick = onNavigateToShowcase) {
+                        Icon(Icons.Default.Science, "Advanced Showcase")
+                    }
                     IconButton(onClick = { viewModel.resetToDefaults() }) {
                         Icon(Icons.Default.RestartAlt, "Reset to defaults")
                     }
@@ -273,7 +279,7 @@ fun AudioEffectsSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(Icons.Default.VolumeUp, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null)
                             Text(
                                 "ReplayGain",
                                 style = MaterialTheme.typography.titleMedium,

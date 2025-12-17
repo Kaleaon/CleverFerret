@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -65,7 +67,7 @@ fun OPDSCatalogBrowserScreen(
                             onBack()
                         }
                     }) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
@@ -126,8 +128,12 @@ fun OPDSCatalogBrowserScreen(
                             val feed = result.getOrNull()!!
                             PublicationListView(
                                 entries = feed.entries,
+                                navigationLinks = feed.navigation,
                                 onPublicationClick = { entry ->
                                     viewModel.downloadPublication(selectedCatalog!!.id, entry)
+                                },
+                                onNavigationClick = { url ->
+                                    viewModel.navigateToUrl(url)
                                 }
                             )
                         }
@@ -266,18 +272,90 @@ private fun CatalogCard(
 @Composable
 private fun PublicationListView(
     entries: List<OPDSEntry>,
-    onPublicationClick: (OPDSEntry) -> Unit
+    navigationLinks: List<OPDSLink> = emptyList(),
+    onPublicationClick: (OPDSEntry) -> Unit,
+    onNavigationClick: (String) -> Unit = {}
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(entries) { entry ->
-            PublicationCard(
-                entry = entry,
-                onClick = { onPublicationClick(entry) }
-            )
+    // Find next and previous links
+    val nextLink = navigationLinks.find { link -> 
+        link.rel.any { it.contains("next") }
+    }
+    val prevLink = navigationLinks.find { link ->
+        link.rel.any { it.contains("previous") || it.contains("prev") }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Navigation buttons at top
+        if (prevLink != null || nextLink != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if (prevLink != null) {
+                    OutlinedButton(onClick = { onNavigationClick(prevLink.href) }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Previous")
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
+                }
+                
+                if (nextLink != null) {
+                    Button(onClick = { onNavigationClick(nextLink.href) }) {
+                        Text("Next")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
+                }
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(entries) { entry ->
+                PublicationCard(
+                    entry = entry,
+                    onClick = { onPublicationClick(entry) }
+                )
+            }
+        }
+
+        // Navigation buttons at bottom
+        if (prevLink != null || nextLink != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if (prevLink != null) {
+                    OutlinedButton(onClick = { onNavigationClick(prevLink.href) }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Previous")
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
+                }
+                
+                if (nextLink != null) {
+                    Button(onClick = { onNavigationClick(nextLink.href) }) {
+                        Text("Next")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
+                }
+            }
         }
     }
 }
@@ -494,7 +572,7 @@ private fun SearchDialog(
 @HiltViewModel
 class OPDSCatalogBrowserViewModel @Inject constructor(
     private val catalogDao: OPDSCatalogDao,
-    private val opdsService: OPDSService,
+    private val opdsCatalogService: OPDSCatalogService,
     private val downloadService: OPDSDownloadService
 ) : ViewModel() {
 
@@ -515,7 +593,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            opdsService.ensureDefaultCatalogs()
+            opdsCatalogService.ensureDefaultCatalogs()
         }
     }
 
@@ -535,7 +613,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null // Show loading
-            _currentFeed.value = opdsService.browseCatalog(catalog)
+            _currentFeed.value = opdsCatalogService.browseCatalog(catalog)
         }
     }
 
@@ -545,13 +623,25 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null
-            _currentFeed.value = opdsService.searchCatalog(catalog, query)
+            _currentFeed.value = opdsCatalogService.searchCatalog(catalog, query)
         }
     }
 
     fun downloadPublication(catalogId: Long, entry: OPDSEntry) {
         viewModelScope.launch {
             downloadService.queueDownload(catalogId, entry)
+        }
+    }
+
+    fun navigateToUrl(url: String) {
+        viewModelScope.launch {
+            _currentFeed.value = null // Show loading
+            try {
+                val feed = opdsCatalogService.fetchUrl(url)
+                _currentFeed.value = Result.success(feed)
+            } catch (e: Exception) {
+                _currentFeed.value = Result.failure(e)
+            }
         }
     }
 
@@ -563,13 +653,13 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
                 isDefault = false,
                 isEnabled = true
             )
-            opdsService.addCatalog(catalog)
+            opdsCatalogService.addCatalog(catalog)
         }
     }
 
     fun removeCatalog(catalog: OPDSCatalog) {
         viewModelScope.launch {
-            opdsService.deleteCatalog(catalog)
+            opdsCatalogService.deleteCatalog(catalog)
         }
     }
 }

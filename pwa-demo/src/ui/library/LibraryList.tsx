@@ -83,30 +83,20 @@ export const LibraryListScreen: React.FC = () => {
   };
 
   const getLibraryIcon = (type: string) => {
+    const iconProps = { sx: { fontSize: 48 } };
     switch (type.toUpperCase()) {
       case 'BOOK':
-        return <BookIcon sx={{ fontSize: 48 }} />;
+        return <BookIcon {...iconProps} />;
       case 'MOVIE':
-        return <MovieIcon sx={{ fontSize: 48 }} />;
+        return <MovieIcon {...iconProps} />;
       case 'MUSIC':
-        return <MusicIcon sx={{ fontSize: 48 }} />;
+        return <MusicIcon {...iconProps} />;
       default:
-        return <BookIcon sx={{ fontSize: 48 }} />;
+        return <BookIcon {...iconProps} />;
     }
   };
 
-  const getLibraryColor = (type: string) => {
-    switch (type.toUpperCase()) {
-      case 'BOOK':
-        return '#4CAF50';
-      case 'MOVIE':
-        return '#2196F3';
-      case 'MUSIC':
-        return '#9C27B0';
-      default:
-        return '#757575';
-    }
-  };
+  // Removed getLibraryColor - using theme colors instead
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -144,7 +134,14 @@ export const LibraryListScreen: React.FC = () => {
         <Grid container spacing={3}>
           {libraries.map((library) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={library.libraryId}>
-              <Card>
+              <Card
+                sx={{
+                  position: 'relative',
+                  '&:hover': {
+                    boxShadow: 6,
+                  },
+                }}
+              >
                 <CardActionArea onClick={() => navigate(`/library/${library.libraryId}`)}>
                   <Box
                     sx={{
@@ -152,11 +149,38 @@ export const LibraryListScreen: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      bgcolor: getLibraryColor(library.type),
-                      color: 'white',
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        bgcolor: 'action.hover',
+                        opacity: 0.1,
+                      },
                     }}
                   >
-                    {getLibraryIcon(library.type)}
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        zIndex: 1,
+                        p: 2,
+                        borderRadius: '50%',
+                        bgcolor: 'rgba(255, 255, 255, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {React.cloneElement(getLibraryIcon(library.type), { 
+                        sx: { fontSize: 48, color: 'inherit' } 
+                      })}
+                    </Box>
                   </Box>
                   <CardContent>
                     <Typography variant="h6" noWrap>
@@ -167,6 +191,23 @@ export const LibraryListScreen: React.FC = () => {
                     </Typography>
                   </CardContent>
                 </CardActionArea>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/library/${library.libraryId}/management`);
+                  }}
+                  sx={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    bgcolor: 'background.paper',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
+                >
+                  <SettingsIcon />
+                </IconButton>
               </Card>
             </Grid>
           ))}

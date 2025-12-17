@@ -92,7 +92,8 @@ export const SearchScreen: React.FC = () => {
       const searchResults = await searchRepository.searchMedia(searchOptions);
       setResults(searchResults);
     } catch (err) {
-      console.error('Search error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('Search', 'Search error', undefined, err as Error);
     } finally {
       setIsSearching(false);
     }

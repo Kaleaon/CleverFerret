@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +38,7 @@ import com.universalmedialibrary.ui.selection.SelectedMediaItem
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-    fun LibraryDetailsScreen(
+fun LibraryDetailsScreen(
     libraryId: Int,
     onNavigateBack: () -> Unit = {},
     onNavigateToMediaViewer: (Int) -> Unit = {},
@@ -47,6 +48,7 @@ import com.universalmedialibrary.ui.selection.SelectedMediaItem
     val selectionViewModel: GlobalSelectionViewModel = hiltViewModel()
     val selectionState by selectionViewModel.selectionState.collectAsStateWithLifecycle()
     var selectionMode by remember { mutableStateOf(false) }
+    var isSettingsExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectionState.totalCount) {
         if (selectionState.totalCount == 0 && selectionMode) {
@@ -54,7 +56,7 @@ import com.universalmedialibrary.ui.selection.SelectedMediaItem
         }
     }
 
-    // Plex-inspired colors
+    // media-centric colors
     val backgroundColor = Color(0xFF1A1A1A)
     val surfaceColor = Color(0xFF1F2326)
     val primaryColor = Color(0xFFE5A00D)
@@ -112,208 +114,248 @@ import com.universalmedialibrary.ui.selection.SelectedMediaItem
             )
 
             // Main content
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 160.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(16.dp),
+                modifier = Modifier.fillMaxSize()
             ) {
                 // Header section
-                Text(
-                    text = uiState.library?.name ?: "Library",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Light,
-                    color = Color.White
-                )
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Column {
+                        Text(
+                            text = uiState.library?.name ?: "Library",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Light,
+                            color = Color.White
+                        )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
 
-                val itemCount = uiState.mediaItems.size
-                val libraryType = uiState.library?.type?.lowercase() ?: "mixed"
-                Text(
-                    text = "$itemCount items • $libraryType media",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color(0xFFB3B3B3)
-                )
+                        val itemCount = uiState.mediaItems.size
+                        val libraryType = uiState.library?.type?.lowercase() ?: "mixed"
+                        Text(
+                            text = "$itemCount items • $libraryType media",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color(0xFFB3B3B3)
+                        )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                // Metadata management actions
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Bulk API Search button
-                    Surface(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { /* Handle bulk API metadata search */ },
-                        color = Color(0xFF2C5F2D).copy(alpha = 0.4f)
-                    ) {
+                        // Metadata management actions
                         Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = PhosphorIcons.MagnifyingGlass,
-                                contentDescription = "Search all metadata",
-                                modifier = Modifier.size(16.dp),
-                                tint = Color(0xFF97BC62)
-                            )
-                            Text(
-                                text = "Find Metadata",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color(0xFF97BC62)
-                            )
+                            // Bulk API Search button
+                            Surface(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable { /* Handle bulk API metadata search */ },
+                                color = Color(0xFF2C5F2D).copy(alpha = 0.4f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = PhosphorIcons.MagnifyingGlass,
+                                        contentDescription = "Search all metadata",
+                                        modifier = Modifier.size(16.dp),
+                                        tint = Color(0xFF97BC62)
+                                    )
+                                    Text(
+                                        text = "Find Metadata",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = Color(0xFF97BC62)
+                                    )
+                                }
+                            }
+
+                            // Bulk Edit button
+                            Surface(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable { /* Handle bulk metadata edit */ },
+                                color = Color(0xFF1565C0).copy(alpha = 0.4f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = PhosphorIcons.Pencil,
+                                        contentDescription = "Edit metadata",
+                                        modifier = Modifier.size(16.dp),
+                                        tint = Color(0xFF42A5F5)
+                                    )
+                                    Text(
+                                        text = "Edit Metadata",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = Color(0xFF42A5F5)
+                                    )
+                                }
+                            }
                         }
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
+                }
 
-                    // Bulk Edit button
-                    Surface(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { /* Handle bulk metadata edit */ },
-                        color = Color(0xFF1565C0).copy(alpha = 0.4f)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Icon(
-                                imageVector = PhosphorIcons.Pencil,
-                                contentDescription = "Edit metadata",
-                                modifier = Modifier.size(16.dp),
-                                tint = Color(0xFF42A5F5)
-                            )
-                            Text(
-                                text = "Edit Metadata",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color(0xFF42A5F5)
-                            )
+                // Scan Settings (Collapsible)
+                if (uiState.scanSettings != null) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { isSettingsExpanded = !isSettingsExpanded }
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    "Library Scan Preferences",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color.White
+                                )
+                                Icon(
+                                    imageVector = if (isSettingsExpanded) PhosphorIcons.CaretUp else PhosphorIcons.CaretDown,
+                                    contentDescription = if (isSettingsExpanded) "Collapse" else "Expand",
+                                    tint = Color.White
+                                )
+                            }
+
+                            if (isSettingsExpanded) {
+                                uiState.scanSettings?.let { settings ->
+                                    LibraryScanSettingsCard(
+                                        settings = settings,
+                                        onSave = viewModel::updateScanSettings
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                uiState.scanSettings?.let { settings ->
-                    LibraryScanSettingsCard(
-                        settings = settings,
-                        onSave = viewModel::updateScanSettings
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
+                // History
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Column {
+                        HistoryInsightsCard(
+                            topItems = uiState.topHistory,
+                            dailyCounts = uiState.dailyCounts
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
-
-                HistoryInsightsCard(
-                    topItems = uiState.topHistory,
-                    dailyCounts = uiState.dailyCounts
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 // Error handling
-                uiState.error?.let { error ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF4A1A1A)
-                        )
-                    ) {
-                        Text(
-                            text = "Error: $error",
-                            modifier = Modifier.padding(16.dp),
-                            color = Color(0xFFFF6B6B)
-                        )
+                if (uiState.error != null) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Column {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color(0xFF4A1A1A)
+                                )
+                            ) {
+                                Text(
+                                    text = "Error: ${uiState.error}",
+                                    modifier = Modifier.padding(16.dp),
+                                    color = Color(0xFFFF6B6B)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
                 // Loading state
                 if (uiState.isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(200.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = primaryColor)
-                            Text(
-                                text = "Loading media items...",
-                                color = Color(0xFFB3B3B3)
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                CircularProgressIndicator(color = primaryColor)
+                                Text(
+                                    text = "Loading media items...",
+                                    color = Color(0xFFB3B3B3)
+                                )
+                            }
                         }
                     }
                 } else if (uiState.mediaItems.isEmpty()) {
                     // Empty state
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(200.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                PhosphorIcons.FolderOpen,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = Color(0xFF666666)
-                            )
-                            Text(
-                                text = "No media items found",
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = Color(0xFF666666)
-                            )
-                            Text(
-                                text = "Add some files to this library to get started",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF999999)
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Icon(
+                                    PhosphorIcons.FolderOpen,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(64.dp),
+                                    tint = Color(0xFF666666)
+                                )
+                                Text(
+                                    text = "No media items found",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = Color(0xFF666666)
+                                )
+                                Text(
+                                    text = "Add some files to this library to get started",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color(0xFF999999)
+                                )
+                            }
                         }
                     }
                 } else {
                     val selectionEnabled = selectionMode || selectionState.totalCount > 0
 
                     // Media items grid
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 250.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(uiState.mediaItems) { mediaItemWithMetadata ->
-                            val mediaData = mediaItemWithMetadata.toMediaItemData()
-                            MediaItem(
-                                item = mediaData,
-                                onClick = { onNavigateToMediaViewer(mediaItemWithMetadata.mediaItem.itemId.toInt()) },
-                                selectionEnabled = selectionEnabled,
-                                isSelected = selectionState.isSelected(mediaItemWithMetadata.mediaItem.itemId),
-                                onSelectionToggle = {
-                                    selectionViewModel.toggle(
-                                        SelectedMediaItem(
-                                            id = mediaItemWithMetadata.mediaItem.itemId,
-                                            title = mediaData.title,
-                                            type = mediaItemWithMetadata.mediaItem.mediaType,
-                                            libraryId = mediaItemWithMetadata.mediaItem.libraryId
-                                        )
+                    items(uiState.mediaItems) { mediaItemWithMetadata ->
+                        val mediaData = mediaItemWithMetadata.toMediaItemData()
+                        MediaItem(
+                            item = mediaData,
+                            onClick = { onNavigateToMediaViewer(mediaItemWithMetadata.mediaItem.itemId.toInt()) },
+                            selectionEnabled = selectionEnabled,
+                            isSelected = selectionState.isSelected(mediaItemWithMetadata.mediaItem.itemId),
+                            onSelectionToggle = {
+                                selectionViewModel.toggle(
+                                    SelectedMediaItem(
+                                        id = mediaItemWithMetadata.mediaItem.itemId,
+                                        title = mediaData.title,
+                                        type = mediaItemWithMetadata.mediaItem.mediaType,
+                                        libraryId = mediaItemWithMetadata.mediaItem.libraryId
                                     )
-                                }
-                            )
-                        }
+                                )
+                            }
+                        )
                     }
                 }
             }
+        }
 
-            if (selectionState.totalCount > 0) {
-                GlobalSelectionBar(
-                    selectionState = selectionState,
-                    onClear = selectionViewModel::clear,
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                )
-            }
+        if (selectionState.totalCount > 0) {
+            GlobalSelectionBar(
+                selectionState = selectionState,
+                onClear = selectionViewModel::clear,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 }
@@ -343,6 +385,7 @@ private fun LibraryScanSettingsCard(
     var showIncludeDialog by remember { mutableStateOf(false) }
     var showExcludeDialog by remember { mutableStateOf(false) }
     var strategyExpanded by remember { mutableStateOf(false) }
+    val strategies = listOf("PATH", "FILENAME_SIZE", "HASH")
 
     if (showIncludeDialog) {
         PathInputDialog(
@@ -374,7 +417,8 @@ private fun LibraryScanSettingsCard(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(16.dp)
         ) {
-            Text("Library Scan Preferences", style = MaterialTheme.typography.titleMedium, color = Color.White)
+            // Title removed to avoid duplication with the collapsible header
+            // Text("Library Scan Preferences", style = MaterialTheme.typography.titleMedium, color = Color.White)
 
             PreferencePathList(
                 title = "Include folders",

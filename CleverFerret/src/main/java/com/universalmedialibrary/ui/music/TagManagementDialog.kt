@@ -96,7 +96,7 @@ fun TagManagementDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Divider()
+                HorizontalDivider()
 
                 // Applied tags section
                 Text(
@@ -127,7 +127,7 @@ fun TagManagementDialog(
                     }
                 }
 
-                Divider()
+                HorizontalDivider()
 
                 // AI Suggestions
                 if (suggestedTags.isNotEmpty()) {
@@ -174,7 +174,7 @@ fun TagManagementDialog(
                         }
                     }
 
-                    Divider()
+                    HorizontalDivider()
                 }
 
                 // Category filter

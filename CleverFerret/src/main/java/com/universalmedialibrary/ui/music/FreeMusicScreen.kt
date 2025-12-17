@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.CloudDownload
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,7 +69,7 @@ fun FreeMusicScreen(
                 title = { Text("Free Music & Soundscapes") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -118,6 +118,9 @@ fun FreeMusicScreen(
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             context.startActivity(intent)
+                        },
+                        onTagClick = { tag ->
+                            viewModel.search(tag)
                         }
                     )
                 }
@@ -186,7 +189,8 @@ private fun SearchField(
 private fun TrackList(
     tracks: List<FreeMusicTrack>,
     onOpenLink: (String) -> Unit,
-    onStream: (String) -> Unit
+    onStream: (String) -> Unit,
+    onTagClick: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -197,7 +201,8 @@ private fun TrackList(
             TrackCard(
                 track = track,
                 onOpenLink = onOpenLink,
-                onStream = onStream
+                onStream = onStream,
+                onTagClick = onTagClick
             )
         }
     }
@@ -208,7 +213,8 @@ private fun TrackList(
 private fun TrackCard(
     track: FreeMusicTrack,
     onOpenLink: (String) -> Unit,
-    onStream: (String) -> Unit
+    onStream: (String) -> Unit,
+    onTagClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -257,7 +263,7 @@ private fun TrackCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 track.tags.take(8).forEach { tag ->
-                    AssistChip(onClick = {}, label = { Text(tag) })
+                    AssistChip(onClick = { onTagClick(tag) }, label = { Text(tag) })
                 }
             }
         }
@@ -266,7 +272,7 @@ private fun TrackCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TextButton(onClick = { onStream(track.streamUrl) }) {
-                Icon(Icons.Default.OpenInNew, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
                 Spacer(Modifier.size(4.dp))
                 Text("Stream")
             }

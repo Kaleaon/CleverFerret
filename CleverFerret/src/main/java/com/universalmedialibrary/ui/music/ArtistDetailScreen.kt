@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -51,7 +52,7 @@ fun ArtistDetailScreen(
                 title = { Text("Artist") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
@@ -164,7 +165,7 @@ fun ArtistDetailScreen(
                     }
 
                     item {
-                        Divider()
+                        HorizontalDivider()
                     }
 
                     // Albums section
@@ -287,7 +288,7 @@ private fun ArtistInfoCard(info: ArtistInfo) {
                 }
             }
 
-            Divider()
+            HorizontalDivider()
 
             // Biography
             if (info.biography.isNotBlank()) {
@@ -300,7 +301,7 @@ private fun ArtistInfoCard(info: ArtistInfo) {
 
             // Interesting facts
             if (info.facts.isNotEmpty()) {
-                Divider()
+                HorizontalDivider()
                 Text(
                     text = "Interesting Facts",
                     style = MaterialTheme.typography.titleSmall,
@@ -328,7 +329,7 @@ private fun ArtistInfoCard(info: ArtistInfo) {
 
             // Notable works
             if (info.notableWorks.isNotEmpty()) {
-                Divider()
+                HorizontalDivider()
                 Text(
                     text = "Notable Works",
                     style = MaterialTheme.typography.titleSmall,
@@ -451,7 +452,7 @@ class ArtistDetailViewModel @Inject constructor(
                     artist = firstTrack.artist,
                     album = firstTrack.album,
                     duration = firstTrack.duration,
-                    albumArtUrl = null
+                    albumArtUrl = firstTrack.albumArtUri?.toString()
                 )
             }
         }
@@ -468,7 +469,7 @@ class ArtistDetailViewModel @Inject constructor(
                     artist = firstTrack.artist,
                     album = firstTrack.album,
                     duration = firstTrack.duration,
-                    albumArtUrl = null
+                    albumArtUrl = firstTrack.albumArtUri?.toString()
                 )
             }
         }

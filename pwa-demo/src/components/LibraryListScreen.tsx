@@ -23,6 +23,8 @@ import {
   Paper,
   Avatar,
   Chip,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -287,7 +289,7 @@ const AddLibraryDialog: React.FC<{
 
   const handleBrowseFolder = async () => {
     if (!isDirectoryPickerSupported) {
-      alert('Folder picker is not supported in this browser. Please use Chrome or Edge, or enter the path manually.');
+      onSnackbar('Folder picker is not supported in this browser. Please use Chrome or Edge, or enter the path manually.', 'warning');
       return;
     }
     const dirHandle = await FileUtils.pickDirectory();
@@ -469,6 +471,7 @@ export const LibraryListScreen: React.FC = () => {
 
   const [showDialog, setShowDialog] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' | 'warning' }>({ open: false, message: '' });
 
   useEffect(() => {
     loadLibraries();
@@ -806,6 +809,7 @@ export const LibraryListScreen: React.FC = () => {
         open={showDialog}
         onClose={() => setShowDialog(false)}
         onAdd={handleAddLibrary}
+        onSnackbar={(message, severity) => setSnackbar({ open: true, message, severity })}
       />
 
       {/* Import status overlay - equivalent to Android import overlay */}
@@ -818,6 +822,17 @@ export const LibraryListScreen: React.FC = () => {
           <Typography variant="h6">{importStatus.status}</Typography>
         </Card>
       </Backdrop>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -2,11 +2,21 @@ package com.universalmedialibrary.services.webfiction
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jsoup.Jsoup
-import java.net.URLEncoder
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Entities
+import org.jsoup.parser.Parser
+import java.net.URLEncoder
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 /**
  * Reddit fanfiction downloader for series like "Out of Cruel Space" (HFY).
@@ -63,21 +73,29 @@ class RedditFanficDownloader {
             .get()
             .text()
 
-        val data = kotlinx.serialization.json.Json.parseToJsonElement(json).jsonObject
+        val data = Json.parseToJsonElement(json).jsonObject
         val posts = data["data"]?.jsonObject?.get("children")?.jsonArray ?: kotlinx.serialization.json.JsonArray(emptyList())
 
         val rawChapters = posts.mapNotNull { child ->
             val post = child.jsonObject["data"]?.jsonObject ?: return@mapNotNull null
-            val title = post["title"]?.toString()?.trim('"') ?: return@mapNotNull null
-            val postAuthor = post["author"]?.toString()?.trim('"') ?: ""
-            val createdUtc = post["created_utc"]?.toString()?.toDoubleOrNull()?.toLong() ?: 0L
-            val isSelfPost = post["is_self"]?.toString() == "true"
-            
+            val title = post["title"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
+            val postAuthor = post["author"]?.jsonPrimitive?.contentOrNull ?: ""
+            val createdUtc = post["created_utc"]?.jsonPrimitive?.doubleOrNull?.toLong() ?: 0L
+            val isSelfPost = post["is_self"]?.jsonPrimitive?.booleanOrNull ?: false
+
             // Filter to only self-posts (text posts, not links) for stories
             if (!isSelfPost) return@mapNotNull null
-            
-            val url = post["url_overridden_by_dest"]?.toString()?.trim('"')
-                ?: ("https://www.reddit.com" + (post["permalink"]?.toString()?.trim('"') ?: return@mapNotNull null))
+
+            val permalink = post["permalink"]?.jsonPrimitive?.contentOrNull
+            val directUrl = post["url_overridden_by_dest"]?.jsonPrimitive?.contentOrNull
+            val url = when {
+                !permalink.isNullOrBlank() -> "https://www.reddit.com$permalink"
+                !directUrl.isNullOrBlank() -> directUrl
+                else -> return@mapNotNull null
+            }
+
+            val selftextHtml = post["selftext_html"]?.jsonPrimitive?.contentOrNull
+            val selftext = post["selftext"]?.jsonPrimitive?.contentOrNull
 
             // Heuristic to extract chapter number - improved patterns
             val number = Regex("(?i)(?:chapter|ch\\.?)[\\s-_]*([0-9]+)").find(title)?.groupValues?.get(1)?.toIntOrNull()
@@ -85,11 +103,19 @@ class RedditFanficDownloader {
                 ?: Regex("(?i)#\\s*([0-9]+)").find(title)?.groupValues?.get(1)?.toIntOrNull()
                 ?: 0
 
-            val html = fetchPostHtml(url)
+            val html = buildChapterHtml(
+                title = title, // Pass title for Arc extraction
+                url = url,
+                author = postAuthor,
+                createdUtc = createdUtc,
+                selftextHtml = selftextHtml,
+                selftext = selftext
+            )
+
             ChapterPost(
-                number = number, 
-                title = title, 
-                url = url, 
+                number = number,
+                title = title,
+                url = url,
                 html = html,
                 author = postAuthor,
                 createdUtc = createdUtc
@@ -122,35 +148,192 @@ class RedditFanficDownloader {
         )
     }
 
-    private fun fetchPostHtml(url: String): String {
-        return try {
-            val doc = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0")
-                .timeout(15000)
-                .get()
+    private fun buildChapterHtml(
+        title: String,
+        url: String,
+        author: String,
+        createdUtc: Long,
+        selftextHtml: String?,
+        selftext: String?
+    ): String {
+        val content = decodeSelftextHtml(selftextHtml)
+            ?: convertMarkdownToHtml(selftext)
+            ?: downloadPostBody(url, author)
+            ?: "<p class=\"ps2\">Failed to fetch content from ${Entities.escape(url)}.</p>"
 
-            // Prefer old.reddit if possible for consistent markup
-            if (url.contains("reddit.com") && !url.contains("old.reddit.com")) {
-                val oldUrl = url.replace("www.reddit.com", "old.reddit.com")
-                if (oldUrl != url) {
-                    return fetchPostHtml(oldUrl)
-                }
+        var processedContent = content.replace("<p>", "<p class=\"ps2\">")
+        val doc = Jsoup.parseBodyFragment(processedContent)
+
+        // 1. Inject Arc Title if present in Post Title
+        // Example: "OOCS, Into A Wider Galaxy, Part 514" -> "Into A Wider Galaxy"
+        val arcRegex = Regex("(?i)(?:OOCS|Out of Cruel Space)[^a-z0-9]*(.*?)[\\s,:-]*(?:Part|Chapter|Ch)[^0-9]*([0-9]+)")
+        val match = arcRegex.find(title)
+        if (match != null) {
+            val arcTitle = match.groupValues[1].trim()
+            if (arcTitle.isNotEmpty() && !arcTitle.equals("Part", ignoreCase = true)) {
+                // Inject Arc Title as H2 at the very top
+                doc.body().prepend("<h2 class=\"ps1\">$arcTitle</h2>")
+            }
+        }
+
+        // 2. Find Chapter Title in Body (skipping navigation links)
+        // Look for first non-link paragraph that is short and title-like
+        val paragraphs = doc.select("p.ps2")
+        val navKeywords = listOf("First", "Previous", "Next", "Last", "Wiki", "Patreon", "Ko-fi")
+
+        for (p in paragraphs.take(5)) { // Check first 5 paragraphs
+            val text = p.text().trim()
+            
+            // Skip if it's a navigation link (contains First/Next/Prev/Last/Wiki)
+            if (p.select("a").isNotEmpty() && isNavigationParagraph(p, navKeywords)) {
+                continue
+            }
+            
+            // Skip empty lines
+            if (text.isBlank()) continue
+
+            // Candidate check: Short (< 100 chars), no starting quote
+            if (text.length < 100 && !text.startsWith("\"") && !text.startsWith("“")) {
+                // Convert to Title
+                p.tagName("h1").attr("class", "ps1").text(text)
+                // Stop after finding the first title
+                break 
+            }
+        }
+
+        // 3. Remove Navigation Links (Top and Bottom)
+        // Top Cleaning
+        for (p in paragraphs.take(3)) {
+             if (isNavigationParagraph(p, navKeywords)) {
+                 p.remove()
+             }
+        }
+        
+        // Bottom Cleaning
+        // Re-select because we removed some and structure might have changed
+        val remainingParagraphs = doc.select("p.ps2")
+        for (p in remainingParagraphs.takeLast(3)) {
+             if (isNavigationParagraph(p, navKeywords)) {
+                 p.remove()
+             }
+        }
+        
+        processedContent = doc.body().html()
+
+        return wrapChapterHtml(url, author, createdUtc, processedContent)
+    }
+
+    private fun isNavigationParagraph(p: org.jsoup.nodes.Element, keywords: List<String>): Boolean {
+        val text = p.text()
+        val links = p.select("a")
+        // Must contain at least one link AND one of the keywords
+        return links.isNotEmpty() && keywords.any { text.contains(it, ignoreCase = true) }
+    }
+
+    private fun decodeSelftextHtml(raw: String?): String? {
+        if (raw.isNullOrBlank()) return null
+        val decoded = Parser.unescapeEntities(raw, false).trim()
+        if (decoded.isBlank()) return null
+        val doc = Jsoup.parseBodyFragment(decoded)
+        return doc.selectFirst("div.md")?.html()
+            ?: doc.body().html().takeIf { it.isNotBlank() }
+    }
+
+    private fun convertMarkdownToHtml(text: String?): String? {
+        if (text.isNullOrBlank()) return null
+        val normalized = text.replace("\r\n", "\n").trim()
+        if (normalized.isBlank()) return null
+
+        val escaped = Entities.escape(normalized)
+        val paragraphs = escaped
+            .split("\n\n")
+            .filter { it.isNotBlank() }
+            .joinToString(separator = "") { paragraph ->
+                "<p class=\"ps2\">${paragraph.replace("\n", "<br/>")}</p>"
             }
 
-            // Extract self-text content if available
-            val content = doc.select(".usertext-body .md").first()?.html()
-                ?: doc.select("div[data-test-id=post-content] div[data-click-id=text]").first()?.html()
-                ?: doc.select("article").first()?.html()
-                ?: doc.body().html()
+        return paragraphs.ifBlank { null }
+    }
 
-            """
-            <article class="reddit-chapter">
-              <h2><a href="$url">Source</a></h2>
-              $content
-            </article>
-            """.trimIndent()
-        } catch (e: Exception) {
-            "<p>Failed to fetch content from $url: ${e.message}</p>"
+    private fun downloadPostBody(originalUrl: String, author: String): String? {
+        val candidateUrls = mutableListOf<String>()
+        if (originalUrl.contains("reddit.com") && !originalUrl.contains("old.reddit.com")) {
+            candidateUrls.add(
+                originalUrl
+                    .replace("https://www.reddit.com", "https://old.reddit.com")
+                    .replace("http://www.reddit.com", "https://old.reddit.com")
+                    .replace("https://reddit.com", "https://old.reddit.com")
+            )
         }
+        candidateUrls.add(originalUrl)
+
+        for (candidate in candidateUrls.distinct()) {
+            try {
+                val doc = Jsoup.connect(candidate)
+                    .userAgent("Mozilla/5.0")
+                    .timeout(REQUEST_TIMEOUT)
+                    .get()
+
+                var postContent = doc.select(".usertext-body .md").first()?.html()
+                    ?: doc.select("div[data-test-id=post-content] div[data-click-id=text]").first()?.html()
+                    ?: doc.select("article").first()?.html()
+                    ?: doc.body().html()
+
+                // Extract comments by the author (likely continuations or TITLES)
+                val commentsHtml = if (author.isNotBlank()) {
+                    val comments = doc.select(".commentarea .thing.comment[data-author=\"$author\"]")
+                    if (comments.isNotEmpty()) {
+                        buildString {
+                            var isFirstComment = true
+                            comments.forEach { comment ->
+                                val commentBody = comment.selectFirst(".usertext-body .md")?.html()
+                                if (!commentBody.isNullOrBlank()) {
+                                    val cleanComment = commentBody.trim()
+                                    // Check if this is a title (short text, first comment)
+                                    if (isFirstComment && cleanComment.length < 100 && !cleanComment.contains("http")) {
+                                        // Inject as title
+                                        append("<h1 class='ps1'>${Jsoup.parse(cleanComment).text()}</h1>")
+                                    } else {
+                                        // Regular continuation
+                                        append("<hr/><div class='author-comments'><h3>Author Continuation</h3>")
+                                        append("<div class='comment'>$commentBody</div><hr/>")
+                                        append("</div>")
+                                    }
+                                }
+                                isFirstComment = false
+                            }
+                        }
+                    } else ""
+                } else ""
+
+                if (!postContent.isNullOrBlank()) {
+                    // If commentsHtml starts with <h1 class='ps1'>, put that BEFORE postContent.
+                    if (commentsHtml.startsWith("<h1 class='ps1'>")) {
+                        val endOfTitle = commentsHtml.indexOf("</h1>") + 5
+                        val titlePart = commentsHtml.substring(0, endOfTitle)
+                        val restOfComments = commentsHtml.substring(endOfTitle)
+                        return titlePart + postContent + restOfComments
+                    }
+                    
+                    return postContent + commentsHtml
+                }
+            } catch (_: Exception) {
+                // Try the next option
+            }
+        }
+
+        return null
+    }
+
+    private fun wrapChapterHtml(url: String, author: String, createdUtc: Long, content: String): String {
+        return content // Content is already styled
+    }
+
+    private fun formatTimestamp(createdUtc: Long): String? {
+        if (createdUtc <= 0L) return null
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        return formatter.format(Date(createdUtc * 1000))
     }
 }

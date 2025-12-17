@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -301,7 +302,7 @@ private fun AudiobookCard(
                         
                         if (audiobook.chapterCount > 0) {
                             Icon(
-                                Icons.Default.List, // Replace PhosphorIcons.ListBullets
+                                Icons.AutoMirrored.Filled.List, // Replace PhosphorIcons.ListBullets
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
