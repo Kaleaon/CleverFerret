@@ -39,7 +39,7 @@ jobs:
         echo "Installed SDK packages:"
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ~/.gradle/caches
@@ -138,7 +138,7 @@ jobs:
         echo "Installed SDK packages:"
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ~/.gradle/caches
@@ -297,7 +297,7 @@ jobs:
         distribution: ${{ env.JAVA_DISTRIBUTION }}
         
     - name: Cache Gradle packages
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ~/.gradle/caches
