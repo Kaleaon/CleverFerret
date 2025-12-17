@@ -42,18 +42,17 @@ fun UniversalTagBrowserScreen(
     navController: NavController,
     viewModel: UniversalTagBrowserViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        val uiState by viewModel.uiState.collectAsState()
-        val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
 
-        // Set initial site if provided
-        LaunchedEffect(initialSiteType) {
-            initialSiteType?.let { viewModel.selectSite(it) }
-        }
+    // Set initial site if provided
+    LaunchedEffect(initialSiteType) {
+        initialSiteType?.let { viewModel.selectSite(it) }
+    }
 
-        Scaffold(
-            topBar = {
-                TopAppBar(
+    Scaffold(
+        topBar = {
+            TopAppBar(
                     title = {
                         Text(
                             "Browse by Tags",
@@ -108,14 +107,13 @@ fun UniversalTagBrowserScreen(
                 }
             }
         }
-        uiState.pendingPinChallenge?.let { challenge ->
-            PinAccessDialog(
-                challenge = challenge,
-                onDismiss = { viewModel.dismissPinChallenge() },
-                onAccessGranted = { viewModel.onPinUnlockGranted() },
-                verifyPin = viewModel::verifyPin
-            )
-        }
+    uiState.pendingPinChallenge?.let { challenge ->
+        PinAccessDialog(
+            challenge = challenge,
+            onDismiss = { viewModel.dismissPinChallenge() },
+            onAccessGranted = { viewModel.onPinUnlockGranted() },
+            verifyPin = viewModel::verifyPin
+        )
     }
 }
 

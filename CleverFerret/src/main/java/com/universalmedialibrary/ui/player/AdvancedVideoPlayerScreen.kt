@@ -72,11 +72,10 @@ fun AdvancedVideoPlayerScreen(
     onBack: () -> Unit,
     viewModel: AdvancedVideoPlayerViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        val uiState by viewModel.uiState.collectAsState()
-        val context = LocalContext.current
-        val activity = context as? android.app.Activity
-        val density = LocalDensity.current
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val activity = context as? android.app.Activity
+    val density = LocalDensity.current
 
         var showControls by remember { mutableStateOf(true) }
         var showSettings by remember { mutableStateOf(false) }
@@ -336,7 +335,6 @@ fun AdvancedVideoPlayerScreen(
                 }
             )
         }
-    }
 }
 
 @Composable

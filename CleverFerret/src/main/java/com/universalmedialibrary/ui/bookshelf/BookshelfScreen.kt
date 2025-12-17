@@ -68,10 +68,9 @@ fun EnhancedBookshelfScreen(
         viewModel.loadBooks(libraryId)
     }
 
-    CleverFerretTheme(palette = ThemePalette.BURGUNDY_ROSE_GOLD) {
-        Scaffold(
-            topBar = {
-                MetallicTopAppBar(
+    Scaffold(
+        topBar = {
+            MetallicTopAppBar(
                     title = {
                         Text(
                             "Bookshelf",
@@ -232,7 +231,6 @@ fun EnhancedBookshelfScreen(
                 }
             }
         }
-    }
     }
 }
 

@@ -48,12 +48,11 @@ fun VideoPlayerScreen(
         }
     }
 
-    CleverFerretTheme(palette = ThemePalette.SLATE_GUNMETAL) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-        ) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
             // Video Player
             AndroidView(
                 factory = { ctx ->
@@ -87,7 +86,6 @@ fun VideoPlayerScreen(
                 )
             }
         }
-    }
 }
 
 /**

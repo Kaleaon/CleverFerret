@@ -18,8 +18,10 @@ import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.media.components.MediaMiniPlayer
 import com.universalmedialibrary.ui.media.navigation.*
-import com.universalmedialibrary.ui.media.theme.MediaTheme
 import com.universalmedialibrary.ui.main.MainViewModel
+import com.universalmedialibrary.ui.media.theme.MediaColors
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -45,19 +47,39 @@ class MediaMainActivity : ComponentActivity() {
         enableEdgeToEdge()
         
         setContent {
-            MediaTheme {
-                MediaMainScreen(playbackStateManager = playbackStateManager)
-            }
+            MediaAppRoot(playbackStateManager = playbackStateManager)
         }
+    }
+}
+
+@Composable
+private fun MediaAppRoot(
+    playbackStateManager: PlaybackStateManager
+) {
+    val mainViewModel: MainViewModel = hiltViewModel()
+    val palette by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
+    val darkMode by mainViewModel.darkMode.collectAsState(true)
+
+    CleverFerretTheme(
+        palette = palette,
+        darkTheme = darkMode
+    ) {
+        // Bridge media-centric design tokens to the app-wide theme palette.
+        MediaColors.SyncWithMaterialTheme()
+
+        MediaMainScreen(
+            playbackStateManager = playbackStateManager,
+            mainViewModel = mainViewModel
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaMainScreen(
-    playbackStateManager: PlaybackStateManager
+    playbackStateManager: PlaybackStateManager,
+    mainViewModel: MainViewModel = hiltViewModel()
 ) {
-    val mainViewModel: MainViewModel = hiltViewModel()
     val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsState(BottomBarPreferences.Default)
     val gearPosition by mainViewModel.bottomGearPosition.collectAsState(BottomGearPosition.RIGHT)
 

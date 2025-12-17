@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.pager.*
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
@@ -69,7 +72,7 @@ fun MediaHomeScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MediaColors.Background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
             state = scrollState,
@@ -331,40 +334,58 @@ private fun HeroCarousel(
 
 @Composable
 private fun QuickStatsRow(stats: HomeLibraryStats) {
-    Row(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = MediaSpacing.ScreenHorizontal, vertical = MediaSpacing.MD),
-        horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
+            .padding(horizontal = MediaSpacing.ScreenHorizontal, vertical = MediaSpacing.MD)
     ) {
-        StatCard(
-            icon = Icons.Default.MenuBook,
-            value = stats.totalBooks.toString(),
-            label = "Books",
-            color = MediaColors.MediaTypes.Book,
-            modifier = Modifier.weight(1f)
+        val isCompact = maxWidth < 420.dp
+        val spacing = MediaSpacing.MD
+        val items = listOf(
+            Triple(Icons.Default.MenuBook, stats.totalBooks.toString(), "Books"),
+            Triple(Icons.Default.MusicNote, stats.totalMusic.toString(), "Tracks"),
+            Triple(Icons.Default.Headphones, stats.totalAudiobooks.toString(), "Audiobooks"),
+            Triple(Icons.Default.Movie, stats.totalVideos.toString(), "Videos")
         )
-        StatCard(
-            icon = Icons.Default.MusicNote,
-            value = stats.totalMusic.toString(),
-            label = "Tracks",
-            color = MediaColors.MediaTypes.Music,
-            modifier = Modifier.weight(1f)
-        )
-        StatCard(
-            icon = Icons.Default.Headphones,
-            value = stats.totalAudiobooks.toString(),
-            label = "Audiobooks",
-            color = MediaColors.MediaTypes.Audiobook,
-            modifier = Modifier.weight(1f)
-        )
-        StatCard(
-            icon = Icons.Default.Movie,
-            value = stats.totalVideos.toString(),
-            label = "Videos",
-            color = MediaColors.MediaTypes.Movie,
-            modifier = Modifier.weight(1f)
-        )
+
+        if (isCompact) {
+            Column(verticalArrangement = Arrangement.spacedBy(spacing)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                    items.take(2).forEach { (icon, value, label) ->
+                        StatCard(
+                            icon = icon,
+                            value = value,
+                            label = label,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                    items.drop(2).forEach { (icon, value, label) ->
+                        StatCard(
+                            icon = icon,
+                            value = value,
+                            label = label,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                items.forEach { (icon, value, label) ->
+                    StatCard(
+                        icon = icon,
+                        value = value,
+                        label = label,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -379,7 +400,7 @@ private fun StatCard(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(MediaCorners.Card),
-        color = MediaColors.BackgroundElevated
+        color = MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier = Modifier.padding(MediaSpacing.MD),
@@ -402,17 +423,20 @@ private fun StatCard(
             
             Spacer(modifier = Modifier.width(MediaSpacing.SM))
             
-            Column {
+            Column(modifier = Modifier.weight(1f, fill = false)) {
                 Text(
                     text = value,
                     style = MediaTypography.TitleMedium,
-                    color = MediaColors.TextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = label,
                     style = MediaTypography.LabelSmall,
-                    color = MediaColors.TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -529,7 +553,7 @@ private fun QuickAccessGrid(
         Text(
             text = "Explore Your Library",
             style = MediaTypography.TitleMedium,
-            color = MediaColors.TextPrimary
+            color = MaterialTheme.colorScheme.onBackground
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
@@ -550,20 +574,35 @@ private fun QuickAccessGrid(
             QuickAccessItem(MediaRoutes.COLLECTIONS, "Collections", Icons.Default.Collections, MediaColors.AccentPrimary)
         )
         
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 100.dp),
-            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
-            verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
-            modifier = Modifier.height(280.dp),
-            userScrollEnabled = false
+        QuickAccessFlowGrid(
+            items = categories,
+            onCategoryClick = onCategoryClick
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun QuickAccessFlowGrid(
+    items: List<QuickAccessItem>,
+    onCategoryClick: (String) -> Unit
+) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val columns = if (maxWidth < 360.dp) 2 else 3
+        val spacing = MediaSpacing.MD
+        val cardWidth = (maxWidth - spacing * (columns - 1)) / columns
+
+        FlowRow(
+            maxItemsInEachRow = columns,
+            horizontalArrangement = Arrangement.spacedBy(spacing),
+            verticalArrangement = Arrangement.spacedBy(spacing),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            items(
-                items = categories,
-                key = { it.id }
-            ) { item: QuickAccessItem ->
+            items.forEach { item ->
                 QuickAccessCard(
                     item = item,
-                    onClick = { onCategoryClick(item.id) }
+                    onClick = { onCategoryClick(item.id) },
+                    modifier = Modifier.width(cardWidth)
                 )
             }
         }
@@ -573,14 +612,14 @@ private fun QuickAccessGrid(
 @Composable
 private fun QuickAccessCard(
     item: QuickAccessItem,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .aspectRatio(1f),
         shape = RoundedCornerShape(MediaCorners.Card),
-        color = MediaColors.BackgroundElevated,
+        color = MaterialTheme.colorScheme.surface,
         onClick = onClick
     ) {
         Column(
@@ -592,7 +631,7 @@ private fun QuickAccessCard(
         ) {
             Surface(
                 shape = CircleShape,
-                color = item.color.copy(alpha = 0.15f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
@@ -601,7 +640,7 @@ private fun QuickAccessCard(
                     modifier = Modifier
                         .padding(MediaSpacing.SM)
                         .fillMaxSize(),
-                    tint = item.color
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
             
@@ -610,7 +649,9 @@ private fun QuickAccessCard(
             Text(
                 text = item.label,
                 style = MediaTypography.LabelMedium,
-                color = MediaColors.TextPrimary
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

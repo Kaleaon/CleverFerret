@@ -268,4 +268,13 @@
     <string name="now_playing_title">Now Playing</string>
     <string name="cd_back_button">Back</string>
     <string name="now_playing_empty">No media currently playing</string>
+
+    <!-- Web fiction browsing (placeholder route) -->
+    <string name="webfiction_browse_title_generic">Browse Source</string>
+    <string name="webfiction_browse_title">Browse: %s</string>
+    <string name="webfiction_browse_source_unknown">Unknown source</string>
+    <string name="webfiction_browse_not_implemented">Browse source %s is not implemented yet.</string>
+    <string name="webfiction_browse_coming_soon">Source browsing is coming soon.</string>
+    <string name="webfiction_browse_add_by_url_hint">For now, you can still add stories by URL from the Web Fiction screen.</string>
+    <string name="webfiction_browse_go_to_web_fiction">Go to Web Fiction</string>
 </resources>

@@ -58,15 +58,14 @@ fun UnifiedFanfictionHubScreen(
     downloadViewModel: FanfictionDownloaderViewModel = hiltViewModel(),
     libraryViewModel: FanfictionViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        val uiState by viewModel.uiState.collectAsState()
-        val downloadState by downloadViewModel.uiState.collectAsState()
-        val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
-        
-        var selectedTab by remember { mutableIntStateOf(HubTabs.DISCOVER) }
-        val tabs = listOf("Discover", "Library", "Download")
-        
-        var showQuickDownloadDialog by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
+    val downloadState by downloadViewModel.uiState.collectAsState()
+    val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
+    
+    var selectedTab by remember { mutableIntStateOf(HubTabs.DISCOVER) }
+    val tabs = listOf("Discover", "Library", "Download")
+    
+    var showQuickDownloadDialog by remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
@@ -221,7 +220,6 @@ fun UnifiedFanfictionHubScreen(
                 verifyPin = viewModel::verifyPin
             )
         }
-    }
 }
 
 @Composable

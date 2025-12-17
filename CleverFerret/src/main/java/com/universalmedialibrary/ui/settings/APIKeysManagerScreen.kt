@@ -48,13 +48,12 @@ fun APIKeysManagerScreen(
     navController: NavController,
     viewModel: APIKeysViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        val uiState by viewModel.uiState.collectAsState()
-        var selectedCategory by remember { mutableStateOf<APICategory?>(null) }
-        var showInstructions by remember { mutableStateOf<APIKeyConfig?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
+    var selectedCategory by remember { mutableStateOf<APICategory?>(null) }
+    var showInstructions by remember { mutableStateOf<APIKeyConfig?>(null) }
 
-        val apiConfigs = remember {
-            listOf(
+    val apiConfigs = remember {
+        listOf(
                 // Book APIs
                 APIKeyConfig(
                     key = "google_books",
@@ -219,7 +218,7 @@ fun APIKeysManagerScreen(
                     setupInstructions = "1. Create Discogs account\\n2. Generate personal access token\\n3. Copy token"
                 )
             )
-        }
+    }
 
         Scaffold(
             topBar = {
@@ -376,7 +375,6 @@ fun APIKeysManagerScreen(
                 }
             )
         }
-    }
 }
 
 @Composable

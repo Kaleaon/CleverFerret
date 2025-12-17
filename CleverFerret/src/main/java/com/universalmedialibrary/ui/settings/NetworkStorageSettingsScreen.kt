@@ -28,13 +28,10 @@ fun NetworkStorageSettingsScreen(
     viewModel: NetworkStorageSettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val selectedTheme by viewModel.selectedTheme.collectAsState()
-    val darkMode by viewModel.darkMode.collectAsState()
     var showAddStorageDialog by remember { mutableStateOf(false) }
     var selectedStorageType by remember { mutableStateOf(StorageType.SMB) }
 
-    CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
-        Scaffold(
+    Scaffold(
         topBar = {
             MetallicTopAppBar(
                 title = {
@@ -122,17 +119,16 @@ fun NetworkStorageSettingsScreen(
         }
     }
 
-        if (showAddStorageDialog) {
-            AddNetworkStorageDialog(
-                storageType = selectedStorageType,
-                onStorageTypeChange = { selectedStorageType = it },
-                onDismiss = { showAddStorageDialog = false },
-                onAdd = { name, server, share, domain, username, password, port ->
-                    viewModel.addStorage(selectedStorageType, name, server, share, domain, username, password, port)
-                    showAddStorageDialog = false
-                }
-            )
-        }
+    if (showAddStorageDialog) {
+        AddNetworkStorageDialog(
+            storageType = selectedStorageType,
+            onStorageTypeChange = { selectedStorageType = it },
+            onDismiss = { showAddStorageDialog = false },
+            onAdd = { name, server, share, domain, username, password, port ->
+                viewModel.addStorage(selectedStorageType, name, server, share, domain, username, password, port)
+                showAddStorageDialog = false
+            }
+        )
     }
 }
 

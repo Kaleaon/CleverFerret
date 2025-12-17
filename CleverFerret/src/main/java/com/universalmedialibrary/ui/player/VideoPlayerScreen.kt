@@ -37,16 +37,15 @@ fun VideoPlayerScreen(
     onBack: () -> Unit,
     viewModel: VideoPlayerViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        val uiState by viewModel.uiState.collectAsState()
-        val context = LocalContext.current
-        var showControls by remember { mutableStateOf(true) }
-        var volume by remember { mutableFloatStateOf(0.8f) }
-        var currentPosition by remember { mutableLongStateOf(0L) }
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    var showControls by remember { mutableStateOf(true) }
+    var volume by remember { mutableFloatStateOf(0.8f) }
+    var currentPosition by remember { mutableLongStateOf(0L) }
 
-        LaunchedEffect(videoFilePath) {
-            viewModel.loadVideo(context, videoFilePath)
-        }
+    LaunchedEffect(videoFilePath) {
+        viewModel.loadVideo(context, videoFilePath)
+    }
 
         // Auto-hide controls after 3 seconds
         LaunchedEffect(showControls) {
@@ -411,7 +410,6 @@ fun VideoPlayerScreen(
                 }
             }
         }
-    }
 }
 
 private fun formatTime(milliseconds: Long): String {

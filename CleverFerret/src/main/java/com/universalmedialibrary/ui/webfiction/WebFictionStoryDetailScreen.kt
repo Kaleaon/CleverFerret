@@ -66,10 +66,9 @@ fun WebFictionStoryDetailScreen(
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
+    Scaffold(
+        topBar = {
+            TopAppBar(
                     title = { Text(story.title) },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
@@ -123,7 +122,6 @@ fun WebFictionStoryDetailScreen(
                 }
             )
         }
-    }
 }
 
 @Composable
@@ -526,29 +524,27 @@ private fun downloadStatusColor(status: DownloadStatus): androidx.compose.ui.gra
 
 @Composable
 fun WebFictionStoryNotFound(onBack: () -> Unit) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Story not found",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "The selected story is no longer in the manager.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(onClick = onBack) {
-                    Text("Go Back")
-                }
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Story not found",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "The selected story is no longer in the manager.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(onClick = onBack) {
+                Text("Go Back")
             }
         }
     }

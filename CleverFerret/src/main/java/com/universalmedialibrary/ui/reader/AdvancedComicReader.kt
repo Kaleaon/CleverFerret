@@ -69,14 +69,13 @@ fun AdvancedComicReader(
     onBack: () -> Unit,
     viewModel: AdvancedComicReaderViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        val uiState by viewModel.uiState.collectAsState()
-        val context = LocalContext.current
-        val density = LocalDensity.current
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val density = LocalDensity.current
 
-        var showControls by remember { mutableStateOf(true) }
-        var showSettings by remember { mutableStateOf(false) }
-        var showPanelBrowser by remember { mutableStateOf(false) }
+    var showControls by remember { mutableStateOf(true) }
+    var showSettings by remember { mutableStateOf(false) }
+    var showPanelBrowser by remember { mutableStateOf(false) }
 
         var scale by remember { mutableFloatStateOf(1f) }
         var offsetX by remember { mutableFloatStateOf(0f) }
@@ -274,24 +273,23 @@ fun AdvancedComicReader(
             )
         }
 
-        // Panel browser sheet
-        if (showPanelBrowser) {
-            PanelBrowserSheet(
-                pages = uiState.pages,
-                currentPage = uiState.currentPage,
-                panels = uiState.allPagePanels,
-                onDismiss = { showPanelBrowser = false },
-                onPageSelected = { page ->
-                    viewModel.setCurrentPage(page)
-                    showPanelBrowser = false
-                },
-                onPanelSelected = { page, panel ->
-                    viewModel.setCurrentPage(page)
-                    viewModel.setCurrentPanel(panel)
-                    showPanelBrowser = false
-                }
-            )
-        }
+    // Panel browser sheet
+    if (showPanelBrowser) {
+        PanelBrowserSheet(
+            pages = uiState.pages,
+            currentPage = uiState.currentPage,
+            panels = uiState.allPagePanels,
+            onDismiss = { showPanelBrowser = false },
+            onPageSelected = { page ->
+                viewModel.setCurrentPage(page)
+                showPanelBrowser = false
+            },
+            onPanelSelected = { page, panel ->
+                viewModel.setCurrentPage(page)
+                viewModel.setCurrentPanel(panel)
+                showPanelBrowser = false
+            }
+        )
     }
 }
 

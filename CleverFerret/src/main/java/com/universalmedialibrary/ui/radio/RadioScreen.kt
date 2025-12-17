@@ -50,10 +50,9 @@ fun RadioScreen(
 
     var selectedTab by remember { mutableIntStateOf(0) }
 
-    CleverFerretTheme(palette = ThemePalette.ROYAL_SILVER) {
-        Scaffold(
-            topBar = {
-                MetallicTopAppBar(
+    Scaffold(
+        topBar = {
+            MetallicTopAppBar(
                     title = {
                         Text(
                             "Radio Streaming",
@@ -260,7 +259,6 @@ fun RadioScreen(
                 }
             }
         }
-    }
 }
 
 @Composable

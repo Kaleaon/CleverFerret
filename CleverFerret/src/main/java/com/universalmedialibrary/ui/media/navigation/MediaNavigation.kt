@@ -809,9 +809,12 @@ fun MediaBottomNavigation(
     gearPosition: BottomGearPosition = BottomGearPosition.RIGHT,
     modifier: Modifier = Modifier
 ) {
+    val cs = MaterialTheme.colorScheme
     Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MediaColors.BackgroundElevated,
+        modifier = modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(NavigationBarDefaults.windowInsets),
+        color = cs.surface,
         tonalElevation = MediaElevation.MD,
         shadowElevation = MediaElevation.LG
     ) {
@@ -834,7 +837,7 @@ fun MediaBottomNavigation(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(MediaSizes.BottomBarHeight)
+                .heightIn(min = MediaSizes.BottomBarHeight)
         ) {
             Row(
                 modifier = Modifier
@@ -865,7 +868,7 @@ fun MediaBottomNavigation(
                         .align(Alignment.CenterStart)
                         .background(
                             Brush.horizontalGradient(
-                                colors = listOf(MediaColors.BackgroundElevated, Color.Transparent)
+                                colors = listOf(cs.surface, Color.Transparent)
                             )
                         )
                 )
@@ -878,7 +881,7 @@ fun MediaBottomNavigation(
                         .align(Alignment.CenterEnd)
                         .background(
                             Brush.horizontalGradient(
-                                colors = listOf(Color.Transparent, MediaColors.BackgroundElevated)
+                                colors = listOf(Color.Transparent, cs.surface)
                             )
                         )
                 )
@@ -898,7 +901,7 @@ fun MediaBottomNavigation(
                     )
                     .padding(gearOuterPadding),
                 shape = RoundedCornerShape(MediaCorners.XS),
-                color = MediaColors.BackgroundSurface,
+                color = cs.surfaceVariant,
                 tonalElevation = MediaElevation.SM,
                 shadowElevation = 0.dp,
                 onClick = { onNavigate(MediaRoutes.SETTINGS) }
@@ -907,7 +910,7 @@ fun MediaBottomNavigation(
                     Icon(
                         imageVector = Icons.Outlined.Settings,
                         contentDescription = "Settings",
-                        tint = MediaColors.TextSecondary
+                        tint = cs.onSurfaceVariant
                     )
                 }
             }
@@ -922,26 +925,28 @@ private fun BottomNavItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val cs = MaterialTheme.colorScheme
     val iconColor by animateColorAsState(
         targetValue = when {
-            !enabled -> MediaColors.TextTertiary
-            isSelected -> MediaColors.AccentPrimary
-            else -> MediaColors.TextSecondary
+            !enabled -> cs.onSurfaceVariant.copy(alpha = 0.5f)
+            isSelected -> cs.primary
+            else -> cs.onSurfaceVariant
         },
         label = "bottom_nav_icon"
     )
     
     val textColor by animateColorAsState(
         targetValue = when {
-            !enabled -> MediaColors.TextTertiary
-            isSelected -> MediaColors.AccentPrimary
-            else -> MediaColors.TextTertiary
+            !enabled -> cs.onSurfaceVariant.copy(alpha = 0.5f)
+            isSelected -> cs.primary
+            else -> cs.onSurfaceVariant.copy(alpha = 0.75f)
         },
         label = "bottom_nav_text"
     )
     
     Column(
         modifier = Modifier
+            .widthIn(min = 72.dp)
             .clickable(enabled = enabled, onClick = onClick)
             .alpha(if (enabled) 1f else 0.55f)
             .padding(MediaSpacing.SM),
@@ -952,7 +957,7 @@ private fun BottomNavItem(
             modifier = Modifier
                 .size(4.dp)
                 .clip(CircleShape)
-                .background(if (isSelected) MediaColors.AccentPrimary else Color.Transparent)
+                .background(if (isSelected) cs.primary else Color.Transparent)
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.XS))

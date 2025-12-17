@@ -15,8 +15,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.integration.plex.PlexConnectionResult
-import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,16 +24,15 @@ fun MediaIntegrationScreen(
     val plexState by viewModel.plexState.collectAsState()
     var showAddServerDialog by remember { mutableStateOf(false) }
 
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
                 // Header
                 Row(
                     modifier = Modifier
@@ -128,16 +125,15 @@ fun MediaIntegrationScreen(
             }
         }
 
-        // Add Server Dialog
-        if (showAddServerDialog) {
-            AddPlexServerDialog(
-                onDismiss = { showAddServerDialog = false },
-                onAddServer = { serverName, serverUrl, token ->
-                    viewModel.connectToServer(serverName, serverUrl, token)
-                    showAddServerDialog = false
-                }
-            )
-        }
+    // Add Server Dialog
+    if (showAddServerDialog) {
+        AddPlexServerDialog(
+            onDismiss = { showAddServerDialog = false },
+            onAddServer = { serverName, serverUrl, token ->
+                viewModel.connectToServer(serverName, serverUrl, token)
+                showAddServerDialog = false
+            }
+        )
     }
 }
 

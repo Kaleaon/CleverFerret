@@ -28,10 +28,9 @@ fun VideoLibraryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    CleverFerretTheme(palette = ThemePalette.SLATE_GUNMETAL) {
-        Scaffold(
-            topBar = {
-                MetallicTopAppBar(
+    Scaffold(
+        topBar = {
+            MetallicTopAppBar(
                     title = {
                         Text(
                             "Video Library",
@@ -129,7 +128,6 @@ fun VideoLibraryScreen(
                 }
             }
         }
-    }
 }
 
 @Composable

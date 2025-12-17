@@ -25,10 +25,9 @@ fun SecuritySettingsScreen(
 ) {
     val securitySettings by viewModel.securitySettings.collectAsState()
 
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
+    Scaffold(
+        topBar = {
+            TopAppBar(
                     title = { Text("Security Settings") },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
@@ -76,7 +75,6 @@ fun SecuritySettingsScreen(
                 }
             }
         }
-    }
 }
 
 @Composable

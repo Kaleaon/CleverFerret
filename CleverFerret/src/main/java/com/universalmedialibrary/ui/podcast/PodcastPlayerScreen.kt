@@ -36,44 +36,43 @@ fun PodcastPlayerScreen(
         viewModel.loadEpisode(episodeId)
     }
 
-    CleverFerretTheme(palette = ThemePalette.FOREST_COPPER) {
-        Scaffold(
-            topBar = {
-                MetallicTopAppBar(
-                    title = {
-                        Text(
-                            text = "Now Playing",
-                            fontWeight = FontWeight.Medium
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = {
-                            uiState.episode?.let { viewModel.toggleFavorite() }
-                        }) {
-                            Icon(
-                                if (uiState.episode?.favorite == true) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Favorite",
-                                tint = if (uiState.episode?.favorite == true)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                        com.universalmedialibrary.ui.visualizer.VisualizerButton(
-                            onClick = onNavigateToVisualizer
-                        )
-                        IconButton(onClick = { }) {
-                            Icon(Icons.Default.Share, contentDescription = "Share")
-                        }
+    Scaffold(
+        topBar = {
+            MetallicTopAppBar(
+                title = {
+                    Text(
+                        text = "Now Playing",
+                        fontWeight = FontWeight.Medium
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                )
-            }
-        ) { paddingValues ->
+                },
+                actions = {
+                    IconButton(onClick = {
+                        uiState.episode?.let { viewModel.toggleFavorite() }
+                    }) {
+                        Icon(
+                            if (uiState.episode?.favorite == true) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite",
+                            tint = if (uiState.episode?.favorite == true)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    com.universalmedialibrary.ui.visualizer.VisualizerButton(
+                        onClick = onNavigateToVisualizer
+                    )
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Default.Share, contentDescription = "Share")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
             if (uiState.isLoading) {
                 Box(
                     modifier = Modifier
@@ -251,7 +250,6 @@ fun PodcastPlayerScreen(
             }
         }
     }
-}
 
 private fun formatTime(milliseconds: Long): String {
     val seconds = (milliseconds / 1000).toInt()
