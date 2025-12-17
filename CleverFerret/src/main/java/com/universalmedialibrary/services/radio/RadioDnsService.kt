@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.util.Locale
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -42,7 +43,7 @@ class RadioDnsService @Inject constructor(
             // 1. Construct FQDN
             // Format: <freq>.<pi>.<gcc>.<cc>.fm.radiodns.org
             // Freq: 08850 (for 88.5) -> 5 digits
-            val freqStr = String.format("%05d", (frequency * 100).toInt())
+            val freqStr = String.format(Locale.US, "%05d", (frequency * 100).toInt())
             val fqdn = "$freqStr.$piCode.$ecc.fm.radiodns.org".lowercase()
 
             // 2. Perform SRV Lookup using Google Public DNS API (DoH)

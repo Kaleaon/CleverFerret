@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,7 +34,7 @@ fun MultiRoomAudioScreen(
                 title = { Text("Multi-Room Audio") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
@@ -181,7 +183,7 @@ fun AudioGroupCard(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.VolumeUp, null)
+                Icon(Icons.AutoMirrored.Filled.VolumeUp, null)
                 Slider(
                     value = group.volume / 100f,
                     onValueChange = { onVolumeChange((it * 100).toInt()) },
@@ -225,7 +227,7 @@ fun AudioClientCard(
                 }
                 IconButton(onClick = onToggleMute) {
                     Icon(
-                        imageVector = if (client.muted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                        imageVector = if (client.muted) Icons.Default.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
                         contentDescription = "Toggle Mute"
                     )
                 }

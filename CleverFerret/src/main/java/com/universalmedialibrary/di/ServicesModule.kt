@@ -8,6 +8,7 @@ import com.universalmedialibrary.data.repository.StoryRepository
 import com.universalmedialibrary.services.StorageAccessService
 import com.universalmedialibrary.services.audio.MultiRoomAudioService
 import com.universalmedialibrary.services.podcast.PodcastService
+import com.universalmedialibrary.utils.FileNameSanitizer
 import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverter
 import com.universalmedialibrary.services.contentcreation.StoryUpdateManager
 import com.universalmedialibrary.services.webfiction.RedditFanficDownloader
@@ -45,8 +46,9 @@ object ServicesModule {
     fun provideStorageAccessService(
         libraryDao: LibraryDao,
         mediaItemDao: MediaItemDao,
-        metadataDao: MetadataDao
-    ): StorageAccessService = StorageAccessService(libraryDao, mediaItemDao, metadataDao)
+        metadataDao: MetadataDao,
+        fileNameSanitizer: FileNameSanitizer
+    ): StorageAccessService = StorageAccessService(libraryDao, mediaItemDao, metadataDao, fileNameSanitizer)
 
     /**
      * Provides a singleton APIKeyRepository for managing third-party API keys.

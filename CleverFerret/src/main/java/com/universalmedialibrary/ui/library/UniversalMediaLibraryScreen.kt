@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
@@ -369,7 +371,7 @@ fun MediaType.displayName(): String {
 
 fun MediaType.getIcon(): ImageVector {
     return when (this) {
-        MediaType.BOOK, MediaType.EBOOK -> Icons.Default.MenuBook
+        MediaType.BOOK, MediaType.EBOOK -> Icons.AutoMirrored.Filled.MenuBook
         MediaType.AUDIOBOOK -> Icons.Default.Headphones
         MediaType.MOVIE, MediaType.DOCUMENTARY -> Icons.Default.Movie
         MediaType.TV_SHOW -> Icons.Default.Tv
@@ -377,9 +379,9 @@ fun MediaType.getIcon(): ImageVector {
         MediaType.PODCAST, MediaType.PODCAST_EPISODE, MediaType.PODCAST_SERIES -> Icons.Default.MusicNote
         MediaType.RADIO -> Icons.Default.Radio
         MediaType.COMIC, MediaType.MANGA -> Icons.Default.AutoStories
-        MediaType.MAGAZINE, MediaType.NEWSPAPER -> Icons.Default.Article
+        MediaType.MAGAZINE, MediaType.NEWSPAPER -> Icons.AutoMirrored.Filled.Article
         MediaType.JOURNAL -> Icons.Default.Book
-        MediaType.NEWS_ARTICLE -> Icons.Default.Article
+        MediaType.NEWS_ARTICLE -> Icons.AutoMirrored.Filled.Article
         MediaType.ACADEMIC_PAPER -> Icons.Default.School
         MediaType.REPORT -> Icons.Default.Assessment
         MediaType.PRESENTATION -> Icons.Default.Slideshow

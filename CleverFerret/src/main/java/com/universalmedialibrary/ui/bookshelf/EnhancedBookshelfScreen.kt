@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -200,7 +202,7 @@ fun EnhancedBookshelfScreenDemo(
 
                         // Sort menu
                         IconButton(onClick = { showSortMenu = true }) {
-                            Icon(Icons.Default.Sort, "Sort")
+                            Icon(Icons.AutoMirrored.Filled.Sort, "Sort")
                         }
                         DropdownMenu(
                             expanded = showSortMenu,
@@ -487,7 +489,7 @@ private fun GridBookItem(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Default.MenuBook,
+                            Icons.AutoMirrored.Filled.MenuBook,
                             contentDescription = null,
                             modifier = Modifier.size(48.dp),
                             tint = Color.White
@@ -634,7 +636,7 @@ private fun ListBookItem(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Default.MenuBook,
+                            Icons.AutoMirrored.Filled.MenuBook,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )

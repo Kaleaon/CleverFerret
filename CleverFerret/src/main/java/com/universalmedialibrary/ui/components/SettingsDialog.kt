@@ -103,7 +103,7 @@ fun SettingsDialog(
                     }
                 }
                 
-                Divider()
+                HorizontalDivider()
                 
                 // Tab Content
                 Box(

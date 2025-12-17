@@ -11,6 +11,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
@@ -55,7 +56,7 @@ fun BookmarkScreen(
             title = { Text("Bookmarks & Notes") },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             },
             actions = {
@@ -79,7 +80,7 @@ fun BookmarkScreen(
         )
 
         // Tab Row
-        TabRow(
+        PrimaryTabRow(
             selectedTabIndex = pagerState.currentPage
         ) {
             listOf("Bookmarks", "Highlights", "Notes").forEachIndexed { index, title ->

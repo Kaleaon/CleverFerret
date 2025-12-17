@@ -1,6 +1,8 @@
 package com.universalmedialibrary.ui.models
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -40,7 +42,7 @@ enum class MediaCategory(
     ),
     EBOOKS(
         label = "eBooks",
-        icon = Icons.Default.MenuBook,
+        icon = Icons.AutoMirrored.Filled.MenuBook,
         description = "Digital books and novels"
     ),
     COMICS(
@@ -60,7 +62,7 @@ enum class MediaCategory(
     ),
     MAGAZINES(
         label = "Magazines",
-        icon = Icons.Default.LibraryBooks,
+        icon = Icons.AutoMirrored.Filled.LibraryBooks,
         description = "Digital magazines"
     ),
     NEWS(
