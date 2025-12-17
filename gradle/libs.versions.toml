@@ -29,7 +29,7 @@ room = "2.8.4"
 datastore = "1.2.0"
 
 # Networking
-retrofit = "2.11.0"
+retrofit = "3.0.0"
 okhttp = "5.2.1"
 
 # Media
