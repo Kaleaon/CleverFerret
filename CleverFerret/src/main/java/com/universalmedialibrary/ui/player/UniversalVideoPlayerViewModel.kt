@@ -2,6 +2,8 @@ package com.universalmedialibrary.ui.player
 
 import android.content.Context
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +15,7 @@ import androidx.media3.ui.PlayerView
 import com.universalmedialibrary.services.video.ComprehensiveVideoService
 import com.universalmedialibrary.services.video.VideoMetadata
 import com.universalmedialibrary.services.video.VideoPlayerType
+import com.universalmedialibrary.utils.ErrorLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,8 +36,15 @@ class UniversalVideoPlayerViewModel @Inject constructor(
     private var vlcPlayer: Any? = null
     private var currentUri: Uri? = null
 
+    private val exceptionHandler = ErrorLogger.createCoroutineExceptionHandler("UniversalVideoPlayerViewModel") {
+        _playerState.value = _playerState.value.copy(
+            isLoading = false,
+            error = "Unexpected error: ${it.message}"
+        )
+    }
+
     fun initializePlayer(context: Context, uri: Uri) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             try {
                 _playerState.value = _playerState.value.copy(isLoading = true, error = null)
                 currentUri = uri
@@ -71,9 +81,10 @@ class UniversalVideoPlayerViewModel @Inject constructor(
                 )
 
             } catch (e: Exception) {
+                ErrorLogger.logError("UniversalVideoPlayerViewModel", "Error initializing player", e)
                 _playerState.value = _playerState.value.copy(
                     isLoading = false,
-                    error = "Failed to initialize player: ${'$'}{e.message}"
+                    error = "Failed to initialize player: ${e.message}"
                 )
             }
         }
@@ -81,7 +92,10 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 
     private fun initializeExoPlayer(context: Context, uri: Uri) {
         try {
-            exoPlayer?.release()
+            // Ensure ExoPlayer is released on the main thread before creating new instance
+            Handler(Looper.getMainLooper()).post {
+                exoPlayer?.release()
+            }
             val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(context)
                 .setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
             exoPlayer = ExoPlayer.Builder(context, renderersFactory).build().apply {
@@ -110,8 +124,9 @@ class UniversalVideoPlayerViewModel @Inject constructor(
             )
 
         } catch (e: Exception) {
+            ErrorLogger.logError("UniversalVideoPlayerViewModel", "ExoPlayer initialization failed", e)
             _playerState.value = _playerState.value.copy(
-                error = "ExoPlayer initialization failed: ${'$'}{e.message}"
+                error = "ExoPlayer initialization failed: ${e.message}"
             )
         }
     }
@@ -139,8 +154,9 @@ class UniversalVideoPlayerViewModel @Inject constructor(
             )
 
         } catch (e: Exception) {
+            ErrorLogger.logError("UniversalVideoPlayerViewModel", "VLC player initialization failed", e)
             _playerState.value = _playerState.value.copy(
-                error = "VLC player initialization failed: ${'$'}{e.message}"
+                error = "VLC player initialization failed: ${e.message}"
             )
         }
     }
@@ -218,7 +234,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 
     fun switchPlayer(newPlayerType: VideoPlayerType) {
         currentUri?.let { uri ->
-            viewModelScope.launch {
+            viewModelScope.launch(exceptionHandler) {
                 val currentPosition = getCurrentPosition()
                 releaseCurrentPlayer()
                 when (newPlayerType) {
@@ -302,7 +318,10 @@ class UniversalVideoPlayerViewModel @Inject constructor(
     }
 
     private fun releaseCurrentPlayer() {
-        exoPlayer?.release()
+        // Ensure ExoPlayer is released on the main thread
+        Handler(Looper.getMainLooper()).post {
+            exoPlayer?.release()
+        }
         runCatching { safeInvoke(vlcPlayer, "release") }
         exoPlayer = null
         vlcPlayer = null
@@ -325,6 +344,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
             val m = target.javaClass.getMethod(method, *paramTypes)
             m.invoke(target, *args)
         } catch (e: Exception) {
+            ErrorLogger.logWarning("UniversalVideoPlayerViewModel", "Error invoking $method safely", e)
             null
         }
     }

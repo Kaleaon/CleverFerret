@@ -1,5 +1,6 @@
 package com.universalmedialibrary.data.repository
 
+import android.database.sqlite.SQLiteConstraintException
 import com.universalmedialibrary.data.local.dao.ReadingProgressDao
 import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.entity.ReadingProgress
@@ -34,40 +35,49 @@ class HistoryRepository @Inject constructor(
         totalPages: Int,
         currentPosition: Long = 0L
     ) {
-        val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
-        
-        val progress = if (existing != null) {
-            // Clamp values to valid ranges
-            val validCurrentPage = currentPage.coerceIn(0, maxOf(totalPages, 0))
-            val validTotalPages = maxOf(totalPages, 0)
-            val calculatedPercentage = if (validTotalPages > 0) {
-                ((validCurrentPage.toFloat() / validTotalPages) * 100f).coerceIn(0f, 100f)
-            } else 0f
+        try {
+            val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
+            val timestamp = System.currentTimeMillis()
             
-            existing.copy(
-                currentPage = validCurrentPage,
-                currentPosition = currentPosition,
-                percentage = calculatedPercentage,
-                lastUpdate = System.currentTimeMillis()
-            )
-        } else {
-            val validCurrentPage = currentPage.coerceIn(0, maxOf(totalPages, 0))
-            val validTotalPages = maxOf(totalPages, 0)
-            val calculatedPercentage = if (validTotalPages > 0) {
-                ((validCurrentPage.toFloat() / validTotalPages) * 100f).coerceIn(0f, 100f)
-            } else 0f
+            val progress = if (existing != null) {
+                // Clamp values to valid ranges
+                val validCurrentPage = currentPage.coerceIn(0, maxOf(totalPages, 0))
+                val validTotalPages = maxOf(totalPages, 0)
+                val calculatedPercentage = if (validTotalPages > 0) {
+                    ((validCurrentPage.toFloat() / validTotalPages) * 100f).coerceIn(0f, 100f)
+                } else 0f
+                
+                existing.copy(
+                    currentPage = validCurrentPage,
+                    currentPosition = currentPosition,
+                    percentage = calculatedPercentage,
+                    lastUpdate = timestamp,
+                    lastModified = timestamp
+                )
+            } else {
+                val validCurrentPage = currentPage.coerceIn(0, maxOf(totalPages, 0))
+                val validTotalPages = maxOf(totalPages, 0)
+                val calculatedPercentage = if (validTotalPages > 0) {
+                    ((validCurrentPage.toFloat() / validTotalPages) * 100f).coerceIn(0f, 100f)
+                } else 0f
+                
+                ReadingProgress(
+                    itemId = itemId,
+                    currentPage = validCurrentPage,
+                    currentPosition = currentPosition,
+                    percentage = calculatedPercentage,
+                    lastUpdate = timestamp,
+                    lastModified = timestamp,
+                    startedDate = timestamp
+                )
+            }
             
-            ReadingProgress(
-                itemId = itemId,
-                currentPage = validCurrentPage,
-                currentPosition = currentPosition,
-                percentage = calculatedPercentage,
-                lastUpdate = System.currentTimeMillis(),
-                startedDate = System.currentTimeMillis()
-            )
+            progressDao.insertProgress(progress)
+        } catch (e: SQLiteConstraintException) {
+            // Foreign key constraint failed - media item doesn't exist in database
+            // This can happen when opening files directly without adding to library
+            // Silently ignore to allow file viewing without persistence
         }
-        
-        progressDao.insertProgress(progress)
     }
     
     /**
@@ -89,15 +99,22 @@ class HistoryRepository @Inject constructor(
      * Mark item as finished
      */
     suspend fun markAsFinished(itemId: Long) {
-        val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
-        if (existing != null) {
-            val updated = existing.copy(
-                percentage = 100f,
-                isCompleted = true,
-                completedDate = System.currentTimeMillis(),
-                lastUpdate = System.currentTimeMillis()
-            )
-            progressDao.insertProgress(updated)
+        try {
+            val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
+            val timestamp = System.currentTimeMillis()
+            if (existing != null) {
+                val updated = existing.copy(
+                    percentage = 100f,
+                    isCompleted = true,
+                    completedDate = timestamp,
+                    lastUpdate = timestamp,
+                    lastModified = timestamp
+                )
+                progressDao.insertProgress(updated)
+            }
+        } catch (e: SQLiteConstraintException) {
+            // Foreign key constraint failed - media item doesn't exist in database
+            // Silently ignore
         }
     }
     
@@ -137,31 +154,39 @@ class HistoryRepository @Inject constructor(
         position: Long,
         duration: Long
     ) {
-        // Clamp position to valid range
-        val validPosition = position.coerceIn(0L, maxOf(duration, 0L))
-        val validDuration = maxOf(duration, 0L)
-        val percentage = if (validDuration > 0) {
-            ((validPosition.toFloat() / validDuration) * 100f).coerceIn(0f, 100f)
-        } else 0f
-        
-        val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
-        val progress = if (existing != null) {
-            existing.copy(
-                currentPosition = validPosition,
-                percentage = percentage,
-                lastUpdate = System.currentTimeMillis()
-            )
-        } else {
-            ReadingProgress(
-                itemId = itemId,
-                currentPosition = position,
-                percentage = percentage,
-                lastUpdate = System.currentTimeMillis(),
-                startedDate = System.currentTimeMillis()
-            )
+        try {
+            // Clamp position to valid range
+            val validPosition = position.coerceIn(0L, maxOf(duration, 0L))
+            val validDuration = maxOf(duration, 0L)
+            val percentage = if (validDuration > 0) {
+                ((validPosition.toFloat() / validDuration) * 100f).coerceIn(0f, 100f)
+            } else 0f
+            
+            val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
+            val timestamp = System.currentTimeMillis()
+            val progress = if (existing != null) {
+                existing.copy(
+                    currentPosition = validPosition,
+                    percentage = percentage,
+                    lastUpdate = timestamp,
+                    lastModified = timestamp
+                )
+            } else {
+                ReadingProgress(
+                    itemId = itemId,
+                    currentPosition = position,
+                    percentage = percentage,
+                    lastUpdate = timestamp,
+                    lastModified = timestamp,
+                    startedDate = timestamp
+                )
+            }
+            
+            progressDao.insertProgress(progress)
+        } catch (e: SQLiteConstraintException) {
+            // Foreign key constraint failed - media item doesn't exist in database
+            // Silently ignore to allow media viewing without persistence
         }
-        
-        progressDao.insertProgress(progress)
     }
     
     /**
@@ -182,21 +207,29 @@ class HistoryRepository @Inject constructor(
      * Increment play count (for music/audio)
      */
     suspend fun incrementPlayCount(itemId: Long) {
-        // For now, we track this through progress updates
-        // A dedicated play count table could be added later
-        val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
-        if (existing != null) {
-            val updated = existing.copy(
-                lastUpdate = System.currentTimeMillis()
-            )
-            progressDao.insertProgress(updated)
-        } else {
-            val newProgress = ReadingProgress(
-                itemId = itemId,
-                lastUpdate = System.currentTimeMillis(),
-                startedDate = System.currentTimeMillis()
-            )
-            progressDao.insertProgress(newProgress)
+        try {
+            // For now, we track this through progress updates
+            // A dedicated play count table could be added later
+            val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
+            val timestamp = System.currentTimeMillis()
+            if (existing != null) {
+                val updated = existing.copy(
+                    lastUpdate = timestamp,
+                    lastModified = timestamp
+                )
+                progressDao.insertProgress(updated)
+            } else {
+                val newProgress = ReadingProgress(
+                    itemId = itemId,
+                    lastUpdate = timestamp,
+                    lastModified = timestamp,
+                    startedDate = timestamp
+                )
+                progressDao.insertProgress(newProgress)
+            }
+        } catch (e: SQLiteConstraintException) {
+            // Foreign key constraint failed - media item doesn't exist in database
+            // Silently ignore
         }
     }
     

@@ -1,6 +1,6 @@
 {
   "id": "/",
-  "name": "CleverFerret - Universal Media Library",
+  "name": "CleverFerret",
   "short_name": "CleverFerret",
   "description": "A comprehensive Universal Media Library for managing books, movies, music, and more",
   "start_url": "./",
@@ -66,12 +66,32 @@
   },
   "file_handlers": [
     {
-      "action": "/import",
+      "action": "/open",
       "accept": {
         "application/epub+zip": [".epub"],
+        "application/x-mobipocket-ebook": [".mobi", ".azw", ".azw3"],
         "application/pdf": [".pdf"],
+        "application/x-cbr": [".cbr"],
+        "application/x-cbz": [".cbz"],
+        "application/x-cbt": [".cbt"],
+        "application/x-cb7": [".cb7"],
         "audio/mpeg": [".mp3"],
-        "video/mp4": [".mp4"]
+        "audio/mp4": [".m4a", ".m4b", ".aac"],
+        "audio/flac": [".flac"],
+        "audio/wav": [".wav"],
+        "audio/ogg": [".ogg", ".opus"],
+        "audio/x-ms-wma": [".wma"],
+        "video/mp4": [".mp4"],
+        "video/x-matroska": [".mkv"],
+        "video/quicktime": [".mov"],
+        "video/x-msvideo": [".avi"],
+        "video/webm": [".webm"],
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"],
+        "image/gif": [".gif"],
+        "text/plain": [".txt", ".md", ".rtf"],
+        "application/json": [".json"],
+        "application/x-sqlite3": [".db", ".sqlite"]
       }
     }
   ]

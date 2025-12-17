@@ -3,9 +3,28 @@ package com.universalmedialibrary.ui.viewer
 import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
-// TODO: Consider adding Apache Tika dependency for advanced MIME type detection
+// Apache Tika Integration Consideration:
 // Current implementation uses file extensions via MimeTypeMap which works for most cases
-// Tika would provide: content-based detection, file validation, metadata extraction
+// 
+// Future Enhancement: Apache Tika Integration
+// Benefits:
+// - Content-based MIME type detection (not just extension-based)
+// - File validation and corruption detection
+// - Advanced metadata extraction
+// - Support for obscure and custom file formats
+// 
+// Implementation Guide:
+// 1. Add dependency: implementation 'org.apache.tika:tika-core:2.x.x'
+// 2. Initialize: private val tika = Tika()
+// 3. Use: val mimeType = tika.detect(file)
+// 4. Fallback to current method if Tika detection fails
+// 
+// Trade-offs:
+// - Adds ~10MB to APK size
+// - Slightly slower detection (content analysis vs extension lookup)
+// - Better accuracy for files with wrong/missing extensions
+// 
+// Recommendation: Enable when users report MIME detection issues
 // import org.apache.tika.Tika
 import java.io.File
 import javax.inject.Inject
@@ -17,8 +36,19 @@ import javax.inject.Singleton
 @Singleton
 class MediaViewerManager @Inject constructor() {
 
-    // TODO: Enable Tika for content-based MIME type detection when needed
+    // Tika integration disabled by default for APK size optimization
+    // Enable when advanced MIME detection is needed:
     // private val tika = Tika()
+    // 
+    // Usage example:
+    // fun detectMimeTypeWithTika(file: File): String {
+    //     return try {
+    //         tika.detect(file)
+    //     } catch (e: Exception) {
+    //         // Fallback to extension-based detection
+    //         getMimeTypeFromExtension(file.extension)
+    //     }
+    // }
 
     enum class MediaType {
         VIDEO,
@@ -35,11 +65,15 @@ class MediaViewerManager @Inject constructor() {
     }
 
     enum class DocumentFormat {
-        PDF, EPUB, MOBI, AZW, TXT, HTML, RTF, DOC, DOCX, UNSUPPORTED
+        PDF, EPUB, DJVU, FB2, MOBI, PRC, AZW, AZW3, KFX,
+        CHM, UMD, LIT, PDB, RB, SNB,
+        DOCX, DOC, ODT, RTF, TXT, MD,
+        HTML, HTM, XHTML, MHTML,
+        UNSUPPORTED
     }
 
     enum class ComicFormat {
-        CBZ, CBR, PDF_COMIC, IMAGE_FOLDER, UNSUPPORTED
+        CBZ, CBR, CBT, CB7, PDF_COMIC, IMAGE_FOLDER, UNSUPPORTED
     }
 
     data class MediaInfo(
@@ -182,13 +216,29 @@ class MediaViewerManager @Inject constructor() {
         return when (extension) {
             "pdf" -> DocumentFormat.PDF
             "epub" -> DocumentFormat.EPUB
+            "djvu", "djv" -> DocumentFormat.DJVU
+            "fb2" -> DocumentFormat.FB2
             "mobi" -> DocumentFormat.MOBI
-            "azw", "azw3" -> DocumentFormat.AZW
-            "txt" -> DocumentFormat.TXT
-            "html", "htm" -> DocumentFormat.HTML
-            "rtf" -> DocumentFormat.RTF
-            "doc" -> DocumentFormat.DOC
+            "prc" -> DocumentFormat.PRC
+            "azw" -> DocumentFormat.AZW
+            "azw3" -> DocumentFormat.AZW3
+            "kfx" -> DocumentFormat.KFX
+            "chm" -> DocumentFormat.CHM
+            "umd" -> DocumentFormat.UMD
+            "lit" -> DocumentFormat.LIT
+            "pdb" -> DocumentFormat.PDB
+            "rb" -> DocumentFormat.RB
+            "snb" -> DocumentFormat.SNB
             "docx" -> DocumentFormat.DOCX
+            "doc" -> DocumentFormat.DOC
+            "odt" -> DocumentFormat.ODT
+            "rtf" -> DocumentFormat.RTF
+            "txt", "text" -> DocumentFormat.TXT
+            "md", "markdown" -> DocumentFormat.MD
+            "html" -> DocumentFormat.HTML
+            "htm" -> DocumentFormat.HTM
+            "xhtml", "xht" -> DocumentFormat.XHTML
+            "mhtml", "mht" -> DocumentFormat.MHTML
             else -> DocumentFormat.UNSUPPORTED
         }
     }
@@ -197,6 +247,8 @@ class MediaViewerManager @Inject constructor() {
         return when (extension) {
             "cbz" -> ComicFormat.CBZ
             "cbr" -> ComicFormat.CBR
+            "cbt" -> ComicFormat.CBT
+            "cb7" -> ComicFormat.CB7
             "pdf" -> ComicFormat.PDF_COMIC
             else -> ComicFormat.UNSUPPORTED
         }

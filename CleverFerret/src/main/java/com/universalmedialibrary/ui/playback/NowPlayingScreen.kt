@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.QueueItem
 import com.universalmedialibrary.services.playback.UnifiedPlaybackState
 import com.universalmedialibrary.ui.icons.PhosphorIcons
@@ -27,14 +30,17 @@ import java.util.Locale
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NowPlayingScreen(
-    viewModel: NowPlayingViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit = {}
-) {
+    fun NowPlayingScreen(
+        viewModel: NowPlayingViewModel = hiltViewModel(),
+        onNavigateBack: () -> Unit = {}
+    ) {
     val playbackState by viewModel.playbackState.collectAsState()
     val currentItem by viewModel.currentItem.collectAsState()
     val queueItems by viewModel.queueItems.collectAsState()
     val currentQueue by viewModel.currentQueue.collectAsState()
+    val playlists by viewModel.availablePlaylists.collectAsState()
+    
+    var showPlaylistDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -47,7 +53,7 @@ fun NowPlayingScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -68,13 +74,17 @@ fun NowPlayingScreen(
                 CurrentPlayingItem(
                     item = item,
                     playbackState = playbackState,
+                    shuffleEnabled = currentQueue?.shuffleEnabled ?: false,
+                    repeatMode = currentQueue?.repeatMode ?: "NONE",
                     onPlayPause = viewModel::togglePlayPause,
                     onSkipNext = viewModel::skipToNext,
                     onSkipPrevious = viewModel::skipToPrevious,
                     onSeek = viewModel::seekTo,
                     onSpeedChange = viewModel::setPlaybackSpeed,
                     onThumbsUp = { viewModel.likeCurrentTrack() },
-                    onAddToPlaylist = { /* TODO: Show playlist selection dialog */ }
+                    onAddToPlaylist = { showPlaylistDialog = true },
+                    onToggleShuffle = viewModel::toggleShuffle,
+                    onToggleRepeat = viewModel::toggleRepeatMode
                 )
             }
 
@@ -89,19 +99,39 @@ fun NowPlayingScreen(
             )
         }
     }
+    
+    if (showPlaylistDialog && currentItem != null) {
+        PlaylistSelectionDialog(
+            playlists = playlists,
+            currentItem = currentItem,
+            onDismiss = { showPlaylistDialog = false },
+            onPlaylistSelected = { playlistId ->
+                viewModel.addCurrentTrackToPlaylist(playlistId)
+                showPlaylistDialog = false
+            },
+            onCreatePlaylist = { name ->
+                viewModel.createPlaylistWithCurrentTrack(name)
+                showPlaylistDialog = false
+            }
+        )
+    }
 }
 
 @Composable
 private fun CurrentPlayingItem(
     item: QueueItem,
     playbackState: UnifiedPlaybackState,
+    shuffleEnabled: Boolean,
+    repeatMode: String,
     onPlayPause: () -> Unit,
     onSkipNext: () -> Unit,
     onSkipPrevious: () -> Unit,
     onSeek: (Long) -> Unit,
     onSpeedChange: (Float) -> Unit,
     onThumbsUp: () -> Unit,
-    onAddToPlaylist: () -> Unit
+    onAddToPlaylist: () -> Unit,
+    onToggleShuffle: () -> Unit,
+    onToggleRepeat: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -176,23 +206,14 @@ private fun CurrentPlayingItem(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Playback controls
+            // Primary Controls (Play, Pause, Skip)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onThumbsUp) {
-                    Icon(
-                        Icons.Default.ThumbUp,
-                        contentDescription = "Like",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                // Shuffle/Repeat would need to be added to viewModel interface
-                
                 IconButton(onClick = onSkipPrevious) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Previous")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous")
                 }
 
                 FloatingActionButton(
@@ -206,8 +227,45 @@ private fun CurrentPlayingItem(
                 }
 
                 IconButton(onClick = onSkipNext) {
-                    Icon(Icons.Default.ArrowForward, contentDescription = "Next")
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next")
                 }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Secondary Controls (Shuffle, Repeat, Like, Playlist)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                 IconButton(onClick = onToggleShuffle) {
+                    Icon(
+                        Icons.Default.Shuffle,
+                        contentDescription = "Shuffle",
+                        tint = if (shuffleEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                IconButton(onClick = onToggleRepeat) {
+                    Icon(
+                        when (repeatMode) {
+                            "ONE" -> Icons.Default.RepeatOne
+                            else -> Icons.Default.Repeat
+                        },
+                        contentDescription = "Repeat",
+                        tint = if (repeatMode != "NONE") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                IconButton(onClick = onThumbsUp) {
+                    Icon(
+                        Icons.Default.ThumbUp,
+                        contentDescription = "Like",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
                 IconButton(onClick = onAddToPlaylist) {
                     Icon(
                         Icons.Default.PlaylistAdd,
@@ -377,4 +435,96 @@ private fun formatTime(timeMs: Long): String {
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
     return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
+}
+
+/**
+ * Playlist selection dialog
+ */
+@Composable
+private fun PlaylistSelectionDialog(
+    playlists: List<Playlist>,
+    currentItem: QueueItem?,
+    onDismiss: () -> Unit,
+    onPlaylistSelected: (Long) -> Unit,
+    onCreatePlaylist: (String) -> Unit
+) {
+    var newPlaylistName by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add to Playlist") },
+        text = {
+            Column {
+                Text(
+                    text = "Select a playlist to add \"${currentItem?.title ?: "this item"}\" to:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (playlists.isEmpty()) {
+                    Text(
+                        text = "No playlists found. Create a new playlist below.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 240.dp)
+                    ) {
+                        itemsIndexed(playlists) { _, playlist ->
+                            TextButton(
+                                onClick = { onPlaylistSelected(playlist.playlistId) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        text = playlist.name,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = playlist.description ?: "Playlist",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = newPlaylistName,
+                    onValueChange = { newPlaylistName = it },
+                    label = { Text("New playlist name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        val trimmed = newPlaylistName.trim()
+                        if (trimmed.isNotEmpty()) {
+                            onCreatePlaylist(trimmed)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = newPlaylistName.isNotBlank()
+                ) {
+                    Text("Create and add")
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

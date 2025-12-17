@@ -1,9 +1,13 @@
 package com.universalmedialibrary.services.reader
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import android.net.Uri
-import com.universalmedialibrary.data.local.entity.ReadingProgress
 import com.universalmedialibrary.data.local.dao.ReadingProgressDao
+import com.universalmedialibrary.data.local.entity.ReadingProgress
+import com.universalmedialibrary.services.epub.EpubChapter
+import com.universalmedialibrary.services.epub.EpubProgress
+import com.universalmedialibrary.services.epub.EpubReaderEngine
 import com.universalmedialibrary.services.reader.core.BookSource
 import com.universalmedialibrary.services.reader.core.Locator
 import com.universalmedialibrary.services.reader.core.ReaderEngine
@@ -18,6 +22,7 @@ import kotlinx.coroutines.withContext
 import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.services.reading.ReadingAnalyticsService
 
 /**
  * Enhanced Universal Reader Service that manages reading sessions across all supported formats.
@@ -33,7 +38,8 @@ import javax.inject.Singleton
 class EnhancedUniversalReaderService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val readerEngineFactory: ReaderEngineFactory,
-    private val readingProgressDao: ReadingProgressDao
+    private val readingProgressDao: ReadingProgressDao,
+    private val readingAnalyticsService: ReadingAnalyticsService
 ) {
 
     private val gson = Gson()
@@ -77,7 +83,12 @@ class EnhancedUniversalReaderService @Inject constructor(
                     currentFormat = format
 
                     // Load saved reading progress
-                    loadReadingProgress(bookId)
+                    val startProgress = loadReadingProgress(bookId) ?: 0f
+
+                    readingAnalyticsService.startReadingSession(
+                        itemId = bookId,
+                        startProgress = startProgress
+                    )
 
                     _readerState.value = _readerState.value.copy(
                         isBookOpen = true,
@@ -160,14 +171,14 @@ class EnhancedUniversalReaderService @Inject constructor(
      * Close current book
      */
     suspend fun closeCurrentBook() {
+        var finalProgress = 0f
         currentEngine?.let { engine ->
-            // Save final reading progress
             val currentLocator = engine.currentLocator.first()
-            saveReadingProgress(currentLocator)
-
-            // Close the engine
+            finalProgress = saveReadingProgress(currentLocator) ?: finalProgress
             engine.close()
         }
+
+        readingAnalyticsService.endCurrentSession(endProgress = finalProgress)
 
         currentEngine = null
         currentBookId = 0
@@ -195,21 +206,56 @@ class EnhancedUniversalReaderService @Inject constructor(
      */
     fun isBookOpen(): Boolean = currentEngine != null
 
-    private suspend fun loadReadingProgress(bookId: Long) {
+    suspend fun goToChapter(chapterIndex: Int): Boolean {
+        val engine = currentEngine ?: return false
+        val success = when (engine) {
+            is EpubReaderEngine -> engine.goToChapter(chapterIndex)
+            else -> false
+        }
+        if (success) {
+            val currentLocator = engine.currentLocator.first()
+            saveReadingProgress(currentLocator)
+        }
+        return success
+    }
+
+    fun getCurrentChapterContent(): String? = when (val engine = currentEngine) {
+        is EpubReaderEngine -> engine.getCurrentChapterContent()
+        else -> null
+    }
+
+    fun getCurrentChapterTitle(): String? = when (val engine = currentEngine) {
+        is EpubReaderEngine -> engine.getCurrentChapterTitle()
+        else -> null
+    }
+
+    fun getTableOfContents(): List<EpubChapter> = when (val engine = currentEngine) {
+        is EpubReaderEngine -> engine.getTableOfContents()
+        else -> emptyList()
+    }
+
+    fun getEpubProgress(): EpubProgress? = when (val engine = currentEngine) {
+        is EpubReaderEngine -> engine.getProgress()
+        else -> null
+    }
+
+    private suspend fun loadReadingProgress(bookId: Long): Float? {
         try {
             val progress = readingProgressDao.getProgress(bookId).first()
             progress?.let {
                 // Parse the saved locator and navigate to it
                 val locator = gson.fromJson(it.locator ?: "{}", Locator::class.java)
                 currentEngine?.goTo(locator)
+                return it.percentage
             }
         } catch (e: Exception) {
             // Failed to load progress, start from beginning
         }
+        return null
     }
 
-    private suspend fun saveReadingProgress(locator: Locator) {
-        if (currentBookId <= 0) return
+    private suspend fun saveReadingProgress(locator: Locator): Float? {
+        if (currentBookId <= 0) return null
 
         try {
             val locatorJson = gson.toJson(locator)
@@ -222,18 +268,26 @@ class EnhancedUniversalReaderService @Inject constructor(
             } else 0f
 
             // Use upsert to insert or update progress
+            val timestamp = System.currentTimeMillis()
             val progress = ReadingProgress(
                 itemId = currentBookId,
                 currentPage = currentPage,
                 percentage = progressPercentage,
                 locator = locatorJson,
-                lastUpdate = System.currentTimeMillis()
+                lastUpdate = timestamp,
+                lastModified = timestamp
             )
 
             readingProgressDao.upsert(progress)
 
+            return progressPercentage
+        } catch (e: SQLiteConstraintException) {
+            // Foreign key constraint failed - media item doesn't exist in database
+            // This can happen when opening files directly without adding to library
+            return null
         } catch (e: Exception) {
             // Failed to save progress, continue reading
+            return null
         }
     }
 }

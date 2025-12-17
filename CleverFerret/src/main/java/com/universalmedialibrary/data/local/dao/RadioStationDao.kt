@@ -22,11 +22,28 @@ interface RadioStationDao {
     @Query("SELECT * FROM radio_stations WHERE isFavorite = 1 ORDER BY name ASC")
     fun getFavoriteStations(): Flow<List<RadioStation>>
 
+    @Query("SELECT * FROM radio_stations WHERE streamUrl = :streamUrl LIMIT 1")
+    suspend fun getStationByStreamUrl(streamUrl: String): RadioStation?
+
     @Query("SELECT * FROM radio_stations WHERE genre = :genre ORDER BY name ASC")
     fun getStationsByGenre(genre: String): Flow<List<RadioStation>>
 
     @Query("SELECT DISTINCT genre FROM radio_stations WHERE genre IS NOT NULL ORDER BY genre ASC")
     fun getAllGenres(): Flow<List<String>>
+
+    data class GenreCount(
+        val genre: String,
+        val count: Int
+    )
+
+    @Query("""
+        SELECT genre as genre, COUNT(*) as count
+        FROM radio_stations
+        WHERE genre IS NOT NULL
+        GROUP BY genre
+        ORDER BY count DESC, genre ASC
+    """)
+    fun getGenreCounts(): Flow<List<GenreCount>>
 
     @Query("SELECT * FROM radio_stations WHERE name LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%'")
     fun searchStations(query: String): Flow<List<RadioStation>>

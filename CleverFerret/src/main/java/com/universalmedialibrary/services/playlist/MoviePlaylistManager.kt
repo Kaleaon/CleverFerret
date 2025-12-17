@@ -2,8 +2,10 @@ package com.universalmedialibrary.services.playlist
 
 import android.content.Context
 import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.PlaylistDao
 import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MetadataMovie
 import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.PlaylistItem
 import com.universalmedialibrary.data.repository.HistoryRepository
@@ -32,6 +34,7 @@ class MoviePlaylistManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val playlistDao: PlaylistDao,
     private val mediaItemDao: MediaItemDao,
+    private val metadataDao: MetadataDao,
     private val queueManager: UnifiedPlaybackQueueManager,
     private val historyRepository: HistoryRepository
 ) {
@@ -365,12 +368,26 @@ class MoviePlaylistManager @Inject constructor(
     }
 
     /**
-     * Get total runtime of a collection
+     * Get total runtime of a collection in minutes
      */
     suspend fun getCollectionRuntime(playlistId: Long): Long {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
-        // TODO: Calculate when duration metadata is available
-        return 0L
+        var totalRuntime = 0L
+        
+        for (item in items) {
+            try {
+                // Get movie metadata for runtime information
+                val movieMetadata = metadataDao.getMetadataMovieByItemId(item.mediaItemId)
+                movieMetadata?.runtime?.let { runtime ->
+                    totalRuntime += runtime.toLong()
+                }
+            } catch (e: Exception) {
+                // Log error but continue processing other items
+                android.util.Log.w("MoviePlaylistManager", "Failed to get runtime for item ${item.mediaItemId}: ${e.message}")
+            }
+        }
+        
+        return totalRuntime
     }
 
     // Private helper methods

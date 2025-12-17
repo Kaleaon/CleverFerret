@@ -38,6 +38,11 @@ object DatabaseModule {
         return database.libraryDao()
     }
 
+      @Provides
+      fun provideLibraryScanSettingsDao(database: AppDatabase): LibraryScanSettingsDao {
+          return database.libraryScanSettingsDao()
+      }
+
     @Provides
     fun provideAPIKeyDao(appDatabase: AppDatabase): APIKeyDao {
         return appDatabase.apiKeyDao()
@@ -47,6 +52,11 @@ object DatabaseModule {
     fun provideMediaItemDao(appDatabase: AppDatabase): MediaItemDao {
         return appDatabase.mediaItemDao()
     }
+
+      @Provides
+      fun provideListenHistoryDao(appDatabase: AppDatabase): ListenHistoryDao {
+          return appDatabase.listenHistoryDao()
+      }
 
     @Provides
     fun provideMetadataDao(database: AppDatabase): MetadataDao {
@@ -103,9 +113,20 @@ object DatabaseModule {
 
     // Reader enhancement DAOs
     @Provides
-    fun provideAnnotationDao(database: AppDatabase): AnnotationDao {
-        return database.annotationDao()
-    }
+    fun provideAnnotationDao(database: AppDatabase): AnnotationDao =
+        database.annotationDao()
+
+    @Provides
+    fun provideEnhancedAnnotationDao(database: AppDatabase): EnhancedAnnotationDao =
+        database.enhancedAnnotationDao()
+
+    @Provides
+    fun provideBookSourceDao(database: AppDatabase): BookSourceDao =
+        database.bookSourceDao()
+
+    @Provides
+    fun provideBookChapterDao(database: AppDatabase): BookChapterDao =
+        database.bookChapterDao()
 
     @Provides
     fun provideSearchIndexDao(database: AppDatabase): SearchIndexDao {
@@ -113,9 +134,12 @@ object DatabaseModule {
     }
 
     @Provides
-    fun provideReadingStatisticsDao(database: AppDatabase): ReadingStatisticsDao {
-        return database.readingStatisticsDao()
-    }
+    fun provideReadingStatisticsDao(database: AppDatabase): ReadingStatisticsDao =
+        database.readingStatisticsDao()
+
+    @Provides
+    fun provideReadingAnalyticsDao(database: AppDatabase): ReadingAnalyticsDao =
+        database.readingAnalyticsDao()
 
     @Provides
     fun provideReaderSettingsDao(database: AppDatabase): ReaderSettingsDao {
@@ -182,6 +206,11 @@ object DatabaseModule {
     @Provides
     fun provideMaintenanceChangeDao(database: AppDatabase): MaintenanceChangeDao {
         return database.maintenanceChangeDao()
+    }
+
+    @Provides
+    fun provideExtendedMetadataDao(database: AppDatabase): ExtendedMetadataDao {
+        return database.extendedMetadataDao()
     }
 
     // Metadata Fetch Repository
@@ -282,9 +311,32 @@ object DatabaseModule {
     
     // Ambient Sound DAO
     @Provides
-    fun provideAmbientSoundDao(database: AppDatabase): AmbientSoundDao {
-        return database.ambientSoundDao()
-    }
+    fun provideAmbientSoundDao(database: AppDatabase): AmbientSoundDao =
+        database.ambientSoundDao()
+
+    @Provides
+    fun provideAudioWaveformDao(database: AppDatabase): AudioWaveformDao =
+        database.audioWaveformDao()
+
+    @Provides
+    fun provideAudioSyncServerDao(database: AppDatabase): AudioSyncServerDao =
+        database.audioSyncServerDao()
+
+    @Provides
+    fun provideAudioSyncClientDao(database: AppDatabase): AudioSyncClientDao =
+        database.audioSyncClientDao()
+
+    @Provides
+    fun provideAudioSyncGroupDao(database: AppDatabase): AudioSyncGroupDao =
+        database.audioSyncGroupDao()
+
+    @Provides
+    fun provideAudioStreamDao(database: AppDatabase): AudioStreamDao =
+        database.audioStreamDao()
+
+    @Provides
+    fun provideSyncStatisticsDao(database: AppDatabase): SyncStatisticsDao =
+        database.syncStatisticsDao()
     
     // Audio Pack DAO
     @Provides
@@ -309,6 +361,14 @@ object DatabaseModule {
     @Provides
     fun provideCollaborativeSessionDao(database: AppDatabase): CollaborativeSessionDao {
         return database.collaborativeSessionDao()
+    }
+
+    /**
+     * Provides the DAO for accessing dictionary entries.
+     */
+    @Provides
+    fun provideDictionaryDao(database: AppDatabase): DictionaryDao {
+        return database.dictionaryDao()
     }
 
 }

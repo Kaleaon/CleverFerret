@@ -10,6 +10,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,6 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import com.universalmedialibrary.data.local.entity.AnnotationExportConfig
+import com.universalmedialibrary.data.local.entity.ExportFormat
+import com.universalmedialibrary.data.local.entity.ReaderAIInsight
+import java.io.File
 
 /**
  * Enhanced eBook Reader with beautiful, customizable reading experience
@@ -43,12 +51,12 @@ fun EnhancedEReaderScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
     var showControls by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showBookmarks by remember { mutableStateOf(false) }
     var showTableOfContents by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
+    var showAIInsights by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
     // Reader settings
@@ -59,7 +67,7 @@ fun EnhancedEReaderScreen(
     var brightness by remember { mutableStateOf(1f) }
 
     LaunchedEffect(bookFilePath) {
-        viewModel.loadBook(context, bookFilePath)
+        viewModel.loadBook(bookFilePath)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -87,7 +95,7 @@ fun EnhancedEReaderScreen(
                 uiState.error != null -> {
                     ErrorView(
                         message = uiState.error!!,
-                        onRetry = { viewModel.loadBook(context, bookFilePath) }
+                        onRetry = { viewModel.loadBook(bookFilePath) }
                     )
                 }
                 uiState.isLoaded -> {
@@ -134,7 +142,7 @@ fun EnhancedEReaderScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
 
                     Column(
@@ -155,6 +163,9 @@ fun EnhancedEReaderScreen(
                     }
 
                     Row {
+                        IconButton(onClick = { showAIInsights = true }) {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = "AI Insights")
+                        }
                         IconButton(onClick = { showBookmarks = !showBookmarks }) {
                             Icon(
                                 Icons.Default.Bookmark,
@@ -211,7 +222,7 @@ fun EnhancedEReaderScreen(
                         }
 
                         IconButton(onClick = { showTableOfContents = true }) {
-                            Icon(Icons.Default.MenuBook, contentDescription = "Table of Contents")
+                            Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Table of Contents")
                         }
 
                         IconButton(onClick = { showSearch = true }) {
@@ -260,28 +271,84 @@ fun EnhancedEReaderScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = {
-                            // Add bookmark at current position - shows confirmation
-                            showBookmarks = false
+                            val exportName = uiState.bookTitle.ifBlank { "annotations" }
+                            val exportFile = File(context.cacheDir, "$exportName.md")
+                            viewModel.exportAnnotations(
+                                destination = exportFile,
+                                config = AnnotationExportConfig(
+                                    format = ExportFormat.MARKDOWN,
+                                    includeNotes = true,
+                                    includeQuotes = true,
+                                    includeMetadata = true,
+                                    groupByChapter = true
+                                )
+                            )
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.AddCircle, "Add", modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Share, contentDescription = "Export", modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Add Bookmark Here")
+                        Text("Export Annotations")
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Your Bookmarks",
+                        "Your Highlights & Notes",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "No bookmarks yet",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 32.dp)
-                    )
+                    if (uiState.enhancedAnnotations.isEmpty()) {
+                        Text(
+                            "No annotations yet",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 32.dp)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f, fill = false)
+                        ) {
+                            items(uiState.enhancedAnnotations) { annotation ->
+                                val chapterIndex = annotation.chapterId?.toInt() ?: 0
+                                val chapterTitle = annotation.chapterName ?: "Chapter ${chapterIndex + 1}"
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp)
+                                        .clickable {
+                                            viewModel.goToChapter(chapterIndex)
+                                            showBookmarks = false
+                                        },
+                                    tonalElevation = 2.dp,
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(
+                                            text = chapterTitle,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = annotation.quote ?: annotation.text,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            maxLines = 4
+                                        )
+                                        annotation.note?.takeIf { it.isNotBlank() }?.let { note ->
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            Text(
+                                                text = "Note: $note",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.secondary
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -301,6 +368,8 @@ fun EnhancedEReaderScreen(
                             )
                         } else {
                             repeat(uiState.totalChapters) { index ->
+                                val chapterTitle = uiState.chapters.getOrNull(index)?.takeIf { it.isNotBlank() }
+                                val displayTitle = chapterTitle ?: "Chapter ${index + 1}"
                                 Surface(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -316,7 +385,7 @@ fun EnhancedEReaderScreen(
                                     }
                                 ) {
                                     Text(
-                                        text = "Chapter " + (index + 1).toString(),
+                                        text = displayTitle,
                                         style = MaterialTheme.typography.bodyLarge,
                                         modifier = Modifier.padding(12.dp)
                                     )
@@ -407,6 +476,99 @@ fun EnhancedEReaderScreen(
                 brightness = brightness,
                 onBrightnessChange = { brightness = it },
                 onDismiss = { showSettings = false }
+            )
+        }
+
+        if (showAIInsights) {
+            AIInsightsSheet(
+                insights = uiState.aiInsights,
+                onDismiss = { showAIInsights = false }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AIInsightsSheet(
+    insights: List<ReaderAIInsight>,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "AI Insights",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            }
+
+            if (insights.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No insights available yet.\nContinue reading to generate insights.",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(insights) { insight ->
+                        insight.summary?.let {
+                            InsightCard("Summary", it)
+                        }
+                        insight.characterAnalysis?.let {
+                            InsightCard("Character Analysis", it)
+                        }
+                        insight.perspectiveAnalysis?.let {
+                            InsightCard("Perspective Analysis", it)
+                        }
+                        if (insight.keyThemes.isNotEmpty()) {
+                            InsightCard("Key Themes", insight.keyThemes.joinToString("\n• ", prefix = "• "))
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun InsightCard(title: String, content: String) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = content,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
@@ -588,6 +750,25 @@ private fun ReadingSettingsSheet(
                         textColor = Color.Black,
                         isSelected = backgroundColor == Color.White,
                         onClick = { onBackgroundChange(Color.White, Color.Black) }
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ThemeButton(
+                        name = "Paper",
+                        backgroundColor = Color(0xFFF5F5DC), // Beige/Cream
+                        textColor = Color(0xFF2C2C2C),
+                        isSelected = backgroundColor == Color(0xFFF5F5DC),
+                        onClick = { onBackgroundChange(Color(0xFFF5F5DC), Color(0xFF2C2C2C)) }
+                    )
+                    ThemeButton(
+                        name = "OLED",
+                        backgroundColor = Color.Black,
+                        textColor = Color(0xFFB0B0B0),
+                        isSelected = backgroundColor == Color.Black,
+                        onClick = { onBackgroundChange(Color.Black, Color(0xFFB0B0B0)) }
                     )
                 }
             }

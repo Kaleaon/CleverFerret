@@ -80,6 +80,8 @@ class APIKeyRepository @Inject constructor(
             Triple("amazon_access_key", "BOOKS", false),
             Triple("amazon_secret_key", "BOOKS", false),
             Triple("isbn_db", "BOOKS", false),
+            Triple("nyt", "BOOKS", false),
+            Triple("open_library", "BOOKS", false),
 
             // Comic/Manga APIs
             Triple("comicvine", "COMICS_MANGA", true),
@@ -105,19 +107,32 @@ class APIKeyRepository @Inject constructor(
             Triple("musixmatch", "LYRICS", false),
             Triple("genius", "LYRICS", false),
 
+            // Recommendation APIs
+            Triple("tastedive", "RECOMMENDATIONS", false),
+
             // AI Services - PRIMARY AI for all devices
-            Triple("gemini", "AI_SERVICES", false)
+            Triple("gemini", "AI_SERVICES", false),
+            Triple("openai", "AI_SERVICES", false),
+            Triple("elevenlabs", "AI_SERVICES", false),
+            Triple("google_cloud_tts", "AI_SERVICES", false)
         )
 
         defaultConfigs.forEach { (provider, category, isRequired) ->
             val existingKey = apiKeyDao.getAPIKeyByProvider(provider)
             if (existingKey == null) {
+                // Use BuildConfig for defaults if available
+                val defaultKeyValue = when(provider) {
+                    "tastedive" -> try { com.universalmedialibrary.BuildConfig.TASTEDIVE_API_KEY } catch (e: Exception) { "" }
+                    "nyt" -> try { com.universalmedialibrary.BuildConfig.NYT_API_KEY } catch (e: Exception) { "" }
+                    else -> ""
+                }
+                
                 val apiKey = APIKey(
                     displayName = getDisplayNameForProvider(provider),
-                    keyValue = "",
+                    keyValue = defaultKeyValue,
                     provider = provider,
                     category = category,
-                    validationStatus = "UNKNOWN"
+                    validationStatus = if (defaultKeyValue.isNotBlank()) "VALID" else "UNKNOWN"
                 )
                 apiKeyDao.insertAPIKey(apiKey)
             }
@@ -132,6 +147,8 @@ class APIKeyRepository @Inject constructor(
             "amazon_access_key" -> "Amazon Access Key"
             "amazon_secret_key" -> "Amazon Secret Key"
             "isbn_db" -> "ISBN-DB API"
+            "nyt" -> "New York Times API"
+            "open_library" -> "Open Library API"
             "comicvine" -> "ComicVine API"
             "listen_notes" -> "Listen Notes API"
             "spotify_client_id" -> "Spotify Client ID"
@@ -146,7 +163,11 @@ class APIKeyRepository @Inject constructor(
             "cover_art_archive" -> "Cover Art Archive"
             "musixmatch" -> "Musixmatch API"
             "genius" -> "Genius API"
+            "tastedive" -> "TasteDive API"
             "gemini" -> "Google Gemini AI"
+            "openai" -> "OpenAI API"
+            "elevenlabs" -> "ElevenLabs API"
+            "google_cloud_tts" -> "Google Cloud TTS"
             else -> provider.replace("_", " ").split(" ").joinToString(" ") {
                 it.replaceFirstChar { char -> char.uppercaseChar() }
             }

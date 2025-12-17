@@ -64,7 +64,8 @@ export const VisualizerScreen: React.FC = () => {
 
       draw();
     } catch (err) {
-      console.error('Failed to initialize visualizer:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('Visualizer', 'Failed to initialize visualizer', undefined, err as Error);
     }
   };
 

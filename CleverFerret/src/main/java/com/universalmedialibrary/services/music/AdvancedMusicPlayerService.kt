@@ -675,6 +675,8 @@ class AdvancedMusicPlayerService @Inject constructor(
         _queue.value = emptyList()
         _currentTrack.value = null
         updatePlaybackState(isPlaying = false)
+        // Cancel coroutine scope to prevent memory leaks
+        scrobblerScope.cancel()
     }
 
     // ===== PLAYBACK MODES =====

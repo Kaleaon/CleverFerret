@@ -24,7 +24,8 @@ data class RadioStation(
     // Station info
     val name: String,
     val description: String? = null,
-    val streamUrl: String,
+    val streamUrl: String? = null,
+    val frequencyKhz: Int? = null,
     val websiteUrl: String? = null,
     val logoUrl: String? = null,
 

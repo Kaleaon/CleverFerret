@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -132,6 +134,15 @@ fun APIKeysManagerScreen(
                     setupInstructions = "1. Sign up for Listen Notes\\n2. Get free API key\\n3. Upgrade for more requests"
                 ),
                 APIKeyConfig(
+                    key = "podcast_index",
+                    displayName = "PodcastIndex API",
+                    description = "Community-driven podcast directory (enter as KEY:SECRET)",
+                    websiteUrl = "https://podcastindex.org/",
+                    isFree = true,
+                    category = APICategory.PODCASTS,
+                    setupInstructions = "1. Create PodcastIndex account\\n2. Generate API key and secret\\n3. Enter as KEY:SECRET"
+                ),
+                APIKeyConfig(
                     key = "spotify_client_id",
                     displayName = "Spotify Client ID",
                     description = "Access Spotify podcast directory",
@@ -221,7 +232,7 @@ fun APIKeysManagerScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
                     actions = {
@@ -352,7 +363,7 @@ fun APIKeysManagerScreen(
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.OpenInNew, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Open ${config.displayName} Website")
                         }

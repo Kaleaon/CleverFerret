@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.library
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -37,26 +38,36 @@ enum class MediaType {
 
 /**
  * A component that displays a single media item with its poster, title, and other details.
- * Converted from React MediaItem component with Plex-inspired design.
+ * Converted from React MediaItem component with media-centric design.
  */
 @Composable
 fun MediaItem(
     item: MediaItemData,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectionEnabled: Boolean = false,
+    isSelected: Boolean = false,
+    onSelectionToggle: (() -> Unit)? = null
 ) {
     var isHovered by remember { mutableStateOf(false) }
+
+    val clickHandler = if (selectionEnabled && onSelectionToggle != null) {
+        { onSelectionToggle() }
+    } else {
+        onClick
+    }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .height(350.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
+            .clickable(onClick = clickHandler),
+        shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1F2326)
-        )
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column {
             // Poster/Image area
@@ -64,16 +75,7 @@ fun MediaItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
-                    .background(
-                        color = when (item.type) {
-                            MediaType.BOOK -> Color(0xFF2C5F2D)
-                            MediaType.MOVIE -> Color(0xFF1565C0)
-                            MediaType.MUSIC -> Color(0xFF7B1FA2)
-                            MediaType.PODCAST -> Color(0xFFEF6C00)
-                            MediaType.MAGAZINE -> Color(0xFFD32F2F)
-                            MediaType.DOCUMENT -> Color(0xFF455A64)
-                        }
-                    ),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 // Placeholder icon (no actual image loading in this demo)
@@ -88,7 +90,7 @@ fun MediaItem(
                     },
                     contentDescription = item.type.name,
                     modifier = Modifier.size(50.dp),
-                    tint = Color.White.copy(alpha = 0.7f)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 // Rating badge
@@ -97,8 +99,8 @@ fun MediaItem(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .background(
-                            Color.Black.copy(alpha = 0.8f),
-                            RoundedCornerShape(8.dp)
+                            MaterialTheme.colorScheme.scrim.copy(alpha = 0.8f),
+                            RoundedCornerShape(4.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
@@ -110,63 +112,34 @@ fun MediaItem(
                             imageVector = PhosphorIcons.Star,
                             contentDescription = "Rating",
                             modifier = Modifier.size(12.dp),
-                            tint = Color(0xFFE5A00D)
+                            tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = item.rating.toString(),
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFFE5A00D),
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
 
-                // Overlay with action button (simplified, no animation for now)
-                if (isHovered) {
+                // Selection Overlay
+                if (selectionEnabled) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.7f)),
-                        contentAlignment = Alignment.Center
+                            .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                        contentAlignment = Alignment.TopStart
                     ) {
-                        Button(
-                            onClick = onClick,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFE5A00D),
-                                contentColor = Color.Black
+                        Checkbox(
+                            checked = isSelected,
+                            onCheckedChange = { onSelectionToggle?.invoke() },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = MaterialTheme.colorScheme.primary,
+                                uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                             ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = when (item.type) {
-                                        MediaType.BOOK -> PhosphorIcons.Book
-                                        MediaType.MOVIE -> PhosphorIcons.Play
-                                        MediaType.MUSIC -> PhosphorIcons.Play
-                                        MediaType.PODCAST -> PhosphorIcons.Play
-                                        MediaType.MAGAZINE -> PhosphorIcons.Newspaper
-                                        MediaType.DOCUMENT -> PhosphorIcons.FileText
-                                    },
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Text(
-                                    text = when (item.type) {
-                                        MediaType.BOOK -> "Read"
-                                        MediaType.MOVIE -> "Watch"
-                                        MediaType.MUSIC -> "Play"
-                                        MediaType.PODCAST -> "Play"
-                                        MediaType.MAGAZINE -> "Read"
-                                        MediaType.DOCUMENT -> "Open"
-                                    },
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 12.sp
-                                )
-                            }
-                        }
+                            modifier = Modifier.padding(4.dp)
+                        )
                     }
                 }
             }
@@ -175,13 +148,13 @@ fun MediaItem(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(12.dp)
             ) {
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -191,7 +164,7 @@ fun MediaItem(
                 Text(
                     text = "${item.author} • ${item.year}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFB3B3B3),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -200,78 +173,16 @@ fun MediaItem(
 
                 // Genre chip
                 Surface(
-                    modifier = Modifier.clip(RoundedCornerShape(12.dp)),
-                    color = Color(0xFFE5A00D).copy(alpha = 0.2f)
+                    modifier = Modifier.clip(RoundedCornerShape(4.dp)),
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
                 ) {
                     Text(
                         text = item.genre,
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFFE5A00D),
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
                         fontSize = 10.sp
                     )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Metadata action buttons
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // API Search button
-                    Surface(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { /* Handle API metadata search */ },
-                        color = Color(0xFF2C5F2D).copy(alpha = 0.3f)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = PhosphorIcons.MagnifyingGlass,
-                                contentDescription = "Search metadata",
-                                modifier = Modifier.size(12.dp),
-                                tint = Color(0xFF97BC62)
-                            )
-                            Text(
-                                text = "Find",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF97BC62),
-                                fontSize = 9.sp
-                            )
-                        }
-                    }
-
-                    // Manual Edit button
-                    Surface(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { /* Handle manual metadata edit */ },
-                        color = Color(0xFF1565C0).copy(alpha = 0.3f)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = PhosphorIcons.Pencil,
-                                contentDescription = "Edit metadata",
-                                modifier = Modifier.size(12.dp),
-                                tint = Color(0xFF42A5F5)
-                            )
-                            Text(
-                                text = "Edit",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF42A5F5),
-                                fontSize = 9.sp
-                            )
-                        }
-                    }
                 }
             }
         }

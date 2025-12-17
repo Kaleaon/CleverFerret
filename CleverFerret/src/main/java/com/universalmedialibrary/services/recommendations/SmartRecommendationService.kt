@@ -23,6 +23,7 @@ import kotlinx.serialization.decodeFromString
  * - Collaborative filtering (based on reading patterns)
  * - Hybrid recommendations (combining multiple signals)
  * - AI-powered recommendations using Gemini
+ * - TasteDive API integration for similar items
  * - Trending and popular items
  * - Personalized for user preferences
  * - Genre-based recommendations
@@ -32,7 +33,8 @@ import kotlinx.serialization.decodeFromString
 class SmartRecommendationService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val database: AppDatabase,
-    private val apiKeyRepository: APIKeyRepository
+    private val apiKeyRepository: APIKeyRepository,
+    private val tasteDiveService: TasteDiveService
 ) {
 
     private val mediaItemDao = database.mediaItemDao()
@@ -67,7 +69,7 @@ class SmartRecommendationService @Inject constructor(
 
             // 3. Genre-based (popular in favorite genres)
             if (options.includeGenreBased) {
-                val genreBased = getGenreBasedRecommendations(options.limit / 4)
+                val genreBased = getGenreBasedRecommendations(options.limit / 4, options)
                 recommendations.addAll(genreBased.map { it.copy(source = "You Might Like") })
             }
 
@@ -75,6 +77,12 @@ class SmartRecommendationService @Inject constructor(
             if (options.includeAIPowered) {
                 val aiRecommendations = getAIRecommendations(options.limit / 4)
                 recommendations.addAll(aiRecommendations.map { it.copy(source = "AI Suggests") })
+            }
+
+            // 5. TasteDive recommendations
+            if (options.includeTasteDive) {
+                val tasteDiveRecs = getTasteDiveRecommendations(options.limit / 4)
+                recommendations.addAll(tasteDiveRecs.map { it.copy(source = "TasteDive") })
             }
 
             // Sort by confidence and deduplicate
@@ -160,25 +168,110 @@ class SmartRecommendationService @Inject constructor(
     /**
      * Genre-based recommendations
      */
-    private suspend fun getGenreBasedRecommendations(limit: Int): List<Recommendation> {
-        // TODO: Implement when genre data is available in metadata
-        // For now, return recently added items
-        val allItems = mediaItemDao.getAllMediaItems()
-        
-        return allItems
-            .sortedByDescending { it.dateAdded }
-            .take(limit)
-            .map { item ->
-                Recommendation(
-                    itemId = item.itemId,
-                    title = item.fileName,
-                    mediaType = item.mediaType,
-                    reason = "Popular in your library",
-                    confidence = 0.6f,
-                    source = "genre_based",
-                    thumbnailUrl = null
-                )
+    private suspend fun getGenreBasedRecommendations(limit: Int, options: RecommendationOptions): List<Recommendation> {
+        // Implemented genre-based recommendations using metadata
+        try {
+            // Get all media items with their genres
+            val allItems = mediaItemDao.getAllMediaItems()
+            val itemsWithGenres = mutableListOf<Pair<MediaItem, List<String>>>()
+            
+            // Collect items with their genres
+            for (item in allItems) {
+                val genres = try {
+                    metadataDao.getGenresByItemId(item.itemId)
+                } catch (e: Exception) {
+                    emptyList<String>()
+                }
+                
+                if (genres.isNotEmpty()) {
+                    itemsWithGenres.add(item to genres)
+                }
             }
+            
+            if (itemsWithGenres.isEmpty()) {
+                // Fallback to recently added items if no genre data available
+                return allItems
+                    .sortedByDescending { it.dateAdded }
+                    .take(limit)
+                    .map { item ->
+                        Recommendation(
+                            itemId = item.itemId,
+                            title = item.fileName,
+                            mediaType = item.mediaType,
+                            reason = "Recently added",
+                            confidence = 0.5f,
+                            source = "genre_based",
+                            thumbnailUrl = null
+                        )
+                    }
+            }
+            
+            // Count genre frequency across the library
+            val genreFrequency = mutableMapOf<String, Int>()
+            for ((_, genres) in itemsWithGenres) {
+                for (genre in genres) {
+                    genreFrequency[genre] = genreFrequency.getOrDefault(genre, 0) + 1
+                }
+            }
+            
+            // Get the most popular genres, or use selected genres if specified
+            val popularGenres = if (options.selectedGenres.isNotEmpty()) {
+                // Use user-selected genres if available
+                options.selectedGenres.filter { genre -> genreFrequency.containsKey(genre) }
+            } else {
+                // Otherwise use most popular genres
+                genreFrequency
+                    .toList()
+                    .sortedByDescending { it.second }
+                    .take(3) // Top 3 genres
+                    .map { it.first }
+            }
+            
+            // Find items in popular genres
+            val recommendations = mutableListOf<Recommendation>()
+            
+            for ((item, genres) in itemsWithGenres) {
+                val itemPopularGenres = genres.intersect(popularGenres.toSet())
+                if (itemPopularGenres.isNotEmpty()) {
+                    val confidence = 0.7f + (itemPopularGenres.size * 0.1f) // Higher confidence for more matches
+                    
+                    recommendations.add(
+                        Recommendation(
+                            itemId = item.itemId,
+                            title = item.fileName,
+                            mediaType = item.mediaType,
+                            reason = "Popular in genres: ${itemPopularGenres.joinToString(", ")}",
+                            confidence = confidence.coerceAtMost(1.0f),
+                            source = "genre_based",
+                            thumbnailUrl = null
+                        )
+                    )
+                }
+            }
+            
+            // Sort by confidence and take the requested limit
+            return recommendations
+                .sortedByDescending { it.confidence }
+                .take(limit)
+                
+        } catch (e: Exception) {
+            // Fallback to recently added items on error
+            val allItems = mediaItemDao.getAllMediaItems()
+            return allItems
+                .sortedByDescending { it.dateAdded }
+                .take(limit)
+                .map { item ->
+                    Recommendation(
+                        itemId = item.itemId,
+                        title = item.fileName,
+                        mediaType = item.mediaType,
+                        reason = "Recently added",
+                        confidence = 0.5f,
+                        source = "genre_based",
+                        thumbnailUrl = null
+                    )
+                }
+        }
     }
 
     /**
@@ -281,6 +374,73 @@ class SmartRecommendationService @Inject constructor(
     }
 
     /**
+     * TasteDive recommendations
+     */
+    private suspend fun getTasteDiveRecommendations(limit: Int): List<Recommendation> {
+        try {
+            val recommendations = mutableListOf<Recommendation>()
+            
+            // Pick a random favorite item to pivot from
+            // In a real scenario, you might rotate through recent favorites or pick media types evenly
+            val favorites = mediaItemDao.getAllMediaItems().filter { it.isFavorite }
+            
+            if (favorites.isEmpty()) return emptyList()
+            
+            val pivotItem = favorites.random()
+            
+            // Map internal MediaItem.mediaType to TasteDive types
+            // Valid TasteDive types: music, movies, shows, podcasts, books, authors, games
+            val type = when (pivotItem.mediaType) {
+                "MUSIC_TRACK" -> "music"
+                "MOVIE" -> "movies"
+                "TV_SHOW", "VIDEO" -> "shows"
+                "BOOK", "EBOOK", "COMIC" -> "books" // or authors if we had author info
+                "PODCAST" -> "podcasts"
+                "AUDIOBOOK" -> "books"
+                else -> null // Try generic query
+            }
+            
+            val query = pivotItem.fileName.substringBeforeLast('.') // Use filename as title proxy
+            
+            val similarItems = tasteDiveService.getSimilarItems(
+                query = query,
+                type = type,
+                limit = limit
+            )
+            
+            // Map TasteDiveItem to Recommendation
+            // Since these are external items, we use -1 as itemId or handle them specially in UI
+            // However, Recommendation expects itemId: Long. 
+            // We might need to change Recommendation to support external items or use a placeholder ID.
+            // For now, let's use negative IDs to indicate external items
+            
+            similarItems.forEachIndexed { index, item ->
+                recommendations.add(
+                    Recommendation(
+                        itemId = -1L - index, // Negative ID placeholder
+                        title = item.name,
+                        mediaType = pivotItem.mediaType, // Suggest it matches the source type
+                        reason = "Similar to ${pivotItem.fileName} (TasteDive)",
+                        confidence = 0.85f,
+                        source = "tastedive",
+                        thumbnailUrl = null,
+                        metadata = mapOf(
+                            "wikiUrl" to (item.wikiUrl ?: ""),
+                            "youtubeUrl" to (item.youtubeUrl ?: ""),
+                            "teaser" to (item.teaser ?: "")
+                        )
+                    )
+                )
+            }
+            
+            return recommendations
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return emptyList()
+        }
+    }
+
+    /**
      * Get trending items (most recently accessed by any user - if multi-user)
      */
     suspend fun getTrendingItems(limit: Int = 10): List<Recommendation> {
@@ -368,7 +528,9 @@ data class RecommendationOptions(
     val includeHistoryBased: Boolean = true,
     val includeGenreBased: Boolean = true,
     val includeAIPowered: Boolean = true,
+    val includeTasteDive: Boolean = true, // New flag
     val mediaTypes: List<String> = emptyList(), // Filter by media type
+    val selectedGenres: List<String> = emptyList(), // Filter by specific genres
     val minConfidence: Float = 0.5f
 )
 

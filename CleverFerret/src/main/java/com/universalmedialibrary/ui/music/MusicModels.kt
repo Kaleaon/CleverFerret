@@ -1,10 +1,14 @@
 package com.universalmedialibrary.ui.music
 
+import android.content.ContentUris
 import android.net.Uri
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.universalmedialibrary.data.local.entity.Playlist
+
+private val ALBUM_ART_CONTENT_URI: Uri = Uri.parse("content://media/external/audio/albumart")
 
 /**
  * Enhanced track data model with all MediaStore metadata
@@ -14,6 +18,7 @@ data class Track(
     val title: String?,
     val artist: String?,
     val album: String?,
+    val albumId: Long? = null,
     val albumArtist: String?,
     val genre: String?,
     val year: Int?,
@@ -27,6 +32,11 @@ data class Track(
     val path: String?,
     val mimeType: String?
 ) {
+    val albumArtUri: Uri?
+        get() = albumId
+            ?.takeIf { it > 0 }
+            ?.let { ContentUris.withAppendedId(ALBUM_ART_CONTENT_URI, it) }
+
     val displayDuration: String get() {
         val seconds = duration / 1000
         val minutes = seconds / 60

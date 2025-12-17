@@ -22,6 +22,7 @@ import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.universalmedialibrary.utils.ErrorLogger
 
 /**
  * Test activity for EPUB reading functionality
@@ -96,7 +97,7 @@ class EPUBTestActivity : ComponentActivity() {
                 }
             } catch (e: Exception) {
                 testResults += "❌ Error: ${e.message}\n"
-                e.printStackTrace()
+                ErrorLogger.logError("EPUBTestActivity", "Error loading EPUB", e)
             }
         }
     }

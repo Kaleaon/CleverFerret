@@ -1,11 +1,14 @@
 package com.universalmedialibrary.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,8 +19,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
+import com.universalmedialibrary.ui.components.NavigationItem
+import com.universalmedialibrary.ui.components.orderedForEditor
 import com.universalmedialibrary.ui.theme.*
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 
 /**
  * Settings Screen with metallic theme
@@ -26,7 +35,8 @@ import com.universalmedialibrary.ui.theme.*
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    navController: androidx.navigation.NavController,
+    navController: NavController,
+    availableBottomItems: List<NavigationItem>,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -45,7 +55,7 @@ fun SettingsScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.Default.ArrowBack, "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                         }
                     }
                 )
@@ -246,6 +256,77 @@ fun SettingsScreen(
                     }
                 }
 
+                // Library & Storage Section
+                item {
+                    MetallicText(
+                        text = "Library & Storage",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("settings/import_sorter") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Import Sorter (Input → Output)",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Scan an input folder and sort everything into an output folder with subfolders + metadata.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.FolderCopy,
+                                contentDescription = "Import Sorter"
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("settings/import_history") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Import History / Undo",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Review past imports and undo the last move/copy if needed.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = "Import History"
+                            )
+                        }
+                    }
+                }
+
                   // Navigation Section
                   item {
                       MetallicText(
@@ -300,7 +381,131 @@ fun SettingsScreen(
                       }
                   }
 
-                   // Reading & Audio Section
+                    item {
+                        BottomBarPreferencesCard(
+                            availableItems = availableBottomItems,
+                            preferences = uiState.bottomBarPreferences,
+                            onOrderChanged = { order, hidden ->
+                                viewModel.updateBottomBarPreferences(order, hidden)
+                            },
+                            onReset = viewModel::resetBottomBarPreferences
+                        )
+                    }
+
+                    // Debug Bug Report Button toggle (only in debug builds)
+                    if (com.universalmedialibrary.BuildConfig.DEBUG) {
+                        item {
+                            val showBugButton by viewModel.showDebugBugButton.collectAsState()
+                            MetallicCard {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Debug Bug Report Button",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = "Show bug report button in bottom bar for quick bug reporting",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Switch(
+                                        checked = showBugButton,
+                                        onCheckedChange = { viewModel.setShowDebugBugButton(it) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                // API & Integrations Section
+                item {
+                    MetallicText(
+                        text = "API & Integrations",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("settings/api") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "API Keys & Services",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Manage Gemini, ComicVine, Last.fm and other API keys",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.Key,
+                                contentDescription = "API Settings"
+                            )
+                        }
+                    }
+                }
+
+                // Web Content Section
+                item {
+                    MetallicText(
+                        text = "Web Content",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("fanfiction_hub") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Fanfiction & Web Fiction Hub",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Discover, download, and manage fanfiction, web comics, and stories",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                                contentDescription = "Fanfiction Hub"
+                            )
+                        }
+                    }
+                }
+
+                // Reading & Audio Section
                 item {
                     MetallicText(
                         text = "Reading & Audio",
@@ -827,6 +1032,8 @@ private fun ThemePickerDialog(
                             }
                         }
                     }
+
+                    
                 }
             }
         },
@@ -836,6 +1043,205 @@ private fun ThemePickerDialog(
             }
         }
     )
+}
+
+@Composable
+private fun BottomBarPreferencesCard(
+    availableItems: List<NavigationItem>,
+    preferences: BottomBarPreferences,
+    onOrderChanged: (List<String>, Set<String>) -> Unit,
+    onReset: () -> Unit
+) {
+    MetallicCard {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Bottom Bar Items",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Reorder and hide shortcuts to match how you use the app.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                TextButton(
+                    onClick = onReset,
+                    enabled = preferences != BottomBarPreferences.Default
+                ) {
+                    Text("Reset")
+                }
+            }
+
+            if (availableItems.isEmpty()) {
+                Text(
+                    text = "Add a library to unlock bottom bar customization.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            } else {
+                BottomBarPreferencesEditor(
+                    availableItems = availableItems,
+                    preferences = preferences,
+                    onOrderChanged = onOrderChanged
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomBarPreferencesEditor(
+    availableItems: List<NavigationItem>,
+    preferences: BottomBarPreferences,
+    onOrderChanged: (List<String>, Set<String>) -> Unit
+) {
+    val orderedItems = remember(availableItems, preferences) {
+        availableItems.orderedForEditor(preferences)
+    }
+    val editorItems = remember(orderedItems, preferences) {
+        mutableStateListOf<BottomBarEditorItem>().apply {
+            orderedItems.forEach { item ->
+                add(
+                    BottomBarEditorItem(
+                        item = item,
+                        visible = item.preferenceId !in preferences.hidden
+                    )
+                )
+            }
+        }
+    }
+
+    val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
+        editorItems.move(from.index, to.index)
+        persistPreferences(editorItems, onOrderChanged)
+    })
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = 320.dp)
+            .reorderable(reorderState),
+        state = reorderState.listState,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        userScrollEnabled = editorItems.size > 3
+    ) {
+        items(editorItems, key = { it.item.preferenceId }) { editorItem ->
+            BottomBarEditorRow(
+                editorItem = editorItem,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .detectReorderAfterLongPress(reorderState),
+                onVisibilityToggle = { visible ->
+                    val index = editorItems.indexOfFirst { it.item.preferenceId == editorItem.item.preferenceId }
+                    if (index != -1) {
+                        editorItems[index] = editorItems[index].copy(visible = visible)
+                        persistPreferences(editorItems, onOrderChanged)
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun BottomBarEditorRow(
+    editorItem: BottomBarEditorItem,
+    modifier: Modifier = Modifier,
+    onVisibilityToggle: (Boolean) -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        tonalElevation = 0.dp,
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                if (editorItem.visible) {
+                    editorItem.item.selectedIcon()
+                } else {
+                    editorItem.item.icon()
+                }
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = editorItem.item.label,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = if (editorItem.visible) FontWeight.Medium else FontWeight.Normal
+                )
+                if (!editorItem.visible) {
+                    Text(
+                        text = "Hidden",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Switch(
+                checked = editorItem.visible,
+                onCheckedChange = onVisibilityToggle
+            )
+
+            Icon(
+                imageVector = Icons.Default.DragHandle,
+                contentDescription = "Drag to reorder",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+private data class BottomBarEditorItem(
+    val item: NavigationItem,
+    val visible: Boolean
+)
+
+private fun <T> MutableList<T>.move(fromIndex: Int, toIndex: Int) {
+    if (fromIndex == toIndex) return
+    val element = removeAt(fromIndex)
+    val targetIndex = if (toIndex > fromIndex) toIndex - 1 else toIndex
+    add(targetIndex.coerceIn(0, size), element)
+}
+
+private fun persistPreferences(
+    items: List<BottomBarEditorItem>,
+    onOrderChanged: (List<String>, Set<String>) -> Unit
+) {
+    val order = items.map { it.item.preferenceId }
+    val hidden = items.filterNot { it.visible }.map { it.item.preferenceId }.toSet()
+    onOrderChanged(order, hidden)
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.settings
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.core.FeatureFlags
@@ -9,6 +10,7 @@ import com.universalmedialibrary.data.settings.ArtworkApiSettings
 import com.universalmedialibrary.data.settings.LyricsApiSettings
 import com.universalmedialibrary.services.gemini.GeminiService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +27,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class APISettingsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository,
     private val geminiService: GeminiService
 ) : ViewModel() {
@@ -41,11 +44,52 @@ class APISettingsViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = true)
 
                 val geminiKey = apiKeyRepository.getGeminiApiKey()
+                val comicVineKey = apiKeyRepository.getAPIKeyValue("comicvine")
+                val tastediveKey = apiKeyRepository.getAPIKeyValue("tastedive")
+                val tmdbKey = apiKeyRepository.getAPIKeyValue("tmdb")
+                val musicBrainzKey = apiKeyRepository.getAPIKeyValue("musicbrainz")
+                val googleBooksKey = apiKeyRepository.getAPIKeyValue("google_books")
+                val openLibraryKey = apiKeyRepository.getAPIKeyValue("open_library")
+                
+                // New keys
+                val goodreadsKey = apiKeyRepository.getAPIKeyValue("goodreads")
+                val nytKey = apiKeyRepository.getAPIKeyValue("nyt")
+                val tvdbKey = apiKeyRepository.getAPIKeyValue("tvdb")
+                val omdbKey = apiKeyRepository.getAPIKeyValue("omdb")
+                val discogsKey = apiKeyRepository.getAPIKeyValue("discogs_token")
+                
+                // Podcast
+                val podcastIndexKey = apiKeyRepository.getAPIKeyValue("podcast_index")
+                val itunesKey = apiKeyRepository.getAPIKeyValue("itunes")
+                val listenNotesKey = apiKeyRepository.getAPIKeyValue("listen_notes")
+                
+                // Debug/Development
+                val githubKey = apiKeyRepository.getAPIKeyValue("github_token")
+
+                // TTS (if we migrate them to Repository, otherwise we might need TtsProviderManager injected here too)
+                // For now, assuming they might be migrated or we just support the ones in repo.
+                
                 val imageGeneratorType = apiKeyRepository.getImageGeneratorType()
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     geminiApiKey = geminiKey,
+                    comicVineApiKey = comicVineKey,
+                    tastediveApiKey = tastediveKey,
+                    tmdbApiKey = tmdbKey,
+                    musicBrainzApiKey = musicBrainzKey,
+                    googleBooksApiKey = googleBooksKey,
+                    openLibraryApiKey = openLibraryKey,
+                    goodreadsApiKey = goodreadsKey,
+                    nytApiKey = nytKey,
+                    tvdbApiKey = tvdbKey,
+                    omdbApiKey = omdbKey,
+                    discogsApiKey = discogsKey,
+                    podcastIndexApiKey = podcastIndexKey,
+                    itunesApiKey = itunesKey,
+                    listenNotesApiKey = listenNotesKey,
+                    githubApiKey = githubKey,
+                    
                     imageGeneratorType = imageGeneratorType,
                     geminiEnabled = FeatureFlags.ENABLE_GEMINI,
                     exoPlayerEnabled = FeatureFlags.ENABLE_EXOPLAYER,
@@ -70,6 +114,55 @@ class APISettingsViewModel @Inject constructor(
 
     fun saveLyricsApis(settings: LyricsApiSettings) {
         _uiState.value = _uiState.value.copy(statusMessage = "Lyrics API settings saved", hasError = false, lyricsApis = settings)
+    }
+
+    fun saveApiKey(provider: String, apiKey: String, category: String, displayName: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                apiKeyRepository.saveAPIKey(provider, apiKey, category, false)
+                
+                // Update local state map or individual fields
+                _uiState.value = when(provider) {
+                    "comicvine" -> _uiState.value.copy(comicVineApiKey = apiKey)
+                    "tastedive" -> _uiState.value.copy(tastediveApiKey = apiKey)
+                    "tmdb" -> _uiState.value.copy(tmdbApiKey = apiKey)
+                    "musicbrainz" -> _uiState.value.copy(musicBrainzApiKey = apiKey)
+                    "google_books" -> _uiState.value.copy(googleBooksApiKey = apiKey)
+                    "open_library" -> _uiState.value.copy(openLibraryApiKey = apiKey)
+                    "goodreads" -> _uiState.value.copy(goodreadsApiKey = apiKey)
+                    "nyt" -> _uiState.value.copy(nytApiKey = apiKey)
+                    "tvdb" -> _uiState.value.copy(tvdbApiKey = apiKey)
+                    "omdb" -> _uiState.value.copy(omdbApiKey = apiKey)
+                    "discogs_token" -> _uiState.value.copy(discogsApiKey = apiKey)
+                    "podcast_index" -> _uiState.value.copy(podcastIndexApiKey = apiKey)
+                    "itunes" -> _uiState.value.copy(itunesApiKey = apiKey)
+                    "listen_notes" -> _uiState.value.copy(listenNotesApiKey = apiKey)
+                    else -> _uiState.value
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "$displayName API key saved successfully",
+                    hasError = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Error saving $displayName key: ${e.message}",
+                    hasError = true
+                )
+            }
+        }
+    }
+
+    fun saveComicVineApiKey(apiKey: String) {
+        saveApiKey("comicvine", apiKey, "COMICS_MANGA", "ComicVine")
+    }
+    
+    fun saveTasteDiveApiKey(apiKey: String) {
+        saveApiKey("tastedive", apiKey, "RECOMMENDATIONS", "TasteDive")
     }
 
     /**
@@ -198,6 +291,41 @@ class APISettingsViewModel @Inject constructor(
     }
 
     /**
+     * Save GitHub API token for debug bug reporting
+     * Stores both in database (via Repository) and SharedPreferences (for DebugBugReportUI access)
+     */
+    fun saveGitHubApiKey(apiKey: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                // Save to database via repository
+                apiKeyRepository.saveAPIKey("github_token", apiKey, "DEVELOPMENT", false)
+                
+                // Also save to SharedPreferences for DebugBugReportUI access
+                // (since the UI reads synchronously without suspend function)
+                context.getSharedPreferences("api_settings", Context.MODE_PRIVATE)
+                    .edit()
+                    .putString("github_token", apiKey)
+                    .apply()
+                
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    githubApiKey = apiKey,
+                    statusMessage = "GitHub API token saved successfully",
+                    hasError = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Error saving GitHub token: ${e.message}",
+                    hasError = true
+                )
+            }
+        }
+    }
+
+    /**
      * Update image generator type selection
      */
     fun updateImageGeneratorType(type: ImageGeneratorType) {
@@ -233,6 +361,24 @@ class APISettingsViewModel @Inject constructor(
 data class APISettingsUiState(
     val isLoading: Boolean = false,
     val geminiApiKey: String? = null,
+    val comicVineApiKey: String? = null,
+    val tastediveApiKey: String? = null,
+    val tmdbApiKey: String? = null,
+    val musicBrainzApiKey: String? = null,
+    val googleBooksApiKey: String? = null,
+    val openLibraryApiKey: String? = null,
+    val goodreadsApiKey: String? = null,
+    val nytApiKey: String? = null,
+    val tvdbApiKey: String? = null,
+    val omdbApiKey: String? = null,
+    val discogsApiKey: String? = null,
+    
+    val podcastIndexApiKey: String? = null,
+    val itunesApiKey: String? = null,
+    val listenNotesApiKey: String? = null,
+    
+    val githubApiKey: String? = null,  // GitHub token for debug bug reports
+    
     val geminiTestResult: String? = null,
     val imageGeneratorType: ImageGeneratorType = ImageGeneratorType.IMAGEN,
     val geminiEnabled: Boolean = true,

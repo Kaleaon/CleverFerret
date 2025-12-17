@@ -1,6 +1,6 @@
 {
   "id": "/",
-  "name": "CleverFerret - Universal Media Manager",
+  "name": "CleverFerret",
   "short_name": "CleverFerret",
   "description": "A comprehensive Progressive Web App for managing and organizing your personal library of books, movies, music, comics, podcasts, and more. Features AI-powered metadata enhancement, advanced file system integration, offline support, and cross-platform synchronization.",
   "start_url": "./",

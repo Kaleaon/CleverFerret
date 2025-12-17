@@ -6,12 +6,19 @@ import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.LibraryScanSettings
+import com.universalmedialibrary.data.local.entity.ListenHistoryDailyCount
+import com.universalmedialibrary.data.local.entity.ListenHistoryTopItem
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.repository.LibraryRepository
+import com.universalmedialibrary.data.repository.ListenHistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,11 +27,13 @@ import javax.inject.Inject
  * Manages the state of media items within a specific library
  */
 @HiltViewModel
-class LibraryDetailsViewModel @Inject constructor(
-    private val libraryDao: LibraryDao,
-    private val mediaItemDao: MediaItemDao,
-    private val metadataDao: MetadataDao
-) : ViewModel() {
+    class LibraryDetailsViewModel @Inject constructor(
+        private val libraryDao: LibraryDao,
+        private val mediaItemDao: MediaItemDao,
+        private val metadataDao: MetadataDao,
+        private val libraryRepository: LibraryRepository,
+        private val listenHistoryRepository: ListenHistoryRepository
+    ) : ViewModel() {
 
     data class MediaItemWithMetadata(
         val mediaItem: MediaItem,
@@ -34,6 +43,9 @@ class LibraryDetailsViewModel @Inject constructor(
     data class UiState(
         val library: Library? = null,
         val mediaItems: List<MediaItemWithMetadata> = emptyList(),
+        val scanSettings: LibraryScanSettings? = null,
+        val topHistory: List<ListenHistoryTopItem> = emptyList(),
+        val dailyCounts: List<ListenHistoryDailyCount> = emptyList(),
         val isLoading: Boolean = true,
         val error: String? = null
     )
@@ -46,7 +58,6 @@ class LibraryDetailsViewModel @Inject constructor(
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-                // Load library info
                 val library = libraryDao.getLibraryById(libraryId)
                 if (library == null) {
                     _uiState.value = _uiState.value.copy(
@@ -56,27 +67,41 @@ class LibraryDetailsViewModel @Inject constructor(
                     return@launch
                 }
 
-                // Load media items for this library
-                mediaItemDao.getMediaItemsByLibrary(libraryId).collect { mediaItems ->
-                    // PERFORMANCE OPTIMIZATION: Use batch queries to avoid N+1 problem
-                    val mediaItemsWithMetadata = if (mediaItems.isEmpty()) {
+                val mediaFlow = mediaItemDao.getMediaItemsByLibrary(libraryId).map { mediaItems ->
+                    if (mediaItems.isEmpty()) {
                         emptyList()
                     } else {
                         val itemIds = mediaItems.map { it.itemId }
                         val metadataMap = metadataDao.getMetadataCommonBatch(itemIds)
                             .associateBy { it.itemId }
-                        
                         mediaItems.map { mediaItem ->
                             MediaItemWithMetadata(mediaItem, metadataMap[mediaItem.itemId])
                         }
                     }
+                }
 
-                    _uiState.value = _uiState.value.copy(
+                val scanSettingsFlow = libraryRepository.observeScanSettings(libraryId)
+                    .map { settings ->
+                        settings ?: LibraryScanSettings.defaults(libraryId, library.path)
+                    }
+
+                combine(
+                    mediaFlow,
+                    scanSettingsFlow,
+                    listenHistoryRepository.observeTopItems(libraryId, limit = 5),
+                    listenHistoryRepository.observeDailyCounts(daysBack = 14, libraryId = libraryId)
+                ) { mediaItems, scanSettings, topHistory, dailyCounts ->
+                    UiState(
                         library = library,
-                        mediaItems = mediaItemsWithMetadata,
+                        mediaItems = mediaItems,
+                        scanSettings = scanSettings,
+                        topHistory = topHistory,
+                        dailyCounts = dailyCounts,
                         isLoading = false,
                         error = null
                     )
+                }.collect { newState ->
+                    _uiState.value = newState
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -89,6 +114,18 @@ class LibraryDetailsViewModel @Inject constructor(
 
     fun refresh(libraryId: Long) {
         loadLibraryDetails(libraryId)
+    }
+
+    fun updateScanSettings(updated: LibraryScanSettings) {
+        viewModelScope.launch {
+            try {
+                libraryRepository.updateScanSettings(updated)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message ?: "Failed to update scan settings"
+                )
+            }
+        }
     }
 
     fun createSampleMediaItems(libraryId: Long) {

@@ -9,6 +9,7 @@ import java.net.URLEncoder
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.activity.ComponentActivity
@@ -40,19 +41,21 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
@@ -60,9 +63,12 @@ import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -72,6 +78,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.CircularProgressIndicator
@@ -112,6 +119,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.maintenance.MaintenanceScreen
 import com.universalmedialibrary.ui.collections.CollectionsScreen
@@ -144,6 +152,8 @@ import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.ui.components.MediaControlActions
 import com.universalmedialibrary.ui.components.NavigationItem
+import com.universalmedialibrary.ui.components.applyBottomBarPreferences
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.ui.components.rememberMediaControlsState
 import com.universalmedialibrary.ui.ambient.AmbientSoundScreen
@@ -197,6 +207,10 @@ class MainActivity : ComponentActivity() {
     lateinit var screenTimeoutManager: com.universalmedialibrary.utils.ScreenTimeoutManager
         private set
 
+    // Debug bug report service (injected via Hilt)
+    @javax.inject.Inject
+    lateinit var debugBugReportService: com.universalmedialibrary.services.debug.DebugBugReportService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -222,7 +236,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation(externalFileUri = externalFileUri)
+                    AppNavigation(
+                        externalFileUri = externalFileUri,
+                        activity = this@MainActivity,
+                        debugBugReportService = debugBugReportService
+                    )
                 }
             }
         }
@@ -275,7 +293,11 @@ class MainActivity : ComponentActivity() {
  * Now with responsive navigation that adapts to screen size.
  */
 @Composable
-fun AppNavigation(externalFileUri: Uri? = null) {
+fun AppNavigation(
+    externalFileUri: Uri? = null,
+    activity: android.app.Activity? = null,
+    debugBugReportService: com.universalmedialibrary.services.debug.DebugBugReportService? = null
+) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val mainViewModel: MainViewModel = hiltViewModel()
@@ -287,6 +309,7 @@ fun AppNavigation(externalFileUri: Uri? = null) {
     val currentTrack by musicPlayerViewModel.currentTrack.collectAsStateWithLifecycle()
     val playbackState by musicPlayerViewModel.playbackState.collectAsStateWithLifecycle()
     val miniPlayerBackgroundMode by mainViewModel.miniPlayerBackgroundMode.collectAsState(MiniPlayerBackgroundMode.THEME)
+    val showDebugBugButton by mainViewModel.showDebugBugButton.collectAsState(true)
 
     LaunchedEffect(
         currentTrack?.id,
@@ -319,8 +342,12 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         )
     }
 
-    val bottomNavItems = remember(libraries) {
+    val availableBottomNavItems = remember(libraries) {
         buildBottomNavItems(libraries)
+    }
+    val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsState(BottomBarPreferences.Default)
+    val bottomNavItems = remember(availableBottomNavItems, bottomBarPreferences) {
+        availableBottomNavItems.applyBottomBarPreferences(bottomBarPreferences)
     }
     
     // Handle external file opening
@@ -365,6 +392,14 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         floatingActionButton = {
             // FAB can be shown on specific screens
         },
+        debugButton = if (BuildConfig.DEBUG && showDebugBugButton && activity != null && debugBugReportService != null) {
+            {
+                com.universalmedialibrary.ui.debug.DebugBugReportBottomBarButton(
+                    activity = activity,
+                    bugReportService = debugBugReportService
+                )
+            }
+        } else null,
         mediaControlsState = mediaControlsState,
         miniPlayerBackgroundMode = miniPlayerBackgroundMode,
         mediaControlActions = MediaControlActions(
@@ -384,7 +419,22 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             modifier = Modifier.padding(paddingValues)
         ) {
         composable("home") {
-            LibraryListScreen(navController = navController)
+            com.universalmedialibrary.ui.home.HomeScreen(
+                onNavigateToMedia = { type, id -> navController.navigate("open/$id") },
+                onNavigateToSearch = { navController.navigate("search") },
+                onNavigateToSettings = { navController.navigate("settings") },
+                onNavigateToLibrary = { navController.navigate("libraries") }
+            )
+        }
+        composable("search") {
+            com.universalmedialibrary.ui.search.EnhancedSearchScreen(navController = navController)
+        }
+        composable("libraries") {
+            com.universalmedialibrary.ui.library.LibraryListScreen(
+                onNavigateToLibrary = { id -> navController.navigate("library_details/$id") },
+                onNavigateToSettings = { navController.navigate("settings") },
+                onCreateLibrary = { /* Handle creation logic or dialog */ }
+            )
         }
         composable("library_details/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toIntOrNull() ?: 0
@@ -440,11 +490,22 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         composable("settings/organizer") {
             StorageOrganizerScreen(onBack = { navController.navigateUp() })
         }
+        composable("settings/import_sorter") {
+            com.universalmedialibrary.ui.settings.ImportSorterScreen(onBack = { navController.navigateUp() })
+        }
+        composable("settings/import_history") {
+            com.universalmedialibrary.ui.settings.ImportHistoryScreen(onBack = { navController.navigateUp() })
+        }
         composable("settings/playlists") {
             PlaylistSettingsScreen(onBack = { navController.navigateUp() })
         }
         composable("settings/opds") {
             OpdsSettingsScreen(onBack = { navController.navigateUp() })
+        }
+        composable("opds_catalog") {
+            com.universalmedialibrary.ui.opds.OPDSCatalogBrowserScreen(
+                onBack = { navController.navigateUp() }
+            )
         }
         composable("maintenance") {
             MaintenanceScreen(onBack = { navController.navigateUp() })
@@ -499,6 +560,12 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         // Podcast routes
         composable("podcasts") {
             com.universalmedialibrary.ui.podcast.PodcastManagerScreen(navController = navController)
+        }
+        composable(
+            "podcast_detail/{podcastId}",
+            arguments = listOf(navArgument("podcastId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            com.universalmedialibrary.ui.podcast.PodcastDetailScreen(navController = navController)
         }
         composable("podcast_player/{episodeId}") { backStackEntry ->
             val episodeId = backStackEntry.arguments?.getString("episodeId")?.toLongOrNull() ?: -1L
@@ -627,8 +694,58 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         
         composable("internet_radio") {
             com.universalmedialibrary.ui.radio.InternetRadioScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToRadioBrowser = { navController.navigate("radio_browser") }
+            )
+        }
+        
+        composable("radio_browser") {
+            com.universalmedialibrary.ui.radio.RadioBrowserScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
+        }
+        
+        composable("old_time_radio") {
+            com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToSeries = { series -> 
+                    val encodedTitle = java.net.URLEncoder.encode(series, "UTF-8")
+                    navController.navigate("otr_series/$encodedTitle")
+                },
+                onNavigateToEpisode = { episodeId ->
+                    navController.navigate("otr_player/$episodeId")
+                }
+            )
+        }
+        
+        composable(
+            "otr_series/{seriesTitle}",
+            arguments = listOf(navArgument("seriesTitle") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val seriesTitle = backStackEntry.arguments?.getString("seriesTitle") ?: ""
+            val decodedTitle = java.net.URLDecoder.decode(seriesTitle, "UTF-8")
+            
+            com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioSeriesDetailScreen(
+                seriesTitle = decodedTitle,
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToPlayer = { episodeId ->
+                    navController.navigate("otr_player/$episodeId")
+                }
+            )
+        }
+        
+        composable(
+            "otr_player/{episodeId}",
+            arguments = listOf(navArgument("episodeId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val episodeId = backStackEntry.arguments?.getLong("episodeId") ?: -1L
+            
+            if (episodeId != -1L) {
+                com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioPlayerLauncher(
+                    episodeId = episodeId,
+                    onNavigateBack = { navController.navigateUp() }
+                )
+            }
         }
         
         composable("fm_radio") {
@@ -661,10 +778,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         composable("settings") {
             com.universalmedialibrary.ui.settings.SettingsScreen(
                 onBack = { navController.navigateUp() },
-                   navController = navController
+                navController = navController,
+                availableBottomItems = availableBottomNavItems
             )
         }
         
+        // API Settings route
+        composable("settings/api") {
+            com.universalmedialibrary.ui.settings.APISettingsScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
         // Import/Export route
         composable("settings/import_export") {
             com.universalmedialibrary.ui.settings.ImportExportScreen(
@@ -676,7 +801,8 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         composable("settings/audio_effects") {
             AudioEffectsSettingsScreen(
                 viewModel = hiltViewModel(),
-                onNavigateBack = { navController.navigateUp() }
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToShowcase = { navController.navigate("advanced_effects_showcase") }
             )
         }
 
@@ -702,16 +828,21 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                     // Determine file type and navigate to appropriate player/reader
                     val encodedPath = URLEncoder.encode(file.absolutePath, StandardCharsets.UTF_8.toString())
                     when (file.extension.lowercase()) {
-                        "epub", "pdf", "mobi", "azw", "azw3" -> {
+                        // eBooks and documents
+                        "epub", "pdf", "mobi", "azw", "azw3", "djvu", "fb2", 
+                        "txt", "rtf", "html", "htm", "xhtml", "doc", "docx", "odt", "md" -> {
                             navController.navigate("reader_path/$encodedPath")
                         }
-                        "mp3", "m4a", "flac", "wav", "ogg" -> {
+                        // Audio files
+                        "mp3", "m4a", "m4b", "flac", "wav", "ogg", "opus", "aac", "wma" -> {
                             navController.navigate("audio_player/$encodedPath")
                         }
-                        "mp4", "mkv", "avi", "mov", "webm" -> {
+                        // Video files
+                        "mp4", "mkv", "avi", "mov", "webm", "wmv", "flv", "m4v" -> {
                             navController.navigate("video_player_path/$encodedPath")
                         }
-                        "cbz", "cbr" -> {
+                        // Comic book archives
+                        "cbz", "cbr", "cbt", "cb7" -> {
                             navController.navigate("reader_path/$encodedPath")
                         }
                     }
@@ -751,6 +882,14 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         // ========== Calibre Features Routes ==========
         
         // Fanfiction routes
+        // New unified hub - all-in-one interface
+        composable("fanfiction_hub") {
+            com.universalmedialibrary.ui.webfiction.UnifiedFanfictionHubScreen(
+                navController = navController
+            )
+        }
+        
+        // Legacy routes - kept for backward compatibility
         composable("fanfiction_download") {
             com.universalmedialibrary.ui.webfiction.FanfictionDownloaderScreen(
                 navController = navController
@@ -774,6 +913,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         composable("webfiction_manager") {
             com.universalmedialibrary.ui.webfiction.WebFictionManagerScreen(
                 navController = navController
+            )
+        }
+        
+        composable("book_source_manager") {
+            com.universalmedialibrary.ui.books.BookSourceManagerScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        composable("multi_room_audio") {
+            com.universalmedialibrary.ui.audio.MultiRoomAudioScreen(
+                onBack = { navController.navigateUp() }
             )
         }
         
@@ -818,6 +969,22 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             }
         }
 
+        composable("news_hub") {
+            com.universalmedialibrary.ui.news.NewsScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onOpenEpub = { path ->
+                    val encodedPath = java.net.URLEncoder.encode(path, "UTF-8")
+                    navController.navigate("reader_path/$encodedPath")
+                }
+            )
+        }
+        
+        composable("web_comic_downloader") {
+            com.universalmedialibrary.ui.comic.WebComicDownloaderScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
         composable("story_manager") {
             com.universalmedialibrary.ui.webfiction.StoryManagerRoute(
                 onBack = { navController.navigateUp() }
@@ -831,9 +998,36 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                 onImportClick = { 
                     navController.navigate("storage_browser")
                 },
+                onExploreFreeAudiobooks = {
+                    navController.navigate("free_audiobooks")
+                },
                 onAudiobookClick = { audiobook ->
                     navController.navigate("audiobook_player/${audiobook.id}")
                 }
+            )
+        }
+        
+        composable("free_audiobooks") {
+            com.universalmedialibrary.ui.audiobook.FreeAudiobookScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        composable("free_media") {
+            com.universalmedialibrary.ui.media.FreeMediaScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        composable("free_music") {
+            com.universalmedialibrary.ui.music.FreeMusicScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        composable("hivefy_music") {
+            com.universalmedialibrary.ui.music.hivefy.HivefyMusicScreen(
+                onBack = { navController.navigateUp() }
             )
         }
         
@@ -858,6 +1052,10 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         // Theme preview for testing (old)
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
+        }
+        
+        composable("advanced_effects_showcase") {
+            com.universalmedialibrary.ui.screens.AdvancedEffectsShowcaseScreen()
         }
         
         // New unified theme showcase with all 15 themes
@@ -885,14 +1083,6 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             )
         }
 
-        // Enhanced Media Library Screen route
-        composable("media_library") {
-            com.universalmedialibrary.ui.screens.MediaLibraryScreen(
-                onNavigateToItem = { itemId ->
-                    navController.navigate("open/$itemId")
-                }
-            )
-        }
         composable("media_library/tv") {
             val mediaLibraryViewModel: MediaLibraryViewModel = hiltViewModel()
             LaunchedEffect(Unit) {
@@ -1036,6 +1226,15 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                    navController = navController
                )
            }
+           
+           // Reading Statistics route
+           composable("reading_statistics") {
+               com.universalmedialibrary.ui.books.EnhancedReadingStatisticsScreen(
+                   libraryId = 1L, // Default to books library
+                   onNavigateBack = { navController.navigateUp() }
+               )
+           }
+           
            composable("collaborative_sessions") {
                com.universalmedialibrary.ui.collaborative.CollaborativeSessionScreen(
                    onNavigateBack = { navController.navigateUp() }
@@ -1076,25 +1275,16 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         )
 
-        sortedLibraries.forEach { library ->
-            val navConfig = libraryNavConfig(library.type)
-            val label = formatLibraryLabel(
-                name = library.name,
-                type = library.type,
-                canonicalLabel = navConfig?.canonicalLabel
+        // Libraries Tab
+        add(
+            NavigationItem(
+                route = "libraries",
+                label = "Libraries",
+                icon = { Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "Libraries") },
+                selectedIcon = { Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "Libraries") },
+                routeMatch = "libraries"
             )
-            val iconVector = navConfig?.icon ?: iconForLibraryType(library.type)
-            val selectedIconVector = navConfig?.selectedIcon ?: iconVector
-            add(
-                NavigationItem(
-                    route = "library_details/${library.libraryId}",
-                    label = label,
-                    icon = { Icon(iconVector, contentDescription = label) },
-                    selectedIcon = { Icon(selectedIconVector, contentDescription = label) },
-                    routeMatch = "library_details/{libraryId}"
-                )
-            )
-        }
+        )
 
         val hasAudiobookLibrary = normalizedTypes.any { it in AUDIOBOOK_TYPE_TOKENS }
         val hasPodcastLibrary = normalizedTypes.any { it in PODCAST_TYPE_TOKENS }
@@ -1111,6 +1301,16 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         )
 
+        add(
+            NavigationItem(
+                route = "podcasts",
+                label = "Podcasts",
+                icon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                selectedIcon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                routeMatch = "podcasts"
+            )
+        )
+
         if (!hasAudiobookLibrary) {
             addIfMissing("audiobook_library") {
                 NavigationItem(
@@ -1122,32 +1322,37 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             }
         }
 
-        addIfMissing("fanfiction_library") {
+        addIfMissing("fanfiction_hub") {
             NavigationItem(
-                route = "fanfiction_library",
-                label = "Fanfiction",
-                icon = { Icon(PhosphorIcons.Bookmark, contentDescription = "Fanfiction") },
+                route = "fanfiction_hub",
+                label = "Fiction Hub",
+                icon = { Icon(PhosphorIcons.Bookmark, contentDescription = "Fiction Hub") },
                 routeMatch = "fanfiction"
             )
         }
 
-        addIfMissing("webfiction_manager") {
+        addIfMissing("free_media") {
             NavigationItem(
-                route = "webfiction_manager",
-                label = "Web Fiction",
-                icon = { Icon(Icons.Filled.Language, contentDescription = "Web Fiction") },
-                routeMatch = "webfiction"
+                route = "free_media",
+                label = "Free Media",
+                icon = { Icon(Icons.Default.Collections, contentDescription = "Free Media") },
+                selectedIcon = { Icon(Icons.Default.Collections, contentDescription = "Free Media") },
+                routeMatch = "free_media"
             )
         }
 
-        addIfMissing("story_manager") {
+        addIfMissing("free_music") {
             NavigationItem(
-                route = "story_manager",
-                label = "Story Manager",
-                icon = { Icon(Icons.Filled.List, contentDescription = "Story Manager") },
-                routeMatch = "story_manager"
+                route = "free_music",
+                label = "Free Music",
+                icon = { Icon(Icons.Default.LibraryMusic, contentDescription = "Free Music") },
+                selectedIcon = { Icon(Icons.Default.LibraryMusic, contentDescription = "Free Music") },
+                routeMatch = "free_music"
             )
         }
+
+        // Note: webfiction_manager and story_manager kept for backward compatibility
+        // but fanfiction_hub is now the consolidated primary entry point
 
         if (!hasPodcastLibrary) {
             addIfMissing("podcasts") {
@@ -1200,15 +1405,6 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         }
 
-        addIfMissing("media_library") {
-            NavigationItem(
-                route = "media_library",
-                label = "Media Hub",
-                icon = { Icon(PhosphorIcons.Books, contentDescription = "Media Hub") },
-                routeMatch = "media_library"
-            )
-        }
-
         addIfMissing("recommendations") {
             NavigationItem(
                 route = "recommendations",
@@ -1249,6 +1445,36 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                 routeMatch = "ambient"
             )
         )
+        
+        // Additional items from PWA - can be toggled on/off for bottom bar
+        // Note: fanfiction_download now redirects users to fanfiction_hub's Download tab
+        
+        addIfMissing("storage_browser") {
+            NavigationItem(
+                route = "storage_browser",
+                label = "Storage",
+                icon = { Icon(Icons.Default.Storage, contentDescription = "Storage") },
+                routeMatch = "storage_browser"
+            )
+        }
+        
+        addIfMissing("opds_catalog") {
+            NavigationItem(
+                route = "opds_catalog",
+                label = "OPDS",
+                icon = { Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "OPDS") },
+                routeMatch = "opds_catalog"
+            )
+        }
+        
+        addIfMissing("reading_statistics") {
+            NavigationItem(
+                route = "reading_statistics",
+                label = "Statistics",
+                icon = { Icon(Icons.Default.BarChart, contentDescription = "Statistics") },
+                routeMatch = "reading_statistics"
+            )
+        }
     }
 }
 
@@ -1498,14 +1724,88 @@ fun LibraryListScreen(
         )
 
     // Sample media data for recommendations
-      val sampleMedia = listOf(
-          MediaRecommendation("The Great Gatsby", "F. Scott Fitzgerald", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)), imageRes = R.drawable.sample_cover_gatsby),
-          MediaRecommendation("Pride and Prejudice", "Jane Austen", "BOOK", listOf(Color(0xFF3E1A3D), Color(0xFF8E3A7C)), imageRes = R.drawable.sample_cover_pride),
-          MediaRecommendation("Moby-Dick", "Herman Melville", "BOOK", listOf(Color(0xFF0A2A35), Color(0xFF134B5F)), imageRes = R.drawable.sample_cover_mobydick),
-          MediaRecommendation("The Adventures of Sherlock Holmes", "Arthur Conan Doyle", "BOOK", listOf(Color(0xFF1A1A1A), Color(0xFFC0A062)), imageRes = R.drawable.sample_cover_sherlock),
-          MediaRecommendation("Little Women", "Louisa May Alcott", "BOOK", listOf(Color(0xFF713F2B), Color(0xFFD89C77)), imageRes = R.drawable.sample_cover_pride),
-          MediaRecommendation("Treasure Island", "Robert Louis Stevenson", "BOOK", listOf(Color(0xFF2E4A33), Color(0xFF7AA17A)), imageRes = R.drawable.sample_cover_mobydick)
-      )
+      val sampleMediaSeed = rememberSaveable { Random.nextInt() }
+      val sampleMedia = remember(sampleMediaSeed) {
+        val baseMedia = listOf(
+            MediaRecommendation(
+                title = "The Great Gatsby",
+                subtitle = "F. Scott Fitzgerald",
+                type = "BOOK",
+                colors = listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)),
+                imageRes = R.drawable.sample_cover_gatsby
+            ),
+            MediaRecommendation(
+                title = "Pride and Prejudice",
+                subtitle = "Jane Austen",
+                type = "BOOK",
+                colors = listOf(Color(0xFF3E1A3D), Color(0xFF8E3A7C)),
+                imageRes = R.drawable.sample_cover_pride
+            ),
+            MediaRecommendation(
+                title = "Moby-Dick",
+                subtitle = "Herman Melville",
+                type = "BOOK",
+                colors = listOf(Color(0xFF0A2A35), Color(0xFF134B5F)),
+                imageRes = R.drawable.sample_cover_mobydick
+            ),
+            MediaRecommendation(
+                title = "The Adventures of Sherlock Holmes",
+                subtitle = "Arthur Conan Doyle",
+                type = "BOOK",
+                colors = listOf(Color(0xFF1A1A1A), Color(0xFFC0A062)),
+                imageRes = R.drawable.sample_cover_sherlock
+            ),
+            MediaRecommendation(
+                title = "Neon Daydreams",
+                subtitle = "Luminous City · Concept album",
+                type = "MUSIC",
+                colors = listOf(Color(0xFF5F0A87), Color(0xFFA4508B)),
+                imageUrl = "https://images.unsplash.com/photo-1508704019882-f9cf40e475b4?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Analog Echoes",
+                subtitle = "The Midnight Ensemble · Live in Berlin",
+                type = "MUSIC",
+                colors = listOf(Color(0xFF0F2027), Color(0xFF203A43)),
+                imageUrl = "https://images.unsplash.com/photo-1511376777868-611b54f68947?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Starlight Odyssey",
+                subtitle = "Award-winning sci-fi epic",
+                type = "MOVIE",
+                colors = listOf(Color(0xFF03001E), Color(0xFF7303C0)),
+                imageUrl = "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Midnight Cinema",
+                subtitle = "Neo-noir thriller · Dolby Vision",
+                type = "MOVIE",
+                colors = listOf(Color(0xFF1A2A6C), Color(0xFFB21F1F)),
+                imageUrl = "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Vinyl Dreams",
+                subtitle = "Analog soul remasters · 1970-1986",
+                type = "MUSIC",
+                colors = listOf(Color(0xFF380036), Color(0xFF0CBABA)),
+                imageUrl = "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Signal from Europa",
+                subtitle = "Award-winning sci-fi audio drama",
+                type = "PODCAST",
+                colors = listOf(Color(0xFF001510), Color(0xFF00BF8F)),
+                imageUrl = "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            )
+        )
+        baseMedia.shuffled(Random(sampleMediaSeed))
+    }
 
       val sampleClassics = remember {
           listOf(
@@ -1546,9 +1846,8 @@ fun LibraryListScreen(
       }
 
 
-      val mainContent: @Composable (Modifier) -> Unit = { contentModifier ->
-          Box(modifier = contentModifier.fillMaxSize()) {
-              Scaffold(
+      Box(modifier = Modifier.fillMaxSize()) {
+          Scaffold(
                 topBar = {
                 Column {
                     TopAppBar(
@@ -1594,12 +1893,22 @@ fun LibraryListScreen(
                                     }
                                 )
                                 DropdownMenuItem(
+                                    text = { Text("Newsstand") },
+                                    onClick = {
+                                        showMenu = false
+                                        navController.navigate("news_hub")
+                                    }
+                                )
+                                DropdownMenuItem(
                                     text = { Text("Import Calibre Library") },
                                     onClick = {
                                         showMenu = false
+                                        // Create a default library if none exists
+                                        if (libraries.isEmpty()) {
+                                            viewModel.addLibrary("My Library", "BOOK", "")
+                                        }
                                         dbFilePicker.launch(arrayOf("application/x-sqlite3", "application/octet-stream"))
-                                    },
-                                    enabled = libraries.isNotEmpty()
+                                    }
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Theme Preview") },
@@ -1636,6 +1945,14 @@ fun LibraryListScreen(
                           )
                       )
                   }
+              },
+              floatingActionButton = {
+                  FloatingActionButton(
+                      onClick = { showCreateDialog = true },
+                      containerColor = MaterialTheme.colorScheme.primary
+                  ) {
+                      Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "Add Library")
+                  }
               }
           ) { paddingValues ->
             LazyColumn(
@@ -1667,7 +1984,7 @@ fun LibraryListScreen(
                         TextButton(onClick = { navController.navigate("recommendations") }) {
                             Text("See All")
                             Icon(
-                                Icons.Default.ArrowForward,
+                                Icons.AutoMirrored.Filled.ArrowForward,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -1771,7 +2088,6 @@ fun LibraryListScreen(
                   }
             }
         }
-    }
 
     if (showCreateDialog) {
         CreateLibraryDialog(

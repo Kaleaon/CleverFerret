@@ -1,10 +1,13 @@
 package com.universalmedialibrary.ui.video
 
+import android.os.Handler
+import android.os.Looper
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,7 +41,10 @@ fun VideoPlayerScreen(
 
     DisposableEffect(Unit) {
         onDispose {
-            exoPlayer.release()
+            // Ensure ExoPlayer is released on the main thread
+            Handler(Looper.getMainLooper()).post {
+                exoPlayer.release()
+            }
         }
     }
 
@@ -75,7 +81,7 @@ fun VideoPlayerScreen(
                     )
             ) {
                 Icon(
-                    Icons.Default.ArrowBack,
+                    Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = Color.White
                 )

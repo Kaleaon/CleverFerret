@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -54,7 +55,7 @@ fun PresetBrowserScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
@@ -330,7 +331,9 @@ private fun ImportPresetDialog(
 }
 
 @HiltViewModel
-class PresetBrowserViewModel @Inject constructor() : ViewModel() {
+class PresetBrowserViewModel @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
+) : ViewModel() {
     
     private val presetManager = VisualizerPresetManager()
     
@@ -381,14 +384,26 @@ class PresetBrowserViewModel @Inject constructor() : ViewModel() {
     fun exportPreset(preset: VisualizerPreset) {
         viewModelScope.launch {
             val json = presetManager.exportPreset(preset)
-            // TODO: Share via Android share sheet:
-            // val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            //   type = "application/json"
-            //   putExtra(Intent.EXTRA_TEXT, json)
-            //   putExtra(Intent.EXTRA_TITLE, "Share ${preset.name}")
-            // }
-            // context.startActivity(Intent.createChooser(shareIntent, "Share Visualizer Preset"))
-            // Alternative: Copy to clipboard as fallback
+            
+            // Implemented: Share via Android share sheet
+            try {
+                val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                    type = "application/json"
+                    putExtra(android.content.Intent.EXTRA_TEXT, json)
+                    putExtra(android.content.Intent.EXTRA_TITLE, "Share ${preset.name}")
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                
+                val chooserIntent = android.content.Intent.createChooser(shareIntent, "Share Visualizer Preset")
+                chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(chooserIntent)
+            } catch (e: Exception) {
+                // Fallback: Copy to clipboard
+                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("Visualizer Preset", json)
+                clipboard.setPrimaryClip(clip)
+                android.util.Log.i("PresetBrowserViewModel", "Preset copied to clipboard as fallback")
+            }
         }
     }
 }

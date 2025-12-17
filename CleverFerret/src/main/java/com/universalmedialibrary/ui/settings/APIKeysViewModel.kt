@@ -123,6 +123,7 @@ class APIKeysViewModel @Inject constructor(
                     "omdb" -> testOMDbKey(value)
                     "comicvine" -> testComicVineKey(value)
                     "listen_notes" -> testListenNotesKey(value)
+                    "podcast_index" -> "ℹ️ Enter as KEY:SECRET (no direct test available)"
                     "spotify_client_id" -> testSpotifyKey(value)
                     "lastfm" -> testLastFmKey(value)
                     "discogs_token" -> testDiscogsKey(value)
@@ -279,7 +280,7 @@ class APIKeysViewModel @Inject constructor(
         return when (provider) {
             "google_books", "goodreads", "hardcover", "amazon_access_key", "amazon_secret_key", "isbn_db" -> "BOOKS"
             "comicvine" -> "COMICS_MANGA"
-            "listen_notes", "spotify_client_id", "spotify_client_secret", "taddy" -> "PODCASTS"
+            "listen_notes", "podcast_index", "spotify_client_id", "spotify_client_secret", "taddy" -> "PODCASTS"
             "tmdb", "omdb", "tvdb" -> "MOVIES_TV"
             "lastfm", "discogs_token" -> "MUSIC"
             else -> "OTHER"

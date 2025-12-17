@@ -70,7 +70,7 @@ jobs:
 
   instrumentation-tests:
     name: API ${{ matrix.config.api }} (${{ matrix.config.arch }})
-    runs-on: macos-latest
+    runs-on: macos-14
     needs: [test-config]
     
     strategy:
@@ -80,7 +80,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Set up JDK
         uses: actions/setup-java@v5
@@ -99,7 +99,7 @@ jobs:
           target: ${{ matrix.config.target }}
           emulator-options: -no-window -gpu swiftshader_indirect -no-boot-anim
           disable-animations: true
-          emulator-timeout: 600
+          emulator-boot-timeout: 600
           script: |
             echo "Verifying emulator is available..."
             $ANDROID_HOME/platform-tools/adb devices

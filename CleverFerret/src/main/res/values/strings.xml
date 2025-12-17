@@ -179,7 +179,7 @@
     <!-- Notifications -->
     <string name="notification_import_progress">Importing library…</string>
     <string name="notification_import_complete">Import completed</string>
-    <string name="notification_sync_progress">Syncing with Plex…</string>
+    <string name="notification_sync_progress">Syncing with media server…</string>
     <string name="notification_sync_complete">Sync completed</string>
 
     <!-- About -->

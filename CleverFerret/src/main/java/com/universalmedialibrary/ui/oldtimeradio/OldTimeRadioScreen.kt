@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,7 +50,7 @@ fun OldTimeRadioScreen(
                 title = { Text("Old Time Radio") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
@@ -66,7 +67,7 @@ fun OldTimeRadioScreen(
                 .padding(padding)
         ) {
             // Tabs
-            TabRow(selectedTabIndex = selectedTab) {
+            PrimaryTabRow(selectedTabIndex = selectedTab) {
                 Tab(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
@@ -145,7 +146,7 @@ private fun OTREmptyState(onImport: () -> Unit) {
                 Text("Import Episodes")
             }
             
-            Divider(modifier = Modifier.padding(vertical = 16.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
             
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -299,7 +300,8 @@ private fun OTRSeriesCard(
 
 @HiltViewModel
 class OldTimeRadioViewModel @Inject constructor(
-    private val oldTimeRadioDao: OldTimeRadioDao
+    private val oldTimeRadioDao: OldTimeRadioDao,
+    private val importService: com.universalmedialibrary.services.oldtimeradio.OldTimeRadioImportService
 ) : ViewModel() {
 
     private val _series = MutableStateFlow<List<OTRSeries>>(emptyList())
@@ -309,7 +311,13 @@ class OldTimeRadioViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     init {
-        loadSeries()
+        viewModelScope.launch {
+            val count = oldTimeRadioDao.getEpisodeCount()
+            if (count == 0) {
+                runCatching { importService.importFeaturedEpisodes() }
+            }
+            loadSeries()
+        }
     }
 
     private fun loadSeries() {

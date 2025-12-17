@@ -27,6 +27,7 @@ import java.net.URL
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
+import com.universalmedialibrary.utils.FileNameSanitizer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -300,7 +301,8 @@ private data class PodcastIndexCredentials(
 class PodcastService @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
     private val podcastRepository: com.universalmedialibrary.data.repository.podcast.PodcastRepository,
-    private val applePodcastsApi: ApplePodcastsApi
+    private val applePodcastsApi: ApplePodcastsApi,
+    private val fileNameSanitizer: FileNameSanitizer
 ) {
 
     private val httpClient = OkHttpClient.Builder().build()
@@ -969,7 +971,7 @@ class PodcastService @Inject constructor(
      * Sanitize filename for file system
      */
     private fun sanitizeFileName(name: String): String {
-        return name.replace(Regex("[^a-zA-Z0-9.-]"), "_").take(100)
+        return fileNameSanitizer.sanitizeFileName(name)
     }
 
     /**

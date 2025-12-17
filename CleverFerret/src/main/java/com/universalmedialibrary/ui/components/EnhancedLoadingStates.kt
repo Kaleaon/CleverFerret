@@ -83,10 +83,15 @@ fun EnhancedLoadingState(
                 color = MaterialTheme.colorScheme.onSurface
             )
             
-            CircularProgressIndicator(
-                modifier = Modifier.size(32.dp),
-                strokeWidth = 3.dp
-            )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(32.dp),
+                    strokeWidth = 3.dp
+                )
+            }
         }
     }
 }

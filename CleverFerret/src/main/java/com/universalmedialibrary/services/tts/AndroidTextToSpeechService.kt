@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.cancel
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -233,6 +234,8 @@ class AndroidTextToSpeechService @Inject constructor(
         tts?.shutdown()
         tts = null
         _ttsState.value = TtsServiceState()
+        // Cancel coroutine scope to prevent memory leaks
+        serviceScope.cancel()
     }
 }
 

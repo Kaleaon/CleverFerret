@@ -13,6 +13,7 @@ import java.util.*
  * Simple EPUB creator for generating valid EPUB files
  *
  * This creates minimal but valid EPUB files following the EPUB 3.0 specification
+ * Updated to match the specific styling of the "Out of Cruel Space" EPUB.
  */
 class SimpleEpubCreator {
 
@@ -184,63 +185,66 @@ class SimpleEpubCreator {
     }
 
     private fun addStylesheet(zip: ZipOutputStream) {
-        val css = """body {
-  font-family: serif;
-  line-height: 1.6;
-  margin: 2em;
-}
+        val css = """
+/* Default paragraph formatting */
+p { margin: 0rem 0rem 0.83rem 0rem;  text-indent: 1.50rem; line-height: 1.1em; }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: sans-serif;
-  color: #333;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-}
+/* Styles */
+.attribution { margin: 0rem 0rem 1.33rem 4.00rem; text-indent: 0rem; line-height: 1.1em; text-align: right; font-size: 1.00rem; }
+.block-quote { margin: 1.33rem 0rem 1.33rem 4.00rem; text-indent: 0rem; line-height: 1.1em; font-size: 1.00rem; }
+.caption { margin: 0rem 0rem 0.89rem 0rem; text-indent: 0rem; line-height: 1.1em; text-align: center; font-size: 1.08rem; }
+.centered-text { margin: 0rem 0rem 0rem 0rem; text-indent: 0rem; line-height: 1.1em; text-align: center; }
+.code-block { margin: 0rem 0rem 0rem 4.00rem; text-indent: 0rem; font-size: 0.92rem; font-weight: normal; }
+.code-span { font-size: 0.92rem; font-weight: normal; }
+.emphasis { font-size: 1.00rem; font-weight: normal; font-style: italic; }
+.heading-1 { margin: 1.45rem 0rem 0rem 0rem; text-indent: 0rem; line-height: 1.1em; font-size: 1.50rem; font-weight: bold; }
+.heading-2 { margin: 1.45rem 0rem 0rem 0rem; text-indent: 0rem; line-height: 1.1em; font-size: 1.08rem; font-weight: bold; }
+.title { margin: 1.45rem 0rem 0rem 0rem; text-indent: 0rem; line-height: 1.1em; font-size: 2.33rem; font-weight: normal; }
+.verse { margin: 0rem 0rem 0rem 0rem; text-indent: 0rem; line-height: 1.1em; text-align: center; font-size: 1.00rem; }
 
-p {
-  margin: 1em 0;
-  text-align: justify;
-}
+/* Direct formatting styles */
+.ps1 {margin-bottom: 3.00rem; margin-left: 0rem; text-align: center; text-indent: 0rem}
+.ps2 {line-height: 1.1em; margin-bottom: 0.63rem; margin-left: 0rem; text-indent: 1.13rem}
+.ps3 {font-family: 'Calibri'; font-size: 1.00rem; line-height: 1.1em; margin-bottom: 0.63rem; margin-left: 0rem; text-indent: 1.13rem}
+.ps4 {font-family: 'Calibri'; font-size: 1.00rem; line-height: 1.1em; margin-bottom: 0.63rem; margin-left: 0rem; text-decoration: underline; text-indent: 1.13rem}
+.ps5 {line-height: 1.1em; margin-bottom: 0.63rem; margin-left: 0rem; text-align: center; text-indent: 1.13rem}
 
-nav ol {
-  list-style-type: none;
-  padding-left: 0;
-}
+/* Footnotes */
+a.fn-marker { vertical-align: super; line-height: 1em; text-decoration: none; }
+a.fn-label { text-decoration: none; }
 
-nav li {
-  margin: 0.5em 0;
+/* Tables */
+table, table * {
+    border: none;
+    padding: 0em 0em 0em 0em;
+    margin: 0em 0em 0em 0em;
 }
-
-nav a {
-  text-decoration: none;
-  color: #0066cc;
+table {
+    margin: 1em auto 1em auto;
+    border-spacing: 0em;
+    border: solid #000;
+    border-width: 0pt 0pt 1pt 1pt;
 }
-
-nav a:hover {
-  text-decoration: underline;
+table caption {
+    margin-top: 0.25em;
+    caption-side: bottom;
+    text-align: center;
 }
-
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 2em 0;
+th, td {
+    padding: 0.25em 0.35em;
+    border: solid #000;
+    border-width: 1pt 1pt 0pt 0pt;
 }
+td p { margin: 0rem 0rem 0rem 0rem; text-indent: 0rem; }
 
-.source-info {
-  font-style: italic;
-  font-size: 0.9em;
-  color: #666;
-  margin-bottom: 2em;
-  padding-bottom: 1em;
-  border-bottom: 1px solid #eee;
-}
+/* Images */
+img { display: block; margin: 1rem auto 1rem auto; }
+img + figcaption { margin-top: -0.75rem; }
 
-.chapter-title {
-  font-size: 1.5em;
-  margin-bottom: 1em;
-  padding-bottom: 0.5em;
-  border-bottom: 2px solid #333;
-}"""
+/* Lists */
+ol, ul { line-height: 1.1em; }
+.small-caps { font-variant: small-caps; }
+"""
 
         zip.putNextEntry(ZipEntry("OEBPS/stylesheet.css"))
         zip.write(css.toByteArray())
@@ -248,16 +252,17 @@ hr {
     }
 
     private fun addChapter(zip: ZipOutputStream, chapter: Chapter) {
+        // Updated to match the sample format
         val chapterXhtml = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
 <head>
   <title>${escapeXml(chapter.title)}</title>
   <meta charset="utf-8"/>
   <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
 </head>
 <body>
-  <h1 class="chapter-title">${escapeXml(chapter.title)}</h1>
+  <h1 class="ps1"><strong><span style="font-weight:5600;">${escapeXml(chapter.title)}</span></strong></h1>
   ${chapter.content}
 </body>
 </html>"""

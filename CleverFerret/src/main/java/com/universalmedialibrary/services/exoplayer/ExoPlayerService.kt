@@ -1,6 +1,8 @@
 package com.universalmedialibrary.services.exoplayer
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -31,58 +33,65 @@ class ExoPlayerService @Inject constructor(
 ) {
 
     private var exoPlayer: ExoPlayer? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private val _playerState = MutableStateFlow(ExoPlayerState())
     val playerState: StateFlow<ExoPlayerState> = _playerState.asStateFlow()
 
     /**
      * Initialize ExoPlayer
+     * Ensures execution on main thread
      */
     fun initialize() {
         if (!FeatureFlags.ENABLE_EXOPLAYER) {
             return
         }
 
-        if (exoPlayer == null) {
-            exoPlayer = ExoPlayer.Builder(context).build().apply {
-                addListener(object : Player.Listener {
-                    override fun onPlaybackStateChanged(playbackState: Int) {
-                        val isPlaying = playbackState == Player.STATE_READY && playWhenReady
-                        updatePlayerState(
-                            isPlaying = isPlaying,
-                            isBuffering = playbackState == Player.STATE_BUFFERING,
-                            hasEnded = playbackState == Player.STATE_ENDED
-                        )
+        runOnMainThread {
+            if (exoPlayer == null) {
+                exoPlayer = ExoPlayer.Builder(context)
+                    .setHandleAudioBecomingNoisy(true)
+                    .build().apply {
+                    addListener(object : Player.Listener {
+                        override fun onPlaybackStateChanged(playbackState: Int) {
+                            val isPlaying = playbackState == Player.STATE_READY && playWhenReady
+                            updatePlayerState(
+                                isPlaying = isPlaying,
+                                isBuffering = playbackState == Player.STATE_BUFFERING,
+                                hasEnded = playbackState == Player.STATE_ENDED
+                            )
 
-                        // Update MediaController state
-                        mediaController.updatePlaybackState(
-                            isPlaying = isPlaying,
-                            position = currentPosition,
-                            duration = duration.takeIf { it != androidx.media3.common.C.TIME_UNSET } ?: 0
-                        )
-                    }
+                            // Update MediaController state
+                            mediaController.updatePlaybackState(
+                                isPlaying = isPlaying,
+                                position = currentPosition,
+                                duration = duration.takeIf { it != androidx.media3.common.C.TIME_UNSET } ?: 0
+                            )
+                        }
 
-                    override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                        updatePlayerState(error = error.message)
-                    }
+                        override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                            updatePlayerState(error = error.message)
+                        }
 
-                    override fun onPositionDiscontinuity(
-                        oldPosition: Player.PositionInfo,
-                        newPosition: Player.PositionInfo,
-                        reason: Int
-                    ) {
-                        updatePlayerState(
-                            currentPosition = newPosition.positionMs,
-                            duration = duration.takeIf { it != androidx.media3.common.C.TIME_UNSET } ?: 0
-                        )
-                    }
-                })
+                        override fun onPositionDiscontinuity(
+                            oldPosition: Player.PositionInfo,
+                            newPosition: Player.PositionInfo,
+                            reason: Int
+                        ) {
+                            updatePlayerState(
+                                currentPosition = newPosition.positionMs,
+                                duration = duration.takeIf { it != androidx.media3.common.C.TIME_UNSET } ?: 0
+                            )
+                        }
+                    })
+                }
             }
         }
     }
 
     /**
      * Load and prepare media for playback with MediaSession integration
+     * Ensures execution on main thread
      */
     fun loadMediaWithSession(
         mediaPath: String,
@@ -99,25 +108,28 @@ class ExoPlayerService @Inject constructor(
 
         initialize()
 
-        val mediaItem = MediaItem.fromUri(mediaPath)
-        exoPlayer?.apply {
-            setMediaItem(mediaItem)
-            prepare()
+        runOnMainThread {
+            val mediaItem = MediaItem.fromUri(mediaPath)
+            exoPlayer?.apply {
+                setMediaItem(mediaItem)
+                prepare()
 
-            // Start MediaSession with metadata
-            mediaController.startPlayback(
-                player = this,
-                serviceType = serviceType,
-                title = title,
-                artist = artist,
-                album = album,
-                artwork = artwork
-            )
+                // Start MediaSession with metadata
+                mediaController.startPlayback(
+                    player = this,
+                    serviceType = serviceType,
+                    title = title,
+                    artist = artist,
+                    album = album,
+                    artwork = artwork
+                )
+            }
         }
     }
 
     /**
      * Load and prepare media for playback
+     * Ensures execution on main thread
      */
     fun loadMedia(mediaPath: String) {
         if (!FeatureFlags.ENABLE_EXOPLAYER) {
@@ -127,15 +139,18 @@ class ExoPlayerService @Inject constructor(
 
         initialize()
 
-        val mediaItem = MediaItem.fromUri(mediaPath)
-        exoPlayer?.apply {
-            setMediaItem(mediaItem)
-            prepare()
+        runOnMainThread {
+            val mediaItem = MediaItem.fromUri(mediaPath)
+            exoPlayer?.apply {
+                setMediaItem(mediaItem)
+                prepare()
+            }
         }
     }
 
     /**
      * Prepare a single media item for playback
+     * Ensures execution on main thread
      */
     fun prepareMedia(mediaItem: MediaItem): Boolean {
         if (!FeatureFlags.ENABLE_EXOPLAYER) {
@@ -145,20 +160,25 @@ class ExoPlayerService @Inject constructor(
 
         initialize()
 
-        return try {
-            exoPlayer?.apply {
-                setMediaItem(mediaItem)
-                prepare()
+        var result = false
+        runOnMainThread {
+            try {
+                exoPlayer?.apply {
+                    setMediaItem(mediaItem)
+                    prepare()
+                }
+                result = true
+            } catch (e: Exception) {
+                updatePlayerState(error = "Failed to prepare media: ${e.message}")
+                result = false
             }
-            true
-        } catch (e: Exception) {
-            updatePlayerState(error = "Failed to prepare media: ${e.message}")
-            false
         }
+        return result
     }
 
     /**
      * Prepare a playlist for playback
+     * Ensures execution on main thread
      */
     fun preparePlaylist(mediaItems: List<MediaItem>, startIndex: Int = 0): Boolean {
         if (!FeatureFlags.ENABLE_EXOPLAYER) {
@@ -168,23 +188,30 @@ class ExoPlayerService @Inject constructor(
 
         initialize()
 
-        return try {
-            exoPlayer?.apply {
-                setMediaItems(mediaItems, startIndex, 0)
-                prepare()
+        var result = false
+        runOnMainThread {
+            try {
+                exoPlayer?.apply {
+                    setMediaItems(mediaItems, startIndex, 0)
+                    prepare()
+                }
+                result = true
+            } catch (e: Exception) {
+                updatePlayerState(error = "Failed to prepare playlist: ${e.message}")
+                result = false
             }
-            true
-        } catch (e: Exception) {
-            updatePlayerState(error = "Failed to prepare playlist: ${e.message}")
-            false
         }
+        return result
     }
 
     /**
      * Seek to specific media item in playlist
+     * Ensures execution on main thread
      */
     fun seekToMediaItem(mediaItemIndex: Int) {
-        exoPlayer?.seekTo(mediaItemIndex, 0)
+        runOnMainThread {
+            exoPlayer?.seekTo(mediaItemIndex, 0)
+        }
     }
 
     /**
@@ -203,61 +230,82 @@ class ExoPlayerService @Inject constructor(
 
     /**
      * Enable/disable skip silence
+     * Ensures execution on main thread
      */
     fun setSkipSilence(enabled: Boolean) {
-        exoPlayer?.skipSilenceEnabled = enabled
+        runOnMainThread {
+            exoPlayer?.skipSilenceEnabled = enabled
+        }
     }
 
     /**
      * Start playback
+     * Ensures execution on main thread
      */
     fun play() {
-        exoPlayer?.play()
+        runOnMainThread {
+            exoPlayer?.play()
+        }
     }
 
     /**
      * Pause playback
+     * Ensures execution on main thread
      */
     fun pause() {
-        exoPlayer?.pause()
+        runOnMainThread {
+            exoPlayer?.pause()
+        }
     }
 
     /**
      * Stop playback
+     * Ensures execution on main thread
      */
     fun stop() {
-        exoPlayer?.stop()
-        updatePlayerState(
-            isPlaying = false,
-            currentPosition = 0,
-            duration = 0
-        )
+        runOnMainThread {
+            exoPlayer?.stop()
+            updatePlayerState(
+                isPlaying = false,
+                currentPosition = 0,
+                duration = 0
+            )
 
-        // Stop MediaSession
-        mediaController.stopPlayback()
+            // Stop MediaSession
+            mediaController.stopPlayback()
+        }
     }
 
     /**
      * Seek to specific position
+     * Ensures execution on main thread
      */
     fun seekTo(positionMs: Long) {
-        exoPlayer?.seekTo(positionMs)
+        runOnMainThread {
+            exoPlayer?.seekTo(positionMs)
+        }
     }
 
     /**
      * Set playback speed
+     * Ensures execution on main thread
      */
     fun setPlaybackSpeed(speed: Float) {
-        exoPlayer?.setPlaybackSpeed(speed)
-        updatePlayerState(playbackSpeed = speed)
+        runOnMainThread {
+            exoPlayer?.setPlaybackSpeed(speed)
+            updatePlayerState(playbackSpeed = speed)
+        }
     }
 
     /**
      * Set volume (0.0 to 1.0)
+     * Ensures execution on main thread
      */
     fun setVolume(volume: Float) {
-        exoPlayer?.volume = volume.coerceIn(0f, 1f)
-        updatePlayerState(volume = volume.coerceIn(0f, 1f))
+        runOnMainThread {
+            exoPlayer?.volume = volume.coerceIn(0f, 1f)
+            updatePlayerState(volume = volume.coerceIn(0f, 1f))
+        }
     }
 
     /**
@@ -286,11 +334,28 @@ class ExoPlayerService @Inject constructor(
 
     /**
      * Release resources
+     * Ensures execution on main thread
      */
     fun release() {
-        exoPlayer?.release()
-        exoPlayer = null
-        _playerState.value = ExoPlayerState()
+        runOnMainThread {
+            exoPlayer?.release()
+            exoPlayer = null
+            _playerState.value = ExoPlayerState()
+        }
+    }
+
+    /**
+     * Helper function to ensure code runs on main thread
+     * This is required for all ExoPlayer operations
+     */
+    private fun runOnMainThread(block: () -> Unit) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            // Already on main thread, execute directly
+            block()
+        } else {
+            // Post to main thread
+            mainHandler.post(block)
+        }
     }
 
     private fun updatePlayerState(

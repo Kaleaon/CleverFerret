@@ -5,6 +5,7 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -299,7 +300,7 @@ fun TextToSpeechControlPanel(
                             TtsState.PLAYING -> Icons.Default.RecordVoiceOver
                             TtsState.PAUSED -> Icons.Default.Pause
                             TtsState.ERROR -> Icons.Default.Error
-                            else -> Icons.Default.VolumeUp
+                            else -> Icons.AutoMirrored.Filled.VolumeUp
                         },
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary

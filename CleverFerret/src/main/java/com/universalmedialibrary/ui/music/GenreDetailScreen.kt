@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -51,7 +52,7 @@ fun GenreDetailScreen(
                 title = { Text("Genre") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 }
             )
@@ -134,7 +135,7 @@ fun GenreDetailScreen(
                     }
 
                     item {
-                        Divider()
+                        HorizontalDivider()
                         Text(
                             text = "Tracks",
                             style = MaterialTheme.typography.titleMedium,
@@ -190,7 +191,7 @@ class GenreDetailViewModel @Inject constructor(
                     artist = firstTrack.artist,
                     album = firstTrack.album,
                     duration = firstTrack.duration,
-                    albumArtUrl = null
+                    albumArtUrl = firstTrack.albumArtUri?.toString()
                 )
             }
         }
@@ -207,7 +208,7 @@ class GenreDetailViewModel @Inject constructor(
                     artist = firstTrack.artist,
                     album = firstTrack.album,
                     duration = firstTrack.duration,
-                    albumArtUrl = null
+                    albumArtUrl = firstTrack.albumArtUri?.toString()
                 )
             }
         }
@@ -221,7 +222,7 @@ class GenreDetailViewModel @Inject constructor(
                 artist = track.artist,
                 album = track.album,
                 duration = track.duration,
-                albumArtUrl = null
+                albumArtUrl = track.albumArtUri?.toString()
             )
         }
     }

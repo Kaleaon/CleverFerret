@@ -15,7 +15,7 @@ import com.universalmedialibrary.ui.viewmodels.MediaLibraryViewModel
 /**
  * Main Media Library Screen
  * 
- * Plex-inspired layout with:
+ * media-centric layout with:
  * - Configurable sidebar (left/right)
  * - Media grid with category filtering
  * - Settings dialog

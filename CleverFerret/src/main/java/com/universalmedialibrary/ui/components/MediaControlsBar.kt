@@ -351,26 +351,28 @@ private fun AlbumArtSliverBackground(albumArtUrl: String?) {
 private fun VisualizerBackground(isPlaying: Boolean) {
     val barCount = 24
     val infiniteTransition = rememberInfiniteTransition(label = "mini_player_visualizer")
-    val barAnimations = remember(infiniteTransition) {
-        List(barCount) { index ->
-            infiniteTransition.animateFloat(
-                initialValue = 0.2f,
-                targetValue = 1f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = 900 + index * 35,
-                        easing = LinearEasing
-                    ),
-                    repeatMode = RepeatMode.Reverse
+    // Create all animations outside of remember
+    val barAnimations = List(barCount) { index ->
+        infiniteTransition.animateFloat(
+            initialValue = 0.2f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = 900 + index * 35,
+                    easing = LinearEasing
                 ),
-                label = "visualizer_bar_$index"
-            )
-        }
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "visualizer_bar_$index"
+        )
     }
 
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+    val primaryColor = MaterialTheme.colorScheme.primary
+    
     Canvas(modifier = Modifier.fillMaxSize()) {
         drawRect(
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+            color = surfaceColor
         )
         val widthPerBar = size.width / (barCount * 1.6f)
         val spacing = widthPerBar * 0.5f
@@ -379,7 +381,7 @@ private fun VisualizerBackground(isPlaying: Boolean) {
             val barHeight = size.height * (0.2f + 0.6f * normalized)
             val x = index * (widthPerBar + spacing)
             drawRoundRect(
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f + 0.25f * normalized),
+                color = primaryColor.copy(alpha = 0.35f + 0.25f * normalized),
                 topLeft = Offset(x, size.height - barHeight),
                 size = Size(widthPerBar, barHeight),
                 cornerRadius = CornerRadius(widthPerBar / 2f, widthPerBar / 2f)

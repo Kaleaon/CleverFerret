@@ -78,3 +78,4 @@ branch_cleanup.sh
 # Environment files
 *.env
 *.env.*
+android_sdk/

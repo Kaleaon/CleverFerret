@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -136,14 +138,14 @@ fun ImprovedLibraryListScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             StatsCard(
-                                icon = Icons.Default.LibraryBooks,
+                                icon = Icons.AutoMirrored.Filled.LibraryBooks,
                                 label = "Libraries",
                                 value = uiState.libraries.size.toString(),
                                 modifier = Modifier.weight(1f)
                             )
 
                             StatsCard(
-                                icon = Icons.Default.Article,
+                                icon = Icons.AutoMirrored.Filled.Article,
                                 label = "Total Items",
                                 value = uiState.libraries.sumOf { it.itemCount }.toString(),
                                 modifier = Modifier.weight(1f)
@@ -153,7 +155,9 @@ fun ImprovedLibraryListScreen(
                         // Library grid
                         LazyVerticalGrid(
                             columns = GridCells.Adaptive(minSize = 160.dp),
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f),
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)

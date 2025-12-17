@@ -4,6 +4,7 @@ import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,7 +15,8 @@ import javax.inject.Singleton
 @Singleton
 class MediaRepository @Inject constructor(
     private val mediaItemDao: MediaItemDao,
-    private val metadataDao: MetadataDao
+    private val metadataDao: MetadataDao,
+    private val extendedMetadataRepository: ExtendedMetadataRepository
 ) {
 
     // Media Item operations
@@ -49,6 +51,9 @@ class MediaRepository @Inject constructor(
     suspend fun getCommonMetadata(itemId: Long): MetadataCommon? =
         metadataDao.getCommonMetadata(itemId)
 
+    suspend fun getMusicMetadata(itemId: Long): MetadataMusicTrack? =
+        metadataDao.getMetadataMusicTrackByItemId(itemId)
+
     suspend fun saveCommonMetadata(metadata: MetadataCommon) =
         metadataDao.insertCommonMetadata(metadata)
 
@@ -62,6 +67,29 @@ class MediaRepository @Inject constructor(
         mediaItemDao.setFavorite(itemId, isFavorite)
         metadataDao.setFavorite(itemId, isFavorite)
     }
+
+    suspend fun updateWaveform(
+        itemId: Long,
+        waveformData: ByteArray?,
+        sampleCount: Int,
+        frameDurationMs: Int,
+        offsetMs: Int,
+        generatedAt: Long,
+        version: Int = 1
+    ) {
+        metadataDao.upsertWaveform(
+            itemId = itemId,
+            waveformData = waveformData,
+            sampleCount = sampleCount,
+            frameDurationMs = frameDurationMs,
+            offsetMs = offsetMs,
+            generatedAt = generatedAt,
+            version = version
+        )
+    }
+
+    suspend fun updateWaveformOffset(itemId: Long, offsetMs: Int) =
+        metadataDao.updateWaveformOffset(itemId, offsetMs)
 
     suspend fun toggleFavorite(itemId: Long): Boolean {
         val current = mediaItemDao.getMediaItemById(itemId)?.isFavorite ?: false
@@ -87,6 +115,9 @@ class MediaRepository @Inject constructor(
     suspend fun getItemCountByType(mediaType: String): Int =
         mediaItemDao.getItemCountByType(mediaType)
     
+    suspend fun getLibraryItemCountsByType(libraryId: Long): Map<String, Int> =
+        mediaItemDao.getItemCountsByTypeForLibrary(libraryId).associate { it.mediaType to it.count }
+    
     /**
      * PERFORMANCE OPTIMIZATION: Batch fetch metadata for multiple items at once
      * to avoid N+1 query problems.
@@ -98,4 +129,11 @@ class MediaRepository @Inject constructor(
         if (itemIds.isEmpty()) return emptyMap()
         return metadataDao.getMetadataCommonBatch(itemIds).associateBy { it.itemId }
     }
+
+    // Extended Metadata Proxy Methods
+    suspend fun setExtendedMetadata(itemId: Long, key: String, value: String, type: String = "STRING") {
+        extendedMetadataRepository.setMetadata(itemId, key, value, type)
+    }
+
+    fun getExtendedMetadata(itemId: Long) = extendedMetadataRepository.getMetadata(itemId)
 }

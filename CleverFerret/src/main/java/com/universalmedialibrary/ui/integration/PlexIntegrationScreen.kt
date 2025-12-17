@@ -20,8 +20,8 @@ import com.universalmedialibrary.ui.theme.ThemePalette
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlexIntegrationScreen(
-    viewModel: PlexIntegrationViewModel = hiltViewModel()
+fun MediaIntegrationScreen(
+    viewModel: MediaIntegrationViewModel = hiltViewModel()
 ) {
     val plexState by viewModel.plexState.collectAsState()
     var showAddServerDialog by remember { mutableStateOf(false) }

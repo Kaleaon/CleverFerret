@@ -9,8 +9,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  AppBar,
-  Toolbar,
   IconButton,
   Typography,
   List,
@@ -21,6 +19,8 @@ import {
   Breadcrumbs,
   Link,
   Button,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -41,6 +41,7 @@ export const StorageBrowserScreen: React.FC = () => {
   const navigate = useNavigate();
   const [currentPath, setCurrentPath] = useState('/');
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   // Mock file entries
   const entries: FileEntry[] = [
@@ -54,23 +55,34 @@ export const StorageBrowserScreen: React.FC = () => {
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
-            <ArrowBack />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Browse Storage
-          </Typography>
-          <Button
-            color="inherit"
-            disabled={!selectedPath}
-            onClick={() => selectedPath && alert(`Selected: ${selectedPath}`)}
-          >
-            Select
-          </Button>
-        </Toolbar>
-      </AppBar>
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+        <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
+          <ArrowBack />
+        </IconButton>
+        <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
+          File Browser
+        </Typography>
+        <Button
+          variant="contained"
+          disabled={!selectedPath}
+          onClick={async () => {
+            if (selectedPath) {
+              try {
+                // In a real implementation, this would use File System Access API
+                // For now, show a message
+                setSnackbar({ open: true, message: `Selected: ${selectedPath}`, severity: 'success' });
+                // File processing would happen here
+                // navigate('/open', { state: { filePath: selectedPath } });
+              } catch (error) {
+                setSnackbar({ open: true, message: `Failed to process file: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+              }
+            }
+          }}
+        >
+          Select
+        </Button>
+      </Box>
 
       <Box sx={{ p: 2, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
         <Breadcrumbs>
@@ -125,6 +137,17 @@ export const StorageBrowserScreen: React.FC = () => {
           </ListItem>
         ))}
       </List>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

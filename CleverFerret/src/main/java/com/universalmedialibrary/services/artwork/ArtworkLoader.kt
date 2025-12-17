@@ -263,7 +263,7 @@ class ArtworkLoader @Inject constructor(
     }
 
     /**
-     * Load artwork for a PlexMediaItem
+     * Load artwork for a MediaItem
      *
      * @param plexItem The Plex media item to load artwork for
      * @param plexServerUrl The Plex server base URL

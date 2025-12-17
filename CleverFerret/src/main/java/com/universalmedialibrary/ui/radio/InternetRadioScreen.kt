@@ -9,20 +9,25 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.compose.AsyncImage
 import com.universalmedialibrary.services.visualizer.AudioVisualizerService
 import com.universalmedialibrary.ui.visualizer.ProjectMVisualizer
 import com.universalmedialibrary.ui.visualizer.VisualizerStyle
+import com.universalmedialibrary.data.local.dao.RadioStationDao
+import com.universalmedialibrary.data.local.entity.RadioStation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -35,6 +40,7 @@ import javax.inject.Inject
 @Composable
 fun InternetRadioScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToRadioBrowser: () -> Unit = {},
     viewModel: InternetRadioViewModel = hiltViewModel()
 ) {
     val stations by viewModel.stations.collectAsState()
@@ -53,10 +59,13 @@ fun InternetRadioScreen(
                 title = { Text("Internet Radio") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
+                    IconButton(onClick = onNavigateToRadioBrowser) {
+                        Icon(Icons.Default.Public, "Browse Directory")
+                    }
                     IconButton(onClick = { showAddStationDialog = true }) {
                         Icon(Icons.Default.Add, "Add Station")
                     }
@@ -174,6 +183,19 @@ private fun InternetRadioStationCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Logo
+            station.logoUrl?.let { url ->
+                AsyncImage(
+                    model = url,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     station.name,
@@ -221,17 +243,37 @@ data class InternetRadioStation(
     val url: String,
     val genre: String,
     val bitrate: String,
-    val country: String = ""
+    val country: String = "",
+    val logoUrl: String? = null
 )
 
 @HiltViewModel
 class InternetRadioViewModel @Inject constructor(
     private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService,
-    private val audioVisualizerService: AudioVisualizerService
+    private val audioVisualizerService: AudioVisualizerService,
+    private val radioStationDao: RadioStationDao
 ) : ViewModel() {
 
-    private val _stations = MutableStateFlow<List<InternetRadioStation>>(emptyList())
-    val stations: StateFlow<List<InternetRadioStation>> = _stations.asStateFlow()
+    private val _sampleStations = MutableStateFlow<List<InternetRadioStation>>(emptyList())
+
+    // Combine sample stations with DB stations
+    val stations: StateFlow<List<InternetRadioStation>> = combine(
+        _sampleStations,
+        radioStationDao.getAllStations()
+    ) { samples, dbStations ->
+        val mappedDbStations = dbStations.map { 
+            InternetRadioStation(
+                id = "db_${it.id}",
+                name = it.name,
+                url = it.streamUrl ?: "",
+                genre = it.genre ?: "Unknown",
+                bitrate = it.bitrate?.let { br -> "$br kbps" } ?: "Unknown",
+                country = it.country ?: "",
+                logoUrl = it.logoUrl
+            )
+        }
+        samples + mappedDbStations
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     private val _currentStation = MutableStateFlow<InternetRadioStation?>(null)
     val currentStation: StateFlow<InternetRadioStation?> = _currentStation.asStateFlow()
@@ -248,7 +290,7 @@ class InternetRadioViewModel @Inject constructor(
         audioVisualizerService.visualizerState
 
     // Dynamically extract available genres from all stations
-    val availableGenres: StateFlow<List<String>> = _stations.map { stationList ->
+    val availableGenres: StateFlow<List<String>> = stations.map { stationList ->
         stationList.map { it.genre }.distinct().filter { it.isNotBlank() }
     }.stateIn(
         scope = viewModelScope,
@@ -272,7 +314,7 @@ class InternetRadioViewModel @Inject constructor(
         // Comprehensive collection from 4 premium sources
         // Total: 504 unique high-quality radio stations!
         // (751 declarations, 504 unique URLs after deduplication)
-        _stations.value = listOf(
+        _sampleStations.value = listOf(
             // ==================================================================
             // filtermusic.net Collection (241 stations)
             // Source: https://filtermusic.net/
@@ -1018,7 +1060,7 @@ InternetRadioStation("gh11", "BBC Radio 1Xtra", "http://as-hls-ww-live.akamaized
 InternetRadioStation("gh12", "BBC Radio 1Dance", "http://as-hls-ww-live.akamaized.net/pool_62063831/live/ww/bbc_radio_one_dance/bbc_radio_one_dance.isml/bbc_radio_one_dance-audio%3d96000.norewind.m3u8", "Music", "96 kbps"),
 InternetRadioStation("gh13", "BBC Radio 2", "http://as-hls-ww-live.akamaized.net/pool_74208725/live/ww/bbc_radio_two/bbc_radio_two.isml/bbc_radio_two-audio%3d96000.norewind.m3u8", "Music", "96 kbps"),
 InternetRadioStation("gh14", "BBC Radio 6 Music", "http://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio%3d96000.norewind.m3u8", "Rock", "96 kbps"),
-InternetRadioStation("gh15", "BBC World Service", "http://stream.live.vc.bbcmedia.co.uk/bbc_world_service", "News", "128 kbps"),
+InternetRadioStation("gh15", "BBC World Service", "http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_world_service.m3u8", "News", "128 kbps"),
 InternetRadioStation("gh16", "FIP", "http://direct.fipradio.fr/live/fip-midfi.mp3", "Music", "128 kbps"),
 InternetRadioStation("gh17", "FIP Jazz", "http://direct.fipradio.fr/live/fip-webradio2.mp3", "Jazz", "128 kbps"),
 InternetRadioStation("gh18", "FIP Groove", "http://direct.fipradio.fr/live/fip-webradio3.mp3", "Music", "128 kbps"),
@@ -1083,14 +1125,14 @@ InternetRadioStation("gh39", "Worldwide FM", "https://worldwidefm.out.airtime.pr
     }
     
     fun addCustomStation(name: String, url: String, genre: String) {
-        val newStation = InternetRadioStation(
-            id = (stations.value.size + 1).toString(),
-            name = name,
-            url = url,
-            genre = genre,
-            bitrate = "128 kbps"
-        )
-        _stations.value = _stations.value + newStation
+        viewModelScope.launch {
+            val newStation = com.universalmedialibrary.data.local.entity.RadioStation(
+                name = name,
+                streamUrl = url,
+                genre = genre
+            )
+            radioStationDao.insertStation(newStation)
+        }
     }
 }
 

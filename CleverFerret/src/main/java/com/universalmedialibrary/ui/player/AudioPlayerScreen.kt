@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,6 +35,9 @@ fun AudioPlayerScreen(
     val context = LocalContext.current
     var isFavorite by remember { mutableStateOf(false) }
     var volume by remember { mutableStateOf(0.8f) }
+    val coverModel = uiState.coverArtUri
+    val artworkColors = rememberArtworkPalette(coverModel)
+    val displayCover = coverModel ?: "https://via.placeholder.com/280x280/7B1FA2/ffffff?text=%E2%99%AA"
 
     LaunchedEffect(audioFilePath) {
         viewModel.loadAudio(context, audioFilePath)
@@ -44,12 +48,13 @@ fun AudioPlayerScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.background
-                    )
+            Brush.verticalGradient(
+                colors = listOf(
+                    artworkColors.primary,
+                    artworkColors.secondary,
+                    artworkColors.accent
                 )
+            )
             )
     ) {
         Column(
@@ -79,9 +84,8 @@ fun AudioPlayerScreen(
                     shape = MaterialTheme.shapes.large,
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
-                    val coverModel = uiState.coverArtUri ?: "https://via.placeholder.com/280x280/7B1FA2/ffffff?text=%E2%99%AA"
-                    AsyncImage(
-                        model = coverModel,
+                AsyncImage(
+                    model = displayCover,
                         contentDescription = "Album Art",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -121,8 +125,8 @@ fun AudioPlayerScreen(
                         valueRange = 0f..uiState.duration.toFloat(),
                         modifier = Modifier.fillMaxWidth(),
                         colors = SliderDefaults.colors(
-                            thumbColor = MaterialTheme.colorScheme.primary,
-                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                        thumbColor = artworkColors.accent,
+                        activeTrackColor = artworkColors.accent,
                             inactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
                         )
                     )
@@ -219,7 +223,7 @@ fun AudioPlayerScreen(
                                 inactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
                             )
                         )
-                        Icon(Icons.Default.VolumeUp, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }

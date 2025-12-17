@@ -5,6 +5,9 @@
  * Architecture: Kotlin + Jetpack Compose + Material 3 + Hilt + Room
  */
 
+import java.io.File
+import java.util.Base64
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -28,11 +31,60 @@ android {
     namespace = "com.universalmedialibrary"
     compileSdk = 36  // Android 15 (API 36) - Required by androidx.core:core:1.17.0 and other latest dependencies
 
+    // =========================================================================
+    // Signing (required for update-compatible installs)
+    //
+    // IMPORTANT:
+    // - Android updates require the *same* package name (applicationId) AND the *same* signing key.
+    // - If different machines generate different debug keystores, installs will fail with
+    //   "conflicting package" / INSTALL_FAILED_UPDATE_INCOMPATIBLE.
+    //
+    // CI-friendly release signing uses the secrets described in scripts/setup-automated-builds.sh:
+    // - KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+    // =========================================================================
+    val keystoreBase64Raw: String? =
+        System.getenv("KEYSTORE_BASE64") ?: (project.findProperty("KEYSTORE_BASE64") as String?)
+    val keystorePassword: String? =
+        System.getenv("KEYSTORE_PASSWORD") ?: (project.findProperty("KEYSTORE_PASSWORD") as String?)
+    val keyAlias: String? =
+        System.getenv("KEY_ALIAS") ?: (project.findProperty("KEY_ALIAS") as String?)
+    val keyPassword: String? =
+        System.getenv("KEY_PASSWORD") ?: (project.findProperty("KEY_PASSWORD") as String?)
+
+    val releaseKeystoreFile: File? = if (
+        !keystoreBase64Raw.isNullOrBlank() &&
+        !keystorePassword.isNullOrBlank() &&
+        !keyAlias.isNullOrBlank() &&
+        !keyPassword.isNullOrBlank()
+    ) {
+        val keystoreFile = File(rootProject.buildDir, "keystores/cleverferret-release.jks")
+        keystoreFile.parentFile?.mkdirs()
+        val cleanB64 = keystoreBase64Raw.replace("\\s".toRegex(), "")
+        keystoreFile.writeBytes(Base64.getDecoder().decode(cleanB64))
+        keystoreFile
+    } else {
+        null
+    }
+
+    signingConfigs {
+        // debug config is provided by AGP automatically
+        if (releaseKeystoreFile != null) {
+            create("release") {
+                storeFile = releaseKeystoreFile
+                storePassword = keystorePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            }
+        } else {
+            println("⚠️  Release signing not configured. Set KEYSTORE_* env vars for update-compatible releases.")
+        }
+    }
+
     defaultConfig {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 9
+        versionCode = 12
         versionName = "1.6.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -43,15 +95,51 @@ android {
         // Enable BuildConfig generation
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
+
+        val tasteDiveKey = project.properties["TASTEDIVE_API_KEY"] ?: "1062990-CleverFe-17BF9586"
+        buildConfigField("String", "TASTEDIVE_API_KEY", "\"$tasteDiveKey\"")
+
+        val nytApiKey = project.properties["NYT_API_KEY"] ?: ""
+        buildConfigField("String", "NYT_API_KEY", "\"$nytApiKey\"")
+
+        val nytApiSecret = project.properties["NYT_API_SECRET"] ?: ""
+        buildConfigField("String", "NYT_API_SECRET", "\"$nytApiSecret\"")
+
+        val nytAppId = project.properties["NYT_APP_ID"] ?: ""
+        buildConfigField("String", "NYT_APP_ID", "\"$nytAppId\"")
     }
 
     buildTypes {
+        debug {
+            isDebuggable = true
+            isMinifyEnabled = false
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            
+            // Debug-specific BuildConfig fields
+            buildConfigField("boolean", "DEBUG_REPORTING_ENABLED", "true")
+            buildConfigField("boolean", "CRASH_REPORTING_ENABLED", "true")
+            buildConfigField("boolean", "SHOW_DEBUG_MENU", "true")
+            buildConfigField("String", "BUILD_TIME", "\"${System.currentTimeMillis()}\"")
+            buildConfigField("String", "GIT_COMMIT", "\"${getGitCommitHash()}\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // Use stable release key if configured; otherwise fall back to debug signing for local builds.
+            // NOTE: debug signing will not be update-compatible across different machines.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            
+            // Release-specific BuildConfig fields
+            buildConfigField("boolean", "DEBUG_REPORTING_ENABLED", "false")
+            buildConfigField("boolean", "CRASH_REPORTING_ENABLED", "false")
+            buildConfigField("boolean", "SHOW_DEBUG_MENU", "false")
+            buildConfigField("String", "BUILD_TIME", "\"${System.currentTimeMillis()}\"")
+            buildConfigField("String", "GIT_COMMIT", "\"${getGitCommitHash()}\"")
         }
     }
     
@@ -73,6 +161,14 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/DEPENDENCIES"
+            excludes += "/META-INF/LICENSE*"
+            excludes += "/META-INF/NOTICE*"
+            excludes += "/META-INF/*.md"
+            excludes += "/META-INF/*.txt"
+            // Note: Excluding *.properties may remove some library metadata, but is needed to resolve
+            // packaging conflicts. If runtime issues occur, consider being more specific.
+            excludes += "/META-INF/*.properties"
         }
     }
     
@@ -89,6 +185,17 @@ android {
     }
 }
 
+fun getGitCommitHash(): String {
+    return try {
+        val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+            .redirectErrorStream(true)
+            .start()
+        process.inputStream.bufferedReader().readText().trim()
+    } catch (e: Exception) {
+        "unknown"
+    }
+}
+
 dependencies {
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
@@ -100,10 +207,11 @@ dependencies {
     implementation(libs.androidx.activity.compose)
 
     // Compose BOM and core components
-    implementation(platform(libs.androidx.compose.bom))
+    implementation(enforcedPlatform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
 
@@ -141,7 +249,7 @@ dependencies {
 
     // Image loading & UI utilities
     implementation(libs.coil.compose)
-    implementation(libs.compose.reorderable)
+    implementation(libs.androidx.palette)
 
     // Media playback
     implementation(libs.androidx.media)
@@ -162,6 +270,22 @@ dependencies {
     implementation(libs.junrar)
     implementation(libs.commons.compress)
     implementation(libs.xz)
+
+
+    // Document parsing libraries
+    implementation(libs.apache.poi.ooxml) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.apache.poi.scratchpad) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.apache.tika.core) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.apache.tika.parsers) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.lib.mobi.core)
 
     // Parsing & data utilities
     implementation(libs.jsoup)
@@ -236,7 +360,7 @@ dependencies {
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(enforcedPlatform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.mockk.android)
@@ -247,3 +371,6 @@ dependencies {
 
 // Apply publishing configuration for GitHub Packages
 apply(from = "publish.gradle")
+
+// Version helper tasks for CI (printVersionCode, incrementVersionCode, etc.)
+apply(from = "version.gradle")

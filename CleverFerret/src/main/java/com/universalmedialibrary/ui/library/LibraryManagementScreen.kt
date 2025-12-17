@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -58,7 +59,7 @@ fun LibraryManagementScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -359,85 +360,72 @@ private fun LibraryCard(
     itemCount: Int,
     onClick: () -> Unit
 ) {
-    val gradientColors = getLibraryGradientColors(library.type)
-
     Card(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp),
+            .height(100.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
+            containerColor = Color(0xFF1E1E1E)
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
+            defaultElevation = 2.dp
+        ),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF333333))
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.horizontalGradient(gradientColors)
-                )
-                .clip(RoundedCornerShape(12.dp))
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Surface(
+                modifier = Modifier.size(56.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFF2D2D2D)
             ) {
-                Icon(
-                    imageVector = getLibraryIcon(library.type),
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp),
-                    tint = Color.White
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = getLibraryIcon(library.type),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = Color(0xFFCCCCCC)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = library.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = library.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                Text(
+                    text = getLibraryTypeDisplayName(library.type),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFFAAAAAA)
+                )
+            }
 
-                    Text(
-                        text = getLibraryTypeDisplayName(library.type),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-
-                    if (library.description?.isNotEmpty() == true) {
-                        Text(
-                            text = library.description,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.7f),
-                            maxLines = 1
-                        )
-                    }
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Surface(
-                        color = Color.White.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        val itemCountText = itemCount
-                        Text(
-                            text = "$itemCountText ${if (itemCountText == 1) "item" else "items"}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
+            Surface(
+                color = Color(0xFF333333),
+                shape = RoundedCornerShape(4.dp)
+            ) {
+                val itemCountText = itemCount
+                Text(
+                    text = "$itemCountText ${if (itemCountText == 1) "item" else "items"}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
             }
         }
     }

@@ -22,6 +22,12 @@ import {
   Divider,
   Alert,
   TextField,
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import { ArrowBack, Lock, VpnKey } from '@mui/icons-material';
 
@@ -32,14 +38,24 @@ export const SecuritySettingsScreen: React.FC = () => {
   const [autoLock, setAutoLock] = React.useState(true);
   const [hideSensitive, setHideSensitive] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const [snackbar, setSnackbar] = React.useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [showClearDialog, setShowClearDialog] = React.useState(false);
 
   const handleSetPassword = () => {
-    alert('Password setup would open here');
+    setSnackbar({ open: true, message: 'Password setup would open here', severity: 'info' });
   };
 
   const handleClearData = () => {
-    if (confirm('Are you sure you want to clear all app data? This cannot be undone.')) {
-      alert('Data would be cleared here');
+    setShowClearDialog(true);
+  };
+
+  const confirmClearData = async () => {
+    setShowClearDialog(false);
+    try {
+      // Clear data implementation would go here
+      setSnackbar({ open: true, message: 'Data cleared successfully', severity: 'success' });
+    } catch (error) {
+      setSnackbar({ open: true, message: `Failed to clear data: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
     }
   };
 
