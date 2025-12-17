@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.podcast
 
+import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +33,7 @@ fun PodcastPlayerScreen(
     viewModel: PodcastPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(episodeId) {
         viewModel.loadEpisode(episodeId)
@@ -66,7 +69,23 @@ fun PodcastPlayerScreen(
                     com.universalmedialibrary.ui.visualizer.VisualizerButton(
                         onClick = onNavigateToVisualizer
                     )
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { 
+                        uiState.episode?.let { episode ->
+                            try {
+                                val shareText = "Check out this podcast episode: ${episode.title}"
+                                val sendIntent = Intent().apply {
+                                    action = Intent.ACTION_SEND
+                                    putExtra(Intent.EXTRA_TEXT, shareText)
+                                    type = "text/plain"
+                                }
+                                val shareIntent = Intent.createChooser(sendIntent, "Share episode")
+                                context.startActivity(shareIntent)
+                            } catch (e: Exception) {
+                                // Handle the case where no app can handle the share intent
+                                e.printStackTrace()
+                            }
+                        }
+                    }) {
                         Icon(Icons.Default.Share, contentDescription = "Share")
                     }
                 }
