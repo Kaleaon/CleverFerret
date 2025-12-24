@@ -233,10 +233,10 @@ private fun ServerCard(
                     text = "Delete",
                     onClick = onDelete,
                     modifier = Modifier.weight(1f)
-            )
+                )
+            }
         }
     }
-}
 }
 
 @Composable

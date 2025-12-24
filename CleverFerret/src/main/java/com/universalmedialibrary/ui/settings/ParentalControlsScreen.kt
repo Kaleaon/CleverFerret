@@ -47,8 +47,10 @@ fun ParentalControlsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                     title = {
@@ -260,16 +262,14 @@ fun ParentalControlsScreen(
             )
         }
 
-        // Success Message
+    // Success Message
     uiState.successMessage?.let { message ->
         LaunchedEffect(message) {
-            kotlinx.coroutines.delay(2000)
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
             viewModel.clearSuccess()
-        }
-        Snackbar(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(message)
         }
     }
 }
