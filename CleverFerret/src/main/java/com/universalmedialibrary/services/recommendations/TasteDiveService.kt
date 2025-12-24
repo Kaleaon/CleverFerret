@@ -25,6 +25,8 @@ class TasteDiveService @Inject constructor(
         limit: Int = 10
     ): List<TasteDiveItem> = withContext(Dispatchers.IO) {
         try {
+            if (apiKey.isBlank()) return@withContext emptyList()
+
             val encodedQuery = URLEncoder.encode(query, "UTF-8")
             var url = "$baseUrl?q=$encodedQuery&k=$apiKey&limit=$limit&info=1"
             

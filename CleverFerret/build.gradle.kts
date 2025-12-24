@@ -27,6 +27,15 @@ configurations.all {
     }
 }
 
+fun getGradlePropOrEnv(name: String): String? {
+    return System.getenv(name) ?: (project.findProperty(name) as String?)
+}
+
+fun escapeForBuildConfig(value: String): String {
+    // BuildConfig string literals must be safely escaped.
+    return value.replace("\\", "\\\\").replace("\"", "\\\"")
+}
+
 android {
     namespace = "com.universalmedialibrary"
     compileSdk = 36  // Android 15 (API 36) - Required by androidx.core:core:1.17.0 and other latest dependencies
@@ -96,17 +105,18 @@ android {
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
 
-        val tasteDiveKey = project.properties["TASTEDIVE_API_KEY"] ?: "1062990-CleverFe-17BF9586"
-        buildConfigField("String", "TASTEDIVE_API_KEY", "\"$tasteDiveKey\"")
+        // API keys: supplied via env vars (preferred) or Gradle properties. Never hardcode defaults.
+        val tasteDiveKey = getGradlePropOrEnv("TASTEDIVE_API_KEY").orEmpty()
+        buildConfigField("String", "TASTEDIVE_API_KEY", "\"${escapeForBuildConfig(tasteDiveKey)}\"")
 
-        val nytApiKey = project.properties["NYT_API_KEY"] ?: ""
-        buildConfigField("String", "NYT_API_KEY", "\"$nytApiKey\"")
+        val nytApiKey = getGradlePropOrEnv("NYT_API_KEY").orEmpty()
+        buildConfigField("String", "NYT_API_KEY", "\"${escapeForBuildConfig(nytApiKey)}\"")
 
-        val nytApiSecret = project.properties["NYT_API_SECRET"] ?: ""
-        buildConfigField("String", "NYT_API_SECRET", "\"$nytApiSecret\"")
+        val nytApiSecret = getGradlePropOrEnv("NYT_API_SECRET").orEmpty()
+        buildConfigField("String", "NYT_API_SECRET", "\"${escapeForBuildConfig(nytApiSecret)}\"")
 
-        val nytAppId = project.properties["NYT_APP_ID"] ?: ""
-        buildConfigField("String", "NYT_APP_ID", "\"$nytAppId\"")
+        val nytAppId = getGradlePropOrEnv("NYT_APP_ID").orEmpty()
+        buildConfigField("String", "NYT_APP_ID", "\"${escapeForBuildConfig(nytAppId)}\"")
     }
 
     buildTypes {

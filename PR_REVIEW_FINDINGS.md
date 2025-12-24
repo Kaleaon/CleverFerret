@@ -2,7 +2,7 @@
 
 ## Critical Flaws & Security Issues
 
-1.  **Hardcoded API Key**: `TasteDiveService.kt` contained a hardcoded API key: `1062990-CleverFe-17BF9586`.
+1.  **Hardcoded API Key**: `TasteDiveService.kt` contained a hardcoded API key (redacted).
     *   **Status**: ✅ **FIXED**. Moved to `gradle.properties` and accessed via `BuildConfig`.
 
 2.  **Permission Issues**: 

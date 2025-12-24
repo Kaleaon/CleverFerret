@@ -3,7 +3,7 @@
 ## Critical Flaws Addressed
 
 1.  **Security: Hardcoded API Key**
-    *   **Issue**: `TasteDiveService.kt` contained a hardcoded API key (`1062990-CleverFe-17BF9586`).
+    *   **Issue**: `TasteDiveService.kt` contained a hardcoded API key (redacted).
     *   **Fix**: Moved the key to `gradle.properties` as `TASTEDIVE_API_KEY`, exposed it via `BuildConfig`, and updated the service to use the secure field.
 
 2.  **Permissions: `MANAGE_DOCUMENTS`**
@@ -27,7 +27,7 @@
         *   Updated `APIKeyRepository.kt` to support all requested providers.
         *   Updated `APISettingsViewModel.kt` to load/save these keys.
         *   Refactored `APISettingsScreen.kt` to include UI sections for all keys using a reusable `GenericApiKeySection`.
-        *   **Added Specific NYT Keys**: The provided NYT credentials (`rDkNwV...`) were added to `gradle.properties` and configured as defaults.
+        *   **NYT keys**: Provided via environment variables or local Gradle properties (do not commit secrets).
 
 2.  **FM Radio Upgrade**
     *   **Request**: Address TODO to switch to internet radio.
