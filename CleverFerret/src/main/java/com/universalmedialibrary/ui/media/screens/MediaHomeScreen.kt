@@ -402,9 +402,9 @@ private fun StatCard(
         shape = RoundedCornerShape(MediaCorners.Card),
         color = MaterialTheme.colorScheme.surface
     ) {
-        Row(
+        Column(
             modifier = Modifier.padding(MediaSpacing.MD),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface(
                 shape = CircleShape,
@@ -421,24 +421,21 @@ private fun StatCard(
                 )
             }
             
-            Spacer(modifier = Modifier.width(MediaSpacing.SM))
+            Spacer(modifier = Modifier.height(MediaSpacing.SM))
             
-            Column(modifier = Modifier.weight(1f, fill = false)) {
-                Text(
-                    text = value,
-                    style = MediaTypography.TitleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = label,
-                    style = MediaTypography.LabelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            Text(
+                text = value,
+                style = MediaTypography.TitleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = label,
+                style = MediaTypography.LabelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
