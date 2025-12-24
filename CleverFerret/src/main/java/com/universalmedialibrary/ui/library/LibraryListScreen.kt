@@ -44,6 +44,7 @@ fun LibraryListScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(colorScheme.background)
+            .statusBarsPadding()
     ) {
         Column {
             // App Bar with media-centric design

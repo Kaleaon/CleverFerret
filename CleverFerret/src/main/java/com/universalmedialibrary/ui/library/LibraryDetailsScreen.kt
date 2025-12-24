@@ -71,6 +71,7 @@ fun LibraryDetailsScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
+            .statusBarsPadding()
     ) {
         Column {
             // App Bar

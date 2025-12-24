@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -416,14 +418,18 @@ fun ResponsiveNavigationScaffold(
                         )
                     }
                 },
+                // Only provide bottom padding for the bottom bar, let child screens handle top insets
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 content = content
             )
             
             // Hamburger menu button in top-left corner
+            // Uses statusBarsPadding to avoid overlapping system UI
             IconButton(
                 onClick = { scope.launch { drawerState.open() } },
                 modifier = Modifier
                     .align(Alignment.TopStart)
+                    .statusBarsPadding()
                     .padding(start = 8.dp, top = 8.dp)
                     .size(48.dp)
             ) {
@@ -597,18 +603,56 @@ private fun ScrollableBottomBar(
                 )
             }
 
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .horizontalScroll(scrollState),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier.weight(1f)
             ) {
-                items.forEach { item ->
-                    ScrollableNavigationBarEntry(
-                        navController = navController,
-                        item = item,
-                        currentDestination = currentDestination
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(scrollState),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items.forEach { item ->
+                        ScrollableNavigationBarEntry(
+                            navController = navController,
+                            item = item,
+                            currentDestination = currentDestination
+                        )
+                    }
+                }
+                
+                // Fade indicators for scrollability
+                if (scrollState.canScrollForward) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .width(24.dp)
+                            .fillMaxHeight()
+                            .background(
+                                brush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        NavigationBarDefaults.containerColor
+                                    )
+                                )
+                            )
+                    )
+                }
+                if (scrollState.canScrollBackward) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .width(24.dp)
+                            .fillMaxHeight()
+                            .background(
+                                brush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                    colors = listOf(
+                                        NavigationBarDefaults.containerColor,
+                                        Color.Transparent
+                                    )
+                                )
+                            )
                     )
                 }
             }
