@@ -7,7 +7,6 @@ import com.universalmedialibrary.services.metadata.RealMetadataService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject

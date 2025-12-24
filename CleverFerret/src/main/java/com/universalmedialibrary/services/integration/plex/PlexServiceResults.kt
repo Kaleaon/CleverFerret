@@ -39,12 +39,5 @@ data class DuplicateGroup(
     val reason: String
 )
 
-/**
- * Status of Plex connections
- * Single source of truth for connection status
- */
-data class PlexConnectionStatus(
-    val connectedServers: List<String>,
-    val hasActiveConnections: Boolean,
-    val totalLibraries: Int
-)
+// Note: PlexConnectionStatus is defined in IntegrationManager.kt
+// Use: com.universalmedialibrary.services.integration.PlexConnectionStatus

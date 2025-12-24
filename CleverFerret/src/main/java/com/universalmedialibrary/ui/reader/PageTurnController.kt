@@ -15,7 +15,6 @@ import android.os.Build
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.input.pointer.pointerInput
 
 /**
  * Page Turn Controller

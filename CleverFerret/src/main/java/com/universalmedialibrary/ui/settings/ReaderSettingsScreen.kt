@@ -300,7 +300,7 @@ fun AutoScrollSection(
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                AutoScrollMode.values().forEach { mode ->
+                AutoScrollMode.entries.forEach { mode ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
