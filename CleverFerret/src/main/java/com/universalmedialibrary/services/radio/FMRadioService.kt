@@ -282,35 +282,33 @@ class FMRadioService @Inject constructor(
     }
     
     private fun simulateTuning(frequencyKhz: Int) {
-        scope.launch {
-            _signalStrength.value = 0
+        // Run synchronously to ensure state is updated before tune() returns
+        // This ensures tests can observe the signal strength immediately
+        val nearest = presetStations.minByOrNull { kotlin.math.abs(it.frequencyKhz - frequencyKhz) }
+        val distance = nearest?.let { kotlin.math.abs(it.frequencyKhz - frequencyKhz) } ?: Int.MAX_VALUE
 
-            val nearest = presetStations.minByOrNull { kotlin.math.abs(it.frequencyKhz - frequencyKhz) }
-            val distance = nearest?.let { kotlin.math.abs(it.frequencyKhz - frequencyKhz) } ?: Int.MAX_VALUE
+        // Simple signal falloff curve that satisfies unit tests:
+        // - exact preset > offset preset
+        // - strong signal around presets
+        val computed = when {
+            distance == 0 -> 95
+            distance <= 200 -> 80
+            distance <= 500 -> 60
+            distance <= 1000 -> 35
+            else -> 15
+        }
 
-            // Simple signal falloff curve that satisfies unit tests:
-            // - exact preset > offset preset
-            // - strong signal around presets
-            val computed = when {
-                distance == 0 -> 95
-                distance <= 200 -> 80
-                distance <= 500 -> 60
-                distance <= 1000 -> 35
-                else -> 15
-            }
+        _signalStrength.value = computed
 
-            _signalStrength.value = computed
-
-            // Provide RDS for strong signals.
-            if (computed > 50) {
-                _rdsData.value = RDSData(
-                    stationName = formatFrequency(nearest?.frequencyKhz ?: frequencyKhz),
-                    radioText = "Simulated station",
-                    programType = "TEST"
-                )
-            } else {
-                _rdsData.value = null
-            }
+        // Provide RDS for strong signals.
+        if (computed > 50) {
+            _rdsData.value = RDSData(
+                stationName = formatFrequency(nearest?.frequencyKhz ?: frequencyKhz),
+                radioText = "Simulated station",
+                programType = "TEST"
+            )
+        } else {
+            _rdsData.value = null
         }
     }
 }
