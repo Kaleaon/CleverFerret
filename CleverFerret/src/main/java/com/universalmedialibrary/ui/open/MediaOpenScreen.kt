@@ -38,12 +38,21 @@ fun MediaOpenScreen(
             val item = uiState.mediaItem!!
             val path = item.filePath
             val name = item.fileName
-            val ext = name.substringAfterLast('.', "").lowercase()
+            
+            // Use the dedicated fileExtension field first, then fall back to parsing fileName
+            val ext = item.fileExtension.lowercase().ifBlank {
+                name.substringAfterLast('.', "").lowercase()
+            }
+            
+            // Also check mediaType for audio/video content (handles streams without extensions)
+            val isAudioByType = item.mediaType.uppercase() in setOf("MUSIC_TRACK", "AUDIO", "PODCAST", "PODCAST_EPISODE", "AUDIOBOOK")
+            val isVideoByType = item.mediaType.uppercase() in setOf("MOVIE", "TV_SHOW", "TV_EPISODE", "VIDEO")
+            
             when {
                 ext == "epub" -> EReaderScreen(bookFilePath = path, onBack = onBack)
                 ext in setOf("pdf", "txt", "html", "htm", "docx") -> DocumentReaderScreen(uriString = path, fileName = name, onBack = onBack)
                 ext in setOf("cbz", "cbr") -> ComicReaderScreen(uriString = path, fileName = name, onBack = onBack)
-                ext in AUDIO_EXTENSIONS -> {
+                ext in AUDIO_EXTENSIONS || isAudioByType -> {
                     // Start audio playback and show a simple player UI
                     LaunchedEffect(item) {
                         viewModel.playAudioFile(item)
@@ -54,18 +63,52 @@ fun MediaOpenScreen(
                         onBack = onBack
                     )
                 }
-                ext in VIDEO_EXTENSIONS -> {
-                    // Video files - show a message that video player should be opened
+                ext in VIDEO_EXTENSIONS || isVideoByType -> {
+                    // Video files - start video playback
+                    LaunchedEffect(item) {
+                        viewModel.playVideoFile(item)
+                    }
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text("Opening video: $name")
-                        Text("Navigate to video player for playback")
+                        Text("Starting playback...")
                     }
                 }
-                else -> Text("No viewer for .$ext")
+                else -> {
+                    // Show more helpful message with mediaType info
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "No viewer for this file",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "File: $name",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        if (ext.isNotBlank()) {
+                            Text(
+                                text = "Extension: .$ext",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        Text(
+                            text = "Type: ${item.mediaType}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        OutlinedButton(onClick = onBack) {
+                            Text("Back")
+                        }
+                    }
+                }
             }
         }
     }
