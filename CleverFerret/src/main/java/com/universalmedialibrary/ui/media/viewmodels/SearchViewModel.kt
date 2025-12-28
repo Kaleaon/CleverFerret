@@ -2,6 +2,10 @@ package com.universalmedialibrary.ui.media.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.services.search.EnhancedSearchService
+import com.universalmedialibrary.services.search.SearchQuery
+import com.universalmedialibrary.services.search.SearchFilters
+import com.universalmedialibrary.services.search.SortBy
 import com.universalmedialibrary.ui.media.components.MediaType
 import com.universalmedialibrary.ui.media.screens.SearchCategory
 import com.universalmedialibrary.ui.media.screens.SearchResult
@@ -18,31 +22,31 @@ import javax.inject.Inject
  * 
  * Searches across:
  * - Local library (all media types)
- * - OPDS catalogs
- * - External metadata providers
- * - Podcast directories
- * - Web fiction sources
- * 
- * Note: This is a simplified implementation with placeholder data.
- * Full repository and service integration will be added when the
- * search services are finalized.
+ * - Uses real EnhancedSearchService for database queries
  */
 @HiltViewModel
-class SearchViewModel @Inject constructor() : ViewModel() {
+class SearchViewModel @Inject constructor(
+    private val searchService: EnhancedSearchService
+) : ViewModel() {
     
     private val _uiState = MutableStateFlow(SearchScreenState())
     val uiState: StateFlow<SearchScreenState> = _uiState.asStateFlow()
     
     private var searchJob: Job? = null
     
-    private val _searchHistory = mutableListOf("Recent search 1", "Recent search 2", "Recent search 3")
-    
     init {
         loadRecentSearches()
     }
     
     private fun loadRecentSearches() {
-        _uiState.update { it.copy(recentSearches = _searchHistory) }
+        viewModelScope.launch {
+            try {
+                val history = searchService.getSearchHistory()
+                _uiState.update { it.copy(recentSearches = history.map { h -> h.query }) }
+            } catch (e: Exception) {
+                // Continue without history
+            }
+        }
     }
     
     fun updateQuery(query: String) {
@@ -62,16 +66,6 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     
     fun search(query: String) {
         if (query.isBlank()) return
-        
-        // Save to history
-        if (!_searchHistory.contains(query)) {
-            _searchHistory.add(0, query)
-            if (_searchHistory.size > 10) {
-                _searchHistory.removeAt(_searchHistory.lastIndex)
-            }
-            loadRecentSearches()
-        }
-        
         performSearch(query)
     }
     
@@ -89,8 +83,14 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     }
     
     fun clearRecentSearches() {
-        _searchHistory.clear()
-        _uiState.update { it.copy(recentSearches = emptyList()) }
+        viewModelScope.launch {
+            try {
+                searchService.clearHistory()
+                _uiState.update { it.copy(recentSearches = emptyList()) }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
     }
     
     fun useRecentSearch(query: String) {
@@ -102,124 +102,96 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSearching = true) }
             
-            // Simulate search delay
-            delay(500)
-            
-            val allResults = generateSampleResults(query)
-            
-            // Group results by category
-            val groupedResults = allResults.groupBy { it.category }
-            
-            // Filter if category selected
-            val selectedCategory = _uiState.value.selectedCategory
-            val filteredResults = if (selectedCategory != null) {
-                allResults.filter { it.category == selectedCategory }
-            } else {
-                allResults
-            }
-            
-            _uiState.update {
-                it.copy(
-                    results = filteredResults,
-                    groupedResults = groupedResults,
-                    isSearching = false
+            try {
+                // Build search query with optional category filter
+                val selectedCategory = _uiState.value.selectedCategory
+                val mediaTypes = when (selectedCategory) {
+                    SearchCategory.BOOKS -> listOf("BOOK")
+                    SearchCategory.AUDIOBOOKS -> listOf("AUDIOBOOK")
+                    SearchCategory.MUSIC -> listOf("MUSIC_TRACK", "MUSIC_ALBUM")
+                    SearchCategory.PODCASTS -> listOf("PODCAST")
+                    SearchCategory.MOVIES -> listOf("MOVIE")
+                    SearchCategory.TV_SHOWS -> listOf("TV_SHOW", "TV_EPISODE")
+                    SearchCategory.COMICS -> listOf("COMIC")
+                    SearchCategory.WEB_FICTION -> listOf("FANFICTION", "WEB_FICTION")
+                    SearchCategory.DOCUMENTS -> listOf("DOCUMENT", "PDF")
+                    null -> emptyList() // Search all types
+                }
+                
+                val searchQuery = SearchQuery(
+                    textQuery = query,
+                    filters = SearchFilters(mediaTypes = mediaTypes),
+                    sortBy = SortBy.RELEVANCE
                 )
+                
+                val serviceResults = searchService.search(searchQuery)
+                
+                // Convert service results to UI results
+                val uiResults = serviceResults.map { result ->
+                    SearchResult(
+                        id = result.itemId.toString(),
+                        title = result.title,
+                        subtitle = result.subtitle ?: "",
+                        imageUrl = result.thumbnailUrl,
+                        category = mapMediaTypeToCategory(result.mediaType),
+                        source = "Local",
+                        mediaType = mapStringToMediaType(result.mediaType)
+                    )
+                }
+                
+                // Group results by category
+                val groupedResults = uiResults.groupBy { it.category }
+                
+                _uiState.update {
+                    it.copy(
+                        results = uiResults,
+                        groupedResults = groupedResults,
+                        isSearching = false
+                    )
+                }
+                
+                // Refresh recent searches
+                loadRecentSearches()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e // Re-throw cancellation
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        results = emptyList(),
+                        groupedResults = emptyMap(),
+                        isSearching = false
+                    )
+                }
             }
         }
     }
     
-    private fun generateSampleResults(query: String): List<SearchResult> {
-        val results = mutableListOf<SearchResult>()
-        
-        // Books
-        results.add(SearchResult(
-            id = "book_1",
-            title = "$query: A Novel",
-            subtitle = "Sample Author",
-            imageUrl = null,
-            category = SearchCategory.BOOKS,
-            source = "Local",
-            mediaType = MediaType.BOOK
-        ))
-        
-        // Audiobooks
-        results.add(SearchResult(
-            id = "audiobook_1",
-            title = "$query Audiobook",
-            subtitle = "Narrated by Sample Narrator",
-            imageUrl = null,
-            category = SearchCategory.AUDIOBOOKS,
-            source = "Local",
-            mediaType = MediaType.AUDIOBOOK
-        ))
-        
-        // Music
-        results.add(SearchResult(
-            id = "album_1",
-            title = "$query Album",
-            subtitle = "Sample Artist",
-            imageUrl = null,
-            category = SearchCategory.MUSIC,
-            source = "Local",
-            mediaType = MediaType.MUSIC
-        ))
-        
-        // Podcasts
-        results.add(SearchResult(
-            id = "podcast_1",
-            title = "The $query Podcast",
-            subtitle = "Sample Host",
-            imageUrl = null,
-            category = SearchCategory.PODCASTS,
-            source = "Local",
-            mediaType = MediaType.PODCAST
-        ))
-        
-        // Movies
-        results.add(SearchResult(
-            id = "movie_1",
-            title = "$query: The Movie",
-            subtitle = "2024",
-            imageUrl = null,
-            category = SearchCategory.MOVIES,
-            source = "Local",
-            mediaType = MediaType.MOVIE
-        ))
-        
-        // TV Shows
-        results.add(SearchResult(
-            id = "tvshow_1",
-            title = "The $query Show",
-            subtitle = "3 seasons",
-            imageUrl = null,
-            category = SearchCategory.TV_SHOWS,
-            source = "Local",
-            mediaType = MediaType.TV_SHOW
-        ))
-        
-        // Comics
-        results.add(SearchResult(
-            id = "comic_1",
-            title = "$query Comics",
-            subtitle = "Issue #1",
-            imageUrl = null,
-            category = SearchCategory.COMICS,
-            source = "Local",
-            mediaType = MediaType.COMIC
-        ))
-        
-        // Web Fiction
-        results.add(SearchResult(
-            id = "webfic_1",
-            title = "$query Fantasy Story",
-            subtitle = "Sample Author • 100 chapters",
-            imageUrl = null,
-            category = SearchCategory.WEB_FICTION,
-            source = "Local",
-            mediaType = MediaType.FANFICTION
-        ))
-        
-        return results
+    private fun mapMediaTypeToCategory(mediaType: String): SearchCategory {
+        return when (mediaType.uppercase()) {
+            "BOOK", "EBOOK" -> SearchCategory.BOOKS
+            "AUDIOBOOK" -> SearchCategory.AUDIOBOOKS
+            "MUSIC_TRACK", "MUSIC_ALBUM", "MUSIC" -> SearchCategory.MUSIC
+            "PODCAST", "PODCAST_EPISODE" -> SearchCategory.PODCASTS
+            "MOVIE", "VIDEO" -> SearchCategory.MOVIES
+            "TV_SHOW", "TV_EPISODE" -> SearchCategory.TV_SHOWS
+            "COMIC", "MANGA" -> SearchCategory.COMICS
+            "FANFICTION", "WEB_FICTION" -> SearchCategory.WEB_FICTION
+            else -> SearchCategory.BOOKS // Default
+        }
+    }
+    
+    private fun mapStringToMediaType(type: String): MediaType {
+        return when (type.uppercase()) {
+            "BOOK", "EBOOK" -> MediaType.BOOK
+            "AUDIOBOOK" -> MediaType.AUDIOBOOK
+            "MUSIC_TRACK", "MUSIC_ALBUM", "MUSIC" -> MediaType.MUSIC
+            "PODCAST", "PODCAST_EPISODE" -> MediaType.PODCAST
+            "MOVIE", "VIDEO" -> MediaType.MOVIE
+            "TV_SHOW", "TV_EPISODE" -> MediaType.TV_SHOW
+            "COMIC", "MANGA" -> MediaType.COMIC
+            "FANFICTION", "WEB_FICTION" -> MediaType.FANFICTION
+            else -> MediaType.BOOK
+        }
     }
     
     private fun filterResults(category: SearchCategory?) {
