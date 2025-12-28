@@ -82,6 +82,9 @@ object MediaRoutes {
     const val SYNC = "sync"
     const val IMPORT_EXPORT = "import-export"
     
+    // AI Entertainment (SynthChat Integration)
+    const val AI_ENTERTAINMENT = "ai-entertainment"
+    
     // Settings sub-routes
     const val SETTINGS_API = "settings/api"
     const val SETTINGS_APPEARANCE = "settings/appearance"
@@ -1034,6 +1037,23 @@ fun MediaAppNavHost(
                 }
             )
         }
+        
+        // =====================================================================
+        // AI ENTERTAINMENT (SynthChat Integration)
+        // =====================================================================
+        
+        composable(MediaRoutes.AI_ENTERTAINMENT) {
+            // Entry point: redirect to AI Entertainment login or characters screen
+            com.universalmedialibrary.ui.aientertainment.AIEntertainmentEntryScreen(
+                navController = navController
+            )
+        }
+        
+        // Include the full AI Entertainment navigation graph
+        com.universalmedialibrary.ui.aientertainment.aiEntertainmentNavGraph(
+            navController = navController,
+            onShowSnackbar = onShowSnackbar
+        )
         
         // =====================================================================
         // DEBUG MENU (only available in debug builds)
