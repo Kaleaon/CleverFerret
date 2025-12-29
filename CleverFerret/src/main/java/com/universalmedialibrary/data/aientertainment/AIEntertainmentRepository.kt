@@ -24,7 +24,8 @@ class AIEntertainmentRepository @Inject constructor(
     private val invitationDao: SynthRoomInvitationDao,
     private val branchDao: SynthMemoryBranchDao,
     private val documentDao: SynthDocumentImportDao,
-    private val eventDao: SynthPersonalityEventDao
+    private val eventDao: SynthPersonalityEventDao,
+    private val localDocumentDao: SynthLocalDocumentDao
 ) {
     private val json = Json { ignoreUnknownKeys = true }
     
@@ -423,4 +424,154 @@ class AIEntertainmentRepository @Inject constructor(
     
     suspend fun getPersonalityEventsOnce(characterId: Long, limit: Int = 50): List<SynthPersonalityEvent> =
         eventDao.getEventsByCharacterIdOnce(characterId, limit)
+    
+    // ==================== Local Document Operations ====================
+    
+    suspend fun createLocalDocument(
+        userId: Long,
+        title: String,
+        content: String = "",
+        documentType: String = "general",
+        format: String = "markdown",
+        characterId: Long? = null,
+        isTemplate: Boolean = false
+    ): SynthLocalDocument? {
+        val document = SynthLocalDocument(
+            userId = userId,
+            characterId = characterId,
+            title = title,
+            content = content,
+            documentType = documentType,
+            format = format,
+            isTemplate = isTemplate
+        )
+        
+        val id = localDocumentDao.insert(document)
+        return localDocumentDao.getById(id)
+    }
+    
+    suspend fun getLocalDocument(id: Long): SynthLocalDocument? = 
+        localDocumentDao.getById(id)
+    
+    suspend fun getLocalDocumentWithCharacterName(id: Long): DocumentWithCharacterName? =
+        localDocumentDao.getByIdWithCharacterName(id)
+    
+    fun getLocalDocumentsByUserId(userId: Long): Flow<List<DocumentWithCharacterName>> =
+        localDocumentDao.getDocumentsByUserId(userId)
+    
+    suspend fun getLocalDocumentsByUserIdOnce(userId: Long): List<DocumentWithCharacterName> =
+        localDocumentDao.getDocumentsByUserIdOnce(userId)
+    
+    fun getLocalDocumentsByType(userId: Long, documentType: String): Flow<List<DocumentWithCharacterName>> =
+        localDocumentDao.getDocumentsByType(userId, documentType)
+    
+    fun getLocalDocumentsByCharacterId(characterId: Long): Flow<List<DocumentWithCharacterName>> =
+        localDocumentDao.getDocumentsByCharacterId(characterId)
+    
+    suspend fun getLocalDocumentsByCharacterIdOnce(characterId: Long): List<DocumentWithCharacterName> =
+        localDocumentDao.getDocumentsByCharacterIdOnce(characterId)
+    
+    fun getLocalDocumentTemplates(userId: Long): Flow<List<DocumentWithCharacterName>> =
+        localDocumentDao.getTemplates(userId)
+    
+    suspend fun searchLocalDocuments(userId: Long, query: String): List<DocumentWithCharacterName> =
+        localDocumentDao.searchDocuments(userId, query)
+    
+    suspend fun updateLocalDocument(document: SynthLocalDocument) {
+        localDocumentDao.update(document.copy(updatedAt = System.currentTimeMillis(), version = document.version + 1))
+    }
+    
+    suspend fun updateLocalDocumentContent(documentId: Long, content: String) {
+        localDocumentDao.updateContent(documentId, content)
+    }
+    
+    suspend fun updateLocalDocumentTitle(documentId: Long, title: String) {
+        localDocumentDao.updateTitle(documentId, title)
+    }
+    
+    suspend fun updateLocalDocumentTags(documentId: Long, tags: List<String>) {
+        localDocumentDao.updateTags(documentId, json.encodeToString(tags))
+    }
+    
+    suspend fun deleteLocalDocument(documentId: Long) {
+        localDocumentDao.deleteById(documentId)
+    }
+    
+    suspend fun getLocalDocumentCount(userId: Long): Int =
+        localDocumentDao.getDocumentCount(userId)
+    
+    /**
+     * Export a character as a local document (character card format)
+     */
+    suspend fun exportCharacterToDocument(characterId: Long, userId: Long): SynthLocalDocument? {
+        val character = characterDao.getById(characterId) ?: return null
+        
+        val cardContent = buildString {
+            appendLine("# ${character.name}")
+            appendLine()
+            appendLine("## Description")
+            appendLine(character.description.ifEmpty { "No description provided." })
+            appendLine()
+            appendLine("## Personality")
+            appendLine(character.personality.ifEmpty { "No personality defined." })
+            appendLine()
+            appendLine("## System Prompt")
+            appendLine("```")
+            appendLine(character.systemPrompt)
+            appendLine("```")
+            appendLine()
+            appendLine("## Greeting")
+            appendLine("> ${character.greeting}")
+            appendLine()
+            appendLine("## Settings")
+            appendLine("- **Model:** ${character.model}")
+            appendLine("- **Temperature:** ${character.temperature}")
+            appendLine("- **Max Tokens:** ${character.maxTokens}")
+        }
+        
+        return createLocalDocument(
+            userId = userId,
+            title = "${character.name} - Character Card",
+            content = cardContent,
+            documentType = "character_card",
+            format = "markdown",
+            characterId = characterId
+        )
+    }
+    
+    /**
+     * Export conversation history as a local document
+     */
+    suspend fun exportConversationToDocument(characterId: Long, userId: Long): SynthLocalDocument? {
+        val character = characterDao.getById(characterId) ?: return null
+        val messages = messageDao.getMessagesByCharacterIdOnce(characterId, 1000)
+        
+        if (messages.isEmpty()) return null
+        
+        val conversationContent = buildString {
+            appendLine("# Conversation with ${character.name}")
+            appendLine()
+            appendLine("*Exported on ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date())}*")
+            appendLine()
+            appendLine("---")
+            appendLine()
+            
+            for (message in messages) {
+                val speaker = if (message.isUser) "**You**" else "**${character.name}**"
+                appendLine("$speaker:")
+                appendLine()
+                appendLine(message.content)
+                appendLine()
+            }
+        }
+        
+        return createLocalDocument(
+            userId = userId,
+            title = "Conversation with ${character.name}",
+            content = conversationContent,
+            documentType = "conversation",
+            format = "markdown",
+            characterId = characterId
+        )
+    }
 }

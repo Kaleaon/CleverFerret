@@ -31,9 +31,10 @@ import javax.inject.Singleton
         SynthRoomInvitation::class,
         SynthMemoryBranch::class,
         SynthDocumentImport::class,
-        SynthPersonalityEvent::class
+        SynthPersonalityEvent::class,
+        SynthLocalDocument::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AIEntertainmentDatabase : RoomDatabase() {
@@ -47,6 +48,7 @@ abstract class AIEntertainmentDatabase : RoomDatabase() {
     abstract fun synthMemoryBranchDao(): SynthMemoryBranchDao
     abstract fun synthDocumentImportDao(): SynthDocumentImportDao
     abstract fun synthPersonalityEventDao(): SynthPersonalityEventDao
+    abstract fun synthLocalDocumentDao(): SynthLocalDocumentDao
     
     companion object {
         const val DATABASE_NAME = "synth_chat.db"

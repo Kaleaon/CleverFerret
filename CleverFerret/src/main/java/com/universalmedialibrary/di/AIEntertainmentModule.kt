@@ -78,6 +78,12 @@ object AIEntertainmentModule {
         return database.synthPersonalityEventDao()
     }
     
+    @Provides
+    @Singleton
+    fun provideSynthLocalDocumentDao(database: AIEntertainmentDatabase): SynthLocalDocumentDao {
+        return database.synthLocalDocumentDao()
+    }
+    
     // ==================== Repository Provider ====================
     
     @Provides
@@ -91,7 +97,8 @@ object AIEntertainmentModule {
         invitationDao: SynthRoomInvitationDao,
         branchDao: SynthMemoryBranchDao,
         documentDao: SynthDocumentImportDao,
-        eventDao: SynthPersonalityEventDao
+        eventDao: SynthPersonalityEventDao,
+        localDocumentDao: SynthLocalDocumentDao
     ): AIEntertainmentRepository {
         return AIEntertainmentRepository(
             userDao = userDao,
@@ -102,7 +109,8 @@ object AIEntertainmentModule {
             invitationDao = invitationDao,
             branchDao = branchDao,
             documentDao = documentDao,
-            eventDao = eventDao
+            eventDao = eventDao,
+            localDocumentDao = localDocumentDao
         )
     }
     

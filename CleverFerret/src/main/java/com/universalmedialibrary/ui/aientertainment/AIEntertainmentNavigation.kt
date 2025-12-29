@@ -28,10 +28,13 @@ object AIEntertainmentRoutes {
     const val ROOMS = "ai_entertainment/rooms"
     const val PERSONALITY = "ai_entertainment/personality/{characterId}"
     const val DOCUMENT_IMPORT = "ai_entertainment/import"
+    const val DOCUMENTS = "ai_entertainment/documents"
+    const val DOCUMENT_EDITOR = "ai_entertainment/documents/edit/{documentId}"
     
     fun chatRoute(characterId: Long) = "ai_entertainment/chat/$characterId"
     fun characterEditRoute(characterId: Long) = "ai_entertainment/character/edit/$characterId"
     fun personalityRoute(characterId: Long) = "ai_entertainment/personality/$characterId"
+    fun documentEditorRoute(documentId: Long) = "ai_entertainment/documents/edit/$documentId"
 }
 
 /**
@@ -125,6 +128,9 @@ fun NavGraphBuilder.aiEntertainmentNavGraph(
             onNavigateToImport = {
                 navController.navigate(AIEntertainmentRoutes.DOCUMENT_IMPORT)
             },
+            onNavigateToDocuments = {
+                navController.navigate(AIEntertainmentRoutes.DOCUMENTS)
+            },
             onNavigateToLogin = {
                 navController.navigate(AIEntertainmentRoutes.LOGIN) {
                     popUpTo(AIEntertainmentRoutes.CHARACTERS) { inclusive = true }
@@ -202,6 +208,39 @@ fun NavGraphBuilder.aiEntertainmentNavGraph(
                     popUpTo(AIEntertainmentRoutes.DOCUMENT_IMPORT) { inclusive = true }
                 }
             }
+        )
+    }
+    
+    // Documents List Screen
+    composable(AIEntertainmentRoutes.DOCUMENTS) {
+        val viewModel: SynthDocumentEditorViewModel = hiltViewModel()
+        val loginViewModel: LoginViewModel = hiltViewModel()
+        val currentUser by loginViewModel.currentUser.collectAsState()
+        
+        currentUser?.let { user ->
+            SynthDocumentListScreen(
+                viewModel = viewModel,
+                userId = user.id,
+                onNavigateToEditor = { documentId ->
+                    navController.navigate(AIEntertainmentRoutes.documentEditorRoute(documentId))
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+    }
+    
+    // Document Editor Screen
+    composable(
+        route = AIEntertainmentRoutes.DOCUMENT_EDITOR,
+        arguments = listOf(navArgument("documentId") { type = NavType.LongType })
+    ) { backStackEntry ->
+        val documentId = backStackEntry.arguments?.getLong("documentId") ?: return@composable
+        val viewModel: SynthDocumentEditorViewModel = hiltViewModel()
+        
+        SynthDocumentEditorScreen(
+            viewModel = viewModel,
+            documentId = documentId,
+            onBack = { navController.popBackStack() }
         )
     }
 }

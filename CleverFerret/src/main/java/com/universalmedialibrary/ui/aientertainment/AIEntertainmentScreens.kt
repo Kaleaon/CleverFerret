@@ -436,6 +436,7 @@ fun CharactersScreen(
     onNavigateToCharacterEdit: (Long?) -> Unit,
     onNavigateToRooms: () -> Unit,
     onNavigateToImport: () -> Unit,
+    onNavigateToDocuments: () -> Unit = {},
     onNavigateToLogin: () -> Unit,
     viewModel: CharactersViewModel = hiltViewModel()
 ) {
@@ -473,6 +474,9 @@ fun CharactersScreen(
                     titleContentColor = SynthColors.textPrimary
                 ),
                 actions = {
+                    IconButton(onClick = onNavigateToDocuments) {
+                        Icon(Icons.Outlined.Description, "Documents", tint = SynthColors.textPrimary)
+                    }
                     IconButton(onClick = onNavigateToRooms) {
                         Icon(Icons.Outlined.MeetingRoom, "Rooms", tint = SynthColors.textPrimary)
                     }

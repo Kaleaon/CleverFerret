@@ -430,6 +430,119 @@ data class InvitationWithDetails(
     val inviteeUsername: String?
 )
 
+// ==================== Local Document Entity (V6: Editable Documents) ====================
+
+/**
+ * Represents a locally saved SynthChat document that can be edited.
+ * Supports character cards, conversation exports, system prompts, and custom documents.
+ */
+@Entity(
+    tableName = "synth_local_documents",
+    foreignKeys = [
+        ForeignKey(
+            entity = SynthUser::class,
+            parentColumns = ["id"],
+            childColumns = ["user_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("user_id"), Index("character_id"), Index("document_type")]
+)
+data class SynthLocalDocument(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    @ColumnInfo(name = "user_id")
+    val userId: Long,
+    @ColumnInfo(name = "character_id")
+    val characterId: Long? = null,  // Optional link to a character
+    @ColumnInfo(name = "title")
+    val title: String,
+    @ColumnInfo(name = "content")
+    val content: String = "",
+    @ColumnInfo(name = "document_type")
+    val documentType: String = "general",  // character_card, system_prompt, conversation, lore, notes, general
+    @ColumnInfo(name = "format")
+    val format: String = "markdown",  // markdown, json, text, yaml
+    @ColumnInfo(name = "tags")
+    val tags: String = "[]",  // JSON array of tags
+    @ColumnInfo(name = "is_template")
+    val isTemplate: Boolean = false,  // Can be used as a template for new characters
+    @ColumnInfo(name = "is_shared")
+    val isShared: Boolean = false,  // Available to other users (if room-based sharing is enabled)
+    @ColumnInfo(name = "version")
+    val version: Int = 1,
+    @ColumnInfo(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: Long = System.currentTimeMillis()
+) {
+    val documentTypeDisplayName: String
+        get() = when (documentType) {
+            "character_card" -> "Character Card"
+            "system_prompt" -> "System Prompt"
+            "conversation" -> "Conversation Export"
+            "lore" -> "Lore/World Building"
+            "notes" -> "Notes"
+            "general" -> "Document"
+            else -> documentType.replaceFirstChar { it.uppercase() }
+        }
+    
+    val documentTypeIcon: String
+        get() = when (documentType) {
+            "character_card" -> "👤"
+            "system_prompt" -> "⚙️"
+            "conversation" -> "💬"
+            "lore" -> "📜"
+            "notes" -> "📝"
+            "general" -> "📄"
+            else -> "📄"
+        }
+    
+    val formatDisplayName: String
+        get() = when (format) {
+            "markdown" -> "Markdown"
+            "json" -> "JSON"
+            "text" -> "Plain Text"
+            "yaml" -> "YAML"
+            else -> format.uppercase()
+        }
+    
+    fun getTagsList(): List<String> {
+        return try {
+            Json.decodeFromString<List<String>>(tags)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+    
+    companion object {
+        val documentTypes = listOf(
+            "character_card" to "Character Card",
+            "system_prompt" to "System Prompt", 
+            "conversation" to "Conversation Export",
+            "lore" to "Lore/World Building",
+            "notes" to "Notes",
+            "general" to "General Document"
+        )
+        
+        val formats = listOf(
+            "markdown" to "Markdown",
+            "json" to "JSON",
+            "text" to "Plain Text",
+            "yaml" to "YAML"
+        )
+    }
+}
+
+/**
+ * Document with character name for display
+ */
+data class DocumentWithCharacterName(
+    @Embedded val document: SynthLocalDocument,
+    @ColumnInfo(name = "character_name")
+    val characterName: String?
+)
+
 // ==================== Bluesky AT Protocol Session ====================
 
 @Serializable

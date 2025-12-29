@@ -340,3 +340,106 @@ interface SynthPersonalityEventDao {
     @Query("DELETE FROM synth_personality_events WHERE character_id = :characterId")
     suspend fun deleteByCharacterId(characterId: Long)
 }
+
+@Dao
+interface SynthLocalDocumentDao {
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(document: SynthLocalDocument): Long
+    
+    @Update
+    suspend fun update(document: SynthLocalDocument)
+    
+    @Delete
+    suspend fun delete(document: SynthLocalDocument)
+    
+    @Query("DELETE FROM synth_local_documents WHERE id = :documentId")
+    suspend fun deleteById(documentId: Long)
+    
+    @Query("SELECT * FROM synth_local_documents WHERE id = :id")
+    suspend fun getById(id: Long): SynthLocalDocument?
+    
+    @Query("""
+        SELECT d.*, c.name as character_name
+        FROM synth_local_documents d
+        LEFT JOIN synth_characters c ON d.character_id = c.id
+        WHERE d.id = :id
+    """)
+    suspend fun getByIdWithCharacterName(id: Long): DocumentWithCharacterName?
+    
+    @Query("""
+        SELECT d.*, c.name as character_name
+        FROM synth_local_documents d
+        LEFT JOIN synth_characters c ON d.character_id = c.id
+        WHERE d.user_id = :userId
+        ORDER BY d.updated_at DESC
+    """)
+    fun getDocumentsByUserId(userId: Long): Flow<List<DocumentWithCharacterName>>
+    
+    @Query("""
+        SELECT d.*, c.name as character_name
+        FROM synth_local_documents d
+        LEFT JOIN synth_characters c ON d.character_id = c.id
+        WHERE d.user_id = :userId
+        ORDER BY d.updated_at DESC
+    """)
+    suspend fun getDocumentsByUserIdOnce(userId: Long): List<DocumentWithCharacterName>
+    
+    @Query("""
+        SELECT d.*, c.name as character_name
+        FROM synth_local_documents d
+        LEFT JOIN synth_characters c ON d.character_id = c.id
+        WHERE d.user_id = :userId AND d.document_type = :documentType
+        ORDER BY d.updated_at DESC
+    """)
+    fun getDocumentsByType(userId: Long, documentType: String): Flow<List<DocumentWithCharacterName>>
+    
+    @Query("""
+        SELECT d.*, c.name as character_name
+        FROM synth_local_documents d
+        LEFT JOIN synth_characters c ON d.character_id = c.id
+        WHERE d.character_id = :characterId
+        ORDER BY d.updated_at DESC
+    """)
+    fun getDocumentsByCharacterId(characterId: Long): Flow<List<DocumentWithCharacterName>>
+    
+    @Query("""
+        SELECT d.*, c.name as character_name
+        FROM synth_local_documents d
+        LEFT JOIN synth_characters c ON d.character_id = c.id
+        WHERE d.character_id = :characterId
+        ORDER BY d.updated_at DESC
+    """)
+    suspend fun getDocumentsByCharacterIdOnce(characterId: Long): List<DocumentWithCharacterName>
+    
+    @Query("""
+        SELECT d.*, c.name as character_name
+        FROM synth_local_documents d
+        LEFT JOIN synth_characters c ON d.character_id = c.id
+        WHERE d.user_id = :userId AND d.is_template = 1
+        ORDER BY d.title ASC
+    """)
+    fun getTemplates(userId: Long): Flow<List<DocumentWithCharacterName>>
+    
+    @Query("""
+        SELECT d.*, c.name as character_name
+        FROM synth_local_documents d
+        LEFT JOIN synth_characters c ON d.character_id = c.id
+        WHERE d.user_id = :userId 
+          AND (d.title LIKE '%' || :query || '%' OR d.content LIKE '%' || :query || '%')
+        ORDER BY d.updated_at DESC
+    """)
+    suspend fun searchDocuments(userId: Long, query: String): List<DocumentWithCharacterName>
+    
+    @Query("UPDATE synth_local_documents SET content = :content, updated_at = :timestamp, version = version + 1 WHERE id = :documentId")
+    suspend fun updateContent(documentId: Long, content: String, timestamp: Long = System.currentTimeMillis())
+    
+    @Query("UPDATE synth_local_documents SET title = :title, updated_at = :timestamp WHERE id = :documentId")
+    suspend fun updateTitle(documentId: Long, title: String, timestamp: Long = System.currentTimeMillis())
+    
+    @Query("UPDATE synth_local_documents SET tags = :tags, updated_at = :timestamp WHERE id = :documentId")
+    suspend fun updateTags(documentId: Long, tags: String, timestamp: Long = System.currentTimeMillis())
+    
+    @Query("SELECT COUNT(*) FROM synth_local_documents WHERE user_id = :userId")
+    suspend fun getDocumentCount(userId: Long): Int
+}
