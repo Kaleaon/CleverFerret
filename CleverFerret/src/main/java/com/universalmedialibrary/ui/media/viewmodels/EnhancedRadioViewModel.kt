@@ -305,15 +305,16 @@ class EnhancedRadioViewModel @Inject constructor(
                 )
                 exoPlayerService.play()
                 
-                // Update nowPlaying only after successful playback initiation
-                _uiState.update { it.copy(nowPlaying = station) }
-                
-                // Add to recently played
-                val recentlyPlayed = _uiState.value.recentlyPlayed.toMutableList()
-                recentlyPlayed.removeAll { it.id == station.id }
-                recentlyPlayed.add(0, station)
-                if (recentlyPlayed.size > 20) recentlyPlayed.removeLast()
-                _uiState.update { it.copy(recentlyPlayed = recentlyPlayed) }
+                // Perform atomic update to set nowPlaying and rebuild recentlyPlayed
+                // This avoids race conditions from multiple state updates
+                _uiState.update { state ->
+                    val updatedRecent = state.recentlyPlayed.toMutableList().apply {
+                        removeAll { it.id == station.id }
+                        add(0, station)
+                        if (size > 20) removeLast()
+                    }
+                    state.copy(nowPlaying = station, recentlyPlayed = updatedRecent)
+                }
                 
                 Log.d(TAG, "Playing station: ${station.name}")
             } catch (e: Exception) {
@@ -468,8 +469,9 @@ class EnhancedRadioViewModel @Inject constructor(
     
     override fun onCleared() {
         super.onCleared()
-        // Stop all playback when ViewModel is cleared
-        exoPlayerService.stop()
+        // Only stop FM radio - ExoPlayerService is a singleton shared across
+        // all ViewModels, so calling stop() would break concurrent playback
+        // in other screens. The service manages its own lifecycle.
         fmRadioService.stop()
     }
 }

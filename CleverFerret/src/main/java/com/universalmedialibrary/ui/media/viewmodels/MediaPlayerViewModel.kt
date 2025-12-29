@@ -138,7 +138,8 @@ class AudioPlayerViewModel @Inject constructor(
     }
     
     fun seek(position: Float) {
-        val newPosition = (position * _uiState.value.duration).toLong()
+        // Clamp position to valid range to prevent invalid seek positions
+        val newPosition = (position.coerceIn(0f, 1f) * _uiState.value.duration).toLong()
         musicPlayerService.seekTo(newPosition)
     }
     

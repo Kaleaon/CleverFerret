@@ -394,16 +394,8 @@ class ReaderViewModel @Inject constructor(
     
     override fun onCleared() {
         super.onCleared()
-        // Save final progress asynchronously on IO dispatcher
-        // Progress is also saved on every page change in goToPage(), so this is a safety net
-        // Using GlobalScope with NonCancellable to ensure it completes after ViewModel destruction
-        @OptIn(DelicateCoroutinesApi::class)
-        GlobalScope.launch(Dispatchers.IO + NonCancellable) {
-            try {
-                saveProgressInternal()
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to save final progress on exit", e)
-            }
-        }
+        // Progress is saved on every page change in goToPage(), so no additional
+        // save is needed here. Removing GlobalScope to avoid lifecycle-unsafe
+        // operations that could outlive app components.
     }
 }
