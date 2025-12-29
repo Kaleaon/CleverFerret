@@ -435,11 +435,17 @@ class APISettingsViewModel @Inject constructor(
             "recommendations" -> currentSettings.copy(recommendations = enabled)
             "translation" -> currentSettings.copy(translation = enabled)
             "chat" -> currentSettings.copy(chatAssistant = enabled)
+            // SynthChat-specific toggles
+            "synthchat" -> currentSettings.copy(synthChatEnabled = enabled)
+            "synthchat_personality" -> currentSettings.copy(synthChatPersonalityEvolution = enabled)
+            "synthchat_mood" -> currentSettings.copy(synthChatMoodTracking = enabled)
+            "synthchat_memory" -> currentSettings.copy(synthChatMemoryBranching = enabled)
+            "synthchat_import" -> currentSettings.copy(synthChatDocumentImport = enabled)
             else -> currentSettings
         }
         _uiState.value = _uiState.value.copy(
             aiFunctions = newSettings,
-            statusMessage = "$function ${if (enabled) "enabled" else "disabled"}",
+            statusMessage = "${function.replace("_", " ")} ${if (enabled) "enabled" else "disabled"}",
             hasError = false
         )
     }
@@ -509,14 +515,22 @@ data class AIFunctionSettings(
     val recommendations: Boolean = true,         // AI-powered recommendations
     val translation: Boolean = false,            // Translate text (optional, uses quota)
     val chatAssistant: Boolean = false,          // AI chat assistant for queries
-    val preferredProvider: AIProvider = AIProvider.GEMINI  // Which AI to use
+    val preferredProvider: AIProvider = AIProvider.GEMINI,  // Which AI to use
+    
+    // SynthChat-specific settings
+    val synthChatEnabled: Boolean = true,        // Enable SynthChat AI character system
+    val synthChatPersonalityEvolution: Boolean = true,  // Allow characters to evolve
+    val synthChatMoodTracking: Boolean = true,   // Track character mood states
+    val synthChatMemoryBranching: Boolean = false, // Allow conversation forking
+    val synthChatDocumentImport: Boolean = true  // Allow importing documents to create characters
 )
 
 /**
  * Available AI providers
  */
-enum class AIProvider(val displayName: String) {
-    GEMINI("Google Gemini"),
-    OPENAI("OpenAI ChatGPT"),
-    AUTO("Auto (Best Available)")
+enum class AIProvider(val displayName: String, val description: String) {
+    GEMINI("Google Gemini", "OCR, book ID, and metadata"),
+    OPENAI("OpenAI ChatGPT", "Chat, summarization, and more"),
+    SYNTHCHAT("SynthChat", "AI character roleplay and chat"),
+    AUTO("Auto (Best Available)", "Uses best available provider")
 }

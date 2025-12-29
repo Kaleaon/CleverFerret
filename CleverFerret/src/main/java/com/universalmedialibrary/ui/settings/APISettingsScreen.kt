@@ -720,10 +720,17 @@ private fun AIFunctionControlsSection(
                         onClick = { onProviderSelected(provider) }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = provider.displayName,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column {
+                        Text(
+                            text = provider.displayName,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = provider.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
@@ -731,7 +738,7 @@ private fun AIFunctionControlsSection(
 
             // Function Toggles
             Text(
-                text = "Enabled Functions",
+                text = "General AI Functions",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Medium
             )
@@ -784,6 +791,65 @@ private fun AIFunctionControlsSection(
                 enabled = settings.chatAssistant,
                 onToggle = { onToggleFunction("chat", it) }
             )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
+            // SynthChat Section
+            Text(
+                text = "SynthChat AI Characters",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "SillyTavern-style AI character chat with personality evolution",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // SynthChat Enable Toggle
+            AIFunctionToggle(
+                title = "SynthChat System",
+                description = "Enable AI character roleplay and chat",
+                enabled = settings.synthChatEnabled,
+                onToggle = { onToggleFunction("synthchat", it) }
+            )
+
+            // Only show sub-options if SynthChat is enabled
+            if (settings.synthChatEnabled) {
+                // Personality Evolution Toggle
+                AIFunctionToggle(
+                    title = "Personality Evolution",
+                    description = "Characters evolve personality over time based on interactions",
+                    enabled = settings.synthChatPersonalityEvolution,
+                    onToggle = { onToggleFunction("synthchat_personality", it) }
+                )
+
+                // Mood Tracking Toggle
+                AIFunctionToggle(
+                    title = "Mood Tracking",
+                    description = "Track and display character emotional states",
+                    enabled = settings.synthChatMoodTracking,
+                    onToggle = { onToggleFunction("synthchat_mood", it) }
+                )
+
+                // Memory Branching Toggle
+                AIFunctionToggle(
+                    title = "Memory Branching",
+                    description = "Fork conversations to explore different scenarios",
+                    enabled = settings.synthChatMemoryBranching,
+                    onToggle = { onToggleFunction("synthchat_memory", it) }
+                )
+
+                // Document Import Toggle
+                AIFunctionToggle(
+                    title = "Document Import",
+                    description = "Import documents to create AI characters from text",
+                    enabled = settings.synthChatDocumentImport,
+                    onToggle = { onToggleFunction("synthchat_import", it) }
+                )
+            }
         }
     }
 }
