@@ -381,6 +381,70 @@ interface MetadataDao {
         val itemId: Long,
         val name: String
     )
+    
+    // ==================== AI Library Browser Support ====================
+    
+    /**
+     * Get common metadata by item ID (alias for consistency)
+     */
+    @Query("SELECT * FROM metadata_common WHERE itemId = :itemId")
+    suspend fun getCommonMetadataByItemId(itemId: Long): MetadataCommon?
+    
+    /**
+     * Get genres for an item
+     */
+    @Query("""
+        SELECT g.* FROM genre g
+        INNER JOIN item_genre ig ON g.genreId = ig.genreId
+        WHERE ig.itemId = :itemId
+    """)
+    suspend fun getGenresForItem(itemId: Long): List<Genre>
+    
+    /**
+     * Get people (authors, artists, etc.) for an item
+     */
+    @Query("""
+        SELECT p.personId, p.name, p.sortName, p.photoPath, p.biography, ipr.role 
+        FROM people p
+        INNER JOIN item_person_role ipr ON p.personId = ipr.personId
+        WHERE ipr.itemId = :itemId
+    """)
+    suspend fun getPeopleForItem(itemId: Long): List<PersonWithRole>
+    
+    /**
+     * Get all unique author names
+     */
+    @Query("""
+        SELECT DISTINCT p.name FROM people p
+        INNER JOIN item_person_role ipr ON p.personId = ipr.personId
+        WHERE ipr.role IN ('AUTHOR', 'ARTIST')
+        ORDER BY p.name
+    """)
+    suspend fun getAllAuthors(): List<String>
+    
+    /**
+     * Get all unique genre names
+     */
+    @Query("SELECT DISTINCT name FROM genre ORDER BY name")
+    suspend fun getAllGenreNames(): List<String>
+    
+    /**
+     * Get series by name
+     */
+    @Query("SELECT * FROM series WHERE name = :name LIMIT 1")
+    suspend fun getSeriesByName(name: String): Series?
+    
+    /**
+     * Data class for person with role
+     */
+    data class PersonWithRole(
+        val personId: Long,
+        val name: String,
+        val sortName: String?,
+        val photoPath: String?,
+        val biography: String?,
+        val role: String
+    )
 }
 
 data class MonthlyCompletionCount(

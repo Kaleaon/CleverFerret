@@ -56,4 +56,24 @@ interface ReadingProgressDao {
     
     @Query("SELECT COUNT(*) FROM reading_progress")
     suspend fun getProgressCount(): Int
+    
+    // ==================== AI Library Browser Support ====================
+    
+    /**
+     * Get reading progress by item ID (suspend version)
+     */
+    @Query("SELECT * FROM reading_progress WHERE itemId = :itemId LIMIT 1")
+    suspend fun getProgressByItemId(itemId: Long): ReadingProgress?
+    
+    /**
+     * Get all progress as a list (suspend version)
+     */
+    @Query("SELECT * FROM reading_progress ORDER BY lastUpdate DESC")
+    suspend fun getAllProgress(): List<ReadingProgress>
+    
+    /**
+     * Get count of items in progress
+     */
+    @Query("SELECT COUNT(*) FROM reading_progress WHERE isCompleted = 0 AND percentage > 0")
+    suspend fun getInProgressCount(): Int
 }

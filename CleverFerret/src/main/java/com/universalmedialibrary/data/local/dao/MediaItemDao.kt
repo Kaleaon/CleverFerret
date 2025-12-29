@@ -175,6 +175,102 @@ interface MediaItemDao {
         ORDER BY mi.dateAdded DESC
     """)
     fun getMediaItemsByDirector(directorName: String): Flow<List<MediaItem>>
+    
+    // ==================== AI Library Browser Support ====================
+    
+    /**
+     * Get items by type with pagination
+     */
+    @Query("SELECT * FROM media_items WHERE mediaType = :mediaType ORDER BY dateAdded DESC LIMIT :limit OFFSET :offset")
+    suspend fun getByType(mediaType: String, limit: Int, offset: Int): List<MediaItem>
+    
+    /**
+     * Get count by type
+     */
+    @Query("SELECT COUNT(*) FROM media_items WHERE mediaType = :mediaType")
+    suspend fun getCountByType(mediaType: String): Int
+    
+    /**
+     * Search by type and query
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        LEFT JOIN metadata_common mc ON mi.itemId = mc.itemId
+        WHERE mi.mediaType = :mediaType 
+        AND (mi.fileName LIKE :query OR mc.title LIKE :query)
+        ORDER BY mi.dateAdded DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchByTypeAndQuery(mediaType: String, query: String, limit: Int, offset: Int): List<MediaItem>
+    
+    /**
+     * Search by query only
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        LEFT JOIN metadata_common mc ON mi.itemId = mc.itemId
+        WHERE mi.fileName LIKE :query OR mc.title LIKE :query
+        ORDER BY mi.dateAdded DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchByQuery(query: String, limit: Int, offset: Int): List<MediaItem>
+    
+    /**
+     * Get recent items with pagination
+     */
+    @Query("SELECT * FROM media_items ORDER BY dateAdded DESC LIMIT :limit OFFSET :offset")
+    suspend fun getRecentItems(limit: Int, offset: Int): List<MediaItem>
+    
+    /**
+     * Get items by author/artist name
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        INNER JOIN item_person_role ipr ON mi.itemId = ipr.itemId
+        INNER JOIN people p ON ipr.personId = p.personId
+        WHERE p.name = :author AND ipr.role IN ('AUTHOR', 'ARTIST')
+        ORDER BY mi.dateAdded DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun getByAuthor(author: String, limit: Int, offset: Int): List<MediaItem>
+    
+    /**
+     * Get items by genre
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        INNER JOIN item_genre ig ON mi.itemId = ig.itemId
+        INNER JOIN genre g ON ig.genreId = g.genreId
+        WHERE g.name = :genre
+        ORDER BY mi.dateAdded DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun getByGenre(genre: String, limit: Int, offset: Int): List<MediaItem>
+    
+    /**
+     * Get highly rated items
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        INNER JOIN metadata_common mc ON mi.itemId = mc.itemId
+        WHERE (:mediaType IS NULL OR mi.mediaType = :mediaType)
+        AND mc.rating IS NOT NULL AND mc.rating > 0
+        ORDER BY mc.rating DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun getHighlyRated(mediaType: String?, limit: Int, offset: Int): List<MediaItem>
+    
+    /**
+     * Get items by series ID
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        INNER JOIN metadata_book mb ON mi.itemId = mb.itemId
+        WHERE mb.series = :seriesId
+        ORDER BY mb.seriesIndex ASC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun getBySeries(seriesId: Long, limit: Int, offset: Int): List<MediaItem>
 }
 
 data class MediaTypeCount(
