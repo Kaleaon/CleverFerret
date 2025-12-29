@@ -526,11 +526,17 @@ class DocumentImportViewModel @Inject constructor(
     val isProcessing = documentService.isProcessing
     val processingStatus = documentService.processingStatus
     
+    // Alias for compatibility with DocumentImportScreen
+    val isLoading: StateFlow<Boolean> = isProcessing
+    
     private val _uiState = MutableStateFlow(DocumentImportUiState())
     val uiState: StateFlow<DocumentImportUiState> = _uiState.asStateFlow()
     
     private val _extractedData = MutableStateFlow<ExtractedCharacterData?>(null)
     val extractedData: StateFlow<ExtractedCharacterData?> = _extractedData.asStateFlow()
+    
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
     
     fun loadImports() {
         val userId = authService.currentUser.value?.id ?: return
@@ -549,6 +555,134 @@ class DocumentImportViewModel @Inject constructor(
             
             if (data != null) {
                 _uiState.update { it.copy(showPreview = true) }
+            }
+        }
+    }
+    
+    /**
+     * Parse document content directly (for pasted text)
+     */
+    fun parseDocument(content: String, fileType: String) {
+        val userId = authService.currentUser.value?.id ?: return
+        
+        viewModelScope.launch {
+            _error.value = null
+            try {
+                val data = documentService.importDocument(userId, "pasted_content", "pasted.$fileType")
+                // Since importDocument expects a file path, let's use a simpler approach
+                // Just extract character data using heuristics
+                val extractedData = extractCharacterDataFromText(content, fileType)
+                _extractedData.value = extractedData
+            } catch (e: Exception) {
+                _error.value = "Failed to parse document: ${e.message}"
+            }
+        }
+    }
+    
+    private fun extractCharacterDataFromText(content: String, fileType: String): ExtractedCharacterData {
+        var name = "Unknown Character"
+        val description = StringBuilder()
+        val personality = StringBuilder()
+        val backstory = StringBuilder()
+        var greeting = ""
+        
+        val lines = content.split("\n")
+        var currentSection = ""
+        
+        for ((index, line) in lines.withIndex()) {
+            val trimmedLine = line.trim()
+            
+            if (trimmedLine.startsWith("#")) {
+                val headerText = trimmedLine.removePrefix("#").trim().lowercase()
+                when {
+                    headerText.contains("name") || index == 0 -> {
+                        if (!headerText.contains("name")) {
+                            name = trimmedLine.removePrefix("#").trim()
+                        }
+                        currentSection = "name"
+                    }
+                    headerText.contains("description") || headerText.contains("about") -> currentSection = "description"
+                    headerText.contains("personality") || headerText.contains("traits") -> currentSection = "personality"
+                    headerText.contains("backstory") || headerText.contains("background") -> currentSection = "backstory"
+                    headerText.contains("greeting") || headerText.contains("hello") -> currentSection = "greeting"
+                }
+                continue
+            }
+            
+            if (trimmedLine.contains(":")) {
+                val parts = trimmedLine.split(":", limit = 2)
+                val key = parts[0].trim().lowercase()
+                val value = parts.getOrNull(1)?.trim() ?: ""
+                when (key) {
+                    "name" -> name = value
+                    "description" -> description.append(value).append(" ")
+                    "personality" -> personality.append(value).append(" ")
+                    "greeting" -> greeting = value
+                }
+                continue
+            }
+            
+            if (trimmedLine.isNotEmpty()) {
+                when (currentSection) {
+                    "name" -> if (name == "Unknown Character") name = trimmedLine
+                    "description" -> description.append(trimmedLine).append(" ")
+                    "personality" -> personality.append(trimmedLine).append(" ")
+                    "backstory" -> backstory.append(trimmedLine).append(" ")
+                    "greeting" -> greeting += "$trimmedLine "
+                }
+            }
+        }
+        
+        val systemPrompt = buildString {
+            appendLine("You are $name.")
+            if (description.isNotEmpty()) appendLine("\nDescription: ${description.toString().trim()}")
+            if (personality.isNotEmpty()) appendLine("\nPersonality: ${personality.toString().trim()}")
+            if (backstory.isNotEmpty()) appendLine("\nBackstory: ${backstory.toString().trim()}")
+            appendLine("\nStay in character at all times. Respond as $name would.")
+        }
+        
+        if (greeting.isEmpty()) {
+            greeting = "Hello! I'm $name. It's nice to meet you!"
+        }
+        
+        return ExtractedCharacterData(
+            name = name.trim(),
+            description = description.toString().trim(),
+            personality = personality.toString().trim(),
+            systemPrompt = systemPrompt.trim(),
+            greeting = greeting.trim(),
+            backstory = backstory.toString().trim()
+        )
+    }
+    
+    fun setError(message: String) {
+        _error.value = message
+    }
+    
+    fun clearError() {
+        _error.value = null
+    }
+    
+    fun clearExtractedData() {
+        _extractedData.value = null
+    }
+    
+    fun createCharacterFromExtractedData(data: ExtractedCharacterData, onSuccess: (Long) -> Unit) {
+        val userId = authService.currentUser.value?.id ?: return
+        
+        viewModelScope.launch {
+            _uiState.update { it.copy(isCreating = true) }
+            
+            try {
+                val character = documentService.createCharacterFromExtracted(userId, data)
+                if (character != null) {
+                    characterService.refreshCharacters()
+                    _uiState.update { it.copy(isCreating = false, showPreview = false, success = true) }
+                    _extractedData.value = null
+                    onSuccess(character.id)
+                }
+            } finally {
+                _uiState.update { it.copy(isCreating = false) }
             }
         }
     }

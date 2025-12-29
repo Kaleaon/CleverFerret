@@ -21,6 +21,7 @@ import com.universalmedialibrary.ui.media.player.*
 import com.universalmedialibrary.ui.media.screens.*
 import com.universalmedialibrary.ui.media.viewmodels.*
 import com.universalmedialibrary.debug.ui.DebugMenuScreen
+import com.universalmedialibrary.ui.aientertainment.aiEntertainmentNavGraph
 import com.universalmedialibrary.ui.components.NavigationItems
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
@@ -1050,7 +1051,7 @@ fun MediaAppNavHost(
         }
         
         // Include the full AI Entertainment navigation graph
-        com.universalmedialibrary.ui.aientertainment.aiEntertainmentNavGraph(
+        aiEntertainmentNavGraph(
             navController = navController,
             onShowSnackbar = onShowSnackbar
         )

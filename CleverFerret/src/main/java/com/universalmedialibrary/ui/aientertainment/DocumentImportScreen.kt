@@ -524,7 +524,7 @@ private fun ImportHistoryCard(
             
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    import.fileName,
+                    import.filename,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     color = SynthColors.textPrimary,
@@ -535,7 +535,7 @@ private fun ImportHistoryCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (import.success) {
+                    if (import.status == "completed") {
                         Icon(
                             Icons.Default.CheckCircle,
                             null,
@@ -659,7 +659,7 @@ private fun ExtractedDataDialog(
                     )
                 }
                 
-                if (!editedData.suggestedTraits.isNullOrEmpty()) {
+                if (editedData.traits.isNotEmpty()) {
                     item {
                         Text(
                             "Suggested Traits:",
@@ -670,7 +670,7 @@ private fun ExtractedDataDialog(
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            editedData.suggestedTraits!!.take(5).forEach { trait ->
+                            editedData.traits.keys.take(5).forEach { trait ->
                                 Surface(
                                     color = SynthColors.primary.copy(alpha = 0.2f),
                                     shape = RoundedCornerShape(16.dp)
