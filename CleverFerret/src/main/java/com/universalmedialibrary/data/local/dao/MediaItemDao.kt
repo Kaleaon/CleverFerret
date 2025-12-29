@@ -54,6 +54,53 @@ interface MediaItemDao {
 
     @Query("SELECT * FROM media_items WHERE fileName LIKE '%' || :query || '%' OR filePath LIKE '%' || :query || '%' LIMIT :limit")
     suspend fun searchMediaItems(query: String, limit: Int): List<MediaItem>
+    
+    /**
+     * Advanced search with multiple filters for Universal Search Engine
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        LEFT JOIN metadata_common mc ON mi.itemId = mc.itemId
+        WHERE (mi.fileName LIKE :query OR mc.title LIKE :query OR mc.summary LIKE :query)
+        AND (:mediaTypes IS NULL OR mi.mediaType IN (:mediaTypes))
+        AND (:minRating IS NULL OR mc.rating >= :minRating OR mc.userRating >= :minRating)
+        AND (:maxRating IS NULL OR mc.rating <= :maxRating OR mc.userRating <= :maxRating)
+        AND (:isFavorite IS NULL OR mi.isFavorite = :isFavorite)
+        ORDER BY mi.dateAdded DESC
+        LIMIT :limit
+    """)
+    suspend fun searchMediaItems(
+        query: String,
+        mediaTypes: List<String>?,
+        minRating: Float?,
+        maxRating: Float?,
+        isFavorite: Boolean?,
+        limit: Int
+    ): List<MediaItem>
+    
+    /**
+     * Get all media items as a Flow for reactive updates
+     */
+    @Query("SELECT * FROM media_items ORDER BY dateAdded DESC")
+    fun getAllMediaItemsFlow(): Flow<List<MediaItem>>
+    
+    /**
+     * Get media items with tags
+     */
+    @Query("""
+        SELECT DISTINCT mi.* FROM media_items mi
+        INNER JOIN item_tags it ON mi.itemId = it.itemId
+        WHERE it.tagId IN (:tagIds)
+        ORDER BY mi.dateAdded DESC
+        LIMIT :limit
+    """)
+    suspend fun getMediaItemsWithTags(tagIds: List<Long>, limit: Int): List<MediaItem>
+    
+    /**
+     * Get media items by multiple media types
+     */
+    @Query("SELECT * FROM media_items WHERE mediaType IN (:mediaTypes) ORDER BY dateAdded DESC LIMIT :limit")
+    suspend fun getMediaItemsByTypes(mediaTypes: List<String>, limit: Int): List<MediaItem>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMediaItems(mediaItems: List<MediaItem>)

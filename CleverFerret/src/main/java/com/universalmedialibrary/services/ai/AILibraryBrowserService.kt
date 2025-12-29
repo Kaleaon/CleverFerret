@@ -73,7 +73,7 @@ class AILibraryBrowserService @Inject constructor(
             val progress = when (item.mediaType) {
                 "BOOK", "COMIC" -> {
                     readingProgressDao.getProgressByItemIdSnapshot(itemId)?.let {
-                        it.percentage / 100f
+                        it.percentage / 100f  // Convert percentage (0-100) to 0-1 range
                     }
                 }
                 else -> null
@@ -200,7 +200,7 @@ class AILibraryBrowserService @Inject constructor(
                     val items = mediaItemDao.getByGenre(genre, 5, 0)
                     items.forEach { item ->
                         val progress = readingProgressDao.getProgressByItemIdSnapshot(item.itemId)
-                        if (progress == null || progress.currentPosition == 0L) {
+                        if (progress == null || progress.percentage == 0f) {
                             val meta = metadataDao.getCommonMetadataByItemId(item.itemId)
                             val people = metadataDao.getPeopleForItem(item.itemId)
                             recommendations.add(RecommendationItem(
@@ -220,7 +220,7 @@ class AILibraryBrowserService @Inject constructor(
                     val items = mediaItemDao.getByAuthor(author, 3, 0)
                     items.forEach { item ->
                         val progress = readingProgressDao.getProgressByItemIdSnapshot(item.itemId)
-                        if (progress == null || progress.currentPosition == 0L) {
+                        if (progress == null || progress.percentage == 0f) {
                             val meta = metadataDao.getCommonMetadataByItemId(item.itemId)
                             if (recommendations.none { it.title == (meta?.title ?: item.fileName) }) {
                                 recommendations.add(RecommendationItem(

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.universalmedialibrary.core.FormatRegistry
 import com.universalmedialibrary.core.TagRegistry
 
@@ -21,13 +22,29 @@ import com.universalmedialibrary.core.TagRegistry
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UniversalSearchScreen(
+    navController: NavController? = null,
     viewModel: UniversalSearchViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
+    Scaffold(
+        topBar = {
+            if (navController != null) {
+                TopAppBar(
+                    title = { Text("Universal Search") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                )
+            }
+        }
+    ) { paddingValues ->
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .padding(16.dp)
     ) {
         // Search bar
@@ -73,7 +90,8 @@ fun UniversalSearchScreen(
             }
         }
     }
-}
+    } // End Scaffold content lambda
+} // End UniversalSearchScreen
 
 @Composable
 private fun FormatCategoriesView(viewModel: UniversalSearchViewModel) {
