@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -760,7 +761,7 @@ class SynthChatService @Inject constructor(
         val settings = aiSettings ?: return
         
         // Check if logging is enabled
-        val loggingEnabled = kotlinx.coroutines.flow.first { settings.aiLogEnabled }
+        val loggingEnabled = settings.aiLogEnabled.first()
         if (!loggingEnabled) return
         
         logService.saveConversationLog(

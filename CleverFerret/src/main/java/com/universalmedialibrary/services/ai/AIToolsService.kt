@@ -684,11 +684,10 @@ data class ToolRequest(
     val parameters: Map<String, Any>
 )
 
-@Serializable
 data class ToolResult(
     val success: Boolean,
     val toolId: String,
-    val data: Map<String, @Serializable(with = kotlinx.serialization.json.JsonElementSerializer::class) Any>? = null,
+    val data: Map<String, Any>? = null,
     val summary: String? = null,
     val error: String? = null
 )
