@@ -1,30 +1,44 @@
 package com.universalmedialibrary.ui.media.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.repository.AudiobookRepository
+import com.universalmedialibrary.data.repository.MusicRepository
+import com.universalmedialibrary.data.repository.VideoRepository
+import com.universalmedialibrary.data.repository.podcast.PodcastRepository
+import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
+import com.universalmedialibrary.services.music.PlaylistMode
+import com.universalmedialibrary.services.exoplayer.ExoPlayerService
+import com.universalmedialibrary.services.media.SleepTimerManager
 import com.universalmedialibrary.ui.media.player.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel for Clean media-centric Audio Player
+ * ViewModel for Media-centric Audio Player
  * 
  * Handles playback for:
  * - Music tracks
  * - Audiobooks
  * - Podcasts
  * 
- * Note: This is a simplified implementation with placeholder playback.
- * Full service integration will be added when the media playback
- * services are finalized.
+ * Properly integrated with actual playback services.
  */
 @HiltViewModel
 class AudioPlayerViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val context: Context,
+    private val musicPlayerService: AdvancedMusicPlayerService,
+    private val exoPlayerService: ExoPlayerService,
+    private val sleepTimerManager: SleepTimerManager,
+    private val musicRepository: MusicRepository,
+    private val audiobookRepository: AudiobookRepository,
+    private val podcastRepository: PodcastRepository
 ) : ViewModel() {
     
     private val playerType: PlayerType = when (savedStateHandle.get<String>("playerType")) {
@@ -33,56 +47,98 @@ class AudioPlayerViewModel @Inject constructor(
         else -> PlayerType.MUSIC
     }
     
+    // Map from actual service state to UI state
     private val _uiState = MutableStateFlow(AudioPlayerState(
-        title = "Sample Track",
-        artist = "Sample Artist",
-        albumTitle = "Sample Album",
+        title = "",
+        artist = null,
+        albumTitle = null,
         artworkUrl = null,
         currentPosition = 0L,
-        duration = 180000L, // 3 minutes
+        duration = 0L,
         isPlaying = false,
         playerType = playerType
     ))
     val uiState: StateFlow<AudioPlayerState> = _uiState.asStateFlow()
     
-    private var isSimulatingPlayback = false
-    
-    fun playPause() {
-        val newIsPlaying = !_uiState.value.isPlaying
-        _uiState.update { it.copy(isPlaying = newIsPlaying) }
-        
-        if (newIsPlaying && !isSimulatingPlayback) {
-            simulatePlayback()
-        }
-    }
-    
-    private fun simulatePlayback() {
-        isSimulatingPlayback = true
+    init {
+        // Observe actual playback state from service
         viewModelScope.launch {
-            while (_uiState.value.isPlaying && _uiState.value.currentPosition < _uiState.value.duration) {
-                delay(1000)
-                if (_uiState.value.isPlaying) {
+            musicPlayerService.currentTrack.collect { track ->
+                if (track != null) {
                     _uiState.update { 
-                        it.copy(currentPosition = (it.currentPosition + 1000).coerceAtMost(it.duration))
+                        it.copy(
+                            title = track.title,
+                            artist = track.artist,
+                            albumTitle = track.album,
+                            artworkUrl = track.albumArtUrl,
+                            duration = track.duration
+                        )
                     }
                 }
             }
-            isSimulatingPlayback = false
         }
+        
+        viewModelScope.launch {
+            musicPlayerService.playbackState.collect { state ->
+                _uiState.update { 
+                    it.copy(
+                        isPlaying = state.isPlaying,
+                        currentPosition = state.currentPositionMs,
+                        isShuffleEnabled = state.isShuffling,
+                        repeatMode = when {
+                            state.repeatMode == 1 -> RepeatMode.ONE
+                            state.repeatMode == 2 -> RepeatMode.ALL
+                            else -> RepeatMode.OFF
+                        }
+                    )
+                }
+            }
+        }
+        
+        viewModelScope.launch {
+            musicPlayerService.queue.collect { queueTracks ->
+                val queueItems = queueTracks.map { track ->
+                    QueueItem(
+                        id = track.id,
+                        title = track.title,
+                        artist = track.artist,
+                        artworkUrl = track.albumArtUrl,
+                        duration = track.duration,
+                        isCurrentItem = track.id == musicPlayerService.currentTrack.value?.id
+                    )
+                }
+                _uiState.update { it.copy(queue = queueItems) }
+            }
+        }
+        
+        // Observe sleep timer
+        viewModelScope.launch {
+            sleepTimerManager.state.collect { timerState ->
+                _uiState.update { 
+                    it.copy(
+                        sleepTimerActive = timerState.isActive,
+                        sleepTimerRemaining = timerState.remainingMs
+                    )
+                }
+            }
+        }
+    }
+    
+    fun playPause() {
+        musicPlayerService.togglePlayPause()
     }
     
     fun seek(position: Float) {
         val newPosition = (position * _uiState.value.duration).toLong()
-        _uiState.update { it.copy(currentPosition = newPosition) }
+        musicPlayerService.seekTo(newPosition)
     }
     
     fun skipPrevious() {
-        _uiState.update { it.copy(currentPosition = 0L) }
+        musicPlayerService.skipPrevious()
     }
     
     fun skipNext() {
-        // In a real implementation, this would load the next track
-        _uiState.update { it.copy(currentPosition = 0L) }
+        musicPlayerService.skipNext()
     }
     
     fun rewind() {
@@ -90,9 +146,8 @@ class AudioPlayerViewModel @Inject constructor(
             PlayerType.AUDIOBOOK, PlayerType.PODCAST -> 30000L
             else -> 10000L
         }
-        _uiState.update { 
-            it.copy(currentPosition = (it.currentPosition - amount).coerceAtLeast(0L))
-        }
+        val currentPos = musicPlayerService.getCurrentPosition()
+        musicPlayerService.seekTo((currentPos - amount).coerceAtLeast(0L))
     }
     
     fun fastForward() {
@@ -100,130 +155,138 @@ class AudioPlayerViewModel @Inject constructor(
             PlayerType.AUDIOBOOK, PlayerType.PODCAST -> 30000L
             else -> 10000L
         }
-        _uiState.update { 
-            it.copy(currentPosition = (it.currentPosition + amount).coerceAtMost(it.duration))
-        }
+        val currentPos = musicPlayerService.getCurrentPosition()
+        val duration = _uiState.value.duration
+        musicPlayerService.seekTo((currentPos + amount).coerceAtMost(duration))
     }
     
     fun setPlaybackSpeed(speed: Float) {
+        exoPlayerService.setPlaybackSpeed(speed)
         _uiState.update { it.copy(playbackSpeed = speed) }
     }
     
     fun toggleShuffle() {
-        _uiState.update { it.copy(isShuffleEnabled = !it.isShuffleEnabled) }
+        musicPlayerService.toggleShuffle()
     }
     
     fun toggleRepeat() {
-        val nextMode = when (_uiState.value.repeatMode) {
-            RepeatMode.OFF -> RepeatMode.ALL
-            RepeatMode.ALL -> RepeatMode.ONE
-            RepeatMode.ONE -> RepeatMode.OFF
-        }
-        _uiState.update { it.copy(repeatMode = nextMode) }
+        musicPlayerService.toggleRepeat()
     }
     
     fun setSleepTimer(minutes: Int) {
-        _uiState.update { 
-            it.copy(
-                sleepTimerActive = true,
-                sleepTimerRemaining = minutes.toLong() * 60 * 1000
-            )
-        }
+        sleepTimerManager.startTimer(
+            durationMinutes = minutes,
+            fadeOut = true,
+            onComplete = { musicPlayerService.pause() }
+        )
     }
     
     fun cancelSleepTimer() {
-        _uiState.update { 
-            it.copy(sleepTimerActive = false, sleepTimerRemaining = null)
-        }
+        sleepTimerManager.stopTimer()
     }
     
     fun playQueueItem(index: Int) {
-        // Placeholder - would play item at index in queue
+        musicPlayerService.skipToQueuePosition(index)
     }
     
     fun removeFromQueue(index: Int) {
-        _uiState.update { state ->
-            state.copy(queue = state.queue.filterIndexed { i, _ -> i != index })
-        }
+        val queueItem = _uiState.value.queue.getOrNull(index) ?: return
+        musicPlayerService.removeFromQueue(queueItem.id)
     }
 }
 
 /**
- * ViewModel for Clean media-centric Video Player
+ * ViewModel for Media-centric Video Player
  * 
- * Note: This is a simplified implementation with placeholder playback.
- * Full service integration will be added when the video playback
- * services are finalized.
+ * Properly integrated with video repository and playback.
  */
 @HiltViewModel
 class VideoPlayerViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val context: Context,
+    private val videoRepository: VideoRepository,
+    private val exoPlayerService: ExoPlayerService
 ) : ViewModel() {
     
     private val videoId: String = savedStateHandle.get<String>("videoId") ?: ""
     
     private val _uiState = MutableStateFlow(VideoPlayerState(
-        title = "Sample Video",
+        title = "Loading...",
         currentPosition = 0L,
-        duration = 7200000L, // 2 hours
+        duration = 0L,
         bufferedPosition = 0L,
         isPlaying = false
     ))
     val uiState: StateFlow<VideoPlayerState> = _uiState.asStateFlow()
-    
-    private var isSimulatingPlayback = false
     
     init {
         loadVideo()
     }
     
     private fun loadVideo() {
-        // Load placeholder video data
-        _uiState.update {
-            it.copy(
-                title = "Sample Movie",
-                subtitle = null,
-                duration = 7200000L,
-                availableQualities = listOf(
-                    VideoQuality.AUTO,
-                    VideoQuality.SD,
-                    VideoQuality.HD,
-                    VideoQuality.FULL_HD
-                ),
-                currentQuality = VideoQuality.AUTO
-            )
+        viewModelScope.launch {
+            try {
+                val videoIdLong = videoId.toLongOrNull() ?: return@launch
+                
+                // Try to load from movies first
+                val allVideos = videoRepository.getAllVideos().first()
+                val video = allVideos.find { it.itemId == videoIdLong }
+                
+                if (video != null) {
+                    _uiState.update {
+                        it.copy(
+                            title = video.title,
+                            subtitle = video.creator,
+                            duration = video.duration ?: 0L,
+                            availableQualities = listOf(
+                                VideoQuality.AUTO,
+                                VideoQuality.SD,
+                                VideoQuality.HD,
+                                VideoQuality.FULL_HD
+                            ),
+                            currentQuality = VideoQuality.AUTO
+                        )
+                    }
+                    
+                    // Start playback using loadMedia
+                    video.filePath?.let { path ->
+                        exoPlayerService.loadMediaWithSession(
+                            mediaPath = path,
+                            title = video.title,
+                            artist = video.creator
+                        )
+                        exoPlayerService.play()
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(title = "Error loading video") }
+            }
+        }
+        
+        // Observe playback state from ExoPlayerService
+        viewModelScope.launch {
+            exoPlayerService.playerState.collect { state ->
+                _uiState.update { 
+                    it.copy(
+                        isPlaying = state.isPlaying,
+                        currentPosition = state.currentPosition,
+                        bufferedPosition = state.currentPosition // ExoPlayer state doesn't expose buffered separately here
+                    )
+                }
+            }
         }
     }
     
     fun playPause() {
-        val newIsPlaying = !_uiState.value.isPlaying
-        _uiState.update { it.copy(isPlaying = newIsPlaying) }
-        
-        if (newIsPlaying && !isSimulatingPlayback) {
-            simulatePlayback()
-        }
-    }
-    
-    private fun simulatePlayback() {
-        isSimulatingPlayback = true
-        viewModelScope.launch {
-            while (_uiState.value.isPlaying && _uiState.value.currentPosition < _uiState.value.duration) {
-                delay(1000)
-                if (_uiState.value.isPlaying) {
-                    _uiState.update { 
-                        it.copy(
-                            currentPosition = (it.currentPosition + 1000).coerceAtMost(it.duration),
-                            bufferedPosition = (it.currentPosition + 30000).coerceAtMost(it.duration)
-                        )
-                    }
-                }
-            }
-            isSimulatingPlayback = false
+        if (_uiState.value.isPlaying) {
+            exoPlayerService.pause()
+        } else {
+            exoPlayerService.play()
         }
     }
     
     fun seek(position: Long) {
-        _uiState.update { it.copy(currentPosition = position.coerceIn(0L, it.duration)) }
+        exoPlayerService.seekTo(position.coerceIn(0L, _uiState.value.duration))
     }
     
     fun seekRelative(offset: Long) {
@@ -248,7 +311,6 @@ class VideoPlayerViewModel @Inject constructor(
     }
     
     fun skipIntro() {
-        // Skip to after intro (placeholder: skip 90 seconds)
         seek(_uiState.value.currentPosition + 90000)
         _uiState.update { it.copy(showSkipIntro = false) }
     }
@@ -273,5 +335,10 @@ class VideoPlayerViewModel @Inject constructor(
                 currentPosition = 0L
             )
         }
+    }
+    
+    override fun onCleared() {
+        super.onCleared()
+        exoPlayerService.release()
     }
 }
