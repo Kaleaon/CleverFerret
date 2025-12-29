@@ -9,7 +9,7 @@
 
 [versions]
 # Kotlin & Compose
- kotlin = "2.1.0"
+ kotlin = "2.3.0"
   compose-bom = "2025.11.01"
  compose-compiler = "2.1.0"
 
