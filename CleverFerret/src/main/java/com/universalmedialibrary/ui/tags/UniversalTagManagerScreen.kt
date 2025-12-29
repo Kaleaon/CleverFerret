@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import java.net.URLEncoder
 import com.universalmedialibrary.data.local.entity.TagType
 import com.universalmedialibrary.data.local.entity.UnifiedTag
 import com.universalmedialibrary.data.local.entity.TagCategory
@@ -207,7 +208,10 @@ fun UniversalTagManagerScreen(
                             tag = tag,
                             onEdit = { editingTag = tag },
                             onDelete = { viewModel.deleteTag(tag) },
-                            onClick = { navController.navigate("enhanced_search?tags=${tag.name}") }
+                            onClick = { 
+                                val encodedTag = URLEncoder.encode(tag.name, "UTF-8")
+                                navController.navigate("enhanced_search?tags=$encodedTag") 
+                            }
                         )
                     }
                 }
@@ -229,7 +233,10 @@ fun UniversalTagManagerScreen(
                                 tag = tag,
                                 onEdit = { editingTag = tag },
                                 onDelete = { viewModel.deleteTag(tag) },
-                                onClick = { navController.navigate("enhanced_search?tags=${tag.name}") }
+                                onClick = { 
+                                    val encodedTag = URLEncoder.encode(tag.name, "UTF-8")
+                                    navController.navigate("enhanced_search?tags=$encodedTag") 
+                                }
                             )
                         }
                     }
@@ -241,7 +248,10 @@ fun UniversalTagManagerScreen(
                         tag = tag,
                         onEdit = { editingTag = tag },
                         onDelete = { viewModel.deleteTag(tag) },
-                        onClick = { navController.navigate("enhanced_search?tags=${tag.name}") }
+                        onClick = { 
+                            val encodedTag = URLEncoder.encode(tag.name, "UTF-8")
+                            navController.navigate("enhanced_search?tags=$encodedTag") 
+                        }
                     )
                 }
             }

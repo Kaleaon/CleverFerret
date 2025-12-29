@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.collections
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.entity.SmartCollectionRule
@@ -23,10 +24,20 @@ class SmartCollectionsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SmartCollectionsUiState())
     val uiState: StateFlow<SmartCollectionsUiState> = _uiState.asStateFlow()
 
+    // Use stateIn for active collections to avoid multiple collectors
+    private val activeCollectionsFlow = smartCollectionEngine.getAllSmartCollections()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     init {
         loadSuggestions()
-        loadActiveCollections()
         loadAllSuggestions()
+        
+        // Single collector for active collections
+        viewModelScope.launch {
+            activeCollectionsFlow.collect { collections ->
+                _uiState.update { it.copy(activeCollections = collections) }
+            }
+        }
     }
 
     private fun loadSuggestions() {
@@ -41,22 +52,14 @@ class SmartCollectionsViewModel @Inject constructor(
         }
     }
 
-    private fun loadActiveCollections() {
-        viewModelScope.launch {
-            smartCollectionEngine.getAllSmartCollections()
-                .collect { collections ->
-                    _uiState.update { it.copy(activeCollections = collections) }
-                }
-        }
-    }
-
     private fun loadAllSuggestions() {
         viewModelScope.launch {
             try {
                 val allSuggestions = autoSuggestionService.getAllSuggestions()
                 _uiState.update { it.copy(allSuggestions = allSuggestions) }
             } catch (e: Exception) {
-                // Silently fail
+                // Non-critical: suggestions are supplementary
+                Log.w("SmartCollectionsVM", "Failed to load suggestions", e)
             }
         }
     }
@@ -70,14 +73,12 @@ class SmartCollectionsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 smartCollectionEngine.createCollectionFromSuggestion(suggestion)
-                // Remove from suggestions list
+                // Remove from suggestions list - active collections will update automatically via Flow
                 _uiState.update { state ->
                     state.copy(
                         suggestions = state.suggestions.filter { it.suggestionId != suggestion.suggestionId }
                     )
                 }
-                // Reload active collections
-                loadActiveCollections()
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
@@ -108,8 +109,8 @@ class SmartCollectionsViewModel @Inject constructor(
     fun deleteCollection(rule: SmartCollectionRule) {
         viewModelScope.launch {
             try {
-                // Would need to add delete method to SmartCollectionDao
-                loadActiveCollections()
+                smartCollectionEngine.deleteCollection(rule)
+                // Active collections will update automatically via Flow
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }

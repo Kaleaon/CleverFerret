@@ -210,7 +210,7 @@ interface TagHierarchyDao {
      * Get related tags for a specific tag
      */
     @Query("""
-        SELECT t.*, rt.relationType, rt.relationStrength 
+        SELECT t.* 
         FROM unified_tags t
         INNER JOIN related_tags rt ON t.tagId = rt.relatedTagId
         WHERE rt.tagId = :tagId
@@ -223,7 +223,7 @@ interface TagHierarchyDao {
      * Get commonly co-occurring tags
      */
     @Query("""
-        SELECT t.*, rt.coOccurrenceCount 
+        SELECT t.* 
         FROM unified_tags t
         INNER JOIN related_tags rt ON t.tagId = rt.relatedTagId
         WHERE rt.tagId = :tagId AND rt.relationType = 'COMMONLY_USED_WITH'
@@ -296,6 +296,12 @@ interface TagHierarchyDao {
     suspend fun getCategoriesForTagSync(tagId: Long): List<TagCategory>
 
     /**
+     * Batch get all tag-category assignments (for N+1 query optimization)
+     */
+    @Query("SELECT tagId, categoryId FROM tag_category_assignments")
+    suspend fun getAllTagCategoryAssignments(): List<TagCategoryAssignmentTuple>
+
+    /**
      * Learn tag co-occurrence from items that have multiple tags
      */
     @Query("""
@@ -326,4 +332,12 @@ data class TagWithDetails(
 data class CoOccurrenceResult(
     val relatedTag: Long,
     val count: Int
+)
+
+/**
+ * Simple tuple for tag-category assignments (for batch queries)
+ */
+data class TagCategoryAssignmentTuple(
+    val tagId: Long,
+    val categoryId: Long
 )

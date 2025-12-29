@@ -122,7 +122,7 @@ class AILibraryBrowserService @Inject constructor(
                         title = metadata?.title ?: item.fileName,
                         progressPercent = progress.percentage.toInt(),
                         currentPage = progress.currentPage,
-                        totalPages = progress.pagesRead + progress.currentPage, // Approximate total
+                        totalPages = if (progress.percentage > 0) (progress.currentPage / (progress.percentage / 100f)).toInt() else 0,
                         lastRead = progress.lastUpdate
                     )
                 } else null
@@ -335,7 +335,7 @@ class AILibraryBrowserService @Inject constructor(
                         mediaType = item.mediaType,
                         author = null,
                         year = meta?.year?.toString(),
-                        hasProgress = readingProgressDao.getProgressByItemId(item.itemId) != null
+                        hasProgress = readingProgressDao.getProgressByItemIdSnapshot(item.itemId) != null
                     )
                 }
             )
@@ -348,7 +348,7 @@ class AILibraryBrowserService @Inject constructor(
         return try {
             val metadata = metadataDao.getCommonMetadataByItemId(item.itemId)
             val people = metadataDao.getPeopleForItem(item.itemId)
-            val hasProgress = readingProgressDao.getProgressByItemId(item.itemId) != null
+            val hasProgress = readingProgressDao.getProgressByItemIdSnapshot(item.itemId) != null
             
             LibraryBrowseItem(
                 id = item.itemId,

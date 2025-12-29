@@ -8,8 +8,11 @@ import com.universalmedialibrary.data.repository.TagRepository
 import com.universalmedialibrary.services.suggestions.AutoSuggestionService
 import com.universalmedialibrary.services.suggestions.NewTagSuggestion
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import android.util.Log
 import javax.inject.Inject
 
 @HiltViewModel
@@ -84,25 +87,32 @@ class UniversalTagManagerViewModel @Inject constructor(
     )
 
     init {
-        // Load tag-category relationships
+        // Load tag-category relationships using batch query to avoid N+1
         viewModelScope.launch {
-            allTags.collect { tags ->
-                val categoryMap = mutableMapOf<Long, List<Long>>()
-                for (tag in tags) {
-                    val categories = tagHierarchyDao.getCategoriesForTagSync(tag.tagId)
-                    categoryMap[tag.tagId] = categories.map { it.categoryId }
+            try {
+                withContext(Dispatchers.IO) {
+                    val assignments = tagHierarchyDao.getAllTagCategoryAssignments()
+                    val categoryMap = assignments.groupBy(
+                        keySelector = { it.tagId },
+                        valueTransform = { it.categoryId }
+                    )
+                    _tagCategories.value = categoryMap
                 }
-                _tagCategories.value = categoryMap
+            } catch (e: Exception) {
+                Log.w("TagManagerVM", "Failed to load tag-category relationships", e)
             }
         }
 
         // Load suggested new tags
         viewModelScope.launch {
             try {
-                val suggestions = autoSuggestionService.suggestNewTags()
-                _suggestedNewTags.value = suggestions
+                withContext(Dispatchers.IO) {
+                    val suggestions = autoSuggestionService.suggestNewTags()
+                    _suggestedNewTags.value = suggestions
+                }
             } catch (e: Exception) {
-                // Silently fail
+                // Non-critical: tag suggestions are supplementary
+                Log.w("TagManagerVM", "Failed to load tag suggestions", e)
             }
         }
     }
@@ -145,27 +155,43 @@ class UniversalTagManagerViewModel @Inject constructor(
 
     fun updateTag(tag: UnifiedTag, categoryIds: List<Long>) {
         viewModelScope.launch {
-            tagRepository.updateTag(tag)
+            withContext(Dispatchers.IO) {
+                tagRepository.updateTag(tag)
 
-            // Update category assignments
-            val currentCategories = tagHierarchyDao.getCategoriesForTagSync(tag.tagId)
-            val currentCategoryIds = currentCategories.map { it.categoryId }.toSet()
+                // Update category assignments
+                val currentCategories = tagHierarchyDao.getCategoriesForTagSync(tag.tagId)
+                val currentCategoryIds = currentCategories.map { it.categoryId }.toSet()
 
-            // Remove from categories no longer selected
-            for (catId in currentCategoryIds) {
-                if (catId !in categoryIds) {
-                    tagHierarchyDao.removeTagFromCategory(tag.tagId, catId)
+                // Remove from categories no longer selected
+                for (catId in currentCategoryIds) {
+                    if (catId !in categoryIds) {
+                        tagHierarchyDao.removeTagFromCategory(tag.tagId, catId)
+                    }
+                }
+
+                // Add to newly selected categories
+                for (catId in categoryIds) {
+                    if (catId !in currentCategoryIds) {
+                        tagHierarchyDao.assignTagToCategory(
+                            TagCategoryAssignment(tagId = tag.tagId, categoryId = catId)
+                        )
+                    }
                 }
             }
-
-            // Add to newly selected categories
-            for (catId in categoryIds) {
-                if (catId !in currentCategoryIds) {
-                    tagHierarchyDao.assignTagToCategory(
-                        TagCategoryAssignment(tagId = tag.tagId, categoryId = catId)
-                    )
-                }
-            }
+            
+            // Refresh tag-category map
+            refreshTagCategories()
+        }
+    }
+    
+    private suspend fun refreshTagCategories() {
+        withContext(Dispatchers.IO) {
+            val assignments = tagHierarchyDao.getAllTagCategoryAssignments()
+            val categoryMap = assignments.groupBy(
+                keySelector = { it.tagId },
+                valueTransform = { it.categoryId }
+            )
+            _tagCategories.value = categoryMap
         }
     }
 

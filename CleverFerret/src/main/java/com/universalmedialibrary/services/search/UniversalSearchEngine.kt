@@ -514,10 +514,10 @@ data class UniversalSearchQuery(
 
 /**
  * Search filters for universal search
+ * Note: mediaTypes is in UniversalSearchQuery, not here, to avoid duplication
  */
 @Serializable
 data class UniversalSearchFilters(
-    val mediaTypes: List<String> = emptyList(),
     val genres: List<String> = emptyList(),
     val tags: List<String> = emptyList(),
     val minRating: Float? = null,
@@ -527,8 +527,7 @@ data class UniversalSearchFilters(
     val maxFileSize: Long? = null
 ) {
     fun hasActiveFilters(): Boolean {
-        return mediaTypes.isNotEmpty() ||
-            genres.isNotEmpty() ||
+        return genres.isNotEmpty() ||
             tags.isNotEmpty() ||
             minRating != null ||
             dateFrom != null ||

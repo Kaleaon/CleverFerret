@@ -1248,7 +1248,8 @@ object AppDatabaseMigrations {
                     itemId INTEGER NOT NULL,
                     sortOrder INTEGER NOT NULL DEFAULT 0,
                     matchScore REAL NOT NULL DEFAULT 1.0,
-                    cachedAt INTEGER NOT NULL
+                    cachedAt INTEGER NOT NULL,
+                    FOREIGN KEY(ruleId) REFERENCES smart_collection_rules(ruleId) ON DELETE CASCADE
                 )
             """.trimIndent())
             database.execSQL("CREATE INDEX IF NOT EXISTS index_smart_collection_cache_ruleId ON smart_collection_cache(ruleId)")

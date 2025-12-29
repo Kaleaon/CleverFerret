@@ -103,7 +103,7 @@ class AutoSuggestionService @Inject constructor(
         }
         
         // Sort by confidence and limit
-        suggestions.sortedByDescending { it.confidence }.take(10)
+        return@withContext suggestions.sortedByDescending { it.confidence }.take(10)
     }
 
     /**
@@ -263,7 +263,7 @@ class AutoSuggestionService @Inject constructor(
             }
         }
         
-        suggestions.sortedByDescending { it.confidence }
+        return@withContext suggestions.sortedByDescending { it.confidence }
     }
 
     /**

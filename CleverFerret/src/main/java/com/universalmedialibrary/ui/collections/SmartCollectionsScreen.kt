@@ -16,14 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.SmartCollectionRule
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.data.local.entity.SmartCollectionType
 import com.universalmedialibrary.data.local.entity.SuggestedCollection
 import com.universalmedialibrary.services.suggestions.*
@@ -90,7 +89,7 @@ fun SmartCollectionsScreen(
                 1 -> ActiveCollectionsTab(
                     collections = uiState.activeCollections,
                     onOpenCollection = { rule ->
-                        navController.navigate("smart_collection/${rule.ruleId}")
+                        navController.navigate(MediaRoutes.smartCollectionDetailRoute(rule.ruleId))
                     },
                     onRefreshCollection = viewModel::refreshCollection,
                     onDeleteCollection = viewModel::deleteCollection

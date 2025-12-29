@@ -60,7 +60,7 @@ interface ReadingProgressDao {
     // ==================== AI Library Browser Support ====================
     
     /**
-     * Get reading progress by item ID (suspend version for snapshots)
+     * Get reading progress by item ID (suspend version for one-shot queries)
      */
     @Query("SELECT * FROM reading_progress WHERE itemId = :itemId LIMIT 1")
     suspend fun getProgressByItemIdSnapshot(itemId: Long): ReadingProgress?

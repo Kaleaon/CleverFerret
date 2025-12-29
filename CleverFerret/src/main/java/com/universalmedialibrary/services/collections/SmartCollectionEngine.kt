@@ -479,4 +479,11 @@ class SmartCollectionEngine @Inject constructor(
             refreshCollection(rule.ruleId)
         }
     }
+
+    /**
+     * Delete a smart collection
+     */
+    suspend fun deleteCollection(rule: SmartCollectionRule) = withContext(Dispatchers.IO) {
+        smartCollectionDao.deleteRule(rule)
+    }
 }

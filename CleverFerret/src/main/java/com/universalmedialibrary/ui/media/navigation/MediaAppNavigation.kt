@@ -80,11 +80,20 @@ object MediaRoutes {
     const val TAG_EXPLORER = "tag_explorer"
     const val SMART_COLLECTIONS = "smart_collections"
     const val SMART_COLLECTION_DETAIL = "smart_collection/{ruleId}"
-    const val ENHANCED_SEARCH = "enhanced_search"
+    const val ENHANCED_SEARCH = "enhanced_search?query={query}&tags={tags}&mediaTypes={mediaTypes}"
     const val UNIVERSAL_SEARCH = "universal_search"
     
     // Helper for smart collection detail
     fun smartCollectionDetailRoute(ruleId: Long) = "smart_collection/$ruleId"
+    
+    // Helper for enhanced search with parameters
+    fun enhancedSearchRoute(query: String? = null, tags: String? = null, mediaTypes: String? = null): String {
+        val params = mutableListOf<String>()
+        query?.let { params.add("query=$it") }
+        tags?.let { params.add("tags=$it") }
+        mediaTypes?.let { params.add("mediaTypes=$it") }
+        return if (params.isEmpty()) "enhanced_search" else "enhanced_search?${params.joinToString("&")}"
+    }
     
     // Special features
     const val AMBIENT_SOUNDS = "ambient"
@@ -1061,7 +1070,9 @@ fun MediaAppNavHost(
         
         // Universal Search - Search across formats, tags, and media
         composable(MediaRoutes.UNIVERSAL_SEARCH) {
-            com.universalmedialibrary.ui.search.UniversalSearchScreen()
+            com.universalmedialibrary.ui.search.UniversalSearchScreen(
+                navController = navController
+            )
         }
         
         // =====================================================================
