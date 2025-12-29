@@ -64,7 +64,6 @@ fun LibraryDetailsScreen(
     // Load library details on composition
     LaunchedEffect(libraryId) {
         viewModel.loadLibraryDetails(libraryId.toLong())
-        viewModel.createSampleMediaItems(libraryId.toLong())
     }
 
     Box(
