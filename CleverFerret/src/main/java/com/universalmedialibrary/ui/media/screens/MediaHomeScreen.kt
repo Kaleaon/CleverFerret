@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +40,7 @@ import kotlinx.coroutines.launch
  * - Curated collections
  * - Quick access to all media types
  * - Personalized recommendations
+ * - Welcome screen for new users with empty library
  */
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -58,6 +61,23 @@ fun MediaHomeScreen(
     val heroCarouselPagerState = rememberPagerState(pageCount = { state.featuredItems.size })
     val coroutineScope = rememberCoroutineScope()
     
+    // Check if library is empty
+    val isLibraryEmpty = remember(state) {
+        state.featuredItems.isEmpty() &&
+        state.continueItems.isEmpty() &&
+        state.recentBooks.isEmpty() &&
+        state.recentMusic.isEmpty() &&
+        state.recentPodcasts.isEmpty() &&
+        state.recentVideos.isEmpty() &&
+        state.recentAudiobooks.isEmpty() &&
+        state.recentComics.isEmpty() &&
+        state.recentFanfiction.isEmpty() &&
+        state.libraryStats.totalBooks == 0 &&
+        state.libraryStats.totalMusic == 0 &&
+        state.libraryStats.totalAudiobooks == 0 &&
+        state.libraryStats.totalVideos == 0
+    }
+    
     // Auto-scroll hero carousel
     LaunchedEffect(state.featuredItems) {
         if (state.featuredItems.isNotEmpty()) {
@@ -74,193 +94,213 @@ fun MediaHomeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        LazyColumn(
-            state = scrollState,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Hero Carousel
-            if (state.featuredItems.isNotEmpty()) {
+        // Show loading indicator while loading
+        if (state.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            LazyColumn(
+                state = scrollState,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Welcome Section for empty library
+                if (isLibraryEmpty) {
+                    item {
+                        WelcomeSection(
+                            onSearchClick = onSearchClick,
+                            onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) }
+                        )
+                    }
+                }
+                
+                // Hero Carousel
+                if (state.featuredItems.isNotEmpty()) {
+                    item {
+                        HeroCarousel(
+                            items = state.featuredItems,
+                            pagerState = heroCarouselPagerState,
+                            onItemClick = onItemClick,
+                            onPlayClick = onPlayClick
+                        )
+                    }
+                }
+                
+                // Quick Stats Row - always show if library has content OR show minimal version for empty
                 item {
-                    HeroCarousel(
-                        items = state.featuredItems,
-                        pagerState = heroCarouselPagerState,
-                        onItemClick = onItemClick,
-                        onPlayClick = onPlayClick
+                    if (!isLibraryEmpty) {
+                        QuickStatsRow(stats = state.libraryStats)
+                    }
+                }
+                
+                // Continue Section (Reading, Watching, Listening)
+                if (state.continueItems.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        MediaCarouselRow(
+                            title = "Continue Where You Left Off",
+                            items = state.continueItems,
+                            onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) }
+                        ) { item ->
+                            MediaWideCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                width = MediaSizes.CardXLarge
+                            )
+                        }
+                    }
+                }
+                
+                // Recently Added Books
+                if (state.recentBooks.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        MediaCarouselRow(
+                            title = "Recently Added Books",
+                            items = state.recentBooks,
+                            onSeeAllClick = { onSeeAllClick(MediaRoutes.BOOKS) }
+                        ) { item ->
+                            MediaPosterCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                width = MediaSizes.CardMedium
+                            )
+                        }
+                    }
+                }
+                
+                // Recently Added Music
+                if (state.recentMusic.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        MediaCarouselRow(
+                            title = "Recently Added Music",
+                            items = state.recentMusic,
+                            onSeeAllClick = { onSeeAllClick(MediaRoutes.MUSIC) }
+                        ) { item ->
+                            MediaSquareCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                size = MediaSizes.CardMedium
+                            )
+                        }
+                    }
+                }
+                
+                // Podcasts
+                if (state.recentPodcasts.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        MediaCarouselRow(
+                            title = "New Podcast Episodes",
+                            items = state.recentPodcasts,
+                            onSeeAllClick = { onSeeAllClick(MediaRoutes.PODCASTS) }
+                        ) { item ->
+                            MediaSquareCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                size = MediaSizes.CardMedium
+                            )
+                        }
+                    }
+                }
+                
+                // Movies & TV (from Plex/Jellyfin/Emby)
+                if (state.recentVideos.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        MediaCarouselRow(
+                            title = "Recently Added Movies & TV",
+                            items = state.recentVideos,
+                            onSeeAllClick = { onSeeAllClick(MediaRoutes.MOVIES) }
+                        ) { item ->
+                            MediaPosterCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                width = MediaSizes.CardMedium
+                            )
+                        }
+                    }
+                }
+                
+                // Audiobooks
+                if (state.recentAudiobooks.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        MediaCarouselRow(
+                            title = "Recent Audiobooks",
+                            items = state.recentAudiobooks,
+                            onSeeAllClick = { onSeeAllClick(MediaRoutes.AUDIOBOOKS) }
+                        ) { item ->
+                            MediaPosterCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                width = MediaSizes.CardMedium
+                            )
+                        }
+                    }
+                }
+                
+                // Comics
+                if (state.recentComics.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        MediaCarouselRow(
+                            title = "Recently Added Comics",
+                            items = state.recentComics,
+                            onSeeAllClick = { onSeeAllClick(MediaRoutes.COMICS) }
+                        ) { item ->
+                            MediaPosterCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                width = MediaSizes.CardMedium
+                            )
+                        }
+                    }
+                }
+                
+                // Web Fiction
+                if (state.recentFanfiction.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        MediaCarouselRow(
+                            title = "Web Fiction Updates",
+                            items = state.recentFanfiction,
+                            onSeeAllClick = { onSeeAllClick(MediaRoutes.WEB_FICTION) }
+                        ) { item ->
+                            MediaPosterCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                width = MediaSizes.CardMedium
+                            )
+                        }
+                    }
+                }
+                
+                // Collections
+                if (state.collections.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        CollectionsSection(
+                            collections = state.collections,
+                            onCollectionClick = { onSeeAllClick(MediaRoutes.collectionDetailRoute(it.id)) }
+                        )
+                    }
+                }
+                
+                // Quick Access Grid - ALWAYS show this
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    QuickAccessGrid(
+                        onCategoryClick = onSeeAllClick
                     )
                 }
-            }
-            
-            // Quick Stats Row
-            item {
-                QuickStatsRow(stats = state.libraryStats)
-            }
-            
-            // Continue Section (Reading, Watching, Listening)
-            if (state.continueItems.isNotEmpty()) {
+                
+                // Bottom padding
                 item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    MediaCarouselRow(
-                        title = "Continue Where You Left Off",
-                        items = state.continueItems,
-                        onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) }
-                    ) { item ->
-                        MediaWideCard(
-                            item = item,
-                            onClick = { onItemClick(item) },
-                            width = MediaSizes.CardXLarge
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(MediaSpacing.Huge))
                 }
-            }
-            
-            // Recently Added Books
-            if (state.recentBooks.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    MediaCarouselRow(
-                        title = "Recently Added Books",
-                        items = state.recentBooks,
-                        onSeeAllClick = { onSeeAllClick(MediaRoutes.BOOKS) }
-                    ) { item ->
-                        MediaPosterCard(
-                            item = item,
-                            onClick = { onItemClick(item) },
-                            width = MediaSizes.CardMedium
-                        )
-                    }
-                }
-            }
-            
-            // Recently Added Music
-            if (state.recentMusic.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    MediaCarouselRow(
-                        title = "Recently Added Music",
-                        items = state.recentMusic,
-                        onSeeAllClick = { onSeeAllClick(MediaRoutes.MUSIC) }
-                    ) { item ->
-                        MediaSquareCard(
-                            item = item,
-                            onClick = { onItemClick(item) },
-                            size = MediaSizes.CardMedium
-                        )
-                    }
-                }
-            }
-            
-            // Podcasts
-            if (state.recentPodcasts.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    MediaCarouselRow(
-                        title = "New Podcast Episodes",
-                        items = state.recentPodcasts,
-                        onSeeAllClick = { onSeeAllClick(MediaRoutes.PODCASTS) }
-                    ) { item ->
-                        MediaSquareCard(
-                            item = item,
-                            onClick = { onItemClick(item) },
-                            size = MediaSizes.CardMedium
-                        )
-                    }
-                }
-            }
-            
-            // Movies & TV (from Plex/Jellyfin/Emby)
-            if (state.recentVideos.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    MediaCarouselRow(
-                        title = "Recently Added Movies & TV",
-                        items = state.recentVideos,
-                        onSeeAllClick = { onSeeAllClick(MediaRoutes.MOVIES) }
-                    ) { item ->
-                        MediaPosterCard(
-                            item = item,
-                            onClick = { onItemClick(item) },
-                            width = MediaSizes.CardMedium
-                        )
-                    }
-                }
-            }
-            
-            // Audiobooks
-            if (state.recentAudiobooks.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    MediaCarouselRow(
-                        title = "Recent Audiobooks",
-                        items = state.recentAudiobooks,
-                        onSeeAllClick = { onSeeAllClick(MediaRoutes.AUDIOBOOKS) }
-                    ) { item ->
-                        MediaPosterCard(
-                            item = item,
-                            onClick = { onItemClick(item) },
-                            width = MediaSizes.CardMedium
-                        )
-                    }
-                }
-            }
-            
-            // Comics
-            if (state.recentComics.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    MediaCarouselRow(
-                        title = "Recently Added Comics",
-                        items = state.recentComics,
-                        onSeeAllClick = { onSeeAllClick(MediaRoutes.COMICS) }
-                    ) { item ->
-                        MediaPosterCard(
-                            item = item,
-                            onClick = { onItemClick(item) },
-                            width = MediaSizes.CardMedium
-                        )
-                    }
-                }
-            }
-            
-            // Web Fiction
-            if (state.recentFanfiction.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    MediaCarouselRow(
-                        title = "Web Fiction Updates",
-                        items = state.recentFanfiction,
-                        onSeeAllClick = { onSeeAllClick(MediaRoutes.WEB_FICTION) }
-                    ) { item ->
-                        MediaPosterCard(
-                            item = item,
-                            onClick = { onItemClick(item) },
-                            width = MediaSizes.CardMedium
-                        )
-                    }
-                }
-            }
-            
-            // Collections
-            if (state.collections.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    CollectionsSection(
-                        collections = state.collections,
-                        onCollectionClick = { onSeeAllClick(MediaRoutes.collectionDetailRoute(it.id)) }
-                    )
-                }
-            }
-            
-            // Quick Access Grid
-            item {
-                Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                QuickAccessGrid(
-                    onCategoryClick = onSeeAllClick
-                )
-            }
-            
-            // Bottom padding
-            item {
-                Spacer(modifier = Modifier.height(MediaSpacing.Huge))
             }
         }
         
@@ -274,6 +314,187 @@ fun MediaHomeScreen(
             PlexTopBar(
                 onSearchClick = onSearchClick,
                 onNotificationClick = onNotificationClick
+            )
+        }
+    }
+}
+
+// =============================================================================
+// WELCOME SECTION (Empty Library State)
+// =============================================================================
+
+@Composable
+private fun WelcomeSection(
+    onSearchClick: () -> Unit,
+    onBrowseClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal)
+            .padding(top = MediaSpacing.Huge, bottom = MediaSpacing.XL),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Welcome Icon
+        Surface(
+            modifier = Modifier.size(80.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+        ) {
+            Icon(
+                imageVector = Icons.Default.LibraryBooks,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(MediaSpacing.LG)
+                    .fillMaxSize(),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.LG))
+        
+        // Welcome Title
+        Text(
+            text = "Welcome to CleverFerret",
+            style = MediaTypography.TitleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.SM))
+        
+        // Subtitle
+        Text(
+            text = "Your universal media library",
+            style = MediaTypography.BodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.XL))
+        
+        // Getting Started Card
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(MediaCorners.Card),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            tonalElevation = 2.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(MediaSpacing.LG)
+            ) {
+                Text(
+                    text = "Get Started",
+                    style = MediaTypography.TitleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+                
+                Spacer(modifier = Modifier.height(MediaSpacing.MD))
+                
+                GettingStartedItem(
+                    icon = Icons.Default.FolderOpen,
+                    title = "Add Local Files",
+                    description = "Import books, music, and videos from your device"
+                )
+                
+                Spacer(modifier = Modifier.height(MediaSpacing.SM))
+                
+                GettingStartedItem(
+                    icon = Icons.Default.CloudDownload,
+                    title = "Browse OPDS Catalogs",
+                    description = "Discover free ebooks from online libraries",
+                    onClick = onBrowseClick
+                )
+                
+                Spacer(modifier = Modifier.height(MediaSpacing.SM))
+                
+                GettingStartedItem(
+                    icon = Icons.Default.Podcasts,
+                    title = "Subscribe to Podcasts",
+                    description = "Add your favorite podcast feeds"
+                )
+                
+                Spacer(modifier = Modifier.height(MediaSpacing.SM))
+                
+                GettingStartedItem(
+                    icon = Icons.Default.Search,
+                    title = "Search & Discover",
+                    description = "Find content across all your media",
+                    onClick = onSearchClick
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.XL))
+        
+        // Hint text
+        Text(
+            text = "Explore the categories below to start building your library",
+            style = MediaTypography.BodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun GettingStartedItem(
+    icon: ImageVector,
+    title: String,
+    description: String,
+    onClick: (() -> Unit)? = null
+) {
+    val interactionModifier = if (onClick != null) {
+        Modifier.clickable(onClick = onClick)
+    } else {
+        Modifier
+    }
+    
+    Row(
+        modifier = interactionModifier
+            .fillMaxWidth()
+            .padding(vertical = MediaSpacing.SM),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            modifier = Modifier.size(40.dp),
+            shape = RoundedCornerShape(MediaCorners.SM),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(MediaSpacing.SM)
+                    .fillMaxSize(),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        
+        Spacer(modifier = Modifier.width(MediaSpacing.MD))
+        
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MediaTypography.BodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = description,
+                style = MediaTypography.BodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        
+        if (onClick != null) {
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                modifier = Modifier.size(MediaSizes.IconMD),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
