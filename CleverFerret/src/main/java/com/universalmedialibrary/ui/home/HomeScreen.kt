@@ -141,31 +141,7 @@ fun HomeScreen(
             }
         }
 
-        // Floating Settings Gear (Top Right)
-        IconButton(
-            onClick = onNavigateToSettings,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .statusBarsPadding() // Ensure it doesn't clip under status bar
-                .padding(16.dp)
-                .size(48.dp)
-        ) {
-            // Use a themed surface/background for visibility
-            Surface(
-                shape = if (isAncientArchitect) AncientArchitectShapes.beveledSmall else MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                modifier = Modifier.fillMaxSize(),
-                tonalElevation = 4.dp
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        }
+        // Note: Settings gear is now in the bottom navigation bar, so removed duplicate here
         
         if (uiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -179,7 +155,7 @@ fun SearchBarButton(onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .padding(end = 64.dp) // Space for settings gear
+            .padding(start = 56.dp) // Space for hamburger menu
             .clickable(onClick = onClick),
         shape = if (LocalIsAncientArchitect.current) AncientArchitectShapes.beveledSmall else RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
