@@ -329,6 +329,13 @@ class ReaderViewModel @Inject constructor(
                             return@launch
                         }
                     }
+                    // Update UI state for deletion
+                    _uiState.update { state ->
+                        state.copy(
+                            bookmarks = state.bookmarks.filter { it.page != currentPage },
+                            isCurrentPageBookmarked = false
+                        )
+                    }
                 } else {
                     // Add bookmark with correct Bookmark entity parameters
                     val newBookmark = Bookmark(
@@ -339,26 +346,10 @@ class ReaderViewModel @Inject constructor(
                         dateCreated = System.currentTimeMillis()
                     )
                     bookmarkRepository.insertBookmark(newBookmark)
-                }
-                
-                // Update UI state
-                _uiState.update { state ->
-                    val newBookmarks = if (isBookmarked) {
-                        state.bookmarks.filter { it.page != currentPage }
-                    } else {
-                        state.bookmarks + BookmarkInfo(
-                            id = "bookmark_${System.currentTimeMillis()}",
-                            page = currentPage,
-                            chapter = state.currentChapter?.title ?: "",
-                            excerpt = state.currentContent.text.take(100),
-                            timestamp = System.currentTimeMillis()
-                        )
-                    }
                     
-                    state.copy(
-                        bookmarks = newBookmarks,
-                        isCurrentPageBookmarked = !isBookmarked
-                    )
+                    // Reload bookmarks to get the actual database-assigned ID
+                    // This ensures the UI has the correct ID for future deletion
+                    loadBookmarks(itemId)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error toggling bookmark", e)

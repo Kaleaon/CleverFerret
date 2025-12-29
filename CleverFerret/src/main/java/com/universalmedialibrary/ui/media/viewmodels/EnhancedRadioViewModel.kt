@@ -1,5 +1,7 @@
 package com.universalmedialibrary.ui.media.viewmodels
 
+import android.content.Context
+import android.os.Environment
 import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,8 +13,10 @@ import com.universalmedialibrary.services.radio.FMRadioService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.ui.media.screens.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 private const val TAG = "EnhancedRadioViewModel"
@@ -28,6 +32,7 @@ private const val TAG = "EnhancedRadioViewModel"
  */
 @HiltViewModel
 class EnhancedRadioViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val radioBrowserService: RadioBrowserService,
     private val fmRadioService: FMRadioService,
     private val exoPlayerService: ExoPlayerService
@@ -110,11 +115,13 @@ class EnhancedRadioViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 val stations = radioBrowserService.fetchTopStations(limit = 50)
-                val uiStations = stations.map { station ->
+                // Filter out stations with null/blank streamUrl to prevent playback failures
+                val uiStations = stations.mapNotNull { station ->
+                    val url = station.streamUrl?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
                     RadioStation(
                         id = station.id.toString(),
                         name = station.name,
-                        streamUrl = station.streamUrl ?: "",
+                        streamUrl = url,
                         logoUrl = station.logoUrl,
                         genre = station.genre ?: station.tags ?: "",
                         country = station.country,
@@ -206,14 +213,20 @@ class EnhancedRadioViewModel @Inject constructor(
     fun startFMRecording() {
         viewModelScope.launch {
             try {
-                val recordingDir = java.io.File(
-                    android.os.Environment.getExternalStoragePublicDirectory(
-                        android.os.Environment.DIRECTORY_MUSIC
-                    ),
-                    "FM_Recordings"
-                )
-                if (!recordingDir.exists()) recordingDir.mkdirs()
-                val outputFile = java.io.File(recordingDir, "fm_recording_${System.currentTimeMillis()}.m4a")
+                // Use app-specific storage for Android 10+ compatibility
+                val recordingDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
+                    ?.let { File(it, "FM_Recordings") }
+                    ?: run {
+                        _fmState.update { it.copy(error = "Cannot access storage") }
+                        return@launch
+                    }
+                
+                if (!recordingDir.exists() && !recordingDir.mkdirs()) {
+                    _fmState.update { it.copy(error = "Failed to create recording directory") }
+                    return@launch
+                }
+                
+                val outputFile = File(recordingDir, "fm_recording_${System.currentTimeMillis()}.m4a")
                 val success = fmRadioService.startRecording(outputFile)
                 if (!success) {
                     _fmState.update { it.copy(error = "Failed to start recording") }
@@ -283,8 +296,6 @@ class EnhancedRadioViewModel @Inject constructor(
     fun playInternetStation(station: RadioStation) {
         viewModelScope.launch {
             try {
-                _uiState.update { it.copy(nowPlaying = station) }
-                
                 // Use ExoPlayerService for actual playback
                 exoPlayerService.loadMediaWithSession(
                     mediaPath = station.streamUrl,
@@ -292,6 +303,9 @@ class EnhancedRadioViewModel @Inject constructor(
                     artist = station.genre
                 )
                 exoPlayerService.play()
+                
+                // Update nowPlaying only after successful playback initiation
+                _uiState.update { it.copy(nowPlaying = station) }
                 
                 // Add to recently played
                 val recentlyPlayed = _uiState.value.recentlyPlayed.toMutableList()
@@ -303,7 +317,7 @@ class EnhancedRadioViewModel @Inject constructor(
                 Log.d(TAG, "Playing station: ${station.name}")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to play station: ${station.name}", e)
-                _uiState.update { it.copy(error = "Failed to play station: ${e.message}") }
+                _uiState.update { it.copy(error = "Failed to play station: ${e.message}", nowPlaying = null) }
             }
         }
     }
@@ -320,12 +334,14 @@ class EnhancedRadioViewModel @Inject constructor(
             _uiState.update { it.copy(isSearching = true, error = null) }
             try {
                 val stations = radioBrowserService.searchStations(query = query, limit = 50)
-                val uiStations = stations.map { station ->
+                // Filter out stations with null/blank streamUrl to prevent playback failures
+                val uiStations = stations.mapNotNull { station ->
+                    val url = station.streamUrl?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
                     val stationId = station.id.toString()
                     RadioStation(
                         id = stationId,
                         name = station.name,
-                        streamUrl = station.streamUrl ?: "",
+                        streamUrl = url,
                         logoUrl = station.logoUrl,
                         genre = station.genre ?: station.tags ?: "",
                         country = station.country,
@@ -372,12 +388,14 @@ class EnhancedRadioViewModel @Inject constructor(
                 }
                 
                 val stations = radioBrowserService.searchStations(query = "", tag = tag, limit = 50)
-                val uiStations = stations.map { station ->
+                // Filter out stations with null/blank streamUrl to prevent playback failures
+                val uiStations = stations.mapNotNull { station ->
+                    val url = station.streamUrl?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
                     val stationId = station.id.toString()
                     RadioStation(
                         id = stationId,
                         name = station.name,
-                        streamUrl = station.streamUrl ?: "",
+                        streamUrl = url,
                         logoUrl = station.logoUrl,
                         genre = station.genre ?: station.tags ?: "",
                         country = station.country,
@@ -449,8 +467,9 @@ class EnhancedRadioViewModel @Inject constructor(
     
     override fun onCleared() {
         super.onCleared()
-        // Stop playback when ViewModel is cleared
+        // Stop all playback when ViewModel is cleared
         exoPlayerService.stop()
+        fmRadioService.stop()
     }
 }
 
