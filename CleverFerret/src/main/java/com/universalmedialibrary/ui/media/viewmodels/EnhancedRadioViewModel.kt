@@ -199,14 +199,15 @@ class EnhancedRadioViewModel @Inject constructor(
     
     fun toggleFMMute() {
         viewModelScope.launch {
-            // Mute is handled by toggling playback state
-            val currentMuted = _fmState.value.isMuted
-            if (currentMuted) {
-                fmRadioService.play()
-            } else {
+            // isMuted is derived from isPlaying, so just toggle play/stop
+            // The isMuted property is computed from isPlaying in FMRadioState
+            if (_fmState.value.isPlaying) {
                 fmRadioService.stop()
+            } else {
+                fmRadioService.play()
             }
-            _fmState.update { it.copy(isMuted = !currentMuted) }
+            // No need to manually update isMuted - it's derived from isPlaying
+            // which is observed and updated by observeFMRadioState()
         }
     }
     
@@ -500,10 +501,13 @@ data class FMRadioState(
     val radioText: String? = null,
     val isPlaying: Boolean = false,
     val isRecording: Boolean = false,
-    val isMuted: Boolean = false,
     val isHardwareAvailable: Boolean = false,
     val error: String? = null
-)
+) {
+    // Derive muted state from isPlaying to keep them synchronized
+    // When not playing, we consider it "muted" from the user's perspective
+    val isMuted: Boolean get() = !isPlaying
+}
 
 data class HDRadioState(
     val currentStation: HDStationInfo? = null,

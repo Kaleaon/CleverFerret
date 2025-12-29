@@ -378,10 +378,13 @@ class ReaderViewModel @Inject constructor(
             val itemId = mediaId.toLongOrNull() ?: return
             val state = _uiState.value
             
+            // Compute percentage directly from currentPage/totalPages to avoid stale overallProgress
+            val percentage = (state.currentPage.toFloat() / state.totalPages.coerceAtLeast(1)) * 100f
+            
             readingProgressRepository.updateProgress(
                 itemId = itemId,
                 currentPage = state.currentPage,
-                percentage = state.overallProgress * 100f, // Convert to percentage
+                percentage = percentage,
                 currentChapter = state.currentChapterIndex + 1
             )
         } catch (e: Exception) {
@@ -390,13 +393,17 @@ class ReaderViewModel @Inject constructor(
     }
     
     override fun onCleared() {
-        // Save final progress synchronously before the ViewModel is destroyed
-        // Using NonCancellable to ensure it completes even during cancellation
-        runBlocking {
-            withContext(NonCancellable) {
+        super.onCleared()
+        // Save final progress asynchronously on IO dispatcher
+        // Progress is also saved on every page change in goToPage(), so this is a safety net
+        // Using GlobalScope with NonCancellable to ensure it completes after ViewModel destruction
+        @OptIn(DelicateCoroutinesApi::class)
+        GlobalScope.launch(Dispatchers.IO + NonCancellable) {
+            try {
                 saveProgressInternal()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to save final progress on exit", e)
             }
         }
-        super.onCleared()
     }
 }

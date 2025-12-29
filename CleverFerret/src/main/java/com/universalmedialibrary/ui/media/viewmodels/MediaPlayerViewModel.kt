@@ -373,6 +373,8 @@ class VideoPlayerViewModel @Inject constructor(
     
     override fun onCleared() {
         super.onCleared()
-        exoPlayerService.release()
+        // Don't release ExoPlayerService here - it's a shared singleton
+        // that may be used by other ViewModels (e.g., radio, music player)
+        // The service manages its own lifecycle
     }
 }
