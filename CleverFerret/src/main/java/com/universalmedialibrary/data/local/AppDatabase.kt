@@ -171,10 +171,24 @@ import com.universalmedialibrary.data.Tag
         SessionVote::class,
 
         // Dictionary
-        DictionaryEntry::class
+        DictionaryEntry::class,
+
+        // Enhanced Tag System
+        TagHierarchy::class,
+        TagSynonym::class,
+        TagCategory::class,
+        TagCategoryAssignment::class,
+        SmartTagRule::class,
+        TagAnalytics::class,
+        RelatedTag::class,
+
+        // Smart Collections
+        SmartCollectionRule::class,
+        SmartCollectionCache::class,
+        DismissedSuggestion::class
 
     ],
-    version = 42,
+    version = 43,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -277,6 +291,10 @@ abstract class AppDatabase : RoomDatabase() {
     // Collaborative Session DAO
     abstract fun collaborativeSessionDao(): CollaborativeSessionDao
 
+    // Enhanced Tag System DAOs
+    abstract fun tagHierarchyDao(): TagHierarchyDao
+    abstract fun smartCollectionDao(): SmartCollectionDao
+
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
@@ -310,7 +328,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_35_36,
                         AppDatabaseMigrations.MIGRATION_36_37,
                         AppDatabaseMigrations.MIGRATION_37_38,
-                        AppDatabaseMigrations.MIGRATION_38_39
+                        AppDatabaseMigrations.MIGRATION_38_39,
+                        AppDatabaseMigrations.MIGRATION_42_43
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

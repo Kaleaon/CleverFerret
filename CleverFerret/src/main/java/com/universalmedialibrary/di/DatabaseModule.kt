@@ -371,4 +371,30 @@ object DatabaseModule {
         return database.dictionaryDao()
     }
 
+    /**
+     * Provides the DAO for tag hierarchy operations including
+     * parent-child relationships, synonyms, and categories.
+     */
+    @Provides
+    fun provideTagHierarchyDao(database: AppDatabase): TagHierarchyDao {
+        return database.tagHierarchyDao()
+    }
+
+    /**
+     * Provides the DAO for smart collection operations including
+     * auto-suggested playlists, book series, and movie collections.
+     */
+    @Provides
+    fun provideSmartCollectionDao(database: AppDatabase): SmartCollectionDao {
+        return database.smartCollectionDao()
+    }
+
+    /**
+     * Provides the DAO for search history operations.
+     */
+    @Provides
+    fun provideSearchHistoryDao(database: AppDatabase): SearchHistoryDao {
+        return database.searchHistoryDao()
+    }
+
 }

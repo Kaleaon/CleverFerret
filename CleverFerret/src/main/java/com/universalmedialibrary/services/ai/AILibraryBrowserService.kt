@@ -72,8 +72,8 @@ class AILibraryBrowserService @Inject constructor(
             
             val progress = when (item.mediaType) {
                 "BOOK", "COMIC" -> {
-                    readingProgressDao.getProgressByItemId(itemId)?.let {
-                        it.currentPosition.toFloat() / maxOf(it.totalLength, 1).toFloat()
+                    readingProgressDao.getProgressByItemIdSnapshot(itemId)?.let {
+                        it.percentage / 100f  // Convert percentage (0-100) to 0-1 range
                     }
                 }
                 else -> null
@@ -107,9 +107,9 @@ class AILibraryBrowserService @Inject constructor(
     suspend fun getReadingProgress(bookId: Long? = null): List<ReadingProgressInfo> = withContext(Dispatchers.IO) {
         try {
             val progressList = if (bookId != null) {
-                listOfNotNull(readingProgressDao.getProgressByItemId(bookId))
+                listOfNotNull(readingProgressDao.getProgressByItemIdSnapshot(bookId))
             } else {
-                readingProgressDao.getAllProgress()
+                readingProgressDao.getAllProgressSnapshot()
             }
             
             progressList.mapNotNull { progress ->
@@ -120,12 +120,10 @@ class AILibraryBrowserService @Inject constructor(
                     ReadingProgressInfo(
                         bookId = item.itemId,
                         title = metadata?.title ?: item.fileName,
-                        progressPercent = if (progress.totalLength > 0) {
-                            (progress.currentPosition * 100 / progress.totalLength).toInt()
-                        } else 0,
-                        currentPage = progress.currentPosition.toInt(),
-                        totalPages = progress.totalLength.toInt(),
-                        lastRead = progress.lastUpdated
+                        progressPercent = progress.percentage.toInt(),
+                        currentPage = progress.currentPage,
+                        totalPages = progress.pagesRead + progress.currentPage, // Approximate total
+                        lastRead = progress.lastUpdate
                     )
                 } else null
             }
@@ -201,8 +199,8 @@ class AILibraryBrowserService @Inject constructor(
                 for (genre in topGenres) {
                     val items = mediaItemDao.getByGenre(genre, 5, 0)
                     items.forEach { item ->
-                        val progress = readingProgressDao.getProgressByItemId(item.itemId)
-                        if (progress == null || progress.currentPosition == 0L) {
+                        val progress = readingProgressDao.getProgressByItemIdSnapshot(item.itemId)
+                        if (progress == null || progress.percentage == 0f) {
                             val meta = metadataDao.getCommonMetadataByItemId(item.itemId)
                             val people = metadataDao.getPeopleForItem(item.itemId)
                             recommendations.add(RecommendationItem(
@@ -221,8 +219,8 @@ class AILibraryBrowserService @Inject constructor(
                 for (author in topAuthors) {
                     val items = mediaItemDao.getByAuthor(author, 3, 0)
                     items.forEach { item ->
-                        val progress = readingProgressDao.getProgressByItemId(item.itemId)
-                        if (progress == null || progress.currentPosition == 0L) {
+                        val progress = readingProgressDao.getProgressByItemIdSnapshot(item.itemId)
+                        if (progress == null || progress.percentage == 0f) {
                             val meta = metadataDao.getCommonMetadataByItemId(item.itemId)
                             if (recommendations.none { it.title == (meta?.title ?: item.fileName) }) {
                                 recommendations.add(RecommendationItem(

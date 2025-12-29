@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -75,6 +76,15 @@ object MediaRoutes {
     const val COLLECTION_DETAIL = "collection/{collectionId}"
     const val TAGS = "tags"
     const val TAG_DETAIL = "tag/{tagId}"
+    const val TAG_MANAGER = "tag_manager"
+    const val TAG_EXPLORER = "tag_explorer"
+    const val SMART_COLLECTIONS = "smart_collections"
+    const val SMART_COLLECTION_DETAIL = "smart_collection/{ruleId}"
+    const val ENHANCED_SEARCH = "enhanced_search"
+    const val UNIVERSAL_SEARCH = "universal_search"
+    
+    // Helper for smart collection detail
+    fun smartCollectionDetailRoute(ruleId: Long) = "smart_collection/$ruleId"
     
     // Special features
     const val AMBIENT_SOUNDS = "ambient"
@@ -987,6 +997,71 @@ fun MediaAppNavHost(
                 onEditCollection = { /* Show edit dialog */ },
                 onBackClick = { navController.popBackStack() }
             )
+        }
+        
+        // Tag Manager - Full tag management with hierarchies and categories
+        composable(MediaRoutes.TAG_MANAGER) {
+            com.universalmedialibrary.ui.tags.UniversalTagManagerScreen(
+                navController = navController
+            )
+        }
+        
+        // Tag Explorer - Browse and filter by tags
+        composable(MediaRoutes.TAG_EXPLORER) {
+            com.universalmedialibrary.ui.tags.UniversalTagExplorerScreen(
+                navController = navController
+            )
+        }
+        
+        // Smart Collections - Auto-suggested playlists, series, and collections
+        composable(MediaRoutes.SMART_COLLECTIONS) {
+            com.universalmedialibrary.ui.collections.SmartCollectionsScreen(
+                navController = navController
+            )
+        }
+        
+        // Smart Collection Detail
+        composable(
+            route = MediaRoutes.SMART_COLLECTION_DETAIL,
+            arguments = listOf(navArgument("ruleId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val ruleId = backStackEntry.arguments?.getLong("ruleId") ?: 0L
+            // Would create a SmartCollectionDetailScreen to show items in the smart collection
+            // For now, navigate back
+            LaunchedEffect(Unit) {
+                navController.popBackStack()
+            }
+        }
+        
+        // Enhanced Search with filters
+        composable(
+            route = MediaRoutes.ENHANCED_SEARCH,
+            arguments = listOf(
+                navArgument("query") { 
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("tags") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("mediaTypes") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
+            com.universalmedialibrary.ui.search.EnhancedSearchScreen(
+                navController = navController
+            )
+        }
+        
+        // Universal Search - Search across formats, tags, and media
+        composable(MediaRoutes.UNIVERSAL_SEARCH) {
+            com.universalmedialibrary.ui.search.UniversalSearchScreen()
         }
         
         // =====================================================================
