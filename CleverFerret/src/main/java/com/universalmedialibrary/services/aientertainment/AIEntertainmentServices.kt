@@ -390,7 +390,7 @@ class SynthCharacterService @Inject constructor(
 
 /**
  * Chat Service - Manages conversations with AI characters
- * Enhanced with AI tools, logging, and library browsing capabilities
+ * Enhanced with AI tools, logging, library browsing, and MCP memory expansion capabilities
  */
 @Singleton
 class SynthChatService @Inject constructor(
@@ -404,6 +404,7 @@ class SynthChatService @Inject constructor(
     private var aiToolsService: com.universalmedialibrary.services.ai.AIToolsService? = null
     private var aiLogStorageService: com.universalmedialibrary.services.ai.AILogStorageService? = null
     private var aiSettings: com.universalmedialibrary.data.preferences.AISettingsPreferencesStore? = null
+    private var mcpMemoryService: MCPMemoryService? = null
     
     fun setAIToolsService(service: com.universalmedialibrary.services.ai.AIToolsService) {
         aiToolsService = service
@@ -415,6 +416,13 @@ class SynthChatService @Inject constructor(
     
     fun setAISettingsStore(settings: com.universalmedialibrary.data.preferences.AISettingsPreferencesStore) {
         aiSettings = settings
+    }
+    
+    /**
+     * Set the MCP Memory Service for memory expansion capabilities
+     */
+    fun setMCPMemoryService(service: MCPMemoryService) {
+        mcpMemoryService = service
     }
     
     private val _messages = MutableStateFlow<List<SynthMessage>>(emptyList())
@@ -469,6 +477,20 @@ class SynthChatService @Inject constructor(
         _isLoading.value = true
         try {
             _messages.value = repository.getMessagesOnce(characterId)
+            
+            // Initialize memory service for this character
+            mcpMemoryService?.let { memoryService ->
+                memoryService.setActiveCharacter(characterId)
+                
+                // Apply memory decay in background (reduce importance of stale memories)
+                kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        memoryService.applyMemoryDecay()
+                    } catch (e: Exception) {
+                        // Ignore decay errors
+                    }
+                }
+            }
         } finally {
             _isLoading.value = false
         }
@@ -476,6 +498,9 @@ class SynthChatService @Inject constructor(
     
     suspend fun sendMessage(character: SynthCharacter, content: String): SynthMessage? {
         if (content.isBlank()) return null
+        
+        // Set active character in memory service
+        mcpMemoryService?.setActiveCharacter(character.id)
         
         // Add user message
         val userMessage = repository.addMessage(
@@ -504,6 +529,31 @@ class SynthChatService @Inject constructor(
             
             if (assistantMessage != null) {
                 _messages.value = _messages.value + assistantMessage
+                
+                // Store conversation in memory and extract important information
+                kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        // Store the conversation exchange as a memory
+                        val memoryKey = "conversation_${System.currentTimeMillis()}"
+                        mcpMemoryService?.storeConversationMemory(
+                            characterId = character.id,
+                            key = memoryKey,
+                            content = "User: ${content.take(200)}\nAssistant: ${response.content.take(200)}",
+                            memoryType = "conversation",
+                            importance = 0.4f
+                        )
+                        
+                        // Extract and store any important memories from the exchange
+                        mcpMemoryService?.extractAndStoreMemories(
+                            characterId = character.id,
+                            userMessage = content,
+                            aiResponse = response.content
+                        )
+                    } catch (e: Exception) {
+                        // Memory storage errors should not affect chat flow
+                    }
+                }
+                
                 _isTyping.value = false
                 return assistantMessage
             }
@@ -590,8 +640,24 @@ class SynthChatService @Inject constructor(
     private suspend fun callOpenAI(character: SynthCharacter, userInput: String): String? = withContext(Dispatchers.IO) {
         val messages = mutableListOf<Map<String, String>>()
         
-        // System prompt
-        messages.add(mapOf("role" to "system", "content" to character.fullSystemPrompt))
+        // Build enhanced system prompt with memory context
+        val memorySystemPrompt = mcpMemoryService?.buildMemorySystemPrompt() ?: ""
+        val fullSystemPrompt = if (memorySystemPrompt.isNotEmpty()) {
+            "${character.fullSystemPrompt}\n\n$memorySystemPrompt"
+        } else {
+            character.fullSystemPrompt
+        }
+        
+        messages.add(mapOf("role" to "system", "content" to fullSystemPrompt))
+        
+        // Add relevant memory context from MCP service
+        val memoryContext = mcpMemoryService?.getConversationContext(userInput, maxTokens = 500)
+        if (!memoryContext.isNullOrBlank()) {
+            messages.add(mapOf(
+                "role" to "system", 
+                "content" to "[Relevant memories and context from previous conversations]\n$memoryContext"
+            ))
+        }
         
         // Recent conversation history
         val recentMessages = _messages.value.takeLast(5)
@@ -749,6 +815,114 @@ class SynthChatService @Inject constructor(
      */
     fun getAvailableTools(): List<com.universalmedialibrary.services.ai.AITool> {
         return aiToolsService?.availableTools ?: emptyList()
+    }
+    
+    // ==================== MCP Memory Integration ====================
+    
+    /**
+     * Execute an MCP memory tool
+     */
+    suspend fun executeMemoryTool(
+        character: SynthCharacter,
+        toolName: String,
+        arguments: Map<String, Any>
+    ): Result<String> {
+        val memoryService = mcpMemoryService 
+            ?: return Result.failure(Exception("Memory service not available"))
+        
+        // Ensure character is set
+        memoryService.setActiveCharacter(character.id)
+        
+        return try {
+            val result = memoryService.executeTool(toolName, arguments)
+            if (result.success) {
+                Result.success(result.summary ?: "Memory operation completed")
+            } else {
+                Result.failure(Exception(result.error ?: "Unknown error"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Get available MCP memory tools for the character
+     */
+    fun getMemoryTools(): List<com.universalmedialibrary.data.aientertainment.MCPMemoryTool> {
+        return mcpMemoryService?.getMCPTools() ?: emptyList()
+    }
+    
+    /**
+     * Store a specific memory for the current character
+     */
+    suspend fun rememberForCharacter(
+        character: SynthCharacter,
+        key: String,
+        content: String,
+        memoryType: String = "fact",
+        importance: Float = 0.5f
+    ): Result<Long> {
+        val memoryService = mcpMemoryService 
+            ?: return Result.failure(Exception("Memory service not available"))
+        
+        memoryService.setActiveCharacter(character.id)
+        
+        return try {
+            val result = memoryService.executeTool("remember", mapOf(
+                "key" to key,
+                "content" to content,
+                "type" to memoryType,
+                "importance" to importance
+            ))
+            
+            if (result.success) {
+                // Parse the result to get the memory ID from the data
+                val memoryId = result.data?.get("memoryId")?.toString()?.toLongOrNull() ?: 0L
+                Result.success(memoryId)
+            } else {
+                Result.failure(Exception(result.error ?: "Failed to store memory"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Recall memories for the current character
+     */
+    suspend fun recallForCharacter(
+        character: SynthCharacter,
+        query: String,
+        limit: Int = 10
+    ): List<com.universalmedialibrary.data.aientertainment.SynthMemory> {
+        val memoryService = mcpMemoryService ?: return emptyList()
+        
+        memoryService.setActiveCharacter(character.id)
+        
+        return try {
+            repository.searchMemories(character.id, query, limit)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+    
+    /**
+     * Apply memory decay for a character (reduce importance of old, unused memories)
+     */
+    suspend fun applyMemoryDecayForCharacter(character: SynthCharacter) {
+        try {
+            mcpMemoryService?.setActiveCharacter(character.id)
+            mcpMemoryService?.applyMemoryDecay()
+        } catch (e: Exception) {
+            // Ignore decay errors
+        }
+    }
+    
+    /**
+     * Get memory statistics for a character
+     */
+    suspend fun getMemoryStatsForCharacter(character: SynthCharacter): com.universalmedialibrary.data.aientertainment.MemoryStats {
+        return repository.getMemoryStats(character.id)
     }
     
     // ==================== Logging Integration ====================

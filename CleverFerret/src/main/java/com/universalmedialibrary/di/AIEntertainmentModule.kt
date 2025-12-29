@@ -84,6 +84,44 @@ object AIEntertainmentModule {
         return database.synthPersonalityEventDao()
     }
     
+    // ==================== AI Memory DAO Providers ====================
+    
+    @Provides
+    @Singleton
+    fun provideSynthMemoryStoreDao(database: AIEntertainmentDatabase): SynthMemoryStoreDao {
+        return database.synthMemoryStoreDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSynthMemoryCategoryDao(database: AIEntertainmentDatabase): SynthMemoryCategoryDao {
+        return database.synthMemoryCategoryDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSynthMemoryDao(database: AIEntertainmentDatabase): SynthMemoryDao {
+        return database.synthMemoryDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSynthMemoryBlockDao(database: AIEntertainmentDatabase): SynthMemoryBlockDao {
+        return database.synthMemoryBlockDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSynthMemorySyncRecordDao(database: AIEntertainmentDatabase): SynthMemorySyncRecordDao {
+        return database.synthMemorySyncRecordDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSynthMemoryAccessLogDao(database: AIEntertainmentDatabase): SynthMemoryAccessLogDao {
+        return database.synthMemoryAccessLogDao()
+    }
+    
     // ==================== Repository Provider ====================
     
     @Provides
@@ -97,7 +135,14 @@ object AIEntertainmentModule {
         invitationDao: SynthRoomInvitationDao,
         branchDao: SynthMemoryBranchDao,
         documentDao: SynthDocumentImportDao,
-        eventDao: SynthPersonalityEventDao
+        eventDao: SynthPersonalityEventDao,
+        // AI Memory DAOs
+        memoryStoreDao: SynthMemoryStoreDao,
+        memoryCategoryDao: SynthMemoryCategoryDao,
+        memoryDao: SynthMemoryDao,
+        memoryBlockDao: SynthMemoryBlockDao,
+        memorySyncRecordDao: SynthMemorySyncRecordDao,
+        memoryAccessLogDao: SynthMemoryAccessLogDao
     ): AIEntertainmentRepository {
         return AIEntertainmentRepository(
             userDao = userDao,
@@ -108,8 +153,44 @@ object AIEntertainmentModule {
             invitationDao = invitationDao,
             branchDao = branchDao,
             documentDao = documentDao,
-            eventDao = eventDao
+            eventDao = eventDao,
+            memoryStoreDao = memoryStoreDao,
+            memoryCategoryDao = memoryCategoryDao,
+            memoryDao = memoryDao,
+            memoryBlockDao = memoryBlockDao,
+            memorySyncRecordDao = memorySyncRecordDao,
+            memoryAccessLogDao = memoryAccessLogDao
         )
+    }
+    
+    // ==================== AI Memory Services ====================
+    // NOTE: These are declared early because SynthChatService depends on MCPMemoryService
+    
+    @Provides
+    @Singleton
+    fun provideAIMemoryStorageService(
+        @ApplicationContext context: Context
+    ): AIMemoryStorageService {
+        return AIMemoryStorageService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideMCPMemoryService(
+        @ApplicationContext context: Context,
+        memoryStorageService: AIMemoryStorageService,
+        repository: AIEntertainmentRepository
+    ): MCPMemoryService {
+        return MCPMemoryService(context, memoryStorageService).apply {
+            // Initialize with DAOs from repository for direct access
+            initialize(
+                memoryDao = repository.getMemoryDao(),
+                categoryDao = repository.getMemoryCategoryDao(),
+                storeDao = repository.getMemoryStoreDao(),
+                blockDao = repository.getMemoryBlockDao(),
+                accessLogDao = repository.getMemoryAccessLogDao()
+            )
+        }
     }
     
     // ==================== Service Providers ====================
@@ -135,9 +216,12 @@ object AIEntertainmentModule {
     @Singleton
     fun provideSynthChatService(
         repository: AIEntertainmentRepository,
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        mcpMemoryService: MCPMemoryService
     ): SynthChatService {
-        return SynthChatService(repository, context)
+        return SynthChatService(repository, context).apply {
+            setMCPMemoryService(mcpMemoryService)
+        }
     }
     
     @Provides
