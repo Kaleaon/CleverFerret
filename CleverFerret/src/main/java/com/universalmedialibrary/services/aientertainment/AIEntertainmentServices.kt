@@ -2,11 +2,13 @@ package com.universalmedialibrary.services.aientertainment
 
 import android.content.Context
 import android.content.SharedPreferences
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -55,7 +57,7 @@ class SynthAuthService @Inject constructor(
     private fun loadSession() {
         val userId = prefs.getLong("user_id", -1)
         if (userId != -1L) {
-            kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
+            kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
                 _currentUser.value = repository.getUserById(userId)
             }
         }
@@ -257,16 +259,6 @@ class SynthAuthService @Inject constructor(
         }
     }
     
-    private fun kotlinx.coroutines.GlobalScope.launch(
-        dispatcher: kotlinx.coroutines.CoroutineDispatcher,
-        block: suspend () -> Unit
-    ) {
-        kotlinx.coroutines.CoroutineScope(dispatcher).launch { block() }
-    }
-    
-    private fun kotlinx.coroutines.CoroutineScope.launch(block: suspend () -> Unit): kotlinx.coroutines.Job {
-        return kotlinx.coroutines.launch { block() }
-    }
 }
 
 /**
@@ -392,10 +384,6 @@ class SynthCharacterService @Inject constructor(
     
     fun getCharacterById(id: Long): SynthCharacter? {
         return _characters.value.find { it.character.id == id }?.character
-    }
-    
-    private fun kotlinx.coroutines.CoroutineScope.launch(block: suspend () -> Unit): kotlinx.coroutines.Job {
-        return kotlinx.coroutines.launch { block() }
     }
 }
 
