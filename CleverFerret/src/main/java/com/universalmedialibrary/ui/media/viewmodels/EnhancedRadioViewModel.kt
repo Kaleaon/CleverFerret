@@ -1,30 +1,42 @@
 package com.universalmedialibrary.ui.media.viewmodels
 
+import android.content.Context
+import android.os.Environment
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.services.radio.RadioBrowserService
+import com.universalmedialibrary.services.radio.FMRadioService
+import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.ui.media.screens.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
+
+private const val TAG = "EnhancedRadioViewModel"
 
 /**
  * Enhanced Radio ViewModel
  * 
  * Provides radio functionality for:
- * - FM Radio
- * - HD Radio  
+ * - FM Radio (via FMRadioService with hardware support detection)
+ * - HD Radio (requires device-specific hardware APIs)
  * - Internet Radio (via RadioBrowserService)
  * - Old Time Radio (via archive.org)
- * 
- * Note: This is a simplified implementation. Full integration with
- * hardware radio services (FM/HD) requires device-specific APIs.
  */
 @HiltViewModel
-class EnhancedRadioViewModel @Inject constructor() : ViewModel() {
+class EnhancedRadioViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val radioBrowserService: RadioBrowserService,
+    private val fmRadioService: FMRadioService,
+    private val exoPlayerService: ExoPlayerService
+) : ViewModel() {
     
     private val _uiState = MutableStateFlow(EnhancedRadioState())
     val uiState: StateFlow<EnhancedRadioState> = _uiState.asStateFlow()
@@ -37,7 +49,49 @@ class EnhancedRadioViewModel @Inject constructor() : ViewModel() {
     
     init {
         loadCategories()
-        loadSampleStations()
+        loadPopularStations()
+        observeFMRadioState()
+    }
+    
+    /**
+     * Observe FM Radio hardware state from FMRadioService
+     */
+    private fun observeFMRadioState() {
+        viewModelScope.launch {
+            fmRadioService.isAvailable.collect { available ->
+                _fmState.update { it.copy(isHardwareAvailable = available) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.currentFrequency.collect { freq ->
+                _fmState.update { it.copy(currentFrequency = freq) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.signalStrength.collect { strength ->
+                _fmState.update { it.copy(signalStrength = strength) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.isPlaying.collect { playing ->
+                _fmState.update { it.copy(isPlaying = playing) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.isRecording.collect { recording ->
+                _fmState.update { it.copy(isRecording = recording) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.rdsData.collect { rds ->
+                _fmState.update { 
+                    it.copy(
+                        stationName = rds?.stationName,
+                        radioText = rds?.radioText
+                    )
+                }
+            }
+        }
     }
     
     private fun loadCategories() {
@@ -56,69 +110,147 @@ class EnhancedRadioViewModel @Inject constructor() : ViewModel() {
         _uiState.update { it.copy(categories = categories) }
     }
     
-    private fun loadSampleStations() {
-        // Load sample/placeholder stations for UI development
+    private fun loadPopularStations() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = false) }
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                val stations = radioBrowserService.fetchTopStations(limit = 50)
+                // Filter out stations with null/blank streamUrl to prevent playback failures
+                val uiStations = stations.mapNotNull { station ->
+                    val url = station.streamUrl?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    RadioStation(
+                        id = station.id.toString(),
+                        name = station.name,
+                        streamUrl = url,
+                        logoUrl = station.logoUrl,
+                        genre = station.genre ?: station.tags ?: "",
+                        country = station.country,
+                        isFavorite = false
+                    )
+                }
+                _uiState.update { 
+                    it.copy(
+                        popularStations = uiStations,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+                Log.d(TAG, "Loaded ${uiStations.size} popular stations")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load popular stations", e)
+                _uiState.update { 
+                    it.copy(
+                        isLoading = false,
+                        error = "Failed to load stations: ${e.message}"
+                    )
+                }
+            }
         }
     }
     
     // ==========================================================================
-    // FM RADIO CONTROLS (Placeholder implementations)
+    // FM RADIO CONTROLS (Uses FMRadioService for hardware access)
     // ==========================================================================
     
     fun startFMRadio() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isPlaying = true) }
+            if (!fmRadioService.isAvailable.value) {
+                _fmState.update { it.copy(error = "FM Radio hardware not available on this device") }
+                return@launch
+            }
+            val initialized = fmRadioService.initialize()
+            if (initialized) {
+                fmRadioService.play()
+                _fmState.update { it.copy(error = null) }
+            } else {
+                _fmState.update { it.copy(error = "Failed to initialize FM Radio") }
+            }
         }
     }
     
     fun stopFMRadio() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isPlaying = false) }
+            fmRadioService.stop()
         }
     }
     
     fun tuneFMFrequency(frequencyKhz: Int) {
         viewModelScope.launch {
-            _fmState.update { it.copy(currentFrequency = frequencyKhz) }
+            val success = fmRadioService.tune(frequencyKhz)
+            if (!success) {
+                _fmState.update { it.copy(error = "Invalid frequency: $frequencyKhz") }
+            }
         }
     }
     
     fun seekFMUp() {
         viewModelScope.launch {
-            val newFreq = (_fmState.value.currentFrequency + 100).coerceAtMost(108000)
-            _fmState.update { it.copy(currentFrequency = newFreq) }
+            // Use scanUp for seeking to next station
+            fmRadioService.scanUp()
         }
     }
     
     fun seekFMDown() {
         viewModelScope.launch {
-            val newFreq = (_fmState.value.currentFrequency - 100).coerceAtLeast(87500)
-            _fmState.update { it.copy(currentFrequency = newFreq) }
+            // Use scanDown for seeking to previous station
+            fmRadioService.scanDown()
         }
     }
     
     fun toggleFMMute() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isMuted = !it.isMuted) }
+            // isMuted is derived from isPlaying, so just toggle play/stop
+            // The isMuted property is computed from isPlaying in FMRadioState
+            if (_fmState.value.isPlaying) {
+                fmRadioService.stop()
+            } else {
+                fmRadioService.play()
+            }
+            // No need to manually update isMuted - it's derived from isPlaying
+            // which is observed and updated by observeFMRadioState()
         }
     }
     
     fun startFMRecording() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isRecording = true) }
+            try {
+                // Use app-specific storage for Android 10+ compatibility
+                val recordingDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
+                    ?.let { File(it, "FM_Recordings") }
+                    ?: run {
+                        _fmState.update { it.copy(error = "Cannot access storage") }
+                        return@launch
+                    }
+                
+                if (!recordingDir.exists() && !recordingDir.mkdirs()) {
+                    _fmState.update { it.copy(error = "Failed to create recording directory") }
+                    return@launch
+                }
+                
+                val outputFile = File(recordingDir, "fm_recording_${System.currentTimeMillis()}.m4a")
+                val success = fmRadioService.startRecording(outputFile)
+                if (!success) {
+                    _fmState.update { it.copy(error = "Failed to start recording") }
+                }
+            } catch (e: Exception) {
+                _fmState.update { it.copy(error = "Recording error: ${e.message}") }
+            }
         }
     }
     
     fun stopFMRecording() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isRecording = false) }
+            fmRadioService.stopRecording()
         }
     }
     
+    fun clearFMError() {
+        _fmState.update { it.copy(error = null) }
+    }
+    
     // ==========================================================================
-    // HD RADIO CONTROLS (Placeholder implementations)
+    // HD RADIO CONTROLS (Hardware-dependent - placeholder implementations)
+    // Note: Real HD radio requires device-specific hardware APIs
     // ==========================================================================
     
     fun startHDRadio() {
@@ -159,35 +291,145 @@ class EnhancedRadioViewModel @Inject constructor() : ViewModel() {
     }
     
     // ==========================================================================
-    // INTERNET RADIO CONTROLS
+    // INTERNET RADIO CONTROLS (Fully functional)
     // ==========================================================================
     
     fun playInternetStation(station: RadioStation) {
         viewModelScope.launch {
-            _uiState.update { it.copy(nowPlaying = station) }
+            try {
+                // Use ExoPlayerService for actual playback
+                exoPlayerService.loadMediaWithSession(
+                    mediaPath = station.streamUrl,
+                    title = station.name,
+                    artist = station.genre
+                )
+                exoPlayerService.play()
+                
+                // Perform atomic update to set nowPlaying and rebuild recentlyPlayed
+                // This avoids race conditions from multiple state updates
+                _uiState.update { state ->
+                    val updatedRecent = state.recentlyPlayed.toMutableList().apply {
+                        removeAll { it.id == station.id }
+                        add(0, station)
+                        if (size > 20) removeLast()
+                    }
+                    state.copy(nowPlaying = station, recentlyPlayed = updatedRecent)
+                }
+                
+                Log.d(TAG, "Playing station: ${station.name}")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to play station: ${station.name}", e)
+                _uiState.update { it.copy(error = "Failed to play station: ${e.message}", nowPlaying = null) }
+            }
         }
     }
     
     fun stopInternetRadio() {
         viewModelScope.launch {
+            exoPlayerService.stop()
             _uiState.update { it.copy(nowPlaying = null) }
         }
     }
     
     fun searchStations(query: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSearching = true) }
-            // Placeholder - would call RadioBrowserService
-            _uiState.update { it.copy(searchResults = emptyList(), isSearching = false) }
+            _uiState.update { it.copy(isSearching = true, error = null) }
+            try {
+                val stations = radioBrowserService.searchStations(query = query, limit = 50)
+                // Filter out stations with null/blank streamUrl to prevent playback failures
+                val uiStations = stations.mapNotNull { station ->
+                    val url = station.streamUrl?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    val stationId = station.id.toString()
+                    RadioStation(
+                        id = stationId,
+                        name = station.name,
+                        streamUrl = url,
+                        logoUrl = station.logoUrl,
+                        genre = station.genre ?: station.tags ?: "",
+                        country = station.country,
+                        isFavorite = _uiState.value.favoriteStations.any { fav -> fav.id == stationId }
+                    )
+                }
+                _uiState.update { 
+                    it.copy(
+                        searchResults = uiStations, 
+                        isSearching = false
+                    )
+                }
+                Log.d(TAG, "Search for '$query' returned ${uiStations.size} stations")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to search stations for '$query'", e)
+                _uiState.update { 
+                    it.copy(
+                        searchResults = emptyList(), 
+                        isSearching = false,
+                        error = "Search failed: ${e.message}"
+                    )
+                }
+            }
         }
     }
     
     fun loadStationsByCategory(categoryId: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, selectedCategory = categoryId) }
-            // Placeholder - would call RadioBrowserService
-            _uiState.update { it.copy(categoryStations = emptyList(), isLoading = false) }
+            _uiState.update { it.copy(isLoading = true, selectedCategory = categoryId, error = null) }
+            try {
+                // Map category ID to a tag for radio-browser.info
+                val tag = when (categoryId) {
+                    "pop" -> "pop"
+                    "rock" -> "rock"
+                    "jazz" -> "jazz"
+                    "classical" -> "classical"
+                    "news" -> "news"
+                    "sports" -> "sports"
+                    "talk" -> "talk"
+                    "country" -> "country"
+                    "electronic" -> "electronic"
+                    "hip-hop" -> "hip hop"
+                    else -> categoryId
+                }
+                
+                val stations = radioBrowserService.searchStations(query = "", tag = tag, limit = 50)
+                // Filter out stations with null/blank streamUrl to prevent playback failures
+                val uiStations = stations.mapNotNull { station ->
+                    val url = station.streamUrl?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    val stationId = station.id.toString()
+                    RadioStation(
+                        id = stationId,
+                        name = station.name,
+                        streamUrl = url,
+                        logoUrl = station.logoUrl,
+                        genre = station.genre ?: station.tags ?: "",
+                        country = station.country,
+                        isFavorite = _uiState.value.favoriteStations.any { fav -> fav.id == stationId }
+                    )
+                }
+                _uiState.update { 
+                    it.copy(
+                        categoryStations = uiStations, 
+                        isLoading = false
+                    )
+                }
+                Log.d(TAG, "Loaded ${uiStations.size} stations for category '$categoryId'")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load stations for category '$categoryId'", e)
+                _uiState.update { 
+                    it.copy(
+                        categoryStations = emptyList(), 
+                        isLoading = false,
+                        error = "Failed to load category: ${e.message}"
+                    )
+                }
+            }
         }
+    }
+    
+    fun clearSearch() {
+        _uiState.update { it.copy(searchResults = emptyList()) }
+    }
+    
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
     }
     
     // ==========================================================================
@@ -202,6 +444,7 @@ class EnhancedRadioViewModel @Inject constructor() : ViewModel() {
                 _uiState.value.favoriteStations + station.copy(isFavorite = true)
             }
             _uiState.update { it.copy(favoriteStations = updatedFavorites) }
+            // TODO: Persist favorites to database
         }
     }
     
@@ -222,6 +465,14 @@ class EnhancedRadioViewModel @Inject constructor() : ViewModel() {
                 it.copy(favoriteStations = it.favoriteStations + station)
             }
         }
+    }
+    
+    override fun onCleared() {
+        super.onCleared()
+        // Only stop FM radio - ExoPlayerService is a singleton shared across
+        // all ViewModels, so calling stop() would break concurrent playback
+        // in other screens. The service manages its own lifecycle.
+        fmRadioService.stop()
     }
 }
 
@@ -252,8 +503,13 @@ data class FMRadioState(
     val radioText: String? = null,
     val isPlaying: Boolean = false,
     val isRecording: Boolean = false,
-    val isMuted: Boolean = false
-)
+    val isHardwareAvailable: Boolean = false,
+    val error: String? = null
+) {
+    // Derive muted state from isPlaying to keep them synchronized
+    // When not playing, we consider it "muted" from the user's perspective
+    val isMuted: Boolean get() = !isPlaying
+}
 
 data class HDRadioState(
     val currentStation: HDStationInfo? = null,
