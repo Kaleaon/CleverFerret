@@ -864,6 +864,88 @@ fun SettingsScreen(
                        }
                    }
 
+                // Cloud & Backup Section
+                item {
+                    MetallicText(
+                        text = "Cloud & Backup",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("settings/cloud_backup") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Cloud & Backup",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Google Drive sync & local backup options",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.Cloud,
+                                contentDescription = "Cloud & Backup",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+
+                // AI Tools Section
+                item {
+                    MetallicText(
+                        text = "AI Capabilities",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("settings/ai_tools") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "AI Tools & Capabilities",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Web search, document retrieval, media library access",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.Psychology,
+                                contentDescription = "AI Tools",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+
                 // About Section
                 item {
                     MetallicText(

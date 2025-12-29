@@ -1,5 +1,12 @@
 # CleverFerret - Remaining Development Tasks
 
+## Recently Completed
+- [x] Google Drive OAuth integration (no user API key required)
+- [x] Local/SD card backup service for AI logs and documents
+- [x] AI Tools system (web search, page retrieval, media library scan, book/music processing)
+- [x] Cloud & Backup settings screen
+- [x] AI Tools & Capabilities settings screen
+
 ## Parser Integration (Phase 8)
 - [ ] Update UnifiedReaderService to use new parsers
 - [ ] Replace placeholder extraction functions
@@ -22,7 +29,7 @@
 
 ## Medium Priority Features
 - [ ] Search history implementation
-- [ ] Sync service cloud integration
+- [x] Sync service cloud integration (Google Drive OAuth + local backup)
 - [ ] Movie playlist duration calculation
 - [ ] Music playlist play count tracking
 

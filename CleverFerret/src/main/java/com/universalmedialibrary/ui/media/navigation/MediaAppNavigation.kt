@@ -96,6 +96,8 @@ object MediaRoutes {
     const val SETTINGS_ABOUT = "settings/about"
     // Legacy route compatibility (underscore is the primary route in the legacy settings UI)
     const val SETTINGS_MEDIA_SERVERS = "settings/media_servers"
+    const val SETTINGS_CLOUD_BACKUP = "settings/cloud_backup"
+    const val SETTINGS_AI_TOOLS = "settings/ai_tools"
     const val FILE_BROWSER = "file-browser"
     
     // Onboarding
@@ -376,6 +378,20 @@ fun MediaAppNavHost(
         composable("settings/cloud") {
             com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen(
                 onBack = { navController.popBackStack() }
+            )
+        }
+        
+        // Cloud & Backup Settings (Google Drive OAuth + Local Backup)
+        composable(MediaRoutes.SETTINGS_CLOUD_BACKUP) {
+            com.universalmedialibrary.ui.settings.CloudBackupSettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        // AI Tools Settings (Web search, document retrieval, media library access)
+        composable(MediaRoutes.SETTINGS_AI_TOOLS) {
+            com.universalmedialibrary.ui.settings.AIToolsSettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

@@ -322,6 +322,15 @@ dependencies {
     // Generative AI
     implementation(libs.gemini.ai)
 
+    // Google Drive OAuth & API
+    implementation(libs.google.auth)
+    implementation(libs.google.api.client) {
+        exclude(group = "org.apache.httpcomponents", module = "httpclient")
+    }
+    implementation(libs.google.api.drive) {
+        exclude(group = "org.apache.httpcomponents", module = "httpclient")
+    }
+
     // Media metadata extraction
     implementation(libs.ffmpegmediametadataretriever.core)
     implementation(libs.ffmpegmediametadataretriever.native)
