@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.radio.RadioBrowserService
+import com.universalmedialibrary.services.radio.FMRadioService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.ui.media.screens.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,18 +21,15 @@ private const val TAG = "EnhancedRadioViewModel"
  * Enhanced Radio ViewModel
  * 
  * Provides radio functionality for:
- * - FM Radio (requires device-specific hardware APIs)
+ * - FM Radio (via FMRadioService with hardware support detection)
  * - HD Radio (requires device-specific hardware APIs)
  * - Internet Radio (via RadioBrowserService)
  * - Old Time Radio (via archive.org)
- * 
- * Note: FM/HD Radio functionality requires device-specific hardware APIs
- * and is implemented as placeholders. Internet Radio is fully functional
- * via the RadioBrowserService.
  */
 @HiltViewModel
 class EnhancedRadioViewModel @Inject constructor(
     private val radioBrowserService: RadioBrowserService,
+    private val fmRadioService: FMRadioService,
     private val exoPlayerService: ExoPlayerService
 ) : ViewModel() {
     
@@ -47,6 +45,48 @@ class EnhancedRadioViewModel @Inject constructor(
     init {
         loadCategories()
         loadPopularStations()
+        observeFMRadioState()
+    }
+    
+    /**
+     * Observe FM Radio hardware state from FMRadioService
+     */
+    private fun observeFMRadioState() {
+        viewModelScope.launch {
+            fmRadioService.isAvailable.collect { available ->
+                _fmState.update { it.copy(isHardwareAvailable = available) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.currentFrequency.collect { freq ->
+                _fmState.update { it.copy(currentFrequency = freq) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.signalStrength.collect { strength ->
+                _fmState.update { it.copy(signalStrength = strength) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.isPlaying.collect { playing ->
+                _fmState.update { it.copy(isPlaying = playing) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.isRecording.collect { recording ->
+                _fmState.update { it.copy(isRecording = recording) }
+            }
+        }
+        viewModelScope.launch {
+            fmRadioService.rdsData.collect { rds ->
+                _fmState.update { 
+                    it.copy(
+                        stationName = rds?.stationName,
+                        radioText = rds?.radioText
+                    )
+                }
+            }
+        }
     }
     
     private fun loadCategories() {
@@ -102,59 +142,96 @@ class EnhancedRadioViewModel @Inject constructor(
     }
     
     // ==========================================================================
-    // FM RADIO CONTROLS (Hardware-dependent - placeholder implementations)
-    // Note: Real FM radio requires device-specific hardware APIs
+    // FM RADIO CONTROLS (Uses FMRadioService for hardware access)
     // ==========================================================================
     
     fun startFMRadio() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isPlaying = true) }
-            // TODO: Implement with device-specific FM radio API when available
+            if (!fmRadioService.isAvailable.value) {
+                _fmState.update { it.copy(error = "FM Radio hardware not available on this device") }
+                return@launch
+            }
+            val initialized = fmRadioService.initialize()
+            if (initialized) {
+                fmRadioService.play()
+                _fmState.update { it.copy(error = null) }
+            } else {
+                _fmState.update { it.copy(error = "Failed to initialize FM Radio") }
+            }
         }
     }
     
     fun stopFMRadio() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isPlaying = false) }
+            fmRadioService.stop()
         }
     }
     
     fun tuneFMFrequency(frequencyKhz: Int) {
         viewModelScope.launch {
-            _fmState.update { it.copy(currentFrequency = frequencyKhz) }
+            val success = fmRadioService.tune(frequencyKhz)
+            if (!success) {
+                _fmState.update { it.copy(error = "Invalid frequency: $frequencyKhz") }
+            }
         }
     }
     
     fun seekFMUp() {
         viewModelScope.launch {
-            val newFreq = (_fmState.value.currentFrequency + 100).coerceAtMost(108000)
-            _fmState.update { it.copy(currentFrequency = newFreq) }
+            // Use scanUp for seeking to next station
+            fmRadioService.scanUp()
         }
     }
     
     fun seekFMDown() {
         viewModelScope.launch {
-            val newFreq = (_fmState.value.currentFrequency - 100).coerceAtLeast(87500)
-            _fmState.update { it.copy(currentFrequency = newFreq) }
+            // Use scanDown for seeking to previous station
+            fmRadioService.scanDown()
         }
     }
     
     fun toggleFMMute() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isMuted = !it.isMuted) }
+            // Mute is handled by toggling playback state
+            val currentMuted = _fmState.value.isMuted
+            if (currentMuted) {
+                fmRadioService.play()
+            } else {
+                fmRadioService.stop()
+            }
+            _fmState.update { it.copy(isMuted = !currentMuted) }
         }
     }
     
     fun startFMRecording() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isRecording = true) }
+            try {
+                val recordingDir = java.io.File(
+                    android.os.Environment.getExternalStoragePublicDirectory(
+                        android.os.Environment.DIRECTORY_MUSIC
+                    ),
+                    "FM_Recordings"
+                )
+                if (!recordingDir.exists()) recordingDir.mkdirs()
+                val outputFile = java.io.File(recordingDir, "fm_recording_${System.currentTimeMillis()}.m4a")
+                val success = fmRadioService.startRecording(outputFile)
+                if (!success) {
+                    _fmState.update { it.copy(error = "Failed to start recording") }
+                }
+            } catch (e: Exception) {
+                _fmState.update { it.copy(error = "Recording error: ${e.message}") }
+            }
         }
     }
     
     fun stopFMRecording() {
         viewModelScope.launch {
-            _fmState.update { it.copy(isRecording = false) }
+            fmRadioService.stopRecording()
         }
+    }
+    
+    fun clearFMError() {
+        _fmState.update { it.copy(error = null) }
     }
     
     // ==========================================================================
@@ -404,7 +481,9 @@ data class FMRadioState(
     val radioText: String? = null,
     val isPlaying: Boolean = false,
     val isRecording: Boolean = false,
-    val isMuted: Boolean = false
+    val isMuted: Boolean = false,
+    val isHardwareAvailable: Boolean = false,
+    val error: String? = null
 )
 
 data class HDRadioState(
