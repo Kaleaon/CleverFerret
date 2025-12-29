@@ -419,28 +419,18 @@ fun ResponsiveNavigationScaffold(
                 content = content
             )
             
-            // Hamburger menu button in top-left corner
-            IconButton(
+            // Hamburger menu button in top-left corner - uses FilledTonalIconButton for proper touch handling
+            androidx.compose.material3.FilledTonalIconButton(
                 onClick = { scope.launch { drawerState.open() } },
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(start = 8.dp, top = 8.dp)
                     .size(48.dp)
             ) {
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    tonalElevation = 4.dp,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Open navigation menu",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
+                Icon(
+                    imageVector = Icons.Filled.Menu,
+                    contentDescription = "Open navigation menu"
+                )
             }
         }
     }
