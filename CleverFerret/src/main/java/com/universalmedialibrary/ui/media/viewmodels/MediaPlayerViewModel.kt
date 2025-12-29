@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.media.viewmodels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +19,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val TAG = "MediaPlayerViewModel"
 
 /**
  * ViewModel for Media-centric Audio Player
@@ -95,18 +98,24 @@ class AudioPlayerViewModel @Inject constructor(
             }
         }
         
+        // Use combine to react to both queue AND currentTrack changes
+        // This ensures isCurrentItem stays accurate when the track changes
         viewModelScope.launch {
-            musicPlayerService.queue.collect { queueTracks ->
-                val queueItems = queueTracks.map { track ->
+            combine(
+                musicPlayerService.queue,
+                musicPlayerService.currentTrack
+            ) { queueTracks, currentTrack ->
+                queueTracks.map { track ->
                     QueueItem(
                         id = track.id,
                         title = track.title,
                         artist = track.artist,
                         artworkUrl = track.albumArtUrl,
                         duration = track.duration,
-                        isCurrentItem = track.id == musicPlayerService.currentTrack.value?.id
+                        isCurrentItem = track.id == currentTrack?.id
                     )
                 }
+            }.collect { queueItems ->
                 _uiState.update { it.copy(queue = queueItems) }
             }
         }
@@ -161,7 +170,8 @@ class AudioPlayerViewModel @Inject constructor(
     }
     
     fun setPlaybackSpeed(speed: Float) {
-        exoPlayerService.setPlaybackSpeed(speed)
+        // Route through musicPlayerService for consistency with other playback controls
+        musicPlayerService.setPlaybackSpeed(speed)
         _uiState.update { it.copy(playbackSpeed = speed) }
     }
     
@@ -226,40 +236,52 @@ class VideoPlayerViewModel @Inject constructor(
     private fun loadVideo() {
         viewModelScope.launch {
             try {
-                val videoIdLong = videoId.toLongOrNull() ?: return@launch
+                val videoIdLong = videoId.toLongOrNull()
+                if (videoIdLong == null) {
+                    Log.w(TAG, "Invalid video ID: $videoId")
+                    _uiState.update { it.copy(title = "Invalid video ID") }
+                    return@launch
+                }
                 
-                // Try to load from movies first
-                val allVideos = videoRepository.getAllVideos().first()
-                val video = allVideos.find { it.itemId == videoIdLong }
+                // Use direct ID lookup instead of loading all videos
+                val video = videoRepository.getVideoById(videoIdLong)
                 
-                if (video != null) {
-                    _uiState.update {
-                        it.copy(
-                            title = video.title,
-                            subtitle = video.creator,
-                            duration = video.duration ?: 0L,
-                            availableQualities = listOf(
-                                VideoQuality.AUTO,
-                                VideoQuality.SD,
-                                VideoQuality.HD,
-                                VideoQuality.FULL_HD
-                            ),
-                            currentQuality = VideoQuality.AUTO
-                        )
-                    }
-                    
-                    // Start playback using loadMedia
-                    video.filePath?.let { path ->
-                        exoPlayerService.loadMediaWithSession(
-                            mediaPath = path,
-                            title = video.title,
-                            artist = video.creator
-                        )
-                        exoPlayerService.play()
-                    }
+                if (video == null) {
+                    Log.w(TAG, "Video not found for ID: $videoIdLong")
+                    _uiState.update { it.copy(title = "Video not found") }
+                    return@launch
+                }
+                
+                _uiState.update {
+                    it.copy(
+                        title = video.title,
+                        subtitle = video.creator,
+                        duration = video.duration ?: 0L,
+                        availableQualities = listOf(
+                            VideoQuality.AUTO,
+                            VideoQuality.SD,
+                            VideoQuality.HD,
+                            VideoQuality.FULL_HD
+                        ),
+                        currentQuality = VideoQuality.AUTO
+                    )
+                }
+                
+                // Start playback using loadMedia
+                video.filePath?.let { path ->
+                    exoPlayerService.loadMediaWithSession(
+                        mediaPath = path,
+                        title = video.title,
+                        artist = video.creator
+                    )
+                    exoPlayerService.play()
+                } ?: run {
+                    Log.w(TAG, "Video has no file path: ${video.title}")
+                    _uiState.update { it.copy(title = "Video file not available") }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(title = "Error loading video") }
+                Log.e(TAG, "Error loading video", e)
+                _uiState.update { it.copy(title = "Error loading video: ${e.message}") }
             }
         }
         
@@ -296,6 +318,8 @@ class VideoPlayerViewModel @Inject constructor(
     
     fun skipPrevious() {
         val episodes = _uiState.value.episodes
+        if (episodes.isEmpty()) return
+        
         val currentIndex = episodes.indexOfFirst { it.id == _uiState.value.currentEpisodeId }
         if (currentIndex > 0) {
             playEpisode(episodes[currentIndex - 1])
@@ -304,6 +328,8 @@ class VideoPlayerViewModel @Inject constructor(
     
     fun skipNext() {
         val episodes = _uiState.value.episodes
+        if (episodes.isEmpty()) return
+        
         val currentIndex = episodes.indexOfFirst { it.id == _uiState.value.currentEpisodeId }
         if (currentIndex < episodes.size - 1) {
             playEpisode(episodes[currentIndex + 1])
@@ -316,18 +342,22 @@ class VideoPlayerViewModel @Inject constructor(
     }
     
     fun setSubtitle(track: SubtitleTrack?) {
+        // TODO: Wire to ExoPlayerService when subtitle support is implemented
         _uiState.update { it.copy(currentSubtitle = track) }
     }
     
     fun setAudioTrack(track: AudioTrack) {
+        // TODO: Wire to ExoPlayerService when audio track selection is implemented
         _uiState.update { it.copy(currentAudioTrack = track) }
     }
     
     fun setQuality(quality: VideoQuality) {
+        // TODO: Wire to ExoPlayerService when quality selection is implemented
         _uiState.update { it.copy(currentQuality = quality) }
     }
     
     fun playEpisode(episode: EpisodeInfo) {
+        // Update UI state to reflect the new episode
         _uiState.update { 
             it.copy(
                 title = episode.title,
@@ -335,6 +365,10 @@ class VideoPlayerViewModel @Inject constructor(
                 currentPosition = 0L
             )
         }
+        
+        // Note: Episode playback would typically need to look up the episode's
+        // media file from a repository. For now, we update the UI state.
+        // TODO: Load actual episode media file when episode data includes file path
     }
     
     override fun onCleared() {

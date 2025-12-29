@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.media.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,11 +9,14 @@ import com.universalmedialibrary.data.repository.ComicRepository
 import com.universalmedialibrary.data.repository.ReadingProgressRepository
 import com.universalmedialibrary.data.repository.BookmarkRepository
 import com.universalmedialibrary.data.repository.WebFictionRepository
+import com.universalmedialibrary.data.local.entity.Bookmark
 import com.universalmedialibrary.ui.media.player.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val TAG = "ReaderViewModel"
 
 /**
  * ViewModel for Media-centric Reader Screen
@@ -56,23 +60,54 @@ class ReaderViewModel @Inject constructor(
     private fun loadContent() {
         viewModelScope.launch {
             try {
-                val itemId = mediaId.toLongOrNull() ?: return@launch
-                
                 when (mediaType) {
-                    "book" -> loadBook(itemId)
-                    "comic" -> loadComic(itemId)
-                    "webfiction", "fanfiction" -> loadWebFiction(mediaId)
-                    "document" -> loadDocument(itemId)
-                    else -> loadBook(itemId)
+                    "book" -> {
+                        val itemId = mediaId.toLongOrNull()
+                        if (itemId == null) {
+                            _uiState.update { it.copy(title = "Invalid book ID", currentContent = ReaderContent(text = "Unable to parse book ID")) }
+                            return@launch
+                        }
+                        loadBook(itemId)
+                        loadProgress(itemId)
+                        loadBookmarks(itemId)
+                    }
+                    "comic" -> {
+                        val itemId = mediaId.toLongOrNull()
+                        if (itemId == null) {
+                            _uiState.update { it.copy(title = "Invalid comic ID", currentContent = ReaderContent(text = "Unable to parse comic ID")) }
+                            return@launch
+                        }
+                        loadComic(itemId)
+                        loadProgress(itemId)
+                        loadBookmarks(itemId)
+                    }
+                    "webfiction", "fanfiction" -> {
+                        loadWebFiction(mediaId)
+                        // Web fiction uses string IDs, bookmarks need special handling
+                    }
+                    "document" -> {
+                        val itemId = mediaId.toLongOrNull()
+                        if (itemId == null) {
+                            _uiState.update { it.copy(title = "Invalid document ID", currentContent = ReaderContent(text = "Unable to parse document ID")) }
+                            return@launch
+                        }
+                        loadDocument(itemId)
+                        loadProgress(itemId)
+                        loadBookmarks(itemId)
+                    }
+                    else -> {
+                        val itemId = mediaId.toLongOrNull()
+                        if (itemId == null) {
+                            _uiState.update { it.copy(title = "Invalid ID", currentContent = ReaderContent(text = "Unable to parse ID")) }
+                            return@launch
+                        }
+                        loadBook(itemId)
+                        loadProgress(itemId)
+                        loadBookmarks(itemId)
+                    }
                 }
-                
-                // Load reading progress
-                loadProgress(itemId)
-                
-                // Load bookmarks
-                loadBookmarks(itemId)
-                
             } catch (e: Exception) {
+                Log.e(TAG, "Error loading content", e)
                 _uiState.update {
                     it.copy(
                         title = "Error loading content",
@@ -84,8 +119,8 @@ class ReaderViewModel @Inject constructor(
     }
     
     private suspend fun loadBook(itemId: Long) {
-        val books = bookRepository.getAllBooks().first()
-        val book = books.find { it.itemId == itemId }
+        // Use direct ID lookup instead of loading all books
+        val book = bookRepository.getBookById(itemId)
         
         if (book != null) {
             _uiState.update {
@@ -101,12 +136,19 @@ class ReaderViewModel @Inject constructor(
                     chapters = generateChaptersFromPageCount(book.pageCount ?: 100)
                 )
             }
+        } else {
+            _uiState.update {
+                it.copy(
+                    title = "Book not found",
+                    currentContent = ReaderContent(text = "The requested book could not be found in your library.")
+                )
+            }
         }
     }
     
     private suspend fun loadComic(itemId: Long) {
-        val comics = comicRepository.getAllComics().first()
-        val comic = comics.find { it.itemId == itemId }
+        // Use direct ID lookup instead of loading all comics
+        val comic = comicRepository.getComicById(itemId)
         
         if (comic != null) {
             _uiState.update {
@@ -117,17 +159,24 @@ class ReaderViewModel @Inject constructor(
                     totalPages = comic.pageCount ?: 50,
                     currentContent = ReaderContent(
                         text = "",
-                        imageUrls = listOf() // Would load actual comic pages
+                        imageUrls = listOf() // TODO: Load actual comic pages from archive
                     ),
                     chapters = generateChaptersFromPageCount(comic.pageCount ?: 50)
+                )
+            }
+        } else {
+            _uiState.update {
+                it.copy(
+                    title = "Comic not found",
+                    currentContent = ReaderContent(text = "The requested comic could not be found in your library.")
                 )
             }
         }
     }
     
     private suspend fun loadWebFiction(storyId: String) {
-        val stories = webFictionRepository.getAllWebFiction().first()
-        val story = stories.find { it.id == storyId }
+        // Use direct ID lookup instead of loading all stories
+        val story = webFictionRepository.getWebFictionById(storyId)
         
         if (story != null) {
             _uiState.update {
@@ -136,7 +185,7 @@ class ReaderViewModel @Inject constructor(
                     author = story.author,
                     isComic = false,
                     totalPages = story.chapterCount,
-                    currentContent = ReaderContent(text = "Loading chapter content..."),
+                    currentContent = ReaderContent(text = "Loading chapter content..."), // TODO: Load actual chapter content
                     chapters = (1..story.chapterCount).map { index ->
                         ChapterInfo(
                             id = "chapter_$index",
@@ -148,12 +197,19 @@ class ReaderViewModel @Inject constructor(
                     }
                 )
             }
+        } else {
+            _uiState.update {
+                it.copy(
+                    title = "Story not found",
+                    currentContent = ReaderContent(text = "The requested web fiction could not be found.")
+                )
+            }
         }
     }
     
     private suspend fun loadDocument(itemId: Long) {
-        // Load from generic media repository
-        loadBook(itemId) // Fallback to book loading for now
+        // Load from book repository as documents use similar storage
+        loadBook(itemId)
     }
     
     private suspend fun loadProgress(itemId: Long) {
@@ -162,13 +218,13 @@ class ReaderViewModel @Inject constructor(
             if (progress != null) {
                 _uiState.update {
                     it.copy(
-                        currentPage = progress.currentPage ?: 1,
+                        currentPage = progress.currentPage,
                         overallProgress = progress.percentage / 100f // Convert from percentage
                     )
                 }
             }
         } catch (e: Exception) {
-            // Ignore progress loading errors
+            Log.d(TAG, "Failed to load progress for item $itemId", e)
         }
     }
     
@@ -178,10 +234,10 @@ class ReaderViewModel @Inject constructor(
             val bookmarkInfos = bookmarks.map { bookmark ->
                 BookmarkInfo(
                     id = bookmark.bookmarkId.toString(),
-                    page = bookmark.pageNumber ?: 0,
-                    chapter = "",
-                    excerpt = bookmark.note ?: "",
-                    timestamp = bookmark.createdAt
+                    page = bookmark.page ?: 0,
+                    chapter = bookmark.chapter ?: "",
+                    excerpt = bookmark.description ?: "",
+                    timestamp = bookmark.dateCreated
                 )
             }
             _uiState.update {
@@ -191,7 +247,7 @@ class ReaderViewModel @Inject constructor(
                 )
             }
         } catch (e: Exception) {
-            // Ignore bookmark loading errors
+            Log.d(TAG, "Failed to load bookmarks for item $itemId", e)
         }
     }
     
@@ -228,7 +284,7 @@ class ReaderViewModel @Inject constructor(
             }
             
             // Save progress
-            saveProgress()
+            saveProgressInternal()
         }
     }
     
@@ -252,42 +308,60 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch {
             val currentPage = _uiState.value.currentPage
             val isBookmarked = _uiState.value.isCurrentPageBookmarked
-            val itemId = mediaId.toLongOrNull() ?: return@launch
+            val itemId = mediaId.toLongOrNull()
             
-            if (isBookmarked) {
-                // Remove bookmark
-                val bookmark = _uiState.value.bookmarks.find { it.page == currentPage }
-                bookmark?.let {
-                    bookmarkRepository.deleteBookmark(it.id.toLongOrNull() ?: 0L)
-                }
-            } else {
-                // Add bookmark
-                val newBookmark = com.universalmedialibrary.data.local.entity.Bookmark(
-                    mediaItemId = itemId,
-                    pageNumber = currentPage,
-                    note = "Bookmarked page $currentPage",
-                    createdAt = System.currentTimeMillis()
-                )
-                bookmarkRepository.insertBookmark(newBookmark)
+            // Skip bookmark operations for non-numeric IDs (web fiction)
+            if (itemId == null) {
+                Log.d(TAG, "Skipping bookmark toggle for non-numeric mediaId: $mediaId")
+                return@launch
             }
             
-            _uiState.update { state ->
-                val newBookmarks = if (isBookmarked) {
-                    state.bookmarks.filter { it.page != currentPage }
+            try {
+                if (isBookmarked) {
+                    // Remove bookmark - find it safely
+                    val bookmark = _uiState.value.bookmarks.find { it.page == currentPage }
+                    if (bookmark != null) {
+                        val bookmarkId = bookmark.id.toLongOrNull()
+                        if (bookmarkId != null) {
+                            bookmarkRepository.deleteBookmark(bookmarkId)
+                        } else {
+                            Log.w(TAG, "Invalid bookmark ID: ${bookmark.id}, cannot delete")
+                            return@launch
+                        }
+                    }
                 } else {
-                    state.bookmarks + BookmarkInfo(
-                        id = "bookmark_${System.currentTimeMillis()}",
+                    // Add bookmark with correct Bookmark entity parameters
+                    val newBookmark = Bookmark(
+                        itemId = itemId,
                         page = currentPage,
-                        chapter = state.currentChapter?.title ?: "",
-                        excerpt = state.currentContent.text.take(100),
-                        timestamp = System.currentTimeMillis()
+                        chapter = _uiState.value.currentChapter?.title,
+                        description = "Bookmarked page $currentPage",
+                        dateCreated = System.currentTimeMillis()
                     )
+                    bookmarkRepository.insertBookmark(newBookmark)
                 }
                 
-                state.copy(
-                    bookmarks = newBookmarks,
-                    isCurrentPageBookmarked = !isBookmarked
-                )
+                // Update UI state
+                _uiState.update { state ->
+                    val newBookmarks = if (isBookmarked) {
+                        state.bookmarks.filter { it.page != currentPage }
+                    } else {
+                        state.bookmarks + BookmarkInfo(
+                            id = "bookmark_${System.currentTimeMillis()}",
+                            page = currentPage,
+                            chapter = state.currentChapter?.title ?: "",
+                            excerpt = state.currentContent.text.take(100),
+                            timestamp = System.currentTimeMillis()
+                        )
+                    }
+                    
+                    state.copy(
+                        bookmarks = newBookmarks,
+                        isCurrentPageBookmarked = !isBookmarked
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error toggling bookmark", e)
             }
         }
     }
@@ -308,29 +382,30 @@ class ReaderViewModel @Inject constructor(
         // Handle text selection for highlighting, dictionary lookup, etc.
     }
     
-    private fun saveProgress() {
-        viewModelScope.launch {
-            try {
-                val itemId = mediaId.toLongOrNull() ?: return@launch
-                val state = _uiState.value
-                
-                readingProgressRepository.updateProgress(
-                    itemId = itemId,
-                    currentPage = state.currentPage,
-                    percentage = state.overallProgress * 100f, // Convert to percentage
-                    currentChapter = state.currentChapterIndex + 1
-                )
-            } catch (e: Exception) {
-                // Ignore progress saving errors
-            }
+    private suspend fun saveProgressInternal() {
+        try {
+            val itemId = mediaId.toLongOrNull() ?: return
+            val state = _uiState.value
+            
+            readingProgressRepository.updateProgress(
+                itemId = itemId,
+                currentPage = state.currentPage,
+                percentage = state.overallProgress * 100f, // Convert to percentage
+                currentChapter = state.currentChapterIndex + 1
+            )
+        } catch (e: Exception) {
+            Log.d(TAG, "Failed to save progress", e)
         }
     }
     
     override fun onCleared() {
-        super.onCleared()
-        // Save final progress when leaving
-        viewModelScope.launch {
-            saveProgress()
+        // Save final progress synchronously before the ViewModel is destroyed
+        // Using NonCancellable to ensure it completes even during cancellation
+        runBlocking {
+            withContext(NonCancellable) {
+                saveProgressInternal()
+            }
         }
+        super.onCleared()
     }
 }
