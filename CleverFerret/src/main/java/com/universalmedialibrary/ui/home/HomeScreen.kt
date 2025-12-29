@@ -38,7 +38,6 @@ import com.universalmedialibrary.ui.theme.ancientArchitectColors
 fun HomeScreen(
     onNavigateToMedia: (String, Long) -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToSettings: () -> Unit,
     onNavigateToLibrary: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -153,9 +152,9 @@ fun HomeScreen(
 fun SearchBarButton(onClick: () -> Unit) {
     Surface(
         modifier = Modifier
+            .padding(start = 56.dp) // Space for hamburger menu (8dp left padding + 48dp button = 56dp)
             .fillMaxWidth()
             .height(56.dp)
-            .padding(start = 56.dp) // Space for hamburger menu
             .clickable(onClick = onClick),
         shape = if (LocalIsAncientArchitect.current) AncientArchitectShapes.beveledSmall else RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,

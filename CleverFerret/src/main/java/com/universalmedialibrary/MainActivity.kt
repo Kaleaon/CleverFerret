@@ -422,7 +422,6 @@ fun AppNavigation(
             com.universalmedialibrary.ui.home.HomeScreen(
                 onNavigateToMedia = { type, id -> navController.navigate("open/$id") },
                 onNavigateToSearch = { navController.navigate("search") },
-                onNavigateToSettings = { navController.navigate("settings") },
                 onNavigateToLibrary = { navController.navigate("libraries") }
             )
         }

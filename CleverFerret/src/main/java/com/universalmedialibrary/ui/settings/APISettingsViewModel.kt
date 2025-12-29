@@ -44,6 +44,7 @@ class APISettingsViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = true)
 
                 val geminiKey = apiKeyRepository.getGeminiApiKey()
+                val openaiKey = apiKeyRepository.getAPIKeyValue("openai")
                 val comicVineKey = apiKeyRepository.getAPIKeyValue("comicvine")
                 val tastediveKey = apiKeyRepository.getAPIKeyValue("tastedive")
                 val tmdbKey = apiKeyRepository.getAPIKeyValue("tmdb")
@@ -74,6 +75,7 @@ class APISettingsViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     geminiApiKey = geminiKey,
+                    openaiApiKey = openaiKey,
                     comicVineApiKey = comicVineKey,
                     tastediveApiKey = tastediveKey,
                     tmdbApiKey = tmdbKey,
@@ -353,6 +355,106 @@ class APISettingsViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * Save OpenAI/ChatGPT API key
+     */
+    fun saveOpenAIApiKey(apiKey: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+
+                apiKeyRepository.saveAPIKey("openai", apiKey, "AI", false)
+
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    openaiApiKey = apiKey,
+                    statusMessage = "OpenAI API key saved successfully",
+                    hasError = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Error saving OpenAI key: ${e.message}",
+                    hasError = true
+                )
+            }
+        }
+    }
+
+    /**
+     * Test OpenAI API key
+     */
+    fun testOpenAIApiKey(apiKey: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                // Basic validation - OpenAI keys start with "sk-"
+                val testResult = if (apiKey.startsWith("sk-") && apiKey.length > 20) {
+                    "API key format looks valid. Save to test with actual API calls."
+                } else {
+                    "Invalid key format. OpenAI keys should start with 'sk-'"
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    openaiTestResult = testResult
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    openaiTestResult = "Test failed: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Update AI function settings
+     */
+    fun updateAIFunctionSettings(settings: AIFunctionSettings) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                aiFunctions = settings,
+                statusMessage = "AI function settings updated",
+                hasError = false
+            )
+        }
+    }
+
+    /**
+     * Toggle individual AI function
+     */
+    fun toggleAIFunction(function: String, enabled: Boolean) {
+        val currentSettings = _uiState.value.aiFunctions
+        val newSettings = when (function) {
+            "ocr" -> currentSettings.copy(ocrEnabled = enabled)
+            "book_id" -> currentSettings.copy(bookIdentification = enabled)
+            "summarization" -> currentSettings.copy(contentSummarization = enabled)
+            "recommendations" -> currentSettings.copy(recommendations = enabled)
+            "translation" -> currentSettings.copy(translation = enabled)
+            "chat" -> currentSettings.copy(chatAssistant = enabled)
+            else -> currentSettings
+        }
+        _uiState.value = _uiState.value.copy(
+            aiFunctions = newSettings,
+            statusMessage = "$function ${if (enabled) "enabled" else "disabled"}",
+            hasError = false
+        )
+    }
+
+    /**
+     * Set preferred AI provider
+     */
+    fun setPreferredAIProvider(provider: AIProvider) {
+        val currentSettings = _uiState.value.aiFunctions
+        _uiState.value = _uiState.value.copy(
+            aiFunctions = currentSettings.copy(preferredProvider = provider),
+            statusMessage = "Using ${provider.displayName} as preferred AI provider",
+            hasError = false
+        )
+    }
 }
 
 /**
@@ -361,6 +463,7 @@ class APISettingsViewModel @Inject constructor(
 data class APISettingsUiState(
     val isLoading: Boolean = false,
     val geminiApiKey: String? = null,
+    val openaiApiKey: String? = null,  // OpenAI/ChatGPT API key
     val comicVineApiKey: String? = null,
     val tastediveApiKey: String? = null,
     val tmdbApiKey: String? = null,
@@ -380,14 +483,40 @@ data class APISettingsUiState(
     val githubApiKey: String? = null,  // GitHub token for debug bug reports
     
     val geminiTestResult: String? = null,
+    val openaiTestResult: String? = null,
     val imageGeneratorType: ImageGeneratorType = ImageGeneratorType.IMAGEN,
     val geminiEnabled: Boolean = true,
     val exoPlayerEnabled: Boolean = true,
     val podcastsEnabled: Boolean = true,
     val cloudTTSEnabled: Boolean = false,
     val statusMessage: String? = null,
-    val hasError: Boolean = false
-    ,
+    val hasError: Boolean = false,
     val artworkApis: ArtworkApiSettings = ArtworkApiSettings(),
-    val lyricsApis: LyricsApiSettings = LyricsApiSettings()
+    val lyricsApis: LyricsApiSettings = LyricsApiSettings(),
+    
+    // AI Function Controls - fine-grained control over which AI functions to use
+    val aiFunctions: AIFunctionSettings = AIFunctionSettings()
 )
+
+/**
+ * Settings for individual AI functions
+ * Allows users to enable/disable specific AI capabilities
+ */
+data class AIFunctionSettings(
+    val ocrEnabled: Boolean = true,              // OCR/Text extraction from images
+    val bookIdentification: Boolean = true,      // Book identification and metadata
+    val contentSummarization: Boolean = true,    // Summarize books/articles
+    val recommendations: Boolean = true,         // AI-powered recommendations
+    val translation: Boolean = false,            // Translate text (optional, uses quota)
+    val chatAssistant: Boolean = false,          // AI chat assistant for queries
+    val preferredProvider: AIProvider = AIProvider.GEMINI  // Which AI to use
+)
+
+/**
+ * Available AI providers
+ */
+enum class AIProvider(val displayName: String) {
+    GEMINI("Google Gemini"),
+    OPENAI("OpenAI ChatGPT"),
+    AUTO("Auto (Best Available)")
+}

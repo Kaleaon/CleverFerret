@@ -22,6 +22,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.settings.ImageGeneratorType
 import com.universalmedialibrary.data.settings.ArtworkApiSettings
 import com.universalmedialibrary.data.settings.LyricsApiSettings
+import com.universalmedialibrary.ui.settings.AIFunctionSettings
+import com.universalmedialibrary.ui.settings.AIProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import com.universalmedialibrary.ui.icons.PhosphorIcons
@@ -81,6 +83,22 @@ fun APISettingsScreen(
                 onTestKey = { viewModel.testGeminiApiKey(it) },
                 isLoading = uiState.isLoading,
                 testResult = uiState.geminiTestResult
+            )
+            
+            // OpenAI/ChatGPT Section
+            OpenAIAPISection(
+                apiKey = uiState.openaiApiKey ?: "",
+                onSaveKey = { viewModel.saveOpenAIApiKey(it) },
+                onTestKey = { viewModel.testOpenAIApiKey(it) },
+                isLoading = uiState.isLoading,
+                testResult = uiState.openaiTestResult
+            )
+            
+            // AI Function Controls - Fine-grained control over which AI features to use
+            AIFunctionControlsSection(
+                settings = uiState.aiFunctions,
+                onToggleFunction = { function, enabled -> viewModel.toggleAIFunction(function, enabled) },
+                onProviderSelected = { viewModel.setPreferredAIProvider(it) }
             )
             
             // TasteDive Section
@@ -538,6 +556,268 @@ private fun GeminiAPISection(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun OpenAIAPISection(
+    apiKey: String,
+    onSaveKey: (String) -> Unit,
+    onTestKey: (String) -> Unit,
+    isLoading: Boolean,
+    testResult: String?
+) {
+    var currentKey by remember(apiKey) { mutableStateOf(apiKey) }
+    var showKey by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "OpenAI ChatGPT",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Enable ChatGPT for content summarization, recommendations, and chat assistance.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // API Key Input + Info
+            OutlinedTextField(
+                value = currentKey,
+                onValueChange = { currentKey = it },
+                label = { Text("OpenAI API Key") },
+                placeholder = { Text("sk-...") },
+                visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = {
+                            val url = "https://platform.openai.com/api-keys"
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, url.toUri())
+                            context.startActivity(intent)
+                        }) {
+                            Icon(
+                                imageVector = PhosphorIcons.Info,
+                                contentDescription = "Where to get a key"
+                            )
+                        }
+                        IconButton(onClick = { showKey = !showKey }) {
+                            Icon(
+                                imageVector = if (showKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = if (showKey) "Hide key" else "Show key"
+                            )
+                        }
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Action Buttons
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { onSaveKey(currentKey) },
+                    enabled = !isLoading && currentKey.isNotBlank(),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Save Key")
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = { onTestKey(currentKey) },
+                    enabled = !isLoading && currentKey.isNotBlank(),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Test Key")
+                }
+            }
+
+            // Test Result
+            if (testResult != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = testResult,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (testResult.contains("valid", ignoreCase = true)) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AIFunctionControlsSection(
+    settings: AIFunctionSettings,
+    onToggleFunction: (String, Boolean) -> Unit,
+    onProviderSelected: (AIProvider) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "AI Function Controls",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Select which AI features to enable. Disable unused features to reduce API usage.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Preferred AI Provider
+            Text(
+                text = "Preferred AI Provider",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            AIProvider.values().forEach { provider ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = settings.preferredProvider == provider,
+                        onClick = { onProviderSelected(provider) }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = provider.displayName,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
+            // Function Toggles
+            Text(
+                text = "Enabled Functions",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // OCR Toggle
+            AIFunctionToggle(
+                title = "OCR (Text Extraction)",
+                description = "Extract text from images and scanned documents",
+                enabled = settings.ocrEnabled,
+                onToggle = { onToggleFunction("ocr", it) }
+            )
+
+            // Book Identification Toggle
+            AIFunctionToggle(
+                title = "Book/Media Identification",
+                description = "Identify books from covers and fetch metadata",
+                enabled = settings.bookIdentification,
+                onToggle = { onToggleFunction("book_id", it) }
+            )
+
+            // Summarization Toggle
+            AIFunctionToggle(
+                title = "Content Summarization",
+                description = "Generate summaries for books and articles",
+                enabled = settings.contentSummarization,
+                onToggle = { onToggleFunction("summarization", it) }
+            )
+
+            // Recommendations Toggle
+            AIFunctionToggle(
+                title = "AI Recommendations",
+                description = "Get personalized content recommendations",
+                enabled = settings.recommendations,
+                onToggle = { onToggleFunction("recommendations", it) }
+            )
+
+            // Translation Toggle
+            AIFunctionToggle(
+                title = "Translation",
+                description = "Translate text between languages (uses more quota)",
+                enabled = settings.translation,
+                onToggle = { onToggleFunction("translation", it) }
+            )
+
+            // Chat Assistant Toggle
+            AIFunctionToggle(
+                title = "Chat Assistant",
+                description = "AI chat for questions about your library",
+                enabled = settings.chatAssistant,
+                onToggle = { onToggleFunction("chat", it) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun AIFunctionToggle(
+    title: String,
+    description: String,
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Switch(
+            checked = enabled,
+            onCheckedChange = onToggle
+        )
     }
 }
 
