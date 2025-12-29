@@ -224,7 +224,7 @@ class ReaderViewModel @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            Log.d(TAG, "Failed to load progress for item $itemId", e)
+            Log.w(TAG, "Failed to load progress for item $itemId", e)
         }
     }
     
@@ -247,7 +247,7 @@ class ReaderViewModel @Inject constructor(
                 )
             }
         } catch (e: Exception) {
-            Log.d(TAG, "Failed to load bookmarks for item $itemId", e)
+            Log.w(TAG, "Failed to load bookmarks for item $itemId", e)
         }
     }
     
@@ -388,7 +388,7 @@ class ReaderViewModel @Inject constructor(
                 currentChapter = state.currentChapterIndex + 1
             )
         } catch (e: Exception) {
-            Log.d(TAG, "Failed to save progress", e)
+            Log.w(TAG, "Failed to save progress", e)
         }
     }
     

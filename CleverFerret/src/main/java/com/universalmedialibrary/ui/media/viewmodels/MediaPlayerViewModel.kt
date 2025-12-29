@@ -37,7 +37,6 @@ class AudioPlayerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
     private val musicPlayerService: AdvancedMusicPlayerService,
-    private val exoPlayerService: ExoPlayerService,
     private val sleepTimerManager: SleepTimerManager,
     private val musicRepository: MusicRepository,
     private val audiobookRepository: AudiobookRepository,
