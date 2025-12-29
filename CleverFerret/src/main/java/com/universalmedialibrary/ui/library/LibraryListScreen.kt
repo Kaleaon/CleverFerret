@@ -35,11 +35,6 @@ fun LibraryListScreen(
 
     val colorScheme = MaterialTheme.colorScheme
 
-    // Create sample data on first launch
-    LaunchedEffect(Unit) {
-        viewModel.createSampleData()
-    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
