@@ -87,3 +87,17 @@
 - [ ] Create user documentation (after integration)
 - [ ] Clean up old placeholder code (after integration)
 - [ ] Add inline code documentation (ongoing)
+
+## Phase 11: SynthChat AI Integration (COMPLETE)
+- [x] Add SynthChat as AI provider option in settings
+- [x] Create AIFunctionSettings with SynthChat-specific toggles
+- [x] Add SynthChat controls to API Settings screen
+- [x] Create SynthLocalDocument entity for editable documents
+- [x] Create SynthLocalDocumentDao with full CRUD operations
+- [x] Add repository methods for local document management
+- [x] Create SynthDocumentListScreen for browsing documents
+- [x] Create SynthDocumentEditorScreen for editing documents
+- [x] Add character export to document functionality
+- [x] Add conversation export to document functionality
+- [x] Integrate documents navigation in AI Entertainment hub
+- [x] Update database version with new entity
