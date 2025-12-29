@@ -813,7 +813,8 @@ data class ReaderState(
 data class ReaderContent(
     val text: String = "",
     val imageUrl: String? = null,
-    val htmlContent: String? = null
+    val htmlContent: String? = null,
+    val imageUrls: List<String> = emptyList() // For comics - list of page image paths
 )
 
 data class ChapterInfo(
