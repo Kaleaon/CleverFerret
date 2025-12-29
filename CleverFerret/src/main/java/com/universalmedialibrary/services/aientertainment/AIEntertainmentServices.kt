@@ -389,6 +389,7 @@ class SynthCharacterService @Inject constructor(
 
 /**
  * Chat Service - Manages conversations with AI characters
+ * Enhanced with AI tools, logging, and library browsing capabilities
  */
 @Singleton
 class SynthChatService @Inject constructor(
@@ -397,6 +398,23 @@ class SynthChatService @Inject constructor(
 ) {
     private val json = Json { ignoreUnknownKeys = true }
     private val prefs: SharedPreferences = context.getSharedPreferences("synth_chat", Context.MODE_PRIVATE)
+    
+    // Injected tools and services (set via setter injection to avoid circular dependencies)
+    private var aiToolsService: com.universalmedialibrary.services.ai.AIToolsService? = null
+    private var aiLogStorageService: com.universalmedialibrary.services.ai.AILogStorageService? = null
+    private var aiSettings: com.universalmedialibrary.data.preferences.AISettingsPreferencesStore? = null
+    
+    fun setAIToolsService(service: com.universalmedialibrary.services.ai.AIToolsService) {
+        aiToolsService = service
+    }
+    
+    fun setAILogStorageService(service: com.universalmedialibrary.services.ai.AILogStorageService) {
+        aiLogStorageService = service
+    }
+    
+    fun setAISettingsStore(settings: com.universalmedialibrary.data.preferences.AISettingsPreferencesStore) {
+        aiSettings = settings
+    }
     
     private val _messages = MutableStateFlow<List<SynthMessage>>(emptyList())
     val messages: StateFlow<List<SynthMessage>> = _messages.asStateFlow()
@@ -413,7 +431,14 @@ class SynthChatService @Inject constructor(
     private val _currentMood = MutableStateFlow<MoodState?>(null)
     val currentMood: StateFlow<MoodState?> = _currentMood.asStateFlow()
     
+    private val _toolExecutionPending = MutableStateFlow<com.universalmedialibrary.services.ai.ToolRequest?>(null)
+    val toolExecutionPending: StateFlow<com.universalmedialibrary.services.ai.ToolRequest?> = _toolExecutionPending.asStateFlow()
+    
+    private val _lastToolResult = MutableStateFlow<com.universalmedialibrary.services.ai.ToolResult?>(null)
+    val lastToolResult: StateFlow<com.universalmedialibrary.services.ai.ToolResult?> = _lastToolResult.asStateFlow()
+    
     private var personalityService: SynthPersonalityEvolutionService? = null
+    private var currentSessionId: String? = null
     
     private val httpClient = OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS)
@@ -628,6 +653,141 @@ class SynthChatService @Inject constructor(
                 _messages.value = listOf(greetingMessage)
             }
         }
+    }
+    
+    // ==================== AI Tools Integration ====================
+    
+    /**
+     * Start a new chat session (generates session ID for logging)
+     */
+    fun startNewSession() {
+        currentSessionId = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US)
+            .format(java.util.Date())
+    }
+    
+    /**
+     * Parse message for tool requests
+     */
+    fun detectToolRequest(message: String): com.universalmedialibrary.services.ai.ToolRequest? {
+        return aiToolsService?.parseToolRequest(message)
+    }
+    
+    /**
+     * Execute a tool and add the result to the conversation
+     */
+    suspend fun executeTool(
+        character: SynthCharacter,
+        toolRequest: com.universalmedialibrary.services.ai.ToolRequest
+    ): com.universalmedialibrary.services.ai.ToolResult? {
+        val toolsService = aiToolsService ?: return null
+        
+        _isTyping.value = true
+        
+        try {
+            val result = toolsService.executeTool(toolRequest.toolId, toolRequest.parameters)
+            _lastToolResult.value = result
+            
+            // Add a system message showing the tool result
+            if (result.success && result.summary != null) {
+                val toolMessage = repository.addMessage(
+                    characterId = character.id,
+                    role = "assistant",
+                    content = "🔧 *Using ${getToolDisplayName(toolRequest.toolId)}*\n\n${result.summary}",
+                    emotion = "helpful"
+                )
+                
+                if (toolMessage != null) {
+                    _messages.value = _messages.value + toolMessage
+                }
+            }
+            
+            _isTyping.value = false
+            _toolExecutionPending.value = null
+            return result
+        } catch (e: Exception) {
+            _isTyping.value = false
+            return com.universalmedialibrary.services.ai.ToolResult(
+                success = false,
+                toolId = toolRequest.toolId,
+                error = e.message ?: "Tool execution failed"
+            )
+        }
+    }
+    
+    private fun getToolDisplayName(toolId: String): String {
+        return when (toolId) {
+            "web_search" -> "Web Search"
+            "fetch_webpage" -> "Fetching Webpage"
+            "download_pdf" -> "Downloading PDF"
+            "download_article" -> "Downloading Article"
+            "browse_library" -> "Browsing Library"
+            "get_library_item" -> "Getting Item Details"
+            "search_cached_content" -> "Searching Cache"
+            "get_reading_progress" -> "Checking Reading Progress"
+            "get_recommendations" -> "Getting Recommendations"
+            else -> "Tool"
+        }
+    }
+    
+    /**
+     * Request user confirmation for tool execution
+     */
+    fun requestToolConfirmation(toolRequest: com.universalmedialibrary.services.ai.ToolRequest) {
+        _toolExecutionPending.value = toolRequest
+    }
+    
+    /**
+     * Cancel pending tool execution
+     */
+    fun cancelToolExecution() {
+        _toolExecutionPending.value = null
+    }
+    
+    /**
+     * Get available tools for display
+     */
+    fun getAvailableTools(): List<com.universalmedialibrary.services.ai.AITool> {
+        return aiToolsService?.availableTools ?: emptyList()
+    }
+    
+    // ==================== Logging Integration ====================
+    
+    /**
+     * Save the current conversation to logs
+     */
+    suspend fun saveConversationLog(character: SynthCharacter) {
+        val logService = aiLogStorageService ?: return
+        val settings = aiSettings ?: return
+        
+        // Check if logging is enabled
+        val loggingEnabled = kotlinx.coroutines.flow.first { settings.aiLogEnabled }
+        if (!loggingEnabled) return
+        
+        logService.saveConversationLog(
+            character = character,
+            messages = _messages.value,
+            sessionId = currentSessionId
+        )
+    }
+    
+    /**
+     * Export conversation logs for a character
+     */
+    suspend fun exportLogs(
+        character: SynthCharacter,
+        format: com.universalmedialibrary.services.ai.ExportFormat = com.universalmedialibrary.services.ai.ExportFormat.JSON
+    ): Result<java.io.File> {
+        val logService = aiLogStorageService 
+            ?: return Result.failure(Exception("Log service not available"))
+        
+        return logService.exportConversationLogs(character, format)
+    }
+    
+    /**
+     * Load previous conversation logs for a character
+     */
+    suspend fun loadConversationLogs(character: SynthCharacter): List<com.universalmedialibrary.services.ai.ConversationLog> {
+        return aiLogStorageService?.loadConversationLogs(character) ?: emptyList()
     }
 }
 

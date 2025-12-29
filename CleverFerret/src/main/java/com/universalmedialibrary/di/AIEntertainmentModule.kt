@@ -7,7 +7,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import com.universalmedialibrary.data.aientertainment.*
+import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.dao.ReadingProgressDao
+import com.universalmedialibrary.data.preferences.AISettingsPreferencesStore
 import com.universalmedialibrary.services.aientertainment.*
+import com.universalmedialibrary.services.ai.*
 import javax.inject.Singleton
 
 /**
@@ -165,5 +171,57 @@ object AIEntertainmentModule {
         @ApplicationContext context: Context
     ): SynthDocumentParserService {
         return SynthDocumentParserService(repository, context)
+    }
+    
+    // ==================== AI Tools & Services ====================
+    
+    @Provides
+    @Singleton
+    fun provideAILogStorageService(
+        @ApplicationContext context: Context,
+        aiSettings: AISettingsPreferencesStore
+    ): AILogStorageService {
+        return AILogStorageService(context, aiSettings)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAIContentCacheService(
+        @ApplicationContext context: Context,
+        aiSettings: AISettingsPreferencesStore
+    ): AIContentCacheService {
+        return AIContentCacheService(context, aiSettings)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAILibraryBrowserService(
+        @ApplicationContext context: Context,
+        libraryDao: LibraryDao,
+        mediaItemDao: MediaItemDao,
+        metadataDao: MetadataDao,
+        readingProgressDao: ReadingProgressDao
+    ): AILibraryBrowserService {
+        return AILibraryBrowserService(
+            context = context,
+            libraryDao = libraryDao,
+            mediaItemDao = mediaItemDao,
+            metadataDao = metadataDao,
+            readingProgressDao = readingProgressDao
+        )
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAIToolsService(
+        @ApplicationContext context: Context,
+        aiContentCacheService: AIContentCacheService,
+        aiLibraryBrowserService: AILibraryBrowserService
+    ): AIToolsService {
+        return AIToolsService(
+            context = context,
+            aiContentCacheService = aiContentCacheService,
+            aiLibraryBrowserService = aiLibraryBrowserService
+        )
     }
 }
