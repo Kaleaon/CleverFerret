@@ -670,13 +670,4 @@ class AIEntertainmentRepository @Inject constructor(
             memoryCategoryDao.insertAll(defaultCategories)
         }
     }
-    
-    /**
-     * Get DAOs for direct access (used by MCPMemoryService)
-     */
-    fun getMemoryDao(): SynthMemoryDao = memoryDao
-    fun getMemoryCategoryDao(): SynthMemoryCategoryDao = memoryCategoryDao
-    fun getMemoryStoreDao(): SynthMemoryStoreDao = memoryStoreDao
-    fun getMemoryBlockDao(): SynthMemoryBlockDao = memoryBlockDao
-    fun getMemoryAccessLogDao(): SynthMemoryAccessLogDao = memoryAccessLogDao
 }

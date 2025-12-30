@@ -40,6 +40,19 @@ class MCPMemoryService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val memoryStorageService: AIMemoryStorageService
 ) {
+    companion object {
+        /**
+         * Common profession keywords used in memory extraction.
+         * Can be extended or customized as needed.
+         */
+        val PROFESSION_KEYWORDS = listOf(
+            "teacher", "developer", "engineer", "doctor", "student", 
+            "writer", "artist", "designer", "programmer", "manager",
+            "consultant", "analyst", "architect", "scientist", "researcher",
+            "nurse", "lawyer", "accountant", "chef", "musician"
+        )
+    }
+    
     private val json = Json { 
         ignoreUnknownKeys = true 
         encodeDefaults = true
@@ -47,12 +60,8 @@ class MCPMemoryService @Inject constructor(
     
     private val scope = CoroutineScope(Dispatchers.IO)
     
-    // Repository will be injected via setter to avoid circular dependency
-    private var memoryDao: SynthMemoryDao? = null
-    private var categoryDao: SynthMemoryCategoryDao? = null
-    private var storeDao: SynthMemoryStoreDao? = null
-    private var blockDao: SynthMemoryBlockDao? = null
-    private var accessLogDao: SynthMemoryAccessLogDao? = null
+    // Repository for all data access
+    private var repository: AIEntertainmentRepository? = null
     
     private val _isInitialized = MutableStateFlow(false)
     val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
@@ -69,20 +78,10 @@ class MCPMemoryService @Inject constructor(
     // ==================== Initialization ====================
     
     /**
-     * Initialize the service with DAO references
+     * Initialize the service with repository reference
      */
-    fun initialize(
-        memoryDao: SynthMemoryDao,
-        categoryDao: SynthMemoryCategoryDao,
-        storeDao: SynthMemoryStoreDao,
-        blockDao: SynthMemoryBlockDao,
-        accessLogDao: SynthMemoryAccessLogDao
-    ) {
-        this.memoryDao = memoryDao
-        this.categoryDao = categoryDao
-        this.storeDao = storeDao
-        this.blockDao = blockDao
-        this.accessLogDao = accessLogDao
+    fun initialize(repository: AIEntertainmentRepository) {
+        this.repository = repository
         
         _availableTools.value = getMCPTools()
         _isInitialized.value = true
@@ -105,12 +104,12 @@ class MCPMemoryService @Inject constructor(
      * Initialize default system categories for a character
      */
     private suspend fun initializeDefaultCategories(characterId: Long) {
-        val dao = categoryDao ?: return
+        val repo = repository ?: return
         
-        val existingCount = dao.getCategoryCount(characterId)
-        if (existingCount == 0) {
+        val categories = repo.getMemoryCategoriesOnce(characterId)
+        if (categories.isEmpty()) {
             val systemCategories = SynthMemoryCategory.createSystemCategories(characterId)
-            dao.insertAll(systemCategories)
+            repo.createMemoryCategories(systemCategories)
         }
     }
     
@@ -118,21 +117,9 @@ class MCPMemoryService @Inject constructor(
      * Refresh memory statistics for a character
      */
     private suspend fun refreshMemoryStats(characterId: Long) {
-        val mDao = memoryDao ?: return
-        val cDao = categoryDao ?: return
-        val bDao = blockDao ?: return
+        val repo = repository ?: return
         
-        _memoryStats.value = MemoryStats(
-            totalMemories = mDao.getMemoryCount(characterId),
-            totalCategories = cDao.getCategoryCount(characterId),
-            totalBlocks = bDao.getAllBlocks(characterId).size,
-            avgImportance = mDao.getAverageImportance(characterId) ?: 0.5f,
-            mostAccessedCount = mDao.getMaxAccessCount(characterId) ?: 0,
-            oldestMemoryDate = mDao.getOldestMemoryDate(characterId),
-            newestMemoryDate = mDao.getNewestMemoryDate(characterId),
-            pinnedCount = mDao.getPinnedCount(characterId),
-            archivedCount = mDao.getArchivedCount(characterId)
-        )
+        _memoryStats.value = repo.getMemoryStats(characterId)
     }
     
     // ==================== MCP Tools Definition ====================
@@ -257,8 +244,7 @@ class MCPMemoryService @Inject constructor(
         characterId: Long,
         params: Map<String, Any?>
     ): MCPToolResult {
-        val dao = memoryDao ?: return MCPToolResult(success = false, error = "Memory DAO not initialized")
-        val catDao = categoryDao ?: return MCPToolResult(success = false, error = "Category DAO not initialized")
+        val repo = repository ?: return MCPToolResult(success = false, error = "Repository not initialized")
         
         val key = params["key"] as? String ?: return MCPToolResult(success = false, error = "Key is required")
         val content = params["content"] as? String ?: return MCPToolResult(success = false, error = "Content is required")
@@ -269,15 +255,15 @@ class MCPMemoryService @Inject constructor(
         
         // Find or create category
         val categoryId = categoryName?.let { name ->
-            catDao.findByName(characterId, name)?.id
+            repo.findMemoryCategoryByName(characterId, name)?.id
         }
         
         // Check for existing memory with same key
-        val existing = dao.findByKey(characterId, key)
+        val existing = repo.findMemoryByKey(characterId, key)
         
         val memoryId = if (existing != null) {
             // Update existing memory
-            dao.update(existing.copy(
+            repo.updateMemory(existing.copy(
                 content = content,
                 importance = importance,
                 tags = json.encodeToString(tags),
@@ -287,7 +273,7 @@ class MCPMemoryService @Inject constructor(
             existing.id
         } else {
             // Create new memory
-            dao.insert(SynthMemory(
+            repo.createMemory(SynthMemory(
                 characterId = characterId,
                 key = key,
                 content = content,
@@ -314,21 +300,21 @@ class MCPMemoryService @Inject constructor(
         characterId: Long,
         params: Map<String, Any?>
     ): MCPToolResult {
-        val dao = memoryDao ?: return MCPToolResult(success = false, error = "Memory DAO not initialized")
+        val repo = repository ?: return MCPToolResult(success = false, error = "Repository not initialized")
         
         val query = params["query"] as? String
         val limit = (params["limit"] as? Number)?.toInt() ?: 10
         
         val memories = if (!query.isNullOrBlank()) {
-            dao.searchMemories(characterId, query, limit)
+            repo.searchMemories(characterId, query, limit)
         } else {
-            dao.getRecentMemories(characterId, limit)
+            repo.getRecentMemories(characterId, limit)
         }
         
         // Record access
         memories.forEach { memory ->
-            dao.recordAccess(memory.id)
-            accessLogDao?.insert(SynthMemoryAccessLog(
+            repo.recordMemoryAccess(memory.id)
+            repo.logMemoryAccess(SynthMemoryAccessLog(
                 memoryId = memory.id,
                 accessType = "read",
                 context = query ?: "recall"
@@ -357,15 +343,15 @@ class MCPMemoryService @Inject constructor(
         characterId: Long,
         params: Map<String, Any?>
     ): MCPToolResult {
-        val dao = memoryDao ?: return MCPToolResult(success = false, error = "Memory DAO not initialized")
+        val repo = repository ?: return MCPToolResult(success = false, error = "Repository not initialized")
         
         val memoryId = (params["memoryId"] as? Number)?.toLong()
         val key = params["key"] as? String
         val archive = params["archive"] as? Boolean ?: true
         
         val memory = when {
-            memoryId != null -> dao.getById(memoryId)
-            key != null -> dao.findByKey(characterId, key)
+            memoryId != null -> repo.getMemory(memoryId)
+            key != null -> repo.findMemoryByKey(characterId, key)
             else -> return MCPToolResult(success = false, error = "Either memoryId or key is required")
         }
         
@@ -374,13 +360,13 @@ class MCPMemoryService @Inject constructor(
         }
         
         if (archive) {
-            dao.setArchived(memory.id, true)
+            repo.setMemoryArchived(memory.id, true)
         } else {
             // Delete from external storage if applicable
             memory.externalFilePath?.let { path ->
                 memoryStorageService.deleteMemoryFromStorage(path)
             }
-            dao.deleteById(memory.id)
+            repo.deleteMemory(memory.id)
         }
         
         refreshMemoryStats(characterId)
@@ -398,14 +384,14 @@ class MCPMemoryService @Inject constructor(
         characterId: Long,
         params: Map<String, Any?>
     ): MCPToolResult {
-        val dao = memoryDao ?: return MCPToolResult(success = false, error = "Memory DAO not initialized")
+        val repo = repository ?: return MCPToolResult(success = false, error = "Repository not initialized")
         
         val memoryId = (params["memoryId"] as? Number)?.toLong()
         val key = params["key"] as? String
         
         val memory = when {
-            memoryId != null -> dao.getById(memoryId)
-            key != null -> dao.findByKey(characterId, key)
+            memoryId != null -> repo.getMemory(memoryId)
+            key != null -> repo.findMemoryByKey(characterId, key)
             else -> return MCPToolResult(success = false, error = "Either memoryId or key is required")
         }
         
@@ -424,7 +410,7 @@ class MCPMemoryService @Inject constructor(
             updatedAt = System.currentTimeMillis()
         )
         
-        dao.update(updatedMemory)
+        repo.updateMemory(updatedMemory)
         
         return MCPToolResult(
             success = true,
@@ -439,8 +425,7 @@ class MCPMemoryService @Inject constructor(
         characterId: Long,
         params: Map<String, Any?>
     ): MCPToolResult {
-        val dao = memoryDao ?: return MCPToolResult(success = false, error = "Memory DAO not initialized")
-        val catDao = categoryDao ?: return MCPToolResult(success = false, error = "Category DAO not initialized")
+        val repo = repository ?: return MCPToolResult(success = false, error = "Repository not initialized")
         
         val categoryName = params["category"] as? String
         val memoryType = params["memoryType"] as? String
@@ -457,16 +442,16 @@ class MCPMemoryService @Inject constructor(
         }
         
         val categoryId = categoryName?.let { name ->
-            catDao.findByName(characterId, name)?.id
+            repo.findMemoryCategoryByName(characterId, name)?.id
         }
         
-        val memories = dao.queryMemories(
+        val memories = repo.queryMemories(MemoryQuery(
             characterId = characterId,
             categoryIds = if (categoryId != null) listOf(categoryId) else null,
-            memoryType = memoryType,
+            memoryTypes = if (memoryType != null) listOf(memoryType) else null,
             sortBy = sortBy,
             limit = limit
-        )
+        ))
         
         return MCPToolResult(
             success = true,
@@ -491,7 +476,7 @@ class MCPMemoryService @Inject constructor(
         characterId: Long,
         params: Map<String, Any?>
     ): MCPToolResult {
-        val dao = memoryDao ?: return MCPToolResult(success = false, error = "Memory DAO not initialized")
+        val repo = repository ?: return MCPToolResult(success = false, error = "Repository not initialized")
         
         val contextText = params["contextText"] as? String 
             ?: return MCPToolResult(success = false, error = "contextText is required")
@@ -501,10 +486,10 @@ class MCPMemoryService @Inject constructor(
         val relevantMemories = mutableListOf<SynthMemory>()
         
         // 1. Get pinned memories (always included)
-        relevantMemories.addAll(dao.getPinnedMemories(characterId))
+        relevantMemories.addAll(repo.getPinnedMemories(characterId))
         
         // 2. Get high-importance memories
-        relevantMemories.addAll(dao.getImportantMemories(characterId, 0.7f, 10))
+        relevantMemories.addAll(repo.getImportantMemories(characterId, 0.7f, 10))
         
         // 3. Search for context-relevant memories
         val contextWords = contextText.lowercase().split(Regex("\\s+"))
@@ -512,7 +497,7 @@ class MCPMemoryService @Inject constructor(
             .take(5)
         
         for (word in contextWords) {
-            val matches = dao.searchMemories(characterId, word, 5)
+            val matches = repo.searchMemories(characterId, word, 5)
             relevantMemories.addAll(matches)
         }
         
@@ -528,7 +513,7 @@ class MCPMemoryService @Inject constructor(
                 tokenCount += estimatedTokens
                 
                 // Record access
-                dao.recordAccess(memory.id)
+                repo.recordMemoryAccess(memory.id)
             }
         }
         
@@ -619,10 +604,10 @@ class MCPMemoryService @Inject constructor(
         sourceMessageId: Long? = null,
         context: String = ""
     ): Long? = withContext(Dispatchers.IO) {
-        val dao = memoryDao ?: return@withContext null
+        val repo = repository ?: return@withContext null
         
         try {
-            dao.insert(SynthMemory(
+            repo.createMemory(SynthMemory(
                 characterId = characterId,
                 key = key,
                 content = content,
@@ -645,15 +630,15 @@ class MCPMemoryService @Inject constructor(
         recentMessages: List<String>,
         maxMemories: Int = 10
     ): List<SynthMemory> = withContext(Dispatchers.IO) {
-        val dao = memoryDao ?: return@withContext emptyList()
+        val repo = repository ?: return@withContext emptyList()
         
         val result = mutableListOf<SynthMemory>()
         
         // Always include pinned memories
-        result.addAll(dao.getPinnedMemories(characterId))
+        result.addAll(repo.getPinnedMemories(characterId))
         
         // Include high-importance memories
-        result.addAll(dao.getImportantMemories(characterId, 0.8f, 5))
+        result.addAll(repo.getImportantMemories(characterId, 0.8f, 5))
         
         // Search for contextually relevant memories
         val contextKeywords = recentMessages
@@ -663,7 +648,7 @@ class MCPMemoryService @Inject constructor(
             .take(5)
         
         for (keyword in contextKeywords) {
-            val matches = dao.searchMemories(characterId, keyword, 3)
+            val matches = repo.searchMemories(characterId, keyword, 3)
             result.addAll(matches)
         }
         
@@ -687,11 +672,12 @@ class MCPMemoryService @Inject constructor(
         val potentialMemories = mutableListOf<Pair<String, String>>()
         
         // Look for "remember" statements
+        val professionPattern = PROFESSION_KEYWORDS.joinToString("|")
         val rememberPatterns = listOf(
             Regex("(?:remember|don't forget|keep in mind)[:\\s]+(.+)", RegexOption.IGNORE_CASE),
             Regex("my (?:name|favorite|hobby|job|work|birthday|age) is\\s+(.+)", RegexOption.IGNORE_CASE),
             Regex("I (?:like|love|hate|prefer|enjoy|dislike)\\s+(.+)", RegexOption.IGNORE_CASE),
-            Regex("I am (?:a|an)\\s+([\\w\\s-]+(?:teacher|developer|engineer|doctor|student|writer|artist|designer))", RegexOption.IGNORE_CASE),
+            Regex("I am (?:a|an)\\s+([\\w\\s-]+(?:$professionPattern))", RegexOption.IGNORE_CASE),
             Regex("I work (?:as|at|for|in)\\s+(.+)", RegexOption.IGNORE_CASE)
         )
         
@@ -739,10 +725,10 @@ class MCPMemoryService @Inject constructor(
         decayRate: Float = 0.01f,
         minImportance: Float = 0.1f
     ) = withContext(Dispatchers.IO) {
-        val dao = memoryDao ?: return@withContext
+        val repo = repository ?: return@withContext
         
         val oneWeekAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
-        val memories = dao.getMemoriesByCharacterIdOnce(characterId)
+        val memories = repo.getMemoriesOnce(characterId, limit = Int.MAX_VALUE)
         
         for (memory in memories) {
             if (memory.isPinned) continue // Don't decay pinned memories
@@ -751,7 +737,7 @@ class MCPMemoryService @Inject constructor(
             if (lastAccess < oneWeekAgo) {
                 val newImportance = (memory.importance - decayRate).coerceAtLeast(minImportance)
                 if (newImportance != memory.importance) {
-                    dao.updateImportance(memory.id, newImportance)
+                    repo.updateMemoryImportance(memory.id, newImportance)
                 }
             }
         }

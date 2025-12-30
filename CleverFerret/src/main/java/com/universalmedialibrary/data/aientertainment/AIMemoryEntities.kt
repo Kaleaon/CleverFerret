@@ -475,6 +475,12 @@ data class MCPMemoryTool(
 
 /**
  * Custom serializer for Map<String, Any> to handle JSON schema structures
+ * 
+ * **Numeric Range Handling:**
+ * - Integer values are parsed as Long (supports -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
+ * - Decimal values are parsed as Double (supports ~±5.0×10⁻³²⁴ to ±1.7×10³⁰⁸)
+ * - Values exceeding these ranges will lose precision or fall back to String representation
+ * - For extremely large integers or precise decimals, consider using String encoding
  */
 object AnyMapSerializer : kotlinx.serialization.KSerializer<Map<String, Any>> {
     override val descriptor = kotlinx.serialization.descriptors.buildClassSerialDescriptor("AnyMap")
@@ -535,6 +541,8 @@ object AnyMapSerializer : kotlinx.serialization.KSerializer<Map<String, Any>> {
                     element.content == "false" -> false
                     else -> {
                         // Try parsing as number: first try long, then double
+                        // This ensures integers within Long range are not converted to Double
+                        // Falls back to String if parsing fails (e.g., very large numbers, invalid formats)
                         element.content.toLongOrNull()
                             ?: element.content.toDoubleOrNull()
                             ?: element.content

@@ -182,14 +182,8 @@ object AIEntertainmentModule {
         repository: AIEntertainmentRepository
     ): MCPMemoryService {
         return MCPMemoryService(context, memoryStorageService).apply {
-            // Initialize with DAOs from repository for direct access
-            initialize(
-                memoryDao = repository.getMemoryDao(),
-                categoryDao = repository.getMemoryCategoryDao(),
-                storeDao = repository.getMemoryStoreDao(),
-                blockDao = repository.getMemoryBlockDao(),
-                accessLogDao = repository.getMemoryAccessLogDao()
-            )
+            // Initialize with repository for data access
+            initialize(repository)
         }
     }
     
