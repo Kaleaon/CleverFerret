@@ -35,6 +35,7 @@ pwa-demo/yarn-error.log*
 # Environment files
 *.env
 *.env.*
+secrets.properties
 
 # Kotlin compiler errors
 .kotlin/
@@ -45,7 +46,6 @@ build_*.log
 compile_*.log
 
 # Development artifacts and temporary files
-*.pdf
 *.csv
 *_SUMMARY.txt
 *SUMMARY*.txt
@@ -54,6 +54,19 @@ compile_*.log
 all_todos.txt
 conflicts.txt
 merge_log.txt
+
+# Root-level test/sample files (keep docs)
+/*.apk
+/*.ods
+/*.epub
+/*.html
+/*.json
+/*.png
+/*.db
+*.patch
+
+# Temporary organization scripts
+/tmp/
 
 # Temporary development scripts (keep release scripts)
 fix_*.sh
