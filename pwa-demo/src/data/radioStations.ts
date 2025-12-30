@@ -1,6 +1,6 @@
 /**
  * Radio Stations Database
- * 
+ *
  * Curated list of internet radio stations with working stream URLs
  * Organized by genre for easy browsing
  */
@@ -50,12 +50,12 @@ export const radioStations: RadioStation[] = [
     language: 'English',
     bitrate: '128',
   },
-  
+
   // POP STATIONS
   {
     id: '181-power',
     name: '181.FM - Power 181 (Top 40)',
-    description: 'Today\'s Hit Music',
+    description: "Today's Hit Music",
     streamUrl: 'http://listen.181fm.com/181-power_128k.mp3',
     genres: ['Pop', 'Top 40'],
     country: 'USA',
@@ -175,7 +175,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'kickin-country',
-    name: 'Kickin\' Country',
+    name: "Kickin' Country",
     streamUrl: 'http://jenny.torontocast.com:8014/;',
     genres: ['Country', 'Modern Country'],
     country: 'USA',
@@ -317,24 +317,25 @@ export const radioStations: RadioStation[] = [
 ];
 
 export const getStationsByGenre = (genre: string): RadioStation[] => {
-  return radioStations.filter(station => 
-    station.genres.some(g => g.toLowerCase().includes(genre.toLowerCase()))
+  return radioStations.filter((station) =>
+    station.genres.some((g) => g.toLowerCase().includes(genre.toLowerCase())),
   );
 };
 
 export const searchStations = (query: string): RadioStation[] => {
   const searchTerm = query.toLowerCase();
-  return radioStations.filter(station =>
-    station.name.toLowerCase().includes(searchTerm) ||
-    station.description?.toLowerCase().includes(searchTerm) ||
-    station.genres.some(g => g.toLowerCase().includes(searchTerm))
+  return radioStations.filter(
+    (station) =>
+      station.name.toLowerCase().includes(searchTerm) ||
+      station.description?.toLowerCase().includes(searchTerm) ||
+      station.genres.some((g) => g.toLowerCase().includes(searchTerm)),
   );
 };
 
 export const getAllGenres = (): string[] => {
   const genresSet = new Set<string>();
-  radioStations.forEach(station => {
-    station.genres.forEach(genre => genresSet.add(genre));
+  radioStations.forEach((station) => {
+    station.genres.forEach((genre) => genresSet.add(genre));
   });
   return Array.from(genresSet).sort();
 };

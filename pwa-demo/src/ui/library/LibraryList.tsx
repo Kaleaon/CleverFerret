@@ -1,6 +1,6 @@
 /**
  * Library List Screen
- * 
+ *
  * Displays all media libraries with filtering and management options.
  * Migrated from LibraryListScreen.kt in MainActivity.kt
  */
@@ -120,11 +120,7 @@ export const LibraryListScreen: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Menu
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={() => setMenuAnchor(null)}
-      >
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
         <MenuItem onClick={() => navigate('/settings/opds')}>OPDS Server</MenuItem>
         <MenuItem onClick={() => navigate('/servers')}>Server Integration</MenuItem>
         <MenuItem onClick={() => navigate('/theme_preview')}>Themes</MenuItem>
@@ -177,8 +173,8 @@ export const LibraryListScreen: React.FC = () => {
                         justifyContent: 'center',
                       }}
                     >
-                      {React.cloneElement(getLibraryIcon(library.type), { 
-                        sx: { fontSize: 48, color: 'inherit' } 
+                      {React.cloneElement(getLibraryIcon(library.type), {
+                        sx: { fontSize: 48, color: 'inherit' },
                       })}
                     </Box>
                   </Box>
@@ -266,10 +262,7 @@ export const LibraryListScreen: React.FC = () => {
           />
           <FormControl fullWidth margin="dense">
             <InputLabel>Library Type</InputLabel>
-            <Select
-              value={newLibraryType}
-              onChange={(e) => setNewLibraryType(e.target.value)}
-            >
+            <Select value={newLibraryType} onChange={(e) => setNewLibraryType(e.target.value)}>
               <MenuItem value="BOOK">Books</MenuItem>
               <MenuItem value="MOVIE">Movies</MenuItem>
               <MenuItem value="MUSIC">Music</MenuItem>

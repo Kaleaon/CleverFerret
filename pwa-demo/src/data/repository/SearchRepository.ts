@@ -1,6 +1,6 @@
 /**
  * Search Repository
- * 
+ *
  * Repository for search and filter operations.
  * Migrated from SearchRepository.kt
  */
@@ -34,23 +34,23 @@ export class SearchRepository {
 
     // Filter by media type
     if (mediaTypes.length > 0) {
-      items = items.filter(item =>
-        mediaTypes.some(type => type.toLowerCase() === item.mediaType.toLowerCase())
+      items = items.filter((item) =>
+        mediaTypes.some((type) => type.toLowerCase() === item.mediaType.toLowerCase()),
       );
     }
 
     // Filter by metadata availability
     if (hasMetadata !== undefined) {
-      items = items.filter(item => item.hasMetadata === hasMetadata);
+      items = items.filter((item) => item.hasMetadata === hasMetadata);
     }
 
     // Search in filename and path
     if (query.trim()) {
       const lowerQuery = query.toLowerCase();
       items = items.filter(
-        item =>
+        (item) =>
           item.fileName.toLowerCase().includes(lowerQuery) ||
-          item.filePath.toLowerCase().includes(lowerQuery)
+          item.filePath.toLowerCase().includes(lowerQuery),
       );
     }
 
@@ -107,21 +107,21 @@ export class SearchRepository {
 
     // Get filename suggestions
     const items = await db.mediaItems
-      .filter(item => item.fileName.toLowerCase().includes(lowerQuery))
+      .filter((item) => item.fileName.toLowerCase().includes(lowerQuery))
       .limit(limit)
       .toArray();
 
-    items.forEach(item => {
+    items.forEach((item) => {
       suggestions.add(item.fileName.replace(/\.[^/.]+$/, '')); // Remove extension
     });
 
     // Get metadata title suggestions
     const metadata = await db.metadataCommon
-      .filter(meta => meta.title?.toLowerCase().includes(lowerQuery))
+      .filter((meta) => meta.title?.toLowerCase().includes(lowerQuery))
       .limit(limit)
       .toArray();
 
-    metadata.forEach(meta => {
+    metadata.forEach((meta) => {
       if (meta.title) {
         suggestions.add(meta.title);
       }
@@ -141,23 +141,21 @@ export class SearchRepository {
       items = await db.mediaItems.toArray();
     }
 
-    const mediaTypes = Array.from(
-      new Set(items.map(item => item.mediaType))
-    ).sort();
+    const mediaTypes = Array.from(new Set(items.map((item) => item.mediaType))).sort();
 
     // Get years from metadata
-    const metadataIds = items.map(item => item.itemId);
+    const metadataIds = items.map((item) => item.itemId);
     const metadataList = await db.metadataCommon.bulkGet(metadataIds);
     const years = metadataList
       .filter((m): m is MetadataCommon => m !== undefined && m.year !== undefined)
-      .map(m => m.year!);
+      .map((m) => m.year!);
 
     const uniqueYears = Array.from(new Set(years)).sort((a, b) => a - b);
 
     // Get ratings
     const ratings = metadataList
       .filter((m): m is MetadataCommon => m !== undefined)
-      .map(m => m.rating || m.userRating)
+      .map((m) => m.rating || m.userRating)
       .filter((r): r is number => r !== undefined);
 
     const uniqueRatings = Array.from(new Set(ratings)).sort((a, b) => a - b);
@@ -165,16 +163,14 @@ export class SearchRepository {
     return {
       availableMediaTypes: mediaTypes,
       yearRange:
-        uniqueYears.length > 0
-          ? [uniqueYears[0], uniqueYears[uniqueYears.length - 1]]
-          : undefined,
+        uniqueYears.length > 0 ? [uniqueYears[0], uniqueYears[uniqueYears.length - 1]] : undefined,
       ratingRange:
         uniqueRatings.length > 0
           ? [uniqueRatings[0], uniqueRatings[uniqueRatings.length - 1]]
           : undefined,
       totalItems: items.length,
-      itemsWithMetadata: items.filter(i => i.hasMetadata).length,
-      itemsWithoutMetadata: items.filter(i => !i.hasMetadata).length,
+      itemsWithMetadata: items.filter((i) => i.hasMetadata).length,
+      itemsWithoutMetadata: items.filter((i) => !i.hasMetadata).length,
     };
   }
 
@@ -191,7 +187,7 @@ export class SearchRepository {
    */
   async saveRecentSearch(query: string): Promise<void> {
     const recent = await this.getRecentSearches();
-    const updated = [query, ...recent.filter(q => q !== query)].slice(0, 10);
+    const updated = [query, ...recent.filter((q) => q !== query)].slice(0, 10);
     localStorage.setItem('recentSearches', JSON.stringify(updated));
   }
 

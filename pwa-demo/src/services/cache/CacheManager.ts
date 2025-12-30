@@ -1,6 +1,6 @@
 /**
  * Cache Manager
- * 
+ *
  * Manages caching of images, metadata, and other resources using Cache API.
  * Migrated from CacheManager.kt
  */
@@ -38,7 +38,7 @@ export class CacheManager {
     try {
       const cache = await caches.open(this.IMAGE_CACHE_NAME);
       const response = await cache.match(url);
-      
+
       if (!response) return null;
 
       // Check expiry
@@ -81,7 +81,7 @@ export class CacheManager {
 
     try {
       const cacheData = JSON.parse(cached);
-      
+
       // Check if expired
       if (Date.now() - cacheData.timestamp > this.CACHE_EXPIRY) {
         localStorage.removeItem(`meta_${key}`);
@@ -100,7 +100,7 @@ export class CacheManager {
   async clearAllCaches(): Promise<void> {
     // Clear localStorage metadata
     const keys = Object.keys(localStorage);
-    keys.forEach(key => {
+    keys.forEach((key) => {
       if (key.startsWith('meta_')) {
         localStorage.removeItem(key);
       }
@@ -109,9 +109,7 @@ export class CacheManager {
     // Clear Cache API
     if ('caches' in window) {
       const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames.map(cacheName => caches.delete(cacheName))
-      );
+      await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
     }
   }
 
@@ -150,7 +148,7 @@ export class CacheManager {
    * Preload multiple images
    */
   async preloadImages(urls: string[]): Promise<void> {
-    await Promise.all(urls.map(url => this.preloadImage(url)));
+    await Promise.all(urls.map((url) => this.preloadImage(url)));
   }
 }
 

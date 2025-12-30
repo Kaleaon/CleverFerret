@@ -44,10 +44,7 @@ export class NetworkUtils {
   /**
    * Retry function with exponential backoff
    */
-  static async retry<T>(
-    fn: () => Promise<T>,
-    options: RetryOptions = {}
-  ): Promise<T> {
+  static async retry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
     const { maxRetries = 3, delay = 1000, backoff = true } = options;
     let lastError: Error;
 
@@ -72,7 +69,7 @@ export class NetworkUtils {
   static async fetchWithTimeout(
     url: string,
     timeout: number = 10000,
-    options?: RequestInit
+    options?: RequestInit,
   ): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -95,7 +92,7 @@ export class NetworkUtils {
    */
   static async downloadWithProgress(
     url: string,
-    onProgress?: (loaded: number, total: number) => void
+    onProgress?: (loaded: number, total: number) => void,
   ): Promise<Blob> {
     const response = await fetch(url);
     const total = parseInt(response.headers.get('content-length') || '0');

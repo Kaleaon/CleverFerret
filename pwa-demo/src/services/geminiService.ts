@@ -1,8 +1,8 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type } from '@google/genai';
 import { MediaItem, MediaType } from '../types';
 
 if (!process.env.API_KEY) {
-  console.warn("API_KEY environment variable not set. Gemini features will be disabled.");
+  console.warn('API_KEY environment variable not set. Gemini features will be disabled.');
 }
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
@@ -12,51 +12,51 @@ const enhanceMetadataSchema = {
   properties: {
     summary: {
       type: Type.STRING,
-      description: "A compelling one-paragraph summary of the media item.",
+      description: 'A compelling one-paragraph summary of the media item.',
     },
     genres: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
-      description: "An array of 3 to 5 relevant genres.",
+      description: 'An array of 3 to 5 relevant genres.',
     },
     releaseDate: {
       type: Type.STRING,
-      description: "The original release date in YYYY-MM-DD format.",
+      description: 'The original release date in YYYY-MM-DD format.',
     },
     isbn: {
       type: Type.STRING,
-      description: "The ISBN-13 of the book, if applicable. Otherwise, null.",
+      description: 'The ISBN-13 of the book, if applicable. Otherwise, null.',
     },
-     publisher: {
+    publisher: {
       type: Type.STRING,
-      description: "The publisher of the book, if applicable. Otherwise, null.",
+      description: 'The publisher of the book, if applicable. Otherwise, null.',
     },
   },
-  required: ["summary", "genres", "releaseDate"],
+  required: ['summary', 'genres', 'releaseDate'],
 };
-
 
 export const enhanceMetadata = async (item: MediaItem): Promise<Partial<MediaItem>> => {
   if (!process.env.API_KEY) {
-    throw new Error("Gemini API key is not configured.");
+    throw new Error('Gemini API key is not configured.');
   }
 
-  const primaryCreatorType = item.type === MediaType.Book ? 'Author' : item.type === MediaType.Movie ? 'Director' : 'Artist';
+  const primaryCreatorType =
+    item.type === MediaType.Book ? 'Author' : item.type === MediaType.Movie ? 'Director' : 'Artist';
   const primaryCreators = item.authors || item.directors || item.artists || [];
-  
+
   const prompt = `Enhance the metadata for the following ${item.type}:
   - Title: "${item.title}"
   - ${primaryCreatorType}(s): ${primaryCreators.join(', ')}
   
   Please provide a compelling one-paragraph summary, 3-5 relevant genres, the original release date, and the publisher/ISBN if it's a book.
   Format your response strictly according to the provided JSON schema.`;
-  
+
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
-        responseMimeType: "application/json",
+        responseMimeType: 'application/json',
         responseSchema: enhanceMetadataSchema,
       },
     });
@@ -74,21 +74,21 @@ export const enhanceMetadata = async (item: MediaItem): Promise<Partial<MediaIte
       if (parsedData.isbn) enhancedData.isbn = parsedData.isbn;
       if (parsedData.publisher) enhancedData.publisher = parsedData.publisher;
     }
-    
-    return enhancedData;
 
+    return enhancedData;
   } catch (error) {
-    console.error("Error enhancing metadata with Gemini:", error);
-    throw new Error("Failed to generate enhanced metadata.");
+    console.error('Error enhancing metadata with Gemini:', error);
+    throw new Error('Failed to generate enhanced metadata.');
   }
 };
 
 export const generateCoverArtPrompt = async (item: MediaItem): Promise<string> => {
   if (!process.env.API_KEY) {
-    throw new Error("Gemini API key is not configured.");
+    throw new Error('Gemini API key is not configured.');
   }
-  
-  const primaryCreatorType = item.type === MediaType.Book ? 'Author' : item.type === MediaType.Movie ? 'Director' : 'Artist';
+
+  const primaryCreatorType =
+    item.type === MediaType.Book ? 'Author' : item.type === MediaType.Movie ? 'Director' : 'Artist';
   const primaryCreators = item.authors || item.directors || item.artists || [];
 
   const prompt = `
@@ -108,7 +108,7 @@ export const generateCoverArtPrompt = async (item: MediaItem): Promise<string> =
     });
     return response.text.trim();
   } catch (error) {
-    console.error("Error generating cover art prompt with Gemini:", error);
-    throw new Error("Failed to generate cover art prompt.");
+    console.error('Error generating cover art prompt with Gemini:', error);
+    throw new Error('Failed to generate cover art prompt.');
   }
 };

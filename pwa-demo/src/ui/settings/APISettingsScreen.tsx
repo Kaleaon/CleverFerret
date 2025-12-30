@@ -53,7 +53,9 @@ export const APISettingsScreen: React.FC = () => {
           />
         </ListItem>
         <ListItem>
-          <Button variant="contained" fullWidth>Save</Button>
+          <Button variant="contained" fullWidth>
+            Save
+          </Button>
         </ListItem>
       </List>
     </Box>

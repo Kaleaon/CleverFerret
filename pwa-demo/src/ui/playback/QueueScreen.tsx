@@ -1,6 +1,6 @@
 /**
  * Playback Queue Screen
- * 
+ *
  * Shows and manages the current playback queue.
  * Migrated from QueueScreen.kt
  */
@@ -27,13 +27,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import {
-  ArrowBack,
-  PlayArrow,
-  Clear,
-  DragIndicator,
-  MusicNote,
-} from '@mui/icons-material';
+import { ArrowBack, PlayArrow, Clear, DragIndicator, MusicNote } from '@mui/icons-material';
 
 import { audioPlayerService } from '../../services/playback/AudioPlayerService';
 import type { AudioTrack } from '../../services/playback/AudioPlayerService';
@@ -43,7 +37,11 @@ export const QueueScreen: React.FC = () => {
   const [queue, setQueue] = useState<AudioTrack[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showClearDialog, setShowClearDialog] = useState(false);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
 
   useEffect(() => {
     loadQueue();
@@ -117,10 +115,7 @@ export const QueueScreen: React.FC = () => {
                 <MusicNote />
               </Avatar>
             </ListItemAvatar>
-            <ListItemText
-              primary={track.title}
-              secondary={track.artist}
-            />
+            <ListItemText primary={track.title} secondary={track.artist} />
           </ListItem>
         ))}
       </List>
@@ -139,9 +134,7 @@ export const QueueScreen: React.FC = () => {
       <Dialog open={showClearDialog} onClose={() => setShowClearDialog(false)}>
         <DialogTitle>Clear Queue</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to clear the entire queue?
-          </DialogContentText>
+          <DialogContentText>Are you sure you want to clear the entire queue?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowClearDialog(false)}>Cancel</Button>
@@ -157,7 +150,11 @@ export const QueueScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

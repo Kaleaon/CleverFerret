@@ -1,20 +1,13 @@
 /**
  * Modern Video Player Screen
- * 
+ *
  * Enhanced video player with gesture controls and overlay UI.
  * Migrated from ModernVideoPlayerScreen.kt
  */
 
 import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  IconButton,
-  Slider,
-  Typography,
-  Stack,
-  Fade,
-} from '@mui/material';
+import { Box, IconButton, Slider, Typography, Stack, Fade } from '@mui/material';
 import {
   ArrowBack,
   PlayArrow,
@@ -34,7 +27,7 @@ export const ModernVideoPlayerScreen: React.FC = () => {
   const { videoId } = useParams<{ videoId: string }>();
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
-  
+
   const [mediaItem, setMediaItem] = useState<MediaItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -137,7 +130,8 @@ export const ModernVideoPlayerScreen: React.FC = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.7) 100%)',
+            background:
+              'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.7) 100%)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -172,7 +166,11 @@ export const ModernVideoPlayerScreen: React.FC = () => {
                 '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
               }}
             >
-              {isPlaying ? <Pause sx={{ fontSize: '3rem' }} /> : <PlayArrow sx={{ fontSize: '3rem' }} />}
+              {isPlaying ? (
+                <Pause sx={{ fontSize: '3rem' }} />
+              ) : (
+                <PlayArrow sx={{ fontSize: '3rem' }} />
+              )}
             </IconButton>
             <IconButton onClick={() => handleSkip(10)} sx={{ color: 'white', fontSize: '3rem' }}>
               <Forward10 fontSize="inherit" />

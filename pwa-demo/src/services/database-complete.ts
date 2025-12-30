@@ -1,6 +1,6 @@
 /**
  * Complete Dexie.js Database Implementation
- * 
+ *
  * Migrated from AppDatabase.kt
  * Implements IndexedDB database with all entities from the Android app
  */
@@ -69,7 +69,7 @@ import type {
 
 /**
  * CleverFerret Universal Media Library Database
- * 
+ *
  * Complete database implementation supporting all media types with metadata,
  * progress tracking, bookmarks, and external service integration.
  */
@@ -197,7 +197,8 @@ export class CleverFerretDatabase extends Dexie {
       unifiedTags: '++tagId, name, type, lastUsed',
       itemTags: '++id, [itemId+tagId], itemId, tagId, appliedAt',
       unifiedCollections: '++collectionId, name, type, createdAt, lastModified, isSmartCollection',
-      itemCollections: '[itemId+collectionId], itemId, collectionId, [collectionId+sortOrder], addedAt',
+      itemCollections:
+        '[itemId+collectionId], itemId, collectionId, [collectionId+sortOrder], addedAt',
 
       // Playback queues
       playbackQueues: '++queueId, queueName, isActive, lastUsed',
@@ -400,21 +401,14 @@ export const dbUtils = {
    * Get recent media items
    */
   async getRecentMediaItems(limit: number = 20) {
-    return db.mediaItems
-      .orderBy('dateAdded')
-      .reverse()
-      .limit(limit)
-      .toArray();
+    return db.mediaItems.orderBy('dateAdded').reverse().limit(limit).toArray();
   },
 
   /**
    * Get media items by library
    */
   async getMediaItemsByLibrary(libraryId: number) {
-    return db.mediaItems
-      .where('libraryId')
-      .equals(libraryId)
-      .toArray();
+    return db.mediaItems.where('libraryId').equals(libraryId).toArray();
   },
 
   /**

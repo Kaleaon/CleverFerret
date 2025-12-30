@@ -382,9 +382,7 @@ export const SettingsScreen: React.FC = () => {
                     />
                     <ListItemSecondaryAction>{item.action}</ListItemSecondaryAction>
                   </ListItem>
-                  {itemIndex < section.items.length - 1 && (
-                    <Divider />
-                  )}
+                  {itemIndex < section.items.length - 1 && <Divider />}
                 </React.Fragment>
               ))}
             </List>

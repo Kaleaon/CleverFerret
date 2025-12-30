@@ -193,7 +193,8 @@ class FileUtilsClass {
    * Save file (download)
    */
   async saveFile(data: string | Blob, filename: string, mimeType?: string): Promise<void> {
-    const blob = typeof data === 'string' ? new Blob([data], { type: mimeType || 'text/plain' }) : data;
+    const blob =
+      typeof data === 'string' ? new Blob([data], { type: mimeType || 'text/plain' }) : data;
 
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

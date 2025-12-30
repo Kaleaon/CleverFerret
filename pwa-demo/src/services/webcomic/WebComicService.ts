@@ -49,7 +49,7 @@ export class WebComicService {
    */
   async fetchComic(url: string): Promise<Comic> {
     const site = this.detectSite(url);
-    
+
     switch (site) {
       case 'schlock':
         return this.fetchSchlockMercenary(url);
@@ -84,15 +84,17 @@ export class WebComicService {
       // Fetch the main page to get metadata
       const response = await fetch(this.CORS_PROXY + encodeURIComponent(url));
       const html = await response.text();
-      
+
       // Parse basic metadata
       const titleMatch = html.match(/<title>(.*?)<\/title>/i);
-      const title = titleMatch ? titleMatch[1].replace(' - Schlock Mercenary', '') : 'Schlock Mercenary';
-      
+      const title = titleMatch
+        ? titleMatch[1].replace(' - Schlock Mercenary', '')
+        : 'Schlock Mercenary';
+
       // Get RSS feed for latest strips
       const rssUrl = 'http://www.schlockmercenary.com/rss/';
       const strips = await this.parseSchlockRSS(rssUrl);
-      
+
       return {
         id: 'schlock-' + Date.now(),
         title: 'Schlock Mercenary',
@@ -118,22 +120,22 @@ export class WebComicService {
     try {
       const response = await fetch(this.CORS_PROXY + encodeURIComponent(rssUrl));
       const xml = await response.text();
-      
+
       const parser = new DOMParser();
       const doc = parser.parseFromString(xml, 'text/xml');
       const items = doc.querySelectorAll('item');
-      
+
       const strips: ComicStrip[] = [];
       items.forEach((item, index) => {
         const title = item.querySelector('title')?.textContent || '';
         const link = item.querySelector('link')?.textContent || '';
         const pubDate = item.querySelector('pubDate')?.textContent || '';
         const description = item.querySelector('description')?.textContent || '';
-        
+
         // Extract image URL from description
         const imgMatch = description.match(/<img[^>]+src="([^">]+)"/);
         const imageUrl = imgMatch ? imgMatch[1] : '';
-        
+
         if (imageUrl && link) {
           strips.push({
             number: index + 1,
@@ -145,7 +147,7 @@ export class WebComicService {
           });
         }
       });
-      
+
       return strips;
     } catch (error) {
       console.error('Error parsing Schlock RSS:', error);
@@ -162,7 +164,7 @@ export class WebComicService {
     try {
       const rssUrl = 'https://www.questionablecontent.net/QCRSS.xml';
       const strips = await this.parseQCRSS(rssUrl);
-      
+
       return {
         id: 'qc-' + Date.now(),
         title: 'Questionable Content',
@@ -188,26 +190,26 @@ export class WebComicService {
     try {
       const response = await fetch(this.CORS_PROXY + encodeURIComponent(rssUrl));
       const xml = await response.text();
-      
+
       const parser = new DOMParser();
       const doc = parser.parseFromString(xml, 'text/xml');
       const items = doc.querySelectorAll('item');
-      
+
       const strips: ComicStrip[] = [];
       items.forEach((item, index) => {
         const title = item.querySelector('title')?.textContent || '';
         const link = item.querySelector('link')?.textContent || '';
         const pubDate = item.querySelector('pubDate')?.textContent || '';
         const description = item.querySelector('description')?.textContent || '';
-        
+
         // Extract image URL and comic number from description
         const imgMatch = description.match(/<img[^>]+src="([^">]+)"/);
         const imageUrl = imgMatch ? imgMatch[1] : '';
-        
+
         // Extract comic number from link
         const numMatch = link.match(/comic=(\d+)/);
         const number = numMatch ? parseInt(numMatch[1]) : index + 1;
-        
+
         if (imageUrl && link) {
           strips.push({
             number,
@@ -219,7 +221,7 @@ export class WebComicService {
           });
         }
       });
-      
+
       return strips.reverse(); // Oldest first
     } catch (error) {
       console.error('Error parsing QC RSS:', error);
@@ -234,20 +236,20 @@ export class WebComicService {
     try {
       const response = await fetch(this.CORS_PROXY + encodeURIComponent(url));
       const html = await response.text();
-      
+
       // Try to find RSS feed link
       const rssMatch = html.match(/<link[^>]+type="application\/rss\+xml"[^>]+href="([^">]+)"/i);
       const rssUrl = rssMatch ? rssMatch[1] : null;
-      
+
       // Parse title
       const titleMatch = html.match(/<title>(.*?)<\/title>/i);
       const title = titleMatch ? titleMatch[1] : 'Web Comic';
-      
+
       let strips: ComicStrip[] = [];
       if (rssUrl) {
         strips = await this.parseGenericRSS(rssUrl);
       }
-      
+
       return {
         id: 'generic-' + Date.now(),
         title,
@@ -271,22 +273,22 @@ export class WebComicService {
     try {
       const response = await fetch(this.CORS_PROXY + encodeURIComponent(rssUrl));
       const xml = await response.text();
-      
+
       const parser = new DOMParser();
       const doc = parser.parseFromString(xml, 'text/xml');
       const items = doc.querySelectorAll('item');
-      
+
       const strips: ComicStrip[] = [];
       items.forEach((item, index) => {
         const title = item.querySelector('title')?.textContent || '';
         const link = item.querySelector('link')?.textContent || '';
         const pubDate = item.querySelector('pubDate')?.textContent || '';
         const description = item.querySelector('description')?.textContent || '';
-        
+
         // Try to extract image URL
         const imgMatch = description.match(/<img[^>]+src="([^">]+)"/);
         const imageUrl = imgMatch ? imgMatch[1] : '';
-        
+
         if (link) {
           strips.push({
             number: index + 1,
@@ -298,7 +300,7 @@ export class WebComicService {
           });
         }
       });
-      
+
       return strips;
     } catch (error) {
       console.error('Error parsing generic RSS:', error);
@@ -326,22 +328,22 @@ export class WebComicService {
     comic: Comic,
     startIndex: number,
     endIndex: number,
-    onProgress?: (current: number, total: number) => void
+    onProgress?: (current: number, total: number) => void,
   ): Promise<void> {
     const strips = comic.strips.slice(startIndex, endIndex + 1);
     const total = strips.length;
-    
+
     for (let i = 0; i < strips.length; i++) {
       try {
         await this.cacheStripImage(strips[i]);
         strips[i].cached = true;
-        
+
         if (onProgress) {
           onProgress(i + 1, total);
         }
-        
+
         // Small delay to avoid overwhelming the server
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (error) {
         console.error(`Failed to download strip ${strips[i].number}:`, error);
       }
@@ -366,14 +368,14 @@ export class WebComicService {
    * Get strip by number
    */
   getStripByNumber(comic: Comic, number: number): ComicStrip | undefined {
-    return comic.strips.find(strip => strip.number === number);
+    return comic.strips.find((strip) => strip.number === number);
   }
 
   /**
    * Get next strip
    */
   getNextStrip(comic: Comic, currentNumber: number): ComicStrip | undefined {
-    const currentIndex = comic.strips.findIndex(s => s.number === currentNumber);
+    const currentIndex = comic.strips.findIndex((s) => s.number === currentNumber);
     if (currentIndex === -1 || currentIndex === comic.strips.length - 1) {
       return undefined;
     }
@@ -384,7 +386,7 @@ export class WebComicService {
    * Get previous strip
    */
   getPreviousStrip(comic: Comic, currentNumber: number): ComicStrip | undefined {
-    const currentIndex = comic.strips.findIndex(s => s.number === currentNumber);
+    const currentIndex = comic.strips.findIndex((s) => s.number === currentNumber);
     if (currentIndex <= 0) {
       return undefined;
     }

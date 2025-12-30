@@ -1,6 +1,6 @@
 /**
  * Comic Reader Screen
- * 
+ *
  * Comic/manga reader with page-by-page viewing.
  * Supports CBZ, CBR files.
  */
@@ -168,14 +168,35 @@ export const ComicReaderScreen: React.FC = () => {
       )}
 
       {isLoading ? (
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
           <CircularProgress />
           <Typography>Loading comic...</Typography>
         </Box>
       ) : error ? (
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 2, p: 3 }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 2,
+            p: 3,
+          }}
+        >
           <Alert severity="error">{error}</Alert>
-          <Button variant="contained" onClick={() => navigate(-1)}>Go Back</Button>
+          <Button variant="contained" onClick={() => navigate(-1)}>
+            Go Back
+          </Button>
         </Box>
       ) : (
         <Box

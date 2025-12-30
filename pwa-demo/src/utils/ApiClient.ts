@@ -75,7 +75,7 @@ export class ApiClient {
    */
   private async request<T>(url: string, options: RequestInit = {}): Promise<T> {
     const fullUrl = url.startsWith('http') ? url : `${this.baseURL}${url}`;
-    
+
     let config: RequestInit = {
       ...options,
       headers: {

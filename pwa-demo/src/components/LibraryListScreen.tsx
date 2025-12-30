@@ -289,7 +289,10 @@ const AddLibraryDialog: React.FC<{
 
   const handleBrowseFolder = async () => {
     if (!isDirectoryPickerSupported) {
-      onSnackbar('Folder picker is not supported in this browser. Please use Chrome or Edge, or enter the path manually.', 'warning');
+      onSnackbar(
+        'Folder picker is not supported in this browser. Please use Chrome or Edge, or enter the path manually.',
+        'warning',
+      );
       return;
     }
     const dirHandle = await FileUtils.pickDirectory();
@@ -471,7 +474,11 @@ export const LibraryListScreen: React.FC = () => {
 
   const [showDialog, setShowDialog] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' | 'warning' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info' | 'warning';
+  }>({ open: false, message: '' });
 
   useEffect(() => {
     loadLibraries();
@@ -829,7 +836,11 @@ export const LibraryListScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

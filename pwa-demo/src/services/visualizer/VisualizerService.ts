@@ -64,7 +64,7 @@ export class VisualizerService {
 
     for (let i = 0; i < dataArray.length; i++) {
       const barHeight = (dataArray[i] / 255) * this.canvas.height;
-      
+
       const r = barHeight + 25 * (i / dataArray.length);
       const g = 250 * (i / dataArray.length);
       const b = 50;
@@ -113,7 +113,7 @@ export class VisualizerService {
     for (let i = 0; i < dataArray.length; i++) {
       const angle = (i / dataArray.length) * Math.PI * 2;
       const barHeight = (dataArray[i] / 255) * 100;
-      
+
       const x1 = centerX + Math.cos(angle) * radius;
       const y1 = centerY + Math.sin(angle) * radius;
       const x2 = centerX + Math.cos(angle) * (radius + barHeight);

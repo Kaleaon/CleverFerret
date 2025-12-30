@@ -1,6 +1,6 @@
 /**
  * PWA Install Prompt Component
- * 
+ *
  * Shows a prominent banner or dialog to prompt users to install the PWA
  * Appears on mobile and desktop when the PWA is installable
  */
@@ -48,7 +48,7 @@ export const PWAInstallPrompt: React.FC = () => {
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     const dismissedTime = dismissed ? parseInt(dismissed) : 0;
     const oneDayInMs = 24 * 60 * 60 * 1000;
-    
+
     // Show prompt again after 1 day
     if (Date.now() - dismissedTime < oneDayInMs) {
       return;

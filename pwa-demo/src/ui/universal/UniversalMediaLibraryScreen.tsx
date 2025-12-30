@@ -18,10 +18,7 @@ import {
   CardMedia,
   CardContent,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Menu as MenuIcon,
-} from '@mui/icons-material';
+import { ArrowBack, Menu as MenuIcon } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 
@@ -38,8 +35,12 @@ export const UniversalMediaLibraryScreen: React.FC = () => {
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton edge="start" color="inherit"><MenuIcon /></IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>Universal Library</Typography>
+          <IconButton edge="start" color="inherit">
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Universal Library
+          </Typography>
         </Toolbar>
         <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} centered>
           <Tab label="All" />
@@ -54,9 +55,16 @@ export const UniversalMediaLibraryScreen: React.FC = () => {
           {media.map((item) => (
             <Grid item xs={6} sm={4} md={3} key={item.itemId}>
               <Card onClick={() => navigate(`/detail/${item.itemId}`)}>
-                <CardMedia component="img" height="140" image={item.thumbnailPath || '/placeholder.png'} alt={item.fileName} />
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={item.thumbnailPath || '/placeholder.png'}
+                  alt={item.fileName}
+                />
                 <CardContent>
-                  <Typography variant="body2" noWrap>{item.fileName}</Typography>
+                  <Typography variant="body2" noWrap>
+                    {item.fileName}
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>

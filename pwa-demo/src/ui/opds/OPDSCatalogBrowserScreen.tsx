@@ -1,6 +1,6 @@
 /**
  * OPDS Catalog Browser Screen
- * 
+ *
  * Browse and download books from OPDS (Open Publication Distribution System) catalogs.
  * Supports searching, filtering, and downloading books from online catalogs.
  * Migrated from OPDSCatalogBrowserScreen.kt
@@ -32,15 +32,7 @@ import {
   Alert,
   Snackbar,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Search,
-  Download,
-  Book,
-  Folder,
-  Refresh,
-  Settings,
-} from '@mui/icons-material';
+import { ArrowBack, Search, Download, Book, Folder, Refresh, Settings } from '@mui/icons-material';
 import { getImageUrlWithFallback } from '../../utils/imageUtils';
 
 interface OPDSEntry {
@@ -57,12 +49,16 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const catalogUrl = searchParams.get('url') || '';
-  
+
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [entries, setEntries] = useState<OPDSEntry[]>([]);
   const [breadcrumbs, setBreadcrumbs] = useState<Array<{ label: string; url: string }>>([]);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
   const [error, setError] = useState<string | null>(null);
 
   // Mock OPDS catalog data
@@ -113,13 +109,13 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
   const loadCatalog = async (url: string) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const { opdsParser } = await import('../../services/opds/OPDSParser');
       const feed = await opdsParser.parseFeed(url);
-      
+
       // Convert OPDS entries to our format
-      const convertedEntries: OPDSEntry[] = feed.entries.map(entry => ({
+      const convertedEntries: OPDSEntry[] = feed.entries.map((entry) => ({
         id: entry.id,
         title: entry.title,
         author: entry.author,
@@ -128,11 +124,13 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
         downloadUrl: entry.downloadUrl,
         type: entry.downloadUrl ? 'book' : 'folder',
       }));
-      
+
       setEntries(convertedEntries);
       setLoading(false);
     } catch (err) {
-      setError(`Failed to load OPDS catalog: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setError(
+        `Failed to load OPDS catalog: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      );
       setLoading(false);
       // Fallback to mock data on error
       setEntries(mockCatalog);
@@ -151,34 +149,38 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
 
   const handleDownload = async (entry: OPDSEntry) => {
     if (!entry.downloadUrl) return;
-    
+
     try {
       setLoading(true);
       setSnackbar({ open: true, message: `Downloading: ${entry.title}...`, severity: 'info' });
-      
+
       // Download the file
       const response = await fetch(entry.downloadUrl);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
-      
+
       const blob = await response.blob();
       const file = new File([blob], `${entry.title}.epub`, { type: blob.type });
-      
+
       // Get default library or first available library
       const { db } = await import('../../services/database-complete');
       const libraries = await db.libraries.where('isActive').equals(1).toArray();
-      
+
       if (libraries.length === 0) {
-        setSnackbar({ open: true, message: 'No active library found. Please create a library first.', severity: 'warning' });
+        setSnackbar({
+          open: true,
+          message: 'No active library found. Please create a library first.',
+          severity: 'warning',
+        });
         return;
       }
-      
+
       const library = libraries[0];
-      
+
       // Read file as ArrayBuffer for storage
       const arrayBuffer = await file.arrayBuffer();
-      
+
       // Add to media items
       const itemId = await db.mediaItems.add({
         libraryId: library.libraryId,
@@ -191,7 +193,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
         lastScanned: Date.now(),
         thumbnailPath: entry.coverUrl,
       });
-      
+
       // Add metadata
       await db.metadataCommon.add({
         itemId,
@@ -202,10 +204,18 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
         isFavorite: false,
         isDownloaded: true,
       });
-      
-      setSnackbar({ open: true, message: `Downloaded and added to library: ${entry.title}`, severity: 'success' });
+
+      setSnackbar({
+        open: true,
+        message: `Downloaded and added to library: ${entry.title}`,
+        severity: 'success',
+      });
     } catch (error) {
-      setSnackbar({ open: true, message: `Failed to download: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: `Failed to download: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        severity: 'error',
+      });
     } finally {
       setLoading(false);
     }
@@ -213,17 +223,19 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
 
   const handleSearch = () => {
     // Filter entries by search query
-    const filtered = mockCatalog.filter((entry) =>
-      entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.author?.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = mockCatalog.filter(
+      (entry) =>
+        entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.author?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
     setEntries(filtered);
   };
 
   const filteredEntries = searchQuery
-    ? entries.filter((entry) =>
-        entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        entry.author?.toLowerCase().includes(searchQuery.toLowerCase())
+    ? entries.filter(
+        (entry) =>
+          entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          entry.author?.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : entries;
 
@@ -401,7 +413,11 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

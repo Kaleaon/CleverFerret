@@ -1,6 +1,6 @@
 /**
  * Thumbnail Service
- * 
+ *
  * Generates and regenerates thumbnails for media items
  */
 
@@ -18,10 +18,7 @@ class ThumbnailService {
   /**
    * Generate thumbnail for a media item
    */
-  async generateThumbnail(
-    item: MediaItem,
-    options: ThumbnailOptions = {}
-  ): Promise<string> {
+  async generateThumbnail(item: MediaItem, options: ThumbnailOptions = {}): Promise<string> {
     const { width = 300, height = 450, quality = 0.8 } = options;
 
     logger.info('ThumbnailService', `Generating thumbnail for: ${item.fileName}`);
@@ -38,7 +35,12 @@ class ThumbnailService {
       // Fallback to generated cover
       return this.generateCoverThumbnail(item, width, height);
     } catch (error) {
-      logger.warn('ThumbnailService', 'Failed to generate thumbnail, using fallback', undefined, error as Error);
+      logger.warn(
+        'ThumbnailService',
+        'Failed to generate thumbnail, using fallback',
+        undefined,
+        error as Error,
+      );
       return this.generateCoverThumbnail(item, width, height);
     }
   }
@@ -54,7 +56,7 @@ class ThumbnailService {
       const { epubReaderService } = await import('../readers/EPUBReaderService');
       const file = new Blob([item.fileData], { type: 'application/epub+zip' });
       const book = await epubReaderService.loadEPUB(file);
-      
+
       if (book.coverUrl) {
         return book.coverUrl;
       }
@@ -71,7 +73,7 @@ class ThumbnailService {
    */
   private generateCoverThumbnail(item: MediaItem, width: number, height: number): string {
     const colorScheme = hashStringToColorScheme(item.fileName);
-    
+
     // Determine media type for icon
     let mediaType: 'BOOK' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT' = 'BOOK';
     if (item.mediaType === 'MOVIE' || item.mediaType === 'VIDEO') {
@@ -110,10 +112,10 @@ class ThumbnailService {
   async regenerateThumbnails(
     items: MediaItem[],
     options?: ThumbnailOptions,
-    onProgress?: (current: number, total: number) => void
+    onProgress?: (current: number, total: number) => void,
   ): Promise<Map<number, string>> {
     const results = new Map<number, string>();
-    
+
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       try {
@@ -121,7 +123,12 @@ class ThumbnailService {
         results.set(item.itemId, thumbnail);
         onProgress?.(i + 1, items.length);
       } catch (error) {
-        logger.error('ThumbnailService', `Failed to regenerate thumbnail for ${item.fileName}`, undefined, error as Error);
+        logger.error(
+          'ThumbnailService',
+          `Failed to regenerate thumbnail for ${item.fileName}`,
+          undefined,
+          error as Error,
+        );
       }
     }
 

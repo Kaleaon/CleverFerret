@@ -49,11 +49,11 @@ export class ReaderService {
       el.style.fontSize = `${this.settings.fontSize}px`;
       el.style.fontFamily = this.settings.fontFamily;
       el.style.lineHeight = `${this.settings.lineHeight}`;
-      
+
       // Apply theme
       el.classList.remove('light', 'dark', 'sepia');
       el.classList.add(this.settings.theme);
-      
+
       el.style.filter = `brightness(${this.settings.brightness}%)`;
     }
   }

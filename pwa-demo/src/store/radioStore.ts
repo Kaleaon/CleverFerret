@@ -1,6 +1,6 @@
 /**
  * Radio Store
- * 
+ *
  * State management for radio player functionality
  * Handles playback, favorites, and station selection
  */
@@ -15,7 +15,7 @@ interface RadioState {
   volume: number;
   favorites: string[]; // Array of station IDs
   recentlyPlayed: RadioStation[];
-  
+
   // Actions
   setCurrentStation: (station: RadioStation | null) => void;
   play: () => void;
@@ -45,28 +45,30 @@ export const useRadioStore = create<RadioState>()(
       },
 
       play: () => set({ isPlaying: true }),
-      
+
       pause: () => set({ isPlaying: false }),
-      
+
       togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
-      
+
       setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
-      
-      toggleFavorite: (stationId) => set((state) => ({
-        favorites: state.favorites.includes(stationId)
-          ? state.favorites.filter(id => id !== stationId)
-          : [...state.favorites, stationId]
-      })),
-      
+
+      toggleFavorite: (stationId) =>
+        set((state) => ({
+          favorites: state.favorites.includes(stationId)
+            ? state.favorites.filter((id) => id !== stationId)
+            : [...state.favorites, stationId],
+        })),
+
       isFavorite: (stationId) => get().favorites.includes(stationId),
-      
-      addToRecentlyPlayed: (station) => set((state) => {
-        const filtered = state.recentlyPlayed.filter(s => s.id !== station.id);
-        return {
-          recentlyPlayed: [station, ...filtered].slice(0, 10) // Keep last 10
-        };
-      }),
-      
+
+      addToRecentlyPlayed: (station) =>
+        set((state) => {
+          const filtered = state.recentlyPlayed.filter((s) => s.id !== station.id);
+          return {
+            recentlyPlayed: [station, ...filtered].slice(0, 10), // Keep last 10
+          };
+        }),
+
       clearRecentlyPlayed: () => set({ recentlyPlayed: [] }),
     }),
     {
@@ -76,6 +78,6 @@ export const useRadioStore = create<RadioState>()(
         recentlyPlayed: state.recentlyPlayed,
         volume: state.volume,
       }),
-    }
-  )
+    },
+  ),
 );

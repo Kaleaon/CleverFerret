@@ -1,6 +1,6 @@
 /**
  * Security Settings Screen
- * 
+ *
  * Configure app security and privacy settings
  */
 
@@ -38,7 +38,11 @@ export const SecuritySettingsScreen: React.FC = () => {
   const [autoLock, setAutoLock] = React.useState(true);
   const [hideSensitive, setHideSensitive] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
-  const [snackbar, setSnackbar] = React.useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = React.useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
   const [showClearDialog, setShowClearDialog] = React.useState(false);
 
   const handleSetPassword = () => {
@@ -55,7 +59,11 @@ export const SecuritySettingsScreen: React.FC = () => {
       // Clear data implementation would go here
       setSnackbar({ open: true, message: 'Data cleared successfully', severity: 'success' });
     } catch (error) {
-      setSnackbar({ open: true, message: `Failed to clear data: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: `Failed to clear data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        severity: 'error',
+      });
     }
   };
 
@@ -80,7 +88,7 @@ export const SecuritySettingsScreen: React.FC = () => {
               Authentication
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }}>
               <FormGroup>
                 <FormControlLabel
@@ -155,7 +163,7 @@ export const SecuritySettingsScreen: React.FC = () => {
               Privacy
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }}>
               <FormGroup>
                 <FormControlLabel
@@ -187,7 +195,8 @@ export const SecuritySettingsScreen: React.FC = () => {
 
         {/* Info Alert */}
         <Alert severity="warning">
-          Security features help protect your data. Make sure to remember your password if you enable authentication.
+          Security features help protect your data. Make sure to remember your password if you
+          enable authentication.
         </Alert>
       </Box>
     </Box>

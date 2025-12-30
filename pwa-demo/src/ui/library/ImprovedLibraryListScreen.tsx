@@ -17,11 +17,7 @@ import {
   CardActionArea,
   Fab,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Add,
-  Folder,
-} from '@mui/icons-material';
+import { ArrowBack, Add, Folder } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 
@@ -53,7 +49,9 @@ export const ImprovedLibraryListScreen: React.FC = () => {
                   <CardContent>
                     <Folder sx={{ fontSize: 48, mb: 1 }} />
                     <Typography variant="h6">{lib.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">{lib.type}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {lib.type}
+                    </Typography>
                   </CardContent>
                 </CardActionArea>
               </Card>
@@ -62,7 +60,11 @@ export const ImprovedLibraryListScreen: React.FC = () => {
         </Grid>
       </Box>
 
-      <Fab color="primary" sx={{ position: 'fixed', bottom: 16, right: 16 }} onClick={() => navigate('/library/create')}>
+      <Fab
+        color="primary"
+        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        onClick={() => navigate('/library/create')}
+      >
         <Add />
       </Fab>
     </Box>

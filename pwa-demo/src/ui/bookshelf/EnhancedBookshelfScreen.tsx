@@ -22,13 +22,7 @@ import {
   Chip,
   Stack,
 } from '@mui/material';
-import {
-  ArrowBack,
-  ViewModule,
-  ViewList,
-  Search,
-  FilterList,
-} from '@mui/icons-material';
+import { ArrowBack, ViewModule, ViewList, Search, FilterList } from '@mui/icons-material';
 import { getImageUrlWithFallback } from '../../utils/imageUtils';
 
 import { db } from '../../services/database-complete';
@@ -55,12 +49,25 @@ export const EnhancedBookshelfScreen: React.FC = () => {
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
             <ArrowBack />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>Bookshelf</Typography>
-          <ToggleButtonGroup value={viewMode} exclusive onChange={(_, v) => v && setViewMode(v)} size="small">
-            <ToggleButton value="grid"><ViewModule /></ToggleButton>
-            <ToggleButton value="list"><ViewList /></ToggleButton>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Bookshelf
+          </Typography>
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(_, v) => v && setViewMode(v)}
+            size="small"
+          >
+            <ToggleButton value="grid">
+              <ViewModule />
+            </ToggleButton>
+            <ToggleButton value="list">
+              <ViewList />
+            </ToggleButton>
           </ToggleButtonGroup>
-          <IconButton color="inherit"><FilterList /></IconButton>
+          <IconButton color="inherit">
+            <FilterList />
+          </IconButton>
         </Toolbar>
       </AppBar>
 
@@ -83,16 +90,24 @@ export const EnhancedBookshelfScreen: React.FC = () => {
       <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
         <Grid container spacing={2}>
           {books.map((book) => (
-            <Grid item xs={viewMode === 'grid' ? 6 : 12} sm={viewMode === 'grid' ? 4 : 12} md={viewMode === 'grid' ? 3 : 12} key={book.itemId}>
+            <Grid
+              item
+              xs={viewMode === 'grid' ? 6 : 12}
+              sm={viewMode === 'grid' ? 4 : 12}
+              md={viewMode === 'grid' ? 3 : 12}
+              key={book.itemId}
+            >
               <Card onClick={() => navigate(`/book/${book.itemId}`)}>
-                <CardMedia 
-                  component="img" 
-                  height={viewMode === 'grid' ? 200 : 120} 
-                  image={getImageUrlWithFallback(book.thumbnailPath, book.mediaType, book.fileName)} 
-                  alt={book.fileName} 
+                <CardMedia
+                  component="img"
+                  height={viewMode === 'grid' ? 200 : 120}
+                  image={getImageUrlWithFallback(book.thumbnailPath, book.mediaType, book.fileName)}
+                  alt={book.fileName}
                 />
                 <CardContent>
-                  <Typography variant="subtitle2" noWrap>{book.fileName}</Typography>
+                  <Typography variant="subtitle2" noWrap>
+                    {book.fileName}
+                  </Typography>
                   <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                     <Chip label="Book" size="small" />
                   </Stack>

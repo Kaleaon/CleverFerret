@@ -1,6 +1,6 @@
 /**
  * Playlist Repository
- * 
+ *
  * Repository for playlist operations.
  * Migrated from PlaylistRepository.kt
  */
@@ -32,7 +32,7 @@ export class PlaylistRepository {
       .equals(playlistId)
       .sortBy('position');
 
-    const itemIds = playlistItems.map(pi => pi.mediaItemId);
+    const itemIds = playlistItems.map((pi) => pi.mediaItemId);
     const items = await db.mediaItems.bulkGet(itemIds);
 
     return items.filter((item): item is MediaItem => item !== undefined);
@@ -80,14 +80,9 @@ export class PlaylistRepository {
    */
   async addItemToPlaylist(playlistId: number, mediaItemId: number): Promise<void> {
     // Get current max position
-    const items = await db.playlistItems
-      .where('playlistId')
-      .equals(playlistId)
-      .toArray();
-    
-    const maxPosition = items.length > 0 
-      ? Math.max(...items.map(item => item.position))
-      : -1;
+    const items = await db.playlistItems.where('playlistId').equals(playlistId).toArray();
+
+    const maxPosition = items.length > 0 ? Math.max(...items.map((item) => item.position)) : -1;
 
     const playlistItem: PlaylistItem = {
       id: 0,
@@ -119,10 +114,7 @@ export class PlaylistRepository {
   /**
    * Reorder playlist items
    */
-  async reorderPlaylistItems(
-    playlistId: number,
-    orderedItemIds: number[]
-  ): Promise<void> {
+  async reorderPlaylistItems(playlistId: number, orderedItemIds: number[]): Promise<void> {
     const updates = orderedItemIds.map(async (mediaItemId, index) => {
       const item = await db.playlistItems
         .where('[playlistId+mediaItemId]')

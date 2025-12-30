@@ -46,7 +46,11 @@ export class FormatUtils {
   /**
    * Format currency
    */
-  static formatCurrency(amount: number, currency: string = 'USD', locale: string = 'en-US'): string {
+  static formatCurrency(
+    amount: number,
+    currency: string = 'USD',
+    locale: string = 'en-US',
+  ): string {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency,

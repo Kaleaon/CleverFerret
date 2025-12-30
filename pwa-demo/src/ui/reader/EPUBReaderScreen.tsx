@@ -1,6 +1,6 @@
 /**
  * EPUB Reader Screen
- * 
+ *
  * Dedicated EPUB reader with epub.js integration for proper EPUB rendering.
  * Supports table of contents, bookmarks, highlights, and text selection.
  * Migrated from EPUBReaderScreen.kt
@@ -47,7 +47,7 @@ export const EPUBReaderScreen: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
   const navigate = useNavigate();
   const viewerRef = useRef<HTMLDivElement>(null);
-  
+
   const [mediaItem, setMediaItem] = useState<MediaItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(100);
@@ -127,7 +127,14 @@ export const EPUBReaderScreen: React.FC = () => {
   };
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.default',
+      }}
+    >
       {/* Top App Bar */}
       <AppBar position="static" elevation={0}>
         <Toolbar>
@@ -174,17 +181,13 @@ export const EPUBReaderScreen: React.FC = () => {
         </Typography>
         <Typography variant="body1" paragraph>
           This is a placeholder showing how the EPUB reader will work. The actual implementation
-          requires the epub.js library to parse and render EPUB files with proper pagination,
-          table of contents, and text selection support.
+          requires the epub.js library to parse and render EPUB files with proper pagination, table
+          of contents, and text selection support.
         </Typography>
         <Typography variant="body1" paragraph>
-          Features available:
-          - Chapter navigation via table of contents
-          - Bookmark current page
-          - Adjustable font size
-          - Brightness control
-          - Reading progress tracking
-          - Text search (when epub.js is integrated)
+          Features available: - Chapter navigation via table of contents - Bookmark current page -
+          Adjustable font size - Brightness control - Reading progress tracking - Text search (when
+          epub.js is integrated)
         </Typography>
       </Box>
 
@@ -236,7 +239,7 @@ export const EPUBReaderScreen: React.FC = () => {
           <Typography variant="h6" gutterBottom>
             Reading Settings
           </Typography>
-          
+
           <Typography variant="subtitle2" gutterBottom sx={{ mt: 3 }}>
             Font Size
           </Typography>

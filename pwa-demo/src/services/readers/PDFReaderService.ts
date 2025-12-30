@@ -1,6 +1,6 @@
 /**
  * PDF Reader Service
- * 
+ *
  * Handles PDF file reading using pdf.js
  */
 
@@ -34,7 +34,7 @@ export class PDFReaderService {
   async loadPDF(file: File | Blob | ArrayBuffer | string): Promise<PDFDocument> {
     try {
       let loadingTask: pdfjsLib.PDFDocumentLoadingTask;
-      
+
       if (file instanceof File || file instanceof Blob) {
         const arrayBuffer = await file.arrayBuffer();
         loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
@@ -43,22 +43,24 @@ export class PDFReaderService {
       } else {
         loadingTask = pdfjsLib.getDocument({ url: file });
       }
-      
+
       const doc = await loadingTask.promise;
-      
+
       const metadata = await doc.getMetadata().catch(() => null);
-      
+
       const pdfDoc: PDFDocument = {
         doc,
         numPages: doc.numPages,
         title: metadata?.info?.Title,
         author: metadata?.info?.Author,
       };
-      
+
       this.currentDocument = pdfDoc;
       return pdfDoc;
     } catch (error) {
-      throw new Error(`Failed to load PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to load PDF: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -69,10 +71,10 @@ export class PDFReaderService {
     if (pageNumber < 1 || pageNumber > document.numPages) {
       throw new Error(`Page ${pageNumber} is out of range (1-${document.numPages})`);
     }
-    
+
     const page = await document.doc.getPage(pageNumber);
     const viewport = page.getViewport({ scale: 1.0 });
-    
+
     return {
       pageNumber,
       width: viewport.width,
@@ -80,22 +82,22 @@ export class PDFReaderService {
       render: async (options: { scale?: number; canvas?: HTMLCanvasElement } = {}) => {
         const scale = options.scale || 1.5;
         const scaledViewport = page.getViewport({ scale });
-        
+
         const canvas = options.canvas || document.createElement('canvas');
         const context = canvas.getContext('2d');
-        
+
         if (!context) {
           throw new Error('Could not get canvas context');
         }
-        
+
         canvas.height = scaledViewport.height;
         canvas.width = scaledViewport.width;
-        
+
         const renderContext = {
           canvasContext: context,
           viewport: scaledViewport,
         };
-        
+
         const renderTask = page.render(renderContext);
         await renderTask.promise;
         return canvas;

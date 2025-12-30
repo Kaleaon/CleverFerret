@@ -1,6 +1,6 @@
 /**
  * Library Management Settings Screen
- * 
+ *
  * Configure library scanning, organization, and metadata settings
  */
 
@@ -32,16 +32,24 @@ export const LibraryManagementSettingsScreen: React.FC = () => {
   const [autoMetadata, setAutoMetadata] = React.useState(true);
   const [groupSeries, setGroupSeries] = React.useState(true);
   const [scanning, setScanning] = React.useState(false);
-  const [snackbar, setSnackbar] = React.useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = React.useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
 
   const handleScanAll = async () => {
     setScanning(true);
     try {
       // Simulate scan
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       setSnackbar({ open: true, message: 'Library scan completed', severity: 'success' });
     } catch (error) {
-      setSnackbar({ open: true, message: `Scan failed: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: `Scan failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        severity: 'error',
+      });
     } finally {
       setScanning(false);
     }
@@ -68,15 +76,12 @@ export const LibraryManagementSettingsScreen: React.FC = () => {
               Scanning
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }}>
               <FormGroup>
                 <FormControlLabel
                   control={
-                    <Switch
-                      checked={autoScan}
-                      onChange={(e) => setAutoScan(e.target.checked)}
-                    />
+                    <Switch checked={autoScan} onChange={(e) => setAutoScan(e.target.checked)} />
                   }
                   label="Auto-Scan on Startup"
                 />
@@ -123,7 +128,7 @@ export const LibraryManagementSettingsScreen: React.FC = () => {
               Metadata
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }}>
               <FormGroup>
                 <FormControlLabel
@@ -172,7 +177,11 @@ export const LibraryManagementSettingsScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

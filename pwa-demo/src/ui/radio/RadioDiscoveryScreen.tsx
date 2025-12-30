@@ -1,6 +1,6 @@
 /**
  * Radio Discovery Screen
- * 
+ *
  * Discover and browse internet radio stations using Shoutcast API.
  * Features genre browsing, search, and trending stations.
  */
@@ -85,22 +85,42 @@ export const RadioDiscoveryScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [playingStationId, setPlayingStationId] = useState<string | null>(null);
   const [playError, setPlayError] = useState<string | null>(null);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
   const audioRef = React.useRef<HTMLAudioElement>(null);
 
   // Popular tags/genres from Radio-Browser
   const popularGenres = [
-    'pop', 'rock', 'jazz', 'classical', 'electronic',
-    'dance', 'hip hop', 'country', 'blues', 'reggae',
-    'folk', 'latin', 'world', 'news', 'talk',
-    'sports', 'oldies', 'indie', 'metal', 'punk'
+    'pop',
+    'rock',
+    'jazz',
+    'classical',
+    'electronic',
+    'dance',
+    'hip hop',
+    'country',
+    'blues',
+    'reggae',
+    'folk',
+    'latin',
+    'world',
+    'news',
+    'talk',
+    'sports',
+    'oldies',
+    'indie',
+    'metal',
+    'punk',
   ];
 
   useEffect(() => {
     if (tabValue === 1) {
       loadPopularStations();
     } else if (tabValue === 2) {
-      setGenres(popularGenres.map(g => ({ name: g })));
+      setGenres(popularGenres.map((g) => ({ name: g })));
     }
   }, [tabValue]);
 
@@ -112,16 +132,16 @@ export const RadioDiscoveryScreen: React.FC = () => {
 
     try {
       const response = await fetch(
-        `${RADIO_BROWSER_BASE_URL}/stations/byname/${encodeURIComponent(searchQuery)}?limit=50&hidebroken=true`
+        `${RADIO_BROWSER_BASE_URL}/stations/byname/${encodeURIComponent(searchQuery)}?limit=50&hidebroken=true`,
       );
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const stations: RadioBrowserStation[] = await response.json();
       setResults(stations);
-      
+
       if (stations.length === 0) {
         setError('No stations found. Try a different search term.');
       }
@@ -141,14 +161,12 @@ export const RadioDiscoveryScreen: React.FC = () => {
 
     try {
       // Get top stations by votes
-      const response = await fetch(
-        `${RADIO_BROWSER_BASE_URL}/stations/topvote/50?hidebroken=true`
-      );
-      
+      const response = await fetch(`${RADIO_BROWSER_BASE_URL}/stations/topvote/50?hidebroken=true`);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const stations: RadioBrowserStation[] = await response.json();
       setResults(stations);
     } catch (err) {
@@ -169,16 +187,16 @@ export const RadioDiscoveryScreen: React.FC = () => {
 
     try {
       const response = await fetch(
-        `${RADIO_BROWSER_BASE_URL}/stations/bytag/${encodeURIComponent(genre)}?limit=50&hidebroken=true`
+        `${RADIO_BROWSER_BASE_URL}/stations/bytag/${encodeURIComponent(genre)}?limit=50&hidebroken=true`,
       );
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const stations: RadioBrowserStation[] = await response.json();
       setResults(stations);
-      
+
       if (stations.length === 0) {
         setError(`No stations found for genre: ${genre}`);
       }
@@ -206,14 +224,14 @@ export const RadioDiscoveryScreen: React.FC = () => {
             const { logger } = await import('../../services/logging');
             logger.debug('RadioDiscovery', 'Failed to register click', undefined, err as Error);
           });
-          
+
           audioRef.current.src = station.url_resolved;
-          
+
           // Set up error handler before playing
           audioRef.current.onerror = () => {
             const error = audioRef.current?.error;
             let errorMsg = `Failed to play stream: ${station.name}. `;
-            
+
             if (error) {
               switch (error.code) {
                 case error.MEDIA_ERR_NETWORK:
@@ -231,20 +249,21 @@ export const RadioDiscoveryScreen: React.FC = () => {
             } else {
               errorMsg += 'The stream may not be available.';
             }
-            
+
             setPlayError(errorMsg);
             setPlayingStationId(null);
           };
-          
+
           await audioRef.current.play();
           setPlayingStationId(station.stationuuid);
           setPlayError(null);
         } catch (err) {
           const { logger } = await import('../../services/logging');
           logger.error('RadioDiscovery', 'Failed to play station', undefined, err as Error);
-          const errorMsg = err instanceof Error && err.name === 'NotAllowedError'
-            ? `Cannot play automatically. Please click the Play button again to start playback.`
-            : `Failed to play stream: ${station.name}. The stream may not be available or blocked by your browser.`;
+          const errorMsg =
+            err instanceof Error && err.name === 'NotAllowedError'
+              ? `Cannot play automatically. Please click the Play button again to start playback.`
+              : `Failed to play stream: ${station.name}. The stream may not be available or blocked by your browser.`;
           setPlayError(errorMsg);
           setPlayingStationId(null);
         }
@@ -255,16 +274,20 @@ export const RadioDiscoveryScreen: React.FC = () => {
   const handleAddStation = async (station: RadioBrowserStation, event: React.MouseEvent) => {
     // Stop event propagation to prevent card click
     event.stopPropagation();
-    
+
     try {
       // Check if station already exists
       const existing = await db.radioStations
         .where('streamUrl')
         .equals(station.url_resolved)
         .first();
-      
+
       if (existing) {
-        setSnackbar({ open: true, message: 'Station is already in your library!', severity: 'info' });
+        setSnackbar({
+          open: true,
+          message: 'Station is already in your library!',
+          severity: 'info',
+        });
         return;
       }
 
@@ -291,18 +314,22 @@ export const RadioDiscoveryScreen: React.FC = () => {
     } catch (err) {
       const { logger } = await import('../../services/logging');
       logger.error('RadioDiscovery', 'Add station error', undefined, err as Error);
-      setSnackbar({ open: true, message: `Failed to add station: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: `Failed to add station: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        severity: 'error',
+      });
     }
   };
 
   const StationCard: React.FC<{ station: RadioBrowserStation }> = ({ station }) => (
-    <Card 
-      sx={{ 
-        height: '100%', 
-        display: 'flex', 
+    <Card
+      sx={{
+        height: '100%',
+        display: 'flex',
         flexDirection: 'column',
         cursor: 'pointer',
-        '&:hover': { boxShadow: 4 }
+        '&:hover': { boxShadow: 4 },
       }}
       onClick={() => handlePlayStation(station)}
     >
@@ -319,47 +346,33 @@ export const RadioDiscoveryScreen: React.FC = () => {
             {station.name}
           </Typography>
         </Box>
-        
+
         {station.tags && (
           <Box sx={{ mb: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {station.tags.split(',').slice(0, 3).map((tag, idx) => (
-              <Chip 
-                key={idx}
-                label={tag.trim()} 
-                size="small" 
-                color="primary"
-                variant="outlined"
-              />
-            ))}
+            {station.tags
+              .split(',')
+              .slice(0, 3)
+              .map((tag, idx) => (
+                <Chip
+                  key={idx}
+                  label={tag.trim()}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                />
+              ))}
           </Box>
         )}
-        
+
         <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
           {station.codec && station.bitrate > 0 && (
-            <Chip 
-              label={`${station.codec.toUpperCase()} ${station.bitrate}k`} 
-              size="small" 
-            />
+            <Chip label={`${station.codec.toUpperCase()} ${station.bitrate}k`} size="small" />
           )}
-          {station.country && (
-            <Chip 
-              label={station.country} 
-              size="small" 
-            />
-          )}
-          {station.language && (
-            <Chip 
-              label={station.language} 
-              size="small" 
-            />
-          )}
+          {station.country && <Chip label={station.country} size="small" />}
+          {station.language && <Chip label={station.language} size="small" />}
         </Box>
-        
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ display: 'block' }}
-        >
+
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
           ⭐ {station.votes} votes • 🎧 {station.clickcount} plays
         </Typography>
       </CardContent>
@@ -390,12 +403,8 @@ export const RadioDiscoveryScreen: React.FC = () => {
 
   return (
     <Box>
-      <audio 
-        ref={audioRef}
-        crossOrigin="anonymous"
-        preload="none"
-      />
-      
+      <audio ref={audioRef} crossOrigin="anonymous" preload="none" />
+
       <AppBar position="static">
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
@@ -504,7 +513,11 @@ export const RadioDiscoveryScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

@@ -1,6 +1,6 @@
 /**
  * Web Comic Manager Screen
- * 
+ *
  * Add, manage, and browse web comics
  */
 
@@ -29,15 +29,7 @@ import {
   DialogActions,
   Snackbar,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Add,
-  Download,
-  Refresh,
-  Delete,
-  MenuBook,
-  Public,
-} from '@mui/icons-material';
+import { ArrowBack, Add, Download, Refresh, Delete, MenuBook, Public } from '@mui/icons-material';
 
 import webComicService, { Comic } from '../services/webcomic/WebComicService';
 import { db } from '../services/database-complete';
@@ -49,7 +41,11 @@ export const WebComicManagerScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showExamples, setShowExamples] = useState(false);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
   const [deleteComicId, setDeleteComicId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,7 +54,7 @@ export const WebComicManagerScreen: React.FC = () => {
 
   const loadComics = async () => {
     try {
-      const savedComics = await db.downloadedComics?.toArray() || [];
+      const savedComics = (await db.downloadedComics?.toArray()) || [];
       setComics(savedComics as any);
     } catch (error) {
       const { logger } = await import('../services/logging');
@@ -75,12 +71,12 @@ export const WebComicManagerScreen: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const comic = await webComicService.fetchComic(newComicUrl);
-      
+
       // Save to database
       await db.downloadedComics?.add(comic as any);
-      
+
       setComics([...comics, comic]);
       setNewComicUrl('');
       setLoading(false);
@@ -96,7 +92,11 @@ export const WebComicManagerScreen: React.FC = () => {
     try {
       const newStrips = await webComicService.checkForUpdates(comic);
       if (newStrips > 0) {
-        setSnackbar({ open: true, message: `${newStrips} new strips available!`, severity: 'success' });
+        setSnackbar({
+          open: true,
+          message: `${newStrips} new strips available!`,
+          severity: 'success',
+        });
         // Refresh the comic
         const updatedComic = await webComicService.fetchComic(comic.url);
         await db.downloadedComics?.update(comic.id, updatedComic as any);
@@ -117,10 +117,10 @@ export const WebComicManagerScreen: React.FC = () => {
 
   const confirmDeleteComic = async () => {
     if (!deleteComicId) return;
-    
+
     try {
       await db.downloadedComics?.delete(deleteComicId);
-      setComics(comics.filter(c => c.id !== deleteComicId));
+      setComics(comics.filter((c) => c.id !== deleteComicId));
       setSnackbar({ open: true, message: 'Comic removed successfully', severity: 'success' });
     } catch (error) {
       const { logger } = await import('../services/logging');
@@ -154,7 +154,15 @@ export const WebComicManagerScreen: React.FC = () => {
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          p: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
+      >
         <IconButton onClick={() => navigate('/downloads')} sx={{ mr: 1 }}>
           <ArrowBack />
         </IconButton>
@@ -241,24 +249,33 @@ export const WebComicManagerScreen: React.FC = () => {
                     )}
                     <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
                       <Chip label={`${comic.strips.length} strips`} size="small" />
-                      <Chip 
-                        label={comic.site.toUpperCase()} 
-                        size="small" 
-                        variant="outlined" 
-                      />
+                      <Chip label={comic.site.toUpperCase()} size="small" variant="outlined" />
                     </Stack>
                     <Typography variant="caption" color="text.secondary">
                       Last updated: {comic.lastUpdated.toLocaleDateString()}
                     </Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small" startIcon={<MenuBook />} onClick={() => handleReadComic(comic)}>
+                    <Button
+                      size="small"
+                      startIcon={<MenuBook />}
+                      onClick={() => handleReadComic(comic)}
+                    >
                       Read
                     </Button>
-                    <Button size="small" startIcon={<Refresh />} onClick={() => handleUpdateComic(comic)}>
+                    <Button
+                      size="small"
+                      startIcon={<Refresh />}
+                      onClick={() => handleUpdateComic(comic)}
+                    >
                       Update
                     </Button>
-                    <Button size="small" startIcon={<Delete />} color="error" onClick={() => handleDeleteComic(comic.id)}>
+                    <Button
+                      size="small"
+                      startIcon={<Delete />}
+                      color="error"
+                      onClick={() => handleDeleteComic(comic.id)}
+                    >
                       Remove
                     </Button>
                   </CardActions>
@@ -331,7 +348,11 @@ export const WebComicManagerScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

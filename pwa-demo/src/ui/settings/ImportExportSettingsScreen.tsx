@@ -1,6 +1,6 @@
 /**
  * Import/Export Settings Screen
- * 
+ *
  * Backup and restore library data.
  * Migrated from ImportExportScreen.kt
  */
@@ -27,12 +27,7 @@ import {
   CircularProgress,
   Chip,
 } from '@mui/material';
-import {
-  ArrowBack,
-  CloudUpload,
-  CloudDownload,
-  Delete,
-} from '@mui/icons-material';
+import { ArrowBack, CloudUpload, CloudDownload, Delete } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 
@@ -95,7 +90,7 @@ export const ImportExportSettingsScreen: React.FC = () => {
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 10) / 10 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 10) / 10 + ' ' + sizes[i];
   };
 
   return (

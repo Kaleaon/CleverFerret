@@ -4,7 +4,7 @@
 
 /**
  * Central entity for all individual media files in the system
- * 
+ *
  * This interface stores the core file information and relationships
  * to libraries, with detailed metadata stored in separate tables.
  */
@@ -29,7 +29,7 @@ export interface MediaItem {
 
 /**
  * Entity representing a media library in the Universal Media Library system
- * 
+ *
  * Each library represents a collection of media items of a specific type
  * (books, movies, music, etc.) stored in a particular file system location.
  */
@@ -51,7 +51,7 @@ export interface Library {
 
 /**
  * Common metadata fields shared across all media types
- * 
+ *
  * This interface stores metadata that applies to books, movies, music, etc.
  * Type-specific metadata is stored in separate interfaces.
  */
@@ -439,7 +439,7 @@ export enum TagType {
   AUTO_GENERATED = 'AUTO_GENERATED',
   IMPORTED_PLEX = 'IMPORTED_PLEX',
   IMPORTED_CALIBRE = 'IMPORTED_CALIBRE',
-  IMPORTED_JELLYFIN = 'IMPORTED_JELLYFIN'
+  IMPORTED_JELLYFIN = 'IMPORTED_JELLYFIN',
 }
 
 /**
@@ -477,7 +477,7 @@ export enum CollectionType {
   READING_LIST = 'READING_LIST',
   WATCH_LIST = 'WATCH_LIST',
   USER_DEFINED = 'USER_DEFINED',
-  SMART = 'SMART'
+  SMART = 'SMART',
 }
 
 /**
@@ -490,7 +490,7 @@ export enum SortField {
   RELEASE_DATE = 'RELEASE_DATE',
   RATING = 'RATING',
   PLAY_COUNT = 'PLAY_COUNT',
-  CREATOR = 'CREATOR'
+  CREATOR = 'CREATOR',
 }
 
 /**
@@ -498,7 +498,7 @@ export enum SortField {
  */
 export enum SortOrder {
   ASCENDING = 'ASCENDING',
-  DESCENDING = 'DESCENDING'
+  DESCENDING = 'DESCENDING',
 }
 
 /**
@@ -649,7 +649,7 @@ export enum PageTurnAnimation {
   FADE = 'FADE',
   CURL = 'CURL',
   FLIP = 'FLIP',
-  NONE = 'NONE'
+  NONE = 'NONE',
 }
 
 /**
@@ -658,18 +658,18 @@ export enum PageTurnAnimation {
 export enum PageTurnSpeed {
   SLOW = 'SLOW',
   NORMAL = 'NORMAL',
-  FAST = 'FAST'
+  FAST = 'FAST',
 }
 
 /**
  * Reading themes
  */
 export enum ReadingTheme {
-  AUTO = 'AUTO',    // Follow system
-  LIGHT = 'LIGHT',   // White background
-  DARK = 'DARK',    // Dark background
-  SEPIA = 'SEPIA',   // Warm sepia tone
-  NIGHT = 'NIGHT'    // OLED black
+  AUTO = 'AUTO', // Follow system
+  LIGHT = 'LIGHT', // White background
+  DARK = 'DARK', // Dark background
+  SEPIA = 'SEPIA', // Warm sepia tone
+  NIGHT = 'NIGHT', // OLED black
 }
 
 /**
@@ -679,7 +679,7 @@ export enum TextAlignment {
   LEFT = 'LEFT',
   CENTER = 'CENTER',
   RIGHT = 'RIGHT',
-  JUSTIFY = 'JUSTIFY'
+  JUSTIFY = 'JUSTIFY',
 }
 
 /**
@@ -926,7 +926,14 @@ export interface BookDetails {
 // Helper Type Exports
 // ============================================================================
 
-export type MediaType = 'BOOK' | 'MOVIE' | 'TV_SHOW' | 'MUSIC_TRACK' | 'COMIC' | 'PODCAST' | 'AUDIOBOOK';
+export type MediaType =
+  | 'BOOK'
+  | 'MOVIE'
+  | 'TV_SHOW'
+  | 'MUSIC_TRACK'
+  | 'COMIC'
+  | 'PODCAST'
+  | 'AUDIOBOOK';
 export type LibrarySource = 'LOCAL' | 'PLEX' | 'JELLYFIN' | 'EMBY' | 'CALIBRE';
 export type WatchStatus = 'UNWATCHED' | 'WATCHING' | 'WATCHED';
 export type BookmarkType = 'MANUAL' | 'AUTO' | 'RESUME';

@@ -1,6 +1,6 @@
 /**
  * Audiobook Player Screen
- * 
+ *
  * Specialized audiobook player with chapter navigation, bookmarks, and sleep timer.
  * Migrated from AudiobookPlayerScreen.kt
  */
@@ -45,7 +45,7 @@ import type { MediaItem } from '../../data/local/entity';
 export const AudiobookPlayerScreen: React.FC = () => {
   const { audiobookId } = useParams<{ audiobookId: string }>();
   const navigate = useNavigate();
-  
+
   const [mediaItem, setMediaItem] = useState<MediaItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -70,10 +70,7 @@ export const AudiobookPlayerScreen: React.FC = () => {
     const item = await db.mediaItems.get(parseInt(audiobookId));
     setMediaItem(item || null);
     // Load reading progress
-    const progress = await db.readingProgress
-      .where('itemId')
-      .equals(parseInt(audiobookId))
-      .first();
+    const progress = await db.readingProgress.where('itemId').equals(parseInt(audiobookId)).first();
     if (progress) {
       setCurrentTime(progress.currentPosition);
     }
@@ -107,7 +104,14 @@ export const AudiobookPlayerScreen: React.FC = () => {
   };
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.default',
+      }}
+    >
       <AppBar position="static">
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
@@ -154,14 +158,24 @@ export const AudiobookPlayerScreen: React.FC = () => {
             onChange={(_, value) => handleSeek(value as number)}
             sx={{ color: 'primary.main' }}
           />
-          <Stack direction="row" justifyContent="space-between" sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            sx={{ fontSize: '0.875rem', color: 'text.secondary' }}
+          >
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </Stack>
         </Box>
 
         {/* Playback Controls */}
-        <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" sx={{ mb: 2 }}>
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          justifyContent="center"
+          sx={{ mb: 2 }}
+        >
           <IconButton onClick={() => handleSeek(currentTime - 30)}>
             <Replay30 />
           </IconButton>

@@ -29,7 +29,7 @@ export class MaintenanceService {
     return 0;
   }
 
-  async findDuplicates(): Promise<Array<{id1: number, id2: number, similarity: number}>> {
+  async findDuplicates(): Promise<Array<{ id1: number; id2: number; similarity: number }>> {
     // Find duplicate media items
     return [];
   }
@@ -59,8 +59,8 @@ export class MaintenanceService {
 
     const pattern = patterns[type];
     const keys = Object.keys(localStorage);
-    
-    keys.forEach(key => {
+
+    keys.forEach((key) => {
       if (pattern === '' || key.startsWith(pattern)) {
         localStorage.removeItem(key);
       }

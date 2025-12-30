@@ -1,6 +1,6 @@
 /**
  * Reader Settings Screen
- * 
+ *
  * Configure ebook reader preferences.
  * Migrated from ReaderSettingsScreen.kt
  */
@@ -26,11 +26,7 @@ import {
   ToggleButton,
   Divider,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Save,
-  RestartAlt,
-} from '@mui/icons-material';
+import { ArrowBack, Save, RestartAlt } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 import type { ReaderSettingsEntity } from '../../data/local/entity';
@@ -305,7 +301,9 @@ export const ReaderSettingsScreen: React.FC = () => {
               control={
                 <Switch
                   checked={settings.enableHyphenation}
-                  onChange={(e) => setSettings({ ...settings, enableHyphenation: e.target.checked })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, enableHyphenation: e.target.checked })
+                  }
                 />
               }
               label="Enable Hyphenation"
@@ -315,7 +313,9 @@ export const ReaderSettingsScreen: React.FC = () => {
               control={
                 <Switch
                   checked={settings.enablePageNumbers}
-                  onChange={(e) => setSettings({ ...settings, enablePageNumbers: e.target.checked })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, enablePageNumbers: e.target.checked })
+                  }
                 />
               }
               label="Show Page Numbers"

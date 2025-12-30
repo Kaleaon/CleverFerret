@@ -1,6 +1,6 @@
 /**
  * API Keys Settings Screen
- * 
+ *
  * Manage external service API keys.
  * Migrated from APIKeysManagerScreen.kt
  */
@@ -123,7 +123,7 @@ export const APIKeysScreen: React.FC = () => {
   };
 
   const getProviderInfo = (provider: string) => {
-    return apiKeyProviders.find(p => p.provider === provider);
+    return apiKeyProviders.find((p) => p.provider === provider);
   };
 
   const handleSave = async () => {
@@ -160,7 +160,11 @@ export const APIKeysScreen: React.FC = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             API Keys
           </Typography>
-          <IconButton color="inherit" onClick={handleSave} disabled={Object.keys(editedKeys).length === 0}>
+          <IconButton
+            color="inherit"
+            onClick={handleSave}
+            disabled={Object.keys(editedKeys).length === 0}
+          >
             <Save />
           </IconButton>
         </Toolbar>
@@ -183,7 +187,14 @@ export const APIKeysScreen: React.FC = () => {
           return (
             <Card key={apiKey.keyId} sx={{ mb: 2 }}>
               <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'start',
+                    mb: 2,
+                  }}
+                >
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="h6">{apiKey.displayName}</Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -217,7 +228,9 @@ export const APIKeysScreen: React.FC = () => {
                   value={editedKeys[apiKey.keyId] ?? apiKey.keyValue}
                   onChange={(e) => handleKeyChange(apiKey.keyId, e.target.value)}
                   placeholder="Enter your API key here..."
-                  helperText={providerInfo?.url ? 'Click "Get API Key" above to obtain your key' : ''}
+                  helperText={
+                    providerInfo?.url ? 'Click "Get API Key" above to obtain your key' : ''
+                  }
                   InputProps={{
                     endAdornment: (
                       <IconButton onClick={() => toggleShowKey(apiKey.keyId)} edge="end">
@@ -228,7 +241,11 @@ export const APIKeysScreen: React.FC = () => {
                 />
 
                 {apiKey.lastUsed && (
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mt: 1, display: 'block' }}
+                  >
                     Last used: {new Date(apiKey.lastUsed).toLocaleDateString()}
                   </Typography>
                 )}

@@ -1,6 +1,6 @@
 /**
  * Permanent Navigation Sidebar Component
- * 
+ *
  * Provides a permanent side navigation menu for easy access to all app sections.
  */
 

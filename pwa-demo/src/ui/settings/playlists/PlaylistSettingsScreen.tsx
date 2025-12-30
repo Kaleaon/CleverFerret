@@ -37,7 +37,10 @@ export const PlaylistSettingsScreen: React.FC = () => {
 
       <List>
         <ListItem>
-          <ListItemText primary="Auto-play next track" secondary="Automatically play the next track in playlist" />
+          <ListItemText
+            primary="Auto-play next track"
+            secondary="Automatically play the next track in playlist"
+          />
           <Switch checked={autoPlay} onChange={(e) => setAutoPlay(e.target.checked)} />
         </ListItem>
         <ListItem>
@@ -45,7 +48,10 @@ export const PlaylistSettingsScreen: React.FC = () => {
           <Switch checked={shuffle} onChange={(e) => setShuffle(e.target.checked)} />
         </ListItem>
         <ListItem>
-          <ListItemText primary="Repeat playlists" secondary="Automatically repeat when playlist ends" />
+          <ListItemText
+            primary="Repeat playlists"
+            secondary="Automatically repeat when playlist ends"
+          />
           <Switch checked={repeat} onChange={(e) => setRepeat(e.target.checked)} />
         </ListItem>
       </List>

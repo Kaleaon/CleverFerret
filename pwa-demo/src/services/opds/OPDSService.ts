@@ -40,20 +40,23 @@ export class OPDSService {
       }
 
       const title = feed.querySelector('title')?.textContent || 'Unknown Catalog';
-      
-      const entries = Array.from(xmlDoc.querySelectorAll('entry')).map(entry => {
+
+      const entries = Array.from(xmlDoc.querySelectorAll('entry')).map((entry) => {
         const id = entry.querySelector('id')?.textContent || '';
         const entryTitle = entry.querySelector('title')?.textContent || 'Untitled';
         const author = entry.querySelector('author name')?.textContent || undefined;
-        const summary = entry.querySelector('summary')?.textContent || entry.querySelector('content')?.textContent || undefined;
-        
-        const links = Array.from(entry.querySelectorAll('link')).map(link => ({
+        const summary =
+          entry.querySelector('summary')?.textContent ||
+          entry.querySelector('content')?.textContent ||
+          undefined;
+
+        const links = Array.from(entry.querySelectorAll('link')).map((link) => ({
           href: link.getAttribute('href') || '',
           type: link.getAttribute('type') || '',
           rel: link.getAttribute('rel') || '',
         }));
 
-        const thumbnail = links.find(l => l.rel === 'http://opds-spec.org/image/thumbnail')?.href;
+        const thumbnail = links.find((l) => l.rel === 'http://opds-spec.org/image/thumbnail')?.href;
 
         return { id, title: entryTitle, author, summary, links, thumbnail };
       });
@@ -68,10 +71,11 @@ export class OPDSService {
   }
 
   async downloadBook(entry: OPDSEntry): Promise<Blob | null> {
-    const downloadLink = entry.links.find(l => 
-      l.type.includes('epub') || 
-      l.type.includes('pdf') || 
-      l.rel === 'http://opds-spec.org/acquisition'
+    const downloadLink = entry.links.find(
+      (l) =>
+        l.type.includes('epub') ||
+        l.type.includes('pdf') ||
+        l.rel === 'http://opds-spec.org/acquisition',
     );
 
     if (!downloadLink) {

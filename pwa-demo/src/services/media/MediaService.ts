@@ -74,7 +74,9 @@ export class MediaService {
         title: metadata.title || 'Unknown Title',
         artist: metadata.artist || 'Unknown Artist',
         album: metadata.album || 'Unknown Album',
-        artwork: metadata.artwork ? [{ src: metadata.artwork, sizes: '512x512', type: 'image/png' }] : [],
+        artwork: metadata.artwork
+          ? [{ src: metadata.artwork, sizes: '512x512', type: 'image/png' }]
+          : [],
       });
     }
   }
@@ -88,8 +90,15 @@ export class MediaService {
     seekforward?: () => void;
   }): void {
     if ('mediaSession' in navigator) {
-      const actions: (keyof typeof handlers)[] = ['play', 'pause', 'previoustrack', 'nexttrack', 'seekbackward', 'seekforward'];
-      actions.forEach(action => {
+      const actions: (keyof typeof handlers)[] = [
+        'play',
+        'pause',
+        'previoustrack',
+        'nexttrack',
+        'seekbackward',
+        'seekforward',
+      ];
+      actions.forEach((action) => {
         const handler = handlers[action];
         if (handler) {
           try {

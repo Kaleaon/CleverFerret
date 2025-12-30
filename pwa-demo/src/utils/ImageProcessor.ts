@@ -15,12 +15,7 @@ export class ImageProcessor {
    * Resize and compress image
    */
   static async processImage(file: File, options: ImageProcessOptions = {}): Promise<Blob> {
-    const {
-      maxWidth = 1920,
-      maxHeight = 1080,
-      quality = 0.8,
-      format = 'image/jpeg',
-    } = options;
+    const { maxWidth = 1920, maxHeight = 1080, quality = 0.8, format = 'image/jpeg' } = options;
 
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -45,7 +40,7 @@ export class ImageProcessor {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        
+
         if (!ctx) {
           reject(new Error('Failed to get canvas context'));
           return;
@@ -63,7 +58,7 @@ export class ImageProcessor {
             }
           },
           format,
-          quality
+          quality,
         );
       };
 
@@ -79,10 +74,7 @@ export class ImageProcessor {
   /**
    * Generate thumbnail from image
    */
-  static async generateThumbnail(
-    file: File,
-    size: number = 200
-  ): Promise<Blob> {
+  static async generateThumbnail(file: File, size: number = 200): Promise<Blob> {
     return this.processImage(file, {
       maxWidth: size,
       maxHeight: size,
@@ -111,7 +103,7 @@ export class ImageProcessor {
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
   ): Promise<Blob> {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -124,7 +116,7 @@ export class ImageProcessor {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        
+
         if (!ctx) {
           reject(new Error('Failed to get canvas context'));
           return;
@@ -163,7 +155,7 @@ export class ImageProcessor {
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
+
         if (!ctx) {
           reject(new Error('Failed to get canvas context'));
           return;

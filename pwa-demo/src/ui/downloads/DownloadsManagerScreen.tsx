@@ -1,6 +1,6 @@
 /**
  * Downloads Manager Screen
- * 
+ *
  * Central hub for managing web fiction and comic downloads.
  * Provides organized access to all downloader features.
  */
@@ -20,13 +20,7 @@ import {
   Stack,
   Chip,
 } from '@mui/material';
-import {
-  ArrowBack,
-  MenuBook,
-  AutoStories,
-  Download,
-  Article,
-} from '@mui/icons-material';
+import { ArrowBack, MenuBook, AutoStories, Download, Article } from '@mui/icons-material';
 
 export const DownloadsManagerScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +29,8 @@ export const DownloadsManagerScreen: React.FC = () => {
     {
       id: 'webfiction',
       title: 'Web Fiction',
-      description: 'Download and manage fanfiction and web novels from Archive of Our Own, FanFiction.Net, and more',
+      description:
+        'Download and manage fanfiction and web novels from Archive of Our Own, FanFiction.Net, and more',
       icon: <AutoStories />,
       path: '/downloads/webfiction',
       features: ['Multi-site support', 'Auto-updates', 'EPUB export'],
@@ -53,7 +48,15 @@ export const DownloadsManagerScreen: React.FC = () => {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          p: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
+      >
         <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
           <ArrowBack />
         </IconButton>
@@ -175,8 +178,8 @@ export const DownloadsManagerScreen: React.FC = () => {
                   About Downloads
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  All downloaded content is stored locally and available for offline reading. 
-                  You can manage downloads, check for updates, and export content from each downloader.
+                  All downloaded content is stored locally and available for offline reading. You
+                  can manage downloads, check for updates, and export content from each downloader.
                 </Typography>
               </Box>
             </Stack>

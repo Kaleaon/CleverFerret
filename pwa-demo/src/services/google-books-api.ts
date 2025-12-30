@@ -34,27 +34,27 @@ export interface GoogleBooksResponse {
  */
 export const fetchGoogleBooks = async (
   query: string,
-  maxResults: number = 40
+  maxResults: number = 40,
 ): Promise<GoogleBooksResponse> => {
   try {
     // Get API key from environment (optional but recommended)
     const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
-    
+
     // Build URL with optional API key
     const params = new URLSearchParams({
       q: query,
       maxResults: maxResults.toString(),
       printType: 'books',
     });
-    
+
     if (apiKey) {
       params.append('key', apiKey);
     }
-    
+
     const url = `https://www.googleapis.com/books/v1/volumes?${params.toString()}`;
-    
+
     const response = await fetch(url);
-    
+
     // Handle quota exceeded (403)
     if (response.status === 403) {
       console.warn('Google Books API quota exceeded or access denied');
@@ -64,7 +64,7 @@ export const fetchGoogleBooks = async (
         error: 'QUOTA_EXCEEDED',
       };
     }
-    
+
     // Handle rate limiting (429)
     if (response.status === 429) {
       console.warn('Google Books API rate limit exceeded');
@@ -74,7 +74,7 @@ export const fetchGoogleBooks = async (
         error: 'RATE_LIMITED',
       };
     }
-    
+
     // Handle other errors
     if (!response.ok) {
       console.error(`Google Books API error: ${response.status} ${response.statusText}`);
@@ -84,10 +84,9 @@ export const fetchGoogleBooks = async (
         error: 'API_ERROR',
       };
     }
-    
+
     const data = await response.json();
     return data;
-    
   } catch (error) {
     console.error('Error fetching from Google Books API:', error);
     return {
@@ -127,17 +126,16 @@ export const fetchBookDetails = async (bookId: string): Promise<GoogleBooksRespo
   try {
     const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
     const url = `https://www.googleapis.com/books/v1/volumes/${bookId}${apiKey ? `?key=${apiKey}` : ''}`;
-    
+
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       console.error(`Google Books API error: ${response.status} ${response.statusText}`);
       return { error: 'API_ERROR' };
     }
-    
+
     const data = await response.json();
     return { items: [data] };
-    
   } catch (error) {
     console.error('Error fetching book details:', error);
     return { error: 'NETWORK_ERROR' };

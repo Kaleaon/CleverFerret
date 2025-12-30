@@ -1,6 +1,6 @@
 /**
  * Notification Settings Screen
- * 
+ *
  * Configure app notifications and alerts
  */
 
@@ -56,7 +56,7 @@ export const NotificationSettingsScreen: React.FC = () => {
               General
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }}>
               <FormGroup>
                 <FormControlLabel
@@ -98,8 +98,12 @@ export const NotificationSettingsScreen: React.FC = () => {
               Notification Types
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
-            <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }} disabled={!enableNotifications}>
+
+            <FormControl
+              component="fieldset"
+              sx={{ width: '100%', mb: 2 }}
+              disabled={!enableNotifications}
+            >
               <FormGroup>
                 <FormControlLabel
                   control={
@@ -116,14 +120,15 @@ export const NotificationSettingsScreen: React.FC = () => {
               </FormGroup>
             </FormControl>
 
-            <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }} disabled={!enableNotifications}>
+            <FormControl
+              component="fieldset"
+              sx={{ width: '100%', mb: 2 }}
+              disabled={!enableNotifications}
+            >
               <FormGroup>
                 <FormControlLabel
                   control={
-                    <Switch
-                      checked={downloads}
-                      onChange={(e) => setDownloads(e.target.checked)}
-                    />
+                    <Switch checked={downloads} onChange={(e) => setDownloads(e.target.checked)} />
                   }
                   label="Download Complete"
                 />
@@ -133,7 +138,11 @@ export const NotificationSettingsScreen: React.FC = () => {
               </FormGroup>
             </FormControl>
 
-            <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }} disabled={!enableNotifications}>
+            <FormControl
+              component="fieldset"
+              sx={{ width: '100%', mb: 2 }}
+              disabled={!enableNotifications}
+            >
               <FormGroup>
                 <FormControlLabel
                   control={
@@ -150,14 +159,15 @@ export const NotificationSettingsScreen: React.FC = () => {
               </FormGroup>
             </FormControl>
 
-            <FormControl component="fieldset" sx={{ width: '100%' }} disabled={!enableNotifications}>
+            <FormControl
+              component="fieldset"
+              sx={{ width: '100%' }}
+              disabled={!enableNotifications}
+            >
               <FormGroup>
                 <FormControlLabel
                   control={
-                    <Switch
-                      checked={updates}
-                      onChange={(e) => setUpdates(e.target.checked)}
-                    />
+                    <Switch checked={updates} onChange={(e) => setUpdates(e.target.checked)} />
                   }
                   label="App Updates"
                 />
@@ -171,7 +181,8 @@ export const NotificationSettingsScreen: React.FC = () => {
 
         {/* Info Alert */}
         <Alert severity="info">
-          Notification settings require browser permissions. Make sure notifications are enabled for this site in your browser settings.
+          Notification settings require browser permissions. Make sure notifications are enabled for
+          this site in your browser settings.
         </Alert>
       </Box>
     </Box>

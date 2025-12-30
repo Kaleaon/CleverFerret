@@ -1,20 +1,12 @@
 /**
  * Now Playing Screen
- * 
+ *
  * Mini player/now playing bar for global playback control.
  */
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Paper,
-  Avatar,
-  Typography,
-  IconButton,
-  LinearProgress,
-  Slide,
-} from '@mui/material';
+import { Box, Paper, Avatar, Typography, IconButton, LinearProgress, Slide } from '@mui/material';
 import {
   PlayArrow,
   Pause,
@@ -50,7 +42,7 @@ export const NowPlayingBar: React.FC = () => {
 
   const track = playbackState.currentTrack;
   const progress = (playbackState.currentTime / playbackState.duration) * 100;
-  
+
   // Determine if we're playing audiobook or video (for chapter controls)
   const isAudiobookOrVideo = track.mediaType === 'audiobook' || track.mediaType === 'video';
 
@@ -116,8 +108,8 @@ export const NowPlayingBar: React.FC = () => {
             }}
           >
             {/* Previous track/chapter */}
-            <IconButton 
-              size="small" 
+            <IconButton
+              size="small"
               onClick={(e) => {
                 e.stopPropagation();
                 audioPlayerService.previous();
@@ -128,20 +120,12 @@ export const NowPlayingBar: React.FC = () => {
             </IconButton>
 
             {/* Fast Rewind (30 seconds) */}
-            <IconButton 
-              size="small" 
-              onClick={handleFastRewind}
-              title="Rewind 30s"
-            >
+            <IconButton size="small" onClick={handleFastRewind} title="Rewind 30s">
               <FastRewind />
             </IconButton>
 
             {/* Rewind 10 seconds */}
-            <IconButton 
-              size="small" 
-              onClick={handleSkip10Backward}
-              title="Rewind 10s"
-            >
+            <IconButton size="small" onClick={handleSkip10Backward} title="Rewind 10s">
               <Replay10 />
             </IconButton>
 
@@ -152,7 +136,7 @@ export const NowPlayingBar: React.FC = () => {
                 e.stopPropagation();
                 audioPlayerService.togglePlayPause();
               }}
-              sx={{ 
+              sx={{
                 mx: 1,
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
@@ -165,26 +149,18 @@ export const NowPlayingBar: React.FC = () => {
             </IconButton>
 
             {/* Forward 10 seconds */}
-            <IconButton 
-              size="small" 
-              onClick={handleSkip10Forward}
-              title="Forward 10s"
-            >
+            <IconButton size="small" onClick={handleSkip10Forward} title="Forward 10s">
               <Forward10 />
             </IconButton>
 
             {/* Fast Forward (30 seconds) */}
-            <IconButton 
-              size="small" 
-              onClick={handleFastForward}
-              title="Forward 30s"
-            >
+            <IconButton size="small" onClick={handleFastForward} title="Forward 30s">
               <FastForward />
             </IconButton>
 
             {/* Next track/chapter */}
-            <IconButton 
-              size="small" 
+            <IconButton
+              size="small"
               onClick={(e) => {
                 e.stopPropagation();
                 audioPlayerService.next();

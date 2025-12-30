@@ -1,6 +1,6 @@
 /**
  * Plex Integration Screen
- * 
+ *
  * Connect and sync with Plex Media Server.
  * Migrated from PlexIntegrationScreen.kt
  */
@@ -33,14 +33,7 @@ import {
   FormControlLabel,
   Snackbar,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Add,
-  Sync,
-  Delete,
-  CheckCircle,
-  Error as ErrorIcon,
-} from '@mui/icons-material';
+import { ArrowBack, Add, Sync, Delete, CheckCircle, Error as ErrorIcon } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 import type { PlexServer } from '../../data/local/entity';
@@ -52,7 +45,11 @@ export const PlexIntegrationScreen: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [deleteServerId, setDeleteServerId] = useState<number | null>(null);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
 
   // Form state
   const [serverName, setServerName] = useState('');
@@ -121,7 +118,7 @@ export const PlexIntegrationScreen: React.FC = () => {
 
   const confirmDeleteServer = async () => {
     if (deleteServerId === null) return;
-    
+
     try {
       await db.plexServers.delete(deleteServerId);
       loadServers();
@@ -170,7 +167,14 @@ export const PlexIntegrationScreen: React.FC = () => {
         {servers.map((server) => (
           <Card key={server.serverId} sx={{ mb: 2 }}>
             <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'start',
+                  mb: 2,
+                }}
+              >
                 <Box>
                   <Typography variant="h6">{server.name}</Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -186,7 +190,11 @@ export const PlexIntegrationScreen: React.FC = () => {
               </Box>
 
               {server.lastSynced > 0 && (
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: 'block', mb: 2 }}
+                >
                   Last synced: {new Date(server.lastSynced).toLocaleString()}
                 </Typography>
               )}
@@ -319,7 +327,11 @@ export const PlexIntegrationScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

@@ -1,6 +1,6 @@
 /**
  * OPDS Parser
- * 
+ *
  * Parses OPDS (Open Publication Distribution System) feeds
  */
 
@@ -46,7 +46,7 @@ class OPDSParserService {
     try {
       const response = await fetch(url, {
         headers: {
-          'Accept': 'application/atom+xml,application/xml,text/xml',
+          Accept: 'application/atom+xml,application/xml,text/xml',
         },
       });
 
@@ -86,18 +86,20 @@ class OPDSParserService {
 
     // Parse entries
     const entryElements = feed.querySelectorAll('entry');
-    const entries: OPDSEntry[] = Array.from(entryElements).map(entry => this.parseEntry(entry, baseUrl));
+    const entries: OPDSEntry[] = Array.from(entryElements).map((entry) =>
+      this.parseEntry(entry, baseUrl),
+    );
 
     // Parse links
     const linkElements = feed.querySelectorAll('link');
-    const links: OPDSLink[] = Array.from(linkElements).map(link => ({
+    const links: OPDSLink[] = Array.from(linkElements).map((link) => ({
       rel: link.getAttribute('rel') || 'alternate',
       href: this.resolveUrl(link.getAttribute('href') || '', baseUrl),
       type: link.getAttribute('type') || undefined,
       title: link.getAttribute('title') || undefined,
     }));
 
-    const nextPageLink = links.find(l => l.rel === 'next');
+    const nextPageLink = links.find((l) => l.rel === 'next');
     const nextPageUrl = nextPageLink?.href;
 
     return {
@@ -116,12 +118,16 @@ class OPDSParserService {
   private parseEntry(entry: Element, baseUrl: string): OPDSEntry {
     const id = this.getTextContent(entry, 'id') || '';
     const title = this.getTextContent(entry, 'title') || 'Untitled';
-    
+
     // Authors
     const authors = entry.querySelectorAll('author');
-    const author = authors.length > 0 
-      ? Array.from(authors).map(a => this.getTextContent(a, 'name')).filter(Boolean).join(', ')
-      : undefined;
+    const author =
+      authors.length > 0
+        ? Array.from(authors)
+            .map((a) => this.getTextContent(a, 'name'))
+            .filter(Boolean)
+            .join(', ')
+        : undefined;
 
     // Summary
     const summary = this.getTextContent(entry, 'summary') || this.getTextContent(entry, 'content');
@@ -132,12 +138,16 @@ class OPDSParserService {
     let downloadUrl: string | undefined;
     let downloadType: string | undefined;
 
-    Array.from(links).forEach(link => {
+    Array.from(links).forEach((link) => {
       const rel = link.getAttribute('rel') || '';
       const href = link.getAttribute('href') || '';
       const type = link.getAttribute('type') || '';
 
-      if (rel.includes('image') || rel === 'http://opds-spec.org/image' || rel === 'http://opds-spec.org/image/thumbnail') {
+      if (
+        rel.includes('image') ||
+        rel === 'http://opds-spec.org/image' ||
+        rel === 'http://opds-spec.org/image/thumbnail'
+      ) {
         coverUrl = this.resolveUrl(href, baseUrl);
       } else if (rel === 'http://opds-spec.org/acquisition' || rel.includes('acquisition')) {
         downloadUrl = this.resolveUrl(href, baseUrl);
@@ -151,7 +161,7 @@ class OPDSParserService {
 
     // Categories
     const categories = Array.from(entry.querySelectorAll('category'))
-      .map(cat => cat.getAttribute('term'))
+      .map((cat) => cat.getAttribute('term'))
       .filter((term): term is string => !!term);
 
     // Language

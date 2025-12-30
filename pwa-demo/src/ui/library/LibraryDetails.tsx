@@ -1,6 +1,6 @@
 /**
  * Library Details Screen
- * 
+ *
  * Shows media items in a library with grid/list view and filtering.
  * Migrated from LibraryDetailsScreen.kt
  */
@@ -78,7 +78,7 @@ export const LibraryDetailsScreen: React.FC = () => {
       filtered = filtered.filter(
         (item) =>
           item.fileName.toLowerCase().includes(query) ||
-          item.filePath.toLowerCase().includes(query)
+          item.filePath.toLowerCase().includes(query),
       );
     }
 
@@ -126,11 +126,7 @@ export const LibraryDetailsScreen: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Menu
-        anchorEl={sortAnchor}
-        open={Boolean(sortAnchor)}
-        onClose={() => setSortAnchor(null)}
-      >
+      <Menu anchorEl={sortAnchor} open={Boolean(sortAnchor)} onClose={() => setSortAnchor(null)}>
         <MenuItem onClick={() => handleSort('name')}>Sort by Name</MenuItem>
         <MenuItem onClick={() => handleSort('date')}>Sort by Date Added</MenuItem>
         <MenuItem onClick={() => handleSort('size')}>Sort by Size</MenuItem>

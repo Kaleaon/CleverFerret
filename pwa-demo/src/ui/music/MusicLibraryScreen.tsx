@@ -1,6 +1,6 @@
 /**
  * Music Library Screen
- * 
+ *
  * Browse music library with albums, artists, and tracks.
  * Migrated from MusicLibraryScreen.kt
  */
@@ -69,7 +69,7 @@ export const MusicLibraryScreen: React.FC = () => {
   };
 
   const filteredTracks = tracks.filter((track) =>
-    track.fileName.toLowerCase().includes(searchQuery.toLowerCase())
+    track.fileName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (

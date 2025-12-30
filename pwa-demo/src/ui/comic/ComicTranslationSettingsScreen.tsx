@@ -40,15 +40,25 @@ export const ComicTranslationSettingsScreen: React.FC = () => {
 
       <List sx={{ flex: 1, overflow: 'auto', p: 2 }}>
         <ListItem>
-          <ListItemText primary="Enable Translation" secondary="Automatically translate comic text" />
-          <Switch checked={enableTranslation} onChange={(e) => setEnableTranslation(e.target.checked)} />
+          <ListItemText
+            primary="Enable Translation"
+            secondary="Automatically translate comic text"
+          />
+          <Switch
+            checked={enableTranslation}
+            onChange={(e) => setEnableTranslation(e.target.checked)}
+          />
         </ListItem>
 
         {enableTranslation && (
           <ListItem>
             <FormControl fullWidth>
               <InputLabel>Target Language</InputLabel>
-              <Select value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)} label="Target Language">
+              <Select
+                value={targetLanguage}
+                onChange={(e) => setTargetLanguage(e.target.value)}
+                label="Target Language"
+              >
                 <MenuItem value="en">English</MenuItem>
                 <MenuItem value="es">Spanish</MenuItem>
                 <MenuItem value="fr">French</MenuItem>

@@ -1,6 +1,6 @@
 /**
  * File Handler Service
- * 
+ *
  * Handles file opening and association with CleverFerret
  */
 
@@ -24,7 +24,7 @@ export interface FileOpenResult {
  */
 export function getRouteForFileType(mimeType: string, fileName: string): string | null {
   const extension = fileName.split('.').pop()?.toLowerCase() || '';
-  
+
   // E-books
   if (mimeType.includes('epub') || extension === 'epub') {
     return '/reader';
@@ -35,32 +35,35 @@ export function getRouteForFileType(mimeType: string, fileName: string): string 
   if (['mobi', 'azw', 'azw3'].includes(extension)) {
     return '/reader';
   }
-  
+
   // Comics
   if (['cbr', 'cbz', 'cbt', 'cb7'].includes(extension)) {
     return '/comic';
   }
-  
+
   // Audio
-  if (mimeType.startsWith('audio/') || ['mp3', 'm4a', 'm4b', 'flac', 'wav', 'ogg', 'opus', 'wma'].includes(extension)) {
+  if (
+    mimeType.startsWith('audio/') ||
+    ['mp3', 'm4a', 'm4b', 'flac', 'wav', 'ogg', 'opus', 'wma'].includes(extension)
+  ) {
     return '/audio_player';
   }
-  
+
   // Video
   if (mimeType.startsWith('video/') || ['mp4', 'mkv', 'mov', 'avi', 'webm'].includes(extension)) {
     return '/video_player';
   }
-  
+
   // Images
   if (mimeType.startsWith('image/') || ['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
     return '/open';
   }
-  
+
   // Text documents
   if (mimeType.includes('text/') || ['txt', 'md', 'rtf'].includes(extension)) {
     return '/document';
   }
-  
+
   return '/open';
 }
 
@@ -76,9 +79,9 @@ export function processFileHandle(file: File): FileOpenResult {
       lastModified: file.lastModified,
       file,
     };
-    
+
     const route = getRouteForFileType(fileHandle.type, fileHandle.name);
-    
+
     return {
       success: true,
       file: fileHandle,
@@ -99,7 +102,7 @@ export function checkForFileLaunch(): FileHandle | null {
   // Check URL parameters for file launch
   const urlParams = new URLSearchParams(window.location.search);
   const fileParam = urlParams.get('file');
-  
+
   if (fileParam) {
     // File was passed via URL parameter
     // This would need to be handled by the service worker or launch handler
@@ -111,7 +114,7 @@ export function checkForFileLaunch(): FileHandle | null {
     // File handlers API - handled by service worker
     return null;
   }
-  
+
   return null;
 }
 
@@ -140,13 +143,13 @@ export function retrieveFileHandle(): FileHandle | null {
   try {
     const fileDataStr = sessionStorage.getItem('pendingFile');
     const blobUrl = sessionStorage.getItem('pendingFileBlob');
-    
+
     if (!fileDataStr || !blobUrl) {
       return null;
     }
-    
+
     const fileData = JSON.parse(fileDataStr);
-    
+
     // Note: In a real implementation, you'd need to reconstruct the File object
     // For now, we'll return the metadata
     return {

@@ -38,14 +38,22 @@ export const SecuritySettingsScreen: React.FC = () => {
       <List>
         <ListItem>
           <ListItemText primary="Require Password" secondary="Require password to open app" />
-          <Switch checked={requirePassword} onChange={(e) => setRequirePassword(e.target.checked)} />
+          <Switch
+            checked={requirePassword}
+            onChange={(e) => setRequirePassword(e.target.checked)}
+          />
         </ListItem>
         <ListItem>
-          <ListItemText primary="Biometric Authentication" secondary="Use fingerprint or face recognition" />
+          <ListItemText
+            primary="Biometric Authentication"
+            secondary="Use fingerprint or face recognition"
+          />
           <Switch checked={biometricAuth} onChange={(e) => setBiometricAuth(e.target.checked)} />
         </ListItem>
         <ListItem>
-          <Button variant="outlined" fullWidth>Change Password</Button>
+          <Button variant="outlined" fullWidth>
+            Change Password
+          </Button>
         </ListItem>
       </List>
     </Box>

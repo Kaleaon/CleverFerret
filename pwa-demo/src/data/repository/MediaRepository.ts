@@ -1,6 +1,6 @@
 /**
  * Media Repository
- * 
+ *
  * Repository for media item and metadata operations.
  * Migrated from MediaRepository.kt
  */
@@ -13,10 +13,7 @@ export class MediaRepository {
    * Get media items by library
    */
   async getMediaItemsByLibrary(libraryId: number): Promise<MediaItem[]> {
-    return db.mediaItems
-      .where('libraryId')
-      .equals(libraryId)
-      .toArray();
+    return db.mediaItems.where('libraryId').equals(libraryId).toArray();
   }
 
   /**
@@ -37,10 +34,7 @@ export class MediaRepository {
    * Get media items by type
    */
   async getMediaItemsByType(mediaType: string): Promise<MediaItem[]> {
-    return db.mediaItems
-      .where('mediaType')
-      .equals(mediaType)
-      .toArray();
+    return db.mediaItems.where('mediaType').equals(mediaType).toArray();
   }
 
   /**
@@ -82,9 +76,10 @@ export class MediaRepository {
   async searchMediaItems(query: string, limit: number = 50): Promise<MediaItem[]> {
     const lowerQuery = query.toLowerCase();
     return db.mediaItems
-      .filter(item => 
-        item.fileName.toLowerCase().includes(lowerQuery) ||
-        item.filePath.toLowerCase().includes(lowerQuery)
+      .filter(
+        (item) =>
+          item.fileName.toLowerCase().includes(lowerQuery) ||
+          item.filePath.toLowerCase().includes(lowerQuery),
       )
       .limit(limit)
       .toArray();
@@ -107,11 +102,7 @@ export class MediaRepository {
   /**
    * Update common metadata fields
    */
-  async updateCommonMetadata(
-    itemId: number,
-    title: string,
-    summary?: string
-  ): Promise<void> {
+  async updateCommonMetadata(itemId: number, title: string, summary?: string): Promise<void> {
     await db.metadataCommon.update(itemId, {
       title,
       summary,
@@ -125,9 +116,7 @@ export class MediaRepository {
   async searchByTitle(query: string, limit: number = 50): Promise<MetadataCommon[]> {
     const lowerQuery = query.toLowerCase();
     return db.metadataCommon
-      .filter(meta => 
-        meta.title.toLowerCase().includes(lowerQuery)
-      )
+      .filter((meta) => meta.title.toLowerCase().includes(lowerQuery))
       .limit(limit)
       .toArray();
   }
@@ -136,7 +125,7 @@ export class MediaRepository {
    * Create multiple media items
    */
   async createMediaItems(mediaItems: Array<Omit<MediaItem, 'itemId'>>): Promise<number[]> {
-    const items: MediaItem[] = mediaItems.map(item => ({
+    const items: MediaItem[] = mediaItems.map((item) => ({
       ...item,
       itemId: 0,
       dateAdded: Date.now(),
@@ -145,7 +134,7 @@ export class MediaRepository {
       hasMetadata: false,
       hasThumbnail: false,
     }));
-    
+
     return db.mediaItems.bulkAdd(items, { allKeys: true }) as Promise<number[]>;
   }
 
@@ -153,7 +142,7 @@ export class MediaRepository {
    * Get media item with its metadata
    */
   async getMediaItemWithMetadata(
-    itemId: number
+    itemId: number,
   ): Promise<{ mediaItem?: MediaItem; metadata?: MetadataCommon }> {
     const [mediaItem, metadata] = await Promise.all([
       this.getMediaItemById(itemId),
@@ -181,24 +170,20 @@ export class MediaRepository {
    * Get recent media items
    */
   async getRecentMediaItems(limit: number = 20): Promise<MediaItem[]> {
-    return db.mediaItems
-      .orderBy('dateAdded')
-      .reverse()
-      .limit(limit)
-      .toArray();
+    return db.mediaItems.orderBy('dateAdded').reverse().limit(limit).toArray();
   }
 
   /**
    * Get items without metadata
    */
   async getItemsWithoutMetadata(libraryId?: number): Promise<MediaItem[]> {
-    let query = db.mediaItems.where('hasMetadata').equals(0);
-    
+    const query = db.mediaItems.where('hasMetadata').equals(0);
+
     if (libraryId !== undefined) {
       const items = await query.toArray();
-      return items.filter(item => item.libraryId === libraryId);
+      return items.filter((item) => item.libraryId === libraryId);
     }
-    
+
     return query.toArray();
   }
 

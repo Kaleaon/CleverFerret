@@ -1,6 +1,6 @@
 /**
  * Series Detail Screen
- * 
+ *
  * Shows books/episodes in a series with reading/watch order.
  * Migrated from SeriesDetailScreen.kt
  */
@@ -20,10 +20,7 @@ import {
   Chip,
   LinearProgress,
 } from '@mui/material';
-import {
-  ArrowBack,
-  PlayArrow,
-} from '@mui/icons-material';
+import { ArrowBack, PlayArrow } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 import type { Series, MediaItem } from '../../data/local/entity';
@@ -81,7 +78,9 @@ export const SeriesDetailScreen: React.FC = () => {
                   {series.status && <Chip label={series.status} />}
                   {series.totalItems && <Chip label={`${series.totalItems} items`} />}
                   {series.startYear && (
-                    <Chip label={`${series.startYear}${series.endYear ? `-${series.endYear}` : '+'}`} />
+                    <Chip
+                      label={`${series.startYear}${series.endYear ? `-${series.endYear}` : '+'}`}
+                    />
                   )}
                 </Box>
                 {series.publisher && (
@@ -107,10 +106,7 @@ export const SeriesDetailScreen: React.FC = () => {
                       <Typography variant="body1">
                         {item.fileName.replace(/\.[^/.]+$/, '')}
                       </Typography>
-                      <IconButton
-                        size="small"
-                        onClick={() => navigate(`/detail/${item.itemId}`)}
-                      >
+                      <IconButton size="small" onClick={() => navigate(`/detail/${item.itemId}`)}>
                         <PlayArrow />
                       </IconButton>
                     </CardContent>

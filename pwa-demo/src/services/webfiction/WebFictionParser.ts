@@ -1,6 +1,6 @@
 /**
  * Web Fiction Parser
- * 
+ *
  * Parses web fiction URLs and extracts story information
  */
 
@@ -59,7 +59,7 @@ class WebFictionParserService {
    * Find parser for URL
    */
   findParser(url: string): Parser | null {
-    return this.parsers.find(p => p.canParse(url)) || null;
+    return this.parsers.find((p) => p.canParse(url)) || null;
   }
 
   /**
@@ -98,7 +98,12 @@ class WebFictionParserService {
       const chapter = await parser.parseChapter(url);
       return chapter;
     } catch (error) {
-      logger.error('WebFictionParser', `Failed to parse chapter: ${url}`, undefined, error as Error);
+      logger.error(
+        'WebFictionParser',
+        `Failed to parse chapter: ${url}`,
+        undefined,
+        error as Error,
+      );
       throw error;
     }
   }
@@ -192,7 +197,9 @@ class FanFictionNetParser implements Parser {
   async parseStory(url: string): Promise<StoryInfo> {
     // FanFiction.Net has strict anti-scraping measures
     // This is a placeholder implementation
-    throw new Error('FanFiction.Net parsing requires special handling due to anti-scraping measures');
+    throw new Error(
+      'FanFiction.Net parsing requires special handling due to anti-scraping measures',
+    );
   }
 
   async parseChapter(url: string): Promise<ChapterInfo> {
@@ -222,10 +229,10 @@ class GenericParser implements Parser {
     const doc = parser.parseFromString(html, 'text/html');
 
     const title = doc.querySelector('title')?.textContent?.trim() || 'Unknown Title';
-    
+
     // Try to find chapter links
     const links = Array.from(doc.querySelectorAll('a'));
-    const chapterLinks = links.filter(link => {
+    const chapterLinks = links.filter((link) => {
       const text = link.textContent?.toLowerCase() || '';
       const href = link.getAttribute('href') || '';
       return text.includes('chapter') || href.includes('chapter');

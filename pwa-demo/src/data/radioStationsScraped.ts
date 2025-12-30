@@ -20,24 +20,25 @@ export interface RadioStation {
 export const radioStations: RadioStation[] = [];
 
 export const getStationsByGenre = (genre: string): RadioStation[] => {
-  return radioStations.filter(station => 
-    station.genres.some(g => g.toLowerCase().includes(genre.toLowerCase()))
+  return radioStations.filter((station) =>
+    station.genres.some((g) => g.toLowerCase().includes(genre.toLowerCase())),
   );
 };
 
 export const searchStations = (query: string): RadioStation[] => {
   const searchTerm = query.toLowerCase();
-  return radioStations.filter(station =>
-    station.name.toLowerCase().includes(searchTerm) ||
-    station.description?.toLowerCase().includes(searchTerm) ||
-    station.genres.some(g => g.toLowerCase().includes(searchTerm))
+  return radioStations.filter(
+    (station) =>
+      station.name.toLowerCase().includes(searchTerm) ||
+      station.description?.toLowerCase().includes(searchTerm) ||
+      station.genres.some((g) => g.toLowerCase().includes(searchTerm)),
   );
 };
 
 export const getAllGenres = (): string[] => {
   const genresSet = new Set<string>();
-  radioStations.forEach(station => {
-    station.genres.forEach(genre => genresSet.add(genre));
+  radioStations.forEach((station) => {
+    station.genres.forEach((genre) => genresSet.add(genre));
   });
   return Array.from(genresSet).sort();
 };

@@ -1,6 +1,6 @@
 /**
  * Maintenance Screen
- * 
+ *
  * Database maintenance, cleanup, and optimization tools.
  * Migrated from MaintenanceScreen.kt
  */
@@ -66,10 +66,10 @@ export const MaintenanceScreen: React.FC = () => {
         const cacheNames = await caches.keys();
         await Promise.all(cacheNames.map((name) => caches.delete(name)));
       }
-      
+
       // Clear localStorage metadata
       const keys = Object.keys(localStorage);
-      keys.forEach(key => {
+      keys.forEach((key) => {
         if (key.startsWith('meta_') || key.startsWith('cache_')) {
           localStorage.removeItem(key);
         }
@@ -270,10 +270,7 @@ export const MaintenanceScreen: React.FC = () => {
       </Box>
 
       {/* Confirmation Dialogs */}
-      <Dialog
-        open={confirmDialog === 'clearCache'}
-        onClose={() => setConfirmDialog(null)}
-      >
+      <Dialog open={confirmDialog === 'clearCache'} onClose={() => setConfirmDialog(null)}>
         <DialogTitle>Clear Cache?</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -288,10 +285,7 @@ export const MaintenanceScreen: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={confirmDialog === 'clearDatabase'}
-        onClose={() => setConfirmDialog(null)}
-      >
+      <Dialog open={confirmDialog === 'clearDatabase'} onClose={() => setConfirmDialog(null)}>
         <DialogTitle>Clear All Data?</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -307,10 +301,7 @@ export const MaintenanceScreen: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={confirmDialog === 'vacuum'}
-        onClose={() => setConfirmDialog(null)}
-      >
+      <Dialog open={confirmDialog === 'vacuum'} onClose={() => setConfirmDialog(null)}>
         <DialogTitle>Optimize Database?</DialogTitle>
         <DialogContent>
           <DialogContentText>

@@ -1,6 +1,6 @@
 /**
  * Bookmark Repository
- * 
+ *
  * Repository for bookmark operations.
  */
 
@@ -15,7 +15,7 @@ export class BookmarkRepository {
     const items = await db.bookmarks
       .where('itemId')
       .equals(itemId)
-      .and(b => b.isActive === true)
+      .and((b) => b.isActive === true)
       .sortBy('dateCreated');
     return items.reverse();
   }
@@ -63,7 +63,7 @@ export class BookmarkRepository {
     return db.bookmarks
       .where('itemId')
       .equals(itemId)
-      .and(b => b.bookmarkType === 'AUTO' && b.isActive === true)
+      .and((b) => b.bookmarkType === 'AUTO' && b.isActive === true)
       .last();
   }
 
@@ -75,7 +75,7 @@ export class BookmarkRepository {
     position: number,
     page?: number,
     chapter?: string,
-    percentage?: number
+    percentage?: number,
   ): Promise<void> {
     const existing = await this.getResumeBookmark(itemId);
 
@@ -127,7 +127,7 @@ export class BookmarkRepository {
     return db.bookmarks
       .where('itemId')
       .equals(itemId)
-      .and(b => b.isActive === true)
+      .and((b) => b.isActive === true)
       .count();
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Logging Service
- * 
+ *
  * Centralized logging with different log levels and optional persistence
  */
 
@@ -67,7 +67,7 @@ class LoggingService {
     if (this.enableConsole) {
       const timestamp = new Date(entry.timestamp).toISOString();
       const prefix = `[${timestamp}] [${LogLevel[level]}] [${category}]`;
-      
+
       switch (level) {
         case LogLevel.DEBUG:
           console.debug(prefix, message, data || '');
@@ -88,7 +88,7 @@ class LoggingService {
 
     // Persistence (IndexedDB)
     if (this.enablePersistence) {
-      this.persistLog(entry).catch(err => {
+      this.persistLog(entry).catch((err) => {
         console.error('Failed to persist log:', err);
       });
     }
@@ -151,11 +151,11 @@ class LoggingService {
     let filtered = this.logs;
 
     if (level !== undefined) {
-      filtered = filtered.filter(log => log.level === level);
+      filtered = filtered.filter((log) => log.level === level);
     }
 
     if (category) {
-      filtered = filtered.filter(log => log.category === category);
+      filtered = filtered.filter((log) => log.category === category);
     }
 
     if (limit) {

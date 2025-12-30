@@ -18,10 +18,7 @@ import {
   Chip,
   Stack,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Book,
-} from '@mui/icons-material';
+import { ArrowBack, Book } from '@mui/icons-material';
 
 export const StoryManagerScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -52,7 +49,11 @@ export const StoryManagerScreen: React.FC = () => {
                 secondary={
                   <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                     <Chip label={`${story.chapters} chapters`} size="small" />
-                    <Chip label={story.status} size="small" color={story.status === 'complete' ? 'success' : 'default'} />
+                    <Chip
+                      label={story.status}
+                      size="small"
+                      color={story.status === 'complete' ? 'success' : 'default'}
+                    />
                   </Stack>
                 }
               />

@@ -1,6 +1,6 @@
 /**
  * Podcast Manager Screen
- * 
+ *
  * Browse, subscribe to, and manage podcasts.
  * Migrated from PodcastManagerScreen.kt
  */
@@ -27,14 +27,7 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Add,
-  Search,
-  Podcasts,
-  Download,
-  PlayArrow,
-} from '@mui/icons-material';
+import { ArrowBack, Add, Search, Podcasts, Download, PlayArrow } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 import type { PodcastEntity, PodcastEpisodeEntity } from '../../data/local/entity/podcast-types';
@@ -58,11 +51,7 @@ export const PodcastManagerScreen: React.FC = () => {
   };
 
   const loadEpisodes = async () => {
-    const eps = await db.podcastEpisodes
-      .orderBy('publishDate')
-      .reverse()
-      .limit(50)
-      .toArray();
+    const eps = await db.podcastEpisodes.orderBy('publishDate').reverse().limit(50).toArray();
     setEpisodes(eps);
   };
 
@@ -154,10 +143,7 @@ export const PodcastManagerScreen: React.FC = () => {
           <Grid container spacing={2}>
             {podcasts.map((podcast) => (
               <Grid item xs={12} sm={6} md={4} key={podcast.id}>
-                <Card 
-                  sx={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/podcast/${podcast.id}`)}
-                >
+                <Card sx={{ cursor: 'pointer' }} onClick={() => navigate(`/podcast/${podcast.id}`)}>
                   {podcast.imageUrl && (
                     <CardMedia
                       component="img"

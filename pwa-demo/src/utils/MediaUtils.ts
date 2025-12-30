@@ -19,16 +19,16 @@ export class MediaUtils {
    */
   static detectMediaType(file: File): 'audio' | 'video' | 'image' | 'document' | 'unknown' {
     const type = file.type.toLowerCase();
-    
+
     if (type.startsWith('audio/')) return 'audio';
     if (type.startsWith('video/')) return 'video';
     if (type.startsWith('image/')) return 'image';
-    
+
     const ext = file.name.split('.').pop()?.toLowerCase();
     if (ext && ['pdf', 'epub', 'mobi', 'azw', 'txt', 'doc', 'docx'].includes(ext)) {
       return 'document';
     }
-    
+
     return 'unknown';
   }
 
@@ -55,7 +55,7 @@ export class MediaUtils {
     if (type === 'audio' || type === 'video') {
       const duration = await this.getMediaDuration(file);
       metadata.duration = duration;
-      
+
       if (type === 'video') {
         const dims = await this.getVideoDimensions(file);
         metadata.width = dims.width;
@@ -73,17 +73,17 @@ export class MediaUtils {
     return new Promise((resolve, reject) => {
       const img = new Image();
       const url = URL.createObjectURL(file);
-      
+
       img.onload = () => {
         URL.revokeObjectURL(url);
         resolve({ width: img.naturalWidth, height: img.naturalHeight });
       };
-      
+
       img.onerror = () => {
         URL.revokeObjectURL(url);
         reject(new Error('Failed to load image'));
       };
-      
+
       img.src = url;
     });
   }
@@ -95,17 +95,17 @@ export class MediaUtils {
     return new Promise((resolve, reject) => {
       const video = document.createElement('video');
       const url = URL.createObjectURL(file);
-      
+
       video.onloadedmetadata = () => {
         URL.revokeObjectURL(url);
         resolve({ width: video.videoWidth, height: video.videoHeight });
       };
-      
+
       video.onerror = () => {
         URL.revokeObjectURL(url);
         reject(new Error('Failed to load video'));
       };
-      
+
       video.src = url;
     });
   }
@@ -118,17 +118,17 @@ export class MediaUtils {
       const isVideo = file.type.startsWith('video/');
       const element = document.createElement(isVideo ? 'video' : 'audio');
       const url = URL.createObjectURL(file);
-      
+
       element.onloadedmetadata = () => {
         URL.revokeObjectURL(url);
         resolve(element.duration || 0);
       };
-      
+
       element.onerror = () => {
         URL.revokeObjectURL(url);
         resolve(0);
       };
-      
+
       element.src = url;
     });
   }
@@ -139,10 +139,10 @@ export class MediaUtils {
   static canPlay(mimeType: string): boolean {
     const audio = document.createElement('audio');
     const video = document.createElement('video');
-    
+
     const audioSupport = audio.canPlayType(mimeType);
     const videoSupport = video.canPlayType(mimeType);
-    
+
     return audioSupport !== '' || videoSupport !== '';
   }
 
@@ -159,7 +159,7 @@ export class MediaUtils {
       'audio/webm',
       'audio/flac',
     ];
-    
+
     return formats.filter((format) => audio.canPlayType(format) !== '');
   }
 
@@ -168,12 +168,8 @@ export class MediaUtils {
    */
   static getSupportedVideoFormats(): string[] {
     const video = document.createElement('video');
-    const formats = [
-      'video/mp4',
-      'video/webm',
-      'video/ogg',
-    ];
-    
+    const formats = ['video/mp4', 'video/webm', 'video/ogg'];
+
     return formats.filter((format) => video.canPlayType(format) !== '');
   }
 
@@ -184,7 +180,7 @@ export class MediaUtils {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
-    
+
     if (hrs > 0) {
       return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }

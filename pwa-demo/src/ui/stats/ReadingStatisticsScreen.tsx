@@ -1,6 +1,6 @@
 /**
  * Reading Statistics Screen
- * 
+ *
  * Display reading analytics including time spent, pages read, completion rate.
  * Migrated from ReadingStatisticsScreen.kt
  */
@@ -65,10 +65,10 @@ export const ReadingStatisticsScreen: React.FC = () => {
     // Load reading statistics
     const readingStats = await db.readingStatistics.toArray();
     const progress = await db.readingProgress.toArray();
-    
+
     const totalTime = readingStats.reduce((sum, stat) => sum + stat.readingTimeMinutes, 0);
     const totalPages = readingStats.reduce((sum, stat) => sum + stat.pagesRead, 0);
-    const completed = progress.filter(p => p.isCompleted).length;
+    const completed = progress.filter((p) => p.isCompleted).length;
 
     setStats({
       totalBooks: progress.length,
@@ -174,14 +174,23 @@ export const ReadingStatisticsScreen: React.FC = () => {
           {/* Daily Reading Goal */}
           <Card sx={{ mb: 2 }}>
             <CardContent>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ mb: 1 }}
+              >
                 <Typography variant="h6">Daily Reading Goal</Typography>
                 <Chip label="On Track" color="success" size="small" />
               </Stack>
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 35 minutes of 30 minutes (117%)
               </Typography>
-              <LinearProgress variant="determinate" value={100} sx={{ height: 8, borderRadius: 4 }} />
+              <LinearProgress
+                variant="determinate"
+                value={100}
+                sx={{ height: 8, borderRadius: 4 }}
+              />
             </CardContent>
           </Card>
 
@@ -199,9 +208,7 @@ export const ReadingStatisticsScreen: React.FC = () => {
                       secondary={
                         <Box sx={{ mt: 1 }}>
                           <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
-                            <Typography variant="caption">
-                              {book.progress}% complete
-                            </Typography>
+                            <Typography variant="caption">{book.progress}% complete</Typography>
                             <Typography variant="caption" color="text.secondary">
                               • {book.pages} pages
                             </Typography>

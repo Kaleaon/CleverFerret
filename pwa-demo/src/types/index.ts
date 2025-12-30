@@ -16,7 +16,15 @@ export interface MediaItem {
   fileName: string;
   fileSize: number;
   mimeType: string;
-  mediaType: 'BOOK' | 'AUDIOBOOK' | 'COMIC' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT';
+  mediaType:
+    | 'BOOK'
+    | 'AUDIOBOOK'
+    | 'COMIC'
+    | 'MOVIE'
+    | 'MUSIC'
+    | 'PODCAST'
+    | 'MAGAZINE'
+    | 'DOCUMENT';
   dateAdded?: Date;
   lastModified?: Date;
   fileHash?: string;
@@ -81,7 +89,15 @@ export interface ImportStatus {
   progress?: number;
 }
 
-export type MediaType = 'BOOK' | 'AUDIOBOOK' | 'COMIC' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT';
+export type MediaType =
+  | 'BOOK'
+  | 'AUDIOBOOK'
+  | 'COMIC'
+  | 'MOVIE'
+  | 'MUSIC'
+  | 'PODCAST'
+  | 'MAGAZINE'
+  | 'DOCUMENT';
 
 export interface MediaItemWithOriginal extends MediaItem {
   originalData?: any;

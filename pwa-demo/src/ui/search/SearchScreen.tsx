@@ -1,6 +1,6 @@
 /**
  * Advanced Search Screen
- * 
+ *
  * Comprehensive search with filters and facets.
  */
 
@@ -31,15 +31,14 @@ import {
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Search,
-  FilterList,
-  Clear,
-} from '@mui/icons-material';
+import { ArrowBack, Search, FilterList, Clear } from '@mui/icons-material';
 
 import { searchRepository } from '../../data/repository';
-import type { MediaItemWithMetadata, SearchOptions, FilterOptions } from '../../data/repository/SearchRepository';
+import type {
+  MediaItemWithMetadata,
+  SearchOptions,
+  FilterOptions,
+} from '../../data/repository/SearchRepository';
 
 export const SearchScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -152,18 +151,10 @@ export const SearchScreen: React.FC = () => {
               },
             }}
           />
-          <IconButton
-            color="inherit"
-            onClick={() => setShowFilters(true)}
-          >
+          <IconButton color="inherit" onClick={() => setShowFilters(true)}>
             <FilterList />
             {activeFilterCount() > 0 && (
-              <Chip
-                label={activeFilterCount()}
-                size="small"
-                color="secondary"
-                sx={{ ml: 0.5 }}
-              />
+              <Chip label={activeFilterCount()} size="small" color="secondary" sx={{ ml: 0.5 }} />
             )}
           </IconButton>
         </Toolbar>

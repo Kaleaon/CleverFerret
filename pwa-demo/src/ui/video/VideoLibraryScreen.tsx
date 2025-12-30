@@ -17,10 +17,7 @@ import {
   CardContent,
   CardActionArea,
 } from '@mui/material';
-import {
-  ArrowBack,
-  PlayCircle,
-} from '@mui/icons-material';
+import { ArrowBack, PlayCircle } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 import { getImageUrlWithFallback } from '../../utils/imageUtils';
@@ -51,16 +48,32 @@ export const VideoLibraryScreen: React.FC = () => {
               <Card>
                 <CardActionArea onClick={() => navigate(`/video/${video.itemId}`)}>
                   <Box sx={{ position: 'relative' }}>
-                    <CardMedia 
-                      component="img" 
-                      height="180" 
-                      image={getImageUrlWithFallback(video.thumbnailPath, video.mediaType, video.fileName)} 
-                      alt={video.fileName} 
+                    <CardMedia
+                      component="img"
+                      height="180"
+                      image={getImageUrlWithFallback(
+                        video.thumbnailPath,
+                        video.mediaType,
+                        video.fileName,
+                      )}
+                      alt={video.fileName}
                     />
-                    <PlayCircle sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 64, color: 'white', opacity: 0.8 }} />
+                    <PlayCircle
+                      sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        fontSize: 64,
+                        color: 'white',
+                        opacity: 0.8,
+                      }}
+                    />
                   </Box>
                   <CardContent>
-                    <Typography variant="subtitle1" noWrap>{video.fileName}</Typography>
+                    <Typography variant="subtitle1" noWrap>
+                      {video.fileName}
+                    </Typography>
                   </CardContent>
                 </CardActionArea>
               </Card>

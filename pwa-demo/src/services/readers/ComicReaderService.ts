@@ -1,6 +1,6 @@
 /**
  * Comic Reader Service
- * 
+ *
  * Handles comic file reading (CBR, CBZ, CBT, CB7)
  * CBR = RAR archive
  * CBZ = ZIP archive
@@ -30,11 +30,13 @@ export class ComicReaderService {
   async loadComic(file: File | Blob): Promise<ComicArchive> {
     const fileName = file instanceof File ? file.name : 'comic';
     const extension = fileName.split('.').pop()?.toUpperCase();
-    
+
     if (extension === 'CBZ') {
       return this.loadCBZ(file);
     } else {
-      throw new Error(`Comic format ${extension} is not yet supported. CBZ (ZIP) format is supported.`);
+      throw new Error(
+        `Comic format ${extension} is not yet supported. CBZ (ZIP) format is supported.`,
+      );
     }
   }
 
@@ -45,28 +47,30 @@ export class ComicReaderService {
     try {
       const zip = new JSZip();
       const zipData = await zip.loadAsync(file);
-      
+
       // Filter image files and sort them
       const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
       const files = Object.keys(zipData.files)
-        .filter(name => {
+        .filter((name) => {
           const ext = name.toLowerCase();
-          return imageExtensions.some(imgExt => ext.endsWith(imgExt)) && !zipData.files[name].dir;
+          return imageExtensions.some((imgExt) => ext.endsWith(imgExt)) && !zipData.files[name].dir;
         })
         .sort(); // Natural sort
-      
+
       const pages: ComicPage[] = files.map((filename, index) => ({
         index,
         filename,
       }));
-      
+
       return {
         type: 'CBZ',
         pages,
         title: file instanceof File ? file.name.replace(/\.cbz$/i, '') : 'Comic',
       };
     } catch (error) {
-      throw new Error(`Failed to load CBZ: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to load CBZ: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -77,19 +81,19 @@ export class ComicReaderService {
     if (pageIndex < 0 || pageIndex >= archive.pages.length) {
       throw new Error(`Page ${pageIndex} is out of range`);
     }
-    
+
     const page = archive.pages[pageIndex];
-    
+
     // If already loaded, return cached data URL
     if (page.dataUrl) {
       return page.dataUrl;
     }
-    
+
     // Load the page
     if (archive.type === 'CBZ') {
       return this.loadCBZPage(archive, pageIndex);
     }
-    
+
     throw new Error(`Page loading not implemented for ${archive.type}`);
   }
 
@@ -109,32 +113,34 @@ export class ComicReaderService {
     try {
       const zip = new JSZip();
       const zipData = await zip.loadAsync(file);
-      
+
       const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
       const files = Object.keys(zipData.files)
-        .filter(name => {
+        .filter((name) => {
           const ext = name.toLowerCase();
-          return imageExtensions.some(imgExt => ext.endsWith(imgExt)) && !zipData.files[name].dir;
+          return imageExtensions.some((imgExt) => ext.endsWith(imgExt)) && !zipData.files[name].dir;
         })
         .sort();
-      
+
       if (pageIndex < 0 || pageIndex >= files.length) {
         throw new Error(`Page ${pageIndex} is out of range`);
       }
-      
+
       const filename = files[pageIndex];
       const fileData = zipData.files[filename];
-      
+
       if (!fileData) {
         throw new Error(`File ${filename} not found in archive`);
       }
-      
+
       const blob = await fileData.async('blob');
       const dataUrl = URL.createObjectURL(blob);
-      
+
       return dataUrl;
     } catch (error) {
-      throw new Error(`Failed to load page: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to load page: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -150,7 +156,7 @@ export class ComicReaderService {
    */
   async preloadPages(file: File | Blob, startIndex: number, count: number): Promise<string[]> {
     const dataUrls: string[] = [];
-    
+
     for (let i = 0; i < count; i++) {
       try {
         const dataUrl = await this.loadComicPage(file, startIndex + i);
@@ -159,7 +165,7 @@ export class ComicReaderService {
         console.error(`Failed to preload page ${startIndex + i}:`, error);
       }
     }
-    
+
     return dataUrls;
   }
 }

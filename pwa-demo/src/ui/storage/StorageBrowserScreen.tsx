@@ -1,6 +1,6 @@
 /**
  * Storage Browser Screen
- * 
+ *
  * File system browser for selecting media files and folders.
  * Migrated from StorageBrowserScreen.kt
  */
@@ -22,13 +22,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Folder,
-  InsertDriveFile,
-  ArrowUpward,
-  CheckCircle,
-} from '@mui/icons-material';
+import { ArrowBack, Folder, InsertDriveFile, ArrowUpward, CheckCircle } from '@mui/icons-material';
 
 interface FileEntry {
   name: string;
@@ -41,7 +35,11 @@ export const StorageBrowserScreen: React.FC = () => {
   const navigate = useNavigate();
   const [currentPath, setCurrentPath] = useState('/');
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
 
   // Mock file entries
   const entries: FileEntry[] = [
@@ -56,7 +54,16 @@ export const StorageBrowserScreen: React.FC = () => {
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          p: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+        }}
+      >
         <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
           <ArrowBack />
         </IconButton>
@@ -71,11 +78,19 @@ export const StorageBrowserScreen: React.FC = () => {
               try {
                 // In a real implementation, this would use File System Access API
                 // For now, show a message
-                setSnackbar({ open: true, message: `Selected: ${selectedPath}`, severity: 'success' });
+                setSnackbar({
+                  open: true,
+                  message: `Selected: ${selectedPath}`,
+                  severity: 'success',
+                });
                 // File processing would happen here
                 // navigate('/open', { state: { filePath: selectedPath } });
               } catch (error) {
-                setSnackbar({ open: true, message: `Failed to process file: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+                setSnackbar({
+                  open: true,
+                  message: `Failed to process file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                  severity: 'error',
+                });
               }
             }
           }}
@@ -105,7 +120,9 @@ export const StorageBrowserScreen: React.FC = () => {
       <List sx={{ flex: 1, overflow: 'auto' }}>
         {currentPath !== '/' && (
           <ListItem disablePadding>
-            <ListItemButton onClick={() => setCurrentPath(currentPath.split('/').slice(0, -1).join('/') || '/')}>
+            <ListItemButton
+              onClick={() => setCurrentPath(currentPath.split('/').slice(0, -1).join('/') || '/')}
+            >
               <ListItemIcon>
                 <ArrowUpward />
               </ListItemIcon>
@@ -125,9 +142,7 @@ export const StorageBrowserScreen: React.FC = () => {
                 }
               }}
             >
-              <ListItemIcon>
-                {entry.isDirectory ? <Folder /> : <InsertDriveFile />}
-              </ListItemIcon>
+              <ListItemIcon>{entry.isDirectory ? <Folder /> : <InsertDriveFile />}</ListItemIcon>
               <ListItemText
                 primary={entry.name}
                 secondary={entry.size ? `${(entry.size / 1024).toFixed(1)} KB` : undefined}
@@ -144,7 +159,11 @@ export const StorageBrowserScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

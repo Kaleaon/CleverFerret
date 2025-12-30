@@ -46,30 +46,63 @@ export const MusicPlayerScreen: React.FC = () => {
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
             <ArrowBack />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>Music Player</Typography>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Music Player
+          </Typography>
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ flex: 1, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography variant="h5" gutterBottom>Current Song</Typography>
-        <Typography variant="body2" color="text.secondary" gutterBottom>Artist Name</Typography>
+      <Box
+        sx={{
+          flex: 1,
+          p: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography variant="h5" gutterBottom>
+          Current Song
+        </Typography>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          Artist Name
+        </Typography>
 
-        <Slider value={currentTime} max={duration} onChange={(_, v) => setCurrentTime(v as number)} sx={{ width: '100%', maxWidth: 400, my: 3 }} />
+        <Slider
+          value={currentTime}
+          max={duration}
+          onChange={(_, v) => setCurrentTime(v as number)}
+          sx={{ width: '100%', maxWidth: 400, my: 3 }}
+        />
         <Stack direction="row" spacing={2}>
-          <IconButton><Shuffle /></IconButton>
-          <IconButton><SkipPrevious /></IconButton>
-          <IconButton onClick={() => setIsPlaying(!isPlaying)} sx={{ bgcolor: 'primary.main', color: 'white' }}>
+          <IconButton>
+            <Shuffle />
+          </IconButton>
+          <IconButton>
+            <SkipPrevious />
+          </IconButton>
+          <IconButton
+            onClick={() => setIsPlaying(!isPlaying)}
+            sx={{ bgcolor: 'primary.main', color: 'white' }}
+          >
             {isPlaying ? <Pause /> : <PlayArrow />}
           </IconButton>
-          <IconButton><SkipNext /></IconButton>
-          <IconButton><Repeat /></IconButton>
+          <IconButton>
+            <SkipNext />
+          </IconButton>
+          <IconButton>
+            <Repeat />
+          </IconButton>
         </Stack>
       </Box>
 
       <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
-        <Typography variant="subtitle2" sx={{ p: 2 }}>Up Next</Typography>
+        <Typography variant="subtitle2" sx={{ p: 2 }}>
+          Up Next
+        </Typography>
         <List dense>
-          {queue.map(song => (
+          {queue.map((song) => (
             <ListItem key={song.id}>
               <ListItemText primary={song.title} secondary={song.artist} />
             </ListItem>
