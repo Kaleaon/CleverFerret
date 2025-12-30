@@ -302,4 +302,72 @@ object AIEntertainmentModule {
             aiLibraryBrowserService = aiLibraryBrowserService
         )
     }
+    
+    // ==================== Enhanced AI Services ====================
+    
+    @Provides
+    @Singleton
+    fun provideEnhancedAIContentCacheService(
+        @ApplicationContext context: Context,
+        aiRateLimitService: AIRateLimitService
+    ): EnhancedAIContentCacheService {
+        return EnhancedAIContentCacheService(context, aiRateLimitService)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAIRateLimitService(
+        @ApplicationContext context: Context
+    ): AIRateLimitService {
+        return AIRateLimitService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAIBackupAutomationService(
+        @ApplicationContext context: Context,
+        aiMemoryStorageService: AIMemoryStorageService,
+        synthCharacterService: SynthCharacterService,
+        synthCharacterManager: SynthCharacterManager,
+        synthMemoryManager: SynthMemoryManager
+    ): AIBackupAutomationService {
+        return AIBackupAutomationService(
+            context = context,
+            aiMemoryStorageService = aiMemoryStorageService,
+            synthCharacterManager = synthCharacterManager,
+            synthMemoryManager = synthMemoryManager
+        )
+    }
+    
+    @Provides
+    @Singleton
+    fun provideEnhancedAIPersonalityService(
+        @ApplicationContext context: Context,
+        synthCharacterManager: SynthCharacterManager,
+        synthMemoryManager: SynthMemoryManager
+    ): EnhancedAIPersonalityService {
+        return EnhancedAIPersonalityService(
+            context = context,
+            synthCharacterManager = synthCharacterManager,
+            synthMemoryManager = synthMemoryManager
+        )
+    }
+    
+    // ==================== Character & Memory Managers ====================
+    
+    @Provides
+    @Singleton
+    fun provideSynthCharacterManager(
+        repository: AIEntertainmentRepository
+    ): SynthCharacterManager {
+        return SynthCharacterManager(repository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSynthMemoryManager(
+        repository: AIEntertainmentRepository
+    ): SynthMemoryManager {
+        return SynthMemoryManager(repository)
+    }
 }
