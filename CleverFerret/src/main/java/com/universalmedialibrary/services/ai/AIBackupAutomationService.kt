@@ -367,10 +367,10 @@ class AIBackupAutomationService @Inject constructor(
                     name = character.name,
                     description = character.description,
                     personality = character.personality,
-                    avatarUrl = character.avatarUrl,
+                    avatarUrl = character.avatarPath,
                     createdAt = character.createdAt,
-                    isActive = character.isActive,
-                    settings = character.settings
+                    isActive = true, // SynthCharacter doesn't have isActive field, default to true
+                    settings = character.traits // Use traits as settings
                 )
             },
             memories = memories.map { memory ->
@@ -547,11 +547,11 @@ class AIBackupAutomationService @Inject constructor(
     private suspend fun restoreCharacter(data: CharacterBackupData): SynthCharacter? {
         return try {
             synthCharacterManager.createCharacter(
+                userId = 0L, // Will need to be set based on context
                 name = data.name,
                 description = data.description,
                 personality = data.personality,
-                avatarUrl = data.avatarUrl,
-                settings = data.settings
+                avatarUrl = data.avatarUrl
             )
         } catch (e: Exception) {
             ErrorLogger.logError("AIBackupAutomation", "Failed to restore character: ${data.name}", e)
@@ -561,6 +561,13 @@ class AIBackupAutomationService @Inject constructor(
     
     private suspend fun restoreMemory(data: MemoryBackupData): SynthMemory? {
         return try {
+            // Parse metadata string to Map
+            val metadataMap = try {
+                kotlinx.serialization.json.Json.decodeFromString<Map<String, Any>>(data.metadata)
+            } catch (e: Exception) {
+                emptyMap()
+            }
+            
             synthMemoryManager.createMemory(
                 characterId = data.characterId,
                 key = data.key,
@@ -570,7 +577,7 @@ class AIBackupAutomationService @Inject constructor(
                 confidence = data.confidence,
                 tags = data.tags,
                 context = data.context,
-                metadata = data.metadata,
+                metadata = metadataMap,
                 isPinned = data.isPinned,
                 categoryId = data.categoryId
             )
@@ -713,7 +720,7 @@ class AIBackupAutomationService @Inject constructor(
                 file = file,
                 size = file.length(),
                 date = file.lastModified(),
-                checksum = try { readChecksumFile(file) } catch { e: Exception } "Unknown"
+                checksum = try { readChecksumFile(file) } catch (e: Exception) { "Unknown" }
             )
         }
     }

@@ -134,7 +134,7 @@ class NetworkExplorerService @Inject constructor(
             _connectedDevice.value = device
             
             // Browse root directory
-            browseDirectory("\&quot;)
+            browseDirectory("")
             
             true
         } catch (e: Exception) {
@@ -181,7 +181,7 @@ class NetworkExplorerService @Inject constructor(
                 
                 share.list(path).forEach { fileInfo ->
                     val isDirectory = fileInfo.attributes.contains(com.hierynomus.msfscc.fileinformation.FileAttributes.FILE_ATTRIBUTE_DIRECTORY)
-                    val filePath = if (path == "\&quot;) {
+                    val filePath = if (path == "") {
                         "\\${fileInfo.fileName}"
                     } else {
                         "$path\\${fileInfo.fileName}"

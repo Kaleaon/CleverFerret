@@ -87,6 +87,7 @@ jsoup = "1.21.2"
 security-crypto = "1.1.0"
 biometric = "1.4.0-alpha04"
 work = "2.11.0"
+hilt-work = "1.2.0"
 nanohttpd = "2.3.1"
 cast = "22.2.0"
 
@@ -178,6 +179,8 @@ jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-work" }
 nanohttpd = { module = "org.nanohttpd:nanohttpd", version.ref = "nanohttpd" }
 google-cast-framework = { module = "com.google.android.gms:play-services-cast-framework", version.ref = "cast" }
  commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }

@@ -78,8 +78,8 @@ class NetworkExplorerViewModel @Inject constructor(
     fun navigateUp() {
         viewModelScope.launch {
             val currentPath = _uiState.value.currentPath
-            if (currentPath != "\&quot;) {
-                val parentPath = currentPath.substringBeforeLast("\&quot;)
+            if (currentPath != "") {
+                val parentPath = currentPath.substringBeforeLast("\\")
                 val files = networkExplorerService.browseDirectory(parentPath)
                 _uiState.value = _uiState.value.copy(
                     browsePath = files,
@@ -123,7 +123,7 @@ class NetworkExplorerViewModel @Inject constructor(
             networkExplorerService.connectedDevice.collect { device ->
                 _uiState.value = _uiState.value.copy(
                     connectedDevice = device,
-                    currentPath = if (device != null) "\&quot; else ""
+                    currentPath = if (device != null) "" else ""
                 )
             }
         }

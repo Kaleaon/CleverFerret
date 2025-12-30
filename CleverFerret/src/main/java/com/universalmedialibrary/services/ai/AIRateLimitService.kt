@@ -321,8 +321,6 @@ class AIRateLimitService @Inject constructor(
         val currentConfig = getRateLimitConfig()
         updateRateLimitConfig(currentConfig.copy(enabled = false))
     }
-        ErrorLogger.logInfo("AIRateLimit", "Statistics reset")
-    }
     
     /**
      * Reset statistics for a specific user
