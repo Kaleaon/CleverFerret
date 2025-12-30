@@ -1,6 +1,6 @@
 /**
  * Podcast Settings Screen
- * 
+ *
  * Configure podcast download, playback, and notification settings
  */
 
@@ -59,7 +59,7 @@ export const PodcastSettingsScreen: React.FC = () => {
               Downloads
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }}>
               <FormGroup>
                 <FormControlLabel
@@ -81,10 +81,7 @@ export const PodcastSettingsScreen: React.FC = () => {
               <FormGroup>
                 <FormControlLabel
                   control={
-                    <Switch
-                      checked={wifiOnly}
-                      onChange={(e) => setWifiOnly(e.target.checked)}
-                    />
+                    <Switch checked={wifiOnly} onChange={(e) => setWifiOnly(e.target.checked)} />
                   }
                   label="Download on WiFi Only"
                 />
@@ -98,10 +95,7 @@ export const PodcastSettingsScreen: React.FC = () => {
               <FormGroup>
                 <FormControlLabel
                   control={
-                    <Switch
-                      checked={deleteOld}
-                      onChange={(e) => setDeleteOld(e.target.checked)}
-                    />
+                    <Switch checked={deleteOld} onChange={(e) => setDeleteOld(e.target.checked)} />
                   }
                   label="Auto-Delete Played Episodes"
                 />
@@ -135,7 +129,7 @@ export const PodcastSettingsScreen: React.FC = () => {
               Playback
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl fullWidth sx={{ mb: 3 }}>
               <FormLabel>Playback Speed: {playbackSpeed.toFixed(1)}x</FormLabel>
               <Slider
@@ -191,15 +185,12 @@ export const PodcastSettingsScreen: React.FC = () => {
               Notifications
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl component="fieldset" sx={{ width: '100%' }}>
               <FormGroup>
                 <FormControlLabel
                   control={
-                    <Switch
-                      checked={notifyNew}
-                      onChange={(e) => setNotifyNew(e.target.checked)}
-                    />
+                    <Switch checked={notifyNew} onChange={(e) => setNotifyNew(e.target.checked)} />
                   }
                   label="Notify on New Episodes"
                 />

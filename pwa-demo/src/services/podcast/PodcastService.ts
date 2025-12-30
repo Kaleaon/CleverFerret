@@ -36,11 +36,17 @@ export class PodcastService {
 
       const title = channel.querySelector('title')?.textContent || 'Unknown Podcast';
       const description = channel.querySelector('description')?.textContent || '';
-      const author = channel.querySelector('author')?.textContent || channel.querySelector('itunes\\:author')?.textContent || 'Unknown';
-      const imageUrl = channel.querySelector('image url')?.textContent || channel.querySelector('itunes\\:image')?.getAttribute('href') || undefined;
+      const author =
+        channel.querySelector('author')?.textContent ||
+        channel.querySelector('itunes\\:author')?.textContent ||
+        'Unknown';
+      const imageUrl =
+        channel.querySelector('image url')?.textContent ||
+        channel.querySelector('itunes\\:image')?.getAttribute('href') ||
+        undefined;
 
       const items = Array.from(xmlDoc.querySelectorAll('item'));
-      const episodes: PodcastEpisode[] = items.map(item => ({
+      const episodes: PodcastEpisode[] = items.map((item) => ({
         title: item.querySelector('title')?.textContent || 'Untitled',
         description: item.querySelector('description')?.textContent || '',
         audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '',
@@ -68,8 +74,10 @@ export class PodcastService {
   }
 
   async getSubscriptions(): Promise<PodcastFeed[]> {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith('podcast-'));
-    return keys.map(key => JSON.parse(localStorage.getItem(key) || '{}')).filter(f => f.feedUrl);
+    const keys = Object.keys(localStorage).filter((k) => k.startsWith('podcast-'));
+    return keys
+      .map((key) => JSON.parse(localStorage.getItem(key) || '{}'))
+      .filter((f) => f.feedUrl);
   }
 
   async downloadEpisode(episode: PodcastEpisode): Promise<void> {

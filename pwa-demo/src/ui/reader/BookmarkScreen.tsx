@@ -1,6 +1,6 @@
 /**
  * Bookmark Screen
- * 
+ *
  * View and manage bookmarks for a book.
  * Migrated from BookmarkScreen.kt
  */
@@ -29,11 +29,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Bookmark as BookmarkIcon,
-  Delete,
-} from '@mui/icons-material';
+import { ArrowBack, Bookmark as BookmarkIcon, Delete } from '@mui/icons-material';
 
 import { bookmarkRepository } from '../../data/repository';
 import type { Bookmark } from '../../data/local/entity';
@@ -43,7 +39,11 @@ export const BookmarkScreen: React.FC = () => {
   const navigate = useNavigate();
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [deleteBookmarkId, setDeleteBookmarkId] = useState<number | null>(null);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
 
   useEffect(() => {
     if (itemId) {
@@ -62,7 +62,7 @@ export const BookmarkScreen: React.FC = () => {
 
   const confirmDeleteBookmark = async () => {
     if (deleteBookmarkId === null) return;
-    
+
     try {
       await bookmarkRepository.deleteBookmark(deleteBookmarkId);
       if (itemId) {
@@ -144,19 +144,21 @@ export const BookmarkScreen: React.FC = () => {
                         py: 1,
                       }}
                     >
-                      "{bookmark.contextBefore}{bookmark.contextAfter}"
+                      "{bookmark.contextBefore}
+                      {bookmark.contextAfter}"
                     </Typography>
                   )}
 
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mt: 1, display: 'block' }}
+                  >
                     {formatDate(bookmark.dateCreated)}
                   </Typography>
                 </Box>
 
-                <IconButton
-                  color="error"
-                  onClick={() => handleDeleteBookmark(bookmark.bookmarkId)}
-                >
+                <IconButton color="error" onClick={() => handleDeleteBookmark(bookmark.bookmarkId)}>
                   <Delete />
                 </IconButton>
               </Box>
@@ -180,9 +182,7 @@ export const BookmarkScreen: React.FC = () => {
       <Dialog open={deleteBookmarkId !== null} onClose={() => setDeleteBookmarkId(null)}>
         <DialogTitle>Delete Bookmark</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this bookmark?
-          </DialogContentText>
+          <DialogContentText>Are you sure you want to delete this bookmark?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteBookmarkId(null)}>Cancel</Button>
@@ -198,7 +198,11 @@ export const BookmarkScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

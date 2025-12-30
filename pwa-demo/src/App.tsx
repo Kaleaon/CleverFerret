@@ -1,14 +1,25 @@
 /**
  * Main Application Component for CleverFerret PWA
- * 
+ *
  * Complete navigation and routing implementation with responsive design
  * Migrated from MainActivity.kt
  */
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, Box, TextField, InputAdornment, useMediaQuery, useTheme, Fab, Zoom } from '@mui/material';
+import {
+  ThemeProvider,
+  CssBaseline,
+  Box,
+  TextField,
+  InputAdornment,
+  useMediaQuery,
+  useTheme,
+  Fab,
+  Zoom,
+} from '@mui/material';
 import { Search as SearchIcon, Add as AddIcon } from '@mui/icons-material';
+import { rafThrottle } from './utils/PerformanceUtils';
 
 // Import all screens
 import {
@@ -107,8 +118,14 @@ const AppContent: React.FC = () => {
       if (path.startsWith('/servers')) return 'Servers';
       if (path.startsWith('/maintenance')) return 'Maintenance';
       if (path.startsWith('/open')) return 'Open';
-      if (path.startsWith('/reader') || path.startsWith('/pdf') || path.startsWith('/comic')) return 'Reader';
-      if (path.startsWith('/audio_player') || path.startsWith('/video_player') || path.startsWith('/queue')) return 'Player';
+      if (path.startsWith('/reader') || path.startsWith('/pdf') || path.startsWith('/comic'))
+        return 'Reader';
+      if (
+        path.startsWith('/audio_player') ||
+        path.startsWith('/video_player') ||
+        path.startsWith('/queue')
+      )
+        return 'Player';
       if (path.startsWith('/document')) return 'Documents';
       return 'CleverFerret';
     };
@@ -154,7 +171,7 @@ const AppContent: React.FC = () => {
       return;
     }
 
-    const handleScroll = () => {
+    const handleScroll = rafThrottle(() => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY && currentScrollY > 80) {
         setShowSearchBar(false);
@@ -162,18 +179,23 @@ const AppContent: React.FC = () => {
         setShowSearchBar(true);
       }
       setLastScrollY(currentScrollY);
-    };
+    });
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [lastScrollY, isMobile]);
 
-  // Handle search
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+  // Handle search - memoize callback
+  const handleSearch = React.useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && searchQuery.trim()) {
+        navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      }
+    },
+    [searchQuery, navigate],
+  );
 
   const showFab = location.pathname === '/' || location.pathname.startsWith('/library/');
 
@@ -221,59 +243,59 @@ const AppContent: React.FC = () => {
         <Routes>
           {/* Home */}
           <Route path="/" element={<LibraryListScreen />} />
-          
+
           {/* Library */}
           <Route path="/library/:libraryId" element={<LibraryDetailsScreen />} />
           <Route path="/library/:libraryId/management" element={<LibraryManagementScreen />} />
-          
+
           {/* Media Detail */}
           <Route path="/detail/:itemId" element={<MediaItemDetailScreen />} />
-          
+
           {/* Media Viewer */}
           <Route path="/open/:itemId" element={<MediaViewerScreen />} />
-          
+
           {/* Readers */}
           <Route path="/reader/:itemId" element={<EReaderScreen />} />
           <Route path="/pdf/:itemId" element={<PDFReaderScreen />} />
           <Route path="/comic/:itemId" element={<ComicReaderScreen />} />
           <Route path="/bookshelf/:libraryId" element={<BookshelfScreen />} />
           <Route path="/bookmarks/:itemId" element={<BookmarkScreen />} />
-          
+
           {/* Players */}
           <Route path="/audio_player" element={<AudioPlayerScreen />} />
           <Route path="/audio_player/:itemId" element={<AudioPlayerScreen />} />
           <Route path="/video_player/:itemId" element={<VideoPlayerScreen />} />
           <Route path="/queue" element={<QueueScreen />} />
-          
+
           {/* Music */}
           <Route path="/music" element={<MusicLibraryScreen />} />
-          
+
           {/* Podcasts */}
           <Route path="/podcasts" element={<PodcastManagerScreen />} />
           <Route path="/podcasts/discover" element={<PodcastDiscoveryScreen />} />
           <Route path="/podcast/:podcastId" element={<div>Podcast Detail</div>} />
           <Route path="/podcast_player/:episodeId" element={<div>Podcast Player</div>} />
-          
+
           {/* Radio */}
           <Route path="/radio" element={<RadioScreen />} />
           <Route path="/radio/discover" element={<RadioDiscoveryScreen />} />
           <Route path="/settings/radio" element={<RadioScreen />} />
-          
+
           {/* Collections */}
           <Route path="/collections" element={<CollectionsListScreen />} />
           <Route path="/collection_detail/:collectionId" element={<CollectionDetailScreen />} />
-          
+
           {/* Series */}
           <Route path="/series/:seriesId" element={<SeriesDetailScreen />} />
-          
+
           {/* Search */}
           <Route path="/search" element={<SearchScreen />} />
-          
+
           {/* Downloads */}
           <Route path="/downloads" element={<DownloadsManagerScreen />} />
           <Route path="/downloads/webfiction" element={<WebFictionManagerScreen />} />
           <Route path="/downloads/comics" element={<WebComicManagerScreen />} />
-          
+
           {/* Settings */}
           <Route path="/settings" element={<SettingsMainScreen />} />
           <Route path="/settings/reader" element={<ReaderSettingsScreen />} />
@@ -285,45 +307,45 @@ const AppContent: React.FC = () => {
           <Route path="/settings/notifications" element={<NotificationSettingsScreen />} />
           <Route path="/settings/security" element={<SecuritySettingsScreen />} />
           <Route path="/settings/about" element={<AboutScreen />} />
-          
+
           {/* Integration */}
           <Route path="/servers" element={<ServerIntegrationScreen />} />
           <Route path="/servers/plex" element={<PlexIntegrationScreen />} />
-          
+
           {/* Maintenance */}
           <Route path="/maintenance" element={<MaintenanceScreen />} />
-          
+
           {/* Visualizer */}
           <Route path="/visualizer" element={<VisualizerScreen />} />
-          
+
           {/* Storage & Files */}
           <Route path="/storage" element={<StorageBrowserScreen />} />
           <Route path="/storage/organizer" element={<StorageOrganizerScreen />} />
           <Route path="/storage/network" element={<NetworkStorageSettingsScreen />} />
-          
+
           {/* OPDS */}
           <Route path="/opds" element={<OPDSCatalogBrowserScreen />} />
           <Route path="/settings/opds" element={<OpdsSettingsScreen />} />
-          
+
           {/* Statistics */}
           <Route path="/statistics" element={<ReadingStatisticsScreen />} />
-          
+
           {/* TTS */}
           <Route path="/settings/tts" element={<TtsProviderSettingsScreen />} />
-          
+
           {/* Media Open */}
           <Route path="/open" element={<MediaOpenScreen />} />
-          
+
           {/* Documents */}
           <Route path="/document/edit/:docId?" element={<DocumentEditorScreen />} />
           <Route path="/document/:docId" element={<DocumentReaderScreen />} />
-          
+
           {/* Metadata */}
           <Route path="/metadata/:itemId" element={<MetadataEditorScreen />} />
-          
+
           {/* Theme */}
           <Route path="/theme_preview" element={<ThemePreviewScreen />} />
-          
+
           {/* Fallback */}
           <Route path="*" element={<NotFoundScreen />} />
         </Routes>
@@ -363,8 +385,9 @@ function App() {
   }, []);
 
   const theme = React.useMemo(() => {
-    const themeConfig = getAllUnifiedThemes().find((t) => t.name === selectedTheme);
-    return themeConfig ? themeConfig.theme : getAllUnifiedThemes()[0].theme;
+    const allThemes = getAllUnifiedThemes();
+    const themeConfig = allThemes.find((t) => t.name === selectedTheme);
+    return themeConfig ? themeConfig.theme : allThemes[0].theme;
   }, [selectedTheme]);
 
   return (

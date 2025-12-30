@@ -24,11 +24,7 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Add,
-  Collections as CollectionsIcon,
-} from '@mui/icons-material';
+import { ArrowBack, Add, Collections as CollectionsIcon } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 import { CollectionType, SortField, SortOrder } from '../../data/local/entity';
@@ -76,7 +72,9 @@ export const CollectionsScreen: React.FC = () => {
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
             <ArrowBack />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>Collections</Typography>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Collections
+          </Typography>
         </Toolbar>
       </AppBar>
 
@@ -84,14 +82,20 @@ export const CollectionsScreen: React.FC = () => {
         {collections.map((col) => (
           <ListItem key={col.collectionId} disablePadding>
             <ListItemButton onClick={() => navigate(`/collection/${col.collectionId}`)}>
-              <ListItemIcon><CollectionsIcon /></ListItemIcon>
+              <ListItemIcon>
+                <CollectionsIcon />
+              </ListItemIcon>
               <ListItemText primary={col.name} secondary={col.description} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
 
-      <Fab color="primary" sx={{ position: 'fixed', bottom: 16, right: 16 }} onClick={() => setShowAddDialog(true)}>
+      <Fab
+        color="primary"
+        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        onClick={() => setShowAddDialog(true)}
+      >
         <Add />
       </Fab>
 
@@ -109,7 +113,9 @@ export const CollectionsScreen: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowAddDialog(false)}>Cancel</Button>
-          <Button onClick={handleCreateCollection} variant="contained">Create</Button>
+          <Button onClick={handleCreateCollection} variant="contained">
+            Create
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

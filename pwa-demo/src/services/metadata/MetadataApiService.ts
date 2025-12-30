@@ -1,6 +1,6 @@
 /**
  * Metadata API Service
- * 
+ *
  * Fetches metadata from various external APIs (Google Books, TMDB, etc.)
  * Migrated from MetadataApiService.kt and RealMetadataService.kt
  */
@@ -15,7 +15,7 @@ export class MetadataApiService {
   async searchBookMetadata(
     title: string,
     author?: string,
-    isbn?: string
+    isbn?: string,
   ): Promise<BookMetadataResult> {
     try {
       let query = '';
@@ -29,7 +29,7 @@ export class MetadataApiService {
       }
 
       const response = await networkManager.get<GoogleBooksResponse>(
-        `${API_ENDPOINTS.GOOGLE_BOOKS}/volumes?q=${query}&maxResults=5`
+        `${API_ENDPOINTS.GOOGLE_BOOKS}/volumes?q=${query}&maxResults=5`,
       );
 
       if (!response.success || !response.data?.items?.length) {
@@ -49,7 +49,7 @@ export class MetadataApiService {
           publisher: book.publisher,
           publishedDate: book.publishedDate,
           description: book.description,
-          isbn: book.industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier,
+          isbn: book.industryIdentifiers?.find((id) => id.type === 'ISBN_13')?.identifier,
           pageCount: book.pageCount,
           coverUrl: book.imageLinks?.thumbnail || book.imageLinks?.smallThumbnail,
           language: book.language,
@@ -74,7 +74,7 @@ export class MetadataApiService {
   async searchMovieMetadata(
     title: string,
     year?: number,
-    imdbId?: string
+    imdbId?: string,
   ): Promise<MovieMetadataResult> {
     try {
       // Note: TMDB requires an API key - this is a placeholder
@@ -117,8 +117,12 @@ export class MetadataApiService {
           overview: movie.overview,
           releaseDate: movie.release_date,
           year: movie.release_date ? parseInt(movie.release_date.substring(0, 4)) : undefined,
-          posterUrl: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
-          backdropUrl: movie.backdrop_path ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}` : undefined,
+          posterUrl: movie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            : undefined,
+          backdropUrl: movie.backdrop_path
+            ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
+            : undefined,
           voteAverage: movie.vote_average,
           voteCount: movie.vote_count,
           popularity: movie.popularity,
@@ -141,7 +145,7 @@ export class MetadataApiService {
   async searchMusicMetadata(
     artist?: string,
     album?: string,
-    track?: string
+    track?: string,
   ): Promise<MusicMetadataResult> {
     try {
       const parts: string[] = [];
@@ -151,7 +155,7 @@ export class MetadataApiService {
       const query = parts.join(' AND ');
 
       const response = await networkManager.get<MusicBrainzResponse>(
-        `${API_ENDPOINTS.MUSICBRAINZ}/recording?query=${encodeURIComponent(query)}&fmt=json&limit=5`
+        `${API_ENDPOINTS.MUSICBRAINZ}/recording?query=${encodeURIComponent(query)}&fmt=json&limit=5`,
       );
 
       if (!response.success || !response.data?.recordings?.length) {
@@ -189,9 +193,7 @@ export class MetadataApiService {
    */
   async getCoverArt(mbid: string): Promise<string | null> {
     try {
-      const response = await networkManager.get<any>(
-        `https://coverartarchive.org/release/${mbid}`
-      );
+      const response = await networkManager.get<any>(`https://coverartarchive.org/release/${mbid}`);
 
       if (response.success && response.data?.images?.length) {
         return response.data.images[0].image;

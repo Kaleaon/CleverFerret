@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MediaItem, MediaItemWithOriginal, MediaType } from '../types';
 import { CloseIcon, SparklesIcon, LoadingIcon, ImageIcon } from './icons';
@@ -32,7 +31,10 @@ const ChipInput: React.FC<ChipInputProps> = ({ values, onChange, label }) => {
       <label className="block text-sm font-medium text-light-slate">{label}</label>
       <div className="mt-1 flex flex-wrap gap-2 p-2 bg-navy border border-lightest-navy rounded-md">
         {values.map((value, index) => (
-          <div key={index} className="flex items-center bg-lightest-navy text-lightest-slate text-sm px-2 py-1 rounded-full">
+          <div
+            key={index}
+            className="flex items-center bg-lightest-navy text-lightest-slate text-sm px-2 py-1 rounded-full"
+          >
             <span>{value}</span>
             <button onClick={() => removeChip(index)} className="ml-2 text-slate hover:text-white">
               <CloseIcon className="w-3 h-3" />
@@ -51,7 +53,6 @@ const ChipInput: React.FC<ChipInputProps> = ({ values, onChange, label }) => {
     </div>
   );
 };
-
 
 interface StarRatingProps {
   rating: number;
@@ -95,26 +96,26 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ item, onClose, onSave }
   }, [item]);
 
   const handleChange = (field: keyof MediaItem, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
     const { original, ...rest } = formData;
     onSave(rest);
   };
-  
+
   const handleEnhance = async () => {
     setIsEnhancing(true);
     setEnhanceError('');
     try {
       const enhancedData = await enhanceMetadata(formData);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         ...enhancedData,
-        original: { ...prev.original, ...prev } // Preserve current state as original before overwriting
+        original: { ...prev.original, ...prev }, // Preserve current state as original before overwriting
       }));
     } catch (error: any) {
-        setEnhanceError(error.message || 'An unknown error occurred.');
+      setEnhanceError(error.message || 'An unknown error occurred.');
     } finally {
       setIsEnhancing(false);
     }
@@ -141,23 +142,34 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ item, onClose, onSave }
     }
   };
 
-  const renderInputField = (label: string, field: keyof MediaItem, type: string = 'text', multiline: boolean = false) => {
+  const renderInputField = (
+    label: string,
+    field: keyof MediaItem,
+    type: string = 'text',
+    multiline: boolean = false,
+  ) => {
     const originalValue = item.original?.[field] as string | undefined;
     const hasChanged = originalValue !== undefined && originalValue !== formData[field];
-    
+
     const inputProps = {
-        id: field,
-        value: formData[field] as string || '',
-        onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChange(field, e.target.value),
-        className:"w-full p-2 bg-navy border border-lightest-navy rounded-md focus:outline-none focus:ring-2 focus:ring-emerald text-lightest-slate"
+      id: field,
+      value: (formData[field] as string) || '',
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+        handleChange(field, e.target.value),
+      className:
+        'w-full p-2 bg-navy border border-lightest-navy rounded-md focus:outline-none focus:ring-2 focus:ring-emerald text-lightest-slate',
     };
 
     return (
-        <div>
-            <label htmlFor={field} className="block text-sm font-medium text-light-slate">{label}</label>
-            {multiline ? <textarea {...inputProps} rows={4} /> : <input type={type} {...inputProps} />}
-            {hasChanged && <p className="text-xs text-slate mt-1 line-through">~~ {originalValue} ~~</p>}
-        </div>
+      <div>
+        <label htmlFor={field} className="block text-sm font-medium text-light-slate">
+          {label}
+        </label>
+        {multiline ? <textarea {...inputProps} rows={4} /> : <input type={type} {...inputProps} />}
+        {hasChanged && (
+          <p className="text-xs text-slate mt-1 line-through">~~ {originalValue} ~~</p>
+        )}
+      </div>
     );
   };
 
@@ -170,12 +182,16 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ item, onClose, onSave }
             <CloseIcon />
           </button>
         </div>
-        
+
         <div className="flex-grow overflow-y-auto p-4 md:p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Left Column: Cover Art & Actions */}
             <div className="md:col-span-1 flex flex-col items-center gap-4">
-              <img src={formData.coverArt} alt={formData.title} className="w-full h-auto object-cover rounded-md shadow-lg" />
+              <img
+                src={formData.coverArt}
+                alt={formData.title}
+                className="w-full h-auto object-cover rounded-md shadow-lg"
+              />
               <div className="w-full space-y-2">
                 <button
                   onClick={handleEnhance}
@@ -202,21 +218,34 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ item, onClose, onSave }
             <div className="md:col-span-2 space-y-4">
               {renderInputField('Title', 'title')}
               {renderInputField('Subtitle', 'subtitle')}
-              
+
               <ChipInput
-                label={formData.type === MediaType.Book ? 'Authors' : formData.type === MediaType.Movie ? 'Directors' : 'Artists'}
+                label={
+                  formData.type === MediaType.Book
+                    ? 'Authors'
+                    : formData.type === MediaType.Movie
+                      ? 'Directors'
+                      : 'Artists'
+                }
                 values={(formData.authors || formData.directors || formData.artists) ?? []}
                 onChange={(values) => {
-                  const field = formData.type === MediaType.Book ? 'authors' : formData.type === MediaType.Movie ? 'directors' : 'artists';
+                  const field =
+                    formData.type === MediaType.Book
+                      ? 'authors'
+                      : formData.type === MediaType.Movie
+                        ? 'directors'
+                        : 'artists';
                   handleChange(field, values);
                 }}
               />
-              
+
               {renderInputField('Summary', 'summary', 'text', true)}
 
               {formData.aiCoverArtPrompt && (
                 <div>
-                  <label className="block text-sm font-medium text-light-slate">AI Cover Art Prompt</label>
+                  <label className="block text-sm font-medium text-light-slate">
+                    AI Cover Art Prompt
+                  </label>
                   <div className="relative">
                     <textarea
                       readOnly
@@ -238,12 +267,15 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ item, onClose, onSave }
                 {renderInputField('Series', 'series')}
                 {renderInputField('Series Index', 'seriesIndex', 'number')}
               </div>
-              
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {renderInputField('Release Date', 'releaseDate', 'date')}
                 <div>
-                   <label className="block text-sm font-medium text-light-slate">Rating</label>
-                   <StarRating rating={formData.rating ?? 0} onRatingChange={(r) => handleChange('rating', r)} />
+                  <label className="block text-sm font-medium text-light-slate">Rating</label>
+                  <StarRating
+                    rating={formData.rating ?? 0}
+                    onRatingChange={(r) => handleChange('rating', r)}
+                  />
                 </div>
               </div>
 
@@ -257,14 +289,23 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ item, onClose, onSave }
                 {renderInputField('Publisher', 'publisher')}
                 {formData.type === MediaType.Book && renderInputField('ISBN', 'isbn')}
               </div>
-
             </div>
           </div>
         </div>
 
         <div className="flex justify-end gap-4 p-4 border-t border-lightest-navy">
-          <button onClick={onClose} className="px-4 py-2 rounded-md bg-lightest-navy text-lightest-slate hover:bg-slate">Cancel</button>
-          <button onClick={handleSave} className="px-6 py-2 rounded-md bg-emerald text-navy font-bold hover:bg-opacity-90">Save</button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-md bg-lightest-navy text-lightest-slate hover:bg-slate"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-6 py-2 rounded-md bg-emerald text-navy font-bold hover:bg-opacity-90"
+          >
+            Save
+          </button>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 /**
  * Modern Video Player Screen
- * 
+ *
  * Clean video player with gesture controls and overlay UI.
  * Migrated from ModernVideoPlayerScreen.kt
  */
@@ -122,10 +122,7 @@ export const VideoPlayerScreen: React.FC = () => {
 
   const skip = (seconds: number) => {
     if (videoRef.current) {
-      videoRef.current.currentTime = Math.max(
-        0,
-        Math.min(duration, currentTime + seconds)
-      );
+      videoRef.current.currentTime = Math.max(0, Math.min(duration, currentTime + seconds));
     }
   };
 

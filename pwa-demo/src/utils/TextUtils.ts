@@ -55,7 +55,10 @@ export class TextUtils {
    * Word count
    */
   static wordCount(text: string): number {
-    return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
   }
 
   /**

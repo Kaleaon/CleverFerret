@@ -32,7 +32,7 @@ export class WebFictionService {
 
   async fetchStory(url: string): Promise<Story> {
     const site = this.detectSite(url);
-    
+
     switch (site) {
       case 'ao3':
         return this.fetchAO3Story(url);
@@ -68,32 +68,35 @@ export class WebFictionService {
       if (!workIdMatch) {
         throw new Error('Invalid AO3 URL');
       }
-      
+
       const workId = workIdMatch[1];
       const apiUrl = `https://archiveofourown.org/works/${workId}?view_full_work=true`;
-      
+
       const response = await fetch(this.CORS_PROXY + encodeURIComponent(apiUrl));
       const html = await response.text();
-      
+
       // Parse metadata
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      
+
       const title = doc.querySelector('h2.title')?.textContent?.trim() || 'Unknown Title';
       const author = doc.querySelector('a[rel="author"]')?.textContent?.trim() || 'Unknown Author';
       const summary = doc.querySelector('div.summary blockquote')?.textContent?.trim() || '';
       const rating = doc.querySelector('.rating')?.textContent?.trim();
-      const tags = Array.from(doc.querySelectorAll('.tags a.tag')).map(a => a.textContent?.trim() || '');
-      
+      const tags = Array.from(doc.querySelectorAll('.tags a.tag')).map(
+        (a) => a.textContent?.trim() || '',
+      );
+
       // Parse chapters
       const chapters: StoryChapter[] = [];
       const chapterDivs = doc.querySelectorAll('div.chapter');
-      
+
       chapterDivs.forEach((chapterDiv, index) => {
-        const chapterTitle = chapterDiv.querySelector('h3.title')?.textContent?.trim() || `Chapter ${index + 1}`;
+        const chapterTitle =
+          chapterDiv.querySelector('h3.title')?.textContent?.trim() || `Chapter ${index + 1}`;
         const content = chapterDiv.querySelector('div.userstuff')?.innerHTML || '';
         const wordCount = content.split(/\s+/).length;
-        
+
         chapters.push({
           number: index + 1,
           title: chapterTitle,
@@ -102,7 +105,7 @@ export class WebFictionService {
           cached: true,
         });
       });
-      
+
       return {
         id: `ao3-${workId}`,
         title,
@@ -127,21 +130,21 @@ export class WebFictionService {
     try {
       const response = await fetch(this.CORS_PROXY + encodeURIComponent(url));
       const html = await response.text();
-      
+
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      
+
       const title = doc.querySelector('#profile_top b')?.textContent?.trim() || 'Unknown Title';
       const author = doc.querySelector('#profile_top a')?.textContent?.trim() || 'Unknown Author';
       const summary = doc.querySelector('#profile_top div')?.textContent?.trim() || '';
-      
+
       // Extract story ID and chapter count
       const storyIdMatch = url.match(/\/s\/(\d+)/);
       const storyId = storyIdMatch ? storyIdMatch[1] : '';
-      
+
       const chapterSelect = doc.querySelector('#chap_select');
       const totalChapters = chapterSelect ? chapterSelect.children.length : 1;
-      
+
       // For now, return metadata only
       // Full chapter download would require multiple requests
       return {
@@ -171,14 +174,14 @@ export class WebFictionService {
     try {
       const response = await fetch(this.CORS_PROXY + encodeURIComponent(url));
       const html = await response.text();
-      
+
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      
+
       const title = doc.querySelector('h1')?.textContent?.trim() || 'Unknown Title';
       const author = doc.querySelector('.author a')?.textContent?.trim() || 'Unknown Author';
       const summary = doc.querySelector('.description')?.textContent?.trim() || '';
-      
+
       return {
         id: 'royalroad-' + Date.now(),
         title,
@@ -198,15 +201,15 @@ export class WebFictionService {
   async downloadChapter(story: Story, chapterNumber: number): Promise<StoryChapter> {
     // Download a specific chapter
     const site = story.site;
-    
+
     if (site === 'ao3') {
       // AO3 chapters are downloaded with the full work
-      const existingChapter = story.chapters.find(ch => ch.number === chapterNumber);
+      const existingChapter = story.chapters.find((ch) => ch.number === chapterNumber);
       if (existingChapter) {
         return existingChapter;
       }
     }
-    
+
     // For other sites, implement chapter-specific download
     throw new Error('Chapter download not yet implemented for this site');
   }
@@ -239,12 +242,12 @@ export class WebFictionService {
     content += `by ${story.author}\n\n`;
     content += `${story.summary}\n\n`;
     content += '='.repeat(50) + '\n\n';
-    
-    story.chapters.forEach(chapter => {
+
+    story.chapters.forEach((chapter) => {
       content += `\n\nChapter ${chapter.number}: ${chapter.title}\n\n`;
       content += chapter.content + '\n';
     });
-    
+
     return new Blob([content], { type: 'text/plain;charset=utf-8' });
   }
 
@@ -269,8 +272,8 @@ export class WebFictionService {
   <p class="author">by ${this.escapeHtml(story.author)}</p>
   <div class="summary">${this.escapeHtml(story.summary)}</div>
 `;
-    
-    story.chapters.forEach(chapter => {
+
+    story.chapters.forEach((chapter) => {
       html += `
   <div class="chapter">
     <h2 class="chapter-title">Chapter ${chapter.number}: ${this.escapeHtml(chapter.title)}</h2>
@@ -278,11 +281,11 @@ export class WebFictionService {
   </div>
 `;
     });
-    
+
     html += `
 </body>
 </html>`;
-    
+
     return new Blob([html], { type: 'text/html;charset=utf-8' });
   }
 
@@ -290,7 +293,7 @@ export class WebFictionService {
     // Basic EPUB structure
     // For a full implementation, consider using a library like epub-gen
     const html = await this.exportToHtml(story);
-    
+
     // For now, return HTML with EPUB mime type
     // A full EPUB would require proper packaging with mimetype, container.xml, content.opf, etc.
     return new Blob([html], { type: 'application/epub+zip' });
@@ -300,10 +303,10 @@ export class WebFictionService {
     // Remove scripts and styles
     html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
     html = html.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
-    
+
     // Clean up whitespace
     html = html.replace(/\s+/g, ' ').trim();
-    
+
     return html;
   }
 

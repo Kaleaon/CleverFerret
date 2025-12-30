@@ -49,16 +49,22 @@ export const PlexAuthScreen: React.FC = () => {
       <Box sx={{ flex: 1, p: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Card sx={{ maxWidth: 500, width: '100%' }}>
           <CardContent>
-            <Typography variant="h5" gutterBottom>Plex Server</Typography>
+            <Typography variant="h5" gutterBottom>
+              Plex Server
+            </Typography>
             <Typography variant="body2" color="text.secondary" paragraph>
               Connect to your Plex Media Server to access your media library.
             </Typography>
 
             {status === 'success' && (
-              <Alert severity="success" sx={{ mb: 2 }}>Connected successfully!</Alert>
+              <Alert severity="success" sx={{ mb: 2 }}>
+                Connected successfully!
+              </Alert>
             )}
             {status === 'error' && (
-              <Alert severity="error" sx={{ mb: 2 }}>Connection failed. Please check your credentials.</Alert>
+              <Alert severity="error" sx={{ mb: 2 }}>
+                Connection failed. Please check your credentials.
+              </Alert>
             )}
 
             <Stack spacing={2}>

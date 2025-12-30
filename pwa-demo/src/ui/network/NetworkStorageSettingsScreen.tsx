@@ -37,16 +37,35 @@ export const NetworkStorageSettingsScreen: React.FC = () => {
 
       <List sx={{ p: 2 }}>
         <ListItem>
-          <TextField fullWidth label="Server Address" value={serverAddress} onChange={(e) => setServerAddress(e.target.value)} placeholder="smb://192.168.1.100/share" />
+          <TextField
+            fullWidth
+            label="Server Address"
+            value={serverAddress}
+            onChange={(e) => setServerAddress(e.target.value)}
+            placeholder="smb://192.168.1.100/share"
+          />
         </ListItem>
         <ListItem>
-          <TextField fullWidth label="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <TextField
+            fullWidth
+            label="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
         </ListItem>
         <ListItem>
-          <TextField fullWidth label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </ListItem>
         <ListItem>
-          <Button variant="contained" fullWidth>Connect</Button>
+          <Button variant="contained" fullWidth>
+            Connect
+          </Button>
         </ListItem>
       </List>
     </Box>

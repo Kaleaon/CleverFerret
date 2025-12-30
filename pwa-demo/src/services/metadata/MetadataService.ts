@@ -1,6 +1,6 @@
 /**
  * Metadata Service
- * 
+ *
  * Fetches metadata from various sources (OpenLibrary, Google Books, etc.)
  */
 
@@ -62,7 +62,12 @@ class MetadataService {
           return metadata;
         }
       } catch (error) {
-        logger.warn('MetadataService', `Failed to fetch from ${source.name}`, undefined, error as Error);
+        logger.warn(
+          'MetadataService',
+          `Failed to fetch from ${source.name}`,
+          undefined,
+          error as Error,
+        );
       }
     }
 
@@ -129,12 +134,16 @@ class OpenLibrarySource implements MetadataSource {
           publishedDate: book.first_publish_year?.toString(),
           pageCount: book.number_of_pages?.[0],
           categories: book.subject || [],
-          thumbnailUrl: book.cover_i ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg` : undefined,
+          thumbnailUrl: book.cover_i
+            ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`
+            : undefined,
           language: book.language?.[0],
         };
       }
     } catch (error) {
-      throw new Error(`OpenLibrary fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `OpenLibrary fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 }
@@ -165,7 +174,9 @@ class GoogleBooksSource implements MetadataSource {
         title: volume.title || query,
         authors: volume.authors || [],
         description: volume.description,
-        isbn: volume.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13' || id.type === 'ISBN_10')?.identifier,
+        isbn: volume.industryIdentifiers?.find(
+          (id: any) => id.type === 'ISBN_13' || id.type === 'ISBN_10',
+        )?.identifier,
         publishedDate: volume.publishedDate,
         publisher: volume.publisher,
         pageCount: volume.pageCount,
@@ -174,7 +185,9 @@ class GoogleBooksSource implements MetadataSource {
         language: volume.language,
       };
     } catch (error) {
-      throw new Error(`Google Books fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Google Books fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 }

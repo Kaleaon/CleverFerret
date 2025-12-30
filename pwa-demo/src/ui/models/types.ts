@@ -10,7 +10,7 @@ export enum FontFamily {
   SERIF = 'Serif',
   SANS_SERIF = 'Sans Serif',
   MONOSPACE = 'Monospace',
-  CURSIVE = 'Cursive'
+  CURSIVE = 'Cursive',
 }
 
 /**
@@ -20,7 +20,7 @@ export enum ReaderTheme {
   LIGHT = 'Light',
   SEPIA = 'Sepia',
   DARK = 'Dark',
-  BLACK = 'Black'
+  BLACK = 'Black',
 }
 
 /**
@@ -29,7 +29,7 @@ export enum ReaderTheme {
 export enum TextAlignmentUI {
   LEFT = 'Left',
   CENTER = 'Center',
-  JUSTIFY = 'Justify'
+  JUSTIFY = 'Justify',
 }
 
 /**
@@ -39,7 +39,7 @@ export enum PageAnimation {
   SLIDE = 'Slide',
   FADE = 'Fade',
   CURL = 'Page Curl',
-  NONE = 'None'
+  NONE = 'None',
 }
 
 /**
@@ -50,7 +50,7 @@ export enum CloudProvider {
   GOOGLE_DRIVE = 'Google Drive',
   DROPBOX = 'Dropbox',
   ONEDRIVE = 'OneDrive',
-  WEBDAV = 'WebDAV'
+  WEBDAV = 'WebDAV',
 }
 
 /**
@@ -58,7 +58,7 @@ export enum CloudProvider {
  */
 export enum SidebarPosition {
   LEFT = 'Left',
-  RIGHT = 'Right'
+  RIGHT = 'Right',
 }
 
 /**
@@ -195,7 +195,7 @@ export enum MediaCategory {
   PODCASTS = 'Podcasts',
   MAGAZINES = 'Magazines',
   NEWS = 'News',
-  FANFICTION = 'Fanfiction'
+  FANFICTION = 'Fanfiction',
 }
 
 /**
@@ -255,7 +255,7 @@ export const defaultApiKeys: ApiKeys = {
   spotifyClientSecret: '',
   musicBrainzUserAgent: '',
   lastFmKey: '',
-  openLibraryKey: ''
+  openLibraryKey: '',
 };
 
 export const defaultReaderSettings: ReaderSettings = {
@@ -270,7 +270,7 @@ export const defaultReaderSettings: ReaderSettings = {
   brightnessControl: false,
   customBrightness: 0.5,
   keepScreenOn: false,
-  volumeKeysNavigation: true
+  volumeKeysNavigation: true,
 };
 
 export const defaultAudiobookSettings: AudiobookSettings = {
@@ -281,7 +281,7 @@ export const defaultAudiobookSettings: AudiobookSettings = {
   rewindSeconds: 15,
   forwardSeconds: 30,
   rememberPosition: true,
-  backgroundPlayback: true
+  backgroundPlayback: true,
 };
 
 export const defaultMetadataSettings: MetadataSettings = {
@@ -292,7 +292,7 @@ export const defaultMetadataSettings: MetadataSettings = {
   comparisonViewEnabled: true,
   preferLocalMetadata: false,
   embedMetadataInFiles: false,
-  metadataLanguage: 'en'
+  metadataLanguage: 'en',
 };
 
 export const defaultCloudSyncSettings: CloudSyncSettings = {
@@ -304,7 +304,7 @@ export const defaultCloudSyncSettings: CloudSyncSettings = {
   syncAnnotations: true,
   syncSettings: false,
   autoSync: true,
-  syncInterval: 60
+  syncInterval: 60,
 };
 
 export const defaultInterfaceSettings: InterfaceSettings = {
@@ -317,7 +317,7 @@ export const defaultInterfaceSettings: InterfaceSettings = {
   darkMode: true,
   showThumbnails: true,
   compactView: false,
-  animationsEnabled: true
+  animationsEnabled: true,
 };
 
 export const defaultImportSettings: ImportSettings = {
@@ -329,7 +329,7 @@ export const defaultImportSettings: ImportSettings = {
   importSeries: true,
   importTags: true,
   importRatings: true,
-  preserveCalibreIds: true
+  preserveCalibreIds: true,
 };
 
 export const defaultAppSettings: AppSettings = {
@@ -340,5 +340,5 @@ export const defaultAppSettings: AppSettings = {
   cloudSync: defaultCloudSyncSettings,
   interface: defaultInterfaceSettings,
   import: defaultImportSettings,
-  version: 1
+  version: 1,
 };

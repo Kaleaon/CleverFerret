@@ -1,6 +1,6 @@
 /**
  * Radio Screen
- * 
+ *
  * Internet radio streaming with station management.
  * Migrated from RadioScreen.kt
  */
@@ -91,12 +91,12 @@ export const RadioScreen: React.FC = () => {
       if (audioRef.current) {
         try {
           audioRef.current.src = station.streamUrl;
-          
+
           // Set up error handler before playing
           audioRef.current.onerror = () => {
             const error = audioRef.current?.error;
             let errorMsg = `Failed to play stream: ${station.name}. `;
-            
+
             if (error) {
               switch (error.code) {
                 case error.MEDIA_ERR_NETWORK:
@@ -114,17 +114,17 @@ export const RadioScreen: React.FC = () => {
             } else {
               errorMsg += 'The stream may not be available.';
             }
-            
+
             setErrorMessage(errorMsg);
             setPlayingStationId(null);
             setPlayingStation(null);
           };
-          
+
           await audioRef.current.play();
           setPlayingStationId(station.id);
           setPlayingStation(station);
           setIsPaused(false);
-          
+
           // Update play count and last played time
           if (station.id) {
             await db.radioStations.update(station.id, {
@@ -135,9 +135,10 @@ export const RadioScreen: React.FC = () => {
         } catch (err) {
           const { logger } = await import('../../services/logging');
           logger.error('Radio', 'Failed to play station', undefined, err as Error);
-          const errorMsg = err instanceof Error && err.name === 'NotAllowedError'
-            ? `Cannot play automatically. Please click the Play button again to start playback.`
-            : `Failed to play stream: ${station.name}. The stream may not be available or blocked by your browser.`;
+          const errorMsg =
+            err instanceof Error && err.name === 'NotAllowedError'
+              ? `Cannot play automatically. Please click the Play button again to start playback.`
+              : `Failed to play stream: ${station.name}. The stream may not be available or blocked by your browser.`;
           setErrorMessage(errorMsg);
         }
       }
@@ -146,7 +147,7 @@ export const RadioScreen: React.FC = () => {
 
   const handlePauseResume = () => {
     if (!audioRef.current) return;
-    
+
     if (isPaused) {
       audioRef.current.play();
       setIsPaused(false);
@@ -165,7 +166,7 @@ export const RadioScreen: React.FC = () => {
 
     try {
       // Create a MediaStream from the audio element
-      const stream = (audioRef.current as any).captureStream 
+      const stream = (audioRef.current as any).captureStream
         ? (audioRef.current as any).captureStream()
         : (audioRef.current as any).mozCaptureStream?.();
 
@@ -260,11 +261,7 @@ export const RadioScreen: React.FC = () => {
 
   return (
     <Box>
-      <audio 
-        ref={audioRef}
-        crossOrigin="anonymous"
-        preload="none"
-      />
+      <audio ref={audioRef} crossOrigin="anonymous" preload="none" />
 
       <AppBar position="static">
         <Toolbar>
@@ -352,11 +349,7 @@ export const RadioScreen: React.FC = () => {
               >
                 Discover Stations
               </Button>
-              <Button
-                variant="outlined"
-                startIcon={<Add />}
-                onClick={() => setShowAddDialog(true)}
-              >
+              <Button variant="outlined" startIcon={<Add />} onClick={() => setShowAddDialog(true)}>
                 Add by URL
               </Button>
             </Box>
@@ -425,11 +418,7 @@ export const RadioScreen: React.FC = () => {
               )}
             </Box>
 
-            <IconButton 
-              color="primary" 
-              onClick={handlePauseResume}
-              size="large"
-            >
+            <IconButton color="primary" onClick={handlePauseResume} size="large">
               {isPaused ? <PlayArrow /> : <Pause />}
             </IconButton>
 

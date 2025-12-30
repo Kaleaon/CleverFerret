@@ -36,11 +36,17 @@ export const MediaServerSettingsScreen: React.FC = () => {
 
       <List>
         <ListItem>
-          <ListItemText primary="Enable Media Server" secondary="Share your library over the network" />
+          <ListItemText
+            primary="Enable Media Server"
+            secondary="Share your library over the network"
+          />
           <Switch checked={enableServer} onChange={(e) => setEnableServer(e.target.checked)} />
         </ListItem>
         <ListItem>
-          <ListItemText primary="Allow Remote Access" secondary="Enable access from outside your network" />
+          <ListItemText
+            primary="Allow Remote Access"
+            secondary="Enable access from outside your network"
+          />
           <Switch checked={allowRemote} onChange={(e) => setAllowRemote(e.target.checked)} />
         </ListItem>
       </List>

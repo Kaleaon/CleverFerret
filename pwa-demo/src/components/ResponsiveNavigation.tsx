@@ -1,6 +1,6 @@
 /**
  * Responsive Navigation Component
- * 
+ *
  * Adapts navigation based on screen size:
  * - Desktop (>1280px): Fixed sidebar (current behavior)
  * - Tablet (960-1280px): Collapsible sidebar
@@ -65,23 +65,65 @@ const navItems: NavItem[] = [
   { id: 'home', label: 'Home', icon: <HomeIcon />, path: '/', showInBottom: true },
   { id: 'books', label: 'Books', icon: <BooksIcon />, path: '/library/1', showInBottom: true },
   { id: 'comics', label: 'Comics', icon: <ComicsIcon />, path: '/library/3', showInBottom: true },
-  { id: 'audiobooks', label: 'Audiobooks', icon: <AudioIcon />, path: '/library/2', showInBottom: true },
+  {
+    id: 'audiobooks',
+    label: 'Audiobooks',
+    icon: <AudioIcon />,
+    path: '/library/2',
+    showInBottom: true,
+  },
   { id: 'music', label: 'Music', icon: <MusicIcon />, path: '/music', showInBottom: true },
   { id: 'movies', label: 'Movies', icon: <MoviesIcon />, path: '/library/4', showInBottom: true },
   { id: 'tv', label: 'TV Shows', icon: <TvIcon />, path: '/library/5', showInBottom: true },
   { id: 'radio', label: 'Radio', icon: <RadioIcon />, path: '/radio', showInBottom: true },
-  { id: 'podcasts', label: 'Podcasts', icon: <PodcastsIcon />, path: '/podcasts', showInBottom: false },
-  { id: 'documents', label: 'Documents', icon: <DocumentsIcon />, path: '/library/7', showInBottom: false },
-  { id: 'collections', label: 'Collections', icon: <CollectionsIcon />, path: '/collections', showInBottom: false },
-  { id: 'downloads', label: 'Downloads', icon: <DownloadIcon />, path: '/downloads', showInBottom: false },
+  {
+    id: 'podcasts',
+    label: 'Podcasts',
+    icon: <PodcastsIcon />,
+    path: '/podcasts',
+    showInBottom: false,
+  },
+  {
+    id: 'documents',
+    label: 'Documents',
+    icon: <DocumentsIcon />,
+    path: '/library/7',
+    showInBottom: false,
+  },
+  {
+    id: 'collections',
+    label: 'Collections',
+    icon: <CollectionsIcon />,
+    path: '/collections',
+    showInBottom: false,
+  },
+  {
+    id: 'downloads',
+    label: 'Downloads',
+    icon: <DownloadIcon />,
+    path: '/downloads',
+    showInBottom: false,
+  },
   { id: 'storage', label: 'Storage', icon: <StorageIcon />, path: '/storage', showInBottom: false },
   { id: 'opds', label: 'OPDS', icon: <BooksIcon />, path: '/opds', showInBottom: false },
-  { id: 'statistics', label: 'Statistics', icon: <StatisticsIcon />, path: '/statistics', showInBottom: false },
+  {
+    id: 'statistics',
+    label: 'Statistics',
+    icon: <StatisticsIcon />,
+    path: '/statistics',
+    showInBottom: false,
+  },
   { id: 'search', label: 'Search', icon: <SearchIcon />, path: '/search', showInBottom: false },
-  { id: 'settings', label: 'Settings', icon: <SettingsIcon />, path: '/settings', showInBottom: false },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: <SettingsIcon />,
+    path: '/settings',
+    showInBottom: false,
+  },
 ];
 
-const bottomNavItems = navItems.filter(item => item.showInBottom);
+const bottomNavItems = navItems.filter((item) => item.showInBottom);
 
 interface ResponsiveNavigationProps {
   children: React.ReactNode;
@@ -94,7 +136,7 @@ export const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({ chil
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [libraries, setLibraries] = useState<Library[]>([]);
   const [libraryTabValue, setLibraryTabValue] = useState(0);
-  
+
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -105,11 +147,11 @@ export const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({ chil
     const loadLibraries = async () => {
       const libs = await libraryRepository.getAllActiveLibraries();
       setLibraries(libs);
-      
+
       // Set current library tab if on a library page
       if (location.pathname.startsWith('/library/')) {
         const libraryId = parseInt(location.pathname.split('/library/')[1]?.split('/')[0] || '0');
-        const index = libs.findIndex(lib => lib.libraryId === libraryId);
+        const index = libs.findIndex((lib) => lib.libraryId === libraryId);
         if (index >= 0) {
           setLibraryTabValue(index);
         }
@@ -133,7 +175,7 @@ export const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({ chil
   };
 
   const getCurrentBottomNav = () => {
-    const currentItem = bottomNavItems.find(item => item.path === location.pathname);
+    const currentItem = bottomNavItems.find((item) => item.path === location.pathname);
     return currentItem ? currentItem.id : 'home';
   };
 
@@ -362,7 +404,7 @@ export const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({ chil
       <BottomNavigation
         value={getCurrentBottomNav()}
         onChange={(event, newValue) => {
-          const item = bottomNavItems.find(i => i.id === newValue);
+          const item = bottomNavItems.find((i) => i.id === newValue);
           if (item) handleNavigation(item.path);
         }}
         showLabels

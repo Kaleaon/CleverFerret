@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Structured logging utility
  * Provides leveled logging with persistence option

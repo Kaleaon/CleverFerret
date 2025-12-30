@@ -27,7 +27,11 @@ import {
   CloudUpload,
   InsertDriveFile,
 } from '@mui/icons-material';
-import { processFileHandle, getRouteForFileType, type FileHandle } from '../../services/fileHandler';
+import {
+  processFileHandle,
+  getRouteForFileType,
+  type FileHandle,
+} from '../../services/fileHandler';
 
 export const MediaOpenScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -76,27 +80,31 @@ export const MediaOpenScreen: React.FC = () => {
 
   const handleOpenUrl = async () => {
     if (!url.trim()) return;
-    
+
     setProcessing(true);
     setError(null);
-    
+
     try {
       // Try to fetch the URL
       const response = await fetch(url, { method: 'HEAD' });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
-      
+
       const contentType = response.headers.get('content-type') || '';
-      
+
       // If it's a direct file URL, download it
-      if (contentType.includes('epub') || contentType.includes('pdf') || contentType.includes('application')) {
+      if (
+        contentType.includes('epub') ||
+        contentType.includes('pdf') ||
+        contentType.includes('application')
+      ) {
         const fileResponse = await fetch(url);
         const blob = await fileResponse.blob();
         const fileName = url.split('/').pop() || 'download';
         const file = new File([blob], fileName, { type: contentType });
-        
+
         const result = processFileHandle(file);
         if (result.success && result.file && result.route) {
           navigate(result.route, { state: { file: result.file } });
@@ -116,7 +124,15 @@ export const MediaOpenScreen: React.FC = () => {
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          p: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
+      >
         <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
           <ArrowBack />
         </IconButton>
@@ -153,9 +169,9 @@ export const MediaOpenScreen: React.FC = () => {
           sx={{ mb: 2 }}
           disabled={processing}
         />
-        <Button 
-          variant="contained" 
-          fullWidth 
+        <Button
+          variant="contained"
+          fullWidth
           disabled={!url || processing}
           onClick={handleOpenUrl}
           sx={{ mb: 3 }}
@@ -166,23 +182,18 @@ export const MediaOpenScreen: React.FC = () => {
         <List>
           <ListItem disablePadding>
             <ListItemButton onClick={handleBrowseFiles} disabled={processing}>
-              <ListItemIcon><Folder /></ListItemIcon>
-              <ListItemText 
-                primary="Browse Files" 
-                secondary="Choose from local storage" 
-              />
+              <ListItemIcon>
+                <Folder />
+              </ListItemIcon>
+              <ListItemText primary="Browse Files" secondary="Choose from local storage" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton 
-              onClick={() => fileInputRef.current?.click()} 
-              disabled={processing}
-            >
-              <ListItemIcon><CloudUpload /></ListItemIcon>
-              <ListItemText 
-                primary="Select File" 
-                secondary="Choose a file from your device" 
-              />
+            <ListItemButton onClick={() => fileInputRef.current?.click()} disabled={processing}>
+              <ListItemIcon>
+                <CloudUpload />
+              </ListItemIcon>
+              <ListItemText primary="Select File" secondary="Choose a file from your device" />
             </ListItemButton>
           </ListItem>
         </List>

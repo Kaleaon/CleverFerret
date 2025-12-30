@@ -1,25 +1,13 @@
 /**
  * 404 Not Found Screen
- * 
+ *
  * Provides helpful navigation when a route is not found
  */
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  Button,
-  Stack,
-  Card,
-  CardContent,
-} from '@mui/material';
-import {
-  Home,
-  Search,
-  LibraryBooks,
-  Settings,
-} from '@mui/icons-material';
+import { Box, Typography, Button, Stack, Card, CardContent } from '@mui/material';
+import { Home, Search, LibraryBooks, Settings } from '@mui/icons-material';
 
 export const NotFoundScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -44,7 +32,11 @@ export const NotFoundScreen: React.FC = () => {
     >
       <Card sx={{ maxWidth: 600, width: '100%' }}>
         <CardContent sx={{ textAlign: 'center', p: 4 }}>
-          <Typography variant="h1" component="h1" sx={{ fontSize: 120, fontWeight: 'bold', color: 'primary.main', mb: 2 }}>
+          <Typography
+            variant="h1"
+            component="h1"
+            sx={{ fontSize: 120, fontWeight: 'bold', color: 'primary.main', mb: 2 }}
+          >
             404
           </Typography>
           <Typography variant="h4" component="h2" gutterBottom>

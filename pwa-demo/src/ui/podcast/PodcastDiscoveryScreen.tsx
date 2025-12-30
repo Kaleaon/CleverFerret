@@ -1,6 +1,6 @@
 /**
  * Podcast Discovery Screen
- * 
+ *
  * Discover and browse new podcasts from various directories.
  * Inspired by AntennaPod's podcast discovery features.
  */
@@ -59,7 +59,11 @@ export const PodcastDiscoveryScreen: React.FC = () => {
   const [results, setResults] = useState<PodcastSearchResult[]>([]);
   const [trendingPodcasts, setTrendingPodcasts] = useState<PodcastSearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' | 'warning' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info' | 'warning';
+  }>({ open: false, message: '' });
 
   useEffect(() => {
     if (tabValue === 1) {
@@ -78,7 +82,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
     try {
       // Use iTunes Podcast Search API (free, no API key required)
       const response = await fetch(
-        `https://itunes.apple.com/search?term=${encodeURIComponent(searchQuery)}&media=podcast&limit=50`
+        `https://itunes.apple.com/search?term=${encodeURIComponent(searchQuery)}&media=podcast&limit=50`,
       );
       const data = await response.json();
 
@@ -109,14 +113,12 @@ export const PodcastDiscoveryScreen: React.FC = () => {
 
     try {
       // Get trending podcasts from iTunes (Top 25)
-      const response = await fetch(
-        'https://itunes.apple.com/us/rss/toppodcasts/limit=25/json'
-      );
-      
+      const response = await fetch('https://itunes.apple.com/us/rss/toppodcasts/limit=25/json');
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
 
       if (data.feed?.entry) {
@@ -125,7 +127,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
             try {
               // Get feed URL from podcast detail
               const detailResponse = await fetch(
-                `https://itunes.apple.com/lookup?id=${item.id.attributes['im:id']}`
+                `https://itunes.apple.com/lookup?id=${item.id.attributes['im:id']}`,
               );
               const detailData = await detailResponse.json();
               const feedUrl = detailData.results?.[0]?.feedUrl || '';
@@ -141,7 +143,12 @@ export const PodcastDiscoveryScreen: React.FC = () => {
               };
             } catch (err) {
               const { logger } = await import('../../services/logging');
-              logger.warn('PodcastDiscovery', 'Error fetching podcast details', undefined, err as Error);
+              logger.warn(
+                'PodcastDiscovery',
+                'Error fetching podcast details',
+                undefined,
+                err as Error,
+              );
               // Return podcast without feedUrl if detail fetch fails
               return {
                 id: item.id.attributes['im:id'],
@@ -153,7 +160,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
                 category: item.category?.attributes?.label,
               };
             }
-          })
+          }),
         );
         setTrendingPodcasts(podcasts);
       } else {
@@ -174,14 +181,12 @@ export const PodcastDiscoveryScreen: React.FC = () => {
 
     try {
       // Get top podcasts by category
-      const response = await fetch(
-        'https://itunes.apple.com/us/rss/toppodcasts/limit=50/json'
-      );
-      
+      const response = await fetch('https://itunes.apple.com/us/rss/toppodcasts/limit=50/json');
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
 
       if (data.feed?.entry) {
@@ -189,7 +194,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
           data.feed.entry.map(async (item: any) => {
             try {
               const detailResponse = await fetch(
-                `https://itunes.apple.com/lookup?id=${item.id.attributes['im:id']}`
+                `https://itunes.apple.com/lookup?id=${item.id.attributes['im:id']}`,
               );
               const detailData = await detailResponse.json();
               const feedUrl = detailData.results?.[0]?.feedUrl || '';
@@ -205,7 +210,12 @@ export const PodcastDiscoveryScreen: React.FC = () => {
               };
             } catch (err) {
               const { logger } = await import('../../services/logging');
-              logger.warn('PodcastDiscovery', 'Error fetching podcast details', undefined, err as Error);
+              logger.warn(
+                'PodcastDiscovery',
+                'Error fetching podcast details',
+                undefined,
+                err as Error,
+              );
               // Return podcast without feedUrl if detail fetch fails
               return {
                 id: item.id.attributes['im:id'],
@@ -217,7 +227,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
                 category: item.category?.attributes?.label,
               };
             }
-          })
+          }),
         );
         setResults(podcasts);
       } else {
@@ -234,19 +244,24 @@ export const PodcastDiscoveryScreen: React.FC = () => {
 
   const handleSubscribe = async (podcast: PodcastSearchResult) => {
     if (!podcast.feedUrl) {
-      setSnackbar({ open: true, message: 'Feed URL not available for this podcast', severity: 'warning' });
+      setSnackbar({
+        open: true,
+        message: 'Feed URL not available for this podcast',
+        severity: 'warning',
+      });
       return;
     }
 
     try {
       // Check if already subscribed
-      const existing = await db.podcasts
-        .where('feedUrl')
-        .equals(podcast.feedUrl)
-        .first();
-      
+      const existing = await db.podcasts.where('feedUrl').equals(podcast.feedUrl).first();
+
       if (existing) {
-        setSnackbar({ open: true, message: 'Already subscribed to this podcast!', severity: 'info' });
+        setSnackbar({
+          open: true,
+          message: 'Already subscribed to this podcast!',
+          severity: 'info',
+        });
         return;
       }
 
@@ -274,7 +289,11 @@ export const PodcastDiscoveryScreen: React.FC = () => {
     } catch (err) {
       const { logger } = await import('../../services/logging');
       logger.error('PodcastDiscovery', 'Subscribe error', undefined, err as Error);
-      setSnackbar({ open: true, message: `Failed to subscribe: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again.`, severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: `Failed to subscribe: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again.`,
+        severity: 'error',
+      });
     }
   };
 
@@ -294,9 +313,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
         <Typography variant="body2" color="text.secondary" gutterBottom>
           {podcast.author}
         </Typography>
-        {podcast.category && (
-          <Chip label={podcast.category} size="small" sx={{ mt: 1 }} />
-        )}
+        {podcast.category && <Chip label={podcast.category} size="small" sx={{ mt: 1 }} />}
         <Typography
           variant="body2"
           color="text.secondary"
@@ -437,7 +454,11 @@ export const PodcastDiscoveryScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

@@ -1,6 +1,6 @@
 /**
  * CleverFerret PWA - Main Export Index
- * 
+ *
  * Central export file for easy imports throughout the application
  */
 
@@ -17,7 +17,12 @@ export * from './ui/models';
 // ============================================================================
 // Database
 // ============================================================================
-export { db, dbUtils, initializeDatabase, CleverFerretDatabase } from './services/database-complete';
+export {
+  db,
+  dbUtils,
+  initializeDatabase,
+  CleverFerretDatabase,
+} from './services/database-complete';
 
 // ============================================================================
 // Services (to be implemented)

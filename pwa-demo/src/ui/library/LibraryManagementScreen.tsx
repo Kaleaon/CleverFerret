@@ -1,6 +1,6 @@
 /**
  * Library Management Screen
- * 
+ *
  * Advanced library settings and management including scan options,
  * metadata refresh, and library maintenance.
  * Migrated from LibraryManagementScreen.kt
@@ -60,7 +60,7 @@ interface LibrarySettings {
 export const LibraryManagementScreen: React.FC = () => {
   const { libraryId } = useParams<{ libraryId: string }>();
   const navigate = useNavigate();
-  
+
   const [library, setLibrary] = useState<Library | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [settings, setSettings] = useState<LibrarySettings>({
@@ -71,7 +71,10 @@ export const LibraryManagementScreen: React.FC = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showStorageDialog, setShowStorageDialog] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({
+    open: false,
+    message: '',
+  });
   const [editForm, setEditForm] = useState({ name: '', path: '', description: '' });
 
   useEffect(() => {
@@ -114,14 +117,14 @@ export const LibraryManagementScreen: React.FC = () => {
     if (!library) return;
     setIsScanning(true);
     setScanProgress(0);
-    
+
     try {
       // Simulate scanning progress
       for (let i = 0; i <= 100; i += 10) {
         setScanProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
       }
-      
+
       // Update last scanned timestamp
       await libraryRepository.updateLastScanned(library.libraryId);
       setSnackbar({ open: true, message: 'Library scan completed successfully' });
@@ -135,24 +138,21 @@ export const LibraryManagementScreen: React.FC = () => {
 
   const handleRefreshMetadata = async () => {
     if (!library) return;
-    
+
     setSnackbar({ open: true, message: 'Metadata refresh started...' });
-    
+
     try {
       const { metadataService } = await import('../../services/metadata/MetadataService');
       const { db } = await import('../../services/database-complete');
-      
+
       // Get all media items in this library
-      const items = await db.mediaItems
-        .where('libraryId')
-        .equals(library.libraryId)
-        .toArray();
-      
+      const items = await db.mediaItems.where('libraryId').equals(library.libraryId).toArray();
+
       if (items.length === 0) {
         setSnackbar({ open: true, message: 'No items to refresh' });
         return;
       }
-      
+
       let refreshed = 0;
       for (const item of items) {
         try {
@@ -167,7 +167,7 @@ export const LibraryManagementScreen: React.FC = () => {
               isFavorite: false,
               isDownloaded: false,
             });
-            
+
             if (item.mediaType === 'BOOK') {
               await db.metadataBook.put({
                 itemId: item.itemId,
@@ -180,18 +180,29 @@ export const LibraryManagementScreen: React.FC = () => {
                 series: undefined,
               });
             }
-            
+
             refreshed++;
           }
-          } catch (err) {
+        } catch (err) {
           const { logger } = await import('../../services/logging');
-          logger.warn('LibraryManagement', `Failed to refresh metadata for ${item.fileName}`, undefined, err as Error);
+          logger.warn(
+            'LibraryManagement',
+            `Failed to refresh metadata for ${item.fileName}`,
+            undefined,
+            err as Error,
+          );
         }
       }
-      
-      setSnackbar({ open: true, message: `Metadata refresh completed: ${refreshed}/${items.length} items updated` });
+
+      setSnackbar({
+        open: true,
+        message: `Metadata refresh completed: ${refreshed}/${items.length} items updated`,
+      });
     } catch (error) {
-      setSnackbar({ open: true, message: `Error refreshing metadata: ${error instanceof Error ? error.message : 'Unknown error'}` });
+      setSnackbar({
+        open: true,
+        message: `Error refreshing metadata: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
     }
   };
 
@@ -226,24 +237,21 @@ export const LibraryManagementScreen: React.FC = () => {
 
   const handleRegenerateThumbnails = async () => {
     if (!library) return;
-    
+
     setSnackbar({ open: true, message: 'Regenerating thumbnails...' });
-    
+
     try {
       const { thumbnailService } = await import('../../services/thumbnail/ThumbnailService');
       const { db } = await import('../../services/database-complete');
-      
+
       // Get all media items in this library
-      const items = await db.mediaItems
-        .where('libraryId')
-        .equals(library.libraryId)
-        .toArray();
-      
+      const items = await db.mediaItems.where('libraryId').equals(library.libraryId).toArray();
+
       if (items.length === 0) {
         setSnackbar({ open: true, message: 'No items to regenerate' });
         return;
       }
-      
+
       let completed = 0;
       const results = await thumbnailService.regenerateThumbnails(
         items,
@@ -251,17 +259,20 @@ export const LibraryManagementScreen: React.FC = () => {
         (current, total) => {
           completed = current;
           setSnackbar({ open: true, message: `Regenerating thumbnails... ${current}/${total}` });
-        }
+        },
       );
-      
+
       // Update thumbnails in database
       for (const [itemId, thumbnail] of results.entries()) {
         await db.mediaItems.update(itemId, { thumbnailPath: thumbnail });
       }
-      
+
       setSnackbar({ open: true, message: `Successfully regenerated ${results.size} thumbnails` });
     } catch (error) {
-      setSnackbar({ open: true, message: `Error regenerating thumbnails: ${error instanceof Error ? error.message : 'Unknown error'}` });
+      setSnackbar({
+        open: true,
+        message: `Error regenerating thumbnails: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
     }
   };
 
@@ -271,7 +282,9 @@ export const LibraryManagementScreen: React.FC = () => {
 
   if (!library) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
+      >
         <Typography>Loading...</Typography>
       </Box>
     );
@@ -370,13 +383,13 @@ export const LibraryManagementScreen: React.FC = () => {
               primary="Auto-scan on startup"
               secondary="Automatically scan for changes when app starts"
             />
-            <Switch 
-              checked={settings.autoScan} 
+            <Switch
+              checked={settings.autoScan}
               onChange={(e) => {
                 const newSettings = { ...settings, autoScan: e.target.checked };
                 setSettings(newSettings);
                 saveSettings();
-              }} 
+              }}
             />
           </ListItem>
 
@@ -388,13 +401,13 @@ export const LibraryManagementScreen: React.FC = () => {
               primary="Auto-fetch metadata"
               secondary="Automatically download metadata for new items"
             />
-            <Switch 
-              checked={settings.autoMetadata} 
+            <Switch
+              checked={settings.autoMetadata}
               onChange={(e) => {
                 const newSettings = { ...settings, autoMetadata: e.target.checked };
                 setSettings(newSettings);
                 saveSettings();
-              }} 
+              }}
             />
           </ListItem>
 
@@ -442,7 +455,12 @@ export const LibraryManagementScreen: React.FC = () => {
       </Box>
 
       {/* Edit Library Dialog */}
-      <Dialog open={showEditDialog} onClose={() => setShowEditDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={showEditDialog}
+        onClose={() => setShowEditDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Edit Library</DialogTitle>
         <DialogContent>
           <TextField
@@ -474,8 +492,8 @@ export const LibraryManagementScreen: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowEditDialog(false)}>Cancel</Button>
-          <Button 
-            onClick={handleSaveLibrary} 
+          <Button
+            onClick={handleSaveLibrary}
             variant="contained"
             startIcon={<Save />}
             disabled={!editForm.name || !editForm.path}
@@ -486,17 +504,28 @@ export const LibraryManagementScreen: React.FC = () => {
       </Dialog>
 
       {/* Storage Statistics Dialog */}
-      <Dialog open={showStorageDialog} onClose={() => setShowStorageDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={showStorageDialog}
+        onClose={() => setShowStorageDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Storage Statistics</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Box>
-              <Typography variant="body2" color="text.secondary">Library Type</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Library Type
+              </Typography>
               <Typography variant="h6">{library?.type || 'Unknown'}</Typography>
             </Box>
             <Box>
-              <Typography variant="body2" color="text.secondary">Storage Path</Typography>
-              <Typography variant="body1" sx={{ wordBreak: 'break-all' }}>{library?.path || 'N/A'}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Storage Path
+              </Typography>
+              <Typography variant="body1" sx={{ wordBreak: 'break-all' }}>
+                {library?.path || 'N/A'}
+              </Typography>
             </Box>
             <Alert severity="info">
               Detailed storage statistics will be available after the library is scanned.
@@ -518,8 +547,8 @@ export const LibraryManagementScreen: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete "{library?.name}"? This will remove the library from
-            the database but will not delete any files.
+            Are you sure you want to delete "{library?.name}"? This will remove the library from the
+            database but will not delete any files.
           </Typography>
         </DialogContent>
         <DialogActions>

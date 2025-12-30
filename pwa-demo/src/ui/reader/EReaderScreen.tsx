@@ -1,11 +1,11 @@
 /**
  * Enhanced eBook Reader Screen
- * 
+ *
  * Beautiful, customizable reading experience with features:
  * - Night mode, font size control, brightness
  * - Chapter navigation, bookmarks
  * - Reading progress tracking
- * 
+ *
  * Migrated from EnhancedEReaderScreen.kt
  * Uses epub.js for EPUB files, custom renderer for other formats
  */
@@ -49,7 +49,11 @@ import {
   Palette,
   MenuBook,
 } from '@mui/icons-material';
-import { epubReaderService, type EPUBBook, type EPUBChapter } from '../../services/readers/EPUBReaderService';
+import {
+  epubReaderService,
+  type EPUBBook,
+  type EPUBChapter,
+} from '../../services/readers/EPUBReaderService';
 import { db } from '../../services/database-complete';
 import type { MediaItem } from '../../data/local/entity';
 
@@ -96,7 +100,7 @@ export const EReaderScreen: React.FC = () => {
 
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Load media item from database
       const item = await db.mediaItems.get(parseInt(itemId));
@@ -120,7 +124,7 @@ export const EReaderScreen: React.FC = () => {
       const epubBook = await epubReaderService.loadEPUB(file);
       setBook(epubBook);
       setTotalPages(epubBook.spine.length);
-      
+
       // Load table of contents
       const toc = epubReaderService.getTableOfContents(epubBook);
       setChapters(toc);
@@ -138,7 +142,7 @@ export const EReaderScreen: React.FC = () => {
 
   const loadChapter = async (chapterIndex: number) => {
     if (!book) return;
-    
+
     try {
       const chapterContent = await epubReaderService.renderChapter(book, chapterIndex);
       setContent(chapterContent);
@@ -192,7 +196,16 @@ export const EReaderScreen: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', gap: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          gap: 2,
+        }}
+      >
         <CircularProgress />
         <Typography>Loading book...</Typography>
       </Box>
@@ -201,9 +214,23 @@ export const EReaderScreen: React.FC = () => {
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', gap: 2, p: 3 }}>
-        <Typography variant="h6" color="error">{error}</Typography>
-        <Button variant="contained" onClick={() => navigate(-1)}>Go Back</Button>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          gap: 2,
+          p: 3,
+        }}
+      >
+        <Typography variant="h6" color="error">
+          {error}
+        </Typography>
+        <Button variant="contained" onClick={() => navigate(-1)}>
+          Go Back
+        </Button>
       </Box>
     );
   }
@@ -306,10 +333,7 @@ export const EReaderScreen: React.FC = () => {
           {/* Font Family */}
           <FormControl fullWidth sx={{ mb: 3 }}>
             <InputLabel>Font Family</InputLabel>
-            <Select
-              value={fontFamily}
-              onChange={(e) => setFontFamily(e.target.value)}
-            >
+            <Select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)}>
               <MenuItem value="Serif">Serif</MenuItem>
               <MenuItem value="Sans-serif">Sans-serif</MenuItem>
               <MenuItem value="Monospace">Monospace</MenuItem>

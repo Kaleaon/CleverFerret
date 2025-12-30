@@ -1,6 +1,6 @@
 /**
  * Library Repository
- * 
+ *
  * Provides abstraction layer between UI and database for library operations.
  * Migrated from LibraryRepository.kt
  */
@@ -13,10 +13,7 @@ export class LibraryRepository {
    * Get all active libraries
    */
   async getAllActiveLibraries(): Promise<Library[]> {
-    return db.libraries
-      .where('isActive')
-      .equals(1)
-      .sortBy('name');
+    return db.libraries.where('isActive').equals(1).sortBy('name');
   }
 
   /**
@@ -47,7 +44,7 @@ export class LibraryRepository {
     return db.libraries
       .where('type')
       .equals(type)
-      .and(lib => lib.isActive === true)
+      .and((lib) => lib.isActive === true)
       .toArray();
   }
 
@@ -115,7 +112,7 @@ export class LibraryRepository {
     return db.libraries
       .where('type')
       .equals(type)
-      .and(lib => lib.isActive === true)
+      .and((lib) => lib.isActive === true)
       .count();
   }
 
@@ -151,14 +148,11 @@ export class LibraryRepository {
    * Subscribe to library changes (returns cleanup function)
    */
   observeAllLibraries(callback: (libraries: Library[]) => void): () => void {
-    const subscription = db.libraries
-      .orderBy('name')
-      .toArray()
-      .then(callback);
+    const subscription = db.libraries.orderBy('name').toArray().then(callback);
 
     // Set up live query subscription
     const observable = db.libraries.toCollection().toArray();
-    
+
     // Return cleanup function
     return () => {
       // Dexie will handle cleanup automatically

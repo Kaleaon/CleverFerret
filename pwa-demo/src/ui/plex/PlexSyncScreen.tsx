@@ -39,16 +39,28 @@ export const PlexSyncScreen: React.FC = () => {
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
             <ArrowBack />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>Plex Sync</Typography>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Plex Sync
+          </Typography>
         </Toolbar>
       </AppBar>
 
       <Box sx={{ p: 2 }}>
         <Card sx={{ mb: 2 }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom>Last Sync</Typography>
-            <Typography variant="body2" color="text.secondary">2 hours ago</Typography>
-            <Button variant="contained" startIcon={<Sync />} onClick={handleSync} sx={{ mt: 2 }} fullWidth>
+            <Typography variant="h6" gutterBottom>
+              Last Sync
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              2 hours ago
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<Sync />}
+              onClick={handleSync}
+              sx={{ mt: 2 }}
+              fullWidth
+            >
               Sync Now
             </Button>
             {syncProgress && <LinearProgress sx={{ mt: 2 }} />}
@@ -61,7 +73,10 @@ export const PlexSyncScreen: React.FC = () => {
             <Switch checked={autoSync} onChange={(e) => setAutoSync(e.target.checked)} />
           </ListItem>
           <ListItem>
-            <ListItemText primary="Sync Watched Status" secondary="Sync playback progress to Plex" />
+            <ListItemText
+              primary="Sync Watched Status"
+              secondary="Sync playback progress to Plex"
+            />
             <Switch defaultChecked />
           </ListItem>
           <ListItem>

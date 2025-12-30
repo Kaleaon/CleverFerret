@@ -1,6 +1,6 @@
 /**
  * EPUB Reader Service
- * 
+ *
  * Handles EPUB file reading using epub.js
  */
 
@@ -31,12 +31,12 @@ export class EPUBReaderService {
   async loadEPUB(file: File | Blob | string): Promise<EPUBBook> {
     try {
       const book = ePub.default(file);
-      
+
       await book.ready;
-      
+
       const metadata = await book.loaded.metadata;
       const coverUrl = await this.getCoverUrl(book);
-      
+
       const epubBook: EPUBBook = {
         book,
         title: metadata.title || 'Unknown Title',
@@ -45,11 +45,13 @@ export class EPUBReaderService {
         spine: book.spine.spineItems || [],
         toc: book.navigation?.toc || [],
       };
-      
+
       this.currentBook = epubBook;
       return epubBook;
     } catch (error) {
-      throw new Error(`Failed to load EPUB: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to load EPUB: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -73,15 +75,15 @@ export class EPUBReaderService {
       if (spineIndex < 0 || spineIndex >= book.spine.length) {
         throw new Error('Chapter index out of range');
       }
-      
+
       const spineItem = book.spine[spineIndex];
       if (!spineItem) {
         throw new Error('Chapter not found');
       }
-      
+
       // Load the section using epub.js API
       const section = await book.book.load(spineItem.idref || spineItem.id);
-      
+
       // Get the HTML content from the section
       // epub.js sections return content directly or via get()
       let content: any;
@@ -95,7 +97,7 @@ export class EPUBReaderService {
         // Try alternative method
         content = section;
       }
-      
+
       // Handle different content types
       if (content && typeof content === 'object') {
         if ('documentElement' in content) {
@@ -112,11 +114,13 @@ export class EPUBReaderService {
           return (content as any).html;
         }
       }
-      
+
       // Fallback: try to get as string
       return typeof content === 'string' ? content : String(content || '');
     } catch (error) {
-      throw new Error(`Failed to render chapter: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to render chapter: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -127,9 +131,9 @@ export class EPUBReaderService {
     if (index < 0 || index >= book.spine.length) {
       throw new Error('Chapter index out of range');
     }
-    
+
     const spineItem = book.spine[index];
-    
+
     // Try to find matching TOC item
     let tocItem: ePub.NavigationItem | undefined;
     try {
@@ -137,12 +141,14 @@ export class EPUBReaderService {
         const itemHref = item.href || (item as any).id;
         const spineHref = (spineItem as any).href || spineItem.idref || spineItem.id;
         if (!itemHref || !spineHref) return false;
-        return itemHref === spineHref || itemHref.includes(spineHref) || spineHref.includes(itemHref);
+        return (
+          itemHref === spineHref || itemHref.includes(spineHref) || spineHref.includes(itemHref)
+        );
       });
     } catch {
       // If TOC matching fails, continue without it
     }
-    
+
     return {
       id: spineItem.id || spineItem.idref || `spine-${index}`,
       title: tocItem?.label || (tocItem as any)?.title || `Chapter ${index + 1}`,

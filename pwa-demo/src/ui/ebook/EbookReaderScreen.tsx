@@ -5,13 +5,7 @@
 
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-} from '@mui/material';
+import { Box, AppBar, Toolbar, IconButton, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 
 export const EbookReaderScreen: React.FC = () => {
@@ -30,7 +24,9 @@ export const EbookReaderScreen: React.FC = () => {
       </AppBar>
 
       <Box sx={{ flex: 1, p: 3, overflow: 'auto' }}>
-        <Typography variant="body1">Alternative ebook reader interface. Content will be rendered here.</Typography>
+        <Typography variant="body1">
+          Alternative ebook reader interface. Content will be rendered here.
+        </Typography>
       </Box>
     </Box>
   );

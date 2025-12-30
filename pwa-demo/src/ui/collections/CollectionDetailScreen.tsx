@@ -1,6 +1,6 @@
 /**
  * Collection Detail Screen
- * 
+ *
  * Shows items in a collection with reordering and management.
  * Migrated from CollectionDetailScreen.kt
  */
@@ -29,14 +29,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import {
-  ArrowBack,
-  MoreVert,
-  Edit,
-  Delete,
-  Share,
-  PlayArrow,
-} from '@mui/icons-material';
+import { ArrowBack, MoreVert, Edit, Delete, Share, PlayArrow } from '@mui/icons-material';
 
 import { collectionRepository, mediaRepository } from '../../data/repository';
 import type { UnifiedCollection, MediaItem } from '../../data/local/entity';
@@ -49,7 +42,11 @@ export const CollectionDetailScreen: React.FC = () => {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
 
   useEffect(() => {
     if (collectionId) {
@@ -109,11 +106,7 @@ export const CollectionDetailScreen: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Menu
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={() => setMenuAnchor(null)}
-      >
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
         <MenuItem onClick={() => navigate(`/collection/edit/${collectionId}`)}>
           <Edit sx={{ mr: 1 }} />
           Edit Collection
@@ -196,7 +189,11 @@ export const CollectionDetailScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

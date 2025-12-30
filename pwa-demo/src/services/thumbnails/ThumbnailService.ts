@@ -9,7 +9,7 @@ export class ThumbnailService {
       const video = document.createElement('video');
       video.preload = 'metadata';
       video.muted = true;
-      
+
       video.onloadedmetadata = () => {
         video.currentTime = Math.min(timeInSeconds, video.duration / 2);
       };
@@ -18,7 +18,7 @@ export class ThumbnailService {
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        
+
         const ctx = canvas.getContext('2d');
         if (!ctx) {
           reject(new Error('Canvas context not available'));
@@ -27,7 +27,7 @@ export class ThumbnailService {
 
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const thumbnail = canvas.toDataURL('image/jpeg', 0.7);
-        
+
         video.src = '';
         resolve(thumbnail);
       };
@@ -40,14 +40,18 @@ export class ThumbnailService {
     });
   }
 
-  async generateImageThumbnail(imageFile: File, maxWidth: number = 200, maxHeight: number = 200): Promise<string> {
+  async generateImageThumbnail(
+    imageFile: File,
+    maxWidth: number = 200,
+    maxHeight: number = 200,
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      
+
       img.onload = () => {
         const canvas = document.createElement('canvas');
         let { width, height } = img;
-        
+
         if (width > height) {
           if (width > maxWidth) {
             height *= maxWidth / width;
@@ -59,10 +63,10 @@ export class ThumbnailService {
             height = maxHeight;
           }
         }
-        
+
         canvas.width = width;
         canvas.height = height;
-        
+
         const ctx = canvas.getContext('2d');
         if (!ctx) {
           reject(new Error('Canvas context not available'));
@@ -71,7 +75,7 @@ export class ThumbnailService {
 
         ctx.drawImage(img, 0, 0, width, height);
         const thumbnail = canvas.toDataURL('image/jpeg', 0.8);
-        
+
         URL.revokeObjectURL(img.src);
         resolve(thumbnail);
       };

@@ -17,10 +17,7 @@ import {
   ListItemText,
   Chip,
 } from '@mui/material';
-import {
-  ArrowBack,
-  CheckCircle,
-} from '@mui/icons-material';
+import { ArrowBack, CheckCircle } from '@mui/icons-material';
 
 export const PresetBrowserScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -48,15 +45,10 @@ export const PresetBrowserScreen: React.FC = () => {
         {presets.map((preset) => (
           <ListItem
             key={preset.id}
-            secondaryAction={
-              selectedPreset === preset.id && <CheckCircle color="primary" />
-            }
+            secondaryAction={selectedPreset === preset.id && <CheckCircle color="primary" />}
           >
             <ListItemButton onClick={() => setSelectedPreset(preset.id)}>
-              <ListItemText
-                primary={preset.name}
-                secondary={preset.description}
-              />
+              <ListItemText primary={preset.name} secondary={preset.description} />
             </ListItemButton>
           </ListItem>
         ))}

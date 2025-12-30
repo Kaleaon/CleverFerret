@@ -1,6 +1,6 @@
 /**
  * Audio Visualizer Screen
- * 
+ *
  * Real-time audio visualization using Web Audio API.
  * Migrated from VisualizerScreen.kt
  */
@@ -17,11 +17,7 @@ import {
   ToggleButton,
   Slider,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Settings,
-  Palette,
-} from '@mui/icons-material';
+import { ArrowBack, Settings, Palette } from '@mui/icons-material';
 
 export const VisualizerScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -112,7 +108,7 @@ export const VisualizerScreen: React.FC = () => {
     ctx: CanvasRenderingContext2D,
     dataArray: Uint8Array,
     width: number,
-    height: number
+    height: number,
   ) => {
     const barWidth = width / dataArray.length;
 
@@ -131,7 +127,7 @@ export const VisualizerScreen: React.FC = () => {
     ctx: CanvasRenderingContext2D,
     dataArray: Uint8Array,
     width: number,
-    height: number
+    height: number,
   ) => {
     ctx.lineWidth = 2;
     ctx.strokeStyle = '#00ff00';
@@ -159,7 +155,7 @@ export const VisualizerScreen: React.FC = () => {
     ctx: CanvasRenderingContext2D,
     dataArray: Uint8Array,
     width: number,
-    height: number
+    height: number,
   ) => {
     const centerX = width / 2;
     const centerY = height / 2;
@@ -219,7 +215,9 @@ export const VisualizerScreen: React.FC = () => {
           <ToggleButtonGroup
             value={visualizerType}
             exclusive
-            onChange={(_: React.MouseEvent<HTMLElement>, value: string | null) => value && setVisualizerType(value as 'bars' | 'wave' | 'circular')}
+            onChange={(_: React.MouseEvent<HTMLElement>, value: string | null) =>
+              value && setVisualizerType(value as 'bars' | 'wave' | 'circular')
+            }
             fullWidth
           >
             <ToggleButton value="bars">Bars</ToggleButton>
@@ -235,7 +233,9 @@ export const VisualizerScreen: React.FC = () => {
           <ToggleButtonGroup
             value={colorScheme}
             exclusive
-            onChange={(_: React.MouseEvent<HTMLElement>, value: string | null) => value && setColorScheme(value as 'rainbow' | 'mono' | 'gradient')}
+            onChange={(_: React.MouseEvent<HTMLElement>, value: string | null) =>
+              value && setColorScheme(value as 'rainbow' | 'mono' | 'gradient')
+            }
             fullWidth
           >
             <ToggleButton value="rainbow">Rainbow</ToggleButton>

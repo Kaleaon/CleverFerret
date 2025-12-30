@@ -1,6 +1,6 @@
 /**
  * Collection Repository
- * 
+ *
  * Repository for unified collection operations.
  * Migrated from CollectionRepository.kt
  */
@@ -34,7 +34,7 @@ export class CollectionRepository {
       .sortBy('sortOrder');
 
     // Get media items
-    const itemIds = itemCollections.map(ic => ic.itemId);
+    const itemIds = itemCollections.map((ic) => ic.itemId);
     const items = await db.mediaItems.bulkGet(itemIds);
 
     return items.filter((item): item is MediaItem => item !== undefined);
@@ -46,7 +46,7 @@ export class CollectionRepository {
   async createCollection(
     name: string,
     type: CollectionType,
-    description?: string
+    description?: string,
   ): Promise<number> {
     const collection: UnifiedCollection = {
       collectionId: 0,
@@ -79,7 +79,7 @@ export class CollectionRepository {
       .equals(collectionId)
       .reverse()
       .sortBy('sortOrder')
-      .then(items => items.length > 0 ? items[0].sortOrder : -1);
+      .then((items) => (items.length > 0 ? items[0].sortOrder : -1));
 
     const nextOrder = maxSortOrder + 1;
 
@@ -102,10 +102,7 @@ export class CollectionRepository {
    * Remove item from collection
    */
   async removeItem(collectionId: number, itemId: number): Promise<void> {
-    await db.itemCollections
-      .where('[collectionId+itemId]')
-      .equals([collectionId, itemId])
-      .delete();
+    await db.itemCollections.where('[collectionId+itemId]').equals([collectionId, itemId]).delete();
 
     // Update collection item count
     await this.updateItemCount(collectionId);
@@ -152,10 +149,7 @@ export class CollectionRepository {
    * Update collection item count
    */
   private async updateItemCount(collectionId: number): Promise<void> {
-    const count = await db.itemCollections
-      .where('collectionId')
-      .equals(collectionId)
-      .count();
+    const count = await db.itemCollections.where('collectionId').equals(collectionId).count();
 
     await db.unifiedCollections.update(collectionId, {
       itemCount: count,
@@ -179,27 +173,19 @@ export class CollectionRepository {
    * Get collections containing item
    */
   async getCollectionsForItem(itemId: number): Promise<UnifiedCollection[]> {
-    const itemCollections = await db.itemCollections
-      .where('itemId')
-      .equals(itemId)
-      .toArray();
+    const itemCollections = await db.itemCollections.where('itemId').equals(itemId).toArray();
 
-    const collectionIds = itemCollections.map(ic => ic.collectionId);
+    const collectionIds = itemCollections.map((ic) => ic.collectionId);
     const collections = await db.unifiedCollections.bulkGet(collectionIds);
 
-    return collections.filter(
-      (col): col is UnifiedCollection => col !== undefined
-    );
+    return collections.filter((col): col is UnifiedCollection => col !== undefined);
   }
 
   /**
    * Get pinned collections
    */
   async getPinnedCollections(): Promise<UnifiedCollection[]> {
-    return db.unifiedCollections
-      .where('isPinned')
-      .equals(1)
-      .sortBy('name');
+    return db.unifiedCollections.where('isPinned').equals(1).sortBy('name');
   }
 
   /**

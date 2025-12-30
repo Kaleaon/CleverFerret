@@ -17,12 +17,7 @@ import {
   ListItemText,
   ListItemIcon,
 } from '@mui/material';
-import {
-  ArrowBack,
-  CleaningServices,
-  FolderSpecial,
-  DeleteSweep,
-} from '@mui/icons-material';
+import { ArrowBack, CleaningServices, FolderSpecial, DeleteSweep } from '@mui/icons-material';
 
 export const StorageOrganizerScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -41,19 +36,28 @@ export const StorageOrganizerScreen: React.FC = () => {
       <List>
         <ListItem disablePadding>
           <ListItemButton>
-            <ListItemIcon><FolderSpecial /></ListItemIcon>
-            <ListItemText primary="Organize Files" secondary="Automatically organize files by type" />
+            <ListItemIcon>
+              <FolderSpecial />
+            </ListItemIcon>
+            <ListItemText
+              primary="Organize Files"
+              secondary="Automatically organize files by type"
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton>
-            <ListItemIcon><CleaningServices /></ListItemIcon>
+            <ListItemIcon>
+              <CleaningServices />
+            </ListItemIcon>
             <ListItemText primary="Clean Up" secondary="Remove duplicates and unused files" />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton>
-            <ListItemIcon><DeleteSweep /></ListItemIcon>
+            <ListItemIcon>
+              <DeleteSweep />
+            </ListItemIcon>
             <ListItemText primary="Clear Cache" secondary="Free up storage space" />
           </ListItemButton>
         </ListItem>

@@ -46,7 +46,10 @@ export class EPUBService {
     return '<p>Chapter content will be rendered here</p>';
   }
 
-  async searchInBook(file: File | Blob, query: string): Promise<Array<{href: string, excerpt: string}>> {
+  async searchInBook(
+    file: File | Blob,
+    query: string,
+  ): Promise<Array<{ href: string; excerpt: string }>> {
     // Placeholder - search functionality
     return [];
   }

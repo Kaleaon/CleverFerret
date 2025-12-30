@@ -1,4 +1,3 @@
-
 import { MediaItem, MediaType } from './types';
 
 export const MOCK_MEDIA_ITEMS: MediaItem[] = [
@@ -9,7 +8,8 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     authors: ['Frank Herbert'],
     series: 'Dune Saga',
     seriesIndex: 1,
-    summary: 'Set on the desert planet Arrakis, Dune is the story of the boy Paul Atreides, heir to a noble family tasked with ruling an inhospitable world where the only thing of value is the “spice” melange, a drug capable of extending life and enhancing consciousness.',
+    summary:
+      'Set on the desert planet Arrakis, Dune is the story of the boy Paul Atreides, heir to a noble family tasked with ruling an inhospitable world where the only thing of value is the “spice” melange, a drug capable of extending life and enhancing consciousness.',
     rating: 5,
     releaseDate: '1965-08-01',
     genres: ['Science Fiction', 'Adventure'],
@@ -25,7 +25,8 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     title: 'Blade Runner 2049',
     directors: ['Denis Villeneuve'],
     artists: ['Ryan Gosling', 'Harrison Ford', 'Ana de Armas'],
-    summary: "Young Blade Runner K's discovery of a long-buried secret leads him to track down former Blade Runner Rick Deckard, who's been missing for thirty years.",
+    summary:
+      "Young Blade Runner K's discovery of a long-buried secret leads him to track down former Blade Runner Rick Deckard, who's been missing for thirty years.",
     rating: 5,
     releaseDate: '2017-10-06',
     genres: ['Science Fiction', 'Neo-noir', 'Thriller'],
@@ -38,7 +39,8 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     type: MediaType.Music,
     title: 'Discovery',
     artists: ['Daft Punk'],
-    summary: 'The second studio album by the French electronic music duo Daft Punk, released on 26 February 2001 by Virgin Records.',
+    summary:
+      'The second studio album by the French electronic music duo Daft Punk, released on 26 February 2001 by Virgin Records.',
     rating: 5,
     releaseDate: '2001-02-26',
     genres: ['Electronic', 'House', 'Disco'],
@@ -51,7 +53,8 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     type: MediaType.Book,
     title: 'Neuromancer',
     authors: ['William Gibson'],
-    summary: 'The story of a washed-up computer hacker hired by a mysterious employer to pull off the ultimate hack.',
+    summary:
+      'The story of a washed-up computer hacker hired by a mysterious employer to pull off the ultimate hack.',
     rating: 4,
     releaseDate: '1984-07-01',
     genres: ['Science Fiction', 'Cyberpunk'],
@@ -61,13 +64,14 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     status: 'Reading',
     dateAdded: '2023-05-01',
   },
-   {
+  {
     id: 'movie-2',
     type: MediaType.Movie,
     title: 'Inception',
     directors: ['Christopher Nolan'],
     artists: ['Leonardo DiCaprio', 'Joseph Gordon-Levitt', 'Elliot Page'],
-    summary: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
+    summary:
+      'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
     rating: 5,
     releaseDate: '2010-07-16',
     genres: ['Science Fiction', 'Action', 'Heist'],
@@ -75,13 +79,14 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     status: 'Unwatched',
     dateAdded: '2023-08-11',
   },
-   {
+  {
     id: 'comic-1',
     type: MediaType.Comic,
     title: 'Watchmen',
     authors: ['Alan Moore'],
     artists: ['Dave Gibbons'],
-    summary: 'In an alternate history where superheroes are treated as outlaws, a murder investigation uncovers a sinister plot that could change the course of history.',
+    summary:
+      'In an alternate history where superheroes are treated as outlaws, a murder investigation uncovers a sinister plot that could change the course of history.',
     rating: 5,
     releaseDate: '1986-09-01',
     genres: ['Superhero', 'Mystery', 'Dystopian'],
@@ -95,7 +100,8 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     type: MediaType.Podcast,
     title: 'The Daily',
     artists: ['The New York Times'],
-    summary: 'This is what the news should sound like. The biggest stories of our time, told by the best journalists in the world. Hosted by Michael Barbaro and Sabrina Tavernise. Twenty minutes a day, five days a week, ready by 6 a.m.',
+    summary:
+      'This is what the news should sound like. The biggest stories of our time, told by the best journalists in the world. Hosted by Michael Barbaro and Sabrina Tavernise. Twenty minutes a day, five days a week, ready by 6 a.m.',
     genres: ['News', 'Current Events'],
     coverArt: 'https://picsum.photos/seed/thedaily/400/400',
     status: 'Reading', // Using 'Reading' for listening

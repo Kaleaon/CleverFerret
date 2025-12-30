@@ -19,12 +19,7 @@ import {
   Button,
   LinearProgress,
 } from '@mui/material';
-import {
-  ArrowBack,
-  FileUpload,
-  FileDownload,
-  Description,
-} from '@mui/icons-material';
+import { ArrowBack, FileUpload, FileDownload, Description } from '@mui/icons-material';
 
 export const ImportExportScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -50,21 +45,33 @@ export const ImportExportScreen: React.FC = () => {
       <List sx={{ flex: 1, overflow: 'auto', p: 2 }}>
         <ListItem>
           <ListItemButton onClick={handleExport}>
-            <ListItemIcon><FileDownload /></ListItemIcon>
-            <ListItemText primary="Export Library" secondary="Export your library data to a backup file" />
+            <ListItemIcon>
+              <FileDownload />
+            </ListItemIcon>
+            <ListItemText
+              primary="Export Library"
+              secondary="Export your library data to a backup file"
+            />
           </ListItemButton>
         </ListItem>
 
         <ListItem>
           <ListItemButton>
-            <ListItemIcon><FileUpload /></ListItemIcon>
-            <ListItemText primary="Import Library" secondary="Import library data from a backup file" />
+            <ListItemIcon>
+              <FileUpload />
+            </ListItemIcon>
+            <ListItemText
+              primary="Import Library"
+              secondary="Import library data from a backup file"
+            />
           </ListItemButton>
         </ListItem>
 
         <ListItem>
           <ListItemButton>
-            <ListItemIcon><Description /></ListItemIcon>
+            <ListItemIcon>
+              <Description />
+            </ListItemIcon>
             <ListItemText primary="Export Metadata" secondary="Export all metadata to JSON" />
           </ListItemButton>
         </ListItem>

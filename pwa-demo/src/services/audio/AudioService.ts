@@ -28,7 +28,7 @@ export class AudioService {
 
   createMediaElementSource(audioElement: HTMLAudioElement): MediaElementAudioSourceNode | null {
     if (!this.audioContext) return null;
-    
+
     const source = this.audioContext.createMediaElementSource(audioElement);
     if (this.analyser && this.gainNode) {
       source.connect(this.analyser);
@@ -45,7 +45,7 @@ export class AudioService {
 
   getFrequencyData(): Uint8Array | null {
     if (!this.analyser) return null;
-    
+
     const bufferLength = this.analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     this.analyser.getByteFrequencyData(dataArray);
@@ -54,7 +54,7 @@ export class AudioService {
 
   getTimeDomainData(): Uint8Array | null {
     if (!this.analyser) return null;
-    
+
     const bufferLength = this.analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     this.analyser.getByteTimeDomainData(dataArray);

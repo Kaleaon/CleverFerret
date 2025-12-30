@@ -35,7 +35,7 @@ export class SyncService {
       await this.syncLibraries();
       await this.syncProgress();
       await this.syncBookmarks();
-      
+
       this.status.lastSync = new Date();
     } catch (error) {
       this.status.errors.push(error instanceof Error ? error.message : 'Unknown error');

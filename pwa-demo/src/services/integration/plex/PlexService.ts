@@ -36,7 +36,7 @@ export class PlexService {
 
   getServer(): PlexServer | null {
     if (this.server) return this.server;
-    
+
     const stored = localStorage.getItem('plex-server');
     if (stored) {
       this.server = JSON.parse(stored);
@@ -53,7 +53,7 @@ export class PlexService {
 
   async testConnection(): Promise<boolean> {
     if (!this.server) return false;
-    
+
     try {
       const url = `${this.getBaseUrl()}/identity?X-Plex-Token=${this.server.token}`;
       const response = await fetch(url);
@@ -66,15 +66,15 @@ export class PlexService {
 
   async getLibraries(): Promise<PlexLibrary[]> {
     const url = `${this.getBaseUrl()}/library/sections?X-Plex-Token=${this.server?.token}`;
-    
+
     try {
       const response = await fetch(url);
       const xml = await response.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xml, 'text/xml');
-      
+
       const directories = Array.from(xmlDoc.querySelectorAll('Directory'));
-      return directories.map(dir => ({
+      return directories.map((dir) => ({
         key: dir.getAttribute('key') || '',
         title: dir.getAttribute('title') || '',
         type: dir.getAttribute('type') || '',
@@ -87,15 +87,15 @@ export class PlexService {
 
   async getLibraryContent(libraryKey: string): Promise<PlexMediaItem[]> {
     const url = `${this.getBaseUrl()}/library/sections/${libraryKey}/all?X-Plex-Token=${this.server?.token}`;
-    
+
     try {
       const response = await fetch(url);
       const xml = await response.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xml, 'text/xml');
-      
+
       const videos = Array.from(xmlDoc.querySelectorAll('Video'));
-      return videos.map(video => ({
+      return videos.map((video) => ({
         key: video.getAttribute('key') || '',
         title: video.getAttribute('title') || '',
         type: video.getAttribute('type') || '',

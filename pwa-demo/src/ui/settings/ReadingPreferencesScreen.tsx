@@ -43,7 +43,12 @@ export const ReadingPreferencesScreen: React.FC = () => {
         <ListItem>
           <Box sx={{ width: '100%' }}>
             <Typography gutterBottom>Font Size: {fontSize}px</Typography>
-            <Slider value={fontSize} min={12} max={24} onChange={(_, v) => setFontSize(v as number)} />
+            <Slider
+              value={fontSize}
+              min={12}
+              max={24}
+              onChange={(_, v) => setFontSize(v as number)}
+            />
           </Box>
         </ListItem>
       </List>

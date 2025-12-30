@@ -11,7 +11,7 @@ export class SecurityService {
     const data = encoder.encode(password);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
   async setPassword(password: string): Promise<void> {
@@ -22,7 +22,7 @@ export class SecurityService {
   async verifyPassword(password: string): Promise<boolean> {
     const stored = localStorage.getItem(this.storageKey);
     if (!stored) return false;
-    
+
     const hash = await this.hashPassword(password);
     return hash === stored;
   }
@@ -49,7 +49,7 @@ export class SecurityService {
   generateSecureToken(length: number = 32): string {
     const array = new Uint8Array(length);
     crypto.getRandomValues(array);
-    return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
   }
 }
 

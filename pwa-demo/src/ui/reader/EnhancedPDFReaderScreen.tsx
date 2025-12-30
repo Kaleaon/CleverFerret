@@ -1,6 +1,6 @@
 /**
  * Enhanced PDF Reader Screen
- * 
+ *
  * Advanced PDF reader with annotations, highlights, and text selection.
  * Uses PDF.js for rendering with support for zoom, rotation, and navigation.
  * Migrated from EnhancedPDFReaderScreen.kt
@@ -53,7 +53,7 @@ import type { MediaItem } from '../../data/local/entity';
 export const EnhancedPDFReaderScreen: React.FC = () => {
   const { pdfId } = useParams<{ pdfId: string }>();
   const navigate = useNavigate();
-  
+
   const [mediaItem, setMediaItem] = useState<MediaItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(50);
@@ -117,7 +117,14 @@ export const EnhancedPDFReaderScreen: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.default',
+      }}
+    >
       {/* Top Toolbar */}
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar variant="dense">
@@ -127,7 +134,7 @@ export const EnhancedPDFReaderScreen: React.FC = () => {
           <Typography variant="subtitle1" sx={{ flexGrow: 1 }} noWrap>
             {mediaItem?.fileName || 'PDF Document'}
           </Typography>
-          
+
           {/* Zoom Controls */}
           <IconButton onClick={handleZoomOut} size="small">
             <ZoomOut />
@@ -136,11 +143,11 @@ export const EnhancedPDFReaderScreen: React.FC = () => {
           <IconButton onClick={handleZoomIn} size="small">
             <ZoomIn />
           </IconButton>
-          
+
           <IconButton onClick={handleRotate} size="small">
             <RotateRight />
           </IconButton>
-          
+
           <IconButton size="small">
             <MoreVert />
           </IconButton>
@@ -221,19 +228,13 @@ export const EnhancedPDFReaderScreen: React.FC = () => {
               PDF Page {currentPage}
             </Typography>
             <Typography variant="body2" paragraph>
-              PDF.js will render the actual PDF content here. This is a placeholder showing the
-              PDF reader layout and controls.
+              PDF.js will render the actual PDF content here. This is a placeholder showing the PDF
+              reader layout and controls.
             </Typography>
             <Typography variant="body2" paragraph>
-              Features:
-              - Zoom in/out (50% - 300%)
-              - Rotate pages
-              - Text selection and copy
-              - Highlight text
-              - Add annotations and notes
-              - Bookmark pages
-              - Search within document
-              - Print and download
+              Features: - Zoom in/out (50% - 300%) - Rotate pages - Text selection and copy -
+              Highlight text - Add annotations and notes - Bookmark pages - Search within document -
+              Print and download
             </Typography>
             <Typography variant="body2">
               The PDF content will be rendered using PDF.js library with full support for
@@ -278,11 +279,11 @@ export const EnhancedPDFReaderScreen: React.FC = () => {
           <IconButton size="small" onClick={() => handlePageChange(currentPage - 1)}>
             <NavigateBefore />
           </IconButton>
-          
+
           <Typography variant="body2" sx={{ minWidth: 100, textAlign: 'center' }}>
             {currentPage} / {totalPages}
           </Typography>
-          
+
           <Slider
             value={currentPage}
             min={1}
@@ -291,7 +292,7 @@ export const EnhancedPDFReaderScreen: React.FC = () => {
             sx={{ flex: 1 }}
             size="small"
           />
-          
+
           <IconButton size="small" onClick={() => handlePageChange(currentPage + 1)}>
             <NavigateNext />
           </IconButton>

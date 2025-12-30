@@ -1,6 +1,6 @@
 /**
  * Main Settings Screen
- * 
+ *
  * Central settings hub with all configuration options.
  * Migrated from SettingsScreen.kt
  */
@@ -71,9 +71,7 @@ export const SettingsMainScreen: React.FC = () => {
     },
     {
       title: 'Appearance',
-      items: [
-        { icon: <Palette />, label: 'Themes', path: '/theme_preview' },
-      ],
+      items: [{ icon: <Palette />, label: 'Themes', path: '/theme_preview' }],
     },
     {
       title: 'Storage & Files',
@@ -94,9 +92,7 @@ export const SettingsMainScreen: React.FC = () => {
     },
     {
       title: 'About',
-      items: [
-        { icon: <Info />, label: 'About CleverFerret', path: '/settings/about' },
-      ],
+      items: [{ icon: <Info />, label: 'About CleverFerret', path: '/settings/about' }],
     },
   ];
 

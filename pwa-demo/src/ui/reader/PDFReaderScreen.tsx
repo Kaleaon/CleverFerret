@@ -1,6 +1,6 @@
 /**
  * PDF Reader Screen
- * 
+ *
  * PDF viewer with zoom, rotation, and page navigation.
  * Uses PDF.js library.
  */
@@ -110,7 +110,7 @@ export const PDFReaderScreen: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoom]);
-  
+
   useEffect(() => {
     if (pdfDocument) {
       renderPage(currentPage);
@@ -152,17 +152,48 @@ export const PDFReaderScreen: React.FC = () => {
       </AppBar>
 
       {isLoading ? (
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
           <CircularProgress />
           <Typography>Loading PDF...</Typography>
         </Box>
       ) : error ? (
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 2, p: 3 }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 2,
+            p: 3,
+          }}
+        >
           <Alert severity="error">{error}</Alert>
-          <Button variant="contained" onClick={() => navigate(-1)}>Go Back</Button>
+          <Button variant="contained" onClick={() => navigate(-1)}>
+            Go Back
+          </Button>
         </Box>
       ) : (
-        <Box sx={{ flex: 1, overflow: 'auto', bgcolor: 'background.default', p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Box
+          sx={{
+            flex: 1,
+            overflow: 'auto',
+            bgcolor: 'background.default',
+            p: 2,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
           <Paper
             elevation={4}
             sx={{

@@ -1,6 +1,6 @@
 /**
  * Audiobook Settings Screen
- * 
+ *
  * Configure audiobook playback and management settings
  */
 
@@ -57,7 +57,7 @@ export const AudiobookSettingsScreen: React.FC = () => {
               Playback
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }}>
               <FormGroup>
                 <FormControlLabel
@@ -136,7 +136,7 @@ export const AudiobookSettingsScreen: React.FC = () => {
               Skip Controls
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Skip Backward</InputLabel>
               <Select

@@ -1,6 +1,6 @@
 /**
  * Modern Audio Player Screen
- * 
+ *
  * Enhanced audio player with beautiful UI and advanced features.
  * Supports music, audiobooks, and podcasts.
  * Migrated from ModernAudioPlayerScreen.kt
@@ -43,7 +43,7 @@ export const ModernAudioPlayerScreen: React.FC = () => {
   const { audioId } = useParams<{ audioId: string }>();
   const navigate = useNavigate();
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  
+
   const [mediaItem, setMediaItem] = useState<MediaItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -53,7 +53,7 @@ export const ModernAudioPlayerScreen: React.FC = () => {
 
   useEffect(() => {
     loadAudioData();
-    
+
     // Initialize audio element
     if (!audioRef.current) {
       audioRef.current = new Audio();
@@ -82,7 +82,7 @@ export const ModernAudioPlayerScreen: React.FC = () => {
     if (!audioId) return;
     const item = await db.mediaItems.get(parseInt(audioId));
     setMediaItem(item || null);
-    
+
     // Load audio file
     if (item?.filePath && audioRef.current) {
       audioRef.current.src = item.filePath;
@@ -109,7 +109,7 @@ export const ModernAudioPlayerScreen: React.FC = () => {
 
   const handlePlayPause = () => {
     if (!audioRef.current) return;
-    
+
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -136,7 +136,14 @@ export const ModernAudioPlayerScreen: React.FC = () => {
   };
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.default',
+      }}
+    >
       <AppBar position="static" sx={{ bgcolor: 'transparent', boxShadow: 'none' }}>
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
@@ -151,25 +158,43 @@ export const ModernAudioPlayerScreen: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3 }}>
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 3,
+        }}
+      >
         {/* Album Art */}
-        <Card sx={{ 
-          width: 300, 
-          height: 300, 
-          borderRadius: 4, 
-          mb: 4,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
-        }}>
+        <Card
+          sx={{
+            width: 300,
+            height: 300,
+            borderRadius: 4,
+            mb: 4,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+          }}
+        >
           <CardMedia
             component="img"
-            image={getImageUrlWithFallback(mediaItem?.thumbnailPath, mediaItem?.mediaType || 'MUSIC', mediaItem?.fileName)}
+            image={getImageUrlWithFallback(
+              mediaItem?.thumbnailPath,
+              mediaItem?.mediaType || 'MUSIC',
+              mediaItem?.fileName,
+            )}
             alt="Album art"
             sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         </Card>
 
         {/* Track Info */}
-        <Typography variant="h5" sx={{ color: 'white', fontWeight: 'bold', mb: 1, textAlign: 'center' }}>
+        <Typography
+          variant="h5"
+          sx={{ color: 'white', fontWeight: 'bold', mb: 1, textAlign: 'center' }}
+        >
           {mediaItem?.fileName || 'Unknown Track'}
         </Typography>
         <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4, textAlign: 'center' }}>
@@ -184,7 +209,11 @@ export const ModernAudioPlayerScreen: React.FC = () => {
             onChange={(_, value) => handleSeek(value as number)}
             sx={{ color: 'primary.main' }}
           />
-          <Stack direction="row" justifyContent="space-between" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            sx={{ color: 'text.secondary', fontSize: '0.875rem' }}
+          >
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </Stack>
@@ -238,9 +267,7 @@ export const ModernAudioPlayerScreen: React.FC = () => {
         </Stack>
       </Box>
 
-      {isPlaying && (
-        <LinearProgress sx={{ position: 'absolute', bottom: 0, left: 0, right: 0 }} />
-      )}
+      {isPlaying && <LinearProgress sx={{ position: 'absolute', bottom: 0, left: 0, right: 0 }} />}
     </Box>
   );
 };

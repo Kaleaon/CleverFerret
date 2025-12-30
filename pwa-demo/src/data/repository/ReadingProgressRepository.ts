@@ -1,6 +1,6 @@
 /**
  * Reading Progress Repository
- * 
+ *
  * Repository for reading progress tracking operations.
  * Migrated from ReadingProgressRepository.kt
  */
@@ -20,21 +20,14 @@ export class ReadingProgressRepository {
    * Get recently read items
    */
   async getRecentlyRead(limit: number = 10): Promise<ReadingProgress[]> {
-    return db.readingProgress
-      .orderBy('lastUpdate')
-      .reverse()
-      .limit(limit)
-      .toArray();
+    return db.readingProgress.orderBy('lastUpdate').reverse().limit(limit).toArray();
   }
 
   /**
    * Get completed items
    */
   async getCompleted(): Promise<ReadingProgress[]> {
-    const items = await db.readingProgress
-      .where('isCompleted')
-      .equals(1)
-      .sortBy('completedDate');
+    const items = await db.readingProgress.where('isCompleted').equals(1).sortBy('completedDate');
     return items.reverse();
   }
 
@@ -46,7 +39,7 @@ export class ReadingProgressRepository {
     currentPage: number,
     percentage: number,
     currentPosition: number = 0,
-    currentChapter: number = 1
+    currentChapter: number = 1,
   ): Promise<void> {
     const existing = await this.getProgress(itemId);
     const isCompleted = percentage >= 1.0;
@@ -85,15 +78,12 @@ export class ReadingProgressRepository {
    * Mark item as read
    */
   async markAsRead(itemId: number): Promise<void> {
-    await db.readingProgress
-      .where('itemId')
-      .equals(itemId)
-      .modify({
-        isCompleted: true,
-        percentage: 1.0,
-        completedDate: Date.now(),
-        lastUpdate: Date.now(),
-      });
+    await db.readingProgress.where('itemId').equals(itemId).modify({
+      isCompleted: true,
+      percentage: 1.0,
+      completedDate: Date.now(),
+      lastUpdate: Date.now(),
+    });
   }
 
   /**
@@ -117,7 +107,7 @@ export class ReadingProgressRepository {
     itemId: number,
     sessionDuration: number,
     pagesRead: number,
-    chaptersRead: number
+    chaptersRead: number,
   ): Promise<void> {
     const existing = await this.getProgress(itemId);
     if (!existing) return;
@@ -141,13 +131,10 @@ export class ReadingProgressRepository {
    */
   async getReadingStats(): Promise<ReadingStats> {
     const allProgress = await db.readingProgress.toArray();
-    const completed = allProgress.filter(p => p.isCompleted);
-    const inProgress = allProgress.filter(p => !p.isCompleted && p.percentage > 0);
+    const completed = allProgress.filter((p) => p.isCompleted);
+    const inProgress = allProgress.filter((p) => !p.isCompleted && p.percentage > 0);
 
-    const totalReadingTime = allProgress.reduce(
-      (sum, p) => sum + p.totalReadingTime,
-      0
-    );
+    const totalReadingTime = allProgress.reduce((sum, p) => sum + p.totalReadingTime, 0);
     const totalPages = allProgress.reduce((sum, p) => sum + p.pagesRead, 0);
 
     return {

@@ -5,20 +5,8 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  TextField,
-} from '@mui/material';
-import {
-  ArrowBack,
-  Save,
-  Undo,
-  Redo,
-} from '@mui/icons-material';
+import { Box, AppBar, Toolbar, IconButton, Typography, TextField } from '@mui/material';
+import { ArrowBack, Save, Undo, Redo } from '@mui/icons-material';
 
 export const DocumentEditorScreen: React.FC = () => {
   const { docId } = useParams();
@@ -32,10 +20,18 @@ export const DocumentEditorScreen: React.FC = () => {
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
             <ArrowBack />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>Document Editor</Typography>
-          <IconButton color="inherit"><Undo /></IconButton>
-          <IconButton color="inherit"><Redo /></IconButton>
-          <IconButton color="inherit"><Save /></IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Document Editor
+          </Typography>
+          <IconButton color="inherit">
+            <Undo />
+          </IconButton>
+          <IconButton color="inherit">
+            <Redo />
+          </IconButton>
+          <IconButton color="inherit">
+            <Save />
+          </IconButton>
         </Toolbar>
       </AppBar>
 

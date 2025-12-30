@@ -1,6 +1,6 @@
 /**
  * Network Manager
- * 
+ *
  * Centralized network request handling with error handling,
  * retry logic, and caching support.
  * Migrated from NetworkManager.kt
@@ -37,10 +37,7 @@ export class NetworkManager {
   /**
    * Make GET request
    */
-  async get<T>(
-    endpoint: string,
-    options?: RequestOptions
-  ): Promise<NetworkResponse<T>> {
+  async get<T>(endpoint: string, options?: RequestOptions): Promise<NetworkResponse<T>> {
     return this.request<T>('GET', endpoint, undefined, options);
   }
 
@@ -50,7 +47,7 @@ export class NetworkManager {
   async post<T>(
     endpoint: string,
     data?: any,
-    options?: RequestOptions
+    options?: RequestOptions,
   ): Promise<NetworkResponse<T>> {
     return this.request<T>('POST', endpoint, data, options);
   }
@@ -61,7 +58,7 @@ export class NetworkManager {
   async put<T>(
     endpoint: string,
     data?: any,
-    options?: RequestOptions
+    options?: RequestOptions,
   ): Promise<NetworkResponse<T>> {
     return this.request<T>('PUT', endpoint, data, options);
   }
@@ -69,10 +66,7 @@ export class NetworkManager {
   /**
    * Make DELETE request
    */
-  async delete<T>(
-    endpoint: string,
-    options?: RequestOptions
-  ): Promise<NetworkResponse<T>> {
+  async delete<T>(endpoint: string, options?: RequestOptions): Promise<NetworkResponse<T>> {
     return this.request<T>('DELETE', endpoint, undefined, options);
   }
 
@@ -83,11 +77,11 @@ export class NetworkManager {
     method: string,
     endpoint: string,
     data?: any,
-    options?: RequestOptions
+    options?: RequestOptions,
   ): Promise<NetworkResponse<T>> {
     const url = this.buildURL(endpoint);
     const headers = { ...this.defaultHeaders, ...(options?.headers || {}) };
-    
+
     const controller = new AbortController();
     const timeoutMs = options?.timeout ?? this.timeout;
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -200,7 +194,7 @@ export class NetworkManager {
     endpoint: string,
     data?: any,
     options?: RequestOptions,
-    maxRetries: number = 3
+    maxRetries: number = 3,
   ): Promise<NetworkResponse<T>> {
     let lastError: NetworkResponse<T> | null = null;
 
@@ -224,21 +218,20 @@ export class NetworkManager {
       }
     }
 
-    return lastError || {
-      success: false,
-      error: 'Max retries exceeded',
-      statusCode: 0,
-      data: undefined,
-    };
+    return (
+      lastError || {
+        success: false,
+        error: 'Max retries exceeded',
+        statusCode: 0,
+        data: undefined,
+      }
+    );
   }
 
   /**
    * Download file
    */
-  async downloadFile(
-    url: string,
-    onProgress?: (progress: number) => void
-  ): Promise<Blob | null> {
+  async downloadFile(url: string, onProgress?: (progress: number) => void): Promise<Blob | null> {
     try {
       const response = await fetch(url);
 
@@ -257,6 +250,7 @@ export class NetworkManager {
       const chunks: Uint8Array[] = [];
       let received = 0;
 
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
 
@@ -281,7 +275,7 @@ export class NetworkManager {
    * Delay helper
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

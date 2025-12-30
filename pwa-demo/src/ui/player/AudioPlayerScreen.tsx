@@ -1,6 +1,6 @@
 /**
  * Modern Audio Player Screen
- * 
+ *
  * Beautiful audio player with animations and glassmorphic design.
  * Supports music, audiobooks, and podcasts.
  * Migrated from ModernAudioPlayerScreen.kt
@@ -47,18 +47,27 @@ export const AudioPlayerScreen: React.FC = () => {
 
   useEffect(() => {
     // Subscribe to all relevant playback events
-    const events = ['timeupdate', 'play', 'pause', 'loadedmetadata', 'repeatchange', 'shufflechange', 'trackend', 'trackchange'];
-    const unsubscribes = events.map(evt => 
+    const events = [
+      'timeupdate',
+      'play',
+      'pause',
+      'loadedmetadata',
+      'repeatchange',
+      'shufflechange',
+      'trackend',
+      'trackchange',
+    ];
+    const unsubscribes = events.map((evt) =>
       audioPlayerService.on(evt, () => {
         setPlaybackState(audioPlayerService.getState());
-      })
+      }),
     );
 
     // Initial state
     setPlaybackState(audioPlayerService.getState());
 
     return () => {
-      unsubscribes.forEach(unsub => unsub());
+      unsubscribes.forEach((unsub) => unsub());
     };
   }, []);
 
@@ -175,7 +184,11 @@ export const AudioPlayerScreen: React.FC = () => {
           {track.artist || 'Unknown Artist'}
         </Typography>
         {track.album && (
-          <Typography variant="body2" sx={{ color: alpha(theme.palette.text.secondary, 0.7) }} noWrap>
+          <Typography
+            variant="body2"
+            sx={{ color: alpha(theme.palette.text.secondary, 0.7) }}
+            noWrap
+          >
             {track.album}
           </Typography>
         )}

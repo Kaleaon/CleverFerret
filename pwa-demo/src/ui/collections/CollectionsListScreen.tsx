@@ -1,6 +1,6 @@
 /**
  * Collections List Screen
- * 
+ *
  * Browse and manage all collections.
  */
 
@@ -186,10 +186,7 @@ export const CollectionsListScreen: React.FC = () => {
           />
           <FormControl fullWidth margin="dense">
             <InputLabel>Collection Type</InputLabel>
-            <Select
-              value={newType}
-              onChange={(e) => setNewType(e.target.value as CollectionType)}
-            >
+            <Select value={newType} onChange={(e) => setNewType(e.target.value as CollectionType)}>
               <MenuItem value="PLAYLIST">Playlist</MenuItem>
               <MenuItem value="SERIES">Series</MenuItem>
               <MenuItem value="READING_LIST">Reading List</MenuItem>

@@ -1,6 +1,6 @@
 /**
  * Media Item Detail Screen
- * 
+ *
  * Shows comprehensive information about a media item including
  * metadata, progress, and actions.
  * Migrated from MediaItemDetailScreen.kt
@@ -66,7 +66,11 @@ export const MediaItemDetailScreen: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showCollectionDialog, setShowCollectionDialog] = useState(false);
   const [fetchingMetadata, setFetchingMetadata] = useState(false);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
 
   useEffect(() => {
     if (itemId) {
@@ -79,8 +83,9 @@ export const MediaItemDetailScreen: React.FC = () => {
     setError(null);
 
     try {
-      const { mediaItem: item, metadata: meta } = await mediaRepository.getMediaItemWithMetadata(id);
-      
+      const { mediaItem: item, metadata: meta } =
+        await mediaRepository.getMediaItemWithMetadata(id);
+
       if (!item) {
         setError('Media item not found');
         return;
@@ -118,10 +123,10 @@ export const MediaItemDetailScreen: React.FC = () => {
     setFetchingMetadata(true);
     try {
       setSnackbar({ open: true, message: 'Fetching metadata...', severity: 'info' });
-      
+
       const { metadataService } = await import('../../services/metadata/MetadataService');
       const fetchedMetadata = await metadataService.fetchMetadata(mediaItem.fileName);
-      
+
       if (fetchedMetadata) {
         // Update metadata in database
         if (mediaItem.mediaType === 'BOOK') {
@@ -136,7 +141,7 @@ export const MediaItemDetailScreen: React.FC = () => {
             series: undefined,
           });
         }
-        
+
         await db.metadataCommon.put({
           itemId: parseInt(itemId),
           title: fetchedMetadata.title,
@@ -156,7 +161,11 @@ export const MediaItemDetailScreen: React.FC = () => {
     } catch (err) {
       const { logger } = await import('../../services/logging');
       logger.error('MediaItemDetail', 'Failed to fetch metadata', undefined, err as Error);
-      setSnackbar({ open: true, message: `Failed to fetch metadata: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: `Failed to fetch metadata: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        severity: 'error',
+      });
     } finally {
       setFetchingMetadata(false);
     }
@@ -172,7 +181,11 @@ export const MediaItemDetailScreen: React.FC = () => {
     } catch (err) {
       const { logger } = await import('../../services/logging');
       logger.error('MediaItemDetail', 'Failed to add to collection', undefined, err as Error);
-      setSnackbar({ open: true, message: `Failed to add to collection: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: `Failed to add to collection: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        severity: 'error',
+      });
     }
   };
 
@@ -196,7 +209,7 @@ export const MediaItemDetailScreen: React.FC = () => {
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 10) / 10 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 10) / 10 + ' ' + sizes[i];
   };
 
   const formatDate = (timestamp: number): string => {
@@ -209,7 +222,9 @@ export const MediaItemDetailScreen: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -456,7 +471,11 @@ export const MediaItemDetailScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

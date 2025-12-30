@@ -135,10 +135,10 @@ class PermissionsHandlerClass {
       if (audio) constraints.audio = true;
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      
+
       // Stop all tracks immediately - we just wanted to trigger permission
       stream.getTracks().forEach((track) => track.stop());
-      
+
       return true;
     } catch (error) {
       console.error('Failed to request media permissions:', error);

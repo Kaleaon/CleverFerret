@@ -1,6 +1,6 @@
 /**
  * Comic Reader Screen
- * 
+ *
  * Read web comics with navigation controls and offline support
  */
 
@@ -44,7 +44,7 @@ import webComicService, { Comic, ComicStrip } from '../services/webcomic/WebComi
 export const ComicReaderScreen: React.FC = () => {
   const navigate = useNavigate();
   const { comicId, stripNumber } = useParams<{ comicId: string; stripNumber: string }>();
-  
+
   const [comic, setComic] = useState<Comic | null>(null);
   const [currentStrip, setCurrentStrip] = useState<ComicStrip | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,11 @@ export const ComicReaderScreen: React.FC = () => {
   const [showInfo, setShowInfo] = useState(false);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [downloadRange, setDownloadRange] = useState({ start: 1, end: 10 });
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity?: 'success' | 'error' | 'info';
+  }>({ open: false, message: '' });
 
   useEffect(() => {
     loadComic();
@@ -117,7 +121,7 @@ export const ComicReaderScreen: React.FC = () => {
 
   const handleDownload = async () => {
     if (!comic) return;
-    
+
     try {
       setDownloading(true);
       await webComicService.downloadStrips(
@@ -126,7 +130,7 @@ export const ComicReaderScreen: React.FC = () => {
         downloadRange.end - 1,
         (current, total) => {
           setDownloadProgress((current / total) * 100);
-        }
+        },
       );
       setDownloading(false);
       setShowDownloadDialog(false);
@@ -141,7 +145,7 @@ export const ComicReaderScreen: React.FC = () => {
 
   const handleShare = async () => {
     if (!currentStrip) return;
-    
+
     try {
       await navigator.share({
         title: currentStrip.title,
@@ -155,7 +159,9 @@ export const ComicReaderScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
+      >
         <LinearProgress sx={{ width: '50%' }} />
       </Box>
     );
@@ -165,7 +171,9 @@ export const ComicReaderScreen: React.FC = () => {
     return (
       <Box sx={{ p: 4, textAlign: 'center' }}>
         <Typography variant="h6">Comic not found</Typography>
-        <Button onClick={() => navigate(-1)} sx={{ mt: 2 }}>Go Back</Button>
+        <Button onClick={() => navigate(-1)} sx={{ mt: 2 }}>
+          Go Back
+        </Button>
       </Box>
     );
   }
@@ -174,7 +182,14 @@ export const ComicReaderScreen: React.FC = () => {
   const hasNext = webComicService.getNextStrip(comic, currentStrip.number) !== undefined;
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.default',
+      }}
+    >
       {/* Header */}
       <AppBar position="static">
         <Toolbar>
@@ -197,7 +212,16 @@ export const ComicReaderScreen: React.FC = () => {
       </AppBar>
 
       {/* Comic Strip Display */}
-      <Box sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
+      <Box
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          p: 2,
+        }}
+      >
         <Card sx={{ maxWidth: 1200, width: '100%', mb: 2 }}>
           <CardContent>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
@@ -211,18 +235,18 @@ export const ComicReaderScreen: React.FC = () => {
               {currentStrip.publishDate.toLocaleDateString()}
             </Typography>
           </CardContent>
-          
+
           <CardMedia
             component="img"
             image={currentStrip.imageUrl}
             alt={currentStrip.title}
-            sx={{ 
+            sx={{
               maxHeight: '70vh',
               objectFit: 'contain',
               bgcolor: 'background.paper',
             }}
           />
-          
+
           {currentStrip.altText && (
             <CardContent>
               <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
@@ -293,7 +317,10 @@ export const ComicReaderScreen: React.FC = () => {
           </Typography>
           {comic.rssUrl && (
             <Typography variant="body2" gutterBottom>
-              <strong>RSS Feed:</strong> <a href={comic.rssUrl} target="_blank" rel="noopener noreferrer">Link</a>
+              <strong>RSS Feed:</strong>{' '}
+              <a href={comic.rssUrl} target="_blank" rel="noopener noreferrer">
+                Link
+              </a>
             </Typography>
           )}
         </DialogContent>
@@ -303,18 +330,26 @@ export const ComicReaderScreen: React.FC = () => {
       </Dialog>
 
       {/* Download Dialog */}
-      <Dialog open={showDownloadDialog} onClose={() => setShowDownloadDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={showDownloadDialog}
+        onClose={() => setShowDownloadDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Download Strips</DialogTitle>
         <DialogContent>
           <Typography variant="body2" paragraph>
-            Download comic strips for offline reading. This may take a while depending on the number of strips.
+            Download comic strips for offline reading. This may take a while depending on the number
+            of strips.
           </Typography>
           <Stack spacing={2} sx={{ mt: 2 }}>
             <TextField
               label="Start Strip"
               type="number"
               value={downloadRange.start}
-              onChange={(e) => setDownloadRange({ ...downloadRange, start: parseInt(e.target.value) || 1 })}
+              onChange={(e) =>
+                setDownloadRange({ ...downloadRange, start: parseInt(e.target.value) || 1 })
+              }
               inputProps={{ min: 1, max: comic.strips.length }}
               fullWidth
             />
@@ -322,7 +357,9 @@ export const ComicReaderScreen: React.FC = () => {
               label="End Strip"
               type="number"
               value={downloadRange.end}
-              onChange={(e) => setDownloadRange({ ...downloadRange, end: parseInt(e.target.value) || 1 })}
+              onChange={(e) =>
+                setDownloadRange({ ...downloadRange, end: parseInt(e.target.value) || 1 })
+              }
               inputProps={{ min: 1, max: comic.strips.length }}
               fullWidth
             />
@@ -355,7 +392,11 @@ export const ComicReaderScreen: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity || 'info'}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

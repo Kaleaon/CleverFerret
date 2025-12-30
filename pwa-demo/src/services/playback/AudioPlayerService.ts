@@ -1,9 +1,12 @@
 /**
  * Audio Player Service
- * 
+ *
  * Manages audio playback using HTML5 Audio API and Media Session API.
  * Provides playlist management, queue handling, and playback controls.
  */
+
+// Event types for better type safety
+export type AudioPlayerEvent = 'play' | 'pause' | 'ended' | 'timeupdate' | 'error' | 'loadedmetadata';
 
 export class AudioPlayerService {
   private audio: HTMLAudioElement;
@@ -11,7 +14,7 @@ export class AudioPlayerService {
   private currentIndex: number = 0;
   private isShuffled: boolean = false;
   private repeatMode: RepeatMode = 'none';
-  private listeners: Map<string, Set<Function>> = new Map();
+  private listeners: Map<AudioPlayerEvent, Set<(...args: any[]) => void>> = new Map();
 
   constructor() {
     this.audio = new Audio();
@@ -52,8 +55,12 @@ export class AudioPlayerService {
       navigator.mediaSession.setActionHandler('pause', () => this.pause());
       navigator.mediaSession.setActionHandler('previoustrack', () => this.previous());
       navigator.mediaSession.setActionHandler('nexttrack', () => this.next());
-      navigator.mediaSession.setActionHandler('seekbackward', () => this.seek(this.audio.currentTime - 10));
-      navigator.mediaSession.setActionHandler('seekforward', () => this.seek(this.audio.currentTime + 10));
+      navigator.mediaSession.setActionHandler('seekbackward', () =>
+        this.seek(this.audio.currentTime - 10),
+      );
+      navigator.mediaSession.setActionHandler('seekforward', () =>
+        this.seek(this.audio.currentTime + 10),
+      );
     }
   }
 
@@ -67,7 +74,9 @@ export class AudioPlayerService {
         title: track.title,
         artist: track.artist,
         album: track.album,
-        artwork: track.coverUrl ? [{ src: track.coverUrl, sizes: '512x512', type: 'image/jpeg' }] : [],
+        artwork: track.coverUrl
+          ? [{ src: track.coverUrl, sizes: '512x512', type: 'image/jpeg' }]
+          : [],
       });
     }
   }
@@ -79,7 +88,7 @@ export class AudioPlayerService {
     this.audio.src = track.url;
     this.audio.load();
     this.updateMediaSession();
-    
+
     if (autoplay) {
       await this.play();
     }
@@ -228,10 +237,12 @@ export class AudioPlayerService {
     }
     // Keep current track at current position
     if (currentTrack) {
-      const newIndex = this.playlist.findIndex(t => t.id === currentTrack.id);
+      const newIndex = this.playlist.findIndex((t) => t.id === currentTrack.id);
       if (newIndex !== -1 && newIndex !== this.currentIndex) {
-        [this.playlist[this.currentIndex], this.playlist[newIndex]] = 
-        [this.playlist[newIndex], this.playlist[this.currentIndex]];
+        [this.playlist[this.currentIndex], this.playlist[newIndex]] = [
+          this.playlist[newIndex],
+          this.playlist[this.currentIndex],
+        ];
       }
     }
   }
@@ -267,14 +278,14 @@ export class AudioPlayerService {
   private emit(event: string, data?: any): void {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
-      callbacks.forEach(callback => callback(data));
+      callbacks.forEach((callback) => callback(data));
     }
   }
 
   /**
    * Subscribe to events
    */
-  on(event: string, callback: Function): () => void {
+  on(event: AudioPlayerEvent, callback: (...args: any[]) => void): () => void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }

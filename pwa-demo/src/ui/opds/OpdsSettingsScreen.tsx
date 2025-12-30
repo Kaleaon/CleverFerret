@@ -22,11 +22,7 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Add,
-  Delete,
-} from '@mui/icons-material';
+import { ArrowBack, Add, Delete } from '@mui/icons-material';
 
 export const OpdsSettingsScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -62,7 +58,10 @@ export const OpdsSettingsScreen: React.FC = () => {
           <ListItem
             key={cat.id}
             secondaryAction={
-              <IconButton edge="end" onClick={() => setCatalogs(catalogs.filter(c => c.id !== cat.id))}>
+              <IconButton
+                edge="end"
+                onClick={() => setCatalogs(catalogs.filter((c) => c.id !== cat.id))}
+              >
                 <Delete />
               </IconButton>
             }
@@ -72,7 +71,11 @@ export const OpdsSettingsScreen: React.FC = () => {
         ))}
       </List>
 
-      <Fab color="primary" sx={{ position: 'fixed', bottom: 16, right: 16 }} onClick={() => setShowAddDialog(true)}>
+      <Fab
+        color="primary"
+        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        onClick={() => setShowAddDialog(true)}
+      >
         <Add />
       </Fab>
 
@@ -98,7 +101,9 @@ export const OpdsSettingsScreen: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowAddDialog(false)}>Cancel</Button>
-          <Button onClick={handleAdd} variant="contained">Add</Button>
+          <Button onClick={handleAdd} variant="contained">
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

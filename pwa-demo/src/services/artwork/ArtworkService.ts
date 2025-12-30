@@ -56,7 +56,7 @@ export class ArtworkService {
     try {
       const response = await fetch(artworkUrl);
       const blob = await response.blob();
-      
+
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -78,8 +78,8 @@ export class ArtworkService {
   }
 
   clearCache(): void {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith('artwork-'));
-    keys.forEach(key => localStorage.removeItem(key));
+    const keys = Object.keys(localStorage).filter((k) => k.startsWith('artwork-'));
+    keys.forEach((key) => localStorage.removeItem(key));
   }
 }
 

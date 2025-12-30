@@ -1,6 +1,6 @@
 /**
  * Bookshelf Screen
- * 
+ *
  * Beautiful bookshelf view for ebook library.
  * Migrated from BookshelfScreen.kt
  */
@@ -25,14 +25,7 @@ import {
   Chip,
   LinearProgress,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Search,
-  GridView,
-  ViewList,
-  Sort,
-  MenuBook,
-} from '@mui/icons-material';
+import { ArrowBack, Search, GridView, ViewList, Sort, MenuBook } from '@mui/icons-material';
 
 import { mediaRepository } from '../../data/repository';
 import type { MediaItem } from '../../data/local/entity';
@@ -67,9 +60,7 @@ export const BookshelfScreen: React.FC = () => {
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((book) =>
-        book.fileName.toLowerCase().includes(query)
-      );
+      filtered = filtered.filter((book) => book.fileName.toLowerCase().includes(query));
     }
 
     // Sort

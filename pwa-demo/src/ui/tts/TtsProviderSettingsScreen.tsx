@@ -85,7 +85,7 @@ export const TtsProviderSettingsScreen: React.FC = () => {
             </Select>
           </FormControl>
         </ListItem>
-        
+
         <ListItem>
           <FormControl fullWidth>
             <InputLabel>Voice</InputLabel>
@@ -102,12 +102,12 @@ export const TtsProviderSettingsScreen: React.FC = () => {
         <ListItem>
           <Box sx={{ width: '100%' }}>
             <Typography gutterBottom>Speed: {speed.toFixed(1)}x</Typography>
-            <Slider 
-              value={speed} 
-              min={0.5} 
-              max={2.0} 
-              step={0.1} 
-              onChange={(_, v) => setSpeed(v as number)} 
+            <Slider
+              value={speed}
+              min={0.5}
+              max={2.0}
+              step={0.1}
+              onChange={(_, v) => setSpeed(v as number)}
               marks={[
                 { value: 0.5, label: '0.5x' },
                 { value: 1.0, label: '1.0x' },
@@ -120,12 +120,12 @@ export const TtsProviderSettingsScreen: React.FC = () => {
         <ListItem>
           <Box sx={{ width: '100%' }}>
             <Typography gutterBottom>Pitch: {pitch.toFixed(1)}</Typography>
-            <Slider 
-              value={pitch} 
-              min={0.5} 
-              max={2.0} 
-              step={0.1} 
-              onChange={(_, v) => setPitch(v as number)} 
+            <Slider
+              value={pitch}
+              min={0.5}
+              max={2.0}
+              step={0.1}
+              onChange={(_, v) => setPitch(v as number)}
               marks={[
                 { value: 0.5, label: '0.5' },
                 { value: 1.0, label: '1.0' },
@@ -138,12 +138,12 @@ export const TtsProviderSettingsScreen: React.FC = () => {
         <ListItem>
           <Box sx={{ width: '100%' }}>
             <Typography gutterBottom>Volume: {(volume * 100).toFixed(0)}%</Typography>
-            <Slider 
-              value={volume} 
-              min={0} 
-              max={1} 
-              step={0.1} 
-              onChange={(_, v) => setVolume(v as number)} 
+            <Slider
+              value={volume}
+              min={0}
+              max={1}
+              step={0.1}
+              onChange={(_, v) => setVolume(v as number)}
               marks={[
                 { value: 0, label: '0%' },
                 { value: 0.5, label: '50%' },
@@ -174,12 +174,7 @@ export const TtsProviderSettingsScreen: React.FC = () => {
           >
             Test Voice
           </Button>
-          <Button
-            variant="outlined"
-            startIcon={<Stop />}
-            onClick={handleStopSpeech}
-            fullWidth
-          >
+          <Button variant="outlined" startIcon={<Stop />} onClick={handleStopSpeech} fullWidth>
             Stop
           </Button>
         </ListItem>

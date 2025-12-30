@@ -22,22 +22,25 @@ export class TTSService {
 
   getAvailableVoices(): TTSVoice[] {
     if (!this.synth) return [];
-    
+
     const voices = this.synth.getVoices();
-    return voices.map(v => ({
+    return voices.map((v) => ({
       name: v.name,
       lang: v.lang,
       voiceURI: v.voiceURI,
     }));
   }
 
-  speak(text: string, options?: {
-    lang?: string;
-    rate?: number;
-    pitch?: number;
-    volume?: number;
-    voice?: string;
-  }): void {
+  speak(
+    text: string,
+    options?: {
+      lang?: string;
+      rate?: number;
+      pitch?: number;
+      volume?: number;
+      voice?: string;
+    },
+  ): void {
     if (!this.synth) {
       console.error('Speech synthesis not supported');
       return;
@@ -46,16 +49,16 @@ export class TTSService {
     this.stop();
 
     this.currentUtterance = new SpeechSynthesisUtterance(text);
-    
+
     if (options) {
       if (options.lang) this.currentUtterance.lang = options.lang;
       if (options.rate) this.currentUtterance.rate = options.rate;
       if (options.pitch) this.currentUtterance.pitch = options.pitch;
       if (options.volume !== undefined) this.currentUtterance.volume = options.volume;
-      
+
       if (options.voice) {
         const voices = this.synth.getVoices();
-        const selectedVoice = voices.find(v => v.name === options.voice);
+        const selectedVoice = voices.find((v) => v.name === options.voice);
         if (selectedVoice) {
           this.currentUtterance.voice = selectedVoice;
         }

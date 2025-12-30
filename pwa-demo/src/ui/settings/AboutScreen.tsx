@@ -1,6 +1,6 @@
 /**
  * About Screen
- * 
+ *
  * App information, version, and credits
  */
 
@@ -67,27 +67,18 @@ export const AboutScreen: React.FC = () => {
               Application Information
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <List disablePadding>
               <ListItem>
-                <ListItemText
-                  primary="Version"
-                  secondary={appVersion}
-                />
+                <ListItemText primary="Version" secondary={appVersion} />
               </ListItem>
               <Divider />
               <ListItem>
-                <ListItemText
-                  primary="Build Date"
-                  secondary={buildDate}
-                />
+                <ListItemText primary="Build Date" secondary={buildDate} />
               </ListItem>
               <Divider />
               <ListItem>
-                <ListItemText
-                  primary="Platform"
-                  secondary="Progressive Web App (PWA)"
-                />
+                <ListItemText primary="Platform" secondary="Progressive Web App (PWA)" />
               </ListItem>
             </List>
           </CardContent>
@@ -100,7 +91,7 @@ export const AboutScreen: React.FC = () => {
               Features
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <Typography variant="body2" paragraph>
               CleverFerret is a comprehensive media management application supporting:
             </Typography>
@@ -124,7 +115,7 @@ export const AboutScreen: React.FC = () => {
               Links
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <Button
               fullWidth
               startIcon={<Code />}
@@ -136,7 +127,7 @@ export const AboutScreen: React.FC = () => {
             >
               Source Code
             </Button>
-            
+
             <Button
               fullWidth
               startIcon={<BugReport />}
@@ -158,7 +149,7 @@ export const AboutScreen: React.FC = () => {
               License
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <Typography variant="body2" color="text.secondary">
               CleverFerret is open-source software. See the repository for full license details.
             </Typography>
@@ -166,7 +157,13 @@ export const AboutScreen: React.FC = () => {
         </Card>
 
         {/* Copyright */}
-        <Typography variant="caption" color="text.secondary" textAlign="center" display="block" sx={{ mt: 3 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          textAlign="center"
+          display="block"
+          sx={{ mt: 3 }}
+        >
           © 2025 CleverFerret Contributors. All rights reserved.
         </Typography>
       </Box>
