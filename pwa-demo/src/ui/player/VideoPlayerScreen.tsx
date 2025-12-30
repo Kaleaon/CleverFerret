@@ -210,11 +210,11 @@ export const VideoPlayerScreen: React.FC = () => {
                 togglePlay();
               }}
               sx={{
-                bgcolor: alpha('#fff', 0.2),
+                bgcolor: alpha('#000', 0.3),
                 width: 80,
                 height: 80,
                 '&:hover': {
-                  bgcolor: alpha('#fff', 0.3),
+                  bgcolor: alpha('#000', 0.5),
                 },
               }}
             >

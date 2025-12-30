@@ -117,7 +117,7 @@ export const EnhancedPDFReaderScreen: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#525252' }}>
+    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       {/* Top Toolbar */}
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar variant="dense">
@@ -160,7 +160,7 @@ export const EnhancedPDFReaderScreen: React.FC = () => {
           <Box
             sx={{
               width: 180,
-              bgcolor: '#424242',
+              bgcolor: 'background.paper',
               overflow: 'auto',
               borderRight: 1,
               borderColor: 'divider',

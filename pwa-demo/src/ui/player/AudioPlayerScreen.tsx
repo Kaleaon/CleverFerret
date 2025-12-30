@@ -171,11 +171,11 @@ export const AudioPlayerScreen: React.FC = () => {
         <Typography variant="h5" fontWeight="bold" sx={{ color: 'white' }} noWrap>
           {track.title}
         </Typography>
-        <Typography variant="subtitle1" sx={{ color: alpha('#fff', 0.7) }} noWrap>
+        <Typography variant="subtitle1" sx={{ color: 'text.secondary' }} noWrap>
           {track.artist || 'Unknown Artist'}
         </Typography>
         {track.album && (
-          <Typography variant="body2" sx={{ color: alpha('#fff', 0.5) }} noWrap>
+          <Typography variant="body2" sx={{ color: alpha(theme.palette.text.secondary, 0.7) }} noWrap>
             {track.album}
           </Typography>
         )}
@@ -196,10 +196,10 @@ export const AudioPlayerScreen: React.FC = () => {
           }}
         />
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="caption" sx={{ color: alpha('#fff', 0.7) }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {formatTime(playbackState.currentTime)}
           </Typography>
-          <Typography variant="caption" sx={{ color: alpha('#fff', 0.7) }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {formatTime(playbackState.duration)}
           </Typography>
         </Box>
@@ -210,24 +210,24 @@ export const AudioPlayerScreen: React.FC = () => {
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center">
           <IconButton
             onClick={handleShuffleToggle}
-            sx={{ color: playbackState.isShuffled ? 'white' : alpha('#fff', 0.5) }}
+            sx={{ color: playbackState.isShuffled ? 'text.primary' : 'text.disabled' }}
           >
             <Shuffle />
           </IconButton>
 
-          <IconButton onClick={() => audioPlayerService.previous()} sx={{ color: 'white' }}>
+          <IconButton onClick={() => audioPlayerService.previous()} sx={{ color: 'text.primary' }}>
             <SkipPrevious sx={{ fontSize: 40 }} />
           </IconButton>
 
           <IconButton
             onClick={() => audioPlayerService.togglePlayPause()}
             sx={{
-              bgcolor: 'white',
-              color: theme.palette.primary.main,
+              bgcolor: 'text.primary',
+              color: 'background.default',
               width: 64,
               height: 64,
               '&:hover': {
-                bgcolor: alpha('#fff', 0.9),
+                bgcolor: alpha(theme.palette.text.primary, 0.9),
               },
             }}
           >
@@ -238,11 +238,11 @@ export const AudioPlayerScreen: React.FC = () => {
             )}
           </IconButton>
 
-          <IconButton onClick={() => audioPlayerService.next()} sx={{ color: 'white' }}>
+          <IconButton onClick={() => audioPlayerService.next()} sx={{ color: 'text.primary' }}>
             <SkipNext sx={{ fontSize: 40 }} />
           </IconButton>
 
-          <IconButton onClick={handleRepeatToggle} sx={{ color: 'white' }}>
+          <IconButton onClick={handleRepeatToggle} sx={{ color: 'text.primary' }}>
             {playbackState.repeatMode === 'one' ? (
               <RepeatOne />
             ) : playbackState.repeatMode === 'all' ? (
@@ -256,10 +256,10 @@ export const AudioPlayerScreen: React.FC = () => {
 
       {/* Bottom Actions */}
       <Box sx={{ px: 4, pb: 3, display: 'flex', justifyContent: 'space-between' }}>
-        <IconButton onClick={() => setIsFavorite(!isFavorite)} sx={{ color: 'white' }}>
+        <IconButton onClick={() => setIsFavorite(!isFavorite)} sx={{ color: 'text.primary' }}>
           {isFavorite ? <Favorite /> : <FavoriteBorder />}
         </IconButton>
-        <IconButton onClick={() => navigate('/queue')} sx={{ color: 'white' }}>
+        <IconButton onClick={() => navigate('/queue')} sx={{ color: 'text.primary' }}>
           <QueueMusic />
         </IconButton>
       </Box>

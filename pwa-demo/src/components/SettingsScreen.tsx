@@ -383,7 +383,7 @@ export const SettingsScreen: React.FC = () => {
                     <ListItemSecondaryAction>{item.action}</ListItemSecondaryAction>
                   </ListItem>
                   {itemIndex < section.items.length - 1 && (
-                    <Divider sx={{ borderColor: '#2d3136' }} />
+                    <Divider />
                   )}
                 </React.Fragment>
               ))}

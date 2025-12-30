@@ -162,7 +162,7 @@ export const PDFReaderScreen: React.FC = () => {
           <Button variant="contained" onClick={() => navigate(-1)}>Go Back</Button>
         </Box>
       ) : (
-        <Box sx={{ flex: 1, overflow: 'auto', bgcolor: '#525252', p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Box sx={{ flex: 1, overflow: 'auto', bgcolor: 'background.default', p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Paper
             elevation={4}
             sx={{

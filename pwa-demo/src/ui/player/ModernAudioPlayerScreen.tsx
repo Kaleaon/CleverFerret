@@ -136,7 +136,7 @@ export const ModernAudioPlayerScreen: React.FC = () => {
   };
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#1a1a2e' }}>
+    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       <AppBar position="static" sx={{ bgcolor: 'transparent', boxShadow: 'none' }}>
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
@@ -172,7 +172,7 @@ export const ModernAudioPlayerScreen: React.FC = () => {
         <Typography variant="h5" sx={{ color: 'white', fontWeight: 'bold', mb: 1, textAlign: 'center' }}>
           {mediaItem?.fileName || 'Unknown Track'}
         </Typography>
-        <Typography variant="body1" sx={{ color: '#aaa', mb: 4, textAlign: 'center' }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4, textAlign: 'center' }}>
           Unknown Artist
         </Typography>
 
@@ -184,7 +184,7 @@ export const ModernAudioPlayerScreen: React.FC = () => {
             onChange={(_, value) => handleSeek(value as number)}
             sx={{ color: 'primary.main' }}
           />
-          <Stack direction="row" justifyContent="space-between" sx={{ color: '#aaa', fontSize: '0.875rem' }}>
+          <Stack direction="row" justifyContent="space-between" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </Stack>
