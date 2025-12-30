@@ -527,17 +527,23 @@ class AIEntertainmentRepository @Inject constructor(
     suspend fun searchMemories(characterId: Long, query: String, limit: Int = 50): List<SynthMemory> = 
         memoryDao.searchMemories(characterId, query, limit)
     
-    suspend fun queryMemories(query: MemoryQuery): List<SynthMemory> = 
-        memoryDao.queryMemories(
+    suspend fun queryMemories(query: MemoryQuery): List<SynthMemory> {
+        val categoryIds = query.categoryIds ?: emptyList()
+        val memoryTypes = query.memoryTypes ?: emptyList()
+        
+        return memoryDao.queryMemories(
             characterId = query.characterId,
-            categoryIds = query.categoryIds ?: emptyList(),
-            memoryTypes = query.memoryTypes ?: emptyList(),
+            filterByCategory = if (categoryIds.isNotEmpty()) 1 else 0,
+            categoryIds = categoryIds.ifEmpty { listOf(0L) }, // Dummy value when not filtering
+            filterByType = if (memoryTypes.isNotEmpty()) 1 else 0,
+            memoryTypes = memoryTypes.ifEmpty { listOf("") }, // Dummy value when not filtering
             minImportance = query.minImportance,
             sortBy = query.sortBy,
             sortOrder = query.sortOrder,
             limit = query.limit,
             offset = query.offset
         )
+    }
     
     suspend fun updateMemory(memory: SynthMemory) = 
         memoryDao.update(memory)
