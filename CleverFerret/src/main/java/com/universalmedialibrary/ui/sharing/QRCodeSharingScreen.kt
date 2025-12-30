@@ -60,7 +60,7 @@ fun QRCodeSharingScreen(
                     }
                 }
             )
-        )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier

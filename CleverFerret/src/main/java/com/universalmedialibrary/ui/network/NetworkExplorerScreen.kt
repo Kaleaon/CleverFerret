@@ -191,7 +191,7 @@ private fun NetworkFileBrowser(
         ) {
             IconButton(
                 onClick = onNavigateUp,
-                enabled = currentPath != "\&quot;
+                enabled = currentPath != ""
             ) {
                 Icon(Icons.Default.ArrowUpward, contentDescription = "Up")
             }

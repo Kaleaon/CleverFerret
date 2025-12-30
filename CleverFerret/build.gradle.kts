@@ -7,6 +7,7 @@
 
 import java.io.File
 import java.util.Base64
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -57,7 +58,7 @@ android {
         !keyAlias.isNullOrBlank() &&
         !keyPassword.isNullOrBlank()
     ) {
-        val keystoreFile = File(rootProject.buildDir, "keystores/cleverferret-release.jks")
+        val keystoreFile = File(rootProject.layout.buildDirectory.asFile.get(), "keystores/cleverferret-release.jks")
         keystoreFile.parentFile?.mkdirs()
         val cleanB64 = keystoreBase64Raw.replace("\\s".toRegex(), "")
         keystoreFile.writeBytes(Base64.getDecoder().decode(cleanB64))
@@ -98,7 +99,7 @@ android {
 
         // Load API keys from secrets.properties (fallback to default for development)
         val secretsFile = rootProject.file("secrets.properties")
-        val secrets = java.util.Properties()
+        val secrets = Properties()
         if (secretsFile.exists()) {
             secrets.load(secretsFile.inputStream())
         }
@@ -306,6 +307,8 @@ dependencies {
 
     // Background work
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
 
     // User experience helpers
     implementation(libs.customactivityoncrash)
