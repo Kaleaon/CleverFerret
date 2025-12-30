@@ -24,7 +24,14 @@ class AIEntertainmentRepository @Inject constructor(
     private val invitationDao: SynthRoomInvitationDao,
     private val branchDao: SynthMemoryBranchDao,
     private val documentDao: SynthDocumentImportDao,
-    private val eventDao: SynthPersonalityEventDao
+    private val eventDao: SynthPersonalityEventDao,
+    // AI Memory Expansion DAOs
+    private val memoryStoreDao: SynthMemoryStoreDao,
+    private val memoryCategoryDao: SynthMemoryCategoryDao,
+    private val memoryDao: SynthMemoryDao,
+    private val memoryBlockDao: SynthMemoryBlockDao,
+    private val memorySyncRecordDao: SynthMemorySyncRecordDao,
+    private val memoryAccessLogDao: SynthMemoryAccessLogDao
 ) {
     private val json = Json { ignoreUnknownKeys = true }
     
@@ -423,4 +430,250 @@ class AIEntertainmentRepository @Inject constructor(
     
     suspend fun getPersonalityEventsOnce(characterId: Long, limit: Int = 50): List<SynthPersonalityEvent> =
         eventDao.getEventsByCharacterIdOnce(characterId, limit)
+    
+    // ==================== AI Memory Store Operations ====================
+    
+    suspend fun createMemoryStore(store: SynthMemoryStore): Long = 
+        memoryStoreDao.insert(store)
+    
+    suspend fun getMemoryStore(id: Long): SynthMemoryStore? = 
+        memoryStoreDao.getById(id)
+    
+    suspend fun getPrimaryMemoryStore(): SynthMemoryStore? = 
+        memoryStoreDao.getPrimaryStore()
+    
+    fun getAvailableMemoryStores(): Flow<List<SynthMemoryStore>> = 
+        memoryStoreDao.getAvailableStores()
+    
+    suspend fun getAllMemoryStores(): List<SynthMemoryStore> = 
+        memoryStoreDao.getAllStoresOnce()
+    
+    suspend fun setPrimaryMemoryStore(storeId: Long) = 
+        memoryStoreDao.setPrimaryStore(storeId)
+    
+    suspend fun updateMemoryStoreUsage(storeId: Long, usedBytes: Long) = 
+        memoryStoreDao.updateUsage(storeId, usedBytes)
+    
+    suspend fun deleteMemoryStore(store: SynthMemoryStore) = 
+        memoryStoreDao.delete(store)
+    
+    // ==================== AI Memory Category Operations ====================
+    
+    suspend fun createMemoryCategory(category: SynthMemoryCategory): Long = 
+        memoryCategoryDao.insert(category)
+    
+    suspend fun createMemoryCategories(categories: List<SynthMemoryCategory>): List<Long> = 
+        memoryCategoryDao.insertAll(categories)
+    
+    suspend fun getMemoryCategory(id: Long): SynthMemoryCategory? = 
+        memoryCategoryDao.getById(id)
+    
+    fun getMemoryCategories(characterId: Long): Flow<List<SynthMemoryCategory>> = 
+        memoryCategoryDao.getCategoriesByCharacterId(characterId)
+    
+    suspend fun getMemoryCategoriesOnce(characterId: Long): List<SynthMemoryCategory> = 
+        memoryCategoryDao.getCategoriesByCharacterIdOnce(characterId)
+    
+    suspend fun updateMemoryCategory(category: SynthMemoryCategory) = 
+        memoryCategoryDao.update(category)
+    
+    suspend fun deleteMemoryCategory(category: SynthMemoryCategory) = 
+        memoryCategoryDao.delete(category)
+    
+    suspend fun findMemoryCategoryByName(characterId: Long, name: String): SynthMemoryCategory? = 
+        memoryCategoryDao.findByName(characterId, name)
+    
+    // ==================== AI Memory Operations ====================
+    
+    suspend fun createMemory(memory: SynthMemory): Long = 
+        memoryDao.insert(memory)
+    
+    suspend fun createMemories(memories: List<SynthMemory>): List<Long> = 
+        memoryDao.insertAll(memories)
+    
+    suspend fun getMemory(id: Long): SynthMemory? = 
+        memoryDao.getById(id)
+    
+    fun getMemories(characterId: Long, limit: Int = 100): Flow<List<SynthMemory>> = 
+        memoryDao.getMemoriesByCharacterId(characterId, limit)
+    
+    suspend fun getMemoriesOnce(characterId: Long, limit: Int = 100): List<SynthMemory> = 
+        memoryDao.getMemoriesByCharacterIdOnce(characterId, limit)
+    
+    fun getMemoriesByCategory(characterId: Long, categoryId: Long): Flow<List<SynthMemory>> = 
+        memoryDao.getMemoriesByCategory(characterId, categoryId)
+    
+    suspend fun getMemoriesByCategoryOnce(characterId: Long, categoryId: Long): List<SynthMemory> = 
+        memoryDao.getMemoriesByCategoryOnce(characterId, categoryId)
+    
+    suspend fun getMemoriesByType(characterId: Long, memoryType: String): List<SynthMemory> = 
+        memoryDao.getMemoriesByType(characterId, memoryType)
+    
+    suspend fun getPinnedMemories(characterId: Long): List<SynthMemory> = 
+        memoryDao.getPinnedMemories(characterId)
+    
+    suspend fun getArchivedMemories(characterId: Long): List<SynthMemory> = 
+        memoryDao.getArchivedMemories(characterId)
+    
+    suspend fun getImportantMemories(characterId: Long, minImportance: Float = 0.7f, limit: Int = 20): List<SynthMemory> = 
+        memoryDao.getImportantMemories(characterId, minImportance, limit)
+    
+    suspend fun getMostAccessedMemories(characterId: Long, limit: Int = 20): List<SynthMemory> = 
+        memoryDao.getMostAccessedMemories(characterId, limit)
+    
+    suspend fun getRecentMemories(characterId: Long, limit: Int = 20): List<SynthMemory> = 
+        memoryDao.getRecentMemories(characterId, limit)
+    
+    suspend fun searchMemories(characterId: Long, query: String, limit: Int = 50): List<SynthMemory> = 
+        memoryDao.searchMemories(characterId, query, limit)
+    
+    suspend fun queryMemories(query: MemoryQuery): List<SynthMemory> {
+        val categoryIds = query.categoryIds ?: emptyList()
+        val memoryTypes = query.memoryTypes ?: emptyList()
+        
+        return memoryDao.queryMemories(
+            characterId = query.characterId,
+            filterByCategory = if (categoryIds.isNotEmpty()) 1 else 0,
+            categoryIds = categoryIds.ifEmpty { listOf(0L) }, // Dummy value when not filtering
+            filterByType = if (memoryTypes.isNotEmpty()) 1 else 0,
+            memoryTypes = memoryTypes.ifEmpty { listOf("") }, // Dummy value when not filtering
+            minImportance = query.minImportance,
+            sortBy = query.sortBy,
+            sortOrder = query.sortOrder,
+            limit = query.limit,
+            offset = query.offset
+        )
+    }
+    
+    suspend fun updateMemory(memory: SynthMemory) = 
+        memoryDao.update(memory)
+    
+    suspend fun deleteMemory(memoryId: Long) = 
+        memoryDao.deleteById(memoryId)
+    
+    suspend fun recordMemoryAccess(memoryId: Long) = 
+        memoryDao.recordAccess(memoryId)
+    
+    suspend fun updateMemoryImportance(memoryId: Long, importance: Float) = 
+        memoryDao.updateImportance(memoryId, importance)
+    
+    suspend fun setMemoryArchived(memoryId: Long, archived: Boolean) = 
+        memoryDao.setArchived(memoryId, archived)
+    
+    suspend fun setMemoryPinned(memoryId: Long, pinned: Boolean) = 
+        memoryDao.setPinned(memoryId, pinned)
+    
+    suspend fun updateMemoryCategory(memoryId: Long, categoryId: Long?) = 
+        memoryDao.updateCategory(memoryId, categoryId)
+    
+    suspend fun setMemoryExternalStorage(memoryId: Long, storeId: Long?, path: String?) = 
+        memoryDao.setExternalStorage(memoryId, storeId, path)
+    
+    suspend fun getMemoryCount(characterId: Long): Int = 
+        memoryDao.getMemoryCount(characterId)
+    
+    suspend fun findMemoryByKey(characterId: Long, key: String): SynthMemory? = 
+        memoryDao.findByKey(characterId, key)
+    
+    suspend fun deleteAllMemoriesForCharacter(characterId: Long) = 
+        memoryDao.deleteAllForCharacter(characterId)
+    
+    suspend fun deleteArchivedMemories(characterId: Long) = 
+        memoryDao.deleteArchivedMemories(characterId)
+    
+    suspend fun deleteExpiredMemories(characterId: Long) = 
+        memoryDao.deleteExpiredMemories(characterId)
+    
+    fun getMemoriesWithCategory(characterId: Long): Flow<List<MemoryWithCategory>> = 
+        memoryDao.getMemoriesWithCategory(characterId)
+    
+    suspend fun getMemoryStats(characterId: Long): MemoryStats {
+        return MemoryStats(
+            totalMemories = memoryDao.getMemoryCount(characterId),
+            totalCategories = memoryCategoryDao.getCategoryCount(characterId),
+            totalBlocks = memoryBlockDao.getBlocksCount(characterId),
+            avgImportance = memoryDao.getAverageImportance(characterId) ?: 0.5f,
+            mostAccessedCount = memoryDao.getMaxAccessCount(characterId) ?: 0,
+            oldestMemoryDate = memoryDao.getOldestMemoryDate(characterId),
+            newestMemoryDate = memoryDao.getNewestMemoryDate(characterId),
+            pinnedCount = memoryDao.getPinnedCount(characterId),
+            archivedCount = memoryDao.getArchivedCount(characterId)
+        )
+    }
+    
+    // ==================== AI Memory Block Operations ====================
+    
+    suspend fun createMemoryBlock(block: SynthMemoryBlock): Long = 
+        memoryBlockDao.insert(block)
+    
+    suspend fun getMemoryBlock(id: Long): SynthMemoryBlock? = 
+        memoryBlockDao.getById(id)
+    
+    fun getActiveMemoryBlocks(characterId: Long): Flow<List<SynthMemoryBlock>> = 
+        memoryBlockDao.getActiveBlocks(characterId)
+    
+    suspend fun getActiveMemoryBlocksOnce(characterId: Long): List<SynthMemoryBlock> = 
+        memoryBlockDao.getActiveBlocksOnce(characterId)
+    
+    suspend fun getAllMemoryBlocks(characterId: Long): List<SynthMemoryBlock> = 
+        memoryBlockDao.getAllBlocks(characterId)
+    
+    suspend fun updateMemoryBlock(block: SynthMemoryBlock) = 
+        memoryBlockDao.update(block)
+    
+    suspend fun deleteMemoryBlock(block: SynthMemoryBlock) = 
+        memoryBlockDao.delete(block)
+    
+    suspend fun setMemoryBlockActive(blockId: Long, active: Boolean) = 
+        memoryBlockDao.setActive(blockId, active)
+    
+    suspend fun updateMemoryBlockRelevance(blockId: Long, score: Float) = 
+        memoryBlockDao.updateRelevanceScore(blockId, score)
+    
+    suspend fun getActiveMemoryTokenCount(characterId: Long): Int = 
+        memoryBlockDao.getActiveTokenCount(characterId) ?: 0
+    
+    // ==================== AI Memory Sync Operations ====================
+    
+    suspend fun createMemorySyncRecord(record: SynthMemorySyncRecord): Long = 
+        memorySyncRecordDao.insert(record)
+    
+    suspend fun findMemorySyncRecord(memoryId: Long, storeId: Long): SynthMemorySyncRecord? = 
+        memorySyncRecordDao.findByMemoryAndStore(memoryId, storeId)
+    
+    suspend fun getPendingMemorySyncs(storeId: Long, limit: Int = 100): List<SynthMemorySyncRecord> = 
+        memorySyncRecordDao.getPendingSync(storeId, limit)
+    
+    suspend fun updateMemorySyncStatus(recordId: Long, status: String, error: String? = null) = 
+        memorySyncRecordDao.updateSyncStatus(recordId, status, error = error)
+    
+    suspend fun deleteMemorySyncRecords(memoryId: Long) = 
+        memorySyncRecordDao.deleteByMemoryId(memoryId)
+    
+    // ==================== AI Memory Access Log Operations ====================
+    
+    suspend fun logMemoryAccess(log: SynthMemoryAccessLog): Long = 
+        memoryAccessLogDao.insert(log)
+    
+    suspend fun getMemoryAccessLogs(memoryId: Long, limit: Int = 100): List<SynthMemoryAccessLog> = 
+        memoryAccessLogDao.getLogsForMemory(memoryId, limit)
+    
+    suspend fun getMemoryAccessCount(memoryId: Long, accessType: String = "read"): Int = 
+        memoryAccessLogDao.getAccessCount(memoryId, accessType)
+    
+    suspend fun deleteOldMemoryAccessLogs(beforeTime: Long) = 
+        memoryAccessLogDao.deleteOldLogs(beforeTime)
+    
+    // ==================== Convenience Methods ====================
+    
+    /**
+     * Initialize default memory categories for a character if they don't exist
+     */
+    suspend fun initializeMemoryCategoriesForCharacter(characterId: Long) {
+        val existingCount = memoryCategoryDao.getCategoryCount(characterId)
+        if (existingCount == 0) {
+            val defaultCategories = SynthMemoryCategory.createSystemCategories(characterId)
+            memoryCategoryDao.insertAll(defaultCategories)
+        }
+    }
 }

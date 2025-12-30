@@ -84,7 +84,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 25
+        versionCode = 26
         versionName = "1.6.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -321,6 +321,15 @@ dependencies {
 
     // Generative AI
     implementation(libs.gemini.ai)
+
+    // Model Context Protocol (MCP) SDK for AI memory expansion
+    implementation(libs.mcp.kotlin.sdk)
+    
+    // Ktor client (required for MCP SDK)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     // Media metadata extraction
     implementation(libs.ffmpegmediametadataretriever.core)
