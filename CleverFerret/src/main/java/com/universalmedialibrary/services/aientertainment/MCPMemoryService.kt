@@ -262,7 +262,7 @@ class MCPMemoryService @Inject constructor(
         
         val key = params["key"] as? String ?: return MCPToolResult(success = false, error = "Key is required")
         val content = params["content"] as? String ?: return MCPToolResult(success = false, error = "Content is required")
-        val memoryType = params["memoryType"] as? String ?: "fact"
+        val memoryType = ((params["memoryType"] ?: params["type"]) as? String) ?: "fact"
         val importance = (params["importance"] as? Number)?.toFloat() ?: 0.5f
         val tags = (params["tags"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
         val categoryName = params["category"] as? String
@@ -339,7 +339,7 @@ class MCPMemoryService @Inject constructor(
             success = true,
             data = buildJsonObject {
                 put("count", memories.size)
-                put("memories", json.encodeToString(memories.map { memory ->
+                put("memories", json.encodeToJsonElement(memories.map { memory ->
                     mapOf(
                         "id" to memory.id,
                         "key" to memory.key,
@@ -447,13 +447,22 @@ class MCPMemoryService @Inject constructor(
         val sortBy = params["sortBy"] as? String ?: "importance"
         val limit = (params["limit"] as? Number)?.toInt() ?: 20
         
+        // Validate sortBy parameter
+        val validSortByValues = listOf("importance", "created_at", "access_count")
+        if (sortBy !in validSortByValues) {
+            return MCPToolResult(
+                success = false,
+                error = "Invalid sortBy value. Must be one of: ${validSortByValues.joinToString(", ")}"
+            )
+        }
+        
         val categoryId = categoryName?.let { name ->
             catDao.findByName(characterId, name)?.id
         }
         
         val memories = dao.queryMemories(
             characterId = characterId,
-            categoryId = categoryId,
+            categoryIds = if (categoryId != null) listOf(categoryId) else null,
             memoryType = memoryType,
             sortBy = sortBy,
             limit = limit
@@ -682,7 +691,7 @@ class MCPMemoryService @Inject constructor(
             Regex("(?:remember|don't forget|keep in mind)[:\\s]+(.+)", RegexOption.IGNORE_CASE),
             Regex("my (?:name|favorite|hobby|job|work|birthday|age) is\\s+(.+)", RegexOption.IGNORE_CASE),
             Regex("I (?:like|love|hate|prefer|enjoy|dislike)\\s+(.+)", RegexOption.IGNORE_CASE),
-            Regex("I am (?:a|an)\\s+(.+)", RegexOption.IGNORE_CASE),
+            Regex("I am (?:a|an)\\s+([A-Za-z]+(?:\\s+[A-Za-z]+){0,3})", RegexOption.IGNORE_CASE),
             Regex("I work (?:as|at|for|in)\\s+(.+)", RegexOption.IGNORE_CASE)
         )
         
@@ -719,7 +728,7 @@ class MCPMemoryService @Inject constructor(
             .lowercase()
             .replace(Regex("[^a-z0-9_]"), "")
         
-        return if (words.length > 50) words.take(50) else words.ifEmpty { "memory_${System.currentTimeMillis()}" }
+        return if (words.length >= 50) words.take(50) else words.ifEmpty { "memory_${System.currentTimeMillis()}" }
     }
     
     /**

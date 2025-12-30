@@ -487,7 +487,11 @@ class SynthChatService @Inject constructor(
                     try {
                         memoryService.applyMemoryDecay()
                     } catch (e: Exception) {
-                        // Ignore decay errors
+                        com.universalmedialibrary.utils.ErrorLogger.logError(
+                            "SynthChatService",
+                            "Failed to apply memory decay",
+                            e
+                        )
                     }
                 }
             }
@@ -551,6 +555,11 @@ class SynthChatService @Inject constructor(
                         )
                     } catch (e: Exception) {
                         // Memory storage errors should not affect chat flow
+                        com.universalmedialibrary.utils.ErrorLogger.logError(
+                            "SynthChatService",
+                            "Failed to store conversation memories",
+                            e
+                        )
                     }
                 }
                 

@@ -530,7 +530,7 @@ class AIEntertainmentRepository @Inject constructor(
     suspend fun queryMemories(query: MemoryQuery): List<SynthMemory> = 
         memoryDao.queryMemories(
             characterId = query.characterId,
-            categoryId = query.categoryIds?.firstOrNull(),
+            categoryIds = query.categoryIds?.takeIf { it.isNotEmpty() },
             memoryType = query.memoryTypes?.firstOrNull(),
             minImportance = query.minImportance,
             sortBy = query.sortBy,
@@ -585,7 +585,7 @@ class AIEntertainmentRepository @Inject constructor(
         return MemoryStats(
             totalMemories = memoryDao.getMemoryCount(characterId),
             totalCategories = memoryCategoryDao.getCategoryCount(characterId),
-            totalBlocks = memoryBlockDao.getAllBlocks(characterId).size,
+            totalBlocks = memoryBlockDao.getBlocksCount(characterId),
             avgImportance = memoryDao.getAverageImportance(characterId) ?: 0.5f,
             mostAccessedCount = memoryDao.getMaxAccessCount(characterId) ?: 0,
             oldestMemoryDate = memoryDao.getOldestMemoryDate(characterId),

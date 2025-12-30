@@ -253,7 +253,7 @@ data class SynthMemory(
     fun getTagsList(): List<String> {
         return try {
             Json.decodeFromString<List<String>>(tags)
-        } catch (e: Exception) {
+        } catch (e: kotlinx.serialization.SerializationException) {
             emptyList()
         }
     }
@@ -322,7 +322,7 @@ data class SynthMemoryBlock(
     fun getMemoryIdsList(): List<Long> {
         return try {
             Json.decodeFromString<List<Long>>(memoryIds)
-        } catch (e: Exception) {
+        } catch (e: kotlinx.serialization.SerializationException) {
             emptyList()
         }
     }
@@ -533,8 +533,12 @@ object AnyMapSerializer : kotlinx.serialization.KSerializer<Map<String, Any>> {
                     element.isString -> element.content
                     element.content == "true" -> true
                     element.content == "false" -> false
-                    element.content.contains('.') -> element.content.toDoubleOrNull() ?: element.content
-                    else -> element.content.toLongOrNull() ?: element.content
+                    else -> {
+                        // Try parsing as number: first try long, then double
+                        element.content.toLongOrNull()
+                            ?: element.content.toDoubleOrNull()
+                            ?: element.content
+                    }
                 }
             }
             is kotlinx.serialization.json.JsonObject -> deserializeJsonObject(element)

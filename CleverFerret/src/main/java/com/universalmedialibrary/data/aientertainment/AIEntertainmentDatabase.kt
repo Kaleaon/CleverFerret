@@ -41,6 +41,9 @@ import javax.inject.Singleton
         SynthMemoryAccessLog::class
     ],
     version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ],
     exportSchema = true
 )
 abstract class AIEntertainmentDatabase : RoomDatabase() {
