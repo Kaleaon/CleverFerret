@@ -105,6 +105,12 @@ object MediaRoutes {
     // AI Entertainment (SynthChat Integration)
     const val AI_ENTERTAINMENT = "ai-entertainment"
     
+    // Enhanced AI Systems
+    const val AI_RATE_LIMITS = "ai-rate-limits"
+    const val AI_BACKUP_SETTINGS = "ai-backup-settings"
+    const val AI_CONTENT_CACHE = "ai-content-cache"
+    const val ENHANCED_FILE_BROWSER = "enhanced-file-browser"
+    
     // Settings sub-routes
     const val SETTINGS_API = "settings/api"
     const val SETTINGS_APPEARANCE = "settings/appearance"
@@ -1141,6 +1147,39 @@ fun MediaAppNavHost(
             navController = navController,
             onShowSnackbar = onShowSnackbar
         )
+        
+        // Enhanced AI Systems Screens
+        composable(MediaRoutes.AI_RATE_LIMITS) {
+            com.universalmedialibrary.ui.ai.AIRateLimitControlScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(MediaRoutes.AI_BACKUP_SETTINGS) {
+            com.universalmedialibrary.ui.ai.AIBackupSettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(MediaRoutes.AI_CONTENT_CACHE) {
+            com.universalmedialibrary.ui.ai.AIContentCacheScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(MediaRoutes.ENHANCED_FILE_BROWSER) {
+            com.universalmedialibrary.ui.filepicker.EnhancedStorageBrowserScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onFilesSelected = { files -> 
+                    // Handle file selection/import
+                    navController.popBackStack()
+                },
+                onFoldersSelected = { folders ->
+                    // Handle folder selection/import  
+                    navController.popBackStack()
+                }
+            )
+        }
         
         // =====================================================================
         // DEBUG MENU (only available in debug builds)
