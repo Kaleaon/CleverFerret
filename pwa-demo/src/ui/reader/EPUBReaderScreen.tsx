@@ -127,7 +127,7 @@ export const EPUBReaderScreen: React.FC = () => {
   };
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#fafafa' }}>
+    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       {/* Top App Bar */}
       <AppBar position="static" elevation={0}>
         <Toolbar>

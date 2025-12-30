@@ -24,6 +24,7 @@ import {
   LinearProgress,
   Chip,
   Stack,
+  useTheme,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -46,6 +47,7 @@ interface StatCard {
 
 export const ReadingStatisticsScreen: React.FC = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [stats, setStats] = useState({
     totalBooks: 0,
@@ -83,28 +85,28 @@ export const ReadingStatisticsScreen: React.FC = () => {
       value: `${Math.floor(stats.totalReadingTime / 60)}h ${stats.totalReadingTime % 60}m`,
       subtitle: 'All time',
       icon: <Timer sx={{ fontSize: 40 }} />,
-      color: '#4CAF50',
+      color: theme.palette.success.main,
     },
     {
       title: 'Books Completed',
       value: stats.booksCompleted,
       subtitle: `of ${stats.totalBooks} books`,
       icon: <CheckCircle sx={{ fontSize: 40 }} />,
-      color: '#2196F3',
+      color: theme.palette.info.main,
     },
     {
       title: 'Pages Read',
       value: stats.pagesRead.toLocaleString(),
       subtitle: 'Total pages',
       icon: <MenuBook sx={{ fontSize: 40 }} />,
-      color: '#FF9800',
+      color: theme.palette.warning.main,
     },
     {
       title: 'Current Streak',
       value: `${stats.currentStreak} days`,
       subtitle: 'Keep it up!',
       icon: <TrendingUp sx={{ fontSize: 40 }} />,
-      color: '#E91E63',
+      color: theme.palette.error.main,
     },
   ];
 
@@ -127,7 +129,7 @@ export const ReadingStatisticsScreen: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ flex: 1, overflow: 'auto', bgcolor: '#f5f5f5' }}>
+      <Box sx={{ flex: 1, overflow: 'auto', bgcolor: 'background.default' }}>
         <Tabs
           value={tabValue}
           onChange={(_, newValue) => setTabValue(newValue)}
