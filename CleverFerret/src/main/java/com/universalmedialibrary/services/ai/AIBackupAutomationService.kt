@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.os.Environment
 import androidx.work.*
+import com.universalmedialibrary.data.aientertainment.SynthCharacter
+import com.universalmedialibrary.data.aientertainment.SynthMemory
 import com.universalmedialibrary.services.aientertainment.*
 import com.universalmedialibrary.utils.ErrorLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -702,18 +704,6 @@ class AIBackupAutomationService @Inject constructor(
         }
     }
     
-    /**
-     * Disable backup
-     */
-    fun disableBackup() {
-        preferences.edit()
-            .putBoolean(KEY_BACKUP_ENABLED, false)
-            .apply()
-        
-        // Cancel periodic work
-        workManager.cancelUniqueWork(BACKUP_WORK_NAME)
-    }
-    
     fun getAvailableBackups(): List<BackupInfo> {
         return findAvailableBackups().map { file ->
             BackupInfo(
@@ -753,7 +743,8 @@ data class BackupOptions(
     val includeMemories: Boolean = true,
     val includeSettings: Boolean = true,
     val compressionEnabled: Boolean = true,
-    val encryptionEnabled: Boolean = true
+    val encryptionEnabled: Boolean = true,
+    val location: BackupLocation = BackupLocation.INTERNAL
 )
 
 data class BackupProgress(

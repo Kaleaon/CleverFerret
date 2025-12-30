@@ -142,35 +142,35 @@ private fun FileReaderScreen(
     when (mimeType) {
         "application/epub+zip" -> {
             EnhancedEReaderScreen(
-                fileUri = fileUri,
+                bookFilePath = fileUri,
                 onBack = onClose
             )
         }
         "application/pdf" -> {
             DocumentReaderScreen(
-                fileUri = fileUri,
+                uriString = fileUri,
+                fileName = fileName ?: "document.pdf",
                 onBack = onClose
             )
         }
         "application/x-cbz", "application/x-cbr" -> {
             ComicReaderScreen(
-                fileUri = fileUri,
+                uriString = fileUri,
+                fileName = fileName ?: "comic.cbz",
                 onBack = onClose
             )
         }
         "text/plain", "text/html", 
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> {
             DocumentReaderScreen(
-                fileUri = fileUri,
+                uriString = fileUri,
+                fileName = fileName ?: "document.txt",
                 onBack = onClose
             )
         }
         else -> {
-            UnknownFileScreen(
-                fileUri = fileUri,
-                onClose = onClose,
-                onOpenInApp = onOpenInApp
-            )
+            // Unsupported file type - show error
+            Text("Unsupported file type: $mimeType")
         }
     }
 }
