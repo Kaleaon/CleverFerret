@@ -35,6 +35,7 @@ pwa-demo/yarn-error.log*
 # Environment files
 *.env
 *.env.*
+secrets.properties
 
 # Kotlin compiler errors
 .kotlin/

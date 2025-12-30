@@ -96,7 +96,16 @@ android {
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
 
-        val tasteDiveKey = project.properties["TASTEDIVE_API_KEY"] ?: "1062990-CleverFe-17BF9586"
+        // Load API keys from secrets.properties (fallback to default for development)
+        val secretsFile = rootProject.file("secrets.properties")
+        val secrets = java.util.Properties()
+        if (secretsFile.exists()) {
+            secrets.load(secretsFile.inputStream())
+        }
+        
+        val tasteDiveKey = secrets.getProperty("TASTEDIVE_API_KEY") 
+            ?: project.properties["TASTEDIVE_API_KEY"] as String? 
+            ?: "1062990-CleverFe-17BF9586" // Default dev key
         buildConfigField("String", "TASTEDIVE_API_KEY", "\"$tasteDiveKey\"")
 
         val nytApiKey = project.properties["NYT_API_KEY"] ?: ""

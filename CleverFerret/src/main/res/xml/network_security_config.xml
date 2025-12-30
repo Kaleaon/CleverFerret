@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- 
+        Network Security Configuration for CleverFerret
+        
+        This configuration restricts cleartext (HTTP) traffic to only specific domains
+        that require it (e.g., local servers, development, or services without HTTPS).
+        
+        All other traffic uses HTTPS by default for security.
+    -->
+    
+    <!-- Default configuration: HTTPS only -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust system certificate authorities -->
+            <certificates src="system" />
+            <!-- Trust user-installed certificates (for debugging with proxy tools) -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Allow cleartext traffic only for specific domains -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Local network access (for local servers, development) -->
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.0.0/8</domain>
+        <domain includeSubdomains="true">192.168.0.0/16</domain>
+        <domain includeSubdomains="true">172.16.0.0/12</domain>
+        
+        <!-- Add specific domains that require HTTP (if any) -->
+        <!-- Example: <domain includeSubdomains="true">example.com</domain> -->
+        
+        <!-- Radio streaming services that may use HTTP -->
+        <!-- Note: Most modern services use HTTPS, add only if necessary -->
+    </domain-config>
+    
+    <!-- Debug configuration for development builds -->
+    <!-- This section is only active in debug builds -->
+    <debug-overrides>
+        <trust-anchors>
+            <!-- Trust user-installed certificates for debugging -->
+            <certificates src="user" />
+            <certificates src="system" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>
