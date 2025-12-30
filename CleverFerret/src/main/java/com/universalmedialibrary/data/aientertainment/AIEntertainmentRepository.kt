@@ -531,7 +531,7 @@ class AIEntertainmentRepository @Inject constructor(
         memoryDao.queryMemories(
             characterId = query.characterId,
             categoryIds = query.categoryIds?.takeIf { it.isNotEmpty() },
-            memoryType = query.memoryTypes?.firstOrNull(),
+            memoryTypes = query.memoryTypes?.takeIf { it.isNotEmpty() },
             minImportance = query.minImportance,
             sortBy = query.sortBy,
             sortOrder = query.sortOrder,
