@@ -1,9 +1,12 @@
 package com.universalmedialibrary.services.tagging
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,8 +25,10 @@ class UniversalTagManager @Inject constructor(
     private val _allTags = MutableStateFlow<List<UniversalTag>>(emptyList())
     val allTags: Flow<List<UniversalTag>> = _allTags.asStateFlow()
 
+    private val scope = CoroutineScope(Dispatchers.IO)
+    
     init {
-        loadTags()
+        scope.launch { loadTags() }
     }
 
     /**

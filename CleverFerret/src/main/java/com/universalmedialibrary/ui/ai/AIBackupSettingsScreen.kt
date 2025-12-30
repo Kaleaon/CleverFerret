@@ -180,8 +180,8 @@ fun AIBackupSettingsScreen(
 
 @Composable
 private fun BackupStatusCard(
-    config: BackupConfig,
-    lastBackup: BackupResult?,
+    config: AIBackupConfig,
+    lastBackup: LocalBackupResult?,
     onToggleBackup: (Boolean) -> Unit
 ) {
     Card(
@@ -237,7 +237,7 @@ private fun BackupStatusCard(
 
 @Composable
 private fun ScheduleConfigurationCard(
-    config: BackupConfig,
+    config: AIBackupConfig,
     onEditSchedule: () -> Unit
 ) {
     Card(
@@ -273,8 +273,8 @@ private fun ScheduleConfigurationCard(
 
 @Composable
 private fun BackupLocationCard(
-    config: BackupConfig,
-    onLocationChange: (BackupLocation) -> Unit
+    config: AIBackupConfig,
+    onLocationChange: (LocalBackupLocation) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -291,7 +291,7 @@ private fun BackupLocationCard(
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            BackupLocation.values().forEach { location ->
+            LocalBackupLocation.values().forEach { location ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -329,7 +329,7 @@ private fun BackupLocationCard(
 
 @Composable
 private fun EncryptionSettingsCard(
-    config: BackupConfig,
+    config: AIBackupConfig,
     onEncryptionChange: (Boolean) -> Unit
 ) {
     Card(
@@ -431,9 +431,9 @@ private fun ManualOperationsCard(
 
 @Composable
 private fun BackupHistoryCard(
-    history: List<BackupResult>,
-    onRestoreBackup: (BackupResult) -> Unit,
-    onDeleteBackup: (BackupResult) -> Unit
+    history: List<LocalBackupResult>,
+    onRestoreBackup: (LocalBackupResult) -> Unit,
+    onDeleteBackup: (LocalBackupResult) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -450,7 +450,7 @@ private fun BackupHistoryCard(
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            if (history.isEmpty) {
+            if (history.isEmpty()) {
                 Text(
                     text = "No backups available",
                     style = MaterialTheme.typography.bodyMedium,
@@ -473,7 +473,7 @@ private fun BackupHistoryCard(
 
 @Composable
 private fun BackupHistoryItem(
-    backup: BackupResult,
+    backup: LocalBackupResult,
     onRestore: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -635,27 +635,16 @@ private fun formatTimestamp(timestamp: Long): String {
     return format.format(date)
 }
 
-private val BackupLocation.displayName: String
+private val LocalBackupLocation.displayName: String
     get() = when (this) {
-        BackupLocation.INTERNAL_STORAGE -> "Internal Storage"
-        BackupLocation.SD_CARD -> "SD Card"
-        BackupLocation.EXTERNAL_STORAGE -> "External Storage"
-        BackupLocation.CLOUD -> "Cloud Storage"
+        LocalBackupLocation.INTERNAL -> "Internal Storage"
+        LocalBackupLocation.SD_CARD -> "SD Card"
+        LocalBackupLocation.EXTERNAL -> "External Storage"
     }
 
-private val BackupLocation.description: String
+private val LocalBackupLocation.description: String
     get() = when (this) {
-        BackupLocation.INTERNAL_STORAGE -> "Device internal storage"
-        BackupLocation.SD_CARD -> "Removable SD card (recommended)"
-        BackupLocation.EXTERNAL_STORAGE -> "External USB storage"
-        BackupLocation.CLOUD -> "Google Drive/Dropbox (coming soon)"
+        LocalBackupLocation.INTERNAL -> "Device internal storage"
+        LocalBackupLocation.SD_CARD -> "Removable SD card (recommended)"
+        LocalBackupLocation.EXTERNAL -> "External USB storage"
     }
-
-// Data classes for the UI
-data class BackupConfig(
-    val enabled: Boolean = true,
-    val scheduleHours: Int = 24,
-    val location: BackupLocation = BackupLocation.SD_CARD,
-    val encryptionEnabled: Boolean = true,
-    val autoRestoreEnabled: Boolean = true
-)

@@ -36,7 +36,7 @@ class CloudSyncManager @Inject constructor(
     val activeProviders: Flow<Set<CloudProvider>> = _activeProviders.asStateFlow()
     
     private val _lastSyncResults = MutableStateFlow<Map<CloudProvider, SyncResult>>(emptyMap())
-    val lastSyncResults: Flow<Map<CloudProvider, SyncResult>> = _syncResults.asStateFlow()
+    val lastSyncResults: Flow<Map<CloudProvider, SyncResult>> = _lastSyncResults.asStateFlow()
 
     /**
      * Initialize all cloud providers
@@ -113,7 +113,7 @@ class CloudSyncManager @Inject constructor(
     /**
      * Get local media files for sync comparison
      */
-    suspend fun getLocalMediaFiles(): List<LocalMediaFile> {
+    suspend fun getLocalMediaFiles(): List<SyncLocalMediaFile> {
         // Implementation would scan local media directories
         // This is a placeholder for the actual implementation
         return emptyList()
@@ -231,7 +231,7 @@ enum class ConflictResolutionStrategy {
     LOCAL_WINS, CLOUD_WINS, MANUAL
 }
 
-data class LocalMediaFile(
+data class SyncLocalMediaFile(
     val id: String,
     val name: String,
     val path: String,
@@ -242,8 +242,8 @@ data class LocalMediaFile(
 
 data class SyncConflict(
     val id: String,
-    val localFile: LocalMediaFile,
-    val cloudFile: DriveFile,
+    val localFile: SyncLocalMediaFile,
+    val cloudFilePath: String,
     val resolutionStrategy: ConflictResolutionStrategy = ConflictResolutionStrategy.MANUAL
 )
 

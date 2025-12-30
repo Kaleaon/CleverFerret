@@ -93,7 +93,7 @@ class NetworkExplorerViewModel @Inject constructor(
         viewModelScope.launch {
             val downloadPath = getDownloadPath(file.name)
             val success = networkExplorerService.downloadFile(
-                networkPath = file.path,
+                remotePath = file.path,
                 localPath = downloadPath
             ) { progress ->
                 _uiState.value = _uiState.value.copy(

@@ -34,8 +34,8 @@ class UniversalMediaPlayerService @Inject constructor(
 
     private var exoPlayer: ExoPlayer? = null
 
-    private val _playbackState = MutableStateFlow(PlaybackState())
-    val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
+    private val _playbackState = MutableStateFlow(PlayerPlaybackState())
+    val playbackState: StateFlow<PlayerPlaybackState> = _playbackState.asStateFlow()
 
     private val _currentMedia = MutableStateFlow<MediaItem?>(null)
     val currentMedia: StateFlow<MediaItem?> = _currentMedia.asStateFlow()
@@ -225,7 +225,7 @@ class UniversalMediaPlayerService @Inject constructor(
     }
 }
 
-data class PlaybackState(
+data class PlayerPlaybackState(
     val isPlaying: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null

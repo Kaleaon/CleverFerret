@@ -3,6 +3,7 @@ package com.universalmedialibrary.services.aientertainment
 import android.content.Context
 import android.content.SharedPreferences
 import com.universalmedialibrary.data.aientertainment.*
+import com.universalmedialibrary.services.ai.MoodChange
 import com.universalmedialibrary.utils.ErrorLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 
 /**
  * Enhanced AI Personality Service
@@ -142,13 +144,12 @@ class EnhancedAIPersonalityService @Inject constructor(
             
             // Create personality event
             val event = SynthPersonalityEvent(
-                id = generateEventId(),
+                id = 0, // Auto-generated
                 characterId = characterId,
                 eventType = determineEventType(traitChanges, moodChange),
                 description = generateEventDescription(interaction, traitChanges, moodChange),
-                icon = determineEventIcon(traitChanges, moodChange),
-                previousState = currentState,
-                newState = finalState,
+                traitChanges = json.encodeToString(traitChanges),
+                moodChanges = json.encodeToString(moodChange ?: MoodChange()),
                 createdAt = System.currentTimeMillis()
             )
             
@@ -600,12 +601,18 @@ class EnhancedAIPersonalityService @Inject constructor(
     private fun cleanupOldHistory() {
         val cutoff = System.currentTimeMillis() - (MAX_HISTORY_DAYS * 24 * 60 * 60 * 1000L)
         
-        moodHistories.values.forEach { history ->
-            history.removeAll { it.timestamp < cutoff }
+        moodHistories.keys.forEach { key ->
+            val history = moodHistories[key]
+            if (history != null) {
+                moodHistories[key] = history.filter { it.timestamp >= cutoff }
+            }
         }
         
-        traitEvolutions.values.forEach { evolution ->
-            evolution.removeAll { it.timestamp < cutoff }
+        traitEvolutions.keys.forEach { key ->
+            val evolution = traitEvolutions[key]
+            if (evolution != null) {
+                traitEvolutions[key] = evolution.filter { it.timestamp >= cutoff }
+            }
         }
     }
 }

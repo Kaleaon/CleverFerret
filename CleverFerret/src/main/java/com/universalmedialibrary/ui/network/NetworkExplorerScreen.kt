@@ -350,27 +350,24 @@ private fun DeviceCapabilitiesRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (capabilities.supportsStreaming) {
-                Chip(
-                    onClick = {}
-                ) {
-                    Text("Streaming")
-                }
+                SuggestionChip(
+                    onClick = {},
+                    label = { Text("Streaming") }
+                )
             }
             
             if (capabilities.supportsSeeking) {
-                Chip(
-                    onClick = {}
-                ) {
-                    Text("Seeking")
-                }
+                SuggestionChip(
+                    onClick = {},
+                    label = { Text("Seeking") }
+                )
             }
             
             if (capabilities.requiresAuth) {
-                Chip(
-                    onClick = {}
-                ) {
-                    Text("Auth Required")
-                }
+                SuggestionChip(
+                    onClick = {},
+                    label = { Text("Auth Required") }
+                )
             }
         }
     }
@@ -382,6 +379,9 @@ private fun getDeviceIcon(type: DeviceType): ImageVector {
         DeviceType.FTP_SERVER -> Icons.Default.Cloud
         DeviceType.DLNA_SERVER -> Icons.Default.Cast
         DeviceType.UPNP_SERVER -> Icons.Default.Devices
+        DeviceType.NAS -> Icons.Default.Storage
+        DeviceType.COMPUTER -> Icons.Default.Computer
+        DeviceType.MOBILE -> Icons.Default.PhoneAndroid
         DeviceType.UNKNOWN -> Icons.Default.Help
     }
 }

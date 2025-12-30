@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -213,8 +214,9 @@ private fun CloudProviderCard(
     onManage: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        enabled = isEnabled,
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(if (isEnabled) 1f else 0.6f),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (isEnabled) 4.dp else 2.dp
         )

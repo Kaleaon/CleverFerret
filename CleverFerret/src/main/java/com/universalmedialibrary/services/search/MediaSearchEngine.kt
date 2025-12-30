@@ -8,7 +8,7 @@ abstract class MediaSearchEngine {
     /**
      * Search for media items based on request
      */
-    abstract suspend fun search(searchRequest: SearchRequest): List<SearchResult>
+    abstract suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult>
     
     /**
      * Get suggestions for search queries
@@ -26,7 +26,7 @@ abstract class MediaSearchEngine {
  */
 class BookSearchEngine : MediaSearchEngine() {
     
-    override suspend fun search(searchRequest: SearchRequest): List<SearchResult> {
+    override suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult> {
         // Implementation for searching books
         // This would integrate with the local book database
         return emptyList() // Placeholder
@@ -46,7 +46,7 @@ class BookSearchEngine : MediaSearchEngine() {
  */
 class AudioSearchEngine : MediaSearchEngine() {
     
-    override suspend fun search(searchRequest: SearchRequest): List<SearchResult> {
+    override suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult> {
         // Implementation for searching audio content
         return emptyList() // Placeholder
     }
@@ -65,7 +65,7 @@ class AudioSearchEngine : MediaSearchEngine() {
  */
 class VideoSearchEngine : MediaSearchEngine() {
     
-    override suspend fun search(searchRequest: SearchRequest): List<SearchResult> {
+    override suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult> {
         // Implementation for searching video content
         return emptyList() // Placeholder
     }
@@ -84,7 +84,7 @@ class VideoSearchEngine : MediaSearchEngine() {
  */
 class DocumentSearchEngine : MediaSearchEngine() {
     
-    override suspend fun search(searchRequest: SearchRequest): List<SearchResult> {
+    override suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult> {
         // Implementation for searching documents
         return emptyList() // Placeholder
     }

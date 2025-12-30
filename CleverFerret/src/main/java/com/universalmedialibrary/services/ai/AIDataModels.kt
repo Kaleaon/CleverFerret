@@ -1,5 +1,7 @@
 package com.universalmedialibrary.services.ai
 
+import com.universalmedialibrary.data.aientertainment.SynthPersonalityEvent
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 /**
@@ -25,9 +27,9 @@ data class AICharacterBackup(
     val characterId: Long,
     val name: String,
     val description: String,
-    val personality: Map<String, Any>,
-    val memories: List<AIMemoryBackup>,
-    val settings: Map<String, Any>,
+    val personality: Map<String, String> = emptyMap(),
+    val memories: List<AIMemoryBackup> = emptyList(),
+    val settings: Map<String, String> = emptyMap(),
     val createdAt: Long,
     val lastModified: Long
 )
@@ -37,8 +39,8 @@ data class AIMemoryBackup(
     val memoryId: Long,
     val content: String,
     val memoryType: String,
-    val tags: List<String>,
-    val metadata: Map<String, Any>,
+    val tags: List<String> = emptyList(),
+    val metadata: Map<String, String> = emptyMap(),
     val createdAt: Long,
     val emotionalWeight: Double = 0.0
 )
@@ -104,10 +106,10 @@ data class UsageStatistics(
     val requestsPerMinute: Double,
     val requestsPerHour: Double,
     val requestsPerDay: Double,
-    topUsers: List<UserRateStats>,
-    topProviders: Map<String, Long>,
-    blockedRequests: Long,
-    averageResponseTime: Double
+    val topUsers: List<String> = emptyList(),
+    val topProviders: Map<String, Long> = emptyMap(),
+    val blockedRequests: Long = 0,
+    val averageResponseTime: Double = 0.0
 )
 
 enum class RateLimitStatus {
@@ -134,7 +136,7 @@ data class CacheItem(
     val lastAccessed: Long,
     val accessCount: Int,
     val tags: List<String> = emptyList(),
-    val metadata: Map<String, Any> = emptyMap(),
+    val metadata: Map<String, String> = emptyMap(),
     val checksum: String,
     val isEncrypted: Boolean = false
 )
@@ -282,7 +284,7 @@ data class PersonalityUpdateResult(
     val newState: PersonalityState? = null,
     val traitChanges: Map<String, Double> = emptyMap(),
     val moodChange: MoodChange? = null,
-    val event: SynthPersonalityEvent? = null,
+    @Contextual val event: SynthPersonalityEvent? = null,
     val error: String? = null
 ) {
     companion object {
@@ -354,7 +356,7 @@ enum class TrendType {
 
 // ==================== AI Provider Enums ====================
 
-enum class AIProvider {
+enum class AIProviderType {
     OPENAI,
     GEMINI,
     OLLAMA,

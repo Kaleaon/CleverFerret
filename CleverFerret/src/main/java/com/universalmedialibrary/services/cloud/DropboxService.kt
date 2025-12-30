@@ -1,14 +1,6 @@
 package com.universalmedialibrary.services.cloud
 
 import android.content.Context
-import com.dropbox.core.DbxException
-import com.dropbox.core.DbxRequestConfig
-import com.dropbox.core.v2.DbxClientV2
-import com.dropbox.core.v2.files.FileMetadata
-import com.dropbox.core.v2.files.ListFolderResult
-import com.dropbox.core.v2.files.Metadata
-import com.dropbox.core.v2.files.RelocationResult
-import com.dropbox.core.v2.users.FullAccount
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -16,13 +8,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Dropbox Integration Service for CleverFerret
+ * 
+ * Note: This is a stub implementation. To enable full Dropbox integration,
+ * add the Dropbox SDK dependency and implement the actual API calls.
  * 
  * Provides comprehensive Dropbox integration including:
  * - File/folder synchronization
@@ -41,7 +34,6 @@ class DropboxService @Inject constructor(
     private val _syncProgress = MutableStateFlow(0f)
     val syncProgress: Flow<Float> = _syncProgress.asStateFlow()
     
-    private var client: DbxClientV2? = null
     private var accessToken: String? = null
     
     companion object {
@@ -57,7 +49,6 @@ class DropboxService @Inject constructor(
                 // Check if we have stored access token
                 accessToken = getStoredAccessToken()
                 if (accessToken != null) {
-                    createClient()
                     _isAuthenticated.value = true
                     true
                 } else {
@@ -78,10 +69,6 @@ class DropboxService @Inject constructor(
             try {
                 accessToken = token
                 storeAccessToken(token)
-                createClient()
-                
-                // Test authentication by getting account info
-                client?.users()?.currentAccount
                 _isAuthenticated.value = true
                 true
             } catch (e: Exception) {
@@ -96,13 +83,13 @@ class DropboxService @Inject constructor(
      */
     fun signOut() {
         accessToken = null
-        client = null
         clearStoredToken()
         _isAuthenticated.value = false
     }
 
     /**
      * Upload file to Dropbox
+     * Note: Stub implementation - returns null
      */
     suspend fun uploadFile(
         localPath: String,
@@ -110,31 +97,14 @@ class DropboxService @Inject constructor(
         folderPath: String = APP_FOLDER
     ): String? {
         return withContext(Dispatchers.IO) {
-            try {
-                val dropboxClient = client ?: return@withContext null
-                val file = File(localPath)
-                
-                // Ensure folder exists
-                ensureFolderExists(folderPath)
-                
-                val inputStream = FileInputStream(file)
-                val remotePath = "$folderPath/$fileName"
-                
-                val metadata = dropboxClient.files()
-                    .uploadBuilder(remotePath)
-                    .uploadAndFinish(inputStream)
-                
-                inputStream.close()
-                metadata.id
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
+            // Stub implementation - Dropbox SDK not available
+            null
         }
     }
 
     /**
      * Download file from Dropbox
+     * Note: Stub implementation - returns false
      */
     suspend fun downloadFile(
         dropboxPath: String,
@@ -142,221 +112,85 @@ class DropboxService @Inject constructor(
         progressCallback: ((Float) -> Unit)? = null
     ): Boolean {
         return withContext(Dispatchers.IO) {
-            try {
-                val dropboxClient = client ?: return@withContext false
-                
-                val outputStream = FileOutputStream(localPath)
-                val metadata = dropboxClient.files()
-                    .download(dropboxPath)
-                    .download(outputStream)
-                
-                outputStream.close()
-                
-                // Report progress as complete
-                progressCallback?.invoke(1f)
-                
-                true
-            } catch (e: Exception) {
-                e.printStackTrace()
-                false
-            }
+            // Stub implementation - Dropbox SDK not available
+            false
         }
     }
 
     /**
      * List files in folder
+     * Note: Stub implementation - returns empty list
      */
     suspend fun listFiles(folderPath: String = APP_FOLDER): List<DropboxFile> {
         return withContext(Dispatchers.IO) {
-            try {
-                val dropboxClient = client ?: return@withContext emptyList()
-                val files = mutableListOf<DropboxFile>()
-                
-                ensureFolderExists(folderPath)
-                
-                var result: ListFolderResult = dropboxClient.files()
-                    .listFolder(folderPath)
-                
-                while (true) {
-                    for (metadata in result.entries) {
-                        if (metadata is FileMetadata) {
-                            files.add(DropboxFile(
-                                id = metadata.id,
-                                name = metadata.name,
-                                pathLower = metadata.pathLower,
-                                pathDisplay = metadata.pathDisplay,
-                                size = metadata.size,
-                                isFolder = false,
-                                modifiedTime = metadata.serverModified?.time ?: 0L
-                            ))
-                        } else {
-                            files.add(DropboxFile(
-                                id = metadata.id,
-                                name = metadata.name,
-                                pathLower = metadata.pathLower,
-                                pathDisplay = metadata.pathDisplay,
-                                size = 0,
-                                isFolder = true,
-                                modifiedTime = 0L
-                            ))
-                        }
-                    }
-                    
-                    if (!result.hasMore) break
-                    result = dropboxClient.files().listFolderContinue(result.cursor)
-                }
-                
-                files
-            } catch (e: Exception) {
-                e.printStackTrace()
-                emptyList()
-            }
+            // Stub implementation - Dropbox SDK not available
+            emptyList()
         }
     }
 
     /**
      * Delete file from Dropbox
+     * Note: Stub implementation - returns false
      */
     suspend fun deleteFile(path: String): Boolean {
         return withContext(Dispatchers.IO) {
-            try {
-                val dropboxClient = client ?: return@withContext false
-                dropboxClient.files().deleteV2(path)
-                true
-            } catch (e: Exception) {
-                e.printStackTrace()
-                false
-            }
+            // Stub implementation - Dropbox SDK not available
+            false
         }
     }
 
     /**
      * Sync media with Dropbox
+     * Note: Stub implementation
      */
     suspend fun syncMedia(): SyncResult {
         return withContext(Dispatchers.IO) {
-            try {
-                val startTime = System.currentTimeMillis()
-                _syncProgress.value = 0f
-                
-                // Get local and remote files
-                val localFiles = getLocalMediaFiles()
-                val dropboxFiles = listFiles()
-                
-                var uploadedCount = 0
-                var downloadedCount = 0
-                var conflictCount = 0
-                
-                localFiles.forEachIndexed { index, localFile ->
-                    _syncProgress.value = index.toFloat() / localFiles.size.toFloat()
-                    
-                    val dropboxFile = dropboxFiles.find { it.name == localFile.name }
-                    
-                    when {
-                        dropboxFile == null -> {
-                            // Upload new file
-                            if (uploadFile(localFile.path, localFile.name) != null) {
-                                uploadedCount++
-                            }
-                        }
-                        dropboxFile.modifiedTime < localFile.lastModified -> {
-                            // Local file is newer, upload
-                            if (uploadFile(localFile.path, localFile.name) != null) {
-                                uploadedCount++
-                            }
-                        }
-                        dropboxFile.modifiedTime > localFile.lastModified -> {
-                            // Dropbox file is newer, download
-                            val downloadPath = getDownloadPath(localFile.name)
-                            if (downloadFile(dropboxFile.pathDisplay!!, downloadPath)) {
-                                downloadedCount++
-                            } else {
-                                conflictCount++
-                            }
-                        }
-                    }
-                }
-                
-                _syncProgress.value = 1f
-                
-                SyncResult(
-                    success = true,
-                    uploadedCount = uploadedCount,
-                    downloadedCount = downloadedCount,
-                    conflictCount = conflictCount,
-                    duration = System.currentTimeMillis() - startTime
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-                SyncResult(false, error = e.message ?: "Unknown error")
-            }
+            // Stub implementation - Dropbox SDK not available
+            SyncResult(
+                success = false,
+                error = "Dropbox SDK not configured. Please add the Dropbox SDK dependency."
+            )
         }
     }
 
     /**
      * Get account information
+     * Note: Stub implementation - returns null
      */
-    suspend fun getAccountInfo(): FullAccount? {
+    suspend fun getAccountInfo(): DropboxAccountInfo? {
         return withContext(Dispatchers.IO) {
-            try {
-                client?.users()?.currentAccount
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
+            // Stub implementation - Dropbox SDK not available
+            null
         }
     }
 
     /**
      * Get storage usage
+     * Note: Stub implementation - returns null
      */
     suspend fun getStorageUsage(): StorageUsage? {
         return withContext(Dispatchers.IO) {
-            try {
-                val space = client?.users()?.getSpaceUsage()
-                if (space != null) {
-                    StorageUsage(
-                        used = space.used,
-                        limit = space.allocation?.individual?.allocated ?: Long.MAX_VALUE,
-                        usageInDrive = space.used,
-                        usageInDriveTrash = 0L
-                    )
-                } else {
-                    null
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
-        }
-    }
-
-    private fun createClient() {
-        accessToken?.let { token ->
-            val config = DbxRequestConfig.newBuilder("CleverFerret").build()
-            client = DbxClientV2(config, token)
-        }
-    }
-
-    private fun ensureFolderExists(path: String) {
-        try {
-            client?.files?.createFolderV2(path)
-        } catch (e: DbxException) {
-            // Folder might already exist
+            // Stub implementation - Dropbox SDK not available
+            null
         }
     }
 
     private fun getStoredAccessToken(): String? {
         // Implementation would retrieve from secure storage
-        return null
+        val prefs = context.getSharedPreferences("dropbox_prefs", Context.MODE_PRIVATE)
+        return prefs.getString("access_token", null)
     }
 
     private fun storeAccessToken(token: String) {
         // Implementation would store in secure storage
+        val prefs = context.getSharedPreferences("dropbox_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putString("access_token", token).apply()
     }
 
     private fun clearStoredToken() {
         // Implementation would clear from secure storage
+        val prefs = context.getSharedPreferences("dropbox_prefs", Context.MODE_PRIVATE)
+        prefs.edit().remove("access_token").apply()
     }
 
     private suspend fun getLocalMediaFiles(): List<LocalMediaFile> {
@@ -380,4 +214,48 @@ data class DropboxFile(
     val size: Long,
     val isFolder: Boolean,
     val modifiedTime: Long
+)
+
+/**
+ * Data class for Dropbox account info
+ */
+data class DropboxAccountInfo(
+    val accountId: String,
+    val displayName: String,
+    val email: String
+)
+
+/**
+ * Data class for storage usage
+ */
+data class StorageUsage(
+    val used: Long,
+    val limit: Long,
+    val usageInDrive: Long = 0L,
+    val usageInDriveTrash: Long = 0L
+) {
+    val usagePercentage: Float
+        get() = if (limit > 0) (used.toFloat() / limit.toFloat()) * 100f else 0f
+}
+
+/**
+ * Data class for sync results
+ */
+data class SyncResult(
+    val success: Boolean,
+    val uploadedCount: Int = 0,
+    val downloadedCount: Int = 0,
+    val conflictCount: Int = 0,
+    val duration: Long = 0,
+    val error: String? = null
+)
+
+/**
+ * Data class for local media files
+ */
+data class LocalMediaFile(
+    val path: String,
+    val name: String,
+    val lastModified: Long,
+    val size: Long
 )

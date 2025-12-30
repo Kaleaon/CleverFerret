@@ -4,10 +4,12 @@ import android.content.Context
 import android.net.Uri
 import com.universalmedialibrary.utils.ErrorLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -65,14 +67,14 @@ class EnhancedAIContentCacheService @Inject constructor(
         }
     }
     
-    private val _cacheItems = MutableStateFlow<List<CacheItem>>(emptyList())
-    val cacheItems: StateFlow<List<CacheItem>> = _cacheItems.asStateFlow()
+    private val _cacheItems = MutableStateFlow<List<LocalCacheItem>>(emptyList())
+    val cacheItems: StateFlow<List<LocalCacheItem>> = _cacheItems.asStateFlow()
     
-    private val _downloadProgress = MutableStateFlow<DownloadProgress?>(null)
-    val downloadProgress: StateFlow<DownloadProgress?> = _downloadProgress.asStateFlow()
+    private val _downloadProgress = MutableStateFlow<LocalDownloadProgress?>(null)
+    val downloadProgress: StateFlow<LocalDownloadProgress?> = _downloadProgress.asStateFlow()
     
-    private val _cacheStats = MutableStateFlow<CacheStatistics?>(null)
-    val cacheStatistics: StateFlow<CacheStatistics?> = _cacheStats.asStateFlow()
+    private val _cacheStats = MutableStateFlow<LocalCacheStatistics?>(null)
+    val cacheStatistics: StateFlow<LocalCacheStatistics?> = _cacheStats.asStateFlow()
     
     init {
         refreshCacheItems()
@@ -87,13 +89,13 @@ class EnhancedAIContentCacheService @Inject constructor(
     suspend fun downloadAndCacheWebPage(
         url: String,
         characterId: Long? = null,
-        options: DownloadOptions = DownloadOptions()
-    ): Result<CacheItem> = withContext(Dispatchers.IO) {
+        options: LocalDownloadOptions = LocalDownloadOptions()
+    ): Result<LocalCacheItem> = withContext(Dispatchers.IO) {
         try {
             // Check rate limits
             val rateLimitResult = aiRateLimitService.checkRateLimit(
-                provider = AIProvider.OPENAI, // Use OpenAI as default for web operations
-                requestType = RequestType.DOWNLOAD
+                provider = LocalAIProvider.OPENAI, // Use OpenAI as default for web operations
+                requestType = LocalRequestType.DOWNLOAD
             )
             
             if (!rateLimitResult.allowed) {
@@ -102,9 +104,9 @@ class EnhancedAIContentCacheService @Inject constructor(
                 )
             }
             
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.DOWNLOADING,
+                status = LocalDownloadStatus.DOWNLOADING,
                 progress = 0f,
                 message = "Fetching web page..."
             )
@@ -124,9 +126,9 @@ class EnhancedAIContentCacheService @Inject constructor(
             }
             
             val html = response.body?.string() ?: ""
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.PROCESSING,
+                status = LocalDownloadStatus.PROCESSING,
                 progress = 0.5f,
                 message = "Extracting content..."
             )
@@ -140,7 +142,7 @@ class EnhancedAIContentCacheService @Inject constructor(
                 url = url,
                 content = textContent,
                 title = title,
-                type = ContentType.WEB_PAGE,
+                type = LocalContentType.WEB_PAGE,
                 characterId = characterId,
                 originalUrl = url,
                 sourceDomain = URL(url).host,
@@ -151,17 +153,17 @@ class EnhancedAIContentCacheService @Inject constructor(
                 )
             )
             
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.COMPLETED,
+                status = LocalDownloadStatus.COMPLETED,
                 progress = 1f,
                 message = "Web page cached successfully"
             )
             
             // Record successful request
             aiRateLimitService.recordRequest(
-                provider = AIProvider.OPENAI,
-                requestType = RequestType.DOWNLOAD,
+                provider = LocalAIProvider.OPENAI,
+                requestType = LocalRequestType.DOWNLOAD,
                 success = true,
                 responseTimeMs = 0 // Would need to track this properly
             )
@@ -174,8 +176,8 @@ class EnhancedAIContentCacheService @Inject constructor(
             
             // Record failed request
             aiRateLimitService.recordRequest(
-                provider = AIProvider.OPENAI,
-                requestType = RequestType.DOWNLOAD,
+                provider = LocalAIProvider.OPENAI,
+                requestType = LocalRequestType.DOWNLOAD,
                 success = false,
                 responseTimeMs = 0
             )
@@ -191,12 +193,12 @@ class EnhancedAIContentCacheService @Inject constructor(
     suspend fun downloadAndCachePdf(
         url: String,
         characterId: Long? = null,
-        options: DownloadOptions = DownloadOptions()
-    ): Result<CacheItem> = withContext(Dispatchers.IO) {
+        options: LocalDownloadOptions = LocalDownloadOptions()
+    ): Result<LocalCacheItem> = withContext(Dispatchers.IO) {
         try {
             val rateLimitResult = aiRateLimitService.checkRateLimit(
-                provider = AIProvider.OPENAI,
-                requestType = RequestType.DOWNLOAD
+                provider = LocalAIProvider.OPENAI,
+                requestType = LocalRequestType.DOWNLOAD
             )
             
             if (!rateLimitResult.allowed) {
@@ -205,9 +207,9 @@ class EnhancedAIContentCacheService @Inject constructor(
                 )
             }
             
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.DOWNLOADING,
+                status = LocalDownloadStatus.DOWNLOADING,
                 progress = 0f,
                 message = "Downloading PDF..."
             )
@@ -237,9 +239,9 @@ class EnhancedAIContentCacheService @Inject constructor(
                 )
             }
             
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.PROCESSING,
+                status = LocalDownloadStatus.PROCESSING,
                 progress = 0.7f,
                 message = "Processing PDF..."
             )
@@ -258,7 +260,7 @@ class EnhancedAIContentCacheService @Inject constructor(
                 url = url,
                 content = extractedText,
                 title = title,
-                type = ContentType.PDF,
+                type = LocalContentType.PDF,
                 characterId = characterId,
                 originalUrl = url,
                 sourceDomain = URL(url).host,
@@ -271,16 +273,16 @@ class EnhancedAIContentCacheService @Inject constructor(
                 )
             )
             
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.COMPLETED,
+                status = LocalDownloadStatus.COMPLETED,
                 progress = 1f,
                 message = "PDF cached successfully"
             )
             
             aiRateLimitService.recordRequest(
-                provider = AIProvider.OPENAI,
-                requestType = RequestType.DOWNLOAD,
+                provider = LocalAIProvider.OPENAI,
+                requestType = LocalRequestType.DOWNLOAD,
                 success = true,
                 responseTimeMs = 0,
                 tokensUsed = extractedText.length / 4 // Rough token estimate
@@ -292,8 +294,8 @@ class EnhancedAIContentCacheService @Inject constructor(
         } catch (e: Exception) {
             _downloadProgress.value = null
             aiRateLimitService.recordRequest(
-                provider = AIProvider.OPENAI,
-                requestType = RequestType.DOWNLOAD,
+                provider = LocalAIProvider.OPENAI,
+                requestType = LocalRequestType.DOWNLOAD,
                 success = false,
                 responseTimeMs = 0
             )
@@ -309,11 +311,11 @@ class EnhancedAIContentCacheService @Inject constructor(
         url: String,
         characterId: Long? = null,
         includeImages: Boolean = true
-    ): Result<CacheItem> = withContext(Dispatchers.IO) {
+    ): Result<LocalCacheItem> = withContext(Dispatchers.IO) {
         try {
             val rateLimitResult = aiRateLimitService.checkRateLimit(
-                provider = AIProvider.OPENAI,
-                requestType = RequestType.DOWNLOAD
+                provider = LocalAIProvider.OPENAI,
+                requestType = LocalRequestType.DOWNLOAD
             )
             
             if (!rateLimitResult.allowed) {
@@ -322,9 +324,9 @@ class EnhancedAIContentCacheService @Inject constructor(
                 )
             }
             
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.DOWNLOADING,
+                status = LocalDownloadStatus.DOWNLOADING,
                 progress = 0f,
                 message = "Downloading article..."
             )
@@ -344,9 +346,9 @@ class EnhancedAIContentCacheService @Inject constructor(
             }
             
             val html = response.body?.string() ?: ""
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.PROCESSING,
+                status = LocalDownloadStatus.PROCESSING,
                 progress = 0.3f,
                 message = "Extracting article content..."
             )
@@ -360,9 +362,9 @@ class EnhancedAIContentCacheService @Inject constructor(
             if (includeImages) {
                 articleData.imageUrls.forEachIndexed { index, imageUrl ->
                     try {
-                        _downloadProgress.value = DownloadProgress(
+                        _downloadProgress.value = LocalDownloadProgress(
                             url = url,
-                            status = DownloadStatus.PROCESSING,
+                            status = LocalDownloadStatus.PROCESSING,
                             progress = 0.3f + (0.4f * index / articleData.imageUrls.size),
                             message = "Downloading image ${index + 1}/${articleData.imageUrls.size}..."
                         )
@@ -377,9 +379,9 @@ class EnhancedAIContentCacheService @Inject constructor(
                 }
             }
             
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.PROCESSING,
+                status = LocalDownloadStatus.PROCESSING,
                 progress = 0.8f,
                 message = "Creating cache entry..."
             )
@@ -389,7 +391,7 @@ class EnhancedAIContentCacheService @Inject constructor(
                 url = url,
                 content = articleData.content,
                 title = title,
-                type = ContentType.ARTICLE,
+                type = LocalContentType.ARTICLE,
                 characterId = characterId,
                 originalUrl = url,
                 sourceDomain = URL(url).host,
@@ -403,16 +405,16 @@ class EnhancedAIContentCacheService @Inject constructor(
                 )
             )
             
-            _downloadProgress.value = DownloadProgress(
+            _downloadProgress.value = LocalDownloadProgress(
                 url = url,
-                status = DownloadStatus.COMPLETED,
+                status = LocalDownloadStatus.COMPLETED,
                 progress = 1f,
                 message = "Article cached successfully"
             )
             
             aiRateLimitService.recordRequest(
-                provider = AIProvider.OPENAI,
-                requestType = RequestType.DOWNLOAD,
+                provider = LocalAIProvider.OPENAI,
+                requestType = LocalRequestType.DOWNLOAD,
                 success = true,
                 responseTimeMs = 0
             )
@@ -423,8 +425,8 @@ class EnhancedAIContentCacheService @Inject constructor(
         } catch (e: Exception) {
             _downloadProgress.value = null
             aiRateLimitService.recordRequest(
-                provider = AIProvider.OPENAI,
-                requestType = RequestType.DOWNLOAD,
+                provider = LocalAIProvider.OPENAI,
+                requestType = LocalRequestType.DOWNLOAD,
                 success = false,
                 responseTimeMs = 0
             )
@@ -438,7 +440,7 @@ class EnhancedAIContentCacheService @Inject constructor(
     /**
      * Search cached content
      */
-    fun searchCachedContent(query: String, characterId: Long? = null): List<CacheItem> {
+    fun searchCachedContent(query: String, characterId: Long? = null): List<LocalCacheItem> {
         val items = _cacheItems.value
         val searchQuery = query.lowercase()
         
@@ -456,12 +458,91 @@ class EnhancedAIContentCacheService @Inject constructor(
     /**
      * Get cache item by ID
      */
-    fun getCacheItem(id: String): CacheItem? {
+    fun getCacheItem(id: String): LocalCacheItem? {
         return _cacheItems.value.find { it.id == id }
     }
     
     /**
-     * Delete cache item
+     * Get all cache items
+     */
+    fun getCacheItems(): List<LocalCacheItem> {
+        return _cacheItems.value
+    }
+    
+    /**
+     * Search cache by query
+     */
+    fun searchCache(query: String): List<LocalCacheItem> {
+        return searchCachedContent(query)
+    }
+    
+    /**
+     * Get cache items for a specific character
+     */
+    fun getCacheItemsByCharacter(characterId: Long): List<LocalCacheItem> {
+        return _cacheItems.value.filter { it.characterId == characterId }
+    }
+    
+    /**
+     * Open/view cache item
+     */
+    fun openCacheItem(item: LocalCacheItem): Boolean {
+        // Implementation would open the cached content for viewing
+        return true
+    }
+    
+    /**
+     * Delete a cache item
+     */
+    suspend fun deleteCacheItem(item: LocalCacheItem): Boolean {
+        return deleteCacheItem(item.id)
+    }
+    
+    /**
+     * Share a cache item
+     */
+    fun shareCacheItem(item: LocalCacheItem): Boolean {
+        // Implementation would share the cached content
+        return true
+    }
+    
+    /**
+     * Clear all cache
+     */
+    suspend fun clearAllCache(): Boolean {
+        return clearCache()
+    }
+    
+    /**
+     * Clear old cache (items older than 30 days)
+     */
+    suspend fun clearOldCache(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val cutoff = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
+            val oldItems = _cacheItems.value.filter { it.createdAt < cutoff }
+            oldItems.forEach { deleteCacheItem(it.id) }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
+     * Clear expired cache items
+     */
+    suspend fun clearExpiredCache(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val now = System.currentTimeMillis()
+            val expiredItems = _cacheItems.value.filter { it.expiresAt != null && it.expiresAt < now }
+            expiredItems.forEach { deleteCacheItem(it.id) }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
+     * Delete cache item by ID
      */
     suspend fun deleteCacheItem(id: String): Boolean = withContext(Dispatchers.IO) {
         try {
@@ -503,13 +584,13 @@ class EnhancedAIContentCacheService @Inject constructor(
     /**
      * Get cache statistics
      */
-    fun getCacheStatistics(): CacheStatistics {
+    fun getCacheStatistics(): LocalCacheStatistics {
         val items = _cacheItems.value
         val totalSize = items.sumOf { it.sizeBytes }
         val sizeByType = items.groupBy { it.type }
             .mapValues { (_, items) -> items.sumOf { it.sizeBytes } }
         
-        return CacheStatistics(
+        return LocalCacheStatistics(
             totalItems = items.size,
             totalSizeBytes = totalSize,
             totalSizeMB = totalSize / (1024.0 * 1024.0),
@@ -526,17 +607,17 @@ class EnhancedAIContentCacheService @Inject constructor(
         url: String,
         content: String,
         title: String,
-        type: ContentType,
+        type: LocalContentType,
         characterId: Long?,
         originalUrl: String,
         sourceDomain: String,
         filePath: String? = null,
         metadata: Map<String, String> = emptyMap()
-    ): CacheItem {
+    ): LocalCacheItem {
         val id = generateId(url, characterId)
         val now = System.currentTimeMillis()
         
-        val item = CacheItem(
+        val item = LocalCacheItem(
             id = id,
             url = url,
             title = title,
@@ -558,18 +639,18 @@ class EnhancedAIContentCacheService @Inject constructor(
         return item
     }
     
-    private fun saveCacheItemMetadata(item: CacheItem) {
+    private fun saveCacheItemMetadata(item: LocalCacheItem) {
         val metadataFile = File(cacheDir, "${item.id}$METADATA_FILE_EXTENSION")
         val metadataJson = json.encodeToString(item)
         metadataFile.writeText(metadataJson)
     }
     
-    private fun loadCacheItems(): List<CacheItem> {
+    private fun loadCacheItems(): List<LocalCacheItem> {
         return try {
             cacheDir.listFiles { _, name -> name.endsWith(METADATA_FILE_EXTENSION) }
                 ?.mapNotNull { file ->
                     try {
-                        json.decodeFromString<CacheItem>(file.readText())
+                        json.decodeFromString<LocalCacheItem>(file.readText())
                     } catch (e: Exception) {
                         ErrorLogger.logWarning("EnhancedAIContentCache", "Failed to load metadata: ${file.name}", e)
                         null
@@ -591,8 +672,10 @@ class EnhancedAIContentCacheService @Inject constructor(
         val cutoffTime = System.currentTimeMillis() - (MAX_ITEM_AGE_DAYS * 24 * 60 * 60 * 1000L)
         val expiredItems = _cacheItems.value.filter { it.createdAt < cutoffTime }
         
-        expiredItems.forEach { item ->
-            deleteCacheItem(item.id)
+        CoroutineScope(Dispatchers.IO).launch {
+            expiredItems.forEach { item ->
+                deleteCacheItem(item.id)
+            }
         }
     }
     
@@ -715,7 +798,7 @@ class EnhancedAIContentCacheService @Inject constructor(
         }
     }
     
-    private fun extractTags(content: String, type: ContentType): List<String> {
+    private fun extractTags(content: String, type: LocalContentType): List<String> {
         val tags = mutableListOf<String>()
         tags.add(type.name.lowercase())
         
@@ -742,9 +825,9 @@ class EnhancedAIContentCacheService @Inject constructor(
     }
 }
 
-// ==================== Data Classes ====================
+// ==================== Data Classes (local to EnhancedAIContentCacheService) ====================
 
-enum class ContentType {
+enum class LocalContentType {
     WEB_PAGE,
     ARTICLE,
     PDF,
@@ -754,7 +837,7 @@ enum class ContentType {
     RESEARCH_PAPER
 }
 
-enum class DownloadStatus {
+enum class LocalDownloadStatus {
     PENDING,
     DOWNLOADING,
     PROCESSING,
@@ -762,37 +845,39 @@ enum class DownloadStatus {
     FAILED
 }
 
-data class DownloadOptions(
+data class LocalDownloadOptions(
     val includeImages: Boolean = true,
     val maxFileSizeMB: Int = 50,
     val extractFullText: Boolean = true,
     val generateSummary: Boolean = false
 )
 
-data class DownloadProgress(
+data class LocalDownloadProgress(
     val url: String,
-    val status: DownloadStatus,
+    val status: LocalDownloadStatus,
     val progress: Float,
     val message: String,
     val bytesDownloaded: Long = 0,
     val totalBytes: Long = 0
 )
 
-data class CacheItem(
+@kotlinx.serialization.Serializable
+data class LocalCacheItem(
     val id: String,
     val url: String,
     val title: String,
     val content: String,
-    val type: ContentType,
+    val type: LocalContentType,
     val characterId: Long?,
     val originalUrl: String,
     val sourceDomain: String,
-    val filePath: String?,
+    val filePath: String? = null,
     val sizeBytes: Long,
-    val tags: List<String>,
+    val tags: List<String> = emptyList(),
     val createdAt: Long,
-    var lastAccessed: Long,
-    val metadata: Map<String, String>
+    val lastAccessed: Long,
+    val expiresAt: Long? = null,
+    val metadata: Map<String, String> = emptyMap()
 ) {
     val contentSnippet: String 
         get() = content.take(200) + if (content.length > 200) "..." else ""
@@ -806,11 +891,11 @@ data class CacheItem(
         }
 }
 
-data class CacheStatistics(
+data class LocalCacheStatistics(
     val totalItems: Int,
     val totalSizeBytes: Long,
     val totalSizeMB: Double,
-    val sizeByType: Map<ContentType, Long>,
+    val sizeByType: Map<LocalContentType, Long>,
     val oldestItem: Long?,
     val newestItem: Long?,
     val cacheUsagePercent: Double

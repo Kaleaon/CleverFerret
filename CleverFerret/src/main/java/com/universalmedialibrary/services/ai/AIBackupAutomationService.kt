@@ -16,10 +16,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.FileNotFoundException
 import java.security.MessageDigest
+import java.security.SecureRandom
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -80,8 +83,8 @@ class AIBackupAutomationService @Inject constructor(
     private val _restoreState = MutableStateFlow<RestoreState>(RestoreState.IDLE)
     val restoreState: StateFlow<RestoreState> = _restoreState.asStateFlow()
     
-    private val _backupProgress = MutableStateFlow<BackupProgress?>(null)
-    val backupProgress: StateFlow<BackupProgress?> = _backupProgress.asStateFlow()
+    private val _backupProgress = MutableStateFlow<LocalBackupProgress?>(null)
+    val backupProgress: StateFlow<LocalBackupProgress?> = _backupProgress.asStateFlow()
     
     // Encryption key (in production, this should be stored in Android Keystore)
     private val encryptionKey: SecretKey by lazy {
@@ -103,7 +106,7 @@ class AIBackupAutomationService @Inject constructor(
     /**
      * Enable automated backups
      */
-    fun enableBackup(scheduleHours: Int = 24, location: BackupLocation = BackupLocation.SD_CARD) {
+    fun enableBackup(scheduleHours: Int = 24, location: LocalBackupLocation = LocalBackupLocation.SD_CARD) {
         preferences.edit()
             .putBoolean(KEY_BACKUP_ENABLED, true)
             .putInt(KEY_BACKUP_SCHEDULE, scheduleHours)
@@ -129,14 +132,14 @@ class AIBackupAutomationService @Inject constructor(
     /**
      * Perform immediate backup
      */
-    suspend fun performBackup(options: BackupOptions = BackupOptions()): BackupResult {
+    suspend fun performBackup(options: BackupOptions = BackupOptions()): LocalBackupResult {
         _backupState.value = BackupState.BACKING_UP
         
         return try {
             val startTime = System.currentTimeMillis()
             val backupData = collectAllAIData(options)
             
-            _backupProgress.value = BackupProgress(
+            _backupProgress.value = LocalBackupProgress(
                 stage = "Encrypting backup...",
                 progress = 0.5f,
                 message = "Securing your AI data..."
@@ -145,7 +148,7 @@ class AIBackupAutomationService @Inject constructor(
             val encryptedData = encryptBackupData(backupData)
             val checksum = calculateChecksum(encryptedData)
             
-            _backupProgress.value = BackupProgress(
+            _backupProgress.value = LocalBackupProgress(
                 stage = "Saving to storage...",
                 progress = 0.8f,
                 message = "Writing backup file..."
@@ -153,7 +156,7 @@ class AIBackupAutomationService @Inject constructor(
             
             val backupFile = saveBackupToFile(encryptedData, checksum, options.location)
             
-            _backupProgress.value = BackupProgress(
+            _backupProgress.value = LocalBackupProgress(
                 stage = "Finalizing...",
                 progress = 1.0f,
                 message = "Backup complete!"
@@ -166,7 +169,7 @@ class AIBackupAutomationService @Inject constructor(
             
             val endTime = System.currentTimeMillis()
             
-            BackupResult(
+            LocalBackupResult(
                 success = true,
                 backupFile = backupFile,
                 fileSize = backupFile.length(),
@@ -183,7 +186,7 @@ class AIBackupAutomationService @Inject constructor(
             _backupState.value = BackupState.FAILED
             _backupProgress.value = null
             
-            BackupResult(
+            LocalBackupResult(
                 success = false,
                 error = e.message ?: "Unknown backup error"
             )
@@ -195,11 +198,11 @@ class AIBackupAutomationService @Inject constructor(
     /**
      * Perform restore from backup file
      */
-    suspend fun performRestore(backupFile: File): RestoreResult {
+    suspend fun performRestore(backupFile: File): LocalRestoreResult {
         _restoreState.value = RestoreState.RESTORING
         
         return try {
-            _backupProgress.value = BackupProgress(
+            _backupProgress.value = LocalBackupProgress(
                 stage = "Loading backup...",
                 progress = 0.1f,
                 message = "Reading backup file..."
@@ -214,7 +217,7 @@ class AIBackupAutomationService @Inject constructor(
                 throw SecurityException("Backup file integrity check failed")
             }
             
-            _backupProgress.value = BackupProgress(
+            _backupProgress.value = LocalBackupProgress(
                 stage = "Decrypting backup...",
                 progress = 0.3f,
                 message = "Restoring encrypted data..."
@@ -222,7 +225,7 @@ class AIBackupAutomationService @Inject constructor(
             
             val backupData = decryptBackupData(encryptedData)
             
-            _backupProgress.value = BackupProgress(
+            _backupProgress.value = LocalBackupProgress(
                 stage = "Restoring characters...",
                 progress = 0.5f,
                 message = "Recreating AI characters..."
@@ -237,7 +240,7 @@ class AIBackupAutomationService @Inject constructor(
                 }
             }
             
-            _backupProgress.value = BackupProgress(
+            _backupProgress.value = LocalBackupProgress(
                 stage = "Restoring memories...",
                 progress = 0.8f,
                 message = "Recovering memories and conversations..."
@@ -252,7 +255,7 @@ class AIBackupAutomationService @Inject constructor(
                 }
             }
             
-            _backupProgress.value = BackupProgress(
+            _backupProgress.value = LocalBackupProgress(
                 stage = "Finalizing restore...",
                 progress = 1.0f,
                 message = "Restore complete!"
@@ -261,7 +264,7 @@ class AIBackupAutomationService @Inject constructor(
             _restoreState.value = RestoreState.COMPLETED
             _backupProgress.value = null
             
-            RestoreResult(
+            LocalRestoreResult(
                 success = true,
                 charactersRestored = restoredCharacters.size,
                 memoriesRestored = restoredMemories.size,
@@ -273,7 +276,7 @@ class AIBackupAutomationService @Inject constructor(
             _restoreState.value = RestoreState.FAILED
             _backupProgress.value = null
             
-            RestoreResult(
+            LocalRestoreResult(
                 success = false,
                 error = e.message ?: "Unknown restore error"
             )
@@ -470,15 +473,15 @@ class AIBackupAutomationService @Inject constructor(
     private fun saveBackupToFile(
         data: ByteArray, 
         checksum: String, 
-        location: BackupLocation
+        location: LocalBackupLocation
     ): File {
         val backupDir = when (location) {
-            BackupLocation.INTERNAL -> File(context.filesDir, "ai_backups")
-            BackupLocation.EXTERNAL -> {
+            LocalBackupLocation.INTERNAL -> File(context.filesDir, "ai_backups")
+            LocalBackupLocation.EXTERNAL -> {
                 val externalDir = context.getExternalFilesDir("ai_backups")
                 externalDir ?: File(context.filesDir, "ai_backups")
             }
-            BackupLocation.SD_CARD -> {
+            LocalBackupLocation.SD_CARD -> {
                 val sdCardDir = context.getExternalFilesDirs(null)
                     .find { Environment.isExternalStorageRemovable(it) }
                     ?.let { File(it, "ai_backups") }
@@ -606,9 +609,9 @@ class AIBackupAutomationService @Inject constructor(
     /**
      * Get backup location
      */
-    fun getBackupLocation(): BackupLocation {
-        val locationName = preferences.getString(KEY_BACKUP_LOCATION, BackupLocation.SD_CARD.name)
-        return BackupLocation.valueOf(locationName ?: BackupLocation.SD_CARD.name)
+    fun getBackupLocation(): LocalBackupLocation {
+        val locationName = preferences.getString(KEY_BACKUP_LOCATION, LocalBackupLocation.SD_CARD.name)
+        return LocalBackupLocation.valueOf(locationName ?: LocalBackupLocation.SD_CARD.name)
     }
     
     /**
@@ -640,7 +643,7 @@ class AIBackupAutomationService @Inject constructor(
     /**
      * Update backup location
      */
-    fun updateBackupLocation(location: BackupLocation) {
+    fun updateBackupLocation(location: LocalBackupLocation) {
         preferences.edit()
             .putString(KEY_BACKUP_LOCATION, location.name)
             .apply()
@@ -658,7 +661,7 @@ class AIBackupAutomationService @Inject constructor(
     /**
      * Get backup history
      */
-    fun getBackupHistory(): List<BackupResult> {
+    fun getBackupHistory(): List<LocalBackupResult> {
         // Implementation would return backup history from storage
         // For now, return empty list
         return emptyList()
@@ -674,7 +677,7 @@ class AIBackupAutomationService @Inject constructor(
                 val backupResult = performBackup()
                 if (backupResult.success && backupResult.backupFile != null) {
                     // Share the backup file using Android's share intent
-                    val backupFile = File(backupResult.backupFile)
+                    val backupFile = backupResult.backupFile
                     if (backupFile.exists()) {
                         // Use Android's share functionality
                         // This would require context to create share intent
@@ -732,38 +735,41 @@ enum class RestoreState {
     FAILED
 }
 
-enum class BackupLocation {
+@Serializable
+enum class LocalBackupLocation {
     INTERNAL,
     EXTERNAL,
     SD_CARD
 }
 
+@Serializable
 data class BackupOptions(
     val includeCharacters: Boolean = true,
     val includeMemories: Boolean = true,
     val includeSettings: Boolean = true,
     val compressionEnabled: Boolean = true,
     val encryptionEnabled: Boolean = true,
-    val location: BackupLocation = BackupLocation.INTERNAL
+    val location: LocalBackupLocation = LocalBackupLocation.INTERNAL
 )
 
-data class BackupProgress(
+data class LocalBackupProgress(
     val stage: String,
     val progress: Float,
     val message: String
 )
 
-data class BackupResult(
+data class LocalBackupResult(
     val success: Boolean,
     val backupFile: File? = null,
     val fileSize: Long = 0,
     val itemCount: Int = 0,
     val duration: Long = 0,
     val checksum: String? = null,
-    val error: String? = null
+    val error: String? = null,
+    val timestamp: Long = System.currentTimeMillis()
 )
 
-data class RestoreResult(
+data class LocalRestoreResult(
     val success: Boolean,
     val charactersRestored: Int = 0,
     val memoriesRestored: Int = 0,

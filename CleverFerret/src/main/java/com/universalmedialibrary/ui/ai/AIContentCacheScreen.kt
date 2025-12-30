@@ -45,7 +45,7 @@ fun AIContentCacheScreen(
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     
     var searchQuery by remember { mutableStateOf("") }
-    var selectedCharacter by remember { mutableStateLong(0L) }
+    var selectedCharacter by remember { mutableLongStateOf(0L) }
     var showCleanupDialog by remember { mutableStateOf(false) }
     
     Scaffold(
@@ -225,7 +225,7 @@ private fun CharacterFilterChip(
 
 @Composable
 private fun CacheStatisticsCard(
-    stats: CacheStatistics,
+    stats: LocalCacheStatistics,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -267,7 +267,7 @@ private fun CacheStatisticsCard(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = formatFileSize(stats.totalSize),
+                        text = formatFileSize(stats.totalSizeBytes),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -286,7 +286,7 @@ private fun CacheStatisticsCard(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = formatFileSize(stats.usedSpace),
+                        text = formatFileSize(stats.totalSizeBytes),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -296,11 +296,11 @@ private fun CacheStatisticsCard(
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text = "Available",
+                        text = "Cache Usage",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = formatFileSize(stats.availableSpace),
+                        text = "${stats.cacheUsagePercent.toInt()}%",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -312,7 +312,7 @@ private fun CacheStatisticsCard(
 
 @Composable
 private fun DownloadProgressCard(
-    progress: DownloadProgress,
+    progress: LocalDownloadProgress,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -335,13 +335,13 @@ private fun DownloadProgressCard(
                 )
                 
                 when (progress.status) {
-                    DownloadStatus.DOWNLOADING -> {
+                    LocalDownloadStatus.DOWNLOADING -> {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
                             strokeWidth = 2.dp
                         )
                     }
-                    DownloadStatus.COMPLETED -> {
+                    LocalDownloadStatus.COMPLETED -> {
                         Icon(
                             Icons.Filled.CheckCircle,
                             contentDescription = "Completed",
@@ -349,7 +349,7 @@ private fun DownloadProgressCard(
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                    DownloadStatus.FAILED -> {
+                    LocalDownloadStatus.FAILED -> {
                         Icon(
                             Icons.Filled.Error,
                             contentDescription = "Failed",
@@ -376,7 +376,7 @@ private fun DownloadProgressCard(
             Spacer(modifier = Modifier.height(8.dp))
             
             Text(
-                text = "${formatFileSize(progress.downloadedBytes)} / ${formatFileSize(progress.totalBytes)}",
+                text = "${formatFileSize(progress.bytesDownloaded)} / ${formatFileSize(progress.totalBytes)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -386,7 +386,7 @@ private fun DownloadProgressCard(
 
 @Composable
 private fun CacheItemCard(
-    item: CacheItem,
+    item: LocalCacheItem,
     onOpen: () -> Unit,
     onDelete: () -> Unit,
     onShare: () -> Unit
@@ -437,7 +437,7 @@ private fun CacheItemCard(
                             color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
                             Text(
-                                text = item.contentType.name,
+                                text = item.type.name,
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                             )
@@ -445,14 +445,14 @@ private fun CacheItemCard(
                         
                         // Size
                         Text(
-                            text = formatFileSize(item.fileSize),
+                            text = formatFileSize(item.sizeBytes),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         
                         // Download Date
                         Text(
-                            text = formatTimestamp(item.downloadedAt),
+                            text = formatTimestamp(item.createdAt),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

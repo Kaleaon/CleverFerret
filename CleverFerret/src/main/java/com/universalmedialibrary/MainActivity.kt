@@ -124,8 +124,13 @@ private fun FileReaderScreen(
     onClose: () -> Unit,
     onOpenInApp: () -> Unit
 ) {
+    val uriString = fileUri.toString()
+    val fileName = remember(fileUri) {
+        fileUri.lastPathSegment ?: "unknown_file"
+    }
+    
     val mimeType = remember(fileUri) {
-        fileUri.toString().lowercase().let { path ->
+        uriString.lowercase().let { path ->
             when {
                 path.endsWith(".epub") -> "application/epub+zip"
                 path.endsWith(".pdf") -> "application/pdf"
@@ -142,29 +147,29 @@ private fun FileReaderScreen(
     when (mimeType) {
         "application/epub+zip" -> {
             EnhancedEReaderScreen(
-                bookFilePath = fileUri,
+                bookFilePath = uriString,
                 onBack = onClose
             )
         }
         "application/pdf" -> {
             DocumentReaderScreen(
-                uriString = fileUri,
-                fileName = fileName ?: "document.pdf",
+                uriString = uriString,
+                fileName = fileName,
                 onBack = onClose
             )
         }
         "application/x-cbz", "application/x-cbr" -> {
             ComicReaderScreen(
-                uriString = fileUri,
-                fileName = fileName ?: "comic.cbz",
+                uriString = uriString,
+                fileName = fileName,
                 onBack = onClose
             )
         }
         "text/plain", "text/html", 
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> {
             DocumentReaderScreen(
-                uriString = fileUri,
-                fileName = fileName ?: "document.txt",
+                uriString = uriString,
+                fileName = fileName,
                 onBack = onClose
             )
         }

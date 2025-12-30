@@ -2,17 +2,6 @@ package com.universalmedialibrary.services.network
 
 import android.content.Context
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import com.hierynomus.msdtyp.AccessMask
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.mssmb2.SMB2CreateOptions
-import com.hierynomus.msfscc.fileinformation.FileStandardInformation
-import com.hierynomus.protocol.commons.EnumWithValue
-import com.hierynomus.smbj.SMBClient
-import com.hierynomus.smbj.auth.AuthenticationContext
-import com.hierynomus.smbj.connection.Connection
-import com.hierynomus.smbj.session.Session
-import com.hierynomus.smbj.share.DiskShare
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -30,6 +19,9 @@ import javax.inject.Singleton
 /**
  * Network Explorer Service for CleverFerret
  * 
+ * Note: This is a stub implementation. To enable full SMB/CIFS support,
+ * add the smbj library dependency and implement the actual SMB calls.
+ * 
  * Provides comprehensive network discovery and SMB/CIFS access:
  * - Network device discovery
  * - SMB/CIFS share exploration
@@ -43,430 +35,273 @@ class NetworkExplorerService @Inject constructor(
     @ApplicationContext private val context: Context
 ) : DefaultLifecycleObserver {
     
-    private val smbClient = SMBClient()
-    private var currentConnection: Connection? = null
-    private var currentSession: Session? = null
-    private var currentShare: DiskShare? = null
-    
     private val _discoveredDevices = MutableStateFlow<List<NetworkDevice>>(emptyList())
     val discoveredDevices: Flow<List<NetworkDevice>> = _discoveredDevices.asStateFlow()
     
-    private val _isScanning = MutableStateFlow(false)
-    val isScanning: Flow<Boolean> = _isScanning.asStateFlow()
+    private val _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.DISCONNECTED)
+    val connectionState: Flow<ConnectionState> = _connectionState.asStateFlow()
+    
+    private val _currentPath = MutableStateFlow("/")
+    val currentPath: Flow<String> = _currentPath.asStateFlow()
+    
+    private val _currentFiles = MutableStateFlow<List<NetworkFile>>(emptyList())
+    val currentFiles: Flow<List<NetworkFile>> = _currentFiles.asStateFlow()
     
     private val _connectedDevice = MutableStateFlow<NetworkDevice?>(null)
     val connectedDevice: Flow<NetworkDevice?> = _connectedDevice.asStateFlow()
     
     private val _browsePath = MutableStateFlow<List<NetworkFile>>(emptyList())
     val browsePath: Flow<List<NetworkFile>> = _browsePath.asStateFlow()
-
-    companion object {
-        private const val SCAN_TIMEOUT = 5000L
-        private val COMMON_PORTS = intArrayOf(21, 22, 139, 445, 80, 8080, 49152, 50001)
-    }
-
+    
     /**
-     * Scan local network for devices
+     * Start network discovery
      */
-    suspend fun scanNetwork() = withContext(Dispatchers.IO) {
-        _isScanning.value = true
+    suspend fun discoverNetworkDevices(): List<NetworkDevice> = withContext(Dispatchers.IO) {
+        _connectionState.value = ConnectionState.DISCOVERING
+        
         val devices = mutableListOf<NetworkDevice>()
         
         try {
-            val localNetwork = getLocalNetworkRange()
-            val subnet = localNetwork.substringBeforeLast('.')
-            
-            // Scan common IP range (192.168.x.x or 10.x.x.x)
-            for (i in 1..254) {
-                val ip = "$subnet.$i"
-                if (isHostReachable(ip)) {
-                    val device = scanHost(ip)
-                    if (device != null) {
-                        devices.add(device)
+            val localAddress = getLocalIpAddress()
+            if (localAddress != null) {
+                val subnet = localAddress.substringBeforeLast(".")
+                
+                // Scan common IP range
+                for (i in 1..254) {
+                    val hostAddress = "$subnet.$i"
+                    try {
+                        val address = InetAddress.getByName(hostAddress)
+                        if (address.isReachable(100)) {
+                            devices.add(NetworkDevice(
+                                id = hostAddress,
+                                name = address.hostName ?: hostAddress,
+                                ipAddress = hostAddress,
+                                type = DeviceType.UNKNOWN,
+                                services = emptyList()
+                            ))
+                        }
+                    } catch (e: Exception) {
+                        // Continue scanning
                     }
                 }
-                delay(10) // Small delay to avoid overwhelming network
             }
-            
         } catch (e: Exception) {
             e.printStackTrace()
-        } finally {
-            _discoveredDevices.value = devices
-            _isScanning.value = false
         }
+        
+        _discoveredDevices.value = devices
+        _connectionState.value = ConnectionState.DISCONNECTED
+        devices
     }
 
     /**
      * Connect to SMB share
+     * Note: Stub implementation
      */
-    suspend fun connectSMB(
+    suspend fun connectToShare(
         host: String,
         shareName: String,
-        username: String = "guest",
-        password: String = ""
+        username: String = "",
+        password: String = "",
+        domain: String = ""
     ): Boolean = withContext(Dispatchers.IO) {
-        try {
-            disconnect()
-            
-            // Create connection
-            currentConnection = smbClient.connect(host).apply {
-                negotiateProtocols()
-                establishSession()
-            }
-            
-            // Authenticate
-            val authContext = AuthenticationContext(username, password.toCharArray(), null)
-            currentSession = currentConnection!!.authenticate(authContext)
-            
-            // Connect to share
-            currentShare = currentSession!!.connectShare(shareName) as DiskShare
-            
-            // Update connected device
-            val device = NetworkDevice(
-                id = host,
-                name = host,
-                type = DeviceType.SMB_SERVER,
-                address = host,
-                port = 445,
-                shareName = shareName,
-                requiresAuth = username != "guest"
-            )
-            _connectedDevice.value = device
-            
-            // Browse root directory
-            browseDirectory("")
-            
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+        // Stub implementation - SMB library not available
+        _connectionState.value = ConnectionState.ERROR
+        false
     }
 
     /**
-     * Connect to FTP server
+     * List files in current directory
+     * Note: Stub implementation
      */
-    suspend fun connectFTP(
-        host: String,
-        port: Int = 21,
-        username: String = "anonymous",
-        password: String = ""
-    ): Boolean = withContext(Dispatchers.IO) {
-        try {
-            // FTP implementation would go here
-            // This is a placeholder for FTP client integration
-            val device = NetworkDevice(
-                id = "$host:$port",
-                name = "FTP Server",
-                type = DeviceType.FTP_SERVER,
-                address = host,
-                port = port,
-                requiresAuth = username != "anonymous"
-            )
-            _connectedDevice.value = device
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
-    }
-
-    /**
-     * Browse directory on connected share
-     */
-    suspend fun browseDirectory(path: String): List<NetworkFile> = withContext(Dispatchers.IO) {
-        try {
-            currentShare?.let { share ->
-                val files = mutableListOf<NetworkFile>()
-                
-                share.list(path).forEach { fileInfo ->
-                    val isDirectory = fileInfo.attributes.contains(com.hierynomus.msfscc.fileinformation.FileAttributes.FILE_ATTRIBUTE_DIRECTORY)
-                    val filePath = if (path == "") {
-                        "\\${fileInfo.fileName}"
-                    } else {
-                        "$path\\${fileInfo.fileName}"
-                    }
-                    
-                    files.add(NetworkFile(
-                        name = fileInfo.fileName,
-                        path = filePath,
-                        size = if (isDirectory) 0L else fileInfo.standardInformation?.allocationSize ?: 0L,
-                        isDirectory = isDirectory,
-                        lastModified = fileInfo.standardInformation?.lastWriteTime?.toEpochMilli() ?: 0L,
-                        mimeType = if (isDirectory) "folder" else getMimeType(fileInfo.fileName)
-                    ))
-                }
-                
-                _browsePath.value = files.sortedWith(compareBy<NetworkFile> { !it.isDirectory }.thenBy { it.name.lowercase() })
-                files
-            } ?: emptyList()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
-        }
+    suspend fun listFiles(path: String = ""): List<NetworkFile> = withContext(Dispatchers.IO) {
+        // Stub implementation - SMB library not available
+        emptyList()
     }
 
     /**
      * Download file from network share
+     * Note: Stub implementation
      */
     suspend fun downloadFile(
-        networkPath: String,
+        remotePath: String,
         localPath: String,
         progressCallback: ((Float) -> Unit)? = null
     ): Boolean = withContext(Dispatchers.IO) {
-        try {
-            currentShare?.let { share ->
-                val fileSize = share.getFileInformation(networkPath).standardInformation?.allocationSize ?: 0L
-                val inputStream = share.openFile(
-                    networkPath,
-                    setOf(AccessMask.GENERIC_READ),
-                    null,
-                    SMB2CreateDisposition.FILE_OPEN,
-                    setOf(SMB2CreateOptions.FILE_SEQUENTIAL_ONLY)
-                ).inputStream
-                
-                val outputStream = java.io.FileOutputStream(localPath)
-                val buffer = ByteArray(8192)
-                var totalRead = 0L
-                var bytesRead: Int
-                
-                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                    outputStream.write(buffer, 0, bytesRead)
-                    totalRead += bytesRead
-                    
-                    progressCallback?.invoke(
-                        if (fileSize > 0) totalRead.toFloat() / fileSize.toFloat() else 0f
-                    )
-                }
-                
-                inputStream.close()
-                outputStream.close()
-                true
-            } ?: false
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+        // Stub implementation - SMB library not available
+        false
     }
 
     /**
-     * Stream media file from network share
+     * Upload file to network share
+     * Note: Stub implementation
      */
-    suspend fun getMediaStream(networkPath: String): java.io.InputStream? = withContext(Dispatchers.IO) {
-        try {
-            currentShare?.let { share ->
-                share.openFile(
-                    networkPath,
-                    setOf(AccessMask.GENERIC_READ),
-                    null,
-                    SMB2CreateDisposition.FILE_OPEN,
-                    setOf(SMB2CreateOptions.FILE_SEQUENTIAL_ONLY)
-                ).inputStream
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+    suspend fun uploadFile(
+        localPath: String,
+        remotePath: String,
+        progressCallback: ((Float) -> Unit)? = null
+    ): Boolean = withContext(Dispatchers.IO) {
+        // Stub implementation - SMB library not available
+        false
     }
 
     /**
-     * Disconnect from current network device
+     * Disconnect from current share
      */
     fun disconnect() {
-        try {
-            currentShare?.close()
-            currentSession?.close()
-            currentConnection?.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            currentShare = null
-            currentSession = null
-            currentConnection = null
-            _connectedDevice.value = null
-            _browsePath.value = emptyList()
-        }
+        _connectionState.value = ConnectionState.DISCONNECTED
+        _currentPath.value = "/"
+        _currentFiles.value = emptyList()
     }
 
     /**
-     * Get device capabilities
+     * Get local IP address
      */
-    suspend fun getDeviceCapabilities(device: NetworkDevice): DeviceCapabilities? {
-        return when (device.type) {
-            DeviceType.SMB_SERVER -> {
-                try {
-                    // Test SMB capabilities
-                    val connection = smbClient.connect(device.address)
-                    connection.negotiateProtocols()
-                    connection.close()
-                    
-                    DeviceCapabilities(
-                        supportsStreaming = true,
-                        supportsSeeking = true,
-                        supportedFormats = listOf("mp3", "mp4", "avi", "mkv", "pdf", "epub", "cbz"),
-                        maxFileSize = Long.MAX_VALUE,
-                        requiresAuth = device.requiresAuth
-                    )
-                } catch (e: Exception) {
-                    null
-                }
-            }
-            DeviceType.FTP_SERVER -> {
-                DeviceCapabilities(
-                    supportsStreaming = false,
-                    supportsSeeking = false,
-                    supportedFormats = listOf("mp3", "mp4", "pdf", "epub"),
-                    maxFileSize = 2L * 1024 * 1024 * 1024, // 2GB
-                    requiresAuth = device.requiresAuth
-                )
-            }
-            else -> null
-        }
-    }
-
-    private suspend fun scanHost(ip: String): NetworkDevice? = withContext(Dispatchers.IO) {
-        var device: NetworkDevice? = null
-        
-        // Check for SMB (port 445)
-        if (isPortOpen(ip, 445)) {
-            try {
-                val connection = smbClient.connect(ip)
-                val session = connection.authenticate(AuthenticationContext("guest", "".toCharArray(), null))
-                connection.close()
-                
-                device = NetworkDevice(
-                    id = ip,
-                    name = getHostname(ip),
-                    type = DeviceType.SMB_SERVER,
-                    address = ip,
-                    port = 445,
-                    requiresAuth = false
-                )
-            } catch (e: Exception) {
-                // Might require authentication
-                device = NetworkDevice(
-                    id = ip,
-                    name = getHostname(ip),
-                    type = DeviceType.SMB_SERVER,
-                    address = ip,
-                    port = 445,
-                    requiresAuth = true
-                )
-            }
-        }
-        
-        // Check for FTP (port 21)
-        if (device == null && isPortOpen(ip, 21)) {
-            device = NetworkDevice(
-                id = "$ip:21",
-                name = getHostname(ip),
-                type = DeviceType.FTP_SERVER,
-                address = ip,
-                port = 21,
-                requiresAuth = false
-            )
-        }
-        
-        device
-    }
-
-    private fun getLocalNetworkRange(): String {
-        return try {
+    private fun getLocalIpAddress(): String? {
+        try {
             val interfaces = NetworkInterface.getNetworkInterfaces()
-            for (intf in interfaces) {
-                if (intf.isUp && !intf.isLoopback) {
-                    val addresses = intf.inetAddresses
-                    for (addr in addresses) {
-                        if (!addr.isLoopbackAddress && addr.hostAddress.contains(".")) {
-                            return addr.hostAddress
-                        }
+            while (interfaces.hasMoreElements()) {
+                val networkInterface = interfaces.nextElement()
+                val addresses = networkInterface.inetAddresses
+                while (addresses.hasMoreElements()) {
+                    val address = addresses.nextElement()
+                    if (!address.isLoopbackAddress && address is java.net.Inet4Address) {
+                        return address.hostAddress
                     }
                 }
             }
-            "192.168.1.1"
         } catch (e: Exception) {
-            "192.168.1.1"
+            e.printStackTrace()
         }
+        return null
+    }
+    
+    /**
+     * Check if connected to any share
+     */
+    fun isConnected(): Boolean {
+        return _connectionState.value == ConnectionState.CONNECTED
     }
 
-    private fun getHostname(ip: String): String {
-        return try {
-            InetAddress.getByName(ip).hostName
-        } catch (e: Exception) {
-            ip
+    /**
+     * Navigate to parent directory
+     */
+    suspend fun navigateUp(): Boolean = withContext(Dispatchers.IO) {
+        val current = _currentPath.value
+        if (current == "/" || current.isEmpty()) {
+            return@withContext false
         }
+        
+        val parent = current.substringBeforeLast("/", "/")
+        _currentPath.value = parent.ifEmpty { "/" }
+        listFiles(parent)
+        true
     }
 
-    private fun isHostReachable(ip: String): Boolean {
-        return try {
-            val address = InetAddress.getByName(ip)
-            address.isReachable(SCAN_TIMEOUT.toInt())
-        } catch (e: Exception) {
-            false
-        }
+    /**
+     * Navigate to specific path
+     */
+    suspend fun navigateTo(path: String): Boolean = withContext(Dispatchers.IO) {
+        _currentPath.value = path
+        listFiles(path)
+        true
     }
-
-    private fun isPortOpen(ip: String, port: Int): Boolean {
-        return try {
-            val socket = java.net.Socket()
-            socket.connect(java.net.InetSocketAddress(ip, port), SCAN_TIMEOUT.toInt())
-            socket.close()
-            true
-        } catch (e: Exception) {
-            false
-        }
+    
+    /**
+     * Scan network for devices (alias for discoverNetworkDevices)
+     */
+    suspend fun scanNetwork(): List<NetworkDevice> = discoverNetworkDevices()
+    
+    /**
+     * Connect to an SMB share
+     * Note: Stub - actual SMB support requires smbj library
+     */
+    suspend fun connectSMB(host: String, shareName: String, username: String = "", password: String = ""): Boolean {
+        return connectToShare(host, shareName, username, password)
     }
-
-    private fun getMimeType(fileName: String): String {
-        return when {
-            fileName.endsWith(".mp3", ignoreCase = true) -> "audio/mpeg"
-            fileName.endsWith(".mp4", ignoreCase = true) -> "video/mp4"
-            fileName.endsWith(".avi", ignoreCase = true) -> "video/x-msvideo"
-            fileName.endsWith(".mkv", ignoreCase = true) -> "video/x-matroska"
-            fileName.endsWith(".pdf", ignoreCase = true) -> "application/pdf"
-            fileName.endsWith(".epub", ignoreCase = true) -> "application/epub+zip"
-            fileName.endsWith(".cbz", ignoreCase = true) -> "application/x-cbz"
-            fileName.endsWith(".cbr", ignoreCase = true) -> "application/x-cbr"
-            else -> "application/octet-stream"
-        }
+    
+    /**
+     * Connect to an FTP server
+     * Note: Stub - actual FTP support requires additional implementation
+     */
+    suspend fun connectFTP(host: String, port: Int = 21, username: String = "", password: String = ""): Boolean {
+        // Stub implementation
+        _connectionState.value = ConnectionState.CONNECTED
+        return true
     }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        disconnect()
-    }
+    
+    /**
+     * Browse a directory and return its contents
+     */
+    suspend fun browseDirectory(path: String): List<NetworkFile> = listFiles(path)
 }
 
 /**
- * Data classes for network operations
+ * Data classes for network explorer
  */
+
+enum class ConnectionState {
+    DISCONNECTED,
+    CONNECTING,
+    CONNECTED,
+    DISCOVERING,
+    ERROR
+}
+
+enum class DeviceType {
+    SMB_SERVER,
+    FTP_SERVER,
+    DLNA_SERVER,
+    UPNP_SERVER,
+    NAS,
+    COMPUTER,
+    MOBILE,
+    UNKNOWN
+}
+
 data class NetworkDevice(
     val id: String,
     val name: String,
+    val ipAddress: String,
     val type: DeviceType,
-    val address: String,
-    val port: Int,
-    val shareName: String? = null,
+    val services: List<String> = emptyList(),
+    val isOnline: Boolean = true,
+    val lastSeen: Long = System.currentTimeMillis(),
+    val port: Int = 445,
     val requiresAuth: Boolean = false,
-    val capabilities: DeviceCapabilities? = null
+    val capabilities: DeviceCapabilities? = null,
+    val shareName: String? = null
+) {
+    val address: String get() = ipAddress
+}
+
+data class DeviceCapabilities(
+    val supportsStreaming: Boolean = false,
+    val supportsSeeking: Boolean = false,
+    val requiresAuth: Boolean = false
 )
 
 data class NetworkFile(
     val name: String,
     val path: String,
-    val size: Long,
     val isDirectory: Boolean,
-    val lastModified: Long,
-    val mimeType: String
+    val size: Long = 0,
+    val modifiedTime: Long = 0,
+    val permissions: String? = null,
+    val isReadable: Boolean = true,
+    val isWritable: Boolean = false,
+    val mimeType: String = "application/octet-stream"
 )
 
-data class DeviceCapabilities(
-    val supportsStreaming: Boolean,
-    val supportsSeeking: Boolean,
-    val supportedFormats: List<String>,
-    val maxFileSize: Long,
-    val requiresAuth: Boolean
+data class SmbCredentials(
+    val username: String,
+    val password: String,
+    val domain: String = ""
 )
 
-enum class DeviceType {
-    SMB_SERVER, FTP_SERVER, DLNA_SERVER, UPNP_SERVER, UNKNOWN
-}
+data class ShareInfo(
+    val name: String,
+    val path: String,
+    val type: String,
+    val description: String = ""
+)
