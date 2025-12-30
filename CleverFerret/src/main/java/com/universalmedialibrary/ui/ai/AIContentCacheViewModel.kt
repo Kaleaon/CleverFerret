@@ -18,14 +18,14 @@ class AIContentCacheViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _cacheItems = MutableStateFlow<List<CacheItem>>(emptyList())
-    val cacheItems: StateFlow<List<CacheItem>> = _cacheItems.asStateFlow()
+    private val _cacheItems = MutableStateFlow<List<LocalCacheItem>>(emptyList())
+    val cacheItems: StateFlow<List<LocalCacheItem>> = _cacheItems.asStateFlow()
 
-    private val _cacheStatistics = MutableStateFlow<CacheStatistics?>(null)
-    val cacheStatistics: StateFlow<CacheStatistics?> = _cacheStatistics.asStateFlow()
+    private val _cacheStatistics = MutableStateFlow<LocalCacheStatistics?>(null)
+    val cacheStatistics: StateFlow<LocalCacheStatistics?> = _cacheStatistics.asStateFlow()
 
-    private val _downloadProgress = MutableStateFlow<DownloadProgress?>(null)
-    val downloadProgress: StateFlow<DownloadProgress?> = _downloadProgress.asStateFlow()
+    private val _downloadProgress = MutableStateFlow<LocalDownloadProgress?>(null)
+    val downloadProgress: StateFlow<LocalDownloadProgress?> = _downloadProgress.asStateFlow()
 
     init {
         loadCacheItems()
@@ -106,7 +106,7 @@ class AIContentCacheViewModel @Inject constructor(
         )
     }
 
-    fun openCacheItem(item: CacheItem) {
+    fun openCacheItem(item: LocalCacheItem) {
         viewModelScope.launch {
             try {
                 enhancedAIContentCacheService.openCacheItem(item)
@@ -116,7 +116,7 @@ class AIContentCacheViewModel @Inject constructor(
         }
     }
 
-    fun deleteCacheItem(item: CacheItem) {
+    fun deleteCacheItem(item: LocalCacheItem) {
         viewModelScope.launch {
             try {
                 enhancedAIContentCacheService.deleteCacheItem(item)
@@ -128,7 +128,7 @@ class AIContentCacheViewModel @Inject constructor(
         }
     }
 
-    fun shareCacheItem(item: CacheItem) {
+    fun shareCacheItem(item: LocalCacheItem) {
         viewModelScope.launch {
             try {
                 enhancedAIContentCacheService.shareCacheItem(item)

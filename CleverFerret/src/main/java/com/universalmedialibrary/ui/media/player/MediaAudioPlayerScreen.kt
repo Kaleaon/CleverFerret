@@ -191,7 +191,7 @@ fun MediaAudioPlayerScreen(
                 Spacer(modifier = Modifier.height(MediaSpacing.XS))
                 
                 Text(
-                    text = state.artist,
+                    text = state.artist ?: "",
                     style = MediaTypography.BodyMedium,
                     color = MediaColors.TextSecondary,
                     textAlign = TextAlign.Center,
@@ -631,7 +631,7 @@ private fun QueueSheet(
                             fontWeight = if (index == currentIndex) FontWeight.SemiBold else FontWeight.Normal
                         )
                         Text(
-                            text = item.artist,
+                            text = item.artist ?: "",
                             style = MediaTypography.LabelSmall,
                             color = MediaColors.TextSecondary,
                             maxLines = 1,
@@ -817,14 +817,14 @@ private fun formatTime(ms: Long): String {
 // =============================================================================
 
 data class AudioPlayerState(
-    val title: String,
-    val artist: String,
-    val albumTitle: String?,
-    val artworkUrl: String?,
-    val currentPosition: Long,
-    val duration: Long,
-    val isPlaying: Boolean,
-    val playerType: PlayerType,
+    val title: String = "",
+    val artist: String? = null,
+    val albumTitle: String? = null,
+    val artworkUrl: String? = null,
+    val currentPosition: Long = 0L,
+    val duration: Long = 0L,
+    val isPlaying: Boolean = false,
+    val playerType: PlayerType = PlayerType.MUSIC,
     val playbackSpeed: Float = 1.0f,
     val isShuffleEnabled: Boolean = false,
     val repeatMode: RepeatMode = RepeatMode.OFF,
@@ -849,9 +849,10 @@ enum class RepeatMode {
 data class QueueItem(
     val id: String,
     val title: String,
-    val artist: String,
+    val artist: String? = null,
     val artworkUrl: String?,
-    val duration: Long
+    val duration: Long,
+    val isCurrentItem: Boolean = false
 )
 
 data class ChapterPosition(

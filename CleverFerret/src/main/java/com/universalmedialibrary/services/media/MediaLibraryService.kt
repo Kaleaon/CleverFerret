@@ -18,22 +18,22 @@ import javax.inject.Singleton
 @Singleton
 class MediaLibraryService @Inject constructor() {
     
-    private val _currentPlaylist = MutableStateFlow<MediaPlaylist?>(null)
-    val currentPlaylist: Flow<MediaPlaylist?> = _currentPlaylist.asStateFlow()
+    private val _currentPlaylist = MutableStateFlow<StreamMediaPlaylist?>(null)
+    val currentPlaylist: Flow<StreamMediaPlaylist?> = _currentPlaylist.asStateFlow()
     
-    private val _currentlyPlaying = MutableStateFlow<MediaItem?>(null)
-    val currentlyPlaying: Flow<MediaItem?> = _currentlyPlaying.asStateFlow()
+    private val _currentlyPlaying = MutableStateFlow<StreamMediaItem?>(null)
+    val currentlyPlaying: Flow<StreamMediaItem?> = _currentlyPlaying.asStateFlow()
     
-    private val _playbackState = MutableStateFlow(PlaybackState.STOPPED)
-    val playbackState: Flow<PlaybackState> = _playbackState.asStateFlow()
+    private val _playbackState = MutableStateFlow(MediaPlaybackState.STOPPED)
+    val playbackState: Flow<MediaPlaybackState> = _playbackState.asStateFlow()
     
-    private val _mediaLibrary = MutableStateFlow<List<MediaItem>>(emptyList())
-    val mediaLibrary: Flow<List<MediaItem>> = _mediaLibrary.asStateFlow()
+    private val _mediaLibrary = MutableStateFlow<List<StreamMediaItem>>(emptyList())
+    val mediaLibrary: Flow<List<StreamMediaItem>> = _mediaLibrary.asStateFlow()
 
     /**
      * Add media item to library
      */
-    suspend fun addMediaItem(item: MediaItem): Boolean {
+    suspend fun addMediaItem(item: StreamMediaItem): Boolean {
         val currentLibrary = _mediaLibrary.value.toMutableList()
         currentLibrary.add(item)
         _mediaLibrary.value = currentLibrary
@@ -55,24 +55,24 @@ class MediaLibraryService @Inject constructor() {
     /**
      * Get currently playing media item
      */
-    fun getCurrentlyPlaying(): MediaItem? {
+    fun getCurrentlyPlaying(): StreamMediaItem? {
         return _currentlyPlaying.value
     }
 
     /**
      * Start playing media item
      */
-    suspend fun playMedia(item: MediaItem) {
+    suspend fun playMedia(item: StreamMediaItem) {
         _currentlyPlaying.value = item
-        _playbackState.value = PlaybackState.PLAYING
+        _playbackState.value = MediaPlaybackState.PLAYING
     }
 
     /**
      * Pause playback
      */
     suspend fun pausePlayback() {
-        if (_playbackState.value == PlaybackState.PLAYING) {
-            _playbackState.value = PlaybackState.PAUSED
+        if (_playbackState.value == MediaPlaybackState.PLAYING) {
+            _playbackState.value = MediaPlaybackState.PAUSED
         }
     }
 
@@ -80,8 +80,8 @@ class MediaLibraryService @Inject constructor() {
      * Resume playback
      */
     suspend fun resumePlayback() {
-        if (_playbackState.value == PlaybackState.PAUSED) {
-            _playbackState.value = PlaybackState.PLAYING
+        if (_playbackState.value == MediaPlaybackState.PAUSED) {
+            _playbackState.value = MediaPlaybackState.PLAYING
         }
     }
 
@@ -90,14 +90,14 @@ class MediaLibraryService @Inject constructor() {
      */
     suspend fun stopPlayback() {
         _currentlyPlaying.value = null
-        _playbackState.value = PlaybackState.STOPPED
+        _playbackState.value = MediaPlaybackState.STOPPED
     }
 
     /**
      * Create playlist
      */
-    suspend fun createPlaylist(name: String, items: List<MediaItem>): MediaPlaylist {
-        return MediaPlaylist(
+    suspend fun createPlaylist(name: String, items: List<StreamMediaItem>): StreamMediaPlaylist {
+        return StreamMediaPlaylist(
             id = generateId(),
             name = name,
             items = items,
@@ -108,7 +108,7 @@ class MediaLibraryService @Inject constructor() {
     /**
      * Load playlist
      */
-    suspend fun loadPlaylist(playlist: MediaPlaylist) {
+    suspend fun loadPlaylist(playlist: StreamMediaPlaylist) {
         _currentPlaylist.value = playlist
         if (playlist.items.isNotEmpty()) {
             playMedia(playlist.items[0])
@@ -118,7 +118,7 @@ class MediaLibraryService @Inject constructor() {
     /**
      * Search media library
      */
-    suspend fun searchMedia(query: String): List<MediaItem> {
+    suspend fun searchMedia(query: String): List<StreamMediaItem> {
         return _mediaLibrary.value.filter { item ->
             item.title.contains(query, ignoreCase = true) ||
             item.artist?.contains(query, ignoreCase = true) == true ||
@@ -134,7 +134,7 @@ class MediaLibraryService @Inject constructor() {
 /**
  * Data classes for media operations
  */
-data class MediaItem(
+data class StreamMediaItem(
     val id: String,
     val title: String,
     val artist: String? = null,
@@ -146,14 +146,14 @@ data class MediaItem(
     val lastModified: Long = System.currentTimeMillis()
 )
 
-data class MediaPlaylist(
+data class StreamMediaPlaylist(
     val id: String,
     val name: String,
-    val items: List<MediaItem>,
+    val items: List<StreamMediaItem>,
     val createdAt: Long,
     val description: String? = null
 )
 
-enum class PlaybackState {
+enum class MediaPlaybackState {
     STOPPED, PLAYING, PAUSED, BUFFERING
 }

@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.media.*
+import com.universalmedialibrary.services.sharing.ConnectedDevice
+import com.universalmedialibrary.services.sharing.SharingMode
 
 /**
  * QR Code Sharing Screen for CleverFerret
@@ -512,10 +514,6 @@ private fun formatConnectionTime(timestamp: Long): String {
         diff < 86400_000 -> "${diff / 3600_000} hours ago"
         else -> "${diff / 86400_000} days ago"
     }
-}
-
-enum class SharingMode {
-    IDLE, SHARING, RECEIVING
 }
 
 enum class SharingType {

@@ -2,7 +2,11 @@ package com.universalmedialibrary.services.media
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
-import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.entity.MediaItem as EntityMediaItem
+import com.universalmedialibrary.data.local.entity.MetadataBook
+import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
+import com.universalmedialibrary.data.local.entity.MetadataMovie
 import com.universalmedialibrary.data.repository.MediaRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +34,7 @@ class MetadataExtractionService @Inject constructor(
     /**
      * Extract metadata for a media item
      */
-    suspend fun extractMetadata(mediaItem: MediaItem): MetadataResult = withContext(Dispatchers.IO) {
+    suspend fun extractMetadata(mediaItem: EntityMediaItem): MetadataResult = withContext(Dispatchers.IO) {
         try {
             when (mediaItem.mediaType) {
                 "BOOK" -> extractBookMetadata(mediaItem)
@@ -44,7 +48,7 @@ class MetadataExtractionService @Inject constructor(
         }
     }
 
-    private fun extractBookMetadata(mediaItem: MediaItem): MetadataResult {
+    private fun extractBookMetadata(mediaItem: EntityMediaItem): MetadataResult {
         val file = File(mediaItem.filePath)
 
         return when (mediaItem.fileExtension.lowercase()) {
@@ -120,7 +124,7 @@ class MetadataExtractionService @Inject constructor(
         return MetadataResult(commonMetadata, bookMetadata = bookMetadata)
     }
 
-    private fun extractMusicMetadata(mediaItem: MediaItem): MetadataResult {
+    private fun extractMusicMetadata(mediaItem: EntityMediaItem): MetadataResult {
         val retriever = MediaMetadataRetriever()
 
         return try {
@@ -162,7 +166,7 @@ class MetadataExtractionService @Inject constructor(
         }
     }
 
-    private fun extractMovieMetadata(mediaItem: MediaItem): MetadataResult {
+    private fun extractMovieMetadata(mediaItem: EntityMediaItem): MetadataResult {
         val retriever = MediaMetadataRetriever()
 
         return try {
@@ -199,7 +203,7 @@ class MetadataExtractionService @Inject constructor(
         }
     }
 
-    private fun extractDocumentMetadata(mediaItem: MediaItem): MetadataResult {
+    private fun extractDocumentMetadata(mediaItem: EntityMediaItem): MetadataResult {
         val title = File(mediaItem.filePath).nameWithoutExtension
 
         val commonMetadata = MetadataCommon(

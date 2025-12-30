@@ -474,8 +474,8 @@ private fun EnhancedFileItem(
                 if (isSelectable) {
                     Modifier.selectable(
                         selected = isSelected,
-                        onClick = onClick,
-                        role = Role.CheckBox
+                        role = Role.Checkbox,
+                        onClick = onClick
                     )
                 } else {
                     Modifier.clickable(onClick = onClick)

@@ -41,7 +41,7 @@ class UniversalSearchEngine @Inject constructor(
     /**
      * Perform a universal search across all media types
      */
-    suspend fun search(query: UniversalSearchQuery): UniversalSearchResults = withContext(Dispatchers.IO) {
+    suspend fun search(query: UniversalSearchQuery): EngineSearchResults = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
 
         // Build search components
@@ -73,7 +73,7 @@ class UniversalSearchEngine @Inject constructor(
 
         val searchTime = System.currentTimeMillis() - startTime
 
-        UniversalSearchResults(
+        EngineSearchResults(
             query = query.textQuery,
             results = mediaResults,
             totalCount = mediaResults.size,
@@ -110,7 +110,7 @@ class UniversalSearchEngine @Inject constructor(
         sortDescending: Boolean,
         limit: Int,
         offset: Int
-    ): List<UniversalSearchResult> {
+    ): List<EngineSearchResult> {
         // Get items matching the query
         val items = mediaItemDao.searchMediaItems(
             query = if (textQuery.isNotEmpty()) "%$textQuery%" else "%",
@@ -140,7 +140,7 @@ class UniversalSearchEngine @Inject constructor(
 
             if (relevanceScore <= 0) return@mapNotNull null
 
-            UniversalSearchResult(
+            EngineSearchResult(
                 itemId = item.itemId,
                 title = metadata?.title ?: item.fileName.substringBeforeLast('.'),
                 subtitle = "", // Creator would come from People table
@@ -148,7 +148,7 @@ class UniversalSearchEngine @Inject constructor(
                 thumbnailUrl = metadata?.coverImagePath ?: item.thumbnailPath,
                 relevanceScore = relevanceScore,
                 matchHighlights = findMatchHighlights(item, metadata, textQuery),
-                metadata = UniversalSearchResultMetadata(
+                metadata = EngineSearchResultMetadata(
                     creator = null, // Would fetch from People table with AUTHOR role
                     year = metadata?.year,
                     rating = metadata?.rating ?: metadata?.userRating,
@@ -318,7 +318,7 @@ class UniversalSearchEngine @Inject constructor(
     /**
      * Get tag suggestions based on search results
      */
-    private suspend fun getTagSuggestionsForResults(results: List<UniversalSearchResult>): List<UnifiedTag> {
+    private suspend fun getTagSuggestionsForResults(results: List<EngineSearchResult>): List<UnifiedTag> {
         if (results.isEmpty()) return emptyList()
 
         // Get tags from first few results and find common ones
@@ -463,7 +463,7 @@ class UniversalSearchEngine @Inject constructor(
     /**
      * Execute a saved search
      */
-    suspend fun executeSavedSearch(savedSearch: SavedSearchEntity): UniversalSearchResults {
+    suspend fun executeSavedSearch(savedSearch: SavedSearchEntity): EngineSearchResults {
         val mediaTypes = savedSearch.mediaTypes?.let {
             json.decodeFromString<List<String>>(it)
         } ?: emptyList()
@@ -550,9 +550,9 @@ enum class UniversalSortBy {
 /**
  * Universal search results
  */
-data class UniversalSearchResults(
+data class EngineSearchResults(
     val query: String,
-    val results: List<UniversalSearchResult>,
+    val results: List<EngineSearchResult>,
     val totalCount: Int,
     val facets: UniversalSearchFacets,
     val suggestedTags: List<UnifiedTag>,
@@ -561,9 +561,9 @@ data class UniversalSearchResults(
 )
 
 /**
- * Individual search result
+ * Individual search result from UniversalSearchEngine
  */
-data class UniversalSearchResult(
+data class EngineSearchResult(
     val itemId: Long,
     val title: String,
     val subtitle: String,
@@ -571,13 +571,13 @@ data class UniversalSearchResult(
     val thumbnailUrl: String?,
     val relevanceScore: Float,
     val matchHighlights: List<MatchHighlight>,
-    val metadata: UniversalSearchResultMetadata
+    val metadata: EngineSearchResultMetadata
 )
 
 /**
  * Search result metadata
  */
-data class UniversalSearchResultMetadata(
+data class EngineSearchResultMetadata(
     val creator: String?,
     val year: Int?,
     val rating: Float?,

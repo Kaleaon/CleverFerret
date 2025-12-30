@@ -150,9 +150,20 @@ class QRCodeSharingService @Inject constructor(
      * Share currently playing media
      */
     suspend fun shareCurrentlyPlaying(): ShareResult {
-        val currentItem = mediaLibraryService.getCurrentlyPlaying()
-        return if (currentItem != null) {
-            shareMediaItem(currentItem)
+        val streamItem = mediaLibraryService.getCurrentlyPlaying()
+        return if (streamItem != null) {
+            // Convert StreamMediaItem to local MediaItem
+            val localItem = MediaItem(
+                id = streamItem.id,
+                title = streamItem.title,
+                artist = streamItem.artist,
+                album = streamItem.album,
+                duration = streamItem.duration,
+                mimeType = streamItem.mimeType,
+                url = streamItem.url,
+                thumbnailUrl = streamItem.thumbnailUrl
+            )
+            shareMediaItem(localItem)
         } else {
             ShareResult(false, "No media currently playing")
         }
@@ -290,9 +301,18 @@ class QRCodeSharingService @Inject constructor(
 
     private suspend fun importMediaItem(item: MediaItem): Boolean = withContext(Dispatchers.IO) {
         try {
-            // Implementation would depend on your media library structure
-            // This could download the media file or just add a reference
-            mediaLibraryService.addMediaItem(item)
+            // Convert local MediaItem to StreamMediaItem for the library service
+            val streamItem = com.universalmedialibrary.services.media.StreamMediaItem(
+                id = item.id,
+                title = item.title,
+                artist = item.artist,
+                album = item.album,
+                duration = item.duration,
+                mimeType = item.mimeType,
+                url = item.url,
+                thumbnailUrl = item.thumbnailUrl
+            )
+            mediaLibraryService.addMediaItem(streamItem)
         } catch (e: Exception) {
             e.printStackTrace()
             false
@@ -468,3 +488,9 @@ data class MediaItem(
     val url: String,
     val thumbnailUrl: String? = null
 )
+
+enum class SharingMode {
+    IDLE,
+    SHARING,
+    RECEIVING
+}

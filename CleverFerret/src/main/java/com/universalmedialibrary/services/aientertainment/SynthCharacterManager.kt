@@ -59,7 +59,7 @@ class SynthCharacterManager @Inject constructor(
         temperature: Float = 0.7f,
         maxTokens: Int = 500
     ): SynthCharacter {
-        val characterId = repository.createCharacter(
+        val character = repository.createCharacter(
             userId = userId,
             name = name,
             personality = personality,
@@ -71,7 +71,7 @@ class SynthCharacterManager @Inject constructor(
             temperature = temperature,
             maxTokens = maxTokens
         )
-        return repository.getCharacter(characterId)!!
+        return character ?: throw IllegalStateException("Failed to create character")
     }
     
     /**

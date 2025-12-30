@@ -22,8 +22,8 @@ class UniversalSearchService @Inject constructor(
     private val searchHistoryManager: SearchHistoryManager
 ) {
     
-    private val _searchResults = MutableStateFlow<List<SearchResult>>(emptyList())
-    val searchResults: Flow<List<SearchResult>> = _searchResults.asStateFlow()
+    private val _searchResults = MutableStateFlow<List<UniversalSearchResult>>(emptyList())
+    val searchResults: Flow<List<UniversalSearchResult>> = _searchResults.asStateFlow()
     
     private val searchEngines = mapOf(
         "BOOK" to bookSearchEngine,
@@ -35,11 +35,11 @@ class UniversalSearchService @Inject constructor(
     /**
      * Perform universal search across specified media types
      */
-    suspend fun search(searchRequest: SearchRequest): Flow<List<SearchResult>> {
+    suspend fun search(searchRequest: SearchRequest): Flow<List<UniversalSearchResult>> {
         // Record search in history
         searchHistoryManager.recordSearch(searchRequest)
         
-        val results = mutableListOf<SearchResult>()
+        val results = mutableListOf<UniversalSearchResult>()
         
         // Search across each requested media type
         searchRequest.mediaTypes.forEach { mediaType ->
@@ -56,7 +56,7 @@ class UniversalSearchService @Inject constructor(
         }
         
         // Sort and rank results
-        val sortedResults = results.sortedWith(compareByDescending<SearchResult> { it.score }
+        val sortedResults = results.sortedWith(compareByDescending<UniversalSearchResult> { it.score }
             .thenBy { it.title.lowercase() })
         
         // Apply limit
@@ -124,7 +124,7 @@ data class SearchRequest(
 /**
  * Search result data class
  */
-data class SearchResult(
+data class UniversalSearchResult(
     val id: String,
     val title: String,
     val subtitle: String? = null,
@@ -132,7 +132,7 @@ data class SearchResult(
     val mediaType: String,
     val thumbnailUrl: String? = null,
     val score: Double = 0.0,
-    val metadata: Map<String, Any> = emptyMap(),
+    val metadata: Map<String, String> = emptyMap(),
     val tags: List<String> = emptyList()
 )
 

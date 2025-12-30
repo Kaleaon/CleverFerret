@@ -28,8 +28,8 @@ class AIRateLimitViewModel @Inject constructor(
     ))
     val rateLimitConfig: StateFlow<RateLimitConfig> = _rateLimitConfig.asStateFlow()
 
-    private val _usageStatistics = MutableStateFlow<UsageStatistics?>(null)
-    val usageStatistics: StateFlow<UsageStatistics?> = _usageStatistics.asStateFlow()
+    private val _usageStatistics = MutableStateFlow<LocalUsageStatistics?>(null)
+    val usageStatistics: StateFlow<LocalUsageStatistics?> = _usageStatistics.asStateFlow()
 
     val rateLimitStatus = aiRateLimitService.rateLimitStatus
 
@@ -64,7 +64,7 @@ class AIRateLimitViewModel @Inject constructor(
         }
     }
 
-    fun updateProviderLimit(provider: AIProvider, newLimit: Int) {
+    fun updateProviderLimit(provider: LocalAIProvider, newLimit: Int) {
         viewModelScope.launch {
             try {
                 val currentLimits = _rateLimitConfig.value.providerLimits.toMutableMap()

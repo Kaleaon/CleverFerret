@@ -125,7 +125,7 @@ class AudioPlayerViewModel @Inject constructor(
                 _uiState.update { 
                     it.copy(
                         sleepTimerActive = timerState.isActive,
-                        sleepTimerRemaining = timerState.remainingMs
+                        sleepTimerRemaining = timerState.remainingSeconds * 1000 // Convert to ms
                     )
                 }
             }

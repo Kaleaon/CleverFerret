@@ -972,7 +972,10 @@ class AdvancedMusicPlayerService @Inject constructor(
 data class AdvancedPlaybackState(
     val isPlaying: Boolean = false,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val currentPositionMs: Long = 0L,
+    val isShuffling: Boolean = false,
+    val repeatMode: Int = 0  // 0 = off, 1 = one, 2 = all
 ) {
     val hasError: Boolean get() = error != null
     val canPlay: Boolean get() = !isLoading && !hasError

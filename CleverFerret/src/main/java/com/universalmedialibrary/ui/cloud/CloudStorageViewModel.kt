@@ -91,46 +91,65 @@ class CloudStorageViewModel @Inject constructor(
                     activeProviders = providers
                 )
                 
-                // Update authenticated providers
-                val authenticated = mutableSetOf<CloudProvider>()
-                providers.forEach { provider ->
-                    when (provider) {
-                        CloudProvider.GOOGLE_DRIVE -> {
-                            if (googleDriveService.isAuthenticated.value) {
-                                authenticated.add(provider)
-                            }
+                // Update authenticated providers - collect from flows
+                updateAuthenticatedProviders(providers)
+            }
+        }
+    }
+    
+    private fun updateAuthenticatedProviders(providers: Set<CloudProvider>) {
+        viewModelScope.launch {
+            val authenticated = mutableSetOf<CloudProvider>()
+            
+            providers.forEach { provider ->
+                when (provider) {
+                    CloudProvider.GOOGLE_DRIVE -> {
+                        googleDriveService.isAuthenticated.collect { isAuth ->
+                            if (isAuth) authenticated.add(provider)
+                            _uiState.value = _uiState.value.copy(
+                                authenticatedProviders = authenticated.toSet()
+                            )
+                            return@collect
                         }
-                        CloudProvider.DROPBOX -> {
-                            if (dropboxService.isAuthenticated.value) {
-                                authenticated.add(provider)
-                            }
+                    }
+                    CloudProvider.DROPBOX -> {
+                        dropboxService.isAuthenticated.collect { isAuth ->
+                            if (isAuth) authenticated.add(provider)
+                            _uiState.value = _uiState.value.copy(
+                                authenticatedProviders = authenticated.toSet()
+                            )
+                            return@collect
                         }
-                        CloudProvider.ONEDRIVE -> {
-                            if (oneDriveService.isAuthenticated.value) {
-                                authenticated.add(provider)
-                            }
+                    }
+                    CloudProvider.ONEDRIVE -> {
+                        oneDriveService.isAuthenticated.collect { isAuth ->
+                            if (isAuth) authenticated.add(provider)
+                            _uiState.value = _uiState.value.copy(
+                                authenticatedProviders = authenticated.toSet()
+                            )
+                            return@collect
                         }
-                        CloudProvider.WEBDAV -> {
-                            if (webDavService.isAuthenticated.value) {
-                                authenticated.add(provider)
-                            }
+                    }
+                    CloudProvider.WEBDAV -> {
+                        webDavService.isAuthenticated.collect { isAuth ->
+                            if (isAuth) authenticated.add(provider)
+                            _uiState.value = _uiState.value.copy(
+                                authenticatedProviders = authenticated.toSet()
+                            )
+                            return@collect
                         }
                     }
                 }
-                _uiState.value = _uiState.value.copy(
-                    authenticatedProviders = authenticated
-                )
             }
         }
     }
 
     private fun collectStorageUsage() {
         viewModelScope.launch {
-            cloudSyncManager.getCombinedStorageUsage().collect { usage ->
-                _uiState.value = _uiState.value.copy(
-                    storageUsage = usage
-                )
-            }
+            val usage = cloudSyncManager.getCombinedStorageUsage()
+            _uiState.value = _uiState.value.copy(
+                storageUsage = usage
+            )
         }
     }
 }

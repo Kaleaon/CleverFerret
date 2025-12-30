@@ -425,7 +425,7 @@ class AIContentCacheService @Inject constructor(
         try {
             val metadataFile = File(getCacheDirectory(), METADATA_FILE)
             if (metadataFile.exists()) {
-                val metadata = json.decodeFromString<CacheMetadata>(metadataFile.readText())
+                val metadata = json.decodeFromString<CachePersistenceMetadata>(metadataFile.readText())
                 _cachedItems.value = metadata.items.filter { 
                     File(it.localPath).exists() 
                 }
@@ -435,7 +435,7 @@ class AIContentCacheService @Inject constructor(
             getSdCardCacheDirectory()?.let { sdDir ->
                 val sdMetadataFile = File(sdDir, METADATA_FILE)
                 if (sdMetadataFile.exists()) {
-                    val sdMetadata = json.decodeFromString<CacheMetadata>(sdMetadataFile.readText())
+                    val sdMetadata = json.decodeFromString<CachePersistenceMetadata>(sdMetadataFile.readText())
                     val sdItems = sdMetadata.items.filter { File(it.localPath).exists() }
                     _cachedItems.value = (_cachedItems.value + sdItems).distinctBy { it.id }
                 }
@@ -450,7 +450,7 @@ class AIContentCacheService @Inject constructor(
             val internalItems = _cachedItems.value.filter { 
                 it.localPath.startsWith(getCacheDirectory().absolutePath) 
             }
-            val metadata = CacheMetadata(
+            val metadata = CachePersistenceMetadata(
                 lastUpdated = System.currentTimeMillis(),
                 items = internalItems
             )
@@ -461,7 +461,7 @@ class AIContentCacheService @Inject constructor(
                 val sdItems = _cachedItems.value.filter {
                     it.localPath.startsWith(sdDir.absolutePath)
                 }
-                val sdMetadata = CacheMetadata(
+                val sdMetadata = CachePersistenceMetadata(
                     lastUpdated = System.currentTimeMillis(),
                     items = sdItems
                 )
@@ -554,7 +554,7 @@ data class CachedContentItem(
 )
 
 @Serializable
-data class CacheMetadata(
+data class CachePersistenceMetadata(
     val lastUpdated: Long,
     val items: List<CachedContentItem>
 )

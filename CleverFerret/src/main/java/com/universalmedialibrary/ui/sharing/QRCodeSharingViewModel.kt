@@ -2,10 +2,16 @@ package com.universalmedialibrary.ui.sharing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.services.media.MediaItem
 import com.universalmedialibrary.services.media.MediaLibraryService
-import com.universalmedialibrary.services.media.MediaPlaylist
-import com.universalmedialibrary.services.sharing.*
+import com.universalmedialibrary.services.media.StreamMediaItem
+import com.universalmedialibrary.services.media.StreamMediaPlaylist
+import com.universalmedialibrary.services.sharing.ConnectedDevice
+import com.universalmedialibrary.services.sharing.MediaItem
+import com.universalmedialibrary.services.sharing.MediaPlaylist
+import com.universalmedialibrary.services.sharing.QRCodeSharingService
+import com.universalmedialibrary.services.sharing.ReceiveResult
+import com.universalmedialibrary.services.sharing.ShareResult
+import com.universalmedialibrary.services.sharing.SharingMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -109,7 +115,17 @@ class QRCodeSharingViewModel @Inject constructor(
                 
                 // Import received items to library
                 result.playlist?.items?.forEach { item ->
-                    mediaLibraryService.addMediaItem(item)
+                    val streamItem = StreamMediaItem(
+                        id = item.id,
+                        title = item.title,
+                        artist = item.artist,
+                        album = item.album,
+                        duration = item.duration,
+                        mimeType = item.mimeType,
+                        url = item.url,
+                        thumbnailUrl = item.thumbnailUrl
+                    )
+                    mediaLibraryService.addMediaItem(streamItem)
                 }
             } else {
                 _uiState.value = _uiState.value.copy(

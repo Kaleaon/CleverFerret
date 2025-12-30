@@ -48,7 +48,7 @@ fun AIRateLimitControlScreen(
     
     var showGlobalLimitDialog by remember { mutableStateOf(false) }
     var showProviderLimitDialog by remember { mutableStateOf(false) }
-    var selectedProvider by remember { mutableStateOf(AIProvider.OPENAI) }
+    var selectedProvider by remember { mutableStateOf(LocalAIProvider.OPENAI) }
     
     Scaffold(
         topBar = {
@@ -157,26 +157,26 @@ fun AIRateLimitControlScreen(
 
 @Composable
 private fun RateLimitStatusCard(
-    status: RateLimitStatus,
+    status: LocalRateLimitStatus,
     config: RateLimitConfig
 ) {
     val (statusColor, statusText, statusIcon) = when (status) {
-        RateLimitStatus.ALLOWED -> Triple(
+        LocalRateLimitStatus.ALLOWED -> Triple(
             Color(0xFF4CAF50),
             "Rate Limiting Active",
             Icons.Filled.CheckCircle
         )
-        RateLimitStatus.GLOBAL_LIMIT_EXCEEDED -> Triple(
+        LocalRateLimitStatus.GLOBAL_LIMIT_EXCEEDED -> Triple(
             Color(0xFFFF9800),
             "Global Limit Exceeded",
             Icons.Filled.Warning
         )
-        RateLimitStatus.PROVIDER_LIMIT_EXCEEDED -> Triple(
+        LocalRateLimitStatus.PROVIDER_LIMIT_EXCEEDED -> Triple(
             Color(0xFFFF9800),
             "Provider Limit Exceeded",
             Icons.Filled.Warning
         )
-        RateLimitStatus.RATE_LIMIT_DISABLED -> Triple(
+        LocalRateLimitStatus.RATE_LIMIT_DISABLED -> Triple(
             Color(0xFF9E9E9E),
             "Rate Limiting Disabled",
             Icons.Filled.Block
@@ -298,7 +298,7 @@ private fun GlobalLimitsCard(
 @Composable
 private fun ProviderLimitsCard(
     config: RateLimitConfig,
-    onEditProviderLimit: (AIProvider) -> Unit
+    onEditProviderLimit: (LocalAIProvider) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -315,13 +315,13 @@ private fun ProviderLimitsCard(
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            AIProvider.values().forEach { provider ->
+            LocalAIProvider.values().forEach { provider ->
                 val limit = config.providerLimits[provider.name] ?: 60
                 val providerName = when (provider) {
-                    AIProvider.OPENAI -> "OpenAI GPT"
-                    AIProvider.GEMINI -> "Google Gemini"
-                    AIProvider.OLLAMA -> "Local Ollama"
-                    AIProvider.CUSTOM -> "Custom Provider"
+                    LocalAIProvider.OPENAI -> "OpenAI GPT"
+                    LocalAIProvider.GEMINI -> "Google Gemini"
+                    LocalAIProvider.OLLAMA -> "Local Ollama"
+                    LocalAIProvider.CUSTOM -> "Custom Provider"
                 }
                 
                 Row(
@@ -364,7 +364,7 @@ private fun ProviderLimitsCard(
 
 @Composable
 private fun UsageStatisticsCard(
-    statistics: UsageStatistics?
+    statistics: LocalUsageStatistics?
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -565,17 +565,17 @@ private fun GlobalLimitDialog(
 
 @Composable
 private fun ProviderLimitDialog(
-    provider: AIProvider,
+    provider: LocalAIProvider,
     currentLimit: Int,
     onDismiss: () -> Unit,
     onSave: (Int) -> Unit
 ) {
     var limitInput by remember { mutableStateOf(currentLimit.toString()) }
     val providerName = when (provider) {
-        AIProvider.OPENAI -> "OpenAI GPT"
-        AIProvider.GEMINI -> "Google Gemini"
-        AIProvider.OLLAMA -> "Local Ollama"
-        AIProvider.CUSTOM -> "Custom Provider"
+        LocalAIProvider.OPENAI -> "OpenAI GPT"
+        LocalAIProvider.GEMINI -> "Google Gemini"
+        LocalAIProvider.OLLAMA -> "Local Ollama"
+        LocalAIProvider.CUSTOM -> "Custom Provider"
     }
     
     AlertDialog(

@@ -19,7 +19,7 @@ class AIBackupSettingsViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _backupConfig = MutableStateFlow(
-        BackupConfig(
+        AIBackupConfig(
             enabled = aiBackupAutomationService.isBackupEnabled(),
             scheduleHours = aiBackupAutomationService.getBackupSchedule(),
             location = aiBackupAutomationService.getBackupLocation(),
@@ -27,10 +27,10 @@ class AIBackupSettingsViewModel @Inject constructor(
             autoRestoreEnabled = aiBackupAutomationService.isAutoRestoreEnabled()
         )
     )
-    val backupConfig: StateFlow<BackupConfig> = _backupConfig.asStateFlow()
+    val backupConfig: StateFlow<AIBackupConfig> = _backupConfig.asStateFlow()
 
-    private val _backupHistory = MutableStateFlow<List<BackupResult>>(emptyList())
-    val backupHistory: StateFlow<List<BackupResult>> = _backupHistory.asStateFlow()
+    private val _backupHistory = MutableStateFlow<List<LocalBackupResult>>(emptyList())
+    val backupHistory: StateFlow<List<LocalBackupResult>> = _backupHistory.asStateFlow()
 
     init {
         loadBackupHistory()
@@ -80,7 +80,7 @@ class AIBackupSettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateBackupLocation(location: BackupLocation) {
+    fun updateBackupLocation(location: LocalBackupLocation) {
         viewModelScope.launch {
             try {
                 aiBackupAutomationService.updateBackupLocation(location)
@@ -122,7 +122,7 @@ class AIBackupSettingsViewModel @Inject constructor(
             try {
                 val mostRecentBackup = _backupHistory.value.firstOrNull()
                 if (mostRecentBackup != null && mostRecentBackup.success) {
-                    val backupFile = java.io.File(mostRecentBackup.backupFile ?: return@launch)
+                    val backupFile = mostRecentBackup.backupFile ?: return@launch
                     aiBackupAutomationService.performRestore(backupFile)
                 }
             } catch (e: Exception) {
@@ -133,13 +133,12 @@ class AIBackupSettingsViewModel @Inject constructor(
         }
     }
 
-    fun restoreFromBackup(backup: BackupResult) {
+    fun restoreFromBackup(backup: LocalBackupResult) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 if (backup.success && backup.backupFile != null) {
-                    val backupFile = java.io.File(backup.backupFile)
-                    aiBackupAutomationService.performRestore(backupFile)
+                    aiBackupAutomationService.performRestore(backup.backupFile)
                 }
             } catch (e: Exception) {
                 // Handle error
@@ -149,15 +148,13 @@ class AIBackupSettingsViewModel @Inject constructor(
         }
     }
 
-    fun deleteBackup(backup: BackupResult) {
+    fun deleteBackup(backup: LocalBackupResult) {
         viewModelScope.launch {
             try {
-                if (backup.backupFile != null) {
-                    val backupFile = java.io.File(backup.backupFile)
-                    if (backupFile.exists()) {
-                        backupFile.delete()
-                        _backupHistory.value = _backupHistory.value - backup
-                    }
+                val backupFile = backup.backupFile
+                if (backupFile != null && backupFile.exists()) {
+                    backupFile.delete()
+                    _backupHistory.value = _backupHistory.value - backup
                 }
             } catch (e: Exception) {
                 // Handle error
@@ -188,3 +185,14 @@ class AIBackupSettingsViewModel @Inject constructor(
         }
     }
 }
+
+/**
+ * UI configuration for AI backup settings
+ */
+data class AIBackupConfig(
+    val enabled: Boolean,
+    val scheduleHours: Int,
+    val location: LocalBackupLocation,
+    val encryptionEnabled: Boolean,
+    val autoRestoreEnabled: Boolean
+)

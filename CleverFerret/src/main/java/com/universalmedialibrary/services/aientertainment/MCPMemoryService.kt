@@ -325,16 +325,20 @@ class MCPMemoryService @Inject constructor(
             success = true,
             data = buildJsonObject {
                 put("count", memories.size)
-                put("memories", json.encodeToJsonElement(memories.map { memory ->
-                    mapOf(
-                        "id" to memory.id,
-                        "key" to memory.key,
-                        "content" to memory.content,
-                        "type" to memory.memoryType,
-                        "importance" to memory.importance,
-                        "tags" to memory.getTagsList()
-                    )
-                }))
+                put("memories", kotlinx.serialization.json.buildJsonArray {
+                    memories.forEach { memory ->
+                        add(buildJsonObject {
+                            put("id", memory.id)
+                            put("key", memory.key)
+                            put("content", memory.content)
+                            put("type", memory.memoryType)
+                            put("importance", memory.importance.toDouble())
+                            put("tags", kotlinx.serialization.json.buildJsonArray {
+                                memory.getTagsList().forEach { tag -> add(JsonPrimitive(tag)) }
+                            })
+                        })
+                    }
+                })
             }
         )
     }

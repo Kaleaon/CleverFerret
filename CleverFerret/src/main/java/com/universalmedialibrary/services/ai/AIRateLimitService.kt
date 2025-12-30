@@ -47,15 +47,15 @@ class AIRateLimitService @Inject constructor(
     }
     
     // In-memory tracking for current window
-    private val requestWindows = ConcurrentHashMap<String, RequestWindow>()
-    private val userStats = ConcurrentHashMap<String, UserRateStats>()
+    private val requestWindows = ConcurrentHashMap<String, LocalRequestWindow>()
+    private val userStats = ConcurrentHashMap<String, LocalUserRateStats>()
     private val globalStats = AtomicLong(0)
     
-    private val _rateLimitStatus = MutableStateFlow<RateLimitStatus>(RateLimitStatus.ALLOWED)
-    val rateLimitStatus: StateFlow<RateLimitStatus> = _rateLimitStatus.asStateFlow()
+    private val _rateLimitStatus = MutableStateFlow<LocalRateLimitStatus>(LocalRateLimitStatus.ALLOWED)
+    val rateLimitStatus: StateFlow<LocalRateLimitStatus> = _rateLimitStatus.asStateFlow()
     
-    private val _usageStatistics = MutableStateFlow<UsageStatistics?>(null)
-    val usageStatistics: StateFlow<UsageStatistics?> = _usageStatistics.asStateFlow()
+    private val _usageStatistics = MutableStateFlow<LocalUsageStatistics?>(null)
+    val usageStatistics: StateFlow<LocalUsageStatistics?> = _usageStatistics.asStateFlow()
     
     init {
         initializeDefaultConfig()
@@ -68,16 +68,16 @@ class AIRateLimitService @Inject constructor(
      * Check if a request is allowed based on rate limits
      */
     suspend fun checkRateLimit(
-        provider: AIProvider,
+        provider: LocalAIProvider,
         userId: String? = null,
-        requestType: RequestType = RequestType.CHAT
-    ): RateLimitResult {
+        requestType: LocalRequestType = LocalRequestType.CHAT
+    ): LocalRateLimitResult {
         val currentTime = System.currentTimeMillis()
         val windowKey = getWindowKey(provider, userId, requestType)
         
         // Get or create request window
         val window = requestWindows.getOrPut(windowKey) {
-            RequestWindow(
+            LocalRequestWindow(
                 provider = provider.name,
                 userId = userId,
                 requestType = requestType,
@@ -98,8 +98,8 @@ class AIRateLimitService @Inject constructor(
         
         // Global limit
         if (window.requestCount >= limits.globalLimit) {
-            updateRateLimitStatus(RateLimitStatus.GLOBAL_LIMIT_EXCEEDED)
-            return RateLimitResult(
+            updateRateLimitStatus(LocalRateLimitStatus.GLOBAL_LIMIT_EXCEEDED)
+            return LocalRateLimitResult(
                 allowed = false,
                 reason = "Global rate limit exceeded (${limits.globalLimit} requests/minute)",
                 retryAfterMs = windowDurationMs - (currentTime - window.windowStartMs),
@@ -110,8 +110,8 @@ class AIRateLimitService @Inject constructor(
         
         // Provider-specific limit
         if (window.requestCount >= limits.providerLimit) {
-            updateRateLimitStatus(RateLimitStatus.PROVIDER_LIMIT_EXCEEDED)
-            return RateLimitResult(
+            updateRateLimitStatus(LocalRateLimitStatus.PROVIDER_LIMIT_EXCEEDED)
+            return LocalRateLimitResult(
                 allowed = false,
                 reason = "Provider rate limit exceeded for ${provider.name} (${limits.providerLimit} requests/minute)",
                 retryAfterMs = windowDurationMs - (currentTime - window.windowStartMs),
@@ -122,8 +122,8 @@ class AIRateLimitService @Inject constructor(
         
         // User-specific limit (if user is specified)
         if (userId != null && window.requestCount >= limits.userLimit) {
-            updateRateLimitStatus(RateLimitStatus.USER_LIMIT_EXCEEDED)
-            return RateLimitResult(
+            updateRateLimitStatus(LocalRateLimitStatus.USER_LIMIT_EXCEEDED)
+            return LocalRateLimitResult(
                 allowed = false,
                 reason = "User rate limit exceeded (${limits.userLimit} requests/minute)",
                 retryAfterMs = windowDurationMs - (currentTime - window.windowStartMs),
@@ -134,12 +134,12 @@ class AIRateLimitService @Inject constructor(
         
         // Request is allowed
         window.requestCount++
-        updateRateLimitStatus(RateLimitStatus.ALLOWED)
+        updateRateLimitStatus(LocalRateLimitStatus.ALLOWED)
         
         // Update statistics
         updateStatistics(provider, userId, requestType)
         
-        return RateLimitResult(
+        return LocalRateLimitResult(
             allowed = true,
             currentUsage = window.requestCount,
             limit = limits.globalLimit
@@ -150,9 +150,9 @@ class AIRateLimitService @Inject constructor(
      * Record a completed request (for statistics)
      */
     suspend fun recordRequest(
-        provider: AIProvider,
+        provider: LocalAIProvider,
         userId: String? = null,
-        requestType: RequestType,
+        requestType: LocalRequestType,
         success: Boolean,
         responseTimeMs: Long,
         tokensUsed: Int = 0
@@ -180,7 +180,7 @@ class AIRateLimitService @Inject constructor(
      * Configure rate limits for a specific provider
      */
     fun configureProviderLimits(
-        provider: AIProvider,
+        provider: LocalAIProvider,
         limits: RateLimits
     ) {
         val configJson = json.encodeToString(limits)
@@ -212,7 +212,7 @@ class AIRateLimitService @Inject constructor(
     /**
      * Get current rate limits for a provider
      */
-    fun getRateLimits(provider: AIProvider): RateLimits {
+    fun getRateLimits(provider: LocalAIProvider): RateLimits {
         val configJson = preferences.getString(KEY_PROVIDER_CONFIG_PREFIX + provider.name, null)
         return if (configJson != null) {
             try {
@@ -231,12 +231,12 @@ class AIRateLimitService @Inject constructor(
     /**
      * Get usage statistics for monitoring
      */
-    fun getUsageStatistics(): UsageStatistics {
+    fun getUsageStatistics(): LocalUsageStatistics {
         val currentWindows = requestWindows.values.toList()
         val totalRequests = globalStats.get()
         val totalUsers = userStats.size
         
-        return UsageStatistics(
+        return LocalUsageStatistics(
             totalRequests = totalRequests,
             activeUsers = totalUsers,
             activeWindows = currentWindows.size,
@@ -256,7 +256,7 @@ class AIRateLimitService @Inject constructor(
     /**
      * Get detailed statistics for a specific user
      */
-    fun getUserStatistics(userId: String?): UserRateStats {
+    fun getUserStatistics(userId: String?): LocalUserRateStats {
         return getUserStats(userId)
     }
     
@@ -277,9 +277,9 @@ class AIRateLimitService @Inject constructor(
         return RateLimitConfig(
             globalLimit = DEFAULT_GLOBAL_LIMIT,
             providerLimits = mapOf(
-                AIProvider.OPENAI.name to DEFAULT_OPENAI_LIMIT,
-                AIProvider.GEMINI.name to DEFAULT_GEMINI_LIMIT,
-                AIProvider.OLLAMA.name to DEFAULT_OLLAMA_LIMIT
+                LocalAIProvider.OPENAI.name to DEFAULT_OPENAI_LIMIT,
+                LocalAIProvider.GEMINI.name to DEFAULT_GEMINI_LIMIT,
+                LocalAIProvider.OLLAMA.name to DEFAULT_OLLAMA_LIMIT
             ),
             userLimits = emptyMap(),
             dailyLimits = emptyMap(),
@@ -300,9 +300,9 @@ class AIRateLimitService @Inject constructor(
         
         // Apply new configuration
         _rateLimitStatus.value = if (config.enabled) {
-            RateLimitStatus.ALLOWED
+            LocalRateLimitStatus.ALLOWED
         } else {
-            RateLimitStatus.RATE_LIMIT_DISABLED
+            LocalRateLimitStatus.RATE_LIMIT_DISABLED
         }
     }
     
@@ -350,40 +350,47 @@ class AIRateLimitService @Inject constructor(
         }
         
         // Configure provider-specific defaults
-        AIProvider.values().forEach { provider ->
+        LocalAIProvider.values().forEach { provider ->
             if (!preferences.contains(KEY_PROVIDER_CONFIG_PREFIX + provider.name)) {
                 configureProviderLimits(provider, getDefaultLimits(provider))
             }
         }
     }
     
-    private fun getDefaultLimits(provider: AIProvider): RateLimits {
+    private fun getDefaultLimits(provider: LocalAIProvider): RateLimits {
         return when (provider) {
-            AIProvider.OPENAI -> RateLimits(
+            LocalAIProvider.OPENAI -> RateLimits(
                 globalLimit = DEFAULT_OPENAI_LIMIT,
                 providerLimit = DEFAULT_OPENAI_LIMIT,
                 userLimit = DEFAULT_OPENAI_LIMIT / 4, // 25 per minute per user
                 burstLimit = DEFAULT_OPENAI_LIMIT * 2,
                 dailyLimit = DEFAULT_OPENAI_LIMIT * 24 * 3 // 3 days of continuous use
             )
-            AIProvider.GEMINI -> RateLimits(
+            LocalAIProvider.GEMINI -> RateLimits(
                 globalLimit = DEFAULT_GEMINI_LIMIT,
                 providerLimit = DEFAULT_GEMINI_LIMIT,
                 userLimit = DEFAULT_GEMINI_LIMIT / 3, // 20 per minute per user
                 burstLimit = DEFAULT_GEMINI_LIMIT * 2,
                 dailyLimit = DEFAULT_GEMINI_LIMIT * 24 * 2
             )
-            AIProvider.OLLAMA -> RateLimits(
+            LocalAIProvider.OLLAMA -> RateLimits(
                 globalLimit = DEFAULT_OLLAMA_LIMIT,
                 providerLimit = DEFAULT_OLLAMA_LIMIT,
                 userLimit = DEFAULT_OLLAMA_LIMIT / 2, // 15 per minute per user
                 burstLimit = DEFAULT_OLLAMA_LIMIT * 2,
                 dailyLimit = DEFAULT_OLLAMA_LIMIT * 24
             )
+            LocalAIProvider.CUSTOM -> RateLimits(
+                globalLimit = 60, // Default custom limit
+                providerLimit = 60,
+                userLimit = 20,
+                burstLimit = 120,
+                dailyLimit = 60 * 24
+            )
         }
     }
     
-    private fun getEffectiveLimits(provider: AIProvider): RateLimits {
+    private fun getEffectiveLimits(provider: LocalAIProvider): RateLimits {
         val globalLimits = getGlobalLimits()
         val providerLimits = getRateLimits(provider)
         
@@ -413,19 +420,19 @@ class AIRateLimitService @Inject constructor(
                 )
             }
         } else {
-            getDefaultLimits(AIProvider.OPENAI) // Use OpenAI as default
+            getDefaultLimits(LocalAIProvider.OPENAI) // Use OpenAI as default
         }
     }
     
-    private fun getWindowKey(provider: AIProvider, userId: String?, requestType: RequestType): String {
+    private fun getWindowKey(provider: LocalAIProvider, userId: String?, requestType: LocalRequestType): String {
         val userKey = userId ?: "anonymous"
         return "${provider.name}:user:$userKey:type:${requestType.name}"
     }
     
-    private fun getUserStats(userId: String?): UserRateStats {
+    private fun getUserStats(userId: String?): LocalUserRateStats {
         val userKey = userId ?: "anonymous"
         return userStats.getOrPut(userKey) {
-            UserRateStats(
+            LocalUserRateStats(
                 userId = userId,
                 totalRequests = 0,
                 successfulRequests = 0,
@@ -437,7 +444,7 @@ class AIRateLimitService @Inject constructor(
         }
     }
     
-    private fun updateStatistics(provider: AIProvider, userId: String?, requestType: RequestType) {
+    private fun updateStatistics(provider: LocalAIProvider, userId: String?, requestType: LocalRequestType) {
         // Update user stats
         val stats = getUserStats(userId)
         stats.lastRequestTime = System.currentTimeMillis()
@@ -450,7 +457,7 @@ class AIRateLimitService @Inject constructor(
         _usageStatistics.value = getUsageStatistics()
     }
     
-    private fun updateRateLimitStatus(status: RateLimitStatus) {
+    private fun updateRateLimitStatus(status: LocalRateLimitStatus) {
         _rateLimitStatus.value = status
     }
     
@@ -465,7 +472,7 @@ class AIRateLimitService @Inject constructor(
     }
 }
 
-// ==================== Data Classes ====================
+// ==================== Data Classes (local to AIRateLimitService) ====================
 
 @Serializable
 data class RateLimits(
@@ -476,7 +483,8 @@ data class RateLimits(
     val dailyLimit: Int      // Daily limit
 )
 
-data class RateLimitResult(
+// Local version with different structure than AIDataModels version
+data class LocalRateLimitResult(
     val allowed: Boolean,
     val reason: String? = null,
     val retryAfterMs: Long = 0,
@@ -484,24 +492,31 @@ data class RateLimitResult(
     val limit: Int = 0
 )
 
-enum class RateLimitStatus {
+// Local version with different values than AIDataModels version  
+enum class LocalRateLimitStatus {
     ALLOWED,
     GLOBAL_LIMIT_EXCEEDED,
     PROVIDER_LIMIT_EXCEEDED,
-    USER_LIMIT_EXCEEDED
+    USER_LIMIT_EXCEEDED,
+    RATE_LIMIT_DISABLED
 }
 
-data class UsageStatistics(
+// Local version with different structure than AIDataModels version
+data class LocalUsageStatistics(
     val totalRequests: Long,
     val activeUsers: Int,
     val activeWindows: Int,
     val providerUsage: Map<String, Int>,
-    val requestTypeUsage: Map<RequestType, Int>,
+    val requestTypeUsage: Map<LocalRequestType, Int>,
     val averageResponseTime: Double,
-    val successRate: Double
+    val successRate: Double,
+    val requestsPerMinute: Int = 0,
+    val requestsPerDay: Int = 0,
+    val blockedRequests: Long = 0
 )
 
-data class UserRateStats(
+// Local version with different structure than AIDataModels version
+data class LocalUserRateStats(
     val userId: String?,
     var totalRequests: Long = 0,
     var successfulRequests: Long = 0,
@@ -516,15 +531,17 @@ data class UserRateStats(
         get() = if (totalRequests > 0) totalResponseTime.toDouble() / totalRequests else 0.0
 }
 
-data class RequestWindow(
+// Local version - not @Serializable like AIDataModels version
+data class LocalRequestWindow(
     val provider: String,
     val userId: String?,
-    val requestType: RequestType,
+    val requestType: LocalRequestType,
     var windowStartMs: Long,
     var requestCount: Int
 )
 
-enum class RequestType {
+// Local version with fewer values than AIDataModels version
+enum class LocalRequestType {
     CHAT,
     GENERATION,
     ANALYSIS,
@@ -532,8 +549,10 @@ enum class RequestType {
     DOWNLOAD
 }
 
-enum class AIProvider {
+// Local version (AIDataModels has AIProviderType instead)
+enum class LocalAIProvider {
     OPENAI,
     GEMINI,
-    OLLAMA
+    OLLAMA,
+    CUSTOM
 }
