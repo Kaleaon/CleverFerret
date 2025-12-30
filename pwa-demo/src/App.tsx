@@ -170,26 +170,38 @@ const AppContent: React.FC = () => {
       return;
     }
 
+    let rafId: number | null = null;
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        setShowSearchBar(false);
-      } else {
-        setShowSearchBar(true);
-      }
-      setLastScrollY(currentScrollY);
+      if (rafId) return;
+      
+      rafId = requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        if (currentScrollY > lastScrollY && currentScrollY > 80) {
+          setShowSearchBar(false);
+        } else {
+          setShowSearchBar(true);
+        }
+        setLastScrollY(currentScrollY);
+        rafId = null;
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [lastScrollY, isMobile]);
 
-  // Handle search
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+  // Handle search - memoize callback
+  const handleSearch = React.useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && searchQuery.trim()) {
+        navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      }
+    },
+    [searchQuery, navigate],
+  );
 
   const showFab = location.pathname === '/' || location.pathname.startsWith('/library/');
 
@@ -379,8 +391,9 @@ function App() {
   }, []);
 
   const theme = React.useMemo(() => {
-    const themeConfig = getAllUnifiedThemes().find((t) => t.name === selectedTheme);
-    return themeConfig ? themeConfig.theme : getAllUnifiedThemes()[0].theme;
+    const allThemes = getAllUnifiedThemes();
+    const themeConfig = allThemes.find((t) => t.name === selectedTheme);
+    return themeConfig ? themeConfig.theme : allThemes[0].theme;
   }, [selectedTheme]);
 
   return (

@@ -11,7 +11,7 @@ export class AudioPlayerService {
   private currentIndex: number = 0;
   private isShuffled: boolean = false;
   private repeatMode: RepeatMode = 'none';
-  private listeners: Map<string, Set<Function>> = new Map();
+  private listeners: Map<string, Set<(...args: any[]) => void>> = new Map();
 
   constructor() {
     this.audio = new Audio();
@@ -282,7 +282,7 @@ export class AudioPlayerService {
   /**
    * Subscribe to events
    */
-  on(event: string, callback: Function): () => void {
+  on(event: string, callback: (...args: any[]) => void): () => void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
