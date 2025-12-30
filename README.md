@@ -48,11 +48,14 @@ CleverFerret is a comprehensive media library application for Android, designed 
 ### Quick Links
 *   **[📖 Documentation Index](docs/INDEX.md)**: Complete guide to all documentation
 *   **[✨ Feature Status](docs/FEATURES_STATUS.md)**: Comprehensive overview of all enabled/disabled features
+*   **[📊 Improvements Summary](docs/IMPROVEMENTS_SUMMARY.md)**: Recent improvements and reorganization
 *   **[🗺️ Roadmap](docs/ROADMAP.md)**: Planned features and known issues
 *   **[🏗️ Architecture](docs/ARCHITECTURE.md)**: System architecture and design patterns
+*   **[🔒 Security Practices](docs/security/SECURITY_PRACTICES.md)**: Security guidelines and best practices
 
 ### Key Documentation
 *   **[Supported Formats](docs/FEATURES.md)**: File format support details
+*   **[Code Review](docs/CODE_REVIEW.md)**: Comprehensive code review and recommendations
 *   **[Implementation Guides](docs/implementation/)**: Parser integration and technical guides
 *   **[Planning & TODO](docs/planning/)**: Development roadmap and task lists
 *   **[Historical Archives](docs/archive/)**: Completed work and research notes

@@ -11,8 +11,22 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 - [README](../README.md) - Project overview and quick start
 - [FEATURES_STATUS](FEATURES_STATUS.md) - **NEW** Comprehensive feature status (enabled/disabled/planned)
+- [IMPROVEMENTS_SUMMARY](IMPROVEMENTS_SUMMARY.md) - **NEW** Recent improvements and reorganization
 - [FEATURES](FEATURES.md) - Supported file formats and key features
 - [ROADMAP](ROADMAP.md) - Planned features and development priorities
+
+---
+
+## 🔒 Security
+
+- [Security Practices](security/SECURITY_PRACTICES.md) - **NEW** Security guidelines and best practices
+- [Security Documentation](security/) - Security-related documentation
+
+---
+
+## 🔍 Code Review & Quality
+
+- [Code Review](CODE_REVIEW.md) - **NEW** Comprehensive code review and recommendations
 
 ---
 
