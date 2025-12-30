@@ -36,7 +36,7 @@ export const PodcastPlayerScreen: React.FC = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#1a1a1a', color: 'white' }}>
+    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default', color: 'text.primary' }}>
       <AppBar position="static" sx={{ bgcolor: 'transparent' }}>
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>

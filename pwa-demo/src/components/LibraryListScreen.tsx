@@ -59,21 +59,21 @@ const LibraryCard: React.FC<{
   const getIcon = () => {
     switch (library.type) {
       case 'BOOK':
-        return <BookIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+        return <BookIcon sx={{ fontSize: 40, color: 'primary.contrastText' }} />;
       case 'AUDIOBOOK':
-        return <LibraryMusicIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+        return <LibraryMusicIcon sx={{ fontSize: 40, color: 'primary.contrastText' }} />;
       case 'COMIC':
-        return <CollectionsIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+        return <CollectionsIcon sx={{ fontSize: 40, color: 'primary.contrastText' }} />;
       case 'MOVIE':
-        return <VideoIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+        return <VideoIcon sx={{ fontSize: 40, color: 'primary.contrastText' }} />;
       case 'MUSIC':
-        return <LibraryMusicIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+        return <LibraryMusicIcon sx={{ fontSize: 40, color: 'primary.contrastText' }} />;
       case 'PODCAST':
-        return <PodcastIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+        return <PodcastIcon sx={{ fontSize: 40, color: 'primary.contrastText' }} />;
       case 'MAGAZINE':
-        return <MagazineIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+        return <MagazineIcon sx={{ fontSize: 40, color: 'primary.contrastText' }} />;
       default:
-        return <CollectionsIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+        return <CollectionsIcon sx={{ fontSize: 40, color: 'primary.contrastText' }} />;
     }
   };
 
