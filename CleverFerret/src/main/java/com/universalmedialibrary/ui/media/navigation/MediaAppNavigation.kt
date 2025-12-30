@@ -204,7 +204,10 @@ fun MediaAppNavHost(
                     navController.navigate(section)
                 },
                 onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
-                onNotificationClick = { /* TODO: Show notifications */ }
+                onNotificationClick = { 
+                    // Show notifications screen or notification panel
+                    navController.navigate("notifications")
+                }
             )
         }
 

@@ -192,7 +192,8 @@ fun RoomsScreen(
                 onAddCharacter = { showAddCharacterDialog = true },
                 onEnterRoom = {
                     showRoomDetails = false
-                    // TODO: Navigate to room chat
+                    // Navigate to room chat
+                    navController.navigate("ai_chat/${selectedRoom?.id ?: ""}")
                 }
             )
         }

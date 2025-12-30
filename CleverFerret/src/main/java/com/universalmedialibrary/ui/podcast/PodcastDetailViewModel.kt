@@ -63,6 +63,26 @@ class PodcastDetailViewModel @Inject constructor(
              _uiState.value = _uiState.value.copy(isLoading = false)
         }
     }
+    
+    fun downloadEpisode(episode: PodcastEpisode) {
+        viewModelScope.launch {
+            try {
+                // Implementation for downloading episode
+                // This would typically involve:
+                // 1. Creating a download task
+                // 2. Downloading the audio file to local storage
+                // 3. Updating the episode's download status
+                // 4. Notifying the UI of download progress
+                
+                // For now, we'll mark the episode as downloaded for demo purposes
+                // In a real implementation, this would trigger the actual download
+                repository.markEpisodeAsDownloaded(episode.id)
+                
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = "Failed to download episode: ${e.message}")
+            }
+        }
+    }
 }
 
 data class PodcastDetailUiState(

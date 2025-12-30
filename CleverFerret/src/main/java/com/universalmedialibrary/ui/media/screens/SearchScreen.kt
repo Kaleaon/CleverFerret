@@ -389,8 +389,8 @@ private fun SearchResultsList(
                     item {
                         TextButton(
                             onClick = { 
-                                // TODO: Navigate to category-filtered results screen
-                                // onNavigateToCategoryResults(category, query)
+                                // Navigate to category-filtered results screen
+                                navController.navigate("search_results/category/${category}/${java.net.URLEncoder.encode(query, "UTF-8")}")
                             },
                             modifier = Modifier.padding(
                                 horizontal = MediaSpacing.MD,

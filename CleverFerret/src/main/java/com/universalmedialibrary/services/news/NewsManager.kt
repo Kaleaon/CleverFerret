@@ -135,8 +135,15 @@ class NewsManager @Inject constructor(
                         if (xpp.name.lowercase() == "item" || xpp.name.lowercase() == "entry") {
                             insideItem = false
                             if (title.isNotBlank() && link.isNotBlank()) {
-                                // TODO: Check date filter
-                                articles.add(NewsArticle(title, link, desc, pubDate, feed.title))
+                                // Check date filter
+                                if (recipe.dateFilter > 0) {
+                                    val articleDate = parseArticleDate(pubDate)
+                                    if (articleDate != null && articleDate.time > recipe.dateFilter) {
+                                        articles.add(NewsArticle(title, link, desc, pubDate, feed.title))
+                                    }
+                                } else {
+                                    articles.add(NewsArticle(title, link, desc, pubDate, feed.title))
+                                }
                             }
                         }
                     }
@@ -249,6 +256,34 @@ class NewsManager @Inject constructor(
             lastUpdated = System.currentTimeMillis()
         )
         mediaRepository.saveCommonMetadata(meta)
+    }
+
+    /**
+     * Parse article date from various RSS/Atom date formats
+     */
+    private fun parseArticleDate(dateString: String): Date? {
+        if (dateString.isBlank()) return null
+        
+        val dateFormats = listOf(
+            "EEE, dd MMM yyyy HH:mm:ss Z", // RFC 822
+            "EEE, dd MMM yyyy HH:mm:ss z", // RFC 822 with timezone name
+            "yyyy-MM-dd'T'HH:mm:ssZ", // ISO 8601
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ", // ISO 8601 with milliseconds
+            "yyyy-MM-dd'T'HH:mm:ss'Z'", // ISO 8601 UTC
+            "yyyy-MM-dd HH:mm:ss", // Simple format
+            "yyyy-MM-dd" // Date only
+        )
+        
+        for (format in dateFormats) {
+            try {
+                val sdf = SimpleDateFormat(format, Locale.US)
+                sdf.timeZone = TimeZone.getTimeZone("UTC")
+                return sdf.parse(dateString)
+            } catch (e: Exception) {
+                // Try next format
+            }
+        }
+        return null
     }
 
     private data class NewsArticle(

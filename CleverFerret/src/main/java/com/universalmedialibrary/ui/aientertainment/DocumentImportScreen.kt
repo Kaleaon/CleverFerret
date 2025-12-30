@@ -148,7 +148,10 @@ fun DocumentImportScreen(
                 )
                 1 -> HistoryTab(
                     imports = imports,
-                    onViewImport = { /* TODO: Show import details */ }
+                    onViewImport = { import ->
+                        // Show import details dialog or navigate to details screen
+                        navController.navigate("import_details/${import.id}")
+                    }
                 )
             }
         }

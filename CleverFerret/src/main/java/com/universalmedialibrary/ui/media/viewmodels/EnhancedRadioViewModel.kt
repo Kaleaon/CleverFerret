@@ -444,7 +444,25 @@ class EnhancedRadioViewModel @Inject constructor(
                 _uiState.value.favoriteStations + station.copy(isFavorite = true)
             }
             _uiState.update { it.copy(favoriteStations = updatedFavorites) }
-            // TODO: Persist favorites to database
+            
+            // Persist favorites to database
+            try {
+                // Save each favorite station to the database
+                updatedFavorites.forEach { favoriteStation ->
+                    radioRepository.saveFavoriteStation(favoriteStation)
+                }
+                
+                // Remove stations that are no longer favorites
+                val previousFavorites = _uiState.value.favoriteStations
+                previousFavorites.forEach { oldStation ->
+                    if (!updatedFavorites.any { it.id == oldStation.id }) {
+                        radioRepository.removeFavoriteStation(oldStation.id)
+                    }
+                }
+            } catch (e: Exception) {
+                // Log error but don't affect UI state
+                Log.e("EnhancedRadioViewModel", "Failed to persist favorites: ${e.message}")
+            }
         }
     }
     
