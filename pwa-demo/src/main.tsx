@@ -2,12 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { Logger } from './utils/Logger';
 
-// Initialize the database on app start
+// Initialize the database on app start with error handling
 import { db } from './services/database';
-db.open().catch((error) => {
-  console.error('Failed to initialize database:', error);
-});
+db.open()
+  .then(() => {
+    Logger.info('Database initialized successfully');
+  })
+  .catch((error) => {
+    Logger.error('Failed to initialize database:', error);
+    // App can still function in degraded mode without database
+  });
 
 // Register service worker for PWA functionality
 if ('serviceWorker' in navigator) {
@@ -15,7 +21,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('./sw.js')
       .then((registration) => {
-        // SW registered: registration
+        Logger.info('Service Worker registered successfully');
 
         // Listen for updates
         if (registration.waiting) {
@@ -26,8 +32,7 @@ if ('serviceWorker' in navigator) {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New content available; prompt refresh or auto-reload
-                // New content is available; refreshing
+                Logger.info('New Service Worker content available, reloading...');
                 newWorker.postMessage({ type: 'SKIP_WAITING' });
                 window.location.reload();
               }
@@ -42,8 +47,8 @@ if ('serviceWorker' in navigator) {
           }
         });
       })
-      .catch((_registrationError) => {
-        // SW registration failed: registrationError
+      .catch((error) => {
+        Logger.error('Service Worker registration failed:', error);
       });
   });
 }

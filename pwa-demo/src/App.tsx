@@ -19,6 +19,7 @@ import {
   Zoom,
 } from '@mui/material';
 import { Search as SearchIcon, Add as AddIcon } from '@mui/icons-material';
+import { rafThrottle } from './utils/PerformanceUtils';
 
 // Import all screens
 import {
@@ -170,26 +171,19 @@ const AppContent: React.FC = () => {
       return;
     }
 
-    let rafId: number | null = null;
-    const handleScroll = () => {
-      if (rafId) return;
-      
-      rafId = requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        if (currentScrollY > lastScrollY && currentScrollY > 80) {
-          setShowSearchBar(false);
-        } else {
-          setShowSearchBar(true);
-        }
-        setLastScrollY(currentScrollY);
-        rafId = null;
-      });
-    };
+    const handleScroll = rafThrottle(() => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        setShowSearchBar(false);
+      } else {
+        setShowSearchBar(true);
+      }
+      setLastScrollY(currentScrollY);
+    });
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [lastScrollY, isMobile]);
 
