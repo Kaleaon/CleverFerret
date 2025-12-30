@@ -527,17 +527,23 @@ class AIEntertainmentRepository @Inject constructor(
     suspend fun searchMemories(characterId: Long, query: String, limit: Int = 50): List<SynthMemory> = 
         memoryDao.searchMemories(characterId, query, limit)
     
-    suspend fun queryMemories(query: MemoryQuery): List<SynthMemory> = 
-        memoryDao.queryMemories(
+    suspend fun queryMemories(query: MemoryQuery): List<SynthMemory> {
+        val categoryIds = query.categoryIds ?: emptyList()
+        val memoryTypes = query.memoryTypes ?: emptyList()
+        
+        return memoryDao.queryMemories(
             characterId = query.characterId,
-            categoryId = query.categoryIds?.firstOrNull(),
-            memoryType = query.memoryTypes?.firstOrNull(),
+            filterByCategory = if (categoryIds.isNotEmpty()) 1 else 0,
+            categoryIds = categoryIds.ifEmpty { listOf(0L) }, // Dummy value when not filtering
+            filterByType = if (memoryTypes.isNotEmpty()) 1 else 0,
+            memoryTypes = memoryTypes.ifEmpty { listOf("") }, // Dummy value when not filtering
             minImportance = query.minImportance,
             sortBy = query.sortBy,
             sortOrder = query.sortOrder,
             limit = query.limit,
             offset = query.offset
         )
+    }
     
     suspend fun updateMemory(memory: SynthMemory) = 
         memoryDao.update(memory)
@@ -585,7 +591,7 @@ class AIEntertainmentRepository @Inject constructor(
         return MemoryStats(
             totalMemories = memoryDao.getMemoryCount(characterId),
             totalCategories = memoryCategoryDao.getCategoryCount(characterId),
-            totalBlocks = memoryBlockDao.getAllBlocks(characterId).size,
+            totalBlocks = memoryBlockDao.getBlocksCount(characterId),
             avgImportance = memoryDao.getAverageImportance(characterId) ?: 0.5f,
             mostAccessedCount = memoryDao.getMaxAccessCount(characterId) ?: 0,
             oldestMemoryDate = memoryDao.getOldestMemoryDate(characterId),
@@ -670,13 +676,4 @@ class AIEntertainmentRepository @Inject constructor(
             memoryCategoryDao.insertAll(defaultCategories)
         }
     }
-    
-    /**
-     * Get DAOs for direct access (used by MCPMemoryService)
-     */
-    fun getMemoryDao(): SynthMemoryDao = memoryDao
-    fun getMemoryCategoryDao(): SynthMemoryCategoryDao = memoryCategoryDao
-    fun getMemoryStoreDao(): SynthMemoryStoreDao = memoryStoreDao
-    fun getMemoryBlockDao(): SynthMemoryBlockDao = memoryBlockDao
-    fun getMemoryAccessLogDao(): SynthMemoryAccessLogDao = memoryAccessLogDao
 }

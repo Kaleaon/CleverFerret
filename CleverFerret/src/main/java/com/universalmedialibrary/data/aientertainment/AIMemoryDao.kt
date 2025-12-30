@@ -151,8 +151,8 @@ interface SynthMemoryDao {
         SELECT * FROM synth_memories 
         WHERE character_id = :characterId 
         AND is_archived = 0
-        AND (:categoryId IS NULL OR category_id = :categoryId)
-        AND (:memoryType IS NULL OR memory_type = :memoryType)
+        AND (:filterByCategory = 0 OR category_id IN (:categoryIds))
+        AND (:filterByType = 0 OR memory_type IN (:memoryTypes))
         AND (:minImportance IS NULL OR importance >= :minImportance)
         ORDER BY 
             CASE WHEN :sortBy = 'importance' AND :sortOrder = 'desc' THEN importance END DESC,
@@ -165,8 +165,10 @@ interface SynthMemoryDao {
     """)
     suspend fun queryMemories(
         characterId: Long,
-        categoryId: Long? = null,
-        memoryType: String? = null,
+        filterByCategory: Int,
+        categoryIds: List<Long>,
+        filterByType: Int,
+        memoryTypes: List<String>,
         minImportance: Float? = null,
         sortBy: String = "importance",
         sortOrder: String = "desc",
@@ -256,6 +258,9 @@ interface SynthMemoryBlockDao {
     
     @Query("SELECT * FROM synth_memory_blocks WHERE character_id = :characterId ORDER BY created_at DESC")
     suspend fun getAllBlocks(characterId: Long): List<SynthMemoryBlock>
+    
+    @Query("SELECT COUNT(*) FROM synth_memory_blocks WHERE character_id = :characterId")
+    suspend fun getBlocksCount(characterId: Long): Int
     
     @Query("SELECT SUM(token_count) FROM synth_memory_blocks WHERE character_id = :characterId AND is_active = 1")
     suspend fun getActiveTokenCount(characterId: Long): Int?

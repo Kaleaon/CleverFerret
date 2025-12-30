@@ -40,15 +40,6 @@ class MemoryManagementViewModel @Inject constructor(
     private var currentCharacterId: Long? = null
     
     init {
-        // Initialize MCP Memory Service with DAOs
-        mcpMemoryService.initialize(
-            memoryDao = repository.getMemoryDao(),
-            categoryDao = repository.getMemoryCategoryDao(),
-            storeDao = repository.getMemoryStoreDao(),
-            blockDao = repository.getMemoryBlockDao(),
-            accessLogDao = repository.getMemoryAccessLogDao()
-        )
-        
         // Observe storage states
         viewModelScope.launch {
             memoryStorageService.storageStates.collect { states ->
