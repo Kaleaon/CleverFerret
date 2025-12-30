@@ -5,13 +5,16 @@
  * Provides playlist management, queue handling, and playback controls.
  */
 
+// Event types for better type safety
+export type AudioPlayerEvent = 'play' | 'pause' | 'ended' | 'timeupdate' | 'error' | 'loadedmetadata';
+
 export class AudioPlayerService {
   private audio: HTMLAudioElement;
   private playlist: AudioTrack[] = [];
   private currentIndex: number = 0;
   private isShuffled: boolean = false;
   private repeatMode: RepeatMode = 'none';
-  private listeners: Map<string, Set<(...args: any[]) => void>> = new Map();
+  private listeners: Map<AudioPlayerEvent, Set<(...args: any[]) => void>> = new Map();
 
   constructor() {
     this.audio = new Audio();
@@ -282,7 +285,7 @@ export class AudioPlayerService {
   /**
    * Subscribe to events
    */
-  on(event: string, callback: (...args: any[]) => void): () => void {
+  on(event: AudioPlayerEvent, callback: (...args: any[]) => void): () => void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
