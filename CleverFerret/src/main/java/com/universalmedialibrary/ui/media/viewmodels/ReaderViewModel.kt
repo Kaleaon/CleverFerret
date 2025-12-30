@@ -1,5 +1,7 @@
 package com.universalmedialibrary.ui.media.viewmodels
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -10,10 +12,17 @@ import com.universalmedialibrary.data.repository.ReadingProgressRepository
 import com.universalmedialibrary.data.repository.BookmarkRepository
 import com.universalmedialibrary.data.repository.WebFictionRepository
 import com.universalmedialibrary.data.local.entity.Bookmark
+import com.universalmedialibrary.services.reader.UnifiedReaderService
+import com.universalmedialibrary.services.reader.ReaderType
+import com.universalmedialibrary.services.reader.ComicReaderEngine
+import com.universalmedialibrary.services.reader.core.BookSource
+import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.ui.media.player.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.io.File
 import javax.inject.Inject
 
 private const val TAG = "ReaderViewModel"
@@ -32,11 +41,15 @@ private const val TAG = "ReaderViewModel"
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val context: Context,
     private val bookRepository: BookRepository,
     private val comicRepository: ComicRepository,
     private val readingProgressRepository: ReadingProgressRepository,
     private val bookmarkRepository: BookmarkRepository,
-    private val webFictionRepository: WebFictionRepository
+    private val webFictionRepository: WebFictionRepository,
+    private val unifiedReaderService: UnifiedReaderService,
+    private val comicReaderEngine: ComicReaderEngine,
+    private val webFictionService: WebFictionService
 ) : ViewModel() {
     
     private val mediaId: String = savedStateHandle.get<String>("mediaId") ?: ""
@@ -123,18 +136,100 @@ class ReaderViewModel @Inject constructor(
         val book = bookRepository.getBookById(itemId)
         
         if (book != null) {
+            // First update UI with metadata
             _uiState.update {
                 it.copy(
                     title = book.title,
                     author = book.creator,
                     isComic = false,
-                    totalPages = book.pageCount ?: 100,
-                    currentContent = ReaderContent(
-                        text = "Content loaded from: ${book.filePath}",
-                        htmlContent = null
-                    ),
-                    chapters = generateChaptersFromPageCount(book.pageCount ?: 100)
+                    totalPages = 1 // Will be updated when content is loaded
                 )
+            }
+            
+            // Load actual content from the file using UnifiedReaderService
+            try {
+                val readerType = unifiedReaderService.openPublication(book.filePath)
+                
+                when (readerType) {
+                    is ReaderType.Epub -> {
+                        // Extract TOC and content from EPUB
+                        val tocItems = readerType.service.extractToc(book.filePath)
+                        val chapters = tocItems.mapIndexed { index, item ->
+                            ChapterInfo(
+                                id = "chapter_$index",
+                                title = item.title,
+                                startPage = index + 1,
+                                endPage = index + 1,
+                                progress = 0f
+                            )
+                        }.ifEmpty { generateChaptersFromPageCount(10) } // Default if TOC empty
+                        
+                        _uiState.update {
+                            it.copy(
+                                totalPages = chapters.size.coerceAtLeast(1),
+                                currentContent = ReaderContent(
+                                    text = "EPUB loaded successfully",
+                                    htmlContent = null // Content will be rendered by WebView
+                                ),
+                                chapters = chapters
+                            )
+                        }
+                    }
+                    is ReaderType.Pdf -> {
+                        val pageCount = readerType.metadata.numberOfPages
+                        _uiState.update {
+                            it.copy(
+                                totalPages = pageCount.coerceAtLeast(1),
+                                currentContent = ReaderContent(
+                                    text = "PDF loaded: ${readerType.metadata.title}",
+                                    htmlContent = null
+                                ),
+                                chapters = generateChaptersFromPageCount(pageCount)
+                            )
+                        }
+                    }
+                    is ReaderType.Text -> {
+                        val content = readerType.content
+                        val estimatedPages = (content.length / 2000).coerceAtLeast(1)
+                        _uiState.update {
+                            it.copy(
+                                totalPages = estimatedPages,
+                                currentContent = ReaderContent(
+                                    text = content,
+                                    htmlContent = if (content.contains("<")) content else null
+                                ),
+                                chapters = generateChaptersFromPageCount(estimatedPages)
+                            )
+                        }
+                    }
+                    is ReaderType.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                currentContent = ReaderContent(text = "Error loading book: ${readerType.message}"),
+                                chapters = emptyList()
+                            )
+                        }
+                    }
+                    else -> {
+                        // Fallback for other reader types
+                        _uiState.update {
+                            it.copy(
+                                totalPages = 10, // Default fallback
+                                currentContent = ReaderContent(text = "Content loaded from: ${book.filePath}"),
+                                chapters = generateChaptersFromPageCount(10)
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading book content", e)
+                _uiState.update {
+                    it.copy(
+                        totalPages = 10,
+                        currentContent = ReaderContent(text = "Error loading content: ${e.message}"),
+                        chapters = generateChaptersFromPageCount(10)
+                    )
+                }
             }
         } else {
             _uiState.update {
@@ -151,18 +246,76 @@ class ReaderViewModel @Inject constructor(
         val comic = comicRepository.getComicById(itemId)
         
         if (comic != null) {
+            // First update UI with metadata
             _uiState.update {
                 it.copy(
                     title = comic.title,
                     author = comic.creator,
-                    isComic = true,
-                    totalPages = comic.pageCount ?: 50,
-                    currentContent = ReaderContent(
-                        text = "",
-                        imageUrls = listOf() // TODO: Load actual comic pages from archive
-                    ),
-                    chapters = generateChaptersFromPageCount(comic.pageCount ?: 50)
+                    isComic = true
                 )
+            }
+            
+            // Load actual pages from the comic archive using ComicReaderEngine
+            try {
+                val file = File(comic.filePath)
+                if (!file.exists()) {
+                    _uiState.update {
+                        it.copy(
+                            currentContent = ReaderContent(text = "Comic file not found: ${comic.filePath}"),
+                            totalPages = 0,
+                            chapters = emptyList()
+                        )
+                    }
+                    return
+                }
+                
+                // Open the comic archive
+                val bookSource = BookSource.File(Uri.fromFile(file))
+                val result = comicReaderEngine.open(context, bookSource)
+                
+                result.fold(
+                    onSuccess = {
+                        // Get all pages from the archive
+                        val pages = comicReaderEngine.getAllPages()
+                        val pageCount = pages.size
+                        
+                        // Create list of page paths/entries for the UI
+                        // The imageUrls list contains the entry names within the archive
+                        val imageUrls = pages.map { page -> 
+                            "${comic.filePath}#${page.entryName}" 
+                        }
+                        
+                        _uiState.update {
+                            it.copy(
+                                totalPages = pageCount.coerceAtLeast(1),
+                                currentContent = ReaderContent(
+                                    text = "",
+                                    imageUrls = imageUrls
+                                ),
+                                chapters = generateChaptersFromPageCount(pageCount)
+                            )
+                        }
+                    },
+                    onFailure = { error ->
+                        Log.e(TAG, "Error opening comic archive", error)
+                        _uiState.update {
+                            it.copy(
+                                currentContent = ReaderContent(text = "Error loading comic: ${error.message}"),
+                                totalPages = 0,
+                                chapters = emptyList()
+                            )
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading comic content", e)
+                _uiState.update {
+                    it.copy(
+                        currentContent = ReaderContent(text = "Error loading comic: ${e.message}"),
+                        totalPages = 0,
+                        chapters = emptyList()
+                    )
+                }
             }
         } else {
             _uiState.update {
@@ -179,13 +332,13 @@ class ReaderViewModel @Inject constructor(
         val story = webFictionRepository.getWebFictionById(storyId)
         
         if (story != null) {
+            // First update UI with metadata
             _uiState.update {
                 it.copy(
                     title = story.title,
                     author = story.author,
                     isComic = false,
                     totalPages = story.chapterCount,
-                    currentContent = ReaderContent(text = "Loading chapter content..."), // TODO: Load actual chapter content
                     chapters = (1..story.chapterCount).map { index ->
                         ChapterInfo(
                             id = "chapter_$index",
@@ -197,6 +350,26 @@ class ReaderViewModel @Inject constructor(
                     }
                 )
             }
+            
+            // Try to load content from cached EPUB first, then from source
+            try {
+                val content = loadWebFictionContent(story)
+                _uiState.update {
+                    it.copy(
+                        currentContent = ReaderContent(
+                            text = content.text,
+                            htmlContent = content.htmlContent
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading web fiction content", e)
+                _uiState.update {
+                    it.copy(
+                        currentContent = ReaderContent(text = "Error loading content: ${e.message}")
+                    )
+                }
+            }
         } else {
             _uiState.update {
                 it.copy(
@@ -204,6 +377,92 @@ class ReaderViewModel @Inject constructor(
                     currentContent = ReaderContent(text = "The requested web fiction could not be found.")
                 )
             }
+        }
+    }
+    
+    /**
+     * Loads web fiction content from cached EPUB or fetches from source
+     */
+    private suspend fun loadWebFictionContent(
+        story: com.universalmedialibrary.data.local.entity.FanfictionStoryEntity
+    ): ReaderContent {
+        // First try to load from cached EPUB if available
+        val epubPath = story.epubPath
+        if (!epubPath.isNullOrEmpty()) {
+            val epubFile = File(epubPath)
+            if (epubFile.exists()) {
+                try {
+                    val readerType = unifiedReaderService.openPublication(epubPath)
+                    if (readerType is ReaderType.Text) {
+                        return ReaderContent(
+                            text = readerType.content,
+                            htmlContent = if (readerType.content.contains("<")) readerType.content else null
+                        )
+                    } else if (readerType is ReaderType.Epub) {
+                        return ReaderContent(
+                            text = "EPUB loaded from cache",
+                            htmlContent = null
+                        )
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to load cached EPUB, will fetch from source", e)
+                }
+            }
+        }
+        
+        // Fetch chapter content from the source URL
+        try {
+            // Create a WebFictionStory model for the service
+            val webFictionStory = com.universalmedialibrary.services.webfiction.WebFictionStory(
+                id = story.id,
+                url = story.sourceUrl,
+                title = story.title,
+                author = story.author,
+                description = story.summary,
+                status = parseStoryStatus(story.status),
+                genre = null,
+                fandom = story.fandoms.firstOrNull(),
+                language = story.language,
+                wordCount = story.wordCount.toLong(),
+                chapterCount = story.chapterCount,
+                lastUpdated = story.updateDate,
+                rating = story.rating,
+                tags = story.tags,
+                site = story.sourceSite,
+                totalChapters = story.chapterCount
+            )
+            
+            // Download chapters from source
+            val chapters = webFictionService.downloadAllChapters(webFictionStory)
+            
+            if (chapters.isNotEmpty()) {
+                // Return the first chapter's content
+                val firstChapter = chapters.first()
+                val isHtml = firstChapter.content.contains("<")
+                return ReaderContent(
+                    text = if (isHtml) "" else firstChapter.content,
+                    htmlContent = if (isHtml) firstChapter.content else null
+                )
+            } else {
+                return ReaderContent(text = "No chapters available. Check your internet connection or the story source.")
+            }
+        } catch (e: com.universalmedialibrary.services.ContentPinRequiredException) {
+            return ReaderContent(text = "PIN required to access this content. Please verify your identity.")
+        } catch (e: com.universalmedialibrary.services.DownloadBlockedException) {
+            return ReaderContent(text = "Access blocked: ${e.message}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch chapters from source", e)
+            return ReaderContent(text = "Unable to load chapter content. Please check your internet connection.")
+        }
+    }
+    
+    private fun parseStoryStatus(status: String): com.universalmedialibrary.services.webfiction.StoryStatus {
+        return when (status.uppercase()) {
+            "COMPLETE", "COMPLETED" -> com.universalmedialibrary.services.webfiction.StoryStatus.COMPLETED
+            "IN_PROGRESS", "ONGOING" -> com.universalmedialibrary.services.webfiction.StoryStatus.ONGOING
+            "HIATUS" -> com.universalmedialibrary.services.webfiction.StoryStatus.HIATUS
+            "CANCELLED", "ABANDONED" -> com.universalmedialibrary.services.webfiction.StoryStatus.CANCELLED
+            else -> com.universalmedialibrary.services.webfiction.StoryStatus.UNKNOWN
         }
     }
     
