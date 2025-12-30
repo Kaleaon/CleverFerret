@@ -151,8 +151,8 @@ interface SynthMemoryDao {
         SELECT * FROM synth_memories 
         WHERE character_id = :characterId 
         AND is_archived = 0
-        AND (:categoryIds IS NULL OR category_id IN (:categoryIds))
-        AND (:memoryTypes IS NULL OR memory_type IN (:memoryTypes))
+        AND (:categoryIds IS NULL OR :categoryIds = '' OR category_id IN (:categoryIds))
+        AND (:memoryTypes IS NULL OR :memoryTypes = '' OR memory_type IN (:memoryTypes))
         AND (:minImportance IS NULL OR importance >= :minImportance)
         ORDER BY 
             CASE WHEN :sortBy = 'importance' AND :sortOrder = 'desc' THEN importance END DESC,
@@ -165,8 +165,8 @@ interface SynthMemoryDao {
     """)
     suspend fun queryMemories(
         characterId: Long,
-        categoryIds: List<Long>? = null,
-        memoryTypes: List<String>? = null,
+        categoryIds: List<Long> = emptyList(),
+        memoryTypes: List<String> = emptyList(),
         minImportance: Float? = null,
         sortBy: String = "importance",
         sortOrder: String = "desc",

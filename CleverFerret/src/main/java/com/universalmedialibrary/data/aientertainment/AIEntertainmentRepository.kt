@@ -530,8 +530,8 @@ class AIEntertainmentRepository @Inject constructor(
     suspend fun queryMemories(query: MemoryQuery): List<SynthMemory> = 
         memoryDao.queryMemories(
             characterId = query.characterId,
-            categoryIds = query.categoryIds?.takeIf { it.isNotEmpty() },
-            memoryTypes = query.memoryTypes?.takeIf { it.isNotEmpty() },
+            categoryIds = query.categoryIds ?: emptyList(),
+            memoryTypes = query.memoryTypes ?: emptyList(),
             minImportance = query.minImportance,
             sortBy = query.sortBy,
             sortOrder = query.sortOrder,

@@ -672,7 +672,7 @@ class MCPMemoryService @Inject constructor(
         val potentialMemories = mutableListOf<Pair<String, String>>()
         
         // Look for "remember" statements
-        val professionPattern = PROFESSION_KEYWORDS.joinToString("|")
+        val professionPattern = PROFESSION_KEYWORDS.map { Regex.escape(it) }.joinToString("|")
         val rememberPatterns = listOf(
             Regex("(?:remember|don't forget|keep in mind)[:\\s]+(.+)", RegexOption.IGNORE_CASE),
             Regex("my (?:name|favorite|hobby|job|work|birthday|age) is\\s+(.+)", RegexOption.IGNORE_CASE),
