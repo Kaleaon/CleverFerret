@@ -79,7 +79,6 @@ abstract class AIEntertainmentDatabase : RoomDatabase() {
                     AIEntertainmentDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

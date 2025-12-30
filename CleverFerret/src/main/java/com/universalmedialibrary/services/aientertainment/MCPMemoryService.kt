@@ -691,7 +691,7 @@ class MCPMemoryService @Inject constructor(
             Regex("(?:remember|don't forget|keep in mind)[:\\s]+(.+)", RegexOption.IGNORE_CASE),
             Regex("my (?:name|favorite|hobby|job|work|birthday|age) is\\s+(.+)", RegexOption.IGNORE_CASE),
             Regex("I (?:like|love|hate|prefer|enjoy|dislike)\\s+(.+)", RegexOption.IGNORE_CASE),
-            Regex("I am (?:a|an)\\s+([A-Za-z]+(?:\\s+[A-Za-z]+){0,3})", RegexOption.IGNORE_CASE),
+            Regex("I am (?:a|an)\\s+([\\w\\s-]+(?:teacher|developer|engineer|doctor|student|writer|artist|designer))", RegexOption.IGNORE_CASE),
             Regex("I work (?:as|at|for|in)\\s+(.+)", RegexOption.IGNORE_CASE)
         )
         
