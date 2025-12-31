@@ -1,8 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android API 29+ specific theme -->
-    <style name="Theme.CleverFerretMediaLibrary" parent="android:Theme.DeviceDefault.DayNight">
-        <item name="android:colorPrimary">@color/primary</item>
+    <!-- 
+        CleverFerret Material 3 Theme (API 29+)
+        Uses NoActionBar since we use Compose TopAppBar for navigation.
+        This theme extends AppCompat for consistent behavior with Compose.
+    -->
+    <style name="Theme.CleverFerretMediaLibrary" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_container</item>
+        <item name="colorAccent">@color/secondary</item>
+
+        <!-- Material 3 color attributes -->
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:windowBackground">@color/background</item>
+        
+        <!-- Edge-to-edge support for API 29+ -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <!-- Legacy theme name for compatibility -->
