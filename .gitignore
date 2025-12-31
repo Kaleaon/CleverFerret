@@ -24,14 +24,6 @@ CleverFerret/keystore/
 build-reports/
 build-validation-reports/
 
-# PWA Demo Node.js dependencies
-pwa-demo/node_modules/
-pwa-demo/dist/
-pwa-demo/.vite/
-pwa-demo/npm-debug.log*
-pwa-demo/yarn-debug.log*
-pwa-demo/yarn-error.log*
-
 # Environment files
 *.env
 *.env.*

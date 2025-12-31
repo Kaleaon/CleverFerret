@@ -1182,6 +1182,794 @@ fun MediaAppNavHost(
         }
         
         // =====================================================================
+        // LEGACY ROUTE COMPATIBILITY
+        // These routes provide backwards compatibility for screens that use
+        // legacy navigation patterns. They redirect to the proper media-centric routes.
+        // =====================================================================
+        
+        // Legacy player routes
+        composable("video_player/{videoId}") { backStackEntry ->
+            val videoId = backStackEntry.arguments?.getString("videoId") ?: ""
+            val viewModel: VideoPlayerViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaVideoPlayerScreen(
+                state = state,
+                onPlayPause = { viewModel.playPause() },
+                onSeek = { viewModel.seek(it) },
+                onSeekRelative = { viewModel.seekRelative(it) },
+                onSkipPrevious = { viewModel.skipPrevious() },
+                onSkipNext = { viewModel.skipNext() },
+                onSkipIntro = { viewModel.skipIntro() },
+                onSubtitleChange = { viewModel.setSubtitle(it) },
+                onAudioTrackChange = { viewModel.setAudioTrack(it) },
+                onQualityChange = { viewModel.setQuality(it) },
+                onCastClick = { /* Start casting */ },
+                onPipClick = { /* Enter PiP */ },
+                onClose = { navController.popBackStack() }
+            )
+        }
+        
+        composable("music_player") {
+            val viewModel: AudioPlayerViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaAudioPlayerScreen(
+                state = state,
+                onPlayPause = { viewModel.playPause() },
+                onSeek = { viewModel.seek(it) },
+                onSkipPrevious = { viewModel.skipPrevious() },
+                onSkipNext = { viewModel.skipNext() },
+                onRewind = { viewModel.rewind() },
+                onFastForward = { viewModel.fastForward() },
+                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                onShuffleToggle = { viewModel.toggleShuffle() },
+                onRepeatToggle = { viewModel.toggleRepeat() },
+                onSleepTimer = { /* Show sleep timer dialog */ },
+                onQueueOpen = { /* Handled by sheet in screen */ },
+                onChaptersOpen = { /* Handled by sheet in screen */ },
+                onCastClick = { /* Start casting */ },
+                onClose = { navController.popBackStack() }
+            )
+        }
+        
+        composable("podcast_player/{episodeId}") { backStackEntry ->
+            val viewModel: AudioPlayerViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaAudioPlayerScreen(
+                state = state,
+                onPlayPause = { viewModel.playPause() },
+                onSeek = { viewModel.seek(it) },
+                onSkipPrevious = { viewModel.skipPrevious() },
+                onSkipNext = { viewModel.skipNext() },
+                onRewind = { viewModel.rewind() },
+                onFastForward = { viewModel.fastForward() },
+                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                onShuffleToggle = { viewModel.toggleShuffle() },
+                onRepeatToggle = { viewModel.toggleRepeat() },
+                onSleepTimer = { /* Show sleep timer dialog */ },
+                onQueueOpen = { /* Handled by sheet in screen */ },
+                onChaptersOpen = { /* Handled by sheet in screen */ },
+                onCastClick = { /* Start casting */ },
+                onClose = { navController.popBackStack() }
+            )
+        }
+        
+        composable("audio_player/{path}") { backStackEntry ->
+            val viewModel: AudioPlayerViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaAudioPlayerScreen(
+                state = state,
+                onPlayPause = { viewModel.playPause() },
+                onSeek = { viewModel.seek(it) },
+                onSkipPrevious = { viewModel.skipPrevious() },
+                onSkipNext = { viewModel.skipNext() },
+                onRewind = { viewModel.rewind() },
+                onFastForward = { viewModel.fastForward() },
+                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                onShuffleToggle = { viewModel.toggleShuffle() },
+                onRepeatToggle = { viewModel.toggleRepeat() },
+                onSleepTimer = { /* Show sleep timer dialog */ },
+                onQueueOpen = { /* Handled by sheet in screen */ },
+                onChaptersOpen = { /* Handled by sheet in screen */ },
+                onCastClick = { /* Start casting */ },
+                onClose = { navController.popBackStack() }
+            )
+        }
+        
+        // Legacy detail routes
+        composable("podcast_detail/{podcastId}") { backStackEntry ->
+            val podcastId = backStackEntry.arguments?.getString("podcastId") ?: ""
+            val viewModel: MediaDetailViewModel = hiltViewModel()
+            val vmState by viewModel.uiState.collectAsState()
+            
+            val screenState = MediaDetailState(
+                item = MediaDetailItem(
+                    id = podcastId,
+                    title = vmState.title,
+                    description = vmState.description,
+                    imageUrl = vmState.imageUrl,
+                    mediaType = MediaType.PODCAST
+                ),
+                isLoading = vmState.isLoading
+            )
+            
+            MediaDetailScreen(
+                state = screenState,
+                onBackClick = { navController.popBackStack() },
+                onPlayClick = { navController.navigate(MediaRoutes.audioPlayerRoute("podcast")) },
+                onChapterClick = { },
+                onRelatedItemClick = { item ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
+                },
+                onAddToCollectionClick = { },
+                onShareClick = { },
+                onDownloadClick = { viewModel.download() }
+            )
+        }
+        
+        composable("book_details/{bookId}") { backStackEntry ->
+            val bookId = backStackEntry.arguments?.getString("bookId") ?: ""
+            val viewModel: MediaDetailViewModel = hiltViewModel()
+            val vmState by viewModel.uiState.collectAsState()
+            
+            val screenState = MediaDetailState(
+                item = MediaDetailItem(
+                    id = bookId,
+                    title = vmState.title,
+                    description = vmState.description,
+                    imageUrl = vmState.imageUrl,
+                    mediaType = MediaType.BOOK
+                ),
+                isLoading = vmState.isLoading
+            )
+            
+            MediaDetailScreen(
+                state = screenState,
+                onBackClick = { navController.popBackStack() },
+                onPlayClick = { navController.navigate(MediaRoutes.readerRoute("book", bookId)) },
+                onChapterClick = { },
+                onRelatedItemClick = { item ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
+                },
+                onAddToCollectionClick = { },
+                onShareClick = { },
+                onDownloadClick = { viewModel.download() }
+            )
+        }
+        
+        composable("album/{albumId}") { backStackEntry ->
+            val albumId = backStackEntry.arguments?.getString("albumId") ?: ""
+            val viewModel: MediaDetailViewModel = hiltViewModel()
+            val vmState by viewModel.uiState.collectAsState()
+            
+            val screenState = MediaDetailState(
+                item = MediaDetailItem(
+                    id = albumId,
+                    title = vmState.title,
+                    description = vmState.description,
+                    imageUrl = vmState.imageUrl,
+                    mediaType = MediaType.MUSIC
+                ),
+                isLoading = vmState.isLoading
+            )
+            
+            MediaDetailScreen(
+                state = screenState,
+                onBackClick = { navController.popBackStack() },
+                onPlayClick = { navController.navigate(MediaRoutes.audioPlayerRoute("music")) },
+                onChapterClick = { },
+                onRelatedItemClick = { item ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
+                },
+                onAddToCollectionClick = { },
+                onShareClick = { },
+                onDownloadClick = { viewModel.download() }
+            )
+        }
+        
+        composable("artist/{artistId}") { backStackEntry ->
+            val artistId = backStackEntry.arguments?.getString("artistId") ?: ""
+            val viewModel: MediaDetailViewModel = hiltViewModel()
+            val vmState by viewModel.uiState.collectAsState()
+            
+            val screenState = MediaDetailState(
+                item = MediaDetailItem(
+                    id = artistId,
+                    title = vmState.title,
+                    description = vmState.description,
+                    imageUrl = vmState.imageUrl,
+                    mediaType = MediaType.MUSIC
+                ),
+                isLoading = vmState.isLoading
+            )
+            
+            MediaDetailScreen(
+                state = screenState,
+                onBackClick = { navController.popBackStack() },
+                onPlayClick = { navController.navigate(MediaRoutes.audioPlayerRoute("music")) },
+                onChapterClick = { },
+                onRelatedItemClick = { item ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
+                },
+                onAddToCollectionClick = { },
+                onShareClick = { },
+                onDownloadClick = { viewModel.download() }
+            )
+        }
+        
+        composable("genre/{genreId}") { backStackEntry ->
+            val genreId = backStackEntry.arguments?.getString("genreId") ?: ""
+            val viewModel: MediaLibraryViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaLibraryScreen(
+                state = state,
+                onItemClick = { item ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute("music", item.id))
+                },
+                onBackClick = { navController.popBackStack() },
+                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
+                onFilterChange = { viewModel.setFilter(it) },
+                onSortChange = { viewModel.setSort(it) },
+                onViewModeChange = { viewModel.setViewMode(it) },
+                onRefresh = { viewModel.refresh() }
+            )
+        }
+        
+        // Legacy reader routes
+        composable("reader/{mediaId}") { backStackEntry ->
+            val mediaId = backStackEntry.arguments?.getString("mediaId") ?: ""
+            val viewModel: ReaderViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaReaderScreen(
+                state = state,
+                onPageChange = { viewModel.goToPage(it) },
+                onChapterChange = { viewModel.goToChapter(it) },
+                onBookmarkToggle = { viewModel.toggleBookmark() },
+                onTocOpen = { },
+                onSettingsOpen = { },
+                onSearch = { },
+                onClose = { navController.popBackStack() },
+                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
+                onTtsToggle = { viewModel.toggleTts() }
+            )
+        }
+        
+        composable("epub_reader/{path}") { backStackEntry ->
+            val path = backStackEntry.arguments?.getString("path") ?: ""
+            val viewModel: ReaderViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaReaderScreen(
+                state = state,
+                onPageChange = { viewModel.goToPage(it) },
+                onChapterChange = { viewModel.goToChapter(it) },
+                onBookmarkToggle = { viewModel.toggleBookmark() },
+                onTocOpen = { },
+                onSettingsOpen = { },
+                onSearch = { },
+                onClose = { navController.popBackStack() },
+                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
+                onTtsToggle = { viewModel.toggleTts() }
+            )
+        }
+        
+        composable("pdf_reader/{path}") { backStackEntry ->
+            val path = backStackEntry.arguments?.getString("path") ?: ""
+            val viewModel: ReaderViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaReaderScreen(
+                state = state,
+                onPageChange = { viewModel.goToPage(it) },
+                onChapterChange = { viewModel.goToChapter(it) },
+                onBookmarkToggle = { viewModel.toggleBookmark() },
+                onTocOpen = { },
+                onSettingsOpen = { },
+                onSearch = { },
+                onClose = { navController.popBackStack() },
+                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
+                onTtsToggle = { viewModel.toggleTts() }
+            )
+        }
+        
+        composable("ereader/{mediaId}") { backStackEntry ->
+            val mediaId = backStackEntry.arguments?.getString("mediaId") ?: ""
+            val viewModel: ReaderViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaReaderScreen(
+                state = state,
+                onPageChange = { viewModel.goToPage(it) },
+                onChapterChange = { viewModel.goToChapter(it) },
+                onBookmarkToggle = { viewModel.toggleBookmark() },
+                onTocOpen = { },
+                onSettingsOpen = { },
+                onSearch = { },
+                onClose = { navController.popBackStack() },
+                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
+                onTtsToggle = { viewModel.toggleTts() }
+            )
+        }
+        
+        composable("audioplayer/{mediaId}") { backStackEntry ->
+            val viewModel: AudioPlayerViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaAudioPlayerScreen(
+                state = state,
+                onPlayPause = { viewModel.playPause() },
+                onSeek = { viewModel.seek(it) },
+                onSkipPrevious = { viewModel.skipPrevious() },
+                onSkipNext = { viewModel.skipNext() },
+                onRewind = { viewModel.rewind() },
+                onFastForward = { viewModel.fastForward() },
+                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                onShuffleToggle = { viewModel.toggleShuffle() },
+                onRepeatToggle = { viewModel.toggleRepeat() },
+                onSleepTimer = { },
+                onQueueOpen = { },
+                onChaptersOpen = { },
+                onCastClick = { },
+                onClose = { navController.popBackStack() }
+            )
+        }
+        
+        composable("videoplayer/{mediaId}") { backStackEntry ->
+            val viewModel: VideoPlayerViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaVideoPlayerScreen(
+                state = state,
+                onPlayPause = { viewModel.playPause() },
+                onSeek = { viewModel.seek(it) },
+                onSeekRelative = { viewModel.seekRelative(it) },
+                onSkipPrevious = { viewModel.skipPrevious() },
+                onSkipNext = { viewModel.skipNext() },
+                onSkipIntro = { viewModel.skipIntro() },
+                onSubtitleChange = { viewModel.setSubtitle(it) },
+                onAudioTrackChange = { viewModel.setAudioTrack(it) },
+                onQualityChange = { viewModel.setQuality(it) },
+                onCastClick = { },
+                onPipClick = { },
+                onClose = { navController.popBackStack() }
+            )
+        }
+        
+        composable("musicplayer/{mediaId}") { backStackEntry ->
+            val viewModel: AudioPlayerViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaAudioPlayerScreen(
+                state = state,
+                onPlayPause = { viewModel.playPause() },
+                onSeek = { viewModel.seek(it) },
+                onSkipPrevious = { viewModel.skipPrevious() },
+                onSkipNext = { viewModel.skipNext() },
+                onRewind = { viewModel.rewind() },
+                onFastForward = { viewModel.fastForward() },
+                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                onShuffleToggle = { viewModel.toggleShuffle() },
+                onRepeatToggle = { viewModel.toggleRepeat() },
+                onSleepTimer = { },
+                onQueueOpen = { },
+                onChaptersOpen = { },
+                onCastClick = { },
+                onClose = { navController.popBackStack() }
+            )
+        }
+        
+        composable("podcastplayer/{mediaId}") { backStackEntry ->
+            val viewModel: AudioPlayerViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaAudioPlayerScreen(
+                state = state,
+                onPlayPause = { viewModel.playPause() },
+                onSeek = { viewModel.seek(it) },
+                onSkipPrevious = { viewModel.skipPrevious() },
+                onSkipNext = { viewModel.skipNext() },
+                onRewind = { viewModel.rewind() },
+                onFastForward = { viewModel.fastForward() },
+                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                onShuffleToggle = { viewModel.toggleShuffle() },
+                onRepeatToggle = { viewModel.toggleRepeat() },
+                onSleepTimer = { },
+                onQueueOpen = { },
+                onChaptersOpen = { },
+                onCastClick = { },
+                onClose = { navController.popBackStack() }
+            )
+        }
+        
+        composable("magazinereader/{mediaId}") { backStackEntry ->
+            val viewModel: ReaderViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaReaderScreen(
+                state = state,
+                onPageChange = { viewModel.goToPage(it) },
+                onChapterChange = { viewModel.goToChapter(it) },
+                onBookmarkToggle = { viewModel.toggleBookmark() },
+                onTocOpen = { },
+                onSettingsOpen = { },
+                onSearch = { },
+                onClose = { navController.popBackStack() },
+                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
+                onTtsToggle = { viewModel.toggleTts() }
+            )
+        }
+        
+        composable("documentviewer/{mediaId}") { backStackEntry ->
+            val viewModel: ReaderViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaReaderScreen(
+                state = state,
+                onPageChange = { viewModel.goToPage(it) },
+                onChapterChange = { viewModel.goToChapter(it) },
+                onBookmarkToggle = { viewModel.toggleBookmark() },
+                onTocOpen = { },
+                onSettingsOpen = { },
+                onSearch = { },
+                onClose = { navController.popBackStack() },
+                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
+                onTtsToggle = { viewModel.toggleTts() }
+            )
+        }
+        
+        // Legacy browse/manager routes
+        composable("webfiction_manager") {
+            val viewModel: WebFictionViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            WebFictionScreen(
+                state = state,
+                onStoryClick = { story ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute("webfiction", story.id))
+                },
+                onChapterClick = { chapter ->
+                    navController.navigate(MediaRoutes.readerRoute("webfiction", chapter.storyId))
+                },
+                onSourceClick = { source ->
+                    navController.navigate(MediaRoutes.webFictionBrowseRoute(source.id))
+                },
+                onRefresh = { viewModel.refresh() },
+                onAddByUrl = { },
+                onBrowseSource = { source ->
+                    navController.navigate(MediaRoutes.webFictionBrowseRoute(source.id))
+                },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        
+        composable("story_manager") {
+            com.universalmedialibrary.ui.webfiction.StoryManagerRoute(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable("webfiction_story/{storyId}") { backStackEntry ->
+            val storyId = backStackEntry.arguments?.getString("storyId") ?: ""
+            val viewModel: ReaderViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaReaderScreen(
+                state = state,
+                onPageChange = { viewModel.goToPage(it) },
+                onChapterChange = { viewModel.goToChapter(it) },
+                onBookmarkToggle = { viewModel.toggleBookmark() },
+                onTocOpen = { },
+                onSettingsOpen = { },
+                onSearch = { },
+                onClose = { navController.popBackStack() },
+                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
+                onTtsToggle = { viewModel.toggleTts() }
+            )
+        }
+        
+        composable("web_comic_downloader") {
+            com.universalmedialibrary.ui.webfiction.UnifiedFanfictionHubScreen(
+                navController = navController
+            )
+        }
+        
+        composable("metabods_tag_browser") {
+            com.universalmedialibrary.ui.webfiction.MetabodsTagBrowserScreen(
+                navController = navController
+            )
+        }
+        
+        composable("universal_tag_browser") {
+            com.universalmedialibrary.ui.webfiction.UniversalTagBrowserScreen(
+                navController = navController
+            )
+        }
+        
+        composable("hivefy_music") {
+            com.universalmedialibrary.ui.music.hivefy.HivefyMusicScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable("opds_catalog") {
+            val viewModel: OPDSViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            OPDSBrowserScreen(
+                state = state,
+                onCatalogClick = { catalog -> viewModel.openCatalog(catalog) },
+                onEntryClick = { entry ->
+                    if (entry.isDownloadable) {
+                        viewModel.download(entry)
+                    } else {
+                        navController.navigate(MediaRoutes.mediaDetailRoute("opds", entry.id))
+                    }
+                },
+                onSearch = { query -> viewModel.search(query) },
+                onAddCatalog = { url -> viewModel.addCatalog(url) },
+                onBackClick = { 
+                    if (!viewModel.navigateBack()) {
+                        navController.popBackStack()
+                    }
+                }
+            )
+        }
+        
+        composable("storage_browser") {
+            com.universalmedialibrary.ui.filepicker.EnhancedFileBrowser(
+                onFileSelected = { file ->
+                    onShowSnackbar("Selected: ${file.name}")
+                }
+            )
+        }
+        
+        composable("reading_statistics") {
+            // Reading statistics requires a specific media ID - show a placeholder for now
+            // Users should navigate to this from a specific media detail screen
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Reading Statistics", style = MaterialTheme.typography.titleMedium)
+                    Text("Please access statistics from a book's detail page", 
+                         style = MaterialTheme.typography.bodyMedium)
+                    Button(onClick = { navController.popBackStack() }) {
+                        Text("Go Back")
+                    }
+                }
+            }
+        }
+        
+        composable("free_audiobooks") {
+            MediaDiscoverScreen(
+                onNavigate = navController::navigate,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        
+        composable("free_music") {
+            com.universalmedialibrary.ui.music.FreeMusicScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable("free_media") {
+            com.universalmedialibrary.ui.media.FreeMediaScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable("podcasts") {
+            val viewModel: PodcastViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            PodcastScreen(
+                state = state,
+                onShowClick = { show ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute("podcast", show.id))
+                },
+                onEpisodeClick = { episode ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute("episode", episode.id))
+                },
+                onPlayEpisode = { episode -> viewModel.playEpisode(episode) },
+                onDownloadEpisode = { episode -> viewModel.downloadEpisode(episode) },
+                onDiscoverClick = { navController.navigate(MediaRoutes.PODCAST_DISCOVER) },
+                onImportOPML = { },
+                onBackClick = { navController.popBackStack() },
+                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) }
+            )
+        }
+        
+        composable("radio") {
+            val viewModel: RadioViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            RadioScreen(
+                state = state,
+                onStationClick = { station -> viewModel.playStation(station) },
+                onFavoriteToggle = { station -> viewModel.toggleFavorite(station) },
+                onCategoryClick = { category -> viewModel.selectCategory(category) },
+                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        
+        composable("visualizer") {
+            com.universalmedialibrary.ui.visualizer.VisualizerScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable("ambient") {
+            val viewModel: AmbientViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaAmbientScreen(
+                state = state,
+                onSoundToggle = { sound -> viewModel.toggleSound(sound) },
+                onVolumeChange = { sound, volume -> viewModel.setVolume(sound, volume) },
+                onPresetSelect = { preset -> viewModel.applyPreset(preset) },
+                onSavePreset = { name -> viewModel.savePreset(name) },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        
+        composable("music") {
+            val viewModel: MusicViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MusicLibraryScreen(
+                state = state,
+                onArtistClick = { artist ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute("artist", artist.id))
+                },
+                onAlbumClick = { album ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute("album", album.id))
+                },
+                onTrackClick = { track -> viewModel.playTrack(track) },
+                onPlaylistClick = { playlist -> viewModel.playPlaylist(playlist) },
+                onShuffleAll = { viewModel.shuffleAll() },
+                onBackClick = { navController.popBackStack() },
+                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) }
+            )
+        }
+        
+        composable("collections") {
+            val viewModel: CollectionsViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaCollectionsScreen(
+                state = state,
+                onCollectionClick = { collection ->
+                    navController.navigate(MediaRoutes.collectionDetailRoute(collection.id))
+                },
+                onCreateCollection = { name -> viewModel.createCollection(name) },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        
+        // Legacy library detail routes (library_details/{typeId} pattern)
+        composable("library_details/{typeId}") { backStackEntry ->
+            val typeId = backStackEntry.arguments?.getString("typeId") ?: "1"
+            val mediaType = when (typeId) {
+                "1" -> "book"
+                "2" -> "audiobook"
+                "3" -> "comic"
+                "4" -> "movie"
+                "5" -> "tv_show"
+                "7" -> "document"
+                else -> "book"
+            }
+            val viewModel: MediaLibraryViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaLibraryScreen(
+                state = state,
+                onItemClick = { item ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute(mediaType, item.id))
+                },
+                onBackClick = { navController.popBackStack() },
+                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
+                onFilterChange = { viewModel.setFilter(it) },
+                onSortChange = { viewModel.setSort(it) },
+                onViewModeChange = { viewModel.setViewMode(it) },
+                onRefresh = { viewModel.refresh() }
+            )
+        }
+        
+        // Legacy detail route
+        composable("detail/{itemId}") { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
+            val viewModel: MediaDetailViewModel = hiltViewModel()
+            val vmState by viewModel.uiState.collectAsState()
+            
+            val screenState = MediaDetailState(
+                item = MediaDetailItem(
+                    id = itemId,
+                    title = vmState.title,
+                    description = vmState.description,
+                    imageUrl = vmState.imageUrl,
+                    mediaType = MediaType.UNKNOWN
+                ),
+                isLoading = vmState.isLoading
+            )
+            
+            MediaDetailScreen(
+                state = screenState,
+                onBackClick = { navController.popBackStack() },
+                onPlayClick = { },
+                onChapterClick = { },
+                onRelatedItemClick = { item ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
+                },
+                onAddToCollectionClick = { },
+                onShareClick = { },
+                onDownloadClick = { viewModel.download() }
+            )
+        }
+        
+        // Metadata editor route
+        composable("metadata_editor/{itemId}") { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
+            com.universalmedialibrary.ui.metadata.MetadataEditorScreen(
+                itemId = itemId.toLongOrNull() ?: 0L,
+                onSave = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
+            )
+        }
+        
+        composable("fanfiction_download") {
+            com.universalmedialibrary.ui.fanfiction.FanfictionDownloadScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable("home") {
+            val viewModel: MediaHomeViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MediaHomeScreen(
+                state = state,
+                onItemClick = { item ->
+                    navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
+                },
+                onPlayClick = { item ->
+                    when (item.mediaType) {
+                        MediaType.BOOK, MediaType.COMIC, MediaType.DOCUMENT, MediaType.FANFICTION -> {
+                            navController.navigate(MediaRoutes.readerRoute(item.mediaType.routeName, item.id))
+                        }
+                        MediaType.AUDIOBOOK -> {
+                            navController.navigate(MediaRoutes.audioPlayerRoute("audiobook"))
+                        }
+                        MediaType.MUSIC -> {
+                            navController.navigate(MediaRoutes.audioPlayerRoute("music"))
+                        }
+                        MediaType.PODCAST -> {
+                            navController.navigate(MediaRoutes.audioPlayerRoute("podcast"))
+                        }
+                        MediaType.MOVIE, MediaType.TV_SHOW -> {
+                            navController.navigate(MediaRoutes.videoPlayerRoute(item.id))
+                        }
+                        else -> {
+                            navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
+                        }
+                    }
+                },
+                onSeeAllClick = { section ->
+                    navController.navigate(section)
+                },
+                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
+                onNotificationClick = { }
+            )
+        }
+        
+        // =====================================================================
         // DEBUG MENU (only available in debug builds)
         // =====================================================================
         
