@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.12", "bash"]
+modules = ["python-3.12", "bash"]
 [agent]
 expertMode = true
 
@@ -15,25 +15,12 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "CleverFerret PWA"
+args = "Build Android App"
 
 [[workflows.workflow]]
-name = "CleverFerret PWA"
+name = "Build Android App"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd pwa-demo && npm run dev"
-waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[ports]]
-localPort = 5000
-externalPort = 80
-
-[deployment]
-deploymentTarget = "autoscale"
-run = ["bash", "-c", "cd pwa-demo && npx serve -s dist -l 5000"]
-build = ["bash", "-c", "cd pwa-demo && npm run build"]
+args = "./gradlew assembleDebug"

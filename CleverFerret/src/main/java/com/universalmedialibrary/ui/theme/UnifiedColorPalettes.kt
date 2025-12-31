@@ -4,10 +4,9 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.graphics.Color
 
 /**
- * Unified Theme System - 12 Themes Shared Between PWA and Android
+ * Unified Theme System - 12+ Themes for CleverFerret Android
  *
- * These themes are designed to match exactly between web and mobile platforms.
- * Color values are synchronized with pwa-demo/src/themes/unified-themes.ts
+ * These themes provide a consistent visual experience across the application.
  */
 
 enum class UnifiedThemePalette {
