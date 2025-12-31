@@ -24,7 +24,7 @@ CleverFerret/keystore/
 build-reports/
 build-validation-reports/
 
-# Environment files
+# Environment and secrets files
 *.env
 *.env.*
 secrets.properties
@@ -55,10 +55,11 @@ merge_log.txt
 /*.json
 /*.png
 /*.db
-*.patch
+/*.patch
 
-# Temporary organization scripts
+# Temporary directories
 /tmp/
+/namida/
 
 # Temporary development scripts (keep release scripts)
 fix_*.sh
@@ -71,16 +72,12 @@ branch_cleanup.sh
 
 # Cursor temp files
 .cursor/temp/
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
-android_sdk/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Archive directory (keep archived, not tracked in git)
+/archive/test-files/
+/archive/reports/

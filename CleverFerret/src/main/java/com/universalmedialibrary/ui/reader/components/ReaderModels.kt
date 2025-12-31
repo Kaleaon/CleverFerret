@@ -5,6 +5,11 @@ package com.universalmedialibrary.ui.reader.components
  * Note: These are UI-specific models, not to be confused with entity/Bookmark.kt
  */
 
+// Type aliases for backward compatibility with older imports
+typealias Bookmark = ReaderBookmark
+typealias SearchResult = ReaderSearchResult
+typealias TableOfContentsItem = ReaderTableOfContentsItem
+
 data class ReaderBookmark(
     val id: String,
     val position: Int,
