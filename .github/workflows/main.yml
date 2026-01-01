@@ -53,18 +53,50 @@ jobs:
       
     - name: Compile project
       id: compile
-      run: ./gradlew compileDebugKotlin --continue --stacktrace --info
+      run: |
+        # Run compilation with reduced verbosity for readable error output
+        # Using --warning-mode all to show warnings without excessive info
+        ./gradlew compileDebugKotlin --continue --stacktrace --warning-mode all 2>&1 | tee compile_output.txt
+        exit_code=${PIPESTATUS[0]}
+        
+        # If compilation failed, show the last 200 lines which usually contain the errors
+        if [ $exit_code -ne 0 ]; then
+          echo ""
+          echo "::group::Compilation Errors (last 200 lines)"
+          tail -200 compile_output.txt
+          echo "::endgroup::"
+          
+          # Also extract and display just the error lines
+          echo ""
+          echo "::group::Error Summary"
+          grep -E "^e: |error:|Error:|FAILURE:|BUILD FAILED" compile_output.txt || echo "No specific error pattern found - check full output above"
+          echo "::endgroup::"
+        fi
+        
+        exit $exit_code
       continue-on-error: true
       
     - name: Report compilation results
       if: always()
       run: |
         if [ "${{ steps.compile.outcome }}" == "failure" ]; then
-          echo "::error::Compilation failed. See build logs for details."
-          echo "Compilation errors were found. Check the logs above for specific file locations and error messages."
+          echo "::error::Compilation failed. Check the 'Compilation Errors' section above for details."
+          
+          # Upload compile output as artifact for debugging if it exists
+          if [ -f compile_output.txt ]; then
+            echo "Compilation log saved for debugging."
+          fi
         else
           echo "::notice::Compilation succeeded!"
         fi
+    
+    - name: Upload compilation log on failure
+      if: steps.compile.outcome == 'failure'
+      uses: actions/upload-artifact@v4
+      with:
+        name: compile-error-log
+        path: compile_output.txt
+        if-no-files-found: ignore
     
     - name: Run unit tests
       if: steps.compile.outcome == 'success'
@@ -165,17 +197,35 @@ jobs:
       id: build-debug
       run: |
         echo "Building debug APK with debug reporting enabled..."
-        ./gradlew assembleDebug --continue --stacktrace --info \
+        # Run build with reduced verbosity for readable error output
+        ./gradlew assembleDebug --continue --stacktrace --warning-mode all \
           -PDEBUG_REPORTING_ENABLED=true \
           -PCRASH_REPORTING_ENABLED=true \
-          -PSHOW_DEBUG_MENU=true
+          -PSHOW_DEBUG_MENU=true 2>&1 | tee build_output.txt
+        exit_code=${PIPESTATUS[0]}
+        
+        # If build failed, show the last 200 lines which usually contain the errors
+        if [ $exit_code -ne 0 ]; then
+          echo ""
+          echo "::group::Build Errors (last 200 lines)"
+          tail -200 build_output.txt
+          echo "::endgroup::"
+          
+          # Also extract and display just the error lines
+          echo ""
+          echo "::group::Error Summary"
+          grep -E "^e: |error:|Error:|FAILURE:|BUILD FAILED" build_output.txt || echo "No specific error pattern found - check full output above"
+          echo "::endgroup::"
+        fi
+        
+        exit $exit_code
       continue-on-error: true
       
     - name: Report build status
       if: always()
       run: |
         if [ "${{ steps.build-debug.outcome }}" == "failure" ]; then
-          echo "::error::Debug APK build failed. Check build logs for compilation errors."
+          echo "::error::Debug APK build failed. Check the 'Build Errors' section above for details."
         else
           echo "::notice::Debug APK built successfully!"
           echo "Debug APK includes:"
@@ -185,6 +235,14 @@ jobs:
           echo "  - Debug menu access via Settings"
           echo "  - Feature flags"
         fi
+    
+    - name: Upload build log on failure
+      if: steps.build-debug.outcome == 'failure'
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-error-log
+        path: build_output.txt
+        if-no-files-found: ignore
       
     - name: Build release APK (unsigned)
       if: steps.build-debug.outcome == 'success'
