@@ -1,7 +1,7 @@
 # CleverFerret Documentation Index
 
-**Last Updated:** December 30, 2024  
-**Version:** 1.6.5
+**Last Updated:** December 31, 2024  
+**Version:** 1.6.5 (Build 32)
 
 Complete index of all documentation for the CleverFerret Universal Media Library Android application.
 
@@ -10,8 +10,9 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 ## 📖 Getting Started
 
 - [README](../README.md) - Project overview and quick start
-- [FEATURES_STATUS](FEATURES_STATUS.md) - **NEW** Comprehensive feature status (enabled/disabled/planned)
-- [IMPROVEMENTS_SUMMARY](IMPROVEMENTS_SUMMARY.md) - **NEW** Recent improvements and reorganization
+- [REPOSITORY_STATUS_REPORT](REPOSITORY_STATUS_REPORT.md) - **NEW** Comprehensive repository status and readiness report
+- [FEATURES_STATUS](FEATURES_STATUS.md) - Comprehensive feature status (enabled/disabled/planned)
+- [IMPROVEMENTS_SUMMARY](IMPROVEMENTS_SUMMARY.md) - Recent improvements and reorganization
 - [FEATURES](FEATURES.md) - Supported file formats and key features
 - [ROADMAP](ROADMAP.md) - Planned features and development priorities
 

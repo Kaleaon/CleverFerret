@@ -1,7 +1,6 @@
 package com.universalmedialibrary.services.integration.plex
 
 import android.content.Context
-import com.universalmedialibrary.services.integration.PlexConnectionStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
