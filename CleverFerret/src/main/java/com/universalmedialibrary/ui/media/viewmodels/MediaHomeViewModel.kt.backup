@@ -65,7 +65,6 @@ class MediaHomeViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            _uiState.update { it.copy(isLoading = true, error = null) }
             loadHomeData()
             _isRefreshing.value = false
         }
@@ -119,7 +118,6 @@ class MediaHomeViewModel @Inject constructor(
                 _uiState.update {
                     MediaHomeState(
                         isLoading = false,
-                        error = null,
                         featuredItems = featured,
                         continueItems = continueItems,
                         recentBooks = recentBooks,
@@ -132,28 +130,10 @@ class MediaHomeViewModel @Inject constructor(
                         libraryStats = stats,
                         collections = collections
                     )
-            }
+                }
             } catch (e: Exception) {
-                // Improved error handling with logging and error state
-                android.util.Log.e("MediaHomeViewModel", "Error loading home data", e)
-                
                 _uiState.update {
-                    MediaHomeState(
-                        isLoading = false,
-                        error = "Failed to load library: ${e.message ?: "Unknown error"}",
-                        // Keep any existing data
-                        featuredItems = it.featuredItems,
-                        continueItems = it.continueItems,
-                        recentBooks = it.recentBooks,
-                        recentMusic = it.recentMusic,
-                        recentPodcasts = it.recentPodcasts,
-                        recentVideos = it.recentVideos,
-                        recentAudiobooks = it.recentAudiobooks,
-                        recentComics = it.recentComics,
-                        recentFanfiction = it.recentFanfiction,
-                        libraryStats = it.libraryStats,
-                        collections = it.collections
-                    )
+                    it.copy(isLoading = false)
                 }
             }
         }
