@@ -3,12 +3,10 @@ package com.universalmedialibrary.ui.reader.components
 /**
  * Models for reader components
  * Note: These are UI-specific models, not to be confused with entity/Bookmark.kt
+ * 
+ * The primary models (Bookmark, SearchResult, TableOfContentsItem) are defined
+ * in DocumentReaderComponents.kt and should be used directly.
  */
-
-// Type aliases for backward compatibility with older imports
-typealias Bookmark = ReaderBookmark
-typealias SearchResult = ReaderSearchResult
-typealias TableOfContentsItem = ReaderTableOfContentsItem
 
 data class ReaderBookmark(
     val id: String,
