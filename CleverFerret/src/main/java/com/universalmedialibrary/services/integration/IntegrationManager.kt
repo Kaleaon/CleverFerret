@@ -67,9 +67,16 @@ class IntegrationManager @Inject constructor(
                 hasActiveConnections = bookStatusRaw.hasActiveConnections
             )
 
+            // Convert Plex service-specific status type to IntegrationManager type
+            val plexStatusConverted = PlexConnectionStatus(
+                connectedServers = plexStatus.connectedServers,
+                hasActiveConnections = plexStatus.hasActiveConnections,
+                totalLibraries = plexStatus.totalLibraries
+            )
+
             _integrationState.value = _integrationState.value.copy(
                 isInitializing = false,
-                plexStatus = plexStatus,
+                plexStatus = plexStatusConverted,
                 calibreStatus = calibreStatusConverted,
                 cloudStatus = cloudStatusConverted,
                 bookServicesStatus = bookStatusConverted,
