@@ -52,7 +52,6 @@ fun MediaHomeScreen(
     onSeeAllClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberLazyListState()
@@ -95,19 +94,18 @@ fun MediaHomeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-                // Welcome Section for empty library
-        // Handle error, loading, and content states
-        if (state.error != null) {
-            ErrorStateContent(
-                error = state.error,
-                onRetry = onRetry,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        } else if (state.isLoading) {
-            LoadingStateContent(
-                modifier = Modifier.align(Alignment.Center)
+        // Show loading indicator while loading
+        if (state.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = MaterialTheme.colorScheme.primary
             )
         } else {
+            LazyColumn(
+                state = scrollState,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Welcome Section for empty library
                 if (isLibraryEmpty) {
                     item {
                         WelcomeSection(
@@ -939,7 +937,6 @@ private fun PlexTopBar(
  */
 data class MediaHomeState(
     val isLoading: Boolean = false,
-    val error: String? = null,
     val featuredItems: List<MediaItem> = emptyList(),
     val continueItems: List<MediaItem> = emptyList(),
     val recentBooks: List<MediaItem> = emptyList(),
@@ -977,107 +974,3 @@ private data class QuickAccessItem(
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val color: Color
 )
-
-// =============================================================================
-// ERROR STATE
-// =============================================================================
-
-@Composable
-private fun ErrorStateContent(
-    error: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(MediaSpacing.XL),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Error Icon
-        Surface(
-            modifier = Modifier.size(80.dp),
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.errorContainer
-        ) {
-            Icon(
-                imageVector = Icons.Default.ErrorOutline,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(MediaSpacing.LG)
-                    .fillMaxSize(),
-                tint = MaterialTheme.colorScheme.error
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
-        // Error Title
-        Text(
-            text = "Unable to Load Library",
-            style = MediaTypography.TitleLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-        
-        Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
-        // Error Message
-        Text(
-            text = error,
-            style = MediaTypography.BodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
-        
-        Spacer(modifier = Modifier.height(MediaSpacing.XL))
-        
-        // Retry Button
-        Button(
-            onClick = onRetry,
-            modifier = Modifier.fillMaxWidth(0.6f)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Refresh,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(MediaSpacing.SM))
-            Text("Retry")
-        }
-    }
-}
-
-// =============================================================================
-// LOADING STATE
-// =============================================================================
-
-@Composable
-private fun LoadingStateContent(
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(MediaSpacing.XL),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(48.dp),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 4.dp
-        )
-        
-        Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
-        Text(
-            text = "Loading your library...",
-            style = MediaTypography.BodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
-    }
-}
