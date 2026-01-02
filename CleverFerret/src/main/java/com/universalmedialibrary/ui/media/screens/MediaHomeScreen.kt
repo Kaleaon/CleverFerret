@@ -95,7 +95,6 @@ fun MediaHomeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-                // Welcome Section for empty library
         // Handle error, loading, and content states
         if (state.error != null) {
             ErrorStateContent(
@@ -108,6 +107,10 @@ fun MediaHomeScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
+            LazyColumn(
+                state = scrollState,
+                modifier = Modifier.fillMaxSize()
+            ) {
                 if (isLibraryEmpty) {
                     item {
                         WelcomeSection(
@@ -116,7 +119,7 @@ fun MediaHomeScreen(
                         )
                     }
                 }
-                
+
                 // Hero Carousel
                 if (state.featuredItems.isNotEmpty()) {
                     item {
@@ -128,14 +131,14 @@ fun MediaHomeScreen(
                         )
                     }
                 }
-                
+
                 // Quick Stats Row - always show if library has content OR show minimal version for empty
                 item {
                     if (!isLibraryEmpty) {
                         QuickStatsRow(stats = state.libraryStats)
                     }
                 }
-                
+
                 // Continue Section (Reading, Watching, Listening)
                 if (state.continueItems.isNotEmpty()) {
                     item {
@@ -153,7 +156,7 @@ fun MediaHomeScreen(
                         }
                     }
                 }
-                
+
                 // Recently Added Books
                 if (state.recentBooks.isNotEmpty()) {
                     item {
