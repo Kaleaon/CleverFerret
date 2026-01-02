@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -128,115 +127,53 @@ fun MediaMainScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     
-    // Check screen size for layout decisions
-    val configuration = LocalConfiguration.current
-    val isCompact = configuration.screenWidthDp < 600
-    
-    if (isCompact) {
-        // MOBILE LAYOUT: Single Scaffold with proper bottom bar
-        Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            bottomBar = {
-                // Bottom bar contains both mini player and navigation
-                if (showNavigation) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        // Mini player (when playing)
-                        AnimatedVisibility(
-                            visible = showMiniPlayer,
-                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-                        ) {
-                            playbackState?.let { state ->
-                                MediaMiniPlayer(
-                                    state = state,
-                                    onTap = {
-                                        val route = when (state.playerType) {
-                                            "music" -> MediaRoutes.audioPlayerRoute("music")
-                                            "audiobook" -> MediaRoutes.audioPlayerRoute("audiobook")
-                                            "podcast" -> MediaRoutes.audioPlayerRoute("podcast")
-                                            else -> MediaRoutes.audioPlayerRoute("music")
-                                        }
-                                        navController.navigate(route)
-                                    },
-                                    onPlayPause = { playbackStateManager.playPause() },
-                                    onNext = { playbackStateManager.skipNext() }
-                                )
-                            }
-                        }
-                        
-                        // Bottom Navigation (always visible on mobile)
-                        MediaBottomNavigation(
-                            currentRoute = currentRouteForNavigation,
-                            onNavigate = { route -> navController.navigate(route) },
-                            bottomBarPreferences = bottomBarPreferences,
-                            gearPosition = gearPosition
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = {
+            Column {
+                // Mini player
+                AnimatedVisibility(
+                    visible = showMiniPlayer,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+                ) {
+                    playbackState?.let { state ->
+                        MediaMiniPlayer(
+                            state = state,
+                            onTap = {
+                                val route = when (state.playerType) {
+                                    "music" -> MediaRoutes.audioPlayerRoute("music")
+                                    "audiobook" -> MediaRoutes.audioPlayerRoute("audiobook")
+                                    "podcast" -> MediaRoutes.audioPlayerRoute("podcast")
+                                    else -> MediaRoutes.audioPlayerRoute("music")
+                                }
+                                navController.navigate(route)
+                            },
+                            onPlayPause = { playbackStateManager.playPause() },
+                            onNext = { playbackStateManager.skipNext() }
                         )
                     }
                 }
             }
-        ) { paddingValues ->
+        }
+    ) { paddingValues ->
+        MediaNavigationScaffold(
+            currentRoute = currentRouteForNavigation,
+            onNavigate = { route -> navController.navigate(route) },
+            bottomBarPreferences = bottomBarPreferences,
+            gearPosition = gearPosition,
+            modifier = Modifier.padding(paddingValues)
+        ) { innerPadding ->
             MediaAppNavHost(
                 navController = navController,
                 onShowSnackbar = { message ->
+                    // Show snackbar using composition-scoped coroutine
                     scope.launch {
                         snackbarHostState.showSnackbar(message)
                     }
                 },
-                modifier = Modifier.padding(paddingValues)
+                modifier = Modifier.padding(innerPadding)
             )
-        }
-    } else {
-        // TABLET/DESKTOP LAYOUT: Sidebar navigation
-        Row(modifier = Modifier.fillMaxSize()) {
-            var sidebarExpanded by remember { mutableStateOf(configuration.screenWidthDp >= 840) }
-            
-            MediaSidebar(
-                currentRoute = currentRouteForNavigation,
-                onNavigate = { route -> navController.navigate(route) },
-                isExpanded = sidebarExpanded,
-                onToggleExpanded = { sidebarExpanded = !sidebarExpanded }
-            )
-            
-            Scaffold(
-                snackbarHost = { SnackbarHost(snackbarHostState) },
-                bottomBar = {
-                    // Mini player for tablet/desktop
-                    AnimatedVisibility(
-                        visible = showMiniPlayer,
-                        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-                    ) {
-                        playbackState?.let { state ->
-                            MediaMiniPlayer(
-                                state = state,
-                                onTap = {
-                                    val route = when (state.playerType) {
-                                        "music" -> MediaRoutes.audioPlayerRoute("music")
-                                        "audiobook" -> MediaRoutes.audioPlayerRoute("audiobook")
-                                        "podcast" -> MediaRoutes.audioPlayerRoute("podcast")
-                                        else -> MediaRoutes.audioPlayerRoute("music")
-                                    }
-                                    navController.navigate(route)
-                                },
-                                onPlayPause = { playbackStateManager.playPause() },
-                                onNext = { playbackStateManager.skipNext() }
-                            )
-                        }
-                    }
-                }
-            ) { paddingValues ->
-                MediaAppNavHost(
-                    navController = navController,
-                    onShowSnackbar = { message ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(message)
-                        }
-                    },
-                    modifier = Modifier.padding(paddingValues)
-                )
-            }
         }
     }
 }
