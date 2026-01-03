@@ -1,0 +1,240 @@
+diff --git a/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/FreeMediaScreen.kt b/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/FreeMediaScreen.kt
+index a06acf1bb..b03d169db 100644
+--- a/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/FreeMediaScreen.kt
++++ b/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/FreeMediaScreen.kt
+@@ -219,7 +219,7 @@ private fun MediaCard(
+         ) {
+             AsyncImage(
+                 model = item.thumbnailUrl,
+-                contentDescription = null,
++                contentDescription = "${item.title} thumbnail",
+                 modifier = Modifier
+                     .size(width = 120.dp, height = 90.dp)
+             )
+@@ -284,14 +284,14 @@ private fun MediaCard(
+                     onClick = { onDownload(option) },
+                     label = { Text(option.label) },
+                     leadingIcon = {
+-                        Icon(Icons.Default.CloudDownload, contentDescription = null)
++                        Icon(Icons.Default.CloudDownload, contentDescription = "Download")
+                     }
+                 )
+             }
+ 
+             item.streamingUrl?.let { streamUrl ->
+                 TextButton(onClick = { onOpenLink(streamUrl) }) {
+-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
++                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open in browser")
+                     Spacer(Modifier.width(4.dp))
+                     Text("Stream")
+                 }
+@@ -299,7 +299,7 @@ private fun MediaCard(
+ 
+             item.detailUrl?.let { url ->
+                 TextButton(onClick = { onOpenLink(url) }) {
+-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
++                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open in browser")
+                     Spacer(Modifier.width(4.dp))
+                     Text("Details")
+                 }
+diff --git a/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/MediaAuthScreen.kt b/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/MediaAuthScreen.kt
+index 0c8326ebe..109bbca7a 100644
+--- a/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/MediaAuthScreen.kt
++++ b/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/MediaAuthScreen.kt
+@@ -134,7 +134,7 @@ private fun IdleContent(
+         ) {
+             Icon(
+                 imageVector = Icons.Default.Login,
+-                contentDescription = null,
++                contentDescription = "Sign in",
+                 modifier = Modifier.size(64.dp),
+                 tint = MaterialTheme.colorScheme.primary
+             )
+@@ -158,7 +158,7 @@ private fun IdleContent(
+                     onClick = onStartAuth,
+                     modifier = Modifier.fillMaxWidth()
+                 ) {
+-                    Icon(Icons.Default.Login, contentDescription = null)
++                    Icon(Icons.Default.Login, contentDescription = "Sign in")
+                     Spacer(modifier = Modifier.width(8.dp))
+                     Text("Sign in with PIN")
+                 }
+@@ -185,7 +185,7 @@ private fun IdleContent(
+                     onClick = { showCredentialsForm = true },
+                     modifier = Modifier.fillMaxWidth()
+                 ) {
+-                    Icon(Icons.Default.AccountCircle, contentDescription = null)
++                    Icon(Icons.Default.AccountCircle, contentDescription = "Account")
+                     Spacer(modifier = Modifier.width(8.dp))
+                     Text("Sign in with Username")
+                 }
+@@ -196,7 +196,7 @@ private fun IdleContent(
+                     onValueChange = { username = it },
+                     label = { Text("Username or Email") },
+                     leadingIcon = {
+-                        Icon(Icons.Default.AccountCircle, contentDescription = null)
++                        Icon(Icons.Default.AccountCircle, contentDescription = "Username")
+                     },
+                     singleLine = true,
+                     modifier = Modifier.fillMaxWidth()
+@@ -207,7 +207,7 @@ private fun IdleContent(
+                     onValueChange = { password = it },
+                     label = { Text("Password") },
+                     leadingIcon = {
+-                        Icon(Icons.Default.Lock, contentDescription = null)
++                        Icon(Icons.Default.Lock, contentDescription = "Password")
+                     },
+                     trailingIcon = {
+                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
+@@ -227,7 +227,7 @@ private fun IdleContent(
+                     modifier = Modifier.fillMaxWidth(),
+                     enabled = username.isNotBlank() && password.isNotBlank()
+                 ) {
+-                    Icon(Icons.Default.Login, contentDescription = null)
++                    Icon(Icons.Default.Login, contentDescription = "Sign in")
+                     Spacer(modifier = Modifier.width(8.dp))
+                     Text("Sign In")
+                 }
+@@ -266,7 +266,7 @@ private fun PinDisplayContent(
+         ) {
+             Icon(
+                 imageVector = Icons.Default.PhoneAndroid,
+-                contentDescription = null,
++                contentDescription = "Mobile device",
+                 modifier = Modifier.size(64.dp),
+                 tint = MaterialTheme.colorScheme.primary
+             )
+@@ -334,7 +334,7 @@ private fun AuthenticatedContent(
+             ) {
+                 Icon(
+                     imageVector = Icons.Default.CheckCircle,
+-                    contentDescription = null,
++                    contentDescription = "Signed in",
+                     tint = MaterialTheme.colorScheme.primary
+                 )
+                 Text(
+@@ -348,7 +348,7 @@ private fun AuthenticatedContent(
+                 onClick = onDiscoverServers,
+                 modifier = Modifier.fillMaxWidth()
+             ) {
+-                Icon(Icons.Default.CloudSync, contentDescription = null)
++                Icon(Icons.Default.CloudSync, contentDescription = "Cloud sync")
+                 Spacer(modifier = Modifier.width(8.dp))
+                 Text("Discover Servers")
+             }
+@@ -381,7 +381,7 @@ private fun SuccessContent(
+         ) {
+             Icon(
+                 imageVector = Icons.Default.CheckCircle,
+-                contentDescription = null,
++                contentDescription = "Success",
+                 modifier = Modifier.size(64.dp),
+                 tint = MaterialTheme.colorScheme.primary
+             )
+@@ -401,7 +401,7 @@ private fun SuccessContent(
+                 onClick = onDiscoverServers,
+                 modifier = Modifier.fillMaxWidth()
+             ) {
+-                Icon(Icons.Default.CloudSync, contentDescription = null)
++                Icon(Icons.Default.CloudSync, contentDescription = "Cloud sync")
+                 Spacer(modifier = Modifier.width(8.dp))
+                 Text("Discover Servers")
+             }
+@@ -483,7 +483,7 @@ private fun ServerListItem(
+ 
+             Icon(
+                 imageVector = Icons.Default.ChevronRight,
+-                contentDescription = null
++                contentDescription = "Navigate"
+             )
+         }
+     }
+@@ -527,7 +527,7 @@ private fun ErrorContent(
+         ) {
+             Icon(
+                 imageVector = Icons.Default.Error,
+-                contentDescription = null,
++                contentDescription = "Error",
+                 modifier = Modifier.size(64.dp),
+                 tint = MaterialTheme.colorScheme.error
+             )
+@@ -553,7 +553,7 @@ private fun ErrorContent(
+                     containerColor = MaterialTheme.colorScheme.error
+                 )
+             ) {
+-                Icon(Icons.Default.Refresh, contentDescription = null)
++                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                 Spacer(modifier = Modifier.width(8.dp))
+                 Text("Try Again")
+             }
+diff --git a/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/MediaMainActivity.kt b/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/MediaMainActivity.kt
+index 96a685764..bd81b979a 100644
+--- a/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/MediaMainActivity.kt
++++ b/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/MediaMainActivity.kt
+@@ -187,16 +187,7 @@ fun MediaMainScreen(
+                         )
+                     }
+                 }
+-            },
+-            floatingActionButton = {
+-                // Floating settings button (bottom-left position, matching mockup)
+-                if (showNavigation) {
+-                    FloatingSettingsButton(
+-                        onClick = { navController.navigate(MediaRoutes.SETTINGS) }
+-                    )
+-                }
+-            },
+-            floatingActionButtonPosition = FabPosition.Start
++            }
+         ) { paddingValues ->
+             MediaAppNavHost(
+                 navController = navController,
+@@ -285,8 +276,12 @@ data class MiniPlayerState(
+ /**
+  * Floating settings button matching mockup design
+  * Positioned bottom-left with hover animation
++ * 
++ * NOTE: This component is currently unused as settings button is integrated into bottom navigation.
++ * Kept for potential future use.
+  */
+ @Composable
++@Deprecated("Use settings button in bottom navigation instead")
+ fun FloatingSettingsButton(
+     onClick: () -> Unit
+ ) {
+diff --git a/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/components/MediaCommonComponents.kt b/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/components/MediaCommonComponents.kt
+index 5f79a3e6e..c74e43711 100644
+--- a/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/components/MediaCommonComponents.kt
++++ b/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/components/MediaCommonComponents.kt
+@@ -59,7 +59,7 @@ fun MediaMiniPlayer(
+                 progress = { state.progress },
+                 modifier = Modifier
+                     .fillMaxWidth()
+-                    .height(2.dp),
++                    .height(4.dp),
+                 color = MediaColors.AccentPrimary,
+                 trackColor = MediaColors.ProgressBackground
+             )
+@@ -80,7 +80,7 @@ fun MediaMiniPlayer(
+                     if (state.artworkUrl != null) {
+                         AsyncImage(
+                             model = state.artworkUrl,
+-                            contentDescription = null,
++                            contentDescription = "Album art for ${state.title}",
+                             contentScale = ContentScale.Crop,
+                             modifier = Modifier.fillMaxSize()
+                         )
+@@ -92,7 +92,12 @@ fun MediaMiniPlayer(
+                                 "podcast" -> Icons.Default.Podcasts
+                                 else -> Icons.Default.PlayArrow
+                             },
+-                            contentDescription = null,
++                            contentDescription = when (state.playerType) {
++                                "music" -> "Music"
++                                "audiobook" -> "Audiobook"
++                                "podcast" -> "Podcast"
++                                else -> "Media"
++                            },
+                             tint = MediaColors.TextTertiary,
+                             modifier = Modifier.padding(MediaSpacing.SM)
+                         )
