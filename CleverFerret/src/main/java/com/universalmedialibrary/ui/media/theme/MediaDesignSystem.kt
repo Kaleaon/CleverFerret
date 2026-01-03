@@ -35,7 +35,7 @@ object MediaColors {
      * and should not be treated as the primary theme system.
      */
     object Themes {
-        val MediaGold = Color(0xFFE5A00D)
+        val MediaGold = Color(0xFFF2DF0D)   // Gold from mockup
         val FerretOrange = Color(0xFFFF6D00)
         val NetflixRed = Color(0xFFE50914)
         val SpotifyGreen = Color(0xFF1DB954)
@@ -53,24 +53,24 @@ object MediaColors {
     // UnifiedCleverFerretTheme palette to drive the media UI.
     // -------------------------------------------------------------------------
 
-    var Background by mutableStateOf(Color(0xFF1F1F1F))
+    var Background by mutableStateOf(Color(0xFF121212))         // Pure dark from mockup
         private set
-    var BackgroundElevated by mutableStateOf(Color(0xFF282828))
+    var BackgroundElevated by mutableStateOf(Color(0xFF1E1E1E)) // surface-dark from mockup
         private set
-    var BackgroundSurface by mutableStateOf(Color(0xFF323232))
+    var BackgroundSurface by mutableStateOf(Color(0xFF262626))
         private set
-    var BackgroundHover by mutableStateOf(Color(0xFF3D3D3D))
+    var BackgroundHover by mutableStateOf(Color(0xFF333333))
         private set
-    var BackgroundPressed by mutableStateOf(Color(0xFF484848))
+    var BackgroundPressed by mutableStateOf(Color(0xFF404040))
         private set
 
-    var AccentPrimary by mutableStateOf(Themes.MediaGold)
+    var AccentPrimary by mutableStateOf(Themes.MediaGold)       // Gold from mockup
         private set
-    var AccentSecondary by mutableStateOf(Color(0xFFF5B82E))
+    var AccentSecondary by mutableStateOf(Color(0xFFBFAE00))    // primary-dark from mockup
         private set
-    var AccentTertiary by mutableStateOf(Color(0xFFCC8A00))
+    var AccentTertiary by mutableStateOf(Color(0xFF9E8C05))
         private set
-    var AccentGlow by mutableStateOf(Color(0xFFFFD54F))
+    var AccentGlow by mutableStateOf(Color(0xFFF2DF0D).copy(alpha = 0.25f)) // glow effect
         private set
 
     var TextPrimary by mutableStateOf(Color(0xFFFFFFFF))
@@ -507,36 +507,37 @@ object MediaAnimations {
 // =============================================================================
 
 /**
- * Material 3 color scheme based on Plex design
+ * Material 3 color scheme based on mockup design
+ * Pure dark (#121212) with gold accent (#f2df0d)
  */
 private val DefaultMediaDarkColorScheme = darkColorScheme(
-    primary = Color(0xFFE5A00D),
+    primary = Color(0xFFF2DF0D),            // Gold from mockup
     onPrimary = Color(0xFF000000),
-    primaryContainer = Color(0xFFCC8A00),
+    primaryContainer = Color(0xFF9E8C05),   // Darker gold
     onPrimaryContainer = Color(0xFFFFFFFF),
 
-    secondary = Color(0xFFF5B82E),
+    secondary = Color(0xFFBFAE00),          // primary-dark from mockup
     onSecondary = Color(0xFF000000),
-    secondaryContainer = Color(0xFF323232),
+    secondaryContainer = Color(0xFF1E1E1E), // surface-dark from mockup
     onSecondaryContainer = Color(0xFFFFFFFF),
 
-    tertiary = Color(0xFFE5A00D),
+    tertiary = Color(0xFFF2DF0D),
     onTertiary = Color(0xFF000000),
-    tertiaryContainer = Color(0xFF323232),
+    tertiaryContainer = Color(0xFF1E1E1E),
     onTertiaryContainer = Color(0xFFFFFFFF),
 
-    background = Color(0xFF1F1F1F),
+    background = Color(0xFF121212),         // Pure dark from mockup
     onBackground = Color(0xFFFFFFFF),
 
-    surface = Color(0xFF282828),
+    surface = Color(0xFF1E1E1E),            // surface-dark from mockup
     onSurface = Color(0xFFFFFFFF),
-    surfaceVariant = Color(0xFF323232),
+    surfaceVariant = Color(0xFF262626),
     onSurfaceVariant = Color(0xFFB3B3B3),
 
-    surfaceTint = Color(0xFFE5A00D),
+    surfaceTint = Color(0xFFF2DF0D),
     inverseSurface = Color(0xFFFFFFFF),
-    inverseOnSurface = Color(0xFF1F1F1F),
-    inversePrimary = Color(0xFFCC8A00),
+    inverseOnSurface = Color(0xFF121212),
+    inversePrimary = Color(0xFF9E8C05),
 
     error = Color(0xFFF44336),
     onError = Color(0xFFFFFFFF),
@@ -544,7 +545,7 @@ private val DefaultMediaDarkColorScheme = darkColorScheme(
     onErrorContainer = Color(0xFFF44336),
 
     outline = Color(0xFF404040),
-    outlineVariant = Color(0xFF333333),
+    outlineVariant = Color(0xFF2A2A2A),
     scrim = Color.Black.copy(alpha = 0.6f)
 )
 
@@ -606,9 +607,9 @@ fun getAccentColors(theme: MediaAccentTheme, customColor: Color? = null): MediaA
     return when (theme) {
         MediaAccentTheme.MEDIA_GOLD -> MediaAccentColors(
             primary = MediaColors.Themes.MediaGold,
-            secondary = Color(0xFFF5B82E),
-            tertiary = Color(0xFFCC8A00),
-            glow = Color(0xFFFFD54F)
+            secondary = Color(0xFFBFAE00),   // primary-dark from mockup
+            tertiary = Color(0xFF9E8C05),
+            glow = Color(0xFFF2DF0D).copy(alpha = 0.25f)
         )
         MediaAccentTheme.FERRET_ORANGE -> MediaAccentColors(
             primary = MediaColors.Themes.FerretOrange,

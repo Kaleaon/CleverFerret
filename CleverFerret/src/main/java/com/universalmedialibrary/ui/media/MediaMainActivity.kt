@@ -5,12 +5,23 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -176,7 +187,16 @@ fun MediaMainScreen(
                         )
                     }
                 }
-            }
+            },
+            floatingActionButton = {
+                // Floating settings button (bottom-left position, matching mockup)
+                if (showNavigation) {
+                    FloatingSettingsButton(
+                        onClick = { navController.navigate(MediaRoutes.SETTINGS) }
+                    )
+                }
+            },
+            floatingActionButtonPosition = FabPosition.Start
         ) { paddingValues ->
             MediaAppNavHost(
                 navController = navController,
@@ -261,3 +281,52 @@ data class MiniPlayerState(
     val isPlaying: Boolean,
     val playerType: String
 )
+
+/**
+ * Floating settings button matching mockup design
+ * Positioned bottom-left with hover animation
+ */
+@Composable
+fun FloatingSettingsButton(
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    
+    // Rotate animation on hover
+    val rotation by animateFloatAsState(
+        targetValue = if (isHovered) 45f else 0f,
+        animationSpec = tween(durationMillis = 300),
+        label = "settings_rotation"
+    )
+    
+    Surface(
+        modifier = Modifier
+            .size(48.dp)
+            .padding(start = 4.dp, bottom = 32.dp), // Position above bottom nav
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+        shadowElevation = 8.dp,
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Settings",
+                modifier = Modifier
+                    .size(24.dp)
+                    .rotate(rotation),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
