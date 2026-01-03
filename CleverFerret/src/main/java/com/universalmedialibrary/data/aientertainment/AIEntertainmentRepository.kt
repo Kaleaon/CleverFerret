@@ -676,4 +676,77 @@ class AIEntertainmentRepository @Inject constructor(
             memoryCategoryDao.insertAll(defaultCategories)
         }
     }
+    
+    // ==================== Chat Preset Operations ====================
+    // These methods require ChatPresetDao to be injected
+    // For now, providing stubs that can be implemented when the DAO is added to DI
+    
+    private var currentUserId: Long? = null
+    
+    /**
+     * Get the current logged in user (stub implementation)
+     */
+    suspend fun getCurrentUser(): SynthUser? {
+        // In a real implementation, this would check session/preferences
+        currentUserId?.let { id ->
+            return userDao.getById(id)
+        }
+        return null
+    }
+    
+    /**
+     * Set the current user session
+     */
+    fun setCurrentUser(userId: Long?) {
+        currentUserId = userId
+    }
+    
+    /**
+     * Get presets for a user - stub that needs ChatPresetDao
+     */
+    fun getPresetsForUser(userId: Long): Flow<List<ChatPreset>> {
+        // TODO: Inject ChatPresetDao and implement
+        return kotlinx.coroutines.flow.flowOf(emptyList())
+    }
+    
+    /**
+     * Create a new preset
+     */
+    suspend fun createPreset(preset: ChatPreset): Long {
+        // TODO: Inject ChatPresetDao and implement
+        // return chatPresetDao.insertPreset(preset)
+        return 0L
+    }
+    
+    /**
+     * Update an existing preset
+     */
+    suspend fun updatePreset(preset: ChatPreset) {
+        // TODO: Inject ChatPresetDao and implement
+        // chatPresetDao.updatePreset(preset)
+    }
+    
+    /**
+     * Delete a preset by ID
+     */
+    suspend fun deletePreset(presetId: Long) {
+        // TODO: Inject ChatPresetDao and implement
+        // chatPresetDao.deletePresetById(presetId)
+    }
+    
+    /**
+     * Toggle preset favorite status
+     */
+    suspend fun setPresetFavorite(presetId: Long, isFavorite: Boolean) {
+        // TODO: Inject ChatPresetDao and implement
+        // chatPresetDao.setFavorite(presetId, isFavorite)
+    }
+    
+    /**
+     * Increment preset use count
+     */
+    suspend fun incrementPresetUseCount(presetId: Long) {
+        // TODO: Inject ChatPresetDao and implement
+        // chatPresetDao.incrementUseCount(presetId)
+    }
 }
