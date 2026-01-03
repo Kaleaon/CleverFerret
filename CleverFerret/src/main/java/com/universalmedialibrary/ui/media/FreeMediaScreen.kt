@@ -299,7 +299,7 @@ private fun MediaCard(
 
             item.detailUrl?.let { url ->
                 TextButton(onClick = { onOpenLink(url) }) {
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open in browser")
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
                     Spacer(Modifier.width(4.dp))
                     Text("Details")
                 }
