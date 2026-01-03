@@ -10,10 +10,12 @@ import com.universalmedialibrary.data.aientertainment.*
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.dao.ReadingAnalyticsDao
 import com.universalmedialibrary.data.local.dao.ReadingProgressDao
 import com.universalmedialibrary.data.preferences.AISettingsPreferencesStore
 import com.universalmedialibrary.services.aientertainment.*
 import com.universalmedialibrary.services.ai.*
+import com.universalmedialibrary.services.reading.ReadingAnalyticsService
 import javax.inject.Singleton
 
 /**
@@ -215,6 +217,8 @@ object AIEntertainmentModule {
     ): SynthChatService {
         return SynthChatService(repository, context).apply {
             setMCPMemoryService(mcpMemoryService)
+            // Note: AIReadingAgentService should be set separately after initialization
+            // to avoid circular dependencies. Use SynthChatService.setAIReadingAgentService()
         }
     }
     
@@ -289,19 +293,7 @@ object AIEntertainmentModule {
         )
     }
     
-    @Provides
-    @Singleton
-    fun provideAIToolsService(
-        @ApplicationContext context: Context,
-        aiContentCacheService: AIContentCacheService,
-        aiLibraryBrowserService: AILibraryBrowserService
-    ): AIToolsService {
-        return AIToolsService(
-            context = context,
-            aiContentCacheService = aiContentCacheService,
-            aiLibraryBrowserService = aiLibraryBrowserService
-        )
-    }
+    // AIToolsService is now provided by provideConfiguredAIToolsService with reading services
     
     // ==================== Enhanced AI Services ====================
     
@@ -369,5 +361,84 @@ object AIEntertainmentModule {
         repository: AIEntertainmentRepository
     ): SynthMemoryManager {
         return SynthMemoryManager(repository)
+    }
+    
+    // ==================== AI Reading Agent Services ====================
+    
+    @Provides
+    @Singleton
+    fun provideAIReadingProgressService(
+        @ApplicationContext context: Context,
+        readingProgressDao: ReadingProgressDao,
+        readingAnalyticsDao: ReadingAnalyticsDao,
+        mediaItemDao: MediaItemDao,
+        metadataDao: MetadataDao,
+        readingAnalyticsService: ReadingAnalyticsService
+    ): AIReadingProgressService {
+        return AIReadingProgressService(
+            context = context,
+            readingProgressDao = readingProgressDao,
+            readingAnalyticsDao = readingAnalyticsDao,
+            mediaItemDao = mediaItemDao,
+            metadataDao = metadataDao,
+            readingAnalyticsService = readingAnalyticsService
+        )
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAIBookDiscussionService(
+        @ApplicationContext context: Context,
+        aiReadingProgressService: AIReadingProgressService,
+        readingAnalyticsDao: ReadingAnalyticsDao,
+        aiEntertainmentRepository: AIEntertainmentRepository
+    ): AIBookDiscussionService {
+        return AIBookDiscussionService(
+            context = context,
+            aiReadingProgressService = aiReadingProgressService,
+            readingAnalyticsDao = readingAnalyticsDao,
+            aiEntertainmentRepository = aiEntertainmentRepository
+        )
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAIReadingAgentService(
+        @ApplicationContext context: Context,
+        aiReadingProgressService: AIReadingProgressService,
+        aiBookDiscussionService: AIBookDiscussionService,
+        aiLibraryBrowserService: AILibraryBrowserService,
+        aiEntertainmentRepository: AIEntertainmentRepository
+    ): AIReadingAgentService {
+        return AIReadingAgentService(
+            context = context,
+            aiReadingProgressService = aiReadingProgressService,
+            aiBookDiscussionService = aiBookDiscussionService,
+            aiLibraryBrowserService = aiLibraryBrowserService,
+            aiEntertainmentRepository = aiEntertainmentRepository
+        )
+    }
+    
+    /**
+     * Provide AIToolsService configured with reading services for
+     * enhanced book discussion capabilities
+     */
+    @Provides
+    @Singleton
+    fun provideAIToolsService(
+        @ApplicationContext context: Context,
+        aiContentCacheService: AIContentCacheService,
+        aiLibraryBrowserService: AILibraryBrowserService,
+        aiReadingProgressService: AIReadingProgressService,
+        aiBookDiscussionService: AIBookDiscussionService
+    ): AIToolsService {
+        return AIToolsService(
+            context = context,
+            aiContentCacheService = aiContentCacheService,
+            aiLibraryBrowserService = aiLibraryBrowserService
+        ).apply {
+            setAIReadingProgressService(aiReadingProgressService)
+            setAIBookDiscussionService(aiBookDiscussionService)
+        }
     }
 }

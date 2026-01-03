@@ -405,6 +405,7 @@ class SynthChatService @Inject constructor(
     private var aiLogStorageService: com.universalmedialibrary.services.ai.AILogStorageService? = null
     private var aiSettings: com.universalmedialibrary.data.preferences.AISettingsPreferencesStore? = null
     private var mcpMemoryService: MCPMemoryService? = null
+    private var aiReadingAgentService: com.universalmedialibrary.services.ai.AIReadingAgentService? = null
     
     fun setAIToolsService(service: com.universalmedialibrary.services.ai.AIToolsService) {
         aiToolsService = service
@@ -423,6 +424,13 @@ class SynthChatService @Inject constructor(
      */
     fun setMCPMemoryService(service: MCPMemoryService) {
         mcpMemoryService = service
+    }
+    
+    /**
+     * Set the AI Reading Agent Service for book discussion capabilities
+     */
+    fun setAIReadingAgentService(service: com.universalmedialibrary.services.ai.AIReadingAgentService) {
+        aiReadingAgentService = service
     }
     
     private val _messages = MutableStateFlow<List<SynthMessage>>(emptyList())
@@ -651,10 +659,24 @@ class SynthChatService @Inject constructor(
         
         // Build enhanced system prompt with memory context
         val memorySystemPrompt = mcpMemoryService?.buildMemorySystemPrompt() ?: ""
-        val fullSystemPrompt = if (memorySystemPrompt.isNotEmpty()) {
-            "${character.fullSystemPrompt}\n\n$memorySystemPrompt"
-        } else {
-            character.fullSystemPrompt
+        
+        // Get reading context for book-aware discussions
+        val readingSystemPrompt = try {
+            aiReadingAgentService?.generateReadingSystemPrompt(character.id) ?: ""
+        } catch (e: Exception) {
+            "" // Silently fail if reading service not available
+        }
+        
+        val fullSystemPrompt = buildString {
+            append(character.fullSystemPrompt)
+            if (memorySystemPrompt.isNotEmpty()) {
+                append("\n\n")
+                append(memorySystemPrompt)
+            }
+            if (readingSystemPrompt.isNotEmpty()) {
+                append("\n\n")
+                append(readingSystemPrompt)
+            }
         }
         
         messages.add(mapOf("role" to "system", "content" to fullSystemPrompt))
