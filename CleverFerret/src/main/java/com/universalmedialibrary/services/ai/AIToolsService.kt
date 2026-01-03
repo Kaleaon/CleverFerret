@@ -874,10 +874,14 @@ class AIToolsService @Inject constructor(
             error = "Reading progress service not available"
         )
         
-        val bookId = (params["book_id"] as? Number)?.toLong() ?: return ToolResult(
+        val bookId = when {
+            params["book_id"] is Number -> (params["book_id"] as Number).toLong()
+            params["book_id"] is String -> (params["book_id"] as String).toLongOrNull()
+            else -> null
+        } ?: return ToolResult(
             success = false,
             toolId = "get_book_context",
-            error = "Missing required parameter: book_id"
+            error = "Missing or invalid parameter: book_id"
         )
         
         val context = readingService.getBookContextForDiscussion(bookId)
@@ -1435,7 +1439,9 @@ class AIToolsService @Inject constructor(
                 }
             ),
             summary = if (opinions.isNotEmpty()) {
-                "💭 Stored Opinions about \"${opinions.firstOrNull()?.bookTitle}\":\n" +
+                val bookTitle = opinions.firstOrNull()?.bookTitle
+                val titleText = if (bookTitle.isNullOrBlank()) "this book" else "\"$bookTitle\""
+                "💭 Stored Opinions about $titleText:\n" +
                 opinions.mapIndexed { i, o ->
                     "${i + 1}. ${o.opinionType.displayName}:\n   ${o.opinion.take(150)}..."
                 }.joinToString("\n")

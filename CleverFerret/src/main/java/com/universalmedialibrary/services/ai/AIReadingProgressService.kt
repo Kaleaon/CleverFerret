@@ -407,7 +407,7 @@ class AIReadingProgressService @Inject constructor(
     // ==================== Helper Methods ====================
     
     private fun estimateTotalPages(progress: ReadingProgress): Int {
-        return if (progress.percentage > 0) {
+        return if (progress.percentage > 1.0f) { // Use threshold to avoid inaccurate estimates
             (progress.currentPage / (progress.percentage / 100f)).toInt()
         } else {
             progress.currentPage.coerceAtLeast(1)

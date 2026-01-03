@@ -122,7 +122,7 @@ class AILibraryBrowserService @Inject constructor(
                         title = metadata?.title ?: item.fileName,
                         progressPercent = progress.percentage.toInt(),
                         currentPage = progress.currentPage,
-                        totalPages = if (progress.percentage > 0) (progress.currentPage / (progress.percentage / 100f)).toInt() else 0,
+                        totalPages = if (progress.percentage > 1.0f) (progress.currentPage / (progress.percentage / 100f)).toInt() else 0,
                         lastRead = progress.lastUpdate
                     )
                 } else null

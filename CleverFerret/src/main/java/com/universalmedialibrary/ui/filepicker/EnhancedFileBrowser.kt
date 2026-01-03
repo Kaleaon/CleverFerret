@@ -153,6 +153,8 @@ fun EnhancedFileBrowser(
     var showSettings by remember { mutableStateOf(false) }
     var showFavoriteFolders by remember { mutableStateOf(false) }
     var favoriteFolders by remember { mutableStateOf<List<String>>(emptyList()) }
+    var showCopyDialog by remember { mutableStateOf(false) }
+    var showMoveDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var fileItems by remember { mutableStateOf<List<FileItem>>(emptyList()) }
     var loadingError by remember { mutableStateOf<String?>(null) }
@@ -281,15 +283,139 @@ fun EnhancedFileBrowser(
             SelectionBar(
                 selectedCount = selectedFiles.size,
                 onCopy = { 
-                    // TODO: Implement copy functionality
+                    showCopyDialog = true
                 },
                 onMove = { 
-                    // TODO: Implement move functionality
+                    showMoveDialog = true
                 },
                 onDelete = { 
                     showDeleteConfirmation = true
                 },
                 onCancel = { selectedFiles = emptySet() }
+            )
+        }
+        
+        // Copy dialog
+        if (showCopyDialog) {
+            AlertDialog(
+                onDismissRequest = { showCopyDialog = false },
+                title = { Text("Copy ${selectedFiles.size} file(s)") },
+                text = { 
+                    Column {
+                        Text("Files will be copied to the current directory:")
+                        Text(
+                            text = currentPath,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                selectedFiles.forEach { file ->
+                                    try {
+                                        val destFile = File(currentDirectory, file.name)
+                                        if (destFile.exists()) {
+                                            // Add number suffix if file exists
+                                            var counter = 1
+                                            var newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
+                                            var newFile = File(currentDirectory, newName)
+                                            while (newFile.exists()) {
+                                                counter++
+                                                newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
+                                                newFile = File(currentDirectory, newName)
+                                            }
+                                            file.copyTo(newFile, overwrite = false)
+                                        } else {
+                                            file.copyTo(destFile, overwrite = false)
+                                        }
+                                    } catch (e: Exception) {
+                                        android.util.Log.e("FileBrowser", "Failed to copy ${file.name}: ${e.message}")
+                                    }
+                                }
+                                withContext(Dispatchers.Main) {
+                                    selectedFiles = emptySet()
+                                    showCopyDialog = false
+                                    // Reload file list
+                                    fileItems = withContext(Dispatchers.IO) {
+                                        loadFileItems(currentDirectory, settings)
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Copy")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showCopyDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+        
+        // Move dialog
+        if (showMoveDialog) {
+            AlertDialog(
+                onDismissRequest = { showMoveDialog = false },
+                title = { Text("Move ${selectedFiles.size} file(s)") },
+                text = { 
+                    Column {
+                        Text("Files will be moved to the current directory:")
+                        Text(
+                            text = currentPath,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                selectedFiles.forEach { file ->
+                                    try {
+                                        val destFile = File(currentDirectory, file.name)
+                                        if (destFile.exists()) {
+                                            // Add number suffix if file exists
+                                            var counter = 1
+                                            var newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
+                                            var newFile = File(currentDirectory, newName)
+                                            while (newFile.exists()) {
+                                                counter++
+                                                newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
+                                                newFile = File(currentDirectory, newName)
+                                            }
+                                            file.renameTo(newFile)
+                                        } else {
+                                            file.renameTo(destFile)
+                                        }
+                                    } catch (e: Exception) {
+                                        android.util.Log.e("FileBrowser", "Failed to move ${file.name}: ${e.message}")
+                                    }
+                                }
+                                withContext(Dispatchers.Main) {
+                                    selectedFiles = emptySet()
+                                    showMoveDialog = false
+                                    // Reload file list
+                                    fileItems = withContext(Dispatchers.IO) {
+                                        loadFileItems(currentDirectory, settings)
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Move")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showMoveDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
             )
         }
         

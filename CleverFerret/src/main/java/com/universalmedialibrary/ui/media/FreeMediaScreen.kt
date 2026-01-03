@@ -291,7 +291,7 @@ private fun MediaCard(
 
             item.streamingUrl?.let { streamUrl ->
                 TextButton(onClick = { onOpenLink(streamUrl) }) {
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Stream in browser")
                     Spacer(Modifier.width(4.dp))
                     Text("Stream")
                 }
@@ -299,7 +299,7 @@ private fun MediaCard(
 
             item.detailUrl?.let { url ->
                 TextButton(onClick = { onOpenLink(url) }) {
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "View details in browser")
                     Spacer(Modifier.width(4.dp))
                     Text("Details")
                 }
