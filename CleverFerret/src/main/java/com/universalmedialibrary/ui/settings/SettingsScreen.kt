@@ -46,21 +46,20 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             MetallicTopAppBar(
-                    title = {
-                        Text(
-                            "Settings",
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-                        }
+                title = {
+                    Text(
+                        "Settings",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
-                )
-            }
-
-        ) { paddingValues ->
+                }
+            )
+        }
+    ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()

@@ -135,6 +135,7 @@ fun MediaMainScreen(
     if (isCompact) {
         // MOBILE LAYOUT: Single Scaffold with proper bottom bar
         Scaffold(
+            modifier = Modifier.fillMaxSize(),
             snackbarHost = { SnackbarHost(snackbarHostState) },
             bottomBar = {
                 // Bottom bar contains both mini player and navigation
@@ -200,6 +201,7 @@ fun MediaMainScreen(
             )
             
             Scaffold(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 bottomBar = {
                     // Mini player for tablet/desktop
