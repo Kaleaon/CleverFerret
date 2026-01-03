@@ -134,7 +134,7 @@ private fun IdleContent(
         ) {
             Icon(
                 imageVector = Icons.Default.Login,
-                contentDescription = null,
+                contentDescription = "Sign in",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -158,7 +158,7 @@ private fun IdleContent(
                     onClick = onStartAuth,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(Icons.Default.Login, contentDescription = null)
+                    Icon(Icons.Default.Login, contentDescription = "Sign in")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Sign in with PIN")
                 }
@@ -185,7 +185,7 @@ private fun IdleContent(
                     onClick = { showCredentialsForm = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(Icons.Default.AccountCircle, contentDescription = null)
+                    Icon(Icons.Default.AccountCircle, contentDescription = "Account")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Sign in with Username")
                 }
@@ -196,7 +196,7 @@ private fun IdleContent(
                     onValueChange = { username = it },
                     label = { Text("Username or Email") },
                     leadingIcon = {
-                        Icon(Icons.Default.AccountCircle, contentDescription = null)
+                        Icon(Icons.Default.AccountCircle, contentDescription = "Username")
                     },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -207,7 +207,7 @@ private fun IdleContent(
                     onValueChange = { password = it },
                     label = { Text("Password") },
                     leadingIcon = {
-                        Icon(Icons.Default.Lock, contentDescription = null)
+                        Icon(Icons.Default.Lock, contentDescription = "Password")
                     },
                     trailingIcon = {
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -227,7 +227,7 @@ private fun IdleContent(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = username.isNotBlank() && password.isNotBlank()
                 ) {
-                    Icon(Icons.Default.Login, contentDescription = null)
+                    Icon(Icons.Default.Login, contentDescription = "Sign in")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Sign In")
                 }
@@ -266,7 +266,7 @@ private fun PinDisplayContent(
         ) {
             Icon(
                 imageVector = Icons.Default.PhoneAndroid,
-                contentDescription = null,
+                contentDescription = "Mobile device",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -334,7 +334,7 @@ private fun AuthenticatedContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
+                    contentDescription = "Signed in",
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Text(
@@ -348,7 +348,7 @@ private fun AuthenticatedContent(
                 onClick = onDiscoverServers,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.CloudSync, contentDescription = null)
+                Icon(Icons.Default.CloudSync, contentDescription = "Cloud sync")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Discover Servers")
             }
@@ -381,7 +381,7 @@ private fun SuccessContent(
         ) {
             Icon(
                 imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
+                contentDescription = "Success",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -401,7 +401,7 @@ private fun SuccessContent(
                 onClick = onDiscoverServers,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.CloudSync, contentDescription = null)
+                Icon(Icons.Default.CloudSync, contentDescription = "Cloud sync")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Discover Servers")
             }
@@ -483,7 +483,7 @@ private fun ServerListItem(
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null
+                contentDescription = "Navigate"
             )
         }
     }
@@ -527,7 +527,7 @@ private fun ErrorContent(
         ) {
             Icon(
                 imageVector = Icons.Default.Error,
-                contentDescription = null,
+                contentDescription = "Error",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )
@@ -553,7 +553,7 @@ private fun ErrorContent(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Icon(Icons.Default.Refresh, contentDescription = null)
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Try Again")
             }

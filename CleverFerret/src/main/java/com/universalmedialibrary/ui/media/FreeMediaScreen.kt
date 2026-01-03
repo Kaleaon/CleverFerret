@@ -219,7 +219,7 @@ private fun MediaCard(
         ) {
             AsyncImage(
                 model = item.thumbnailUrl,
-                contentDescription = null,
+                contentDescription = "${item.title} thumbnail",
                 modifier = Modifier
                     .size(width = 120.dp, height = 90.dp)
             )
@@ -284,7 +284,7 @@ private fun MediaCard(
                     onClick = { onDownload(option) },
                     label = { Text(option.label) },
                     leadingIcon = {
-                        Icon(Icons.Default.CloudDownload, contentDescription = null)
+                        Icon(Icons.Default.CloudDownload, contentDescription = "Download")
                     }
                 )
             }
