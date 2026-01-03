@@ -664,7 +664,8 @@ class SynthChatService @Inject constructor(
         val readingSystemPrompt = try {
             aiReadingAgentService?.generateReadingSystemPrompt(character.id) ?: ""
         } catch (e: Exception) {
-            "" // Silently fail if reading service not available
+            android.util.Log.e("SynthChatService", "Failed to generate reading system prompt for character ${character.id}", e)
+            "" // Gracefully degrade if reading service not available
         }
         
         val fullSystemPrompt = buildString {

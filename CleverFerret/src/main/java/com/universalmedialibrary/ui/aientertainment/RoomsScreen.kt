@@ -38,6 +38,7 @@ fun RoomsScreen(
     val currentRoom by viewModel.currentRoom.collectAsState()
     val currentParticipants by viewModel.currentParticipants.collectAsState()
     val characters by viewModel.characters.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
     
     var selectedTab by remember { mutableStateOf(0) }
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -192,7 +193,14 @@ fun RoomsScreen(
                 onAddCharacter = { showAddCharacterDialog = true },
                 onEnterRoom = {
                     showRoomDetails = false
-                    // TODO: Navigate to room chat
+                    // Navigate to room chat (room ID: ${currentRoom?.id})
+                    // For now, show a toast indicating the feature
+                    android.widget.Toast.makeText(
+                        context,
+                        "Entering room: ${currentRoom?.name}",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                    // TODO: Implement full room chat screen
                 }
             )
         }

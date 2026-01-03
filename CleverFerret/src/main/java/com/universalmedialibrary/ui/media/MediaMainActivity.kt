@@ -187,16 +187,7 @@ fun MediaMainScreen(
                         )
                     }
                 }
-            },
-            floatingActionButton = {
-                // Floating settings button (bottom-left position, matching mockup)
-                if (showNavigation) {
-                    FloatingSettingsButton(
-                        onClick = { navController.navigate(MediaRoutes.SETTINGS) }
-                    )
-                }
-            },
-            floatingActionButtonPosition = FabPosition.Start
+            }
         ) { paddingValues ->
             MediaAppNavHost(
                 navController = navController,

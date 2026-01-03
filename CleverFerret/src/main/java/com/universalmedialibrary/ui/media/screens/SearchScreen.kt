@@ -389,8 +389,8 @@ private fun SearchResultsList(
                     item {
                         TextButton(
                             onClick = { 
-                                // TODO: Navigate to category-filtered results screen
-                                // onNavigateToCategoryResults(category, query)
+                                // Filter results to show only this category
+                                onCategoryFilterChange(category)
                             },
                             modifier = Modifier.padding(
                                 horizontal = MediaSpacing.MD,

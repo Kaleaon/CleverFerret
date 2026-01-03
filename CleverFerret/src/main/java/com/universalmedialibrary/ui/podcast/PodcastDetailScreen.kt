@@ -108,7 +108,10 @@ fun PodcastDetailScreen(
                         EpisodeCard(
                             episode = episode,
                             onClick = { navController.navigate("podcast_player/${episode.id}") },
-                            onDownloadClick = { /* TODO: Implement download in detail view */ },
+                            onDownloadClick = { 
+                                // Trigger download for this episode
+                                viewModel.downloadEpisode(episode.id)
+                            },
                             onPlayClick = { navController.navigate("podcast_player/${episode.id}") }
                         )
                     }

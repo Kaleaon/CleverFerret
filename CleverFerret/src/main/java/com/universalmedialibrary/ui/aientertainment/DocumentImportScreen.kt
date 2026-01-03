@@ -46,6 +46,8 @@ fun DocumentImportScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var showExtractedDataDialog by remember { mutableStateOf(false) }
     var pendingExtractedData by remember { mutableStateOf<ExtractedCharacterData?>(null) }
+    var showImportDetailsDialog by remember { mutableStateOf(false) }
+    var selectedImport by remember { mutableStateOf<DocumentImport?>(null) }
     
     // File picker launcher
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -148,7 +150,10 @@ fun DocumentImportScreen(
                 )
                 1 -> HistoryTab(
                     imports = imports,
-                    onViewImport = { /* TODO: Show import details */ }
+                    onViewImport = { import ->
+                        selectedImport = import
+                        showImportDetailsDialog = true
+                    }
                 )
             }
         }
@@ -167,6 +172,52 @@ fun DocumentImportScreen(
                     showExtractedDataDialog = false
                     pendingExtractedData = null
                     onCharacterCreated(characterId)
+                }
+            }
+        )
+    }
+    
+    // Import details dialog
+    if (showImportDetailsDialog && selectedImport != null) {
+        AlertDialog(
+            onDismissRequest = { showImportDetailsDialog = false },
+            title = { Text("Import Details") },
+            text = {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        text = "Type: ${selectedImport!!.type}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Imported: ${selectedImport!!.timestamp}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Content:",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = selectedImport!!.content,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(12.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showImportDetailsDialog = false }) {
+                    Text("Close")
                 }
             }
         )
