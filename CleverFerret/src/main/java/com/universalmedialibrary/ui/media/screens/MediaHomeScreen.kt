@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
@@ -109,8 +111,17 @@ fun MediaHomeScreen(
         } else {
             LazyColumn(
                 state = scrollState,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = MediaSpacing.Huge) // Extra padding for bottom nav
             ) {
+                // Sticky Header - "Content Library" with search
+                item {
+                    ContentLibraryHeader(
+                        onSearchClick = onSearchClick
+                    )
+                }
+                
                 if (isLibraryEmpty) {
                     item {
                         WelcomeSection(
@@ -139,109 +150,38 @@ fun MediaHomeScreen(
                     }
                 }
 
-                // Continue Section (Reading, Watching, Listening)
+                // Continue Section (Reading, Watching, Listening) - matching mockup "Continue Watching"
                 if (state.continueItems.isNotEmpty()) {
                     item {
                         Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        MediaCarouselRow(
-                            title = "Continue Where You Left Off",
+                        ContinueWatchingRow(
+                            title = "Continue Watching",
                             items = state.continueItems,
-                            onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) }
-                        ) { item ->
-                            MediaWideCard(
-                                item = item,
-                                onClick = { onItemClick(item) },
-                                width = MediaSizes.CardXLarge
-                            )
-                        }
+                            onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) },
+                            onItemClick = onItemClick
+                        )
                     }
                 }
 
-                // Recently Added Books
-                if (state.recentBooks.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        MediaCarouselRow(
-                            title = "Recently Added Books",
-                            items = state.recentBooks,
-                            onSeeAllClick = { onSeeAllClick(MediaRoutes.BOOKS) }
-                        ) { item ->
-                            MediaPosterCard(
-                                item = item,
-                                onClick = { onItemClick(item) },
-                                width = MediaSizes.CardMedium
-                            )
-                        }
+                // Recently Added - Combined Grid Section (matching mockup)
+                item {
+                    val recentlyAddedItems = remember(state) {
+                        (state.recentBooks.take(2) +
+                         state.recentMusic.take(1) +
+                         state.recentVideos.take(2) +
+                         state.recentComics.take(1) +
+                         state.recentPodcasts.take(1) +
+                         state.recentAudiobooks.take(1))
+                            .take(6) // Show max 6 items in grid
                     }
-                }
-                
-                // Recently Added Music
-                if (state.recentMusic.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        MediaCarouselRow(
-                            title = "Recently Added Music",
-                            items = state.recentMusic,
-                            onSeeAllClick = { onSeeAllClick(MediaRoutes.MUSIC) }
-                        ) { item ->
-                            MediaSquareCard(
-                                item = item,
-                                onClick = { onItemClick(item) },
-                                size = MediaSizes.CardMedium
-                            )
-                        }
-                    }
-                }
-                
-                // Podcasts
-                if (state.recentPodcasts.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        MediaCarouselRow(
-                            title = "New Podcast Episodes",
-                            items = state.recentPodcasts,
-                            onSeeAllClick = { onSeeAllClick(MediaRoutes.PODCASTS) }
-                        ) { item ->
-                            MediaSquareCard(
-                                item = item,
-                                onClick = { onItemClick(item) },
-                                size = MediaSizes.CardMedium
-                            )
-                        }
-                    }
-                }
-                
-                // Movies & TV (from Plex/Jellyfin/Emby)
-                if (state.recentVideos.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        MediaCarouselRow(
-                            title = "Recently Added Movies & TV",
-                            items = state.recentVideos,
-                            onSeeAllClick = { onSeeAllClick(MediaRoutes.MOVIES) }
-                        ) { item ->
-                            MediaPosterCard(
-                                item = item,
-                                onClick = { onItemClick(item) },
-                                width = MediaSizes.CardMedium
-                            )
-                        }
-                    }
-                }
-                
-                // Audiobooks
-                if (state.recentAudiobooks.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        MediaCarouselRow(
-                            title = "Recent Audiobooks",
-                            items = state.recentAudiobooks,
-                            onSeeAllClick = { onSeeAllClick(MediaRoutes.AUDIOBOOKS) }
-                        ) { item ->
-                            MediaPosterCard(
-                                item = item,
-                                onClick = { onItemClick(item) },
-                                width = MediaSizes.CardMedium
+                    
+                    if (recentlyAddedItems.isNotEmpty()) {
+                        Column {
+                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                            RecentlyAddedGridSection(
+                                title = "Recently Added",
+                                items = recentlyAddedItems,
+                                onItemClick = onItemClick
                             )
                         }
                     }
@@ -884,7 +824,424 @@ private fun QuickAccessCard(
 }
 
 // =============================================================================
-// TOP BAR
+// CONTENT LIBRARY HEADER (Matching mockup)
+// =============================================================================
+
+@Composable
+private fun ContentLibraryHeader(
+    onSearchClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background.copy(alpha = 0.8f),
+        tonalElevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = MediaSpacing.LG, vertical = MediaSpacing.LG),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // "Content Library" branding matching mockup
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+            ) {
+                Text(
+                    text = "Content ",
+                    style = MediaTypography.TitleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Library",
+                    style = MediaTypography.TitleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            // Search button - circular style matching mockup
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.05f),
+                onClick = onSearchClick
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(MediaSizes.IconMD)
+                    )
+                }
+            }
+        }
+    }
+}
+
+// =============================================================================
+// CONTINUE WATCHING ROW (Matching mockup with metallic borders)
+// =============================================================================
+
+@Composable
+private fun ContinueWatchingRow(
+    title: String,
+    items: List<MediaItem>,
+    onSeeAllClick: () -> Unit,
+    onItemClick: (MediaItem) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Header
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MediaSpacing.LG),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = MediaTypography.TitleSmall,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.Bold
+            )
+            
+            TextButton(onClick = onSeeAllClick) {
+                Text(
+                    text = "View All",
+                    style = MediaTypography.LabelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.MD))
+        
+        // Items with metallic borders
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = MediaSpacing.LG),
+            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.LG)
+        ) {
+            items(items) { item ->
+                MetallicBorderCard(
+                    item = item,
+                    onClick = { onItemClick(item) }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Card with metallic gold gradient border matching mockup design
+ */
+@Composable
+private fun MetallicBorderCard(
+    item: MediaItem,
+    onClick: () -> Unit
+) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val metallicGradient = Brush.linearGradient(
+        colors = listOf(
+            primaryColor.copy(alpha = 0.7f),
+            primaryColor,
+            primaryColor.copy(alpha = 0.9f),
+            primaryColor.copy(alpha = 0.7f)
+        )
+    )
+    
+    Column(
+        modifier = Modifier
+            .width(140.dp)
+            .clickable(onClick = onClick)
+    ) {
+        // Card with metallic border
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(MediaSizes.PosterAspectRatio)
+        ) {
+            // Metallic border background
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .padding(0.dp)
+                    .background(
+                        brush = metallicGradient,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+            )
+            
+            // Inner card with image
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .padding(2.dp) // Border thickness
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
+                // Cover image
+                if (item.imageUrl != null) {
+                    AsyncImage(
+                        model = item.imageUrl,
+                        contentDescription = item.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    // Placeholder
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = item.mediaType.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        )
+                    }
+                }
+                
+                // Progress bar at bottom
+                if (item.progress > 0f) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .height(4.dp)
+                            .background(Color.Black.copy(alpha = 0.5f))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(item.progress)
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                    }
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.SM))
+        
+        // Title
+        Text(
+            text = item.title,
+            style = MediaTypography.BodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        
+        // Subtitle (remaining time or metadata)
+        val subtitleText = when {
+            item.duration != null -> item.duration
+            item.subtitle != null -> item.subtitle
+            else -> ""
+        }
+        if (subtitleText.isNotEmpty()) {
+            Text(
+                text = subtitleText,
+                style = MediaTypography.BodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+// =============================================================================
+// RECENTLY ADDED GRID SECTION (Matching mockup)
+// =============================================================================
+
+@Composable
+private fun RecentlyAddedGridSection(
+    title: String,
+    items: List<MediaItem>,
+    onItemClick: (MediaItem) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.LG)
+    ) {
+        // Header
+        Text(
+            text = title,
+            style = MediaTypography.TitleSmall,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold
+        )
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.MD))
+        
+        // 2-column grid
+        val columns = 2
+        val rows = (items.size + columns - 1) / columns
+        
+        Column(
+            verticalArrangement = Arrangement.spacedBy(MediaSpacing.LG)
+        ) {
+            for (row in 0 until rows) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MediaSpacing.LG)
+                ) {
+                    for (col in 0 until columns) {
+                        val index = row * columns + col
+                        if (index < items.size) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                RecentlyAddedGridItem(
+                                    item = items[index],
+                                    onClick = { onItemClick(items[index]) }
+                                )
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecentlyAddedGridItem(
+    item: MediaItem,
+    onClick: () -> Unit
+) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val metallicGradient = Brush.linearGradient(
+        colors = listOf(
+            primaryColor.copy(alpha = 0.7f),
+            primaryColor,
+            primaryColor.copy(alpha = 0.9f),
+            primaryColor.copy(alpha = 0.7f)
+        )
+    )
+    
+    // Choose aspect ratio based on media type
+    val aspectRatio = when (item.mediaType) {
+        MediaType.MUSIC, MediaType.PODCAST -> 1f // Square for albums/podcasts
+        else -> MediaSizes.PosterAspectRatio // 2:3 for movies, books, etc.
+    }
+    
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
+        // Card with metallic border
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(aspectRatio)
+        ) {
+            // Metallic border background
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        brush = metallicGradient,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+            )
+            
+            // Inner card
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .padding(2.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
+                // Cover image
+                if (item.imageUrl != null) {
+                    AsyncImage(
+                        model = item.imageUrl,
+                        contentDescription = item.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = item.mediaType.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        )
+                    }
+                }
+                
+                // Media type indicator badge (top right)
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(MediaSpacing.SM),
+                    shape = RoundedCornerShape(MediaCorners.XS),
+                    color = Color.Black.copy(alpha = 0.7f)
+                ) {
+                    Box(
+                        modifier = Modifier.padding(MediaSpacing.XS),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = item.mediaType.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.SM))
+        
+        // Title
+        Text(
+            text = item.title,
+            style = MediaTypography.BodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        
+        // Subtitle
+        item.subtitle?.let { subtitle ->
+            Text(
+                text = subtitle,
+                style = MediaTypography.BodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+// =============================================================================
+// TOP BAR (Legacy - kept for floating top bar on scroll)
 // =============================================================================
 
 @Composable
