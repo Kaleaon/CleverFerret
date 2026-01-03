@@ -59,7 +59,7 @@ fun MediaMiniPlayer(
                 progress = { state.progress },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(2.dp),
+                    .height(4.dp),
                 color = MediaColors.AccentPrimary,
                 trackColor = MediaColors.ProgressBackground
             )
@@ -80,7 +80,7 @@ fun MediaMiniPlayer(
                     if (state.artworkUrl != null) {
                         AsyncImage(
                             model = state.artworkUrl,
-                            contentDescription = null,
+                            contentDescription = "Album art for ${state.title}",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )
@@ -92,7 +92,12 @@ fun MediaMiniPlayer(
                                 "podcast" -> Icons.Default.Podcasts
                                 else -> Icons.Default.PlayArrow
                             },
-                            contentDescription = null,
+                            contentDescription = when (state.playerType) {
+                                "music" -> "Music"
+                                "audiobook" -> "Audiobook"
+                                "podcast" -> "Podcast"
+                                else -> "Media"
+                            },
                             tint = MediaColors.TextTertiary,
                             modifier = Modifier.padding(MediaSpacing.SM)
                         )

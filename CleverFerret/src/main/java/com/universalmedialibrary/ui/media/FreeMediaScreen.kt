@@ -219,7 +219,7 @@ private fun MediaCard(
         ) {
             AsyncImage(
                 model = item.thumbnailUrl,
-                contentDescription = null,
+                contentDescription = "${item.title} thumbnail",
                 modifier = Modifier
                     .size(width = 120.dp, height = 90.dp)
             )
@@ -284,14 +284,14 @@ private fun MediaCard(
                     onClick = { onDownload(option) },
                     label = { Text(option.label) },
                     leadingIcon = {
-                        Icon(Icons.Default.CloudDownload, contentDescription = null)
+                        Icon(Icons.Default.CloudDownload, contentDescription = "Download")
                     }
                 )
             }
 
             item.streamingUrl?.let { streamUrl ->
                 TextButton(onClick = { onOpenLink(streamUrl) }) {
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open in browser")
                     Spacer(Modifier.width(4.dp))
                     Text("Stream")
                 }
@@ -299,7 +299,7 @@ private fun MediaCard(
 
             item.detailUrl?.let { url ->
                 TextButton(onClick = { onOpenLink(url) }) {
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open in browser")
                     Spacer(Modifier.width(4.dp))
                     Text("Details")
                 }

@@ -187,16 +187,7 @@ fun MediaMainScreen(
                         )
                     }
                 }
-            },
-            floatingActionButton = {
-                // Floating settings button (bottom-left position, matching mockup)
-                if (showNavigation) {
-                    FloatingSettingsButton(
-                        onClick = { navController.navigate(MediaRoutes.SETTINGS) }
-                    )
-                }
-            },
-            floatingActionButtonPosition = FabPosition.Start
+            }
         ) { paddingValues ->
             MediaAppNavHost(
                 navController = navController,
@@ -285,8 +276,12 @@ data class MiniPlayerState(
 /**
  * Floating settings button matching mockup design
  * Positioned bottom-left with hover animation
+ * 
+ * NOTE: This component is currently unused as settings button is integrated into bottom navigation.
+ * Kept for potential future use.
  */
 @Composable
+@Deprecated("Use settings button in bottom navigation instead")
 fun FloatingSettingsButton(
     onClick: () -> Unit
 ) {
