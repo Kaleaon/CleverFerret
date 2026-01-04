@@ -6,6 +6,7 @@ import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.ReadingAnalyticsDao
 import com.universalmedialibrary.data.local.dao.ReadingProgressDao
+import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.ReadingProgress
 import com.universalmedialibrary.data.local.entity.ReadingSessionLog
 import com.universalmedialibrary.services.reading.ReadingAnalyticsService
@@ -414,7 +415,7 @@ class AIReadingProgressService @Inject constructor(
         }
     }
     
-    private fun estimateTotalChapters(metadata: com.universalmedialibrary.data.local.entity.CommonMetadata?): Int? {
+    private fun estimateTotalChapters(metadata: MetadataCommon?): Int? {
         // This would ideally come from book metadata
         return null
     }
@@ -555,8 +556,8 @@ class AIReadingProgressService @Inject constructor(
             parts.add("over ${progress.sessionCount} reading sessions")
         }
         
-        if (progress.averageMinutesPerSession > 0) {
-            parts.add("averaging ${progress.averageMinutesPerSession} minutes per session")
+        if (progress.averageSessionMinutes > 0) {
+            parts.add("averaging ${progress.averageSessionMinutes} minutes per session")
         }
         
         progress.preferredReadingTime?.let {

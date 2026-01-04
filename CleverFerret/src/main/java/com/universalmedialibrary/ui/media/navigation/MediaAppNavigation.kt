@@ -205,7 +205,7 @@ fun MediaAppNavHost(
                 },
                 onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
                 onRetry = { viewModel.refresh() },
-                onNotificationClick = { navController.navigate(MediaRoutes.NOTIFICATIONS) }
+                onNotificationClick = { navController.navigate(MediaRoutes.ACTIVITY) }
             )
         }
 

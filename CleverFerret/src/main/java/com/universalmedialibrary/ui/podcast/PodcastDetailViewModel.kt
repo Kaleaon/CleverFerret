@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
+import com.universalmedialibrary.services.podcast.PodcastDownloadManager
 import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PodcastDetailViewModel @Inject constructor(
     private val repository: PodcastRepository,
+    private val downloadManager: PodcastDownloadManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -62,6 +64,22 @@ class PodcastDetailViewModel @Inject constructor(
             repository.refreshPodcast(podcastId)
              _uiState.value = _uiState.value.copy(isLoading = false)
         }
+    }
+
+    fun downloadEpisode(episode: PodcastEpisode) {
+        val audioUrl = episode.audioUrl
+        if (audioUrl.isBlank()) {
+            _uiState.value = _uiState.value.copy(error = "Episode audio URL is missing")
+            return
+        }
+
+        val podcastTitle = _uiState.value.podcast?.title ?: "Unknown Podcast"
+        downloadManager.downloadEpisode(
+            episodeId = episode.id,
+            audioUrl = audioUrl,
+            episodeTitle = episode.title,
+            podcastTitle = podcastTitle
+        )
     }
 }
 

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
@@ -581,7 +582,7 @@ data class ReadingAgentState(
     val currentBooks: List<CurrentReadingInfo> = emptyList(),
     val primaryBook: CurrentReadingInfo? = null,
     val readingHistory: ReadingHistorySummary? = null,
-    val libraryStats: LibraryStats? = null,
+    @Transient val libraryStats: LibraryStats? = null,
     val contextSummary: String = "",
     val recentDiscussionCount: Int = 0,
     val lastInitialized: Long = 0,
