@@ -59,7 +59,10 @@ class OpdsFeedGenerator @Inject constructor() {
     fun generateAcquisitionFeed(
         title: String,
         items: List<MediaItemEntry>,
-        selfLink: String
+        selfLink: String,
+        nextLink: String? = null,
+        prevLink: String? = null,
+        searchLink: String? = null
     ): String {
         val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US).apply {
             timeZone = java.util.TimeZone.getTimeZone("UTC")
@@ -74,21 +77,36 @@ class OpdsFeedGenerator @Inject constructor() {
                 <author>
                   <name>${escapeXml(item.author ?: "Unknown")}</name>
                 </author>
-                <link rel="http://opds-spec.org/acquisition" href="/opds/download/${item.id}" type="${item.mimeType}"/>
+                <link rel="http://opds-spec.org/acquisition" href="/opds/download/${item.id}${if (item.downloadToken != null) "?token=${item.downloadToken}" else ""}" type="${item.mimeType}"/>
                 ${if (item.thumbnailUrl != null) """<link rel="http://opds-spec.org/image/thumbnail" href="${item.thumbnailUrl}" type="image/jpeg"/>""" else ""}
                 <content type="text">${escapeXml(item.description ?: "")}</content>
               </entry>
             """.trimIndent()
         }
         
+        val nextLinkXml = if (nextLink != null)
+            """<link rel="next" href="$nextLink" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>"""
+            else ""
+
+        val prevLinkXml = if (prevLink != null)
+            """<link rel="previous" href="$prevLink" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>"""
+            else ""
+
+        val searchLinkXml = if (searchLink != null)
+            """<link rel="search" href="$searchLink" type="application/opensearchdescription+xml"/>"""
+            else ""
+
         return """
             <?xml version="1.0" encoding="utf-8"?>
             <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
               <title>$title</title>
-              <id>urn:uuid:cleverferret:$selfLink</id>
+              <id>urn:uuid:cleverferret:feed</id>
               <updated>$timestamp</updated>
-              <link rel="self" href="/opds/$selfLink" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+              <link rel="self" href="$selfLink" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
               <link rel="start" href="/opds/catalog" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+              $nextLinkXml
+              $prevLinkXml
+              $searchLinkXml
               
               $entries
             </feed>
@@ -116,6 +134,7 @@ class OpdsFeedGenerator @Inject constructor() {
         val author: String?,
         val description: String?,
         val mimeType: String,
-        val thumbnailUrl: String?
+        val thumbnailUrl: String?,
+        val downloadToken: String? = null
     )
 }

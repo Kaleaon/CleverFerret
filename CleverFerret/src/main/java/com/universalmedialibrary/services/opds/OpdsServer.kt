@@ -111,24 +111,37 @@ class OpdsServer @Inject constructor(
             val from = (page * size).coerceAtMost(items.size)
             val to = (from + size).coerceAtMost(items.size)
             val pageItems = items.subList(from, to)
-            val entries = pageItems.joinToString("\n") { item ->
-                """
-                <entry>
-                  <title>${item.fileName}</title>
-                  <id>urn:item:${item.itemId}</id>
-                  <link rel=\"http://opds-spec.org/acquisition/open-access\" href=\"/opds/download/${item.itemId}?token=$token\" />
-                </entry>
-                """.trimIndent()
+
+            val entries = pageItems.map { item ->
+                val mimeType = formatRegistry.getFormatByExtension(item.fileExtension)?.mimeTypes?.firstOrNull()
+                    ?: "application/octet-stream"
+
+                OpdsFeedGenerator.MediaItemEntry(
+                    id = item.itemId,
+                    title = item.fileName, // Ideally use item.title metadata if available
+                    author = item.author, // Assuming MediaItem has author field
+                    description = null, // Assuming MediaItem has description field
+                    mimeType = mimeType,
+                    thumbnailUrl = null, // Generate proper thumbnail URL if possible
+                    downloadToken = token
+                )
             }
-            val nextLink = if (to < items.size) "<link rel=\"next\" href=\"/opds/library/$libraryId?token=$token&page=${page + 1}&size=$size${if (!q.isNullOrBlank()) "&q=$q" else ""}\" />" else ""
-            """
-            <?xml version=\"1.0\" encoding=\"utf-8\"?>
-            <feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:opds=\"http://opds-spec.org/2010/catalog\">
-              <title>Library $libraryId</title>
-              $entries
-              $nextLink
-            </feed>
-            """.trimIndent()
+
+            val selfLink = "/opds/library/$libraryId?token=$token&page=$page&size=$size${if (!q.isNullOrBlank()) "&q=$q" else ""}"
+            val nextLink = if (to < items.size)
+                "/opds/library/$libraryId?token=$token&page=${page + 1}&size=$size${if (!q.isNullOrBlank()) "&q=$q" else ""}"
+                else null
+            val prevLink = if (page > 0)
+                "/opds/library/$libraryId?token=$token&page=${page - 1}&size=$size${if (!q.isNullOrBlank()) "&q=$q" else ""}"
+                else null
+
+            opdsFeedGenerator.generateAcquisitionFeed(
+                title = "Library $libraryId", // Ideally get real library name
+                items = entries,
+                selfLink = selfLink,
+                nextLink = nextLink,
+                prevLink = prevLink
+            )
         }
         return newFixedLengthResponse(Response.Status.OK, MIME_XML, xml)
     }

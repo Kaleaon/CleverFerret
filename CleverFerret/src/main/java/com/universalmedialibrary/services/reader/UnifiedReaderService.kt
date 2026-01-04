@@ -208,67 +208,7 @@ class UnifiedReaderService @Inject constructor(
                         }
                     }
 
-                    // KFX/MOBI format (not supported by ParserFactory currently)
-                    "kfx", "mobi", "azw", "azw3" -> {
-                        try {
-                            val content = extractMobiContent(filePath)
-                            ReaderType.Text(
-                                filePath = filePath,
-                                content = content
-                            )
-                        } catch (e: Exception) {
-                             ReaderType.Error("Failed to open MOBI/KFX: ${e.message}")
-                        }
-                    }
-
-                    "docx" -> {
-                        try {
-                            val content = extractDocxContent(filePath)
-                            ReaderType.Text(
-                                filePath = filePath,
-                                content = content
-                            )
-                        } catch (e: Exception) {
-                             ReaderType.Error("Failed to open DOCX: ${e.message}")
-                        }
-                    }
-
-                    "odt" -> {
-                        try {
-                            val content = extractOdtContent(filePath)
-                            ReaderType.Text(
-                                filePath = filePath,
-                                content = content
-                            )
-                        } catch (e: Exception) {
-                             ReaderType.Error("Failed to open ODT: ${e.message}")
-                        }
-                    }
-
-                    "rtf" -> {
-                        try {
-                            val content = extractRtfContent(filePath)
-                            ReaderType.Text(
-                                filePath = filePath,
-                                content = content
-                            )
-                        } catch (e: Exception) {
-                             ReaderType.Error("Failed to open RTF: ${e.message}")
-                        }
-                    }
-
-                    "doc" -> {
-                        try {
-                             val content = extractDocContent(filePath)
-                             ReaderType.Text(
-                                 filePath = filePath,
-                                 content = content
-                             )
-                         } catch (e: Exception) {
-                              ReaderType.Error("Failed to open DOC: ${e.message}")
-                         }
-                    }
-
+                    // Fallback for any other formats
                     else -> {
                         ReaderType.Error("Unsupported file format: $extension")
                     }
@@ -355,72 +295,6 @@ class UnifiedReaderService @Inject constructor(
         } catch (e: Exception) {
             throw Exception("Failed to extract UMD content: ${e.message}")
         }
-    }
-
-    private fun extractDocxContent(filePath: String): String {
-        // Fallback: Basic XML extraction
-        return try {
-            ZipFile(filePath).use { zipFile ->
-                zipFile.getEntry("word/document.xml")?.let { documentEntry ->
-                    zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
-                        .replace(Regex("<[^>]+>"), " ")
-                        .replace(Regex("\\s+"), " ")
-                        .trim()
-                } ?: "Could not extract content from DOCX file."
-            }
-        } catch (e: Exception) {
-            throw Exception("Failed to extract DOCX content: ${e.message}")
-        }
-    }
-
-    private fun extractDocContent(filePath: String): String {
-        return try {
-            "DOC file detected. DOC extraction requires Apache POI library.\n" +
-            "File: ${File(filePath).name}\n" +
-            "See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide."
-        } catch (e: Exception) {
-            throw Exception("Failed to extract DOC content: ${e.message}")
-        }
-    }
-
-    private fun extractOdtContent(filePath: String): String {
-        // Fallback: Basic XML extraction
-        return try {
-            ZipFile(filePath).use { zipFile ->
-                zipFile.getEntry("content.xml")?.let { documentEntry ->
-                    zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
-                        .replace(Regex("<[^>]+>"), " ")
-                        .replace(Regex("\\s+"), " ")
-                        .trim()
-                } ?: "Could not extract content from ODT file."
-            }
-        } catch (e: Exception) {
-            throw Exception("Failed to extract ODT content: ${e.message}")
-        }
-    }
-
-    private fun extractRtfContent(filePath: String): String {
-        // Fallback: Basic RTF control code removal
-        return try {
-            val content = File(filePath).readText()
-            content.replace(Regex("\\\\[a-z]+\\d*"), " ")
-                .replace(Regex("\\{[^}]*\\}"), " ")
-                .replace(Regex("\\s+"), " ")
-                .trim()
-        } catch (e: Exception) {
-            throw Exception("Failed to extract RTF content: ${e.message}")
-        }
-    }
-
-    private fun extractMobiContent(filePath: String): String {
-         val file = File(filePath)
-         return try {
-             "MOBI file detected. Full MOBI parsing requires lib-mobi library.\n" +
-             "File: ${file.name}\n" +
-             "Size: ${file.length()} bytes"
-         } catch (e: Exception) {
-             throw Exception("Failed to extract MOBI content: ${e.message}")
-         }
     }
 
     private fun extractMhtmlContent(filePath: String): String {
