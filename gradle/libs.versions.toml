@@ -33,7 +33,7 @@ retrofit = "3.0.0"
 okhttp = "5.2.1"
 
 # Media
- media3 = "1.8.0"
+ media3 = "1.9.0"
  media = "1.7.1"
  media3-midi = "1.8.0"
 
