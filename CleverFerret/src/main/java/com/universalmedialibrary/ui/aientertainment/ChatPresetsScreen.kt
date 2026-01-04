@@ -699,7 +699,7 @@ private fun PresetEditDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val newPreset = (preset ?: ChatPreset(userId = 0)).copy(
+                    val newPreset = (preset ?: ChatPreset(userId = 0, title = "")).copy(
                         title = title,
                         description = description,
                         icon = icon,

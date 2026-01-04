@@ -121,6 +121,7 @@ fun MediaSearchScreen(
                         results = state.results,
                         groupedResults = state.groupedResults,
                         onResultClick = onResultClick,
+                        onCategoryFilterChange = onCategoryFilterChange,
                         showGrouped = state.selectedCategory == null
                     )
                 }
@@ -362,6 +363,7 @@ private fun SearchResultsList(
     results: List<SearchResult>,
     groupedResults: Map<SearchCategory, List<SearchResult>>,
     onResultClick: (SearchResult) -> Unit,
+    onCategoryFilterChange: (SearchCategory?) -> Unit,
     showGrouped: Boolean
 ) {
     if (showGrouped && groupedResults.isNotEmpty()) {

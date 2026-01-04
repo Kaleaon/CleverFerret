@@ -110,7 +110,7 @@ fun PodcastDetailScreen(
                             onClick = { navController.navigate("podcast_player/${episode.id}") },
                             onDownloadClick = { 
                                 // Trigger download for this episode
-                                viewModel.downloadEpisode(episode.id)
+                                viewModel.downloadEpisode(episode)
                             },
                             onPlayClick = { navController.navigate("podcast_player/${episode.id}") }
                         )

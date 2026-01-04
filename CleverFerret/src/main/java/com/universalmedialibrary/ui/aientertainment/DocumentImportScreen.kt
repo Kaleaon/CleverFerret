@@ -47,7 +47,7 @@ fun DocumentImportScreen(
     var showExtractedDataDialog by remember { mutableStateOf(false) }
     var pendingExtractedData by remember { mutableStateOf<ExtractedCharacterData?>(null) }
     var showImportDetailsDialog by remember { mutableStateOf(false) }
-    var selectedImport by remember { mutableStateOf<DocumentImport?>(null) }
+    var selectedImport by remember { mutableStateOf<SynthDocumentImport?>(null) }
     
     // File picker launcher
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -187,12 +187,12 @@ fun DocumentImportScreen(
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "Type: ${selectedImport!!.type}",
+                        text = "Type: ${selectedImport!!.fileType}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Imported: ${selectedImport!!.timestamp}",
+                        text = "Imported: ${formatImportTime(selectedImport!!.createdAt)}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -203,7 +203,7 @@ fun DocumentImportScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = selectedImport!!.content,
+                        text = selectedImport!!.parsedData.ifBlank { "No parsed data stored for this import." },
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
                             .fillMaxWidth()
