@@ -1,0 +1,140 @@
+# Photo Organizer Configuration
+
+# Paths
+paths:
+  # Source directory containing photos to organize
+  source: ~/Pictures
+  # Destination directory for organized photos
+  destination: ~/Pictures/Organized
+  # Cache directory for model weights and database
+  cache: ~/.photo_organizer
+
+# Auto-tagging settings
+tagging:
+  # Enable auto-tagging with AI models
+  enabled: true
+  # Model to use: "clip" (fast), "blip" (more descriptive), or "both"
+  model: clip
+  # Minimum confidence threshold for tags (0.0 - 1.0)
+  confidence_threshold: 0.25
+  # Maximum number of tags per image
+  max_tags: 10
+  # Custom tag categories to detect
+  categories:
+    - people
+    - nature
+    - architecture
+    - food
+    - animals
+    - vehicles
+    - art
+    - text
+    - screenshot
+    - meme
+
+# Album/Book Cover Detection
+cover_detection:
+  # Enable cover detection
+  enabled: true
+  
+  # How to handle detected covers: "ignore", "separate", "tag"
+  # - ignore: Skip covers during organization
+  # - separate: Move covers to a dedicated folder
+  # - tag: Add "album_cover" or "book_cover" tag and include normally
+  mode: separate
+  
+  # Folder for covers when mode is "separate"
+  covers_folder: _Covers
+  
+  # Detection settings
+  settings:
+    # Square aspect ratio tolerance (covers are often square)
+    # Images with aspect ratio between 0.9-1.1 are considered "square"
+    square_tolerance: 0.15
+    
+    # Minimum text coverage to consider as cover (0.0-1.0)
+    # Album covers usually have artist/album text
+    min_text_coverage: 0.05
+    
+    # Edge uniformity threshold (covers often have borders)
+    edge_uniformity_threshold: 0.7
+    
+    # Enable ML-based cover classification
+    use_ml_classifier: true
+    
+    # Confidence threshold for cover classification
+    cover_confidence: 0.6
+    
+    # File patterns that indicate covers (regex)
+    filename_patterns:
+      - "(?i)cover\\.(jpg|jpeg|png|webp)$"
+      - "(?i)folder\\.(jpg|jpeg|png|webp)$"
+      - "(?i)album.*\\.(jpg|jpeg|png|webp)$"
+      - "(?i)front\\.(jpg|jpeg|png|webp)$"
+      - "(?i)artwork\\.(jpg|jpeg|png|webp)$"
+    
+    # Directory patterns that indicate media folders
+    directory_patterns:
+      - "(?i)music"
+      - "(?i)album"
+      - "(?i)discography"
+      - "(?i)audiobook"
+      - "(?i)ebook"
+      - "(?i)comics?"
+
+# Organization settings
+organization:
+  # Organization strategy: "date", "tags", "hybrid", "flat"
+  strategy: hybrid
+  
+  # Date format for folder names (when using date strategy)
+  date_format: "%Y/%Y-%m"
+  
+  # Create subfolders by primary tag
+  use_tag_folders: true
+  
+  # Duplicate handling: "skip", "rename", "replace"
+  duplicates: skip
+  
+  # Preserve original folder structure as tags
+  preserve_structure_tags: true
+
+# File handling
+files:
+  # Supported image extensions
+  extensions:
+    - .jpg
+    - .jpeg
+    - .png
+    - .webp
+    - .gif
+    - .bmp
+    - .tiff
+    - .heic
+    - .heif
+    - .avif
+  
+  # Minimum file size (bytes) - skip tiny images
+  min_size: 10000
+  
+  # Skip hidden files
+  skip_hidden: true
+  
+  # Write tags to EXIF/XMP metadata
+  write_metadata: true
+
+# Performance
+performance:
+  # Number of worker threads
+  workers: 4
+  # Batch size for model inference
+  batch_size: 8
+  # Use GPU if available
+  use_gpu: true
+  # Cache embeddings to disk
+  cache_embeddings: true
+
+# Logging
+logging:
+  level: INFO
+  file: photo_organizer.log

@@ -1,0 +1,277 @@
+# Photo Organizer
+
+**AI-powered photo organization with auto-tagging and album/book cover detection.**
+
+Automatically organize your photo collection using AI to tag images and intelligently handle album covers, book covers, and other media artwork.
+
+## Features
+
+- 🏷️ **Auto-tagging**: Uses CLIP vision-language models to automatically tag photos with descriptive labels
+- 📀 **Cover Detection**: Intelligently identifies album covers, book covers, DVD artwork, etc.
+- 📁 **Smart Organization**: Organize photos by date, tags, or a hybrid approach
+- 🔍 **Duplicate Detection**: Find and handle duplicate images
+- ⚡ **Batch Processing**: Process thousands of photos efficiently
+- 🎛️ **Flexible Configuration**: Extensive options via YAML config or CLI
+
+## Installation
+
+### Basic Installation
+
+```bash
+pip install photo-organizer
+```
+
+### With AI Features (Recommended)
+
+```bash
+pip install photo-organizer[ml]
+```
+
+### Full Installation (All Features)
+
+```bash
+pip install photo-organizer[full]
+```
+
+### From Source
+
+```bash
+git clone https://github.com/photo-organizer/photo-organizer
+cd photo-organizer
+pip install -e ".[full]"
+```
+
+## Quick Start
+
+### Organize Photos
+
+```bash
+# Organize photos from ~/Pictures to ~/Pictures/Organized
+photo-organizer organize ~/Pictures
+
+# Preview what would happen without moving files
+photo-organizer organize ~/Pictures --dry-run
+
+# Specify destination
+photo-organizer organize ~/Pictures -d ~/Photos/Sorted
+```
+
+### Handle Album/Book Covers
+
+The tool automatically detects album covers, book covers, and similar media artwork. You can configure how to handle them:
+
+```bash
+# Separate covers into their own folder (default)
+photo-organizer organize ~/Music --cover-mode separate
+
+# Ignore covers entirely (don't organize them)
+photo-organizer organize ~/Music --cover-mode ignore
+
+# Tag covers but organize with other photos
+photo-organizer organize ~/Music --cover-mode tag
+```
+
+### Tag a Single Image
+
+```bash
+photo-organizer tag image.jpg
+
+# Show confidence scores
+photo-organizer tag image.jpg --show-scores
+```
+
+### Check if Image is a Cover
+
+```bash
+photo-organizer detect-cover cover.jpg
+
+# Detailed analysis
+photo-organizer detect-cover cover.jpg --detailed
+```
+
+### Scan Directory
+
+```bash
+# Get statistics about a directory
+photo-organizer scan ~/Pictures
+```
+
+## Configuration
+
+Generate a configuration file:
+
+```bash
+photo-organizer init config.yaml
+```
+
+### Key Configuration Options
+
+```yaml
+# Paths
+paths:
+  source: ~/Pictures
+  destination: ~/Pictures/Organized
+  cache: ~/.photo_organizer
+
+# Auto-tagging settings
+tagging:
+  enabled: true
+  model: clip          # "clip" or "blip"
+  confidence_threshold: 0.25
+  max_tags: 10
+
+# Cover detection
+cover_detection:
+  enabled: true
+  mode: separate       # "ignore", "separate", or "tag"
+  covers_folder: _Covers
+  settings:
+    use_ml_classifier: true
+    cover_confidence: 0.6
+    # Filename patterns that indicate covers
+    filename_patterns:
+      - "(?i)cover\\.(jpg|jpeg|png|webp)$"
+      - "(?i)folder\\.(jpg|jpeg|png|webp)$"
+      - "(?i)album.*\\.(jpg|jpeg|png|webp)$"
+
+# Organization strategy
+organization:
+  strategy: hybrid     # "date", "tags", "hybrid", or "flat"
+  date_format: "%Y/%Y-%m"
+  use_tag_folders: true
+  duplicates: skip     # "skip", "rename", or "replace"
+```
+
+## Cover Detection Modes
+
+### `separate` (Default)
+Moves detected covers to a separate `_Covers` folder, organized by type:
+```
+Organized/
+├── _Covers/
+│   ├── album/
+│   │   └── cover.jpg
+│   └── book/
+│       └── bookcover.png
+├── 2024/
+│   └── 2024-01/
+│       └── photo.jpg
+```
+
+### `ignore`
+Completely skips cover images during organization. Useful when organizing a music library where you don't want covers mixed with photos.
+
+### `tag`
+Adds a tag (like "album_cover" or "book_cover") but organizes covers with other photos. Useful if you want to keep covers but be able to filter them later.
+
+## Cover Detection Logic
+
+The detector uses multiple signals to identify covers:
+
+1. **Filename Patterns**: Files named `cover.jpg`, `folder.png`, `album_art.jpg`, etc.
+2. **Directory Context**: Images in folders containing music files (`.mp3`, `.flac`) or ebooks (`.epub`, `.pdf`)
+3. **Aspect Ratio**: Square images (1:1) are more likely to be album covers
+4. **ML Classification**: CLIP model compares images against cover/non-cover descriptions
+
+## Python API
+
+```python
+from photo_organizer import PhotoOrganizer, Config
+
+# Create organizer with custom config
+config = Config("config.yaml")
+organizer = PhotoOrganizer(config)
+
+# Organize photos
+stats = organizer.organize(dry_run=False)
+print(f"Organized {stats.files_moved} files")
+print(f"Found {stats.covers_found} covers")
+
+# Analyze a single photo
+from pathlib import Path
+info = organizer.analyze_photo(Path("photo.jpg"))
+print(f"Tags: {info.tags}")
+print(f"Is cover: {info.is_cover}")
+```
+
+### Direct Tagging
+
+```python
+from photo_organizer import AutoTagger
+
+tagger = AutoTagger(model_name="clip")
+result = tagger.tag_image("photo.jpg")
+
+print(f"Tags: {result.tags}")
+print(f"Scores: {result.scores}")
+```
+
+### Cover Detection
+
+```python
+from photo_organizer import CoverDetector
+
+detector = CoverDetector(use_ml=True)
+result = detector.detect("image.jpg")
+
+print(f"Is cover: {result.is_cover}")
+print(f"Type: {result.cover_type}")
+print(f"Confidence: {result.confidence:.1%}")
+```
+
+## Organization Strategies
+
+### `date`
+Organizes by capture/modification date:
+```
+2024/
+├── 2024-01/
+├── 2024-02/
+└── 2024-03/
+```
+
+### `tags`
+Organizes by primary detected tag:
+```
+nature/
+people/
+architecture/
+food/
+```
+
+### `hybrid` (Recommended)
+Combines date and tags:
+```
+2024/
+├── 2024-01/
+│   ├── nature/
+│   ├── people/
+│   └── food/
+└── 2024-02/
+    └── travel/
+```
+
+### `flat`
+All photos in one folder (useful with tags written to metadata).
+
+## Requirements
+
+- Python 3.9+
+- For ML features: PyTorch, Transformers
+
+## GPU Support
+
+If you have a CUDA-capable GPU, the ML models will automatically use it for faster processing. To force CPU:
+
+```yaml
+performance:
+  use_gpu: false
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues and pull requests.

@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+photo_organizer/__init__.py
+photo_organizer/cli.py
+photo_organizer/config.py
+photo_organizer/cover_detector.py
+photo_organizer/organizer.py
+photo_organizer/tagger.py
+photo_organizer.egg-info/PKG-INFO
+photo_organizer.egg-info/SOURCES.txt
+photo_organizer.egg-info/dependency_links.txt
+photo_organizer.egg-info/entry_points.txt
+photo_organizer.egg-info/requires.txt
+photo_organizer.egg-info/top_level.txt
+tests/test_config.py
+tests/test_cover_detector.py
+tests/test_organizer.py

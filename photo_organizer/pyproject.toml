@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "photo-organizer"
+version = "1.0.0"
+description = "AI-powered photo organizer with auto-tagging and album/book cover detection"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Photo Organizer Team"}
+]
+keywords = [
+    "photo", "organizer", "tagging", "ai", "clip", "album-cover",
+    "book-cover", "image-classification", "photo-management"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+
+dependencies = [
+    "Pillow>=10.0.0",
+    "numpy>=1.24.0",
+    "tqdm>=4.65.0",
+    "click>=8.1.0",
+    "pyyaml>=6.0.0",
+    "python-dateutil>=2.8.0",
+]
+
+[project.optional-dependencies]
+ml = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "transformers>=4.35.0",
+    "open-clip-torch>=2.20.0",
+]
+ocr = [
+    "easyocr>=1.7.0",
+]
+full = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "transformers>=4.35.0",
+    "open-clip-torch>=2.20.0",
+    "easyocr>=1.7.0",
+    "imagehash>=4.3.0",
+    "sqlalchemy>=2.0.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+photo-organizer = "photo_organizer.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/photo-organizer/photo-organizer"
+Documentation = "https://github.com/photo-organizer/photo-organizer#readme"
+Repository = "https://github.com/photo-organizer/photo-organizer"
+Issues = "https://github.com/photo-organizer/photo-organizer/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["photo_organizer*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+addopts = "-v --cov=photo_organizer --cov-report=term-missing"
