@@ -81,3 +81,4 @@ __pycache__/
 # Archive directory (keep archived, not tracked in git)
 /archive/test-files/
 /archive/reports/
+android_sdk/
