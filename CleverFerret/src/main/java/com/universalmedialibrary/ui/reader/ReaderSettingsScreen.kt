@@ -25,6 +25,8 @@ import java.util.Locale
  * - Theme (light/dark/sepia)
  * - Typography (font family, size, spacing)
  * - Layout (margins, alignment)
+ * - Navigation (page turns, animations)
+ * - Display (fullscreen, progress)
  * - Advanced settings (brightness, contrast)
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,9 +75,7 @@ fun ReaderSettingsScreen(
             // Theme Section
             ThemeSection(
                 readerSettings = readerSettings,
-                onThemeChanged = { theme -> viewModel.updateTheme(theme) },
-                onBackgroundColorChanged = { color -> viewModel.updateTheme(color) },
-                onTextColorChanged = { color -> viewModel.updateTheme(color) }
+                onThemeChanged = { theme -> viewModel.updateTheme(theme) }
             )
 
             // Typography Section
@@ -91,6 +91,22 @@ fun ReaderSettingsScreen(
                 readerSettings = readerSettings,
                 onMarginChanged = { margins -> viewModel.updateMargins(margins) },
                 onTextAlignmentChanged = { alignment -> viewModel.updateTextAlignment(alignment) }
+            )
+
+            // Navigation & Paging Section
+            NavigationSection(
+                readerSettings = readerSettings,
+                onPageTurnSettingsChanged = { tap, swipe, volume, anim ->
+                    viewModel.updatePageTurnSettings(tap, swipe, volume, anim)
+                }
+            )
+
+            // Display Section
+            DisplaySection(
+                readerSettings = readerSettings,
+                onDisplaySettingsChanged = { fullscreen, numbers, progress ->
+                    viewModel.updateDisplaySettings(fullscreen, numbers, progress)
+                }
             )
 
             // Advanced Section
@@ -140,7 +156,11 @@ private fun PreviewSection(readerSettings: ReaderSettings) {
                     .fillMaxWidth()
                     .height(120.dp)
                     .background(Color(android.graphics.Color.parseColor(readerSettings.backgroundColor)))
-                    .padding(readerSettings.marginLeft.dp, readerSettings.marginTop.dp),
+                    .padding(
+                        // Clamp preview margins so text remains visible
+                        readerSettings.marginLeft.coerceAtMost(16).dp,
+                        readerSettings.marginTop.coerceAtMost(16).dp
+                    ),
                 contentAlignment = Alignment.TopStart
             ) {
                 Text(
@@ -162,9 +182,7 @@ private fun PreviewSection(readerSettings: ReaderSettings) {
 @Composable
 private fun ThemeSection(
     readerSettings: ReaderSettings,
-    onThemeChanged: (String) -> Unit,
-    onBackgroundColorChanged: (String) -> Unit,
-    onTextColorChanged: (String) -> Unit
+    onThemeChanged: (String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -260,8 +278,8 @@ private fun TypographySection(
             Slider(
                 value = readerSettings.fontSize.toFloat(),
                 onValueChange = { onFontSizeChanged(it.toInt()) },
-                valueRange = 12f..24f,
-                steps = 11
+                valueRange = 12f..32f,
+                steps = 19
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -276,8 +294,8 @@ private fun TypographySection(
             Slider(
                 value = readerSettings.lineHeight,
                 onValueChange = onLineSpacingChanged,
-                valueRange = 1.0f..2.0f,
-                steps = 9
+                valueRange = 1.0f..3.0f,
+                steps = 19
             )
         }
     }
@@ -321,8 +339,8 @@ private fun LayoutSection(
                         )
                     )
                 },
-                valueRange = 8f..32f,
-                steps = 11
+                valueRange = 8f..48f,
+                steps = 19
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -352,6 +370,106 @@ private fun LayoutSection(
 }
 
 @Composable
+private fun NavigationSection(
+    readerSettings: ReaderSettings,
+    onPageTurnSettingsChanged: (tap: Boolean?, swipe: Boolean?, volume: Boolean?, anim: String?) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "Navigation",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            SettingSwitch(
+                title = "Tap to Turn",
+                checked = readerSettings.tapToTurnPages,
+                onCheckedChange = { onPageTurnSettingsChanged(it, null, null, null) }
+            )
+
+            SettingSwitch(
+                title = "Swipe to Turn",
+                checked = readerSettings.swipeToTurnPages,
+                onCheckedChange = { onPageTurnSettingsChanged(null, it, null, null) }
+            )
+
+            SettingSwitch(
+                title = "Volume Buttons to Turn",
+                checked = readerSettings.volumeKeysToTurnPages,
+                onCheckedChange = { onPageTurnSettingsChanged(null, null, it, null) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Page Animation",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            val animations = listOf("None", "Slide", "Fade", "Curl")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                animations.forEach { anim ->
+                    FilterChip(
+                        onClick = { onPageTurnSettingsChanged(null, null, null, anim) },
+                        label = { Text(anim) },
+                        selected = readerSettings.pageAnimation == anim
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DisplaySection(
+    readerSettings: ReaderSettings,
+    onDisplaySettingsChanged: (fullscreen: Boolean?, numbers: Boolean?, progress: Boolean?) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "Display",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            SettingSwitch(
+                title = "Fullscreen Mode",
+                checked = readerSettings.fullScreenMode,
+                onCheckedChange = { onDisplaySettingsChanged(it, null, null) }
+            )
+
+            SettingSwitch(
+                title = "Show Page Numbers",
+                checked = readerSettings.enablePageNumbers,
+                onCheckedChange = { onDisplaySettingsChanged(null, it, null) }
+            )
+
+            SettingSwitch(
+                title = "Show Progress Bar",
+                checked = readerSettings.enableProgressIndicator,
+                onCheckedChange = { onDisplaySettingsChanged(null, null, it) }
+            )
+        }
+    }
+}
+
+@Composable
 private fun AdvancedSection(
     readerSettings: ReaderSettings,
     onBrightnessChanged: (Float) -> Unit,
@@ -372,35 +490,49 @@ private fun AdvancedSection(
 
             // Brightness
             Text(
-                text = "Brightness: ${(readerSettings.brightness * 100).toInt()}%",
+                text = "Brightness: ${if (readerSettings.brightness < 0) "System" else "${(readerSettings.brightness * 100).toInt()}%"}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
             Slider(
-                value = readerSettings.brightness,
+                value = if (readerSettings.brightness < 0) 0.5f else readerSettings.brightness,
                 onValueChange = onBrightnessChanged,
-                valueRange = 0.1f..1.0f
+                valueRange = 0.0f..1.0f
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Keep screen on
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Keep screen on while reading",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Switch(
-                    checked = readerSettings.keepScreenOn,
-                    onCheckedChange = onKeepScreenOnChanged
-                )
-            }
+            SettingSwitch(
+                title = "Keep Screen On",
+                checked = readerSettings.keepScreenOn,
+                onCheckedChange = onKeepScreenOnChanged
+            )
         }
+    }
+}
+
+@Composable
+private fun SettingSwitch(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
     }
 }
 
@@ -408,6 +540,7 @@ private fun AdvancedSection(
  * Enhanced Reading Features Section
  * LibreraReader-inspired features
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EnhancedReadingFeaturesSection(
     readerSettings: ReaderSettings,
@@ -476,22 +609,11 @@ private fun EnhancedReadingFeaturesSection(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Reading Ruler
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Reading Ruler",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Switch(
-                    checked = readerSettings.rulerEnabled,
-                    onCheckedChange = { viewModel.updateRulerEnabled(it) }
-                )
-            }
+            SettingSwitch(
+                title = "Reading Ruler",
+                checked = readerSettings.rulerEnabled,
+                onCheckedChange = { viewModel.updateRulerEnabled(it) }
+            )
 
             if (readerSettings.rulerEnabled) {
                 Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
@@ -537,22 +659,11 @@ private fun EnhancedReadingFeaturesSection(
             Spacer(modifier = Modifier.height(16.dp))
 
             // RSVP Speed Reading
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "RSVP Speed Reading",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Switch(
-                    checked = readerSettings.rsvpEnabled,
-                    onCheckedChange = { viewModel.updateRsvpEnabled(it) }
-                )
-            }
+            SettingSwitch(
+                title = "RSVP Speed Reading",
+                checked = readerSettings.rsvpEnabled,
+                onCheckedChange = { viewModel.updateRsvpEnabled(it) }
+            )
 
             if (readerSettings.rsvpEnabled) {
                 Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
@@ -595,22 +706,11 @@ private fun EnhancedReadingFeaturesSection(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Enhanced Auto-Scroll
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Enhanced Auto-Scroll",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Switch(
-                    checked = readerSettings.autoScrollEnabled,
-                    onCheckedChange = { viewModel.updateAutoScrollEnabled(it) }
-                )
-            }
+            SettingSwitch(
+                title = "Enhanced Auto-Scroll",
+                checked = readerSettings.autoScrollEnabled,
+                onCheckedChange = { viewModel.updateAutoScrollEnabled(it) }
+            )
 
             if (readerSettings.autoScrollEnabled) {
                 Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {

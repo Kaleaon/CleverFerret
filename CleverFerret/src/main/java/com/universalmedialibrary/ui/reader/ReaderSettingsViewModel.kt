@@ -186,6 +186,54 @@ class ReaderSettingsViewModel @Inject constructor(
     }
 
     /**
+     * Update page turn settings
+     */
+    fun updatePageTurnSettings(
+        tapToTurn: Boolean? = null,
+        swipeToTurn: Boolean? = null,
+        volumeKeys: Boolean? = null,
+        animation: String? = null
+    ) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(
+                        tapToTurnPages = tapToTurn ?: current.tapToTurnPages,
+                        swipeToTurnPages = swipeToTurn ?: current.swipeToTurnPages,
+                        volumeKeysToTurnPages = volumeKeys ?: current.volumeKeysToTurnPages,
+                        pageTurnAnimation = animation ?: current.pageTurnAnimation
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to update page turn settings: ${e.message}") }
+            }
+        }
+    }
+
+    /**
+     * Update display settings (fullscreen, page numbers, progress)
+     */
+    fun updateDisplaySettings(
+        fullScreen: Boolean? = null,
+        pageNumbers: Boolean? = null,
+        progressIndicator: Boolean? = null
+    ) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(
+                        fullScreenMode = fullScreen ?: current.fullScreenMode,
+                        enablePageNumbers = pageNumbers ?: current.enablePageNumbers,
+                        enableProgressIndicator = progressIndicator ?: current.enableProgressIndicator
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to update display settings: ${e.message}") }
+            }
+        }
+    }
+
+    /**
      * Update theme setting (replaces background/text color)
      */
     private suspend fun updateThemeInternal(mediaId: Long?, theme: String) {
