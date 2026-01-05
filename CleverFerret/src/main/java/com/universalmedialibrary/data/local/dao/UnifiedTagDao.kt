@@ -33,6 +33,12 @@ interface UnifiedTagDao {
 
     @Query("DELETE FROM unified_tags WHERE tagId = :tagId")
     suspend fun deleteTagById(tagId: Long)
+    
+    @Query("DELETE FROM unified_tags WHERE tagId = :tagId")
+    suspend fun deleteTag(tagId: Long)
+    
+    @Query("UPDATE unified_tags SET name = :newName WHERE tagId = :tagId")
+    suspend fun updateTagName(tagId: Long, newName: String)
 
     // Query operations
     @Query("SELECT * FROM unified_tags WHERE tagId = :tagId")
