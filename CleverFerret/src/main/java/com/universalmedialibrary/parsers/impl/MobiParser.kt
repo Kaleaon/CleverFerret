@@ -36,7 +36,8 @@ import java.io.BufferedInputStream
  */
 class MobiParser : DocumentParser {
     
-    private val tika = Tika()
+    // Tika instance not used directly as we create AutoDetectParser, but kept for potential future use or removed if strictly unused.
+    // private val tika = Tika()
 
     override suspend fun parse(filePath: String): ParsedDocument = withContext(Dispatchers.IO) {
         try {
