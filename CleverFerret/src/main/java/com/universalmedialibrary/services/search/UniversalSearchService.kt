@@ -25,11 +25,28 @@ class UniversalSearchService @Inject constructor(
     private val _searchResults = MutableStateFlow<List<UniversalSearchResult>>(emptyList())
     val searchResults: Flow<List<UniversalSearchResult>> = _searchResults.asStateFlow()
     
+    // Map media types to their respective search engines
+    // Multiple media type aliases can map to the same engine
     private val searchEngines = mapOf(
+        // Book engine handles books, audiobooks, comics
         "BOOK" to bookSearchEngine,
+        "AUDIOBOOK" to bookSearchEngine,
+        "COMIC" to bookSearchEngine,
+        // Audio engine handles music, podcasts, radio
         "AUDIO" to audioSearchEngine,
+        "MUSIC" to audioSearchEngine,
+        "MUSIC_TRACK" to audioSearchEngine,
+        "PODCAST" to audioSearchEngine,
+        "PODCAST_EPISODE" to audioSearchEngine,
+        "RADIO" to audioSearchEngine,
+        // Video engine handles movies, TV shows, videos
         "VIDEO" to videoSearchEngine,
-        "DOCUMENT" to documentSearchEngine
+        "MOVIE" to videoSearchEngine,
+        "TV_SHOW" to videoSearchEngine,
+        // Document engine handles documents, PDFs, text files
+        "DOCUMENT" to documentSearchEngine,
+        "PDF" to documentSearchEngine,
+        "TEXT" to documentSearchEngine
     )
 
     /**

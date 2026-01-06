@@ -1,5 +1,8 @@
 package com.universalmedialibrary.services.tagging
 
+import com.universalmedialibrary.data.local.entity.UnifiedTag as DbUnifiedTag
+import com.universalmedialibrary.data.local.entity.TagType
+import com.universalmedialibrary.data.repository.TagRepository as DataTagRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -15,11 +18,13 @@ import javax.inject.Singleton
  * 
  * Manages tags across all media types with categories, colors,
  * auto-tagging, and usage analytics.
+ * 
+ * This class bridges the legacy tag API with the new UnifiedTag system,
+ * providing a consistent interface for tag operations across the app.
  */
 @Singleton
 class UniversalTagManager @Inject constructor(
-    private val tagRepository: TagRepository,
-    private val mediaTagRelationRepository: MediaTagRelationRepository
+    private val dataTagRepository: DataTagRepository
 ) {
     
     private val _allTags = MutableStateFlow<List<UniversalTag>>(emptyList())
@@ -40,8 +45,17 @@ class UniversalTagManager @Inject constructor(
         color: String = "#6366F1",
         description: String? = null
     ): UniversalTag {
-        val tag = UniversalTag(
-            id = generateTagId(),
+        val tagId = dataTagRepository.createTag(
+            name = name.trim(),
+            type = TagType.USER_DEFINED,
+            color = color,
+            description = description
+        )
+        
+        loadTags()
+        
+        return UniversalTag(
+            id = tagId.toString(),
             name = name.trim(),
             category = category,
             color = color,
@@ -49,58 +63,53 @@ class UniversalTagManager @Inject constructor(
             createdAt = System.currentTimeMillis(),
             usageCount = 0
         )
-        
-        tagRepository.insertTag(tag)
-        loadTags()
-        return tag
     }
 
     /**
      * Get tag by ID
      */
     suspend fun getTag(tagId: String): UniversalTag? {
-        return tagRepository.getTagById(tagId)
+        val id = tagId.toLongOrNull() ?: return null
+        val dbTag = dataTagRepository.getTagById(id) ?: return null
+        return dbTag.toUniversalTag()
     }
 
     /**
      * Update existing tag
      */
     suspend fun updateTag(tag: UniversalTag): Boolean {
-        val success = tagRepository.updateTag(tag)
-        if (success) {
-            loadTags()
-        }
-        return success
+        val id = tag.id.toLongOrNull() ?: return false
+        val dbTag = dataTagRepository.getTagById(id) ?: return false
+        
+        dataTagRepository.updateTag(dbTag.copy(
+            name = tag.name,
+            color = tag.color,
+            description = tag.description,
+            usageCount = tag.usageCount
+        ))
+        loadTags()
+        return true
     }
 
     /**
      * Delete tag
      */
     suspend fun deleteTag(tagId: String): Boolean {
-        // Remove all relations first
-        mediaTagRelationRepository.removeRelationsByTagId(tagId)
-        
-        val success = tagRepository.deleteTag(tagId)
-        if (success) {
-            loadTags()
-        }
-        return success
+        val id = tagId.toLongOrNull() ?: return false
+        dataTagRepository.deleteTagById(id)
+        loadTags()
+        return true
     }
 
     /**
      * Search tags by query
      */
     suspend fun searchTags(query: String): List<UniversalTag> {
-        val allTagsList = _allTags.value
-        return allTagsList.filter { tag ->
-            tag.name.contains(query, ignoreCase = true) ||
-            tag.category.contains(query, ignoreCase = true) ||
-            (tag.description?.contains(query, ignoreCase = true) ?: false)
-        }
+        return dataTagRepository.searchTags(query).first().map { it.toUniversalTag() }
     }
 
     /**
-     * Get tags by category
+     * Get tags by category (type)
      */
     suspend fun getTagsByCategory(category: String): List<UniversalTag> {
         val allTagsList = _allTags.value
@@ -111,10 +120,7 @@ class UniversalTagManager @Inject constructor(
      * Get popular tags
      */
     suspend fun getPopularTags(limit: Int = 20): List<UniversalTag> {
-        val allTagsList = _allTags.value
-        return allTagsList
-            .sortedByDescending { it.usageCount }
-            .take(limit)
+        return dataTagRepository.getPopularTags(limit).first().map { it.toUniversalTag() }
     }
 
     /**
@@ -125,22 +131,11 @@ class UniversalTagManager @Inject constructor(
         mediaType: String,
         tagId: String
     ): Boolean {
-        val relation = MediaTagRelation(
-            id = generateRelationId(),
-            mediaId = mediaId,
-            mediaType = mediaType,
-            tagId = tagId,
-            createdAt = System.currentTimeMillis()
-        )
+        val itemId = mediaId.toLongOrNull() ?: return false
+        val tId = tagId.toLongOrNull() ?: return false
         
-        val success = mediaTagRelationRepository.insertRelation(relation)
-        if (success) {
-            // Increment tag usage
-            getTag(tagId)?.let { tag ->
-                updateTag(tag.copy(usageCount = tag.usageCount + 1))
-            }
-        }
-        return success
+        dataTagRepository.addTagToItem(itemId, tId)
+        return true
     }
 
     /**
@@ -151,14 +146,11 @@ class UniversalTagManager @Inject constructor(
         mediaType: String,
         tagId: String
     ): Boolean {
-        val success = mediaTagRelationRepository.removeRelation(mediaId, mediaType, tagId)
-        if (success) {
-            // Decrement tag usage
-            getTag(tagId)?.let { tag ->
-                updateTag(tag.copy(usageCount = maxOf(0, tag.usageCount - 1)))
-            }
-        }
-        return success
+        val itemId = mediaId.toLongOrNull() ?: return false
+        val tId = tagId.toLongOrNull() ?: return false
+        
+        dataTagRepository.removeTagFromItem(itemId, tId)
+        return true
     }
 
     /**
@@ -168,16 +160,26 @@ class UniversalTagManager @Inject constructor(
         mediaId: String,
         mediaType: String
     ): List<UniversalTag> {
-        val relations = mediaTagRelationRepository.getRelationsForMedia(mediaId, mediaType)
-        val tagIds = relations.map { it.tagId }
-        return tagRepository.getTagsByIds(tagIds)
+        val itemId = mediaId.toLongOrNull() ?: return emptyList()
+        return dataTagRepository.getTagsForItem(itemId).first().map { it.toUniversalTag() }
     }
 
     /**
      * Get media items with specific tag
      */
     suspend fun getMediaItemsWithTag(tagId: String): List<MediaTagRelation> {
-        return mediaTagRelationRepository.getRelationsForTag(tagId)
+        val tId = tagId.toLongOrNull() ?: return emptyList()
+        val itemIds = dataTagRepository.getItemsWithTag(tId)
+        
+        return itemIds.map { itemId ->
+            MediaTagRelation(
+                id = "rel_${itemId}_$tagId",
+                mediaId = itemId.toString(),
+                mediaType = "UNKNOWN", // Type info not stored in unified system
+                tagId = tagId,
+                createdAt = System.currentTimeMillis()
+            )
+        }
     }
 
     /**
@@ -190,30 +192,27 @@ class UniversalTagManager @Inject constructor(
         suggestedTags: List<String>
     ): Int {
         var taggedCount = 0
+        val itemId = mediaId.toLongOrNull() ?: return 0
         
         suggestedTags.forEach { tagName ->
-            // Check if tag exists
-            val existingTag = searchTags(tagName).firstOrNull()
-            val tag = existingTag ?: createTag(
+            val tagId = dataTagRepository.findOrCreateTag(
                 name = tagName,
-                category = "Auto-generated",
+                type = TagType.AUTO_GENERATED,
                 color = getRandomColor()
             )
             
-            if (tagMediaItem(mediaId, mediaType, tag.id)) {
-                taggedCount++
-            }
+            dataTagRepository.addTagToItem(itemId, tagId)
+            taggedCount++
         }
         
         return taggedCount
     }
 
     /**
-     * Get tag categories
+     * Get tag categories (derived from tag types)
      */
     suspend fun getCategories(): List<String> {
-        val allTagsList = _allTags.value
-        return allTagsList.map { it.category }.distinct().sorted()
+        return TagType.entries.map { it.name }
     }
 
     /**
@@ -235,20 +234,12 @@ class UniversalTagManager @Inject constructor(
 
     private suspend fun loadTags() {
         try {
-            val tags = tagRepository.getAllTags().first()
-            _allTags.value = tags
+            val tags = dataTagRepository.getAllTags().first()
+            _allTags.value = tags.map { it.toUniversalTag() }
         } catch (e: Exception) {
             println("Failed to load tags: ${e.message}")
             _allTags.value = emptyList()
         }
-    }
-
-    private fun generateTagId(): String {
-        return "tag_${System.currentTimeMillis()}_${(1000..9999).random()}"
-    }
-
-    private fun generateRelationId(): String {
-        return "rel_${System.currentTimeMillis()}_${(1000..9999).random()}"
     }
 
     private fun getRandomColor(): String {
@@ -258,6 +249,21 @@ class UniversalTagManager @Inject constructor(
             "#14B8A6", "#06B6D4", "#3B82F6", "#6366F1"
         )
         return colors.random()
+    }
+    
+    /**
+     * Extension function to convert DbUnifiedTag to UniversalTag
+     */
+    private fun DbUnifiedTag.toUniversalTag(): UniversalTag {
+        return UniversalTag(
+            id = tagId.toString(),
+            name = name,
+            category = type.name,
+            color = color ?: "#6366F1",
+            description = description,
+            createdAt = createdAt,
+            usageCount = usageCount
+        )
     }
 }
 
