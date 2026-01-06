@@ -20,10 +20,12 @@ import com.universalmedialibrary.services.manga.source.MangaSourceService
 import com.universalmedialibrary.services.manga.source.MangaUpdate
 import com.universalmedialibrary.services.manga.source.OnlineManga
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -254,15 +256,8 @@ class MangaUpdateService @Inject constructor(
     
     private fun loadCachedUpdates() {
         // Load updates from repository
-        kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
+        kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
             _updates.value = updateRepository.getAllUpdates()
         }
-    }
-    
-    private fun kotlinx.coroutines.GlobalScope.launch(
-        context: kotlinx.coroutines.CoroutineDispatcher, 
-        block: suspend () -> Unit
-    ) {
-        kotlinx.coroutines.CoroutineScope(context).launch { block() }
     }
 }
