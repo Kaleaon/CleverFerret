@@ -802,7 +802,7 @@ private fun QuickAccessCard(
             ) {
                 Icon(
                     imageVector = item.icon,
-                    contentDescription = null,
+                    contentDescription = item.label,
                     modifier = Modifier
                         .padding(MediaSpacing.SM)
                         .fillMaxSize(),
