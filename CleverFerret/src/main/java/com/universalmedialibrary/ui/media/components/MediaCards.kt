@@ -808,14 +808,14 @@ fun MediaListItem(
                     if (item.imageUrl != null) {
                         AsyncImage(
                             model = item.imageUrl,
-                            contentDescription = null,
+                            contentDescription = item.title,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
                     } else {
                         Icon(
                             imageVector = item.mediaType.icon,
-                            contentDescription = null,
+                            contentDescription = "${item.mediaType.name} item",
                             modifier = Modifier
                                 .size(24.dp)
                                 .align(Alignment.Center),
