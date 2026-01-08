@@ -216,7 +216,10 @@ private fun loadBitmap(file: File?, maxWidth: Int = 2048, maxHeight: Int = 2048)
             // Now decode with the calculated sample size
             BitmapFactory.decodeFile(it.absolutePath, options)
         }
-    } catch (_: Exception) { null }
+    } catch (e: Exception) { 
+        android.util.Log.w("ComicReader", "Failed to load bitmap", e)
+        null 
+    }
 }
 
 private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
