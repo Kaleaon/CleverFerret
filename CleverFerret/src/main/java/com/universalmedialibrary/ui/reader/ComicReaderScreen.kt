@@ -64,7 +64,10 @@ fun ComicReaderScreen(
                 "cbr" -> extractCbrImages(context, uri)
                 else -> emptyList()
             }
-        } catch (_: Exception) { emptyList() }
+        } catch (e: Exception) { 
+            android.util.Log.w("ComicReader", "Failed to extract comic images", e)
+            emptyList() 
+        }
         index = 0
         currentBitmap?.recycle()
         currentBitmap = loadBitmap(images.getOrNull(index))
