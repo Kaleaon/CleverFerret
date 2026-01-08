@@ -197,7 +197,7 @@ fun MediaPosterCard(
                 ) {
                     Icon(
                         imageVector = item.mediaType.icon,
-                        contentDescription = null,
+                        contentDescription = "${item.mediaType.name} placeholder",
                         modifier = Modifier.size(width * 0.3f),
                         tint = item.mediaType.color.copy(alpha = 0.5f)
                     )
