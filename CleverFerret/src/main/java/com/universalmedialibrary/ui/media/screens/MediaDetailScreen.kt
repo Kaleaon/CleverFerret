@@ -406,7 +406,7 @@ private fun DetailHeroSection(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.Star,
-                                contentDescription = null,
+                                contentDescription = "Rating",
                                 modifier = Modifier.size(16.dp),
                                 tint = MediaColors.Warning
                             )
@@ -471,7 +471,7 @@ private fun ActionButtonsRow(
         ) {
             Icon(
                 imageVector = if (item.progress > 0) Icons.Default.PlayArrow else Icons.Default.PlayArrow,
-                contentDescription = null,
+                contentDescription = if (item.progress > 0) "Continue ${item.title}" else "Play ${item.title}",
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(MediaSpacing.SM))
