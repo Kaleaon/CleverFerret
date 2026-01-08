@@ -145,7 +145,7 @@ fun MediaAudioPlayerScreen(
                     if (state.artworkUrl != null) {
                         AsyncImage(
                             model = state.artworkUrl,
-                            contentDescription = null,
+                            contentDescription = "${state.title} album artwork",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
@@ -160,7 +160,7 @@ fun MediaAudioPlayerScreen(
                                     PlayerType.AUDIOBOOK -> Icons.Default.Headphones
                                     PlayerType.PODCAST -> Icons.Default.Podcasts
                                 },
-                                contentDescription = null,
+                                contentDescription = "Media type: ${state.playerType.name}",
                                 tint = MediaColors.TextTertiary,
                                 modifier = Modifier.size(96.dp)
                             )
