@@ -293,7 +293,7 @@ private fun DetailHeroSection(
         if (item.backdropUrl != null) {
             AsyncImage(
                 model = item.backdropUrl,
-                contentDescription = null,
+                contentDescription = "${item.title} backdrop",
                 modifier = Modifier
                     .fillMaxSize()
                     .blur(2.dp),
@@ -349,7 +349,7 @@ private fun DetailHeroSection(
                     ) {
                         Icon(
                             imageVector = item.mediaType.icon,
-                            contentDescription = null,
+                            contentDescription = "${item.mediaType.name} placeholder",
                             modifier = Modifier.size(48.dp),
                             tint = item.mediaType.color.copy(alpha = 0.5f)
                         )
