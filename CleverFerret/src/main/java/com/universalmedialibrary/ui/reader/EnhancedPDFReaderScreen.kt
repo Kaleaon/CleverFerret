@@ -156,7 +156,7 @@ fun EnhancedPDFReaderScreen(
                                 showPageMenu = false
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Bookmark, contentDescription = null)
+                                Icon(Icons.Default.Bookmark, contentDescription = "Bookmark")
                             }
                         )
 

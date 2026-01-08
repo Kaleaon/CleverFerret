@@ -295,7 +295,7 @@ private fun PublicationListView(
             ) {
                 if (prevLink != null) {
                     OutlinedButton(onClick = { onNavigationClick(prevLink.href) }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Previous")
                     }
@@ -307,7 +307,7 @@ private fun PublicationListView(
                     Button(onClick = { onNavigationClick(nextLink.href) }) {
                         Text("Next")
                         Spacer(modifier = Modifier.width(4.dp))
-                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Forward")
                     }
                 } else {
                     Spacer(modifier = Modifier.width(1.dp))
@@ -338,7 +338,7 @@ private fun PublicationListView(
             ) {
                 if (prevLink != null) {
                     OutlinedButton(onClick = { onNavigationClick(prevLink.href) }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Previous")
                     }
@@ -350,7 +350,7 @@ private fun PublicationListView(
                     Button(onClick = { onNavigationClick(nextLink.href) }) {
                         Text("Next")
                         Spacer(modifier = Modifier.width(4.dp))
-                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Forward")
                     }
                 } else {
                     Spacer(modifier = Modifier.width(1.dp))

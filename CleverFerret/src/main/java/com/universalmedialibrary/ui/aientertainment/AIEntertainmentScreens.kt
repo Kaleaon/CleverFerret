@@ -320,7 +320,7 @@ fun RegisterScreen(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Email") },
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(

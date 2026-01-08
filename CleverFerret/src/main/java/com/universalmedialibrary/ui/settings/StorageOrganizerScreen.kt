@@ -70,7 +70,7 @@ fun StorageOrganizerScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Storage Organizer") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) } }
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }
             )
         }
     ) { paddingValues ->
