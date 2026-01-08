@@ -776,7 +776,7 @@ fun CacheSettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.DeleteSweep, contentDescription = null)
+                Icon(Icons.Default.DeleteSweep, contentDescription = "Clear cache")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Clear cache")
             }
