@@ -288,7 +288,7 @@ private fun WelcomeSection(
         ) {
             Icon(
                 imageVector = Icons.Default.LibraryBooks,
-                contentDescription = null,
+                contentDescription = "Library icon",
                 modifier = Modifier
                     .padding(MediaSpacing.LG)
                     .fillMaxSize(),
