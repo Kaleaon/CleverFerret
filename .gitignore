@@ -82,3 +82,7 @@ __pycache__/
 /archive/test-files/
 /archive/reports/
 android_sdk/
+-e 
+# Environment files
+*.env
+*.env.*
