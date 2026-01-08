@@ -113,7 +113,7 @@ fun FanfictionDownloaderScreen(
                             label = { Text("Paste story URL here") },
                             placeholder = { Text("https://archiveofourown.org/works/12345") },
                             leadingIcon = {
-                                Icon(Icons.Default.Link, contentDescription = null)
+                                Icon(Icons.Default.Link, contentDescription = "Link")
                             },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Uri,

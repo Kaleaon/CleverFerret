@@ -527,7 +527,7 @@ private fun ImportDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Default.FileUpload, contentDescription = null) },
+        icon = { Icon(Icons.Default.FileUpload, contentDescription = "Upload file") },
         title = { Text("Import Audio Pack") },
         text = {
             Column {

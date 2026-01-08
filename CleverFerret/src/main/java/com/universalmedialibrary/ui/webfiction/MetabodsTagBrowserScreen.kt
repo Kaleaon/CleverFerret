@@ -551,7 +551,7 @@ private fun StoryResultCard(
                     onClick = onOpenUrl,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.Default.OpenInBrowser, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.OpenInBrowser, contentDescription = "Open in browser", modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("View")
                 }

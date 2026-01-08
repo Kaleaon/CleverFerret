@@ -294,7 +294,7 @@ private fun InitialState(
                         )
                     },
                     leadingContent = {
-                        Icon(Icons.Default.History, contentDescription = null)
+                        Icon(Icons.Default.History, contentDescription = "History")
                     },
                     trailingContent = {
                         IconButton(onClick = { onDeleteHistoryItem(historyItem) }) {

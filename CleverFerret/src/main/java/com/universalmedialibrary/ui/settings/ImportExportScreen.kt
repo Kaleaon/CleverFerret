@@ -147,7 +147,7 @@ fun ImportExportScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                             }
-                            Icon(Icons.Default.FileDownload, contentDescription = null)
+                            Icon(Icons.Default.FileDownload, contentDescription = "Download file")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(if (uiState.isExporting) "Exporting..." else "Export to JSON")
                         }

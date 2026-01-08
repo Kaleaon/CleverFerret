@@ -983,7 +983,7 @@ private fun DownloadTab(
                         label = { Text("Story URL") },
                         placeholder = { Text("https://archiveofourown.org/works/...") },
                         leadingIcon = {
-                            Icon(Icons.Default.Link, contentDescription = null)
+                            Icon(Icons.Default.Link, contentDescription = "Link")
                         },
                         singleLine = true,
                         enabled = !downloadState.isLoading

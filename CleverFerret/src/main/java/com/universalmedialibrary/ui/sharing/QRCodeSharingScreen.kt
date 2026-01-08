@@ -286,7 +286,7 @@ private fun ActiveSharingScreen(
                         onClick = { onCopyUrl(shareUrl) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = null)
+                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Copy URL")
                     }
