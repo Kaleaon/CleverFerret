@@ -54,7 +54,7 @@ fun MediaMiniPlayer(
         tonalElevation = MediaElevation.MD
     ) {
         Column {
-            // Progress bar
+            // Progress bar - 4dp height for better visibility
             LinearProgressIndicator(
                 progress = { state.progress },
                 modifier = Modifier
