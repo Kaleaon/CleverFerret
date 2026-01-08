@@ -680,7 +680,7 @@ private fun CollectionCard(
             ) {
                 Icon(
                     imageVector = collection.icon,
-                    contentDescription = null,
+                    contentDescription = "${collection.name} collection",
                     modifier = Modifier.size(MediaSizes.IconLG),
                     tint = MediaColors.TextPrimary
                 )
