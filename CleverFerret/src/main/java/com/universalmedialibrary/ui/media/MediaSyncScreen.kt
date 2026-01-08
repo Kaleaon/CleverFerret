@@ -134,7 +134,7 @@ private fun SyncStatusCard(
                     is PlexSyncStatus.Idle -> {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
+                            contentDescription = "Sync ready",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -151,7 +151,7 @@ private fun SyncStatusCard(
                     is PlexSyncStatus.Success -> {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
+                            contentDescription = "Sync successful",
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -160,7 +160,7 @@ private fun SyncStatusCard(
                     is PlexSyncStatus.Error -> {
                         Icon(
                             imageVector = PhosphorIcons.ErrorOutline,
-                            contentDescription = null,
+                            contentDescription = "Sync error",
                             tint = MaterialTheme.colorScheme.error
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -256,7 +256,7 @@ private fun EmptyStateCard(
         ) {
             Icon(
                 imageVector = PhosphorIcons.CloudSync,
-                contentDescription = null,
+                contentDescription = "No servers configured",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -274,7 +274,7 @@ private fun EmptyStateCard(
             FilledTonalButton(onClick = onAddServer) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = null
+                    contentDescription = "Add server"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Add Server")
