@@ -329,7 +329,7 @@ fun FanfictionDownloaderScreen(
                             onClick = { navController.navigate("metabods_tag_browser") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.Explore, contentDescription = null)
+                            Icon(Icons.Default.Explore, contentDescription = "Explore")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Open Metabods Tag Browser")
                         }

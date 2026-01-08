@@ -312,7 +312,7 @@ private fun ServerActionCard(
                             strokeWidth = 1.5.dp
                         )
                     } else {
-                        Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.AutoAwesome, contentDescription = "AI", modifier = Modifier.size(14.dp))
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Enhance", style = MaterialTheme.typography.labelSmall)

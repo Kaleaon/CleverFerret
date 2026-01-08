@@ -226,7 +226,7 @@ private fun LanguageSelector(
                 label = { Text(language.displayName) },
                 leadingIcon = {
                     if (language == selected) {
-                        Icon(Icons.Default.Tag, contentDescription = null)
+                        Icon(Icons.Default.Tag, contentDescription = "Tag")
                     }
                 },
                 colors = androidx.compose.material3.AssistChipDefaults.assistChipColors(

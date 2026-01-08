@@ -300,7 +300,7 @@ fun TagSuggestionDialog(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Default.AutoAwesome, contentDescription = null)
+                Icon(Icons.Default.AutoAwesome, contentDescription = "AI")
                 Text("AI Suggested Tags")
             }
         },

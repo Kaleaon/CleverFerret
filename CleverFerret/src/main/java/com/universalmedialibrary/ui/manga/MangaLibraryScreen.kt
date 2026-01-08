@@ -287,7 +287,7 @@ private fun EmptyLibraryState(
         Spacer(modifier = Modifier.height(24.dp))
         
         Button(onClick = onExplore) {
-            Icon(Icons.Default.Explore, contentDescription = null)
+            Icon(Icons.Default.Explore, contentDescription = "Explore")
             Spacer(modifier = Modifier.width(8.dp))
             Text("Explore Manga")
         }

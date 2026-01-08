@@ -111,7 +111,7 @@ fun HDRadioScreen(
                         )
                         DropdownMenuItem(
                             text = { Text("Find by ZIP Code") },
-                            leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
+                            leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = "Location") },
                             onClick = {
                                 showAddMenu = false
                                 viewModel.openZipDialog()
