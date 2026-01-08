@@ -1363,7 +1363,7 @@ private fun ErrorStateContent(
         ) {
             Icon(
                 imageVector = Icons.Default.ErrorOutline,
-                contentDescription = null,
+                contentDescription = "Error loading library",
                 modifier = Modifier
                     .padding(MediaSpacing.LG)
                     .fillMaxSize(),
@@ -1401,7 +1401,7 @@ private fun ErrorStateContent(
         ) {
             Icon(
                 imageVector = Icons.Default.Refresh,
-                contentDescription = null,
+                contentDescription = "Retry loading",
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(MediaSpacing.SM))
