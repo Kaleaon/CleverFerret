@@ -698,7 +698,7 @@ private fun OldTimeRadioShowCard(
                 if (show.imageUrl != null) {
                     AsyncImage(
                         model = show.imageUrl,
-                        contentDescription = null,
+                        contentDescription = "${show.title} show image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -706,7 +706,7 @@ private fun OldTimeRadioShowCard(
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.Default.Radio,
-                            contentDescription = null,
+                            contentDescription = "${show.title} radio show",
                             tint = MediaColors.TextTertiary,
                             modifier = Modifier.size(48.dp)
                         )
