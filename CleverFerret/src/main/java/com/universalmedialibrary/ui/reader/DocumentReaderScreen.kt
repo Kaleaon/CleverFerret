@@ -195,8 +195,12 @@ private fun PdfReaderView(uri: Uri) {
             renderToBitmap(renderer, currentPageIndex) { bmp -> bitmap = bmp }
         }
         onDispose {
-            try { renderer?.close() } catch (_: Exception) {}
-            try { pfd?.close() } catch (_: Exception) {}
+            try { renderer?.close() } catch (e: Exception) { 
+                android.util.Log.w("PdfReader", "Error closing PDF renderer", e)
+            }
+            try { pfd?.close() } catch (e: Exception) { 
+                android.util.Log.w("PdfReader", "Error closing file descriptor", e)
+            }
         }
     }
 
