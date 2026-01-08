@@ -478,7 +478,7 @@ private fun PlaylistsTab(
                     ) {
                         Icon(
                             Icons.Default.PlaylistPlay,
-                            contentDescription = null,
+                            contentDescription = "No playlists",
                             modifier = Modifier.size(72.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -494,7 +494,7 @@ private fun PlaylistsTab(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         OutlinedButton(onClick = { showCreateDialog = true }) {
-                            Icon(Icons.Default.Add, contentDescription = null)
+                            Icon(Icons.Default.Add, contentDescription = "Create playlist")
                             Spacer(Modifier.width(8.dp))
                             Text("Create Playlist")
                         }
