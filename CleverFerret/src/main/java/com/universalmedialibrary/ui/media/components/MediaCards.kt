@@ -906,7 +906,7 @@ fun <T> MediaCarouselRow(
                     )
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
+                        contentDescription = "See all $title",
                         modifier = Modifier.size(MediaSizes.IconSM),
                         tint = MediaColors.AccentPrimary
                     )
