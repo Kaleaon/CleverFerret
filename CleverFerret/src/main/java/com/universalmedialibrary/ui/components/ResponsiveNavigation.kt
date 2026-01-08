@@ -562,18 +562,23 @@ private fun ScrollableBottomBar(
 ) {
     val scrollState = rememberScrollState()
     
-    // Track if we've done the initial scroll to end
+    // ===================================================================================
+    // FIX: Navigation scroll bar was snapping to top/left instead of bottom/right
+    // SOLUTION: Track initial scroll state and scroll to end after layout is measured
+    // This ensures users see the rightmost items first and can scroll left to discover more
+    // ===================================================================================
     var hasScrolledInitially by remember { mutableStateOf(false) }
     
     // Start scrolled to end (right side) so users can see all items
     // and scroll left to discover more navigation options.
-    // We wait for maxValue > 0 to ensure layout is complete.
+    // We wait for maxValue > 0 to ensure layout is complete (maxValue is 0 before measurement).
     LaunchedEffect(scrollState.maxValue, hasScrolledInitially) {
         if (!hasScrolledInitially && scrollState.maxValue > 0) {
             scrollState.scrollTo(scrollState.maxValue)
             hasScrolledInitially = true
         }
     }
+    // ===================================================================================
 
     Surface(
         modifier = modifier.windowInsetsPadding(NavigationBarDefaults.windowInsets),
