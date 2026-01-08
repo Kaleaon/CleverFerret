@@ -562,10 +562,17 @@ private fun ScrollableBottomBar(
 ) {
     val scrollState = rememberScrollState()
     
+    // Track if we've done the initial scroll to end
+    var hasScrolledInitially by remember { mutableStateOf(false) }
+    
     // Start scrolled to end (right side) so users can see all items
-    // and scroll left to discover more navigation options
-    LaunchedEffect(Unit) {
-        scrollState.scrollTo(scrollState.maxValue)
+    // and scroll left to discover more navigation options.
+    // We wait for maxValue > 0 to ensure layout is complete.
+    LaunchedEffect(scrollState.maxValue, hasScrolledInitially) {
+        if (!hasScrolledInitially && scrollState.maxValue > 0) {
+            scrollState.scrollTo(scrollState.maxValue)
+            hasScrolledInitially = true
+        }
     }
 
     Surface(
