@@ -828,7 +828,7 @@ private fun PersonCard(person: PersonItem) {
             } else {
                 Icon(
                     imageVector = Icons.Default.Person,
-                    contentDescription = null,
+                    contentDescription = "${person.name} profile",
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(MediaSpacing.MD),
@@ -880,7 +880,7 @@ private fun ReviewCard(review: ReviewItem) {
                 ) {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = null,
+                        contentDescription = "${review.author} avatar",
                         modifier = Modifier.padding(MediaSpacing.SM),
                         tint = MediaColors.TextTertiary
                     )
@@ -913,7 +913,7 @@ private fun ReviewCard(review: ReviewItem) {
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Star,
-                                contentDescription = null,
+                                contentDescription = "Review rating",
                                 modifier = Modifier.size(14.dp),
                                 tint = MediaColors.Warning
                             )
