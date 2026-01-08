@@ -167,7 +167,7 @@ private fun WebFictionTopBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Article,
-                    contentDescription = null,
+                    contentDescription = "Web Fiction",
                     tint = MediaColors.MediaTypes.Document,
                     modifier = Modifier.size(24.dp)
                 )
