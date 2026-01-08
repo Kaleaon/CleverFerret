@@ -339,7 +339,7 @@ class EnhancedRadioViewModel @Inject constructor(
                     val updatedRecent = state.recentlyPlayed.toMutableList().apply {
                         removeAll { it.id == station.id }
                         add(0, station)
-                        if (size > 20) removeLast()
+                        if (size > 20) removeAt(lastIndex)
                     }
                     state.copy(nowPlaying = station, recentlyPlayed = updatedRecent)
                 }

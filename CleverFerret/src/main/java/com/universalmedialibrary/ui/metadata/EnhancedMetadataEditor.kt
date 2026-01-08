@@ -53,65 +53,65 @@ fun EnhancedMetadataEditorScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-        // Load existing metadata on start
-        LaunchedEffect(mediaId) {
-            // In a real app, load existing metadata from database
-            title = "Demo Media Item $mediaId"
-            author = "Demo Author"
-            description = "This is demonstration metadata that would be loaded from your database."
-            year = "2024"
-            genre = "Fiction"
-            rating = 4.2f
-            coverUrl = "https://via.placeholder.com/300x450/1a1a1a/e5a00d?text=Demo+Cover"
-        }
+    // Load existing metadata on start
+    LaunchedEffect(mediaId) {
+        // In a real app, load existing metadata from database
+        title = "Demo Media Item $mediaId"
+        author = "Demo Author"
+        description = "This is demonstration metadata that would be loaded from your database."
+        year = "2024"
+        genre = "Fiction"
+        rating = 4.2f
+        coverUrl = "https://via.placeholder.com/300x450/1a1a1a/e5a00d?text=Demo+Cover"
+    }
 
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Edit Metadata",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Medium
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    TextButton(
+                        onClick = {
+                            // Save metadata
+                            navController.navigateUp()
+                        }
+                    ) {
                         Text(
-                            "Edit Metadata",
-                            style = MaterialTheme.typography.titleLarge,
+                            "Save",
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    actions = {
-                        TextButton(
-                            onClick = {
-                                // Save metadata
-                                navController.navigateUp()
-                            }
-                        ) {
-                            Text(
-                                "Save",
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
-            }
-        ) { paddingValues ->
-            Row(
+            )
+        }
+    ) { paddingValues ->
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            // Main content
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
+                    .weight(1f)
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                // Main content
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
                     // Search section
                     Card(
                         modifier = Modifier.fillMaxWidth(),
