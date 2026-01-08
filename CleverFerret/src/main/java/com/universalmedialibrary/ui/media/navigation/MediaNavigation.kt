@@ -907,9 +907,9 @@ fun MediaBottomNavigation(
 
             // Persistent settings gear overlay (not part of scroll row).
             // Draw this AFTER fades so it stays crisp and never looks "dimmed".
-            Surface(
+            // Position is fixed at the edge, with padding applied inside the box to ensure consistent placement.
+            Box(
                 modifier = Modifier
-                    .size(gearSize)
                     .align(
                         if (gearPosition == BottomGearPosition.LEFT) {
                             Alignment.CenterStart
@@ -918,18 +918,26 @@ fun MediaBottomNavigation(
                         }
                     )
                     .padding(gearOuterPadding),
-                shape = RoundedCornerShape(MediaCorners.XS),
-                color = cs.surfaceVariant,
-                tonalElevation = MediaElevation.SM,
-                shadowElevation = 0.dp,
-                onClick = { onNavigate(MediaRoutes.SETTINGS) }
+                contentAlignment = Alignment.Center
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Outlined.Settings,
-                        contentDescription = "Settings",
-                        tint = cs.onSurfaceVariant
-                    )
+                Surface(
+                    modifier = Modifier.size(gearSize),
+                    shape = RoundedCornerShape(MediaCorners.XS),
+                    color = cs.surfaceVariant,
+                    tonalElevation = MediaElevation.SM,
+                    shadowElevation = 0.dp,
+                    onClick = { onNavigate(MediaRoutes.SETTINGS) }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = "Settings",
+                            tint = cs.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
