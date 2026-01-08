@@ -938,7 +938,7 @@ fun CastingSettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.Settings, contentDescription = null)
+                Icon(Icons.Default.Settings, contentDescription = "Cast settings")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Open system cast settings")
             }
