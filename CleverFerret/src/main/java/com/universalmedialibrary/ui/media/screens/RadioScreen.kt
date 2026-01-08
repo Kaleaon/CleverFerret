@@ -766,14 +766,14 @@ private fun RadioNowPlayingBar(
                 if (station.logoUrl != null) {
                     AsyncImage(
                         model = station.logoUrl,
-                        contentDescription = null,
+                        contentDescription = "Now playing: ${station.name}",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.Radio,
-                        contentDescription = null,
+                        contentDescription = "Now playing: ${station.name}",
                         tint = station.genreColor,
                         modifier = Modifier.padding(MediaSpacing.SM)
                     )
