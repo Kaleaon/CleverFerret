@@ -656,7 +656,7 @@ private fun ArtworkAPISection(
                 Spacer(Modifier.width(8.dp))
                 Text("Fanart.tv")
                 Spacer(Modifier.width(8.dp))
-                IconButton(onClick = { showFanartInfo = !showFanartInfo }) { Icon(PhosphorIcons.Info, contentDescription = null) }
+                IconButton(onClick = { showFanartInfo = !showFanartInfo }) { Icon(PhosphorIcons.Info, contentDescription = "Information") }
             }
             if (fanart) {
                 OutlinedTextField(value = fanartKey, onValueChange = { fanartKey = it }, label = { Text("Fanart.tv API Key") }, modifier = Modifier.fillMaxWidth())
@@ -679,7 +679,7 @@ private fun ArtworkAPISection(
                 Spacer(Modifier.width(8.dp))
                 Text("Last.fm")
                 Spacer(Modifier.width(8.dp))
-                IconButton(onClick = { showLastfmInfo = !showLastfmInfo }) { Icon(PhosphorIcons.Info, contentDescription = null) }
+                IconButton(onClick = { showLastfmInfo = !showLastfmInfo }) { Icon(PhosphorIcons.Info, contentDescription = "Information") }
             }
             if (lastfm) {
                 OutlinedTextField(value = lastfmKey, onValueChange = { lastfmKey = it }, label = { Text("Last.fm API Key") }, modifier = Modifier.fillMaxWidth())
@@ -732,7 +732,7 @@ private fun LyricsAPISection(
                 Spacer(Modifier.width(8.dp))
                 Text("Musixmatch")
                 Spacer(Modifier.width(8.dp))
-                IconButton(onClick = { showMusixInfo = !showMusixInfo }) { Icon(PhosphorIcons.Info, contentDescription = null) }
+                IconButton(onClick = { showMusixInfo = !showMusixInfo }) { Icon(PhosphorIcons.Info, contentDescription = "Information") }
             }
             if (musix) {
                 OutlinedTextField(value = musixKey, onValueChange = { musixKey = it }, label = { Text("Musixmatch API Key") }, modifier = Modifier.fillMaxWidth())
@@ -755,7 +755,7 @@ private fun LyricsAPISection(
                 Spacer(Modifier.width(8.dp))
                 Text("Genius")
                 Spacer(Modifier.width(8.dp))
-                IconButton(onClick = { showGeniusInfo = !showGeniusInfo }) { Icon(PhosphorIcons.Info, contentDescription = null) }
+                IconButton(onClick = { showGeniusInfo = !showGeniusInfo }) { Icon(PhosphorIcons.Info, contentDescription = "Information") }
             }
             if (genius) {
                 OutlinedTextField(value = geniusKey, onValueChange = { geniusKey = it }, label = { Text("Genius API Key") }, modifier = Modifier.fillMaxWidth())

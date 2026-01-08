@@ -165,7 +165,7 @@ fun CreateLibraryDialog(
                                 containerColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.List, contentDescription = "List")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(if (selectedPath.isEmpty()) "Choose Folder" else "Change Folder")
                         }

@@ -419,7 +419,7 @@ private fun PlaylistPreviewSheet(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             OutlinedButton(onClick = onOpenExternally) {
-                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open")
                 Spacer(Modifier.width(4.dp))
                 Text("Open in JioSaavn")
             }

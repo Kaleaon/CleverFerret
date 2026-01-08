@@ -305,7 +305,7 @@ private fun AudiobookCard(
 
             audiobook.streamUrl?.let { streamUrl ->
                 TextButton(onClick = { onOpenLink(streamUrl) }) {
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open")
                     Spacer(Modifier.width(4.dp))
                     Text("Preview")
                 }
@@ -313,7 +313,7 @@ private fun AudiobookCard(
 
             audiobook.detailUrl?.let { detailUrl ->
                 TextButton(onClick = { onOpenLink(detailUrl) }) {
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open")
                     Spacer(Modifier.width(4.dp))
                     Text("Details")
                 }

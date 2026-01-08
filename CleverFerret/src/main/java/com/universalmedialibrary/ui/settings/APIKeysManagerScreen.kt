@@ -362,7 +362,7 @@ fun APIKeysManagerScreen(
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Open ${config.displayName} Website")
                         }

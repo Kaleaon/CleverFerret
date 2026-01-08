@@ -148,7 +148,7 @@ fun ExportCalibreDialog(
                                 containerColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.List, contentDescription = "List")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(if (selectedPath.isEmpty()) "Select Export Folder" else "Change Folder")
                         }

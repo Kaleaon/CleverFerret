@@ -272,7 +272,7 @@ private fun TrackCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TextButton(onClick = { onStream(track.streamUrl) }) {
-                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open")
                 Spacer(Modifier.size(4.dp))
                 Text("Stream")
             }
