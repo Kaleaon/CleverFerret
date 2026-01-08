@@ -311,7 +311,7 @@ private fun SectionHeader(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = title,
             tint = MediaColors.AccentPrimary,
             modifier = Modifier.size(20.dp)
         )
@@ -351,7 +351,7 @@ private fun RadioStationCard(
                 if (station.logoUrl != null) {
                     AsyncImage(
                         model = station.logoUrl,
-                        contentDescription = null,
+                        contentDescription = "${station.name} logo",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -362,7 +362,7 @@ private fun RadioStationCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Radio,
-                            contentDescription = null,
+                            contentDescription = "${station.name} radio station",
                             tint = station.genreColor,
                             modifier = Modifier.padding(MediaSpacing.LG)
                         )
