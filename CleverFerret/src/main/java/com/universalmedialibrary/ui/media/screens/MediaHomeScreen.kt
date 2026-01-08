@@ -410,7 +410,7 @@ private fun GettingStartedItem(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = title,
                 modifier = Modifier
                     .padding(MediaSpacing.SM)
                     .fillMaxSize(),
@@ -437,7 +437,7 @@ private fun GettingStartedItem(
         if (onClick != null) {
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Navigate to $title",
                 modifier = Modifier.size(MediaSizes.IconMD),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
