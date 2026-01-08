@@ -770,7 +770,7 @@ fun AddToCollectionDialog(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Default.PlaylistAdd, contentDescription = null)
+                Icon(Icons.Default.PlaylistAdd, contentDescription = "Add to playlist")
                 Text("Add to Collection")
             }
         },

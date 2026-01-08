@@ -262,7 +262,7 @@ fun AddToPlaylistDialog(
                         ListItem(
                             headlineContent = { Text(playlist) },
                             leadingContent = {
-                                Icon(Icons.Default.PlaylistPlay, contentDescription = null)
+                                Icon(Icons.Default.PlaylistPlay, contentDescription = "Play playlist")
                             },
                             modifier = Modifier.clickable {
                                 onPlaylistSelected(playlist)

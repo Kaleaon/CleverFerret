@@ -147,7 +147,7 @@ fun UniversalTagExplorerScreen(
                         navController.navigate(route)
                     },
                     text = { Text("Search (${uiState.selectedCount})") },
-                    icon = { Icon(Icons.Filled.Search, contentDescription = null) }
+                    icon = { Icon(Icons.Filled.Search, contentDescription = "Search") }
                 )
             }
         },
@@ -165,7 +165,7 @@ fun UniversalTagExplorerScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 singleLine = true,
-                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search") },
                 trailingIcon = {
                     if (searchText.isNotEmpty()) {
                         IconButton(onClick = { viewModel.updateSearchQuery("") }) {

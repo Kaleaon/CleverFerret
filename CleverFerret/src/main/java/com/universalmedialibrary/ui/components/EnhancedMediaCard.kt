@@ -258,7 +258,7 @@ fun EnhancedMediaCard(
                                     // Trigger add to collection
                                 },
                                 leadingIcon = {
-                                    Icon(Icons.Default.PlaylistAdd, contentDescription = null)
+                                    Icon(Icons.Default.PlaylistAdd, contentDescription = "Add to playlist")
                                 }
                             )
                             DropdownMenuItem(

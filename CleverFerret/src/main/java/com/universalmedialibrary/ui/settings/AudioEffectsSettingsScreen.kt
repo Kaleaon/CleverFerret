@@ -96,7 +96,7 @@ fun AudioEffectsSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.Equalizer, contentDescription = null)
+                        Icon(Icons.Default.Equalizer, contentDescription = "Equalizer")
                         Text(
                             "Equalizer Preset",
                             style = MaterialTheme.typography.titleMedium,
@@ -158,7 +158,7 @@ fun AudioEffectsSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.GraphicEq, contentDescription = null)
+                        Icon(Icons.Default.GraphicEq, contentDescription = "Graphic equalizer")
                         Text(
                             "Bass Boost",
                             style = MaterialTheme.typography.titleMedium,
@@ -212,7 +212,7 @@ fun AudioEffectsSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(Icons.Default.Audiotrack, contentDescription = null)
+                            Icon(Icons.Default.Audiotrack, contentDescription = "Audio track")
                             Text(
                                 "Reverb",
                                 style = MaterialTheme.typography.titleMedium,

@@ -696,7 +696,7 @@ private fun PlaylistCard(
                                     onQueue(false)
                                     onDismissMenu()
                                 },
-                                leadingIcon = { Icon(Icons.Default.QueueMusic, contentDescription = null) }
+                                leadingIcon = { Icon(Icons.Default.QueueMusic, contentDescription = "Music queue") }
                             )
                             DropdownMenuItem(
                                 text = { Text("Play Next") },

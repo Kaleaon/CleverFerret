@@ -140,7 +140,7 @@ fun LastFmSettingsScreen(
                         onClick = { showApiKeyDialog = true },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Filled.Settings, contentDescription = null)
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
                         Spacer(Modifier.width(8.dp))
                         Text("Configure API Keys")
                     }
