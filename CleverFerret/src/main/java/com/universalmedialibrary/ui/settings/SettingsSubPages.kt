@@ -79,16 +79,16 @@ fun SocialIntegrationsSettingsScreen(
             ListItem(
                 headlineContent = { Text("Last.fm") },
                 supportingContent = { Text("Scrobbling & artist metadata") },
-                leadingContent = { Icon(Icons.Default.MusicNote, contentDescription = null) },
-                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                leadingContent = { Icon(Icons.Default.MusicNote, contentDescription = "Last.fm") },
+                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = "Open Last.fm settings") },
                 modifier = Modifier.clickable { navController.navigate("settings/lastfm") }
             )
 
             ListItem(
                 headlineContent = { Text("API Providers") },
                 supportingContent = { Text("Goodreads, Google Books, TMDB, etc.") },
-                leadingContent = { Icon(Icons.Default.Api, contentDescription = null) },
-                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                leadingContent = { Icon(Icons.Default.Api, contentDescription = "API Providers") },
+                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = "Open API settings") },
                 modifier = Modifier.clickable { navController.navigate("settings/api") }
             )
         }
