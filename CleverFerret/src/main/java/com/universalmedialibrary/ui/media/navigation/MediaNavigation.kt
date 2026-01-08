@@ -834,10 +834,17 @@ fun MediaBottomNavigation(
             applyBottomBarPreferencesToMediaDestinations(destinations, bottomBarPreferences)
         }
         
+        // Track if we've done the initial scroll to end
+        var hasScrolledInitially by remember { mutableStateOf(false) }
+        
         // Scroll to end (right side) on first composition so users see the full bar
-        // and the settings gear is properly positioned
-        LaunchedEffect(Unit) {
-            scrollState.scrollTo(scrollState.maxValue)
+        // and the settings gear is properly positioned. We need to wait for layout
+        // to complete so maxValue is accurate.
+        LaunchedEffect(scrollState.maxValue, hasScrolledInitially) {
+            if (!hasScrolledInitially && scrollState.maxValue > 0) {
+                scrollState.scrollTo(scrollState.maxValue)
+                hasScrolledInitially = true
+            }
         }
         
         val showLeftFade by remember { derivedStateOf { scrollState.value > 0 } }
