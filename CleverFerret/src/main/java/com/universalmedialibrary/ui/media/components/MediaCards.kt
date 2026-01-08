@@ -983,7 +983,7 @@ private fun BadgeChip(
             if (icon != null) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = null,
+                    contentDescription = text,
                     modifier = Modifier.size(10.dp),
                     tint = Color.White
                 )
@@ -1013,7 +1013,7 @@ private fun RatingBadge(
         ) {
             Icon(
                 imageVector = Icons.Default.Star,
-                contentDescription = null,
+                contentDescription = "Rating",
                 modifier = Modifier.size(12.dp),
                 tint = MediaColors.Warning
             )
