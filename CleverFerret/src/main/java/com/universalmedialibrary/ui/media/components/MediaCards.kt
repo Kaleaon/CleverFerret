@@ -354,7 +354,7 @@ fun MediaSquareCard(
                 ) {
                     Icon(
                         imageVector = item.mediaType.icon,
-                        contentDescription = null,
+                        contentDescription = "${item.mediaType.name} placeholder",
                         modifier = Modifier.size(size * 0.4f),
                         tint = item.mediaType.color.copy(alpha = 0.6f)
                     )
