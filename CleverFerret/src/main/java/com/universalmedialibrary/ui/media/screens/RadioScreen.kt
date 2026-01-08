@@ -378,7 +378,7 @@ private fun RadioStationCard(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
-                            contentDescription = null,
+                            contentDescription = "Favorite station",
                             tint = MediaColors.Error,
                             modifier = Modifier.size(20.dp)
                         )
@@ -437,14 +437,14 @@ private fun RadioStationListItem(
             if (station.logoUrl != null) {
                 AsyncImage(
                     model = station.logoUrl,
-                    contentDescription = null,
+                    contentDescription = "${station.name} logo",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
                 Icon(
                     imageVector = Icons.Default.Radio,
-                    contentDescription = null,
+                    contentDescription = "${station.name} radio station",
                     tint = station.genreColor,
                     modifier = Modifier.padding(MediaSpacing.MD)
                 )
