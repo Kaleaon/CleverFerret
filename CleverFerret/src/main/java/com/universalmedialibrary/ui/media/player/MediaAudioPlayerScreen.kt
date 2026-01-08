@@ -78,7 +78,7 @@ fun MediaAudioPlayerScreen(
         if (state.artworkUrl != null) {
             AsyncImage(
                 model = state.artworkUrl,
-                contentDescription = null,
+                contentDescription = "Background artwork",
                 modifier = Modifier
                     .fillMaxSize()
                     .blur(50.dp),
