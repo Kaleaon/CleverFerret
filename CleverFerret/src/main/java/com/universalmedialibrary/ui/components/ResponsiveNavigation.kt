@@ -561,6 +561,12 @@ private fun ScrollableBottomBar(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    
+    // Start scrolled to end (right side) so users can see all items
+    // and scroll left to discover more navigation options
+    LaunchedEffect(Unit) {
+        scrollState.scrollTo(scrollState.maxValue)
+    }
 
     Surface(
         modifier = modifier.windowInsetsPadding(NavigationBarDefaults.windowInsets),
