@@ -318,8 +318,8 @@ fun MetadataSettingsScreen(
             ListItem(
                 headlineContent = { Text("API Providers") },
                 supportingContent = { Text("Configure keys and providers") },
-                leadingContent = { Icon(Icons.Default.Api, contentDescription = null) },
-                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                leadingContent = { Icon(Icons.Default.Api, contentDescription = "API Providers") },
+                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = "Open API settings") },
                 modifier = Modifier.clickable { navController.navigate("settings/api") }
             )
         }
