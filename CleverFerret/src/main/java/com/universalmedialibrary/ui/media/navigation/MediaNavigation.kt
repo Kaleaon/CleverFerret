@@ -917,6 +917,11 @@ fun MediaBottomNavigation(
                 )
             }
 
+            // ===================================================================================
+            // FIX: Settings gear was floating randomly due to padding applied after alignment
+            // SOLUTION: Use wrapper Box with alignment, then apply padding inside the box
+            // This ensures the gear stays fixed at the edge regardless of scroll position
+            // ===================================================================================
             // Persistent settings gear overlay (not part of scroll row).
             // Draw this AFTER fades so it stays crisp and never looks "dimmed".
             // Position is fixed at the edge, with padding applied inside the box to ensure consistent placement.
@@ -952,6 +957,7 @@ fun MediaBottomNavigation(
                     }
                 }
             }
+            // ===================================================================================
         }
     }
 }
