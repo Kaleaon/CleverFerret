@@ -245,14 +245,18 @@ private fun tryOpenPfd(context: android.content.Context, uri: Uri): ParcelFileDe
     return try {
         // Try open directly
         context.contentResolver.openFileDescriptor(uri, "r")
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        android.util.Log.d("PdfReader", "Direct open failed, trying cache fallback", e)
         // Fallback: copy to cache file
         try {
             val input: InputStream = context.contentResolver.openInputStream(uri) ?: return null
             val cache = File.createTempFile("cf_tmp_", ".pdf", context.cacheDir)
             FileOutputStream(cache).use { out -> input.copyTo(out) }
             ParcelFileDescriptor.open(cache, ParcelFileDescriptor.MODE_READ_ONLY)
-        } catch (_: Exception) { null }
+        } catch (e2: Exception) { 
+            android.util.Log.w("PdfReader", "Cache fallback also failed", e2)
+            null 
+        }
     }
 }
 
@@ -263,5 +267,8 @@ private fun renderToBitmap(renderer: PdfRenderer?, index: Int, onRendered: (Bitm
         page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
         page.close()
         onRendered(bmp)
-    } catch (_: Exception) { onRendered(null) }
+    } catch (e: Exception) { 
+        android.util.Log.w("PdfReader", "Failed to render PDF page $index", e)
+        onRendered(null) 
+    }
 }
