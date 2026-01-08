@@ -63,11 +63,13 @@ class EnhancedRadioViewModel @Inject constructor(
     private fun loadFavoritesFromDatabase() {
         viewModelScope.launch {
             radioStationDao.getFavoriteStations().collect { dbStations ->
-                val favorites = dbStations.map { station ->
+                val favorites = dbStations.mapNotNull { station ->
+                    // Skip stations without valid stream URL
+                    val url = station.streamUrl ?: return@mapNotNull null
                     RadioStation(
                         id = station.id.toString(),
                         name = station.name,
-                        streamUrl = station.streamUrl,
+                        streamUrl = url,
                         logoUrl = station.logoUrl,
                         genre = station.genre ?: "",
                         country = station.country,

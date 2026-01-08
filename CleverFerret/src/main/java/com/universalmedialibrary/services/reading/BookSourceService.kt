@@ -2,7 +2,6 @@ package com.universalmedialibrary.services.reading
 
 import android.util.Log
 import com.universalmedialibrary.data.local.dao.BookSourceDao
-import com.universalmedialibrary.data.local.entity.BookChapter
 import com.universalmedialibrary.data.local.entity.BookSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -75,7 +74,7 @@ class BookSourceService @Inject constructor(
                 val sourceResults = searchBooksInSource(source, query)
                 results.addAll(sourceResults)
             } catch (e: Exception) {
-                Log.e(TAG, "Error searching source ${source.name}: ${e.message}")
+                Log.e(TAG, "Error searching source ${source.sourceName}: ${e.message}")
             }
         }
         
@@ -86,14 +85,15 @@ class BookSourceService @Inject constructor(
      * Search books in a specific source
      */
     private suspend fun searchBooksInSource(source: BookSource, query: String): List<SearchResult> {
-        if (source.searchUrl.isBlank()) return emptyList()
+        val sourceSearchUrl = source.searchUrl ?: return emptyList()
+        if (sourceSearchUrl.isBlank()) return emptyList()
         
-        val searchUrl = source.searchUrl
+        val searchUrl = sourceSearchUrl
             .replace("{{key}}", URLEncoder.encode(query, "UTF-8"))
             .replace("{{page}}", "1")
         
         val doc = fetchDocument(searchUrl, source)
-        val searchRule = source.ruleSearch
+        val searchRule = source.searchRule ?: return emptyList()
         
         if (searchRule.isBlank()) return emptyList()
         
@@ -104,13 +104,13 @@ class BookSourceService @Inject constructor(
         return bookList.mapNotNull { element ->
             try {
                 SearchResult(
-                    sourceName = source.name,
-                    bookName = extractText(element, ruleConfig["name"]),
+                    sourceName = source.sourceName,
+                    bookName = extractText(element, ruleConfig["name"]) ?: "Unknown",
                     author = extractText(element, ruleConfig["author"]),
                     coverUrl = extractAttr(element, ruleConfig["coverUrl"], "src") 
                         ?: extractAttr(element, ruleConfig["coverUrl"], "data-src"),
                     bookUrl = extractAttr(element, ruleConfig["bookUrl"], "href") 
-                        ?: extractText(element, ruleConfig["bookUrl"]),
+                        ?: extractText(element, ruleConfig["bookUrl"]) ?: "",
                     intro = extractText(element, ruleConfig["intro"]),
                     kind = extractText(element, ruleConfig["kind"])
                 )
@@ -129,7 +129,7 @@ class BookSourceService @Inject constructor(
         
         try {
             val doc = fetchDocument(bookUrl, source)
-            val infoRule = source.ruleBookInfo
+            val infoRule = source.bookInfoRule ?: return@withContext null
             
             if (infoRule.isBlank()) return@withContext null
             
@@ -154,13 +154,14 @@ class BookSourceService @Inject constructor(
 
     /**
      * Fetch table of contents using source rules.
+     * Note: Returns a list of BookChapterInfo since BookChapter entity requires bookId.
      */
-    suspend fun getBookChapters(sourceId: Long, bookUrl: String): List<BookChapter> = withContext(Dispatchers.IO) {
+    suspend fun getBookChapters(sourceId: Long, bookUrl: String): List<BookChapterInfo> = withContext(Dispatchers.IO) {
         val source = bookSourceDao.getBookSourceById(sourceId) ?: return@withContext emptyList()
         
         try {
             val doc = fetchDocument(bookUrl, source)
-            val tocRule = source.ruleToc
+            val tocRule = source.tocRule ?: return@withContext emptyList()
             
             if (tocRule.isBlank()) return@withContext emptyList()
             
@@ -172,11 +173,9 @@ class BookSourceService @Inject constructor(
                     val title = extractText(element, ruleConfig["chapterName"]) ?: "Chapter ${index + 1}"
                     val url = extractAttr(element, ruleConfig["chapterUrl"], "href") ?: return@mapIndexedNotNull null
                     
-                    BookChapter(
-                        sourceId = sourceId,
-                        bookUrl = bookUrl,
+                    BookChapterInfo(
                         chapterIndex = index,
-                        chapterTitle = title,
+                        chapterName = title,
                         chapterUrl = resolveUrl(bookUrl, url)
                     )
                 } catch (e: Exception) {
@@ -197,11 +196,11 @@ class BookSourceService @Inject constructor(
         
         try {
             val doc = fetchDocument(chapterUrl, source)
-            val contentRule = source.ruleContent
+            val contentRuleStr = source.contentRule ?: return@withContext null
             
-            if (contentRule.isBlank()) return@withContext null
+            if (contentRuleStr.isBlank()) return@withContext null
             
-            val ruleConfig = parseRules(contentRule)
+            val ruleConfig = parseRules(contentRuleStr)
             val contentSelector = ruleConfig["content"] ?: return@withContext null
             
             val contentElement = doc.selectFirst(contentSelector)
@@ -226,7 +225,7 @@ class BookSourceService @Inject constructor(
     
     private fun fetchDocument(url: String, source: BookSource): Document {
         return Jsoup.connect(url)
-            .userAgent(source.header.takeIf { it.isNotBlank() } ?: defaultUserAgent)
+            .userAgent(source.header?.takeIf { it.isNotBlank() } ?: defaultUserAgent)
             .timeout(15000)
             .get()
     }
@@ -314,4 +313,13 @@ data class BookInfo(
     val lastChapter: String?,
     val wordCount: String?,
     val tocUrl: String?
+)
+
+/**
+ * Chapter info from web scraping - separate from BookChapter entity
+ */
+data class BookChapterInfo(
+    val chapterIndex: Int,
+    val chapterName: String,
+    val chapterUrl: String
 )
