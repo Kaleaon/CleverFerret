@@ -1040,7 +1040,7 @@ fun FeedbackSettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.BugReport, contentDescription = null)
+                Icon(Icons.Default.BugReport, contentDescription = "Bug report")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(if (uiState.isBusy) "Working…" else "Save bug report")
             }
@@ -1057,7 +1057,7 @@ fun FeedbackSettingsScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(Icons.Default.Share, contentDescription = null)
+                    Icon(Icons.Default.Share, contentDescription = "Share report")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Share saved report")
                 }
@@ -1086,7 +1086,7 @@ fun FeedbackSettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.Public, contentDescription = null)
+                Icon(Icons.Default.Public, contentDescription = "GitHub")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Create GitHub issue")
             }
@@ -1098,7 +1098,7 @@ fun FeedbackSettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.OpenInBrowser, contentDescription = null)
+                Icon(Icons.Default.OpenInBrowser, contentDescription = "Open browser")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Open issue tracker")
             }
