@@ -259,7 +259,7 @@ fun EnhancedStorageBrowserScreen(
                                 Button(
                                     onClick = { showImportDialog = true }
                                 ) {
-                                    Icon(Icons.Default.ImportExport, contentDescription = null)
+                                    Icon(Icons.Default.ImportExport, contentDescription = "Import or export")
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text("Import")
                                 }
@@ -681,7 +681,7 @@ private fun ImportConfirmationDialog(
                     onConfirm(includeSubfolders, validateFiles)
                 }
             ) {
-                Icon(Icons.Default.ImportExport, contentDescription = null)
+                Icon(Icons.Default.ImportExport, contentDescription = "Import or export")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Import")
             }

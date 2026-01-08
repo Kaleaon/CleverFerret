@@ -136,7 +136,7 @@ fun ThemeShowcaseScreen(
                                     Icon(Icons.Default.Favorite, contentDescription = "Favorite")
                                 }
                                 AncientArchitectIconButton(onClick = {}) {
-                                    Icon(Icons.Default.Star, contentDescription = null)
+                                    Icon(Icons.Default.Star, contentDescription = "Star")
                                 }
                                 AncientArchitectIconButton(onClick = {}) {
                                     Icon(Icons.Default.Settings, contentDescription = "Settings")

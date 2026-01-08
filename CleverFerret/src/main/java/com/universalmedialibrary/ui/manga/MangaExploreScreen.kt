@@ -123,7 +123,7 @@ fun MangaExploreScreen(
                         onClick = { viewModel.selectSource(source) },
                         label = { Text(source.name) },
                         leadingIcon = if (source.isPinned) {
-                            { Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                            { Icon(Icons.Default.Star, contentDescription = "Rating", modifier = Modifier.size(16.dp)) }
                         } else null
                     )
                 }
