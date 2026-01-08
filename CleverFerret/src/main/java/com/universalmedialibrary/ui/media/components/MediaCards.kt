@@ -712,7 +712,7 @@ fun MediaHeroCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.PlayArrow,
-                            contentDescription = null,
+                            contentDescription = if (item.progress > 0) "Continue playing" else "Play",
                             modifier = Modifier.size(MediaSizes.IconMD)
                         )
                         Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -734,7 +734,7 @@ fun MediaHeroCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = null,
+                        contentDescription = "More information",
                         modifier = Modifier.size(MediaSizes.IconMD)
                     )
                     Spacer(modifier = Modifier.width(MediaSpacing.SM))
