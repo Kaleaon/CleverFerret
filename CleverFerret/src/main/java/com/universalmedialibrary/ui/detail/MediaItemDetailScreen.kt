@@ -825,7 +825,7 @@ fun AddToCollectionDialog(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                Icon(Icons.Default.ChevronRight, contentDescription = null)
+                                Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
                             }
                         }
                     }
