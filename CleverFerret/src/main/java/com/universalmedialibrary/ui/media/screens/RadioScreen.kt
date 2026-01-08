@@ -554,7 +554,7 @@ private fun CategoryCard(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(
                     imageVector = category.icon,
-                    contentDescription = null,
+                    contentDescription = "${category.name} category",
                     tint = category.color,
                     modifier = Modifier.size(28.dp)
                 )
