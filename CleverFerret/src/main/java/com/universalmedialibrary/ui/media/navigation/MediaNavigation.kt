@@ -833,6 +833,13 @@ fun MediaBottomNavigation(
         val effectiveDestinations = remember(destinations, bottomBarPreferences) {
             applyBottomBarPreferencesToMediaDestinations(destinations, bottomBarPreferences)
         }
+        
+        // Scroll to end (right side) on first composition so users see the full bar
+        // and the settings gear is properly positioned
+        LaunchedEffect(Unit) {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+        
         val showLeftFade by remember { derivedStateOf { scrollState.value > 0 } }
         val showRightFade by remember { derivedStateOf { scrollState.value < scrollState.maxValue } }
 
