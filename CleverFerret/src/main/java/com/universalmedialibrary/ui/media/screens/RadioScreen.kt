@@ -173,7 +173,7 @@ private fun RadioTopBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Radio,
-                    contentDescription = null,
+                    contentDescription = "Radio",
                     tint = MediaColors.MediaTypes.Radio,
                     modifier = Modifier.size(24.dp)
                 )
