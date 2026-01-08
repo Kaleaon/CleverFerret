@@ -704,17 +704,17 @@ private fun PlaylistCard(
                                     onQueue(true)
                                     onDismissMenu()
                                 },
-                                leadingIcon = { Icon(Icons.Default.SkipNext, contentDescription = null) }
+                                leadingIcon = { Icon(Icons.Default.SkipNext, contentDescription = "Play next") }
                             )
                             DropdownMenuItem(
                                 text = { Text("Rename") },
                                 onClick = onRename,
-                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
+                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = "Rename") }
                             )
                             DropdownMenuItem(
                                 text = { Text("Delete") },
                                 onClick = onDelete,
-                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) }
+                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = "Delete") }
                             )
                         }
                     }
@@ -732,7 +732,7 @@ private fun PlaylistCard(
                     leadingIcon = {
                         Icon(
                             Icons.Default.MusicNote,
-                            contentDescription = null,
+                            contentDescription = "Track count",
                             modifier = Modifier.size(16.dp)
                         )
                     },
@@ -743,7 +743,7 @@ private fun PlaylistCard(
                     leadingIcon = {
                         Icon(
                             Icons.Default.AccessTime,
-                            contentDescription = null,
+                            contentDescription = "Last updated",
                             modifier = Modifier.size(16.dp)
                         )
                     },
