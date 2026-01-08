@@ -220,7 +220,7 @@ private fun CollapsedContent(
             if (state.artworkUrl != null) {
                 AsyncImage(
                     model = state.artworkUrl,
-                    contentDescription = null,
+                    contentDescription = "${state.title} artwork",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -233,7 +233,7 @@ private fun CollapsedContent(
                         "ambient" -> Icons.Default.Spa
                         else -> Icons.Default.PlayArrow
                     },
-                    contentDescription = null,
+                    contentDescription = "Media type: ${state.mediaType}",
                     tint = MediaColors.AccentPrimary,
                     modifier = Modifier.padding(MediaSpacing.SM)
                 )
@@ -270,7 +270,7 @@ private fun CollapsedContent(
             ) {
                 Icon(
                     imageVector = if (state.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (state.isPlaying) "Pause" else "Play",
+                    contentDescription = if (state.isPlaying) "Pause ${state.title}" else "Play ${state.title}",
                     tint = Color.Black,
                     modifier = Modifier.padding(8.dp)
                 )
@@ -280,7 +280,7 @@ private fun CollapsedContent(
         // Expand hint
         Icon(
             imageVector = Icons.Default.KeyboardArrowUp,
-            contentDescription = "Expand",
+            contentDescription = "Expand player",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(20.dp)
         )
