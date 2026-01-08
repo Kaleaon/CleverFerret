@@ -100,6 +100,9 @@ class APIKeyRepository @Inject constructor(
             // Music APIs
             Triple("lastfm", "MUSIC", false),
             Triple("discogs_token", "MUSIC", false),
+            
+            // Sound Effects APIs
+            Triple("freesound", "AUDIO", false),
             // Artwork APIs
             Triple("fanart_tv", "ARTWORK", false),
             Triple("cover_art_archive", "ARTWORK", false),
@@ -159,6 +162,7 @@ class APIKeyRepository @Inject constructor(
             "tvdb" -> "TVDB API"
             "lastfm" -> "Last.fm API"
             "discogs_token" -> "Discogs API"
+            "freesound" -> "Freesound API"
             "fanart_tv" -> "Fanart.tv API"
             "cover_art_archive" -> "Cover Art Archive"
             "musixmatch" -> "Musixmatch API"

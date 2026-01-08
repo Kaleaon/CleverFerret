@@ -2,10 +2,12 @@ package com.universalmedialibrary.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.universalmedialibrary.data.remote.freesound.FreesoundService
+import com.universalmedialibrary.data.repository.APIKeyRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -18,16 +20,24 @@ import javax.inject.Singleton
 object FreesoundModule {
 
     private const val BASE_URL = "https://freesound.org/apiv2/"
-    private const val API_KEY = "k6k6jyYgzt3EmsmPjNmTFuEt5Wdd59ML13s8MFUV"
 
     @Provides
     @Singleton
     @Named("FreesoundOkHttp")
-    fun provideFreesoundOkHttpClient(okHttpClient: OkHttpClient): OkHttpClient {
+    fun provideFreesoundOkHttpClient(
+        okHttpClient: OkHttpClient,
+        apiKeyRepository: APIKeyRepository
+    ): OkHttpClient {
         return okHttpClient.newBuilder()
             .addInterceptor { chain ->
+                // Get API key from repository (user-configurable)
+                val apiKey = runBlocking { apiKeyRepository.getAPIKeyValue("freesound") } ?: ""
                 val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Token $API_KEY")
+                    .apply {
+                        if (apiKey.isNotBlank()) {
+                            addHeader("Authorization", "Token $apiKey")
+                        }
+                    }
                     .build()
                 chain.proceed(request)
             }
