@@ -271,6 +271,7 @@ private fun HivefyPlaylistRow(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     AsyncImage(
+                    
                         model = playlist.artworkUrl,
                         contentDescription = null,
                         modifier = Modifier
@@ -328,6 +329,7 @@ private fun HivefyAlbumRow(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     AsyncImage(
+                    
                         model = album.artworkUrl,
                         contentDescription = null,
                         modifier = Modifier
@@ -348,7 +350,7 @@ private fun HivefyAlbumRow(
                         overflow = TextOverflow.Ellipsis
                     )
                     TextButton(onClick = { onPlay(album) }) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = null)
+                        Icon(Icons.Default.PlayArrow, contentDescription = "Play")
                         Spacer(Modifier.width(4.dp))
                         Text("Play first track")
                     }
@@ -444,7 +446,7 @@ private fun ErrorBanner(message: String, onRetry: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(Icons.Default.Info, contentDescription = null)
+            Icon(Icons.Default.Info, contentDescription = "Info")
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium

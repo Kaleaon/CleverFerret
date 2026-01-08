@@ -207,6 +207,7 @@ fun EnhancedMetadataEditorScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 AsyncImage(
+                    
                                     model = coverUrl.ifEmpty { "https://via.placeholder.com/300x450/2d3136/e5a00d?text=No+Cover" },
                                     contentDescription = "Cover",
                                     modifier = Modifier
@@ -382,6 +383,7 @@ fun EnhancedMetadataEditorScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     AsyncImage(
+                    
                                         model = result.coverUrl ?: "https://via.placeholder.com/60x80/2d3136/e5a00d?text=?",
                                         contentDescription = null,
                                         modifier = Modifier

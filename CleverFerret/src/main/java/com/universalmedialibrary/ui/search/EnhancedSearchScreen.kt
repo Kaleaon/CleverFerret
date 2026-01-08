@@ -222,7 +222,7 @@ private fun ErrorState(error: String, onRetry: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(24.dp))
             Button(onClick = onRetry) {
-                Icon(Icons.Default.Refresh, contentDescription = null)
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Retry")
             }
@@ -257,7 +257,7 @@ private fun InitialState(
                 ListItem(
                     headlineContent = { Text(suggestion) },
                     leadingContent = {
-                        Icon(Icons.Default.Search, contentDescription = null)
+                        Icon(Icons.Default.Search, contentDescription = "Search")
                     },
                     modifier = Modifier.clickable { onSuggestionClick(suggestion) }
                 )
@@ -446,6 +446,7 @@ private fun SearchResultCard(
         ) {
             // Thumbnail
             AsyncImage(
+                    
                 model = result.thumbnailUrl,
                 contentDescription = null,
                 modifier = Modifier

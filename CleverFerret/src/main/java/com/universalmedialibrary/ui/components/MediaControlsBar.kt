@@ -137,6 +137,7 @@ fun MediaControlsBar(
                     ) {
                         if (!albumArtUrl.isNullOrBlank()) {
                             AsyncImage(
+                    
                                 model = albumArtUrl,
                                 contentDescription = null,
                                 modifier = Modifier.fillMaxSize(),
@@ -334,6 +335,7 @@ private fun AlbumArtSliverBackground(albumArtUrl: String?) {
     )
 
     AsyncImage(
+                    
         model = albumArtUrl,
         contentDescription = null,
         modifier = Modifier

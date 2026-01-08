@@ -259,6 +259,7 @@ private fun ComicPageView(
     ) {
         if (imageUrl != null) {
             coil.compose.AsyncImage(
+                    
                 model = imageUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),

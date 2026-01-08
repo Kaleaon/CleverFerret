@@ -519,6 +519,7 @@ private fun LibraryListItem(
         ) {
             if (item.imageUrl != null) {
                 AsyncImage(
+                    
                     model = item.imageUrl,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),

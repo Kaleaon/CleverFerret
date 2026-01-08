@@ -200,7 +200,7 @@ fun LoginScreen(
                         modifier = Modifier.padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Error, contentDescription = null, tint = SynthColors.error)
+                        Icon(Icons.Default.Error, contentDescription = "Error", tint = SynthColors.error)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(error, color = SynthColors.error)
                     }
@@ -381,7 +381,7 @@ fun RegisterScreen(
                         modifier = Modifier.padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Error, contentDescription = null, tint = SynthColors.error)
+                        Icon(Icons.Default.Error, contentDescription = "Error", tint = SynthColors.error)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(error, color = SynthColors.error)
                     }
@@ -491,7 +491,7 @@ fun CharactersScreen(
                 containerColor = SynthColors.primary,
                 contentColor = Color.White
             ) {
-                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(Icons.Default.Add, contentDescription = "Add")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("New Character")
             }
@@ -549,7 +549,7 @@ fun CharactersScreen(
                     onClick = { onNavigateToCharacterEdit(null) },
                     colors = ButtonDefaults.buttonColors(containerColor = SynthColors.primary)
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(Icons.Default.Add, contentDescription = "Add")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Create Character")
                 }

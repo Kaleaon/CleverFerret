@@ -558,6 +558,7 @@ private fun SidebarUserProfile(
         ) {
             if (avatarUrl != null) {
                 AsyncImage(
+                    
                     model = avatarUrl,
                     contentDescription = "User avatar",
                     modifier = Modifier.fillMaxSize(),

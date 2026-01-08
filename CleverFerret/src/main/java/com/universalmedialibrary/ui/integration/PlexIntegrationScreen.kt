@@ -59,7 +59,7 @@ fun MediaIntegrationScreen(
                         onClick = { showAddServerDialog = true },
                         modifier = Modifier.padding(start = 16.dp)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
+                        Icon(Icons.Default.Add, contentDescription = "Add")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Add Server")
                     }
@@ -246,7 +246,7 @@ private fun ServerManagementSection(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Icon(Icons.Default.Sync, contentDescription = null)
+                        Icon(Icons.Default.Sync, contentDescription = "Sync")
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Sync All")

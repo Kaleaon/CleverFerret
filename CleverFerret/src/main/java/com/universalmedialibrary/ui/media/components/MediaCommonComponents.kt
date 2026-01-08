@@ -79,6 +79,7 @@ fun MediaMiniPlayer(
                 ) {
                     if (state.artworkUrl != null) {
                         AsyncImage(
+                    
                             model = state.artworkUrl,
                             contentDescription = "Album art for ${state.title}",
                             contentScale = ContentScale.Crop,

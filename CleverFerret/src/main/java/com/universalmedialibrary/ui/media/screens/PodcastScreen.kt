@@ -309,6 +309,7 @@ private fun PodcastShowCard(
         ) {
             if (show.artworkUrl != null) {
                 AsyncImage(
+                    
                     model = show.artworkUrl,
                     contentDescription = show.title,
                     contentScale = ContentScale.Crop,
@@ -440,6 +441,7 @@ private fun PodcastEpisodeCard(
                 ) {
                     if (episode.showArtworkUrl != null) {
                         AsyncImage(
+                    
                             model = episode.showArtworkUrl,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
@@ -681,6 +683,7 @@ private fun QueueEpisodeItem(
         ) {
             if (episode.showArtworkUrl != null) {
                 AsyncImage(
+                    
                     model = episode.showArtworkUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -769,6 +772,7 @@ private fun DownloadedEpisodeItem(
         ) {
             if (episode.showArtworkUrl != null) {
                 AsyncImage(
+                    
                     model = episode.showArtworkUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -888,6 +892,7 @@ private fun PodcastMiniPlayer(
                 ) {
                     if (episode.showArtworkUrl != null) {
                         AsyncImage(
+                    
                             model = episode.showArtworkUrl,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,

@@ -255,7 +255,7 @@ fun WebFictionManagerScreen(
                         Button(
                             onClick = { showAddDialog = true }
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = null)
+                            Icon(Icons.Default.Add, contentDescription = "Add")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Add Your First Story")
                         }
@@ -349,6 +349,7 @@ fun WebFictionStoryCard(
         ) {
             // Cover image
             AsyncImage(
+                    
                 model = story.coverUrl ?: "https://via.placeholder.com/80x120/2d3136/e5a00d?text=📖",
                 contentDescription = "Story Cover",
                 modifier = Modifier

@@ -195,7 +195,7 @@ fun EnhancedErrorState(
                                     contentColor = MaterialTheme.colorScheme.onError
                                 )
                             ) {
-                                Icon(Icons.Default.Refresh, contentDescription = null)
+                                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("Retry")
                             }

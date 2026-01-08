@@ -375,6 +375,7 @@ internal fun AlbumArtSection(
             onClick = { onAlbumClick(track) }
         ) {
             AsyncImage(
+                    
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(track.albumArtUrl ?: "")
                     .placeholder(android.R.drawable.ic_media_play)

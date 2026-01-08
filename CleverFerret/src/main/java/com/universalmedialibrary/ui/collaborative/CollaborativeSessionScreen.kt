@@ -198,7 +198,7 @@ private fun SessionCreatedView(
             onClick = onStartSession,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Default.PlayArrow, contentDescription = null)
+            Icon(Icons.Default.PlayArrow, contentDescription = "Play")
             Spacer(modifier = Modifier.width(8.dp))
             Text("Start Session")
         }
@@ -313,7 +313,7 @@ private fun QueueItemCard(item: SessionQueueItem) {
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.MusicNote, contentDescription = null)
+            Icon(Icons.Default.MusicNote, contentDescription = "Music")
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(

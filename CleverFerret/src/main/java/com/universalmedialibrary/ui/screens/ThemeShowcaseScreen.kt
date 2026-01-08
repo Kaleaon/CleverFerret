@@ -139,7 +139,7 @@ fun ThemeShowcaseScreen(
                                     Icon(Icons.Default.Star, contentDescription = null)
                                 }
                                 AncientArchitectIconButton(onClick = {}) {
-                                    Icon(Icons.Default.Settings, contentDescription = null)
+                                    Icon(Icons.Default.Settings, contentDescription = "Settings")
                                 }
                             }
                         }

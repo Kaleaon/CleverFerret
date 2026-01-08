@@ -73,6 +73,7 @@ fun PodcastDetailScreen(
                         uiState.podcast?.let { podcast ->
                             Row(verticalAlignment = Alignment.Top) {
                                 AsyncImage(
+                    
                                     model = podcast.imageUrl,
                                     contentDescription = null,
                                     modifier = Modifier

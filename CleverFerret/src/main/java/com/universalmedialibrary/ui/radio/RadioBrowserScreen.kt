@@ -66,7 +66,7 @@ fun RadioBrowserScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 placeholder = { Text("Search stations...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 singleLine = true
             )
 
@@ -111,6 +111,7 @@ fun RadioStationCard(
             // Logo
             if (station.logoUrl != null) {
                 AsyncImage(
+                    
                     model = station.logoUrl,
                     contentDescription = null,
                     modifier = Modifier

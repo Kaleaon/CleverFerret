@@ -772,6 +772,7 @@ private fun TrackGridItem(track: Track, onClick: () -> Unit) {
                 val albumArt = track.albumArtUri
                 if (albumArt != null) {
                     AsyncImage(
+                    
                         model = albumArt,
                         contentDescription = "${track.displayAlbum} artwork",
                         modifier = Modifier.fillMaxSize(),
@@ -840,6 +841,7 @@ internal fun TrackListItem(track: Track, compact: Boolean = false, onClick: () -
                 val albumArt = track.albumArtUri
                 if (albumArt != null) {
                     AsyncImage(
+                    
                         model = albumArt,
                         contentDescription = "${track.displayAlbum} artwork",
                         modifier = Modifier.fillMaxSize(),
@@ -884,6 +886,7 @@ private fun AlbumGridItem(album: Album, onClick: () -> Unit) {
             ) {
                 if (album.artworkUri != null) {
                     AsyncImage(
+                    
                         model = album.artworkUri,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
@@ -958,7 +961,7 @@ private fun ArtistListItem(artist: Artist, onClick: () -> Unit) {
             }
         },
         trailingContent = {
-            Icon(Icons.Default.ChevronRight, contentDescription = null)
+            Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
         },
         modifier = Modifier.clickable(onClick = onClick)
     )
@@ -984,7 +987,7 @@ private fun GenreListItem(genre: Genre, onClick: () -> Unit) {
             }
         },
         trailingContent = {
-            Icon(Icons.Default.ChevronRight, contentDescription = null)
+            Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
         },
         modifier = Modifier.clickable(onClick = onClick)
     )

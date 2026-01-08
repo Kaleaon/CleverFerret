@@ -237,6 +237,7 @@ private fun AudiobookCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
+                    
                 model = audiobook.coverUrl,
                 contentDescription = null,
                 modifier = Modifier
@@ -297,7 +298,7 @@ private fun AudiobookCard(
                             Text(option.label)
                         },
                         leadingIcon = {
-                            Icon(Icons.Default.CloudDownload, contentDescription = null)
+                            Icon(Icons.Default.CloudDownload, contentDescription = "Download")
                         }
                     )
                 }

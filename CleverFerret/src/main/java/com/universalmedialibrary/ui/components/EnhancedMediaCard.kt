@@ -57,6 +57,7 @@ fun EnhancedMediaCard(
             ) {
                 if (item.coverUrl != null) {
                     AsyncImage(
+                    
                         model = item.coverUrl,
                         contentDescription = "Cover",
                         modifier = Modifier.fillMaxSize(),
@@ -268,7 +269,7 @@ fun EnhancedMediaCard(
                                     // Trigger share
                                 },
                                 leadingIcon = {
-                                    Icon(Icons.Default.Share, contentDescription = null)
+                                    Icon(Icons.Default.Share, contentDescription = "Share")
                                 }
                             )
                             DropdownMenuItem(
@@ -278,7 +279,7 @@ fun EnhancedMediaCard(
                                     onClick()
                                 },
                                 leadingIcon = {
-                                    Icon(Icons.Default.Info, contentDescription = null)
+                                    Icon(Icons.Default.Info, contentDescription = "Info")
                                 }
                             )
                         }
@@ -314,6 +315,7 @@ fun CompactMediaCard(
             ) {
                 if (item.coverUrl != null) {
                     AsyncImage(
+                    
                         model = item.coverUrl,
                         contentDescription = "Cover",
                         modifier = Modifier.fillMaxSize(),

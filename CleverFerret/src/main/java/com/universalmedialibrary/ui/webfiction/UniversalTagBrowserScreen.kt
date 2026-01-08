@@ -316,7 +316,7 @@ private fun TagBrowsingContent(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Icon(Icons.Default.Search, contentDescription = null)
+                Icon(Icons.Default.Search, contentDescription = "Search")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Browse Stories (${uiState.selectedTags.size} tags)")
             }
@@ -639,12 +639,12 @@ private fun StoryResultCard(
                             Text("Downloading…")
                         }
                         !isDownloadEnabled -> {
-                            Icon(Icons.Default.Download, contentDescription = null)
+                            Icon(Icons.Default.Download, contentDescription = "Download")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Download (busy)")
                         }
                         else -> {
-                            Icon(Icons.Default.Download, contentDescription = null)
+                            Icon(Icons.Default.Download, contentDescription = "Download")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Download")
                         }
@@ -672,7 +672,7 @@ private fun ErrorCard(error: String, onDismiss: () -> Unit) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Error, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+            Icon(Icons.Default.Error, contentDescription = "Error", tint = MaterialTheme.colorScheme.error)
             Spacer(modifier = Modifier.width(12.dp))
             Text(error, modifier = Modifier.weight(1f))
             IconButton(onClick = onDismiss) {

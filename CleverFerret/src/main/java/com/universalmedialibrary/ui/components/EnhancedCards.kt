@@ -55,6 +55,7 @@ fun EnhancedMediaCard(
             Box {
                 if (imageUrl != null) {
                     AsyncImage(
+                    
                         model = imageUrl,
                         contentDescription = title,
                         modifier = Modifier

@@ -370,6 +370,7 @@ private fun SinglePageView(
                 }
         ) {
             AsyncImage(
+                    
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(currentPageUri)
                     .crossfade(true)
@@ -443,6 +444,7 @@ private fun DoublePageView(
         // Left page
         if (currentPage > 1) {
             AsyncImage(
+                    
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(pages[currentPage - 2])
                     .crossfade(true)
@@ -458,6 +460,7 @@ private fun DoublePageView(
         // Right page
         if (currentPage <= pages.size) {
             AsyncImage(
+                    
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(pages[currentPage - 1])
                     .crossfade(true)
@@ -488,6 +491,7 @@ private fun WebtoonView(
     ) {
         items(pages.withIndex().toList()) { (index, pageUri) ->
             AsyncImage(
+                    
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(pageUri)
                     .crossfade(true)

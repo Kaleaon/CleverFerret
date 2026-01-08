@@ -116,7 +116,7 @@ fun ImportCalibreDialog(
                     placeholder = { Text("e.g., My Calibre Books") },
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = {
-                        Icon(Icons.Default.Edit, contentDescription = null)
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
                 )
 
@@ -245,7 +245,7 @@ fun ImportCalibreDialog(
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Icon(Icons.Default.Add, contentDescription = null)
+                            Icon(Icons.Default.Add, contentDescription = "Add")
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(if (isLoading) "Importing..." else "Import Library")

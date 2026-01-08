@@ -358,7 +358,7 @@ private fun LanguageSelector(
                             expanded = false
                         },
                         leadingIcon = if (language.code == selectedLanguage) {
-                            { Icon(Icons.Default.Check, contentDescription = null) }
+                            { Icon(Icons.Default.Check, contentDescription = "Confirm") }
                         } else null
                     )
                 }

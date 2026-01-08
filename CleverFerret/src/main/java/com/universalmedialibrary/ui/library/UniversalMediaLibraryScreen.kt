@@ -140,7 +140,7 @@ fun UniversalMediaLibraryScreen(
                                 showSortMenu = false
                             },
                             trailingIcon = if (sortOption == option) {
-                                { Icon(Icons.Default.Check, contentDescription = null) }
+                                { Icon(Icons.Default.Check, contentDescription = "Confirm") }
                             } else null
                         )
                     }
@@ -270,7 +270,7 @@ fun FilterRow(
                 onClick = { /* Show downloaded */ },
                 label = { Text("Downloaded") },
                 selected = false,
-                leadingIcon = { Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                leadingIcon = { Icon(Icons.Default.Download, contentDescription = "Download", modifier = Modifier.size(16.dp)) }
             )
         }
     }

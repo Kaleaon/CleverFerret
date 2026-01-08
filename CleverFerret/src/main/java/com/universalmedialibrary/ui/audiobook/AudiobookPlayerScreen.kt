@@ -320,6 +320,7 @@ private fun AudiobookArtSection(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             AsyncImage(
+                    
                 model = ImageRequest.Builder(LocalContext.current)
                     .data("https://via.placeholder.com/280x280/4A90E2/FFFFFF?text=Audiobook")
                     .crossfade(true)

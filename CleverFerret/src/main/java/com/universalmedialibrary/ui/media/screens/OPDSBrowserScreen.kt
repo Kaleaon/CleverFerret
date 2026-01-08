@@ -492,6 +492,7 @@ private fun BookEntryItem(
         ) {
             if (entry.coverUrl != null) {
                 AsyncImage(
+                    
                     model = entry.coverUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,

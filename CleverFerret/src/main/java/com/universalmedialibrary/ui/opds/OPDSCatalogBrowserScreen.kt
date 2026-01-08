@@ -378,6 +378,7 @@ private fun PublicationCard(
             // Cover image
             if (entry.coverUrl != null) {
                 AsyncImage(
+                    
                     model = entry.coverUrl,
                     contentDescription = "Cover",
                     modifier = Modifier

@@ -138,6 +138,7 @@ fun FMRadioScreen(
                         
                         if (displayImage != null) {
                              AsyncImage(
+                    
                                 model = displayImage,
                                 contentDescription = "Station Logo / Album Art",
                                 modifier = Modifier

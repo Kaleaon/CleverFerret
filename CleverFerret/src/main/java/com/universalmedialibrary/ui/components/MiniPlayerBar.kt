@@ -68,6 +68,7 @@ fun MiniPlayerBar(
                 ) {
                     if (coverUrl != null) {
                         AsyncImage(
+                    
                             model = coverUrl,
                             contentDescription = "Cover",
                             modifier = Modifier.fillMaxSize(),

@@ -111,6 +111,7 @@ fun AlbumDetailScreen(
                             ) {
                                 if (albumData.artworkUri != null) {
                                     AsyncImage(
+                    
                                         model = albumData.artworkUri,
                                         contentDescription = "Album art",
                                         modifier = Modifier.fillMaxSize(),

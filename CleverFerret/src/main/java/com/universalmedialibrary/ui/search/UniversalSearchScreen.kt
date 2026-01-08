@@ -121,7 +121,7 @@ private fun FormatCategoriesView(viewModel: UniversalSearchViewModel) {
                         category.name.replace("_", " "),
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Icon(Icons.Default.ChevronRight, contentDescription = null)
+                    Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
                 }
             }
         }

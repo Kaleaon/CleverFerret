@@ -68,7 +68,7 @@ fun SearchScreen(
             onValueChange = viewModel::updateQuery,
             label = { Text("Search in book") },
             leadingIcon = {
-                Icon(Icons.Default.Search, contentDescription = null)
+                Icon(Icons.Default.Search, contentDescription = "Search")
             },
             trailingIcon = {
                 if (uiState.query.isNotEmpty()) {

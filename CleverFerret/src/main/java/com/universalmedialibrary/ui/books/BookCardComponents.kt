@@ -100,6 +100,7 @@ fun EnhancedBookCard(
                     .fillMaxHeight()
             ) {
                 AsyncImage(
+                    
                     model = book.coverUrl,
                     contentDescription = "Cover for ${book.title}",
                     modifier = Modifier
@@ -292,6 +293,7 @@ fun CompactBookCard(
                     .height(160.dp)
             ) {
                 AsyncImage(
+                    
                     model = book.coverUrl,
                     contentDescription = "Cover for ${book.title}",
                     modifier = Modifier.fillMaxSize(),

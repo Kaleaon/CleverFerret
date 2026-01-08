@@ -434,7 +434,7 @@ fun AISettingsScreen(
                         OutlinedButton(
                             onClick = { showClearLogsDialog = true }
                         ) {
-                            Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Clear Logs")
                         }
@@ -563,7 +563,7 @@ fun AISettingsScreen(
                         onClick = { showClearCacheDialog = true },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Clear Cache")
                     }

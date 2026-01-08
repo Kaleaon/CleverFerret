@@ -225,6 +225,7 @@ private fun AudiobookCard(
             ) {
                 if (audiobook.coverPath != null) {
                     AsyncImage(
+                    
                         model = audiobook.coverPath,
                         contentDescription = "Cover",
                         modifier = Modifier.fillMaxSize()

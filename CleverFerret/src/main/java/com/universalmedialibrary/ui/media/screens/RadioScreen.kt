@@ -350,6 +350,7 @@ private fun RadioStationCard(
             ) {
                 if (station.logoUrl != null) {
                     AsyncImage(
+                    
                         model = station.logoUrl,
                         contentDescription = "${station.name} logo",
                         contentScale = ContentScale.Crop,
@@ -436,6 +437,7 @@ private fun RadioStationListItem(
         ) {
             if (station.logoUrl != null) {
                 AsyncImage(
+                    
                     model = station.logoUrl,
                     contentDescription = "${station.name} logo",
                     contentScale = ContentScale.Crop,
@@ -697,6 +699,7 @@ private fun OldTimeRadioShowCard(
             ) {
                 if (show.imageUrl != null) {
                     AsyncImage(
+                    
                         model = show.imageUrl,
                         contentDescription = "${show.title} show image",
                         contentScale = ContentScale.Crop,
@@ -765,6 +768,7 @@ private fun RadioNowPlayingBar(
             ) {
                 if (station.logoUrl != null) {
                     AsyncImage(
+                    
                         model = station.logoUrl,
                         contentDescription = "Now playing: ${station.name}",
                         contentScale = ContentScale.Crop,

@@ -331,6 +331,7 @@ fun PodcastCard(
         ) {
             // Podcast artwork
             AsyncImage(
+                    
                 model = podcast.imageUrl ?: null, // Will show podcast icon if no image
                 contentDescription = "Podcast Artwork",
                 modifier = Modifier
@@ -607,6 +608,7 @@ fun PodcastSearchDialog(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 AsyncImage(
+                    
                                     model = result.imageUrl,
                                     contentDescription = null,
                                     modifier = Modifier

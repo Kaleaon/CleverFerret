@@ -510,6 +510,7 @@ private fun SearchResultItem(
         ) {
             if (result.imageUrl != null) {
                 AsyncImage(
+                    
                     model = result.imageUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,

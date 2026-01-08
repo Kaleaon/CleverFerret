@@ -468,6 +468,7 @@ private fun GridBookItem(
             ) {
                 if (book.coverUrl != null) {
                     AsyncImage(
+                    
                         model = book.coverUrl,
                         contentDescription = book.title,
                         modifier = Modifier.fillMaxSize(),
@@ -623,6 +624,7 @@ private fun ListBookItem(
             ) {
                 if (book.coverUrl != null) {
                     AsyncImage(
+                    
                         model = book.coverUrl,
                         contentDescription = book.title,
                         modifier = Modifier.fillMaxSize(),

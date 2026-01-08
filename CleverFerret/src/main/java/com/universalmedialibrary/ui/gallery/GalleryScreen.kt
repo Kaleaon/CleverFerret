@@ -507,6 +507,7 @@ private fun AlbumCard(
     ) {
         Box {
             AsyncImage(
+                    
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(album.effectiveCoverUri)
                     .crossfade(true)
@@ -618,6 +619,7 @@ private fun MediaItemCard(
             )
     ) {
         AsyncImage(
+                    
             model = ImageRequest.Builder(LocalContext.current)
                 .data(item.uri)
                 .crossfade(true)
@@ -693,6 +695,7 @@ private fun GalleryDetailView(
     Box(modifier = Modifier.fillMaxSize()) {
         // Full screen image/video
         AsyncImage(
+                    
             model = ImageRequest.Builder(LocalContext.current)
                 .data(item.uri)
                 .crossfade(true)

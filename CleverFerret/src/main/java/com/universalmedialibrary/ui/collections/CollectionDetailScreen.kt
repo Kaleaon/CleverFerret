@@ -80,7 +80,7 @@ fun CollectionDetailScreen(
                                 onNavigateBack()
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Delete, contentDescription = null)
+                                Icon(Icons.Default.Delete, contentDescription = "Delete")
                             }
                         )
                     }
@@ -90,7 +90,7 @@ fun CollectionDetailScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { viewModel.showAddItemsDialog() },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                icon = { Icon(Icons.Default.Add, contentDescription = "Add") },
                 text = { Text("Add Items") }
             )
         }

@@ -228,6 +228,7 @@ private fun ComicSeriesCard(series: ComicSeries) {
         Row(modifier = Modifier.padding(8.dp)) {
             if (series.imageUrl != null) {
                 AsyncImage(
+                    
                     model = series.imageUrl,
                     contentDescription = null,
                     modifier = Modifier

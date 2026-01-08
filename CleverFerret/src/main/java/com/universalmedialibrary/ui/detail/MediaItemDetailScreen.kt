@@ -371,6 +371,7 @@ private fun CoverSection(
         ) {
             if (coverPath != null) {
                 AsyncImage(
+                    
                     model = coverPath,
                     contentDescription = "Cover",
                     modifier = Modifier.fillMaxSize(),

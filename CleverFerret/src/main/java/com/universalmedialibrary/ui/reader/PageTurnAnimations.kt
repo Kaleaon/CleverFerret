@@ -453,7 +453,7 @@ private fun AnimationPreview(settings: AnimationSettings) {
                 onClick = { isAnimating = true },
                 enabled = !isAnimating
             ) {
-                Icon(Icons.Default.PlayArrow, contentDescription = null)
+                Icon(Icons.Default.PlayArrow, contentDescription = "Play")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Preview Animation")
             }

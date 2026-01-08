@@ -95,7 +95,7 @@ fun MangaExploreScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 placeholder = { Text("Search manga...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { 
@@ -328,6 +328,7 @@ private fun MangaCard(
                     .aspectRatio(0.7f)
             ) {
                 AsyncImage(
+                    
                     model = manga.coverUrl,
                     contentDescription = manga.title,
                     modifier = Modifier.fillMaxSize(),

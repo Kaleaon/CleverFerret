@@ -263,6 +263,7 @@ private fun DuplicateBookItem(
         ) {
             if (item.thumbnailPath != null) {
                 AsyncImage(
+                    
                     model = item.thumbnailPath,
                     contentDescription = "Cover",
                     modifier = Modifier.fillMaxSize()

@@ -275,6 +275,7 @@ private fun WebFictionStoryCard(
             ) {
                 if (story.coverUrl != null) {
                     AsyncImage(
+                    
                         model = story.coverUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
@@ -556,6 +557,7 @@ private fun UpdateItem(
         ) {
             if (update.storyCoverUrl != null) {
                 AsyncImage(
+                    
                     model = update.storyCoverUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,

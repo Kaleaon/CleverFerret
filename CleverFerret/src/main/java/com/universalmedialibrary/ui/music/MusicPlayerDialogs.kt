@@ -250,7 +250,7 @@ fun AddToPlaylistDialog(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(Icons.Default.Add, contentDescription = "Add")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Create New Playlist")
                 }

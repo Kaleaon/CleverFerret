@@ -279,6 +279,7 @@ private fun AnimatedAlbumArt(
             Box {
                 if (track?.uri != null) {
                     AsyncImage(
+                    
                         model = track.uri,
                         contentDescription = "Album art",
                         modifier = Modifier.fillMaxSize(),

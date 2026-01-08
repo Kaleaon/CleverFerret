@@ -262,7 +262,7 @@ fun AdvancedEffectsShowcaseScreen() {
                         onClick = {},
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = null)
+                        Icon(Icons.Default.PlayArrow, contentDescription = "Play")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Elevated Action Button")
                     }
@@ -279,7 +279,7 @@ fun AdvancedEffectsShowcaseScreen() {
                         onClick = {},
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.Settings, contentDescription = null)
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Embossed Outlined Button")
                     }
@@ -288,7 +288,7 @@ fun AdvancedEffectsShowcaseScreen() {
                         onClick = {},
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.Info, contentDescription = null)
+                        Icon(Icons.Default.Info, contentDescription = "Info")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Glass Button")
                     }

@@ -118,6 +118,7 @@ fun PodcastPlayerScreen(
                             .aspectRatio(1f)
                     ) {
                         AsyncImage(
+                    
                             model = uiState.episode?.imageUrl,
                             contentDescription = "Episode Artwork",
                             modifier = Modifier.fillMaxSize(),

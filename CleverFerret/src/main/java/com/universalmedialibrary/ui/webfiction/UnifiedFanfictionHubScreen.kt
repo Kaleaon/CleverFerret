@@ -1007,7 +1007,7 @@ private fun DownloadTab(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Downloading...")
                         } else {
-                            Icon(Icons.Default.Download, contentDescription = null)
+                            Icon(Icons.Default.Download, contentDescription = "Download")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Download as EPUB")
                         }
@@ -1088,7 +1088,7 @@ private fun DownloadTab(
                                 onClick = { downloadViewModel.openEpub() },
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Icon(Icons.Default.Book, contentDescription = null)
+                                Icon(Icons.Default.Book, contentDescription = "Book")
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Read")
                             }
@@ -1096,7 +1096,7 @@ private fun DownloadTab(
                                 onClick = { downloadViewModel.shareEpub() },
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Icon(Icons.Default.Share, contentDescription = null)
+                                Icon(Icons.Default.Share, contentDescription = "Share")
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Share")
                             }

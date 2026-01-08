@@ -85,6 +85,7 @@ fun AudioPlayerScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
                 AsyncImage(
+                    
                     model = displayCover,
                         contentDescription = "Album Art",
                         modifier = Modifier.fillMaxSize(),

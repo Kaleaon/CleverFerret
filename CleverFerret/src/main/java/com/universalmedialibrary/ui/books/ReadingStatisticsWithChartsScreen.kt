@@ -197,7 +197,7 @@ private fun YearlyGoalChartCard(
                 }
                 
                 FilledTonalButton(onClick = { showDialog = true }) {
-                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Set Goal")
                 }

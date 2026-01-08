@@ -317,7 +317,7 @@ private fun PinSetupCard(
                         onClick = onSetPin,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Set PIN")
                     }
@@ -326,7 +326,7 @@ private fun PinSetupCard(
                         onClick = onChangePin,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Change")
                     }
@@ -334,7 +334,7 @@ private fun PinSetupCard(
                         onClick = onClearPin,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Clear")
                     }

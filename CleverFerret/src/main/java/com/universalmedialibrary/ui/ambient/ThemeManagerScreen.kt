@@ -244,7 +244,7 @@ private fun ThemeFilterChips(
                 onClick = { onThemeSelected(theme) },
                 label = { Text(theme.replaceFirstChar { it.uppercase() }) },
                 leadingIcon = if (selectedTheme == theme) {
-                    { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                    { Icon(Icons.Default.Check, contentDescription = "Confirm", modifier = Modifier.size(16.dp)) }
                 } else null
             )
         }

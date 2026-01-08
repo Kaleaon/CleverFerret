@@ -66,7 +66,7 @@ fun ErrorStateCard(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Icon(Icons.Default.Refresh, contentDescription = null)
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Retry")
             }
@@ -184,7 +184,7 @@ fun EmptyStateCard(
                 onClick = onActionClick,
                 modifier = Modifier.fillMaxWidth(0.7f)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(Icons.Default.Add, contentDescription = "Add")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(actionLabel)
             }

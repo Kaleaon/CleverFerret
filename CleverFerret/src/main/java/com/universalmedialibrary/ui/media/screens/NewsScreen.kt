@@ -234,6 +234,7 @@ private fun FeaturedArticleCard(
             ) {
                 if (article.imageUrl != null) {
                     AsyncImage(
+                    
                         model = article.imageUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
@@ -347,6 +348,7 @@ private fun NewsArticleCard(
             ) {
                 if (article.imageUrl != null) {
                     AsyncImage(
+                    
                         model = article.imageUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,

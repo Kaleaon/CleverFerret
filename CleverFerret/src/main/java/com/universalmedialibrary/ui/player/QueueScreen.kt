@@ -32,7 +32,7 @@ fun QueueScreen(
                         Row {
                             IconButton(onClick = { viewModel.moveUp(index) }, enabled = index > 0) { Icon(Icons.Default.KeyboardArrowUp, contentDescription = null) }
                             IconButton(onClick = { viewModel.moveDown(index) }, enabled = index < state.queue.lastIndex) { Icon(Icons.Default.KeyboardArrowDown, contentDescription = null) }
-                            IconButton(onClick = { viewModel.remove(index) }) { Icon(Icons.Default.Delete, contentDescription = null) }
+                            IconButton(onClick = { viewModel.remove(index) }) { Icon(Icons.Default.Delete, contentDescription = "Delete") }
                         }
                     }
                 )

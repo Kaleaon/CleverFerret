@@ -105,6 +105,7 @@ fun MediaCard(
             // Poster Image
             if (item.imageUrl != null) {
                 AsyncImage(
+                    
                     model = item.imageUrl,
                     contentDescription = item.title,
                     modifier = Modifier.fillMaxSize(),

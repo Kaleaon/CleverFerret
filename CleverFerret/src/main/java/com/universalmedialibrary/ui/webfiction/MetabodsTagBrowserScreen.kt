@@ -135,7 +135,7 @@ fun MetabodsTagBrowserScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                         }
-                        Icon(Icons.Default.Search, contentDescription = null)
+                        Icon(Icons.Default.Search, contentDescription = "Search")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Browse Stories (${uiState.selectedTags.size} tags)")
                     }
@@ -355,7 +355,7 @@ private fun TagCategoryCard(
                                     }
                                 },
                                 leadingIcon = if (tag.id in selectedTags) {
-                                    { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                    { Icon(Icons.Default.Check, contentDescription = "Confirm", modifier = Modifier.size(18.dp)) }
                                 } else null
                             )
                         }
@@ -543,7 +543,7 @@ private fun StoryResultCard(
                     onClick = onStoryClick,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.Download, contentDescription = "Download", modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Download")
                 }

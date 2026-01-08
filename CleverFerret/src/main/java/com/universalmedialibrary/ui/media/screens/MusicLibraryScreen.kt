@@ -283,6 +283,7 @@ private fun AlbumCard(
         ) {
             if (album.artworkUrl != null) {
                 AsyncImage(
+                    
                     model = album.artworkUrl,
                     contentDescription = album.title,
                     contentScale = ContentScale.Crop,
@@ -427,6 +428,7 @@ private fun ArtistCard(
         ) {
             if (artist.imageUrl != null) {
                 AsyncImage(
+                    
                     model = artist.imageUrl,
                     contentDescription = artist.name,
                     contentScale = ContentScale.Crop,
@@ -550,6 +552,7 @@ private fun TrackListItem(
         ) {
             if (track.albumArtUrl != null) {
                 AsyncImage(
+                    
                     model = track.albumArtUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -687,6 +690,7 @@ private fun PlaylistCard(
                         Row(modifier = Modifier.weight(1f)) {
                             playlist.artworkUrls.take(2).forEach { url ->
                                 AsyncImage(
+                    
                                     model = url,
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
@@ -699,6 +703,7 @@ private fun PlaylistCard(
                         Row(modifier = Modifier.weight(1f)) {
                             playlist.artworkUrls.drop(2).take(2).forEach { url ->
                                 AsyncImage(
+                    
                                     model = url,
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
@@ -712,6 +717,7 @@ private fun PlaylistCard(
                 }
                 playlist.artworkUrls.isNotEmpty() -> {
                     AsyncImage(
+                    
                         model = playlist.artworkUrls.first(),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
@@ -859,6 +865,7 @@ private fun NowPlayingMiniBar(
                 ) {
                     if (track.albumArtUrl != null) {
                         AsyncImage(
+                    
                             model = track.albumArtUrl,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,

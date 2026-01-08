@@ -163,6 +163,7 @@ private fun CollectionCard(
                             Row(modifier = Modifier.weight(1f)) {
                                 collection.coverUrls.take(2).forEach { url ->
                                     AsyncImage(
+                    
                                         model = url,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
@@ -175,6 +176,7 @@ private fun CollectionCard(
                             Row(modifier = Modifier.weight(1f)) {
                                 collection.coverUrls.drop(2).take(2).forEach { url ->
                                     AsyncImage(
+                    
                                         model = url,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
@@ -188,6 +190,7 @@ private fun CollectionCard(
                     }
                     collection.coverUrls.isNotEmpty() -> {
                         AsyncImage(
+                    
                             model = collection.coverUrls.first(),
                             contentDescription = null,
                             contentScale = ContentScale.Crop,

@@ -224,6 +224,7 @@ private fun TrackCard(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AsyncImage(
+                    
                 model = track.coverUrl,
                 contentDescription = null,
                 modifier = Modifier.size(72.dp)
@@ -279,7 +280,7 @@ private fun TrackCard(
 
             track.downloadUrl?.let { url ->
                 TextButton(onClick = { onOpenLink(url) }) {
-                    Icon(Icons.Default.CloudDownload, contentDescription = null)
+                    Icon(Icons.Default.CloudDownload, contentDescription = "Download")
                     Spacer(Modifier.size(4.dp))
                     Text("Download")
                 }

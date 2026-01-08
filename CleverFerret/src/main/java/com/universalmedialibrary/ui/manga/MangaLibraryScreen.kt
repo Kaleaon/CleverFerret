@@ -77,7 +77,7 @@ fun MangaLibraryScreen(
                                     showSortMenu = false
                                 },
                                 leadingIcon = if (uiState.sortOrder == order) {
-                                    { Icon(Icons.Default.Check, contentDescription = null) }
+                                    { Icon(Icons.Default.Check, contentDescription = "Confirm") }
                                 } else null
                             )
                         }
@@ -192,6 +192,7 @@ private fun LibraryMangaCard(
                     .aspectRatio(0.7f)
             ) {
                 AsyncImage(
+                    
                     model = manga.coverUrl,
                     contentDescription = manga.title,
                     modifier = Modifier.fillMaxSize(),

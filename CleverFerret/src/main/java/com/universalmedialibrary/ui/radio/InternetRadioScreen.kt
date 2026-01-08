@@ -186,6 +186,7 @@ private fun InternetRadioStationCard(
             // Logo
             station.logoUrl?.let { url ->
                 AsyncImage(
+                    
                     model = url,
                     contentDescription = null,
                     modifier = Modifier

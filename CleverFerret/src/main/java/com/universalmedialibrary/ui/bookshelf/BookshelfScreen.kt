@@ -152,7 +152,7 @@ fun EnhancedBookshelfScreen(
             floatingActionButton = {
                 ExtendedFloatingActionButton(
                     onClick = { navController.navigate("opds_catalog") },
-                    icon = { Icon(Icons.Default.CloudDownload, contentDescription = null) },
+                    icon = { Icon(Icons.Default.CloudDownload, contentDescription = "Download") },
                     text = { Text("Get Books") },
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )

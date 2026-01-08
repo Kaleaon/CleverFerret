@@ -77,6 +77,7 @@ fun MediaAudioPlayerScreen(
         // Blurred background artwork
         if (state.artworkUrl != null) {
             AsyncImage(
+                    
                 model = state.artworkUrl,
                 contentDescription = "Background artwork",
                 modifier = Modifier
@@ -144,6 +145,7 @@ fun MediaAudioPlayerScreen(
                 ) {
                     if (state.artworkUrl != null) {
                         AsyncImage(
+                    
                             model = state.artworkUrl,
                             contentDescription = "${state.title} album artwork",
                             modifier = Modifier.fillMaxSize(),
@@ -608,6 +610,7 @@ private fun QueueSheet(
                     ) {
                         if (item.artworkUrl != null) {
                             AsyncImage(
+                    
                                 model = item.artworkUrl,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,

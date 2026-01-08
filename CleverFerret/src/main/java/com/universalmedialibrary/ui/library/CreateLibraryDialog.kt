@@ -82,7 +82,7 @@ fun CreateLibraryDialog(
                     placeholder = { Text("e.g., My Books, Action Movies, Jazz Collection") },
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = {
-                        Icon(Icons.Default.Edit, contentDescription = null)
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
                 )
 
@@ -205,7 +205,7 @@ fun CreateLibraryDialog(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
+                        Icon(Icons.Default.Add, contentDescription = "Add")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Create")
                     }

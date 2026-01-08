@@ -78,7 +78,7 @@ fun LibraryManagementScreen(
                                     onNavigateToSettings()
                                 },
                                 leadingIcon = {
-                                    Icon(Icons.Default.Settings, contentDescription = null)
+                                    Icon(Icons.Default.Settings, contentDescription = "Settings")
                                 }
                             )
                             DropdownMenuItem(
@@ -88,7 +88,7 @@ fun LibraryManagementScreen(
                                     showImportDialog = true
                                 },
                                 leadingIcon = {
-                                    Icon(Icons.Default.Add, contentDescription = null)
+                                    Icon(Icons.Default.Add, contentDescription = "Add")
                                 }
                             )
                         }
@@ -264,7 +264,7 @@ private fun WelcomeScreen(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
+                        Icon(Icons.Default.Add, contentDescription = "Add")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Create Library")
                     }
@@ -273,7 +273,7 @@ private fun WelcomeScreen(
                         onClick = onImportLibrary,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
+                        Icon(Icons.Default.Add, contentDescription = "Add")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Import Library")
                     }

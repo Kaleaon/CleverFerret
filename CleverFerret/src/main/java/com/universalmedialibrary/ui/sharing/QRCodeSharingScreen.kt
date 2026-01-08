@@ -298,7 +298,7 @@ private fun ActiveSharingScreen(
                     onClick = { /* Share via system */ },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(Icons.Default.Share, contentDescription = null)
+                    Icon(Icons.Default.Share, contentDescription = "Share")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Share")
                 }

@@ -189,7 +189,7 @@ fun ServerDiscoveryView(
             onClick = onDiscover,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Default.Refresh, contentDescription = null)
+            Icon(Icons.Default.Refresh, contentDescription = "Refresh")
             Spacer(modifier = Modifier.width(8.dp))
             Text("Discover Servers")
         }
@@ -243,7 +243,7 @@ fun ServerListView(
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Icon(Icons.Default.Sync, contentDescription = null)
+                            Icon(Icons.Default.Sync, contentDescription = "Sync")
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Sync")

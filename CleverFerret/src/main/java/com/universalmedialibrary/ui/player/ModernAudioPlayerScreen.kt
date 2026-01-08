@@ -115,6 +115,7 @@ fun ModernAudioPlayerScreen(
         // Background blur effect
         uiState.currentTrack?.coverUrl?.let { coverUrl ->
             AsyncImage(
+                    
                 model = coverUrl,
                 contentDescription = null,
                 modifier = Modifier
@@ -197,6 +198,7 @@ fun ModernAudioPlayerScreen(
                     val currentTrack = uiState.currentTrack
                     if (currentTrack?.coverUrl != null) {
                         AsyncImage(
+                    
                             model = currentTrack.coverUrl,
                             contentDescription = "Album Art",
                             modifier = Modifier.fillMaxSize(),
@@ -886,7 +888,7 @@ private fun AdvancedPlaybackSheet(
                         onClick = { onSleepTimerSelected(minutes) },
                         label = { Text("${minutes}m") },
                         leadingIcon = if (lastSleepTimerMinutes == minutes) {
-                            { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                            { Icon(Icons.Default.Check, contentDescription = "Confirm", modifier = Modifier.size(16.dp)) }
                         } else null
                     )
                 }

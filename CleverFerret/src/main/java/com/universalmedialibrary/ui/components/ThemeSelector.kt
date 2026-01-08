@@ -389,7 +389,7 @@ fun CompactThemeSelector(
                         expanded = false
                     },
                     leadingIcon = if (theme == currentTheme) {
-                        { Icon(Icons.Default.Check, contentDescription = null) }
+                        { Icon(Icons.Default.Check, contentDescription = "Confirm") }
                     } else null
                 )
             }

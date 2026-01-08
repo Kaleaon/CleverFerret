@@ -135,7 +135,7 @@ private fun SimpleCover(title: String, author: String?) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Default.Book, contentDescription = null, tint = contentColor.copy(alpha = 0.7f))
+            Icon(Icons.Default.Book, contentDescription = "Book", tint = contentColor.copy(alpha = 0.7f))
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = title,

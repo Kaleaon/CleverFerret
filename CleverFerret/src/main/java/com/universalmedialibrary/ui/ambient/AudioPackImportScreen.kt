@@ -160,7 +160,7 @@ fun AudioPackImportScreen(
     selectedPackForDelete?.let { pack ->
         AlertDialog(
             onDismissRequest = { selectedPackForDelete = null },
-            icon = { Icon(Icons.Default.Warning, contentDescription = null) },
+            icon = { Icon(Icons.Default.Warning, contentDescription = "Warning") },
             title = { Text("Delete Audio Pack?") },
             text = {
                 Text("This will delete ${pack.name} and all ${pack.soundCount} sounds. This action cannot be undone.")

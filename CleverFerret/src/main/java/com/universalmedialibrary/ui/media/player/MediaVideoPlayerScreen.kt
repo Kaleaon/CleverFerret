@@ -112,6 +112,7 @@ fun MediaVideoPlayerScreen(
             // For now, showing a placeholder
             if (state.thumbnailUrl != null) {
                 AsyncImage(
+                    
                     model = state.thumbnailUrl,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
@@ -747,6 +748,7 @@ private fun SeekPreview(
         ) {
             if (thumbnailUrl != null) {
                 AsyncImage(
+                    
                     model = thumbnailUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -957,6 +959,7 @@ private fun EpisodesSheet(
                     ) {
                         if (episode.thumbnailUrl != null) {
                             AsyncImage(
+                    
                                 model = episode.thumbnailUrl,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,

@@ -249,6 +249,7 @@ private fun RecommendationCard(
             Column(modifier = Modifier.padding(12.dp)) {
                 // Thumbnail
                 AsyncImage(
+                    
                     model = recommendation.thumbnailUrl,
                     contentDescription = null,
                     modifier = Modifier

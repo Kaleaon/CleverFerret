@@ -572,7 +572,7 @@ private fun PreferencePathList(
             }
         }
         OutlinedButton(onClick = onAddClick) {
-            Icon(Icons.Default.Add, contentDescription = null)
+            Icon(Icons.Default.Add, contentDescription = "Add")
             Spacer(modifier = Modifier.width(8.dp))
             Text("Add path")
         }
