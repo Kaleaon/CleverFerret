@@ -870,7 +870,7 @@ private fun RadioUnavailableState(
     ) {
         Icon(
             imageVector = Icons.Outlined.SignalCellularNodata,
-            contentDescription = null,
+            contentDescription = "Radio unavailable",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(72.dp)
         )
