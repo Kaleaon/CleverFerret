@@ -288,7 +288,7 @@ private fun WebFictionStoryCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.MenuBook,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = story.source.color.copy(alpha = 0.5f),
                             modifier = Modifier.size(32.dp)
                         )
@@ -361,7 +361,7 @@ private fun WebFictionStoryCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.MenuBook,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MediaColors.TextTertiary,
                             modifier = Modifier.size(14.dp)
                         )
@@ -378,7 +378,7 @@ private fun WebFictionStoryCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.TextFields,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MediaColors.TextTertiary,
                                 modifier = Modifier.size(14.dp)
                             )
@@ -440,7 +440,7 @@ private fun WebFictionStoryCard(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.NewReleases,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     tint = MediaColors.AccentPrimary,
                                     modifier = Modifier.size(14.dp)
                                 )
@@ -567,7 +567,7 @@ private fun UpdateItem(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.MenuBook,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = update.source.color.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp)
                     )
@@ -632,7 +632,7 @@ private fun UpdateItem(
         
         Icon(
             imageVector = Icons.Default.ChevronRight,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(20.dp)
         )
@@ -696,7 +696,7 @@ private fun SourceCard(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = source.icon,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = source.color,
                         modifier = Modifier.size(28.dp)
                     )
@@ -743,7 +743,7 @@ private fun SourceCard(
             
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.TextTertiary
             )
         }
@@ -767,7 +767,7 @@ private fun WebFictionEmptyState(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(64.dp)
         )

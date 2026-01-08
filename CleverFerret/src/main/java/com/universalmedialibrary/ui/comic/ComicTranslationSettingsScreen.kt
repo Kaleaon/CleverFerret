@@ -171,7 +171,7 @@ fun ComicTranslationSettingsScreen(
                     ) {
                         Icon(
                             Icons.Default.Check,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(

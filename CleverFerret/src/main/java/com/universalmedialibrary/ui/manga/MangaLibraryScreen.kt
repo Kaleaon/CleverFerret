@@ -221,7 +221,7 @@ private fun LibraryMangaCard(
                 if (manga.isFavorite) {
                     Icon(
                         Icons.Default.Favorite,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .padding(4.dp)
@@ -267,7 +267,7 @@ private fun EmptyLibraryState(
     ) {
         Icon(
             Icons.Default.LibraryBooks,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         )

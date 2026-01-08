@@ -294,7 +294,7 @@ private fun AnimatedAlbumArt(
                     ) {
                         Icon(
                             Icons.Default.MusicNote,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(120.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )

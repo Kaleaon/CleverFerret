@@ -211,7 +211,7 @@ fun UniversalTagExplorerScreen(
                             leadingIcon = {
                                 Icon(
                                     Icons.Filled.CheckCircle,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             },
@@ -283,7 +283,7 @@ private fun MediaTypeSelector(
                     {
                         Icon(
                             imageVector = it,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -388,7 +388,7 @@ private fun SelectionIndicator(selected: Boolean) {
         if (selected) {
             Icon(
                 Icons.Filled.CheckCircle,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(18.dp)
             )

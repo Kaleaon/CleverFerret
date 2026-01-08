@@ -270,7 +270,7 @@ fun ApiSettingsScreen(
                     ) {
                         Icon(
                             Icons.Default.Check,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                         Text(
@@ -299,7 +299,7 @@ fun ApiSettingsScreen(
                     ) {
                         Icon(
                             if (uiState.backupSuccess) Icons.Default.Check else Icons.Default.Backup,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = if (uiState.backupSuccess) 
                                 MaterialTheme.colorScheme.onTertiaryContainer 
                             else 
@@ -400,7 +400,7 @@ private fun ApiKeySection(
                     leadingIcon = {
                         Icon(
                             Icons.Default.Check,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(16.dp)
                         )
                     },

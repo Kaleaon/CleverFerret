@@ -129,7 +129,7 @@ fun MediaLibraryScreen(
                             if (state.sortOption == option) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     tint = MediaColors.AccentPrimary,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -191,7 +191,7 @@ private fun LibraryTopBar(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = mediaType.icon,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = mediaType.color,
                             modifier = Modifier.size(24.dp)
                         )
@@ -276,7 +276,7 @@ private fun QuickFiltersRow(
                     {
                         Icon(
                             imageVector = Icons.Default.Check,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -368,7 +368,7 @@ private fun SortAndViewControls(
         ) {
             Icon(
                 imageVector = Icons.Default.Sort,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(MediaSpacing.XS))
@@ -378,7 +378,7 @@ private fun SortAndViewControls(
             )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -532,7 +532,7 @@ private fun LibraryListItem(
                 ) {
                     Icon(
                         imageVector = item.mediaType.icon,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = item.mediaType.color.copy(alpha = 0.5f),
                         modifier = Modifier.size(32.dp)
                     )
@@ -594,7 +594,7 @@ private fun LibraryListItem(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(14.dp),
                             tint = MediaColors.Warning
                         )
@@ -629,7 +629,7 @@ private fun LibraryListItem(
         IconButton(onClick = onClick) {
             Icon(
                 imageVector = if (item.progress > 0) Icons.Default.PlayArrow else Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = if (item.progress > 0) MediaColors.AccentPrimary else MediaColors.TextTertiary
             )
         }
@@ -748,7 +748,7 @@ private fun LibraryEmptyState(
         ) {
             Icon(
                 imageVector = if (hasFilter) Icons.Outlined.FilterAlt else mediaType.icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier
                     .padding(MediaSpacing.LG)
                     .fillMaxSize(),

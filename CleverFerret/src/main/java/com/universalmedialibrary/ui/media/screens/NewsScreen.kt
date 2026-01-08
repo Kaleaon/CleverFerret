@@ -138,7 +138,7 @@ private fun NewsTopBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Newspaper,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.MediaTypes.Document,
                     modifier = Modifier.size(24.dp)
                 )
@@ -247,7 +247,7 @@ private fun FeaturedArticleCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Article,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MediaColors.TextTertiary,
                             modifier = Modifier
                                 .size(64.dp)
@@ -357,7 +357,7 @@ private fun NewsArticleCard(
                 } else {
                     Icon(
                         imageVector = Icons.Default.Article,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MediaColors.TextTertiary,
                         modifier = Modifier.padding(MediaSpacing.MD)
                     )
@@ -436,7 +436,7 @@ private fun NewsEmptyState(
     ) {
         Icon(
             imageVector = Icons.Outlined.Newspaper,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(72.dp)
         )
@@ -503,7 +503,7 @@ private fun AddRecipeDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.RssFeed,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MediaColors.AccentPrimary
                             )
                             Spacer(modifier = Modifier.width(MediaSpacing.MD))

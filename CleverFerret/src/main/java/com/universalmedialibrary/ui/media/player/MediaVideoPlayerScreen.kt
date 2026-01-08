@@ -208,7 +208,7 @@ fun MediaVideoPlayerScreen(
                 Spacer(modifier = Modifier.width(MediaSpacing.XS))
                 Icon(
                     imageVector = Icons.Default.SkipNext,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -632,7 +632,7 @@ private fun VideoPlayerBottomBar(
                     TextButton(onClick = it) {
                         Icon(
                             imageVector = Icons.Default.VideoLibrary,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(MediaSpacing.XS))
@@ -648,7 +648,7 @@ private fun VideoPlayerBottomBar(
                                 Icons.Filled.Subtitles 
                             else 
                                 Icons.Outlined.Subtitles,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(20.dp),
                             tint = if (currentSubtitle != null) 
                                 MediaColors.AccentPrimary 
@@ -670,7 +670,7 @@ private fun VideoPlayerBottomBar(
                 TextButton(onClick = onQuality) {
                     Icon(
                         imageVector = Icons.Default.HighQuality,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(MediaSpacing.XS))
@@ -700,7 +700,7 @@ private fun VerticalIndicator(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = Color.White,
                 modifier = Modifier.size(24.dp)
             )
@@ -812,7 +812,7 @@ private fun SubtitlesSheet(
             if (currentTrack == null) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.AccentPrimary
                 )
             }
@@ -849,7 +849,7 @@ private fun SubtitlesSheet(
                 if (currentTrack?.id == track.id) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MediaColors.AccentPrimary
                     )
                 }
@@ -906,7 +906,7 @@ private fun QualitySheet(
                 if (currentQuality == quality) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MediaColors.AccentPrimary
                     )
                 }

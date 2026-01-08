@@ -169,7 +169,7 @@ fun UniversalTagManagerScreen(
                                 )
                                 Icon(
                                     Icons.Default.AutoAwesome,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }

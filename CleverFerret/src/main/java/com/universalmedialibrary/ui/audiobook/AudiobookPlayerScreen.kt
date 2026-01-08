@@ -283,7 +283,7 @@ private fun AudiobookErrorState(
         ) {
             Icon(
                 imageVector = PhosphorIcons.ErrorOutline,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(48.dp)
             )
@@ -383,7 +383,7 @@ private fun SynchronizedTextDisplay(
             ) {
                 Icon(
                     imageVector = PhosphorIcons.Sync,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(16.dp)
                 )

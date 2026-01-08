@@ -74,7 +74,7 @@ fun FanfictionDownloadScreen(
                 ) {
                     Icon(
                         Icons.Default.Info,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Column {

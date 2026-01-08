@@ -204,7 +204,7 @@ private fun WelcomeScreen(
     ) {
         Icon(
             imageVector = Icons.Default.Home,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(120.dp),
             tint = MaterialTheme.colorScheme.primary
         )
@@ -387,7 +387,7 @@ private fun LibraryCard(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = getLibraryIcon(library.type),
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(32.dp),
                         tint = Color(0xFFCCCCCC)
                     )

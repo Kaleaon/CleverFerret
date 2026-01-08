@@ -279,7 +279,7 @@ fun ReadingRulerSettingsPanel(
                 ) {
                     Icon(
                         imageVector = Icons.Default.LinearScale,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(

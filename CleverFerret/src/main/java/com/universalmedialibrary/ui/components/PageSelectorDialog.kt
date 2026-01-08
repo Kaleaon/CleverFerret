@@ -37,7 +37,7 @@ fun PageSelectorDialog(
         icon = {
             Icon(
                 Icons.Default.Pages,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary
             )
         },

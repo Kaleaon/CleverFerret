@@ -121,7 +121,7 @@ private fun EmptyState(
     ) {
         Icon(
             Icons.Default.ContentCopy,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -275,7 +275,7 @@ private fun DuplicateBookItem(
                 ) {
                     Icon(
                         Icons.Default.Book,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(30.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )

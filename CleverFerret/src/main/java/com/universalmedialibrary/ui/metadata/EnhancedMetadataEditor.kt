@@ -298,7 +298,7 @@ fun EnhancedMetadataEditorScreen(
                                 repeat(5) { index ->
                                     Icon(
                                         imageVector = if (index < rating) Icons.Default.Star else Icons.Default.StarBorder,
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         modifier = Modifier
                                             .size(32.dp)
                                             .clickable { rating = (index + 1).toFloat() },

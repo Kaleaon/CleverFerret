@@ -1007,7 +1007,7 @@ private fun ThemePickerDialog(
                                         ) {
                                             Icon(
                                                 Icons.Default.Star,
-                                                contentDescription = null,
+                                                contentDescription = "Media image",
                                                 modifier = Modifier.size(14.dp),
                                                 tint = MaterialTheme.colorScheme.primary
                                             )

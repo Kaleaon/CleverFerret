@@ -275,7 +275,7 @@ private fun SpeedChip(
             {
                 Icon(
                     Icons.Default.Check,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(16.dp)
                 )
             }

@@ -291,7 +291,7 @@ fun TranslationStatusBadge(
             } else {
                 Icon(
                     Icons.Default.Language,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(12.dp)
                 )
             }

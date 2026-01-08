@@ -691,7 +691,7 @@ private fun SettingsSection(
         ) {
             Icon(
                 icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
             )

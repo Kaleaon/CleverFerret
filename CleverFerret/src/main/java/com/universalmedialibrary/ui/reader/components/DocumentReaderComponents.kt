@@ -886,7 +886,7 @@ fun BookmarksSheet(
                         ) {
                             Icon(
                                 Icons.Default.BookmarkBorder,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(48.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
@@ -1023,7 +1023,7 @@ fun TableOfContentsSheet(
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.MenuBook,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(48.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )

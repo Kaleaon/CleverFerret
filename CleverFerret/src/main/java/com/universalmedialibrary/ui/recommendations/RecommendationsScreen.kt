@@ -203,7 +203,7 @@ private fun RecommendationSection(
                 )
                 Icon(
                     getSourceIcon(title),
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -286,7 +286,7 @@ private fun RecommendationCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             Icons.Default.Star,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )

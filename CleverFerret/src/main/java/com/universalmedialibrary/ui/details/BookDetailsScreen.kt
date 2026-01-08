@@ -94,7 +94,7 @@ fun BookDetailsScreen(bookId: Long, navController: NavController, viewModel: Boo
                             repeat(5) { index ->
                                 Icon(
                                     imageVector = if (index < rating.toInt()) Icons.Default.Star else Icons.Default.StarBorder,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.size(16.dp),
                                     tint = Color(0xFFFFC107)
                                 )

@@ -190,7 +190,7 @@ private fun ColumnModeControl(
             ) {
                 Icon(
                     imageVector = Icons.Default.ViewColumn,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -251,7 +251,7 @@ private fun ScrollModeControl(
             ) {
                 Icon(
                     imageVector = Icons.Default.SwipeVertical,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -308,7 +308,7 @@ private fun TextJustificationControl(
             ) {
                 Icon(
                     imageVector = Icons.Default.FormatAlignLeft,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -370,7 +370,7 @@ private fun MarginsControl(
             ) {
                 Icon(
                     imageVector = Icons.Default.BorderOuter,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -519,7 +519,7 @@ private fun ColumnGapControl(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ViewWeek,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -577,7 +577,7 @@ private fun HyphenationControl(
                 ) {
                     Icon(
                         imageVector = Icons.Default.TextFields,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -715,7 +715,7 @@ private fun MaxWidthControl(
                 ) {
                     Icon(
                         imageVector = Icons.Default.FormatSize,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )

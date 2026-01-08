@@ -40,7 +40,7 @@ fun SoundPacksScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Collections,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -157,7 +157,7 @@ fun SoundPacksScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Info,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(20.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -307,7 +307,7 @@ private fun SoundPackCard(
                     ) {
                         Icon(
                             imageVector = PhosphorIcons.Nature,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -351,7 +351,7 @@ private fun PackStat(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(16.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )

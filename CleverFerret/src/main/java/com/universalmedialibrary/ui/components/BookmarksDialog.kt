@@ -58,7 +58,7 @@ fun BookmarksDialog(
         icon = {
             Icon(
                 Icons.Default.Bookmark,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary
             )
         },
@@ -94,7 +94,7 @@ fun BookmarksDialog(
                     ) {
                         Icon(
                             Icons.Default.Bookmark,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         )

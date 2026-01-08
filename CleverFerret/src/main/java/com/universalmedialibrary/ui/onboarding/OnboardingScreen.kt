@@ -141,7 +141,7 @@ private fun OnboardingPage(page: OnboardingPageData) {
         ) {
             Icon(
                 imageVector = page.icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = page.color
             )
@@ -184,7 +184,7 @@ private fun OnboardingPage(page: OnboardingPageData) {
                     ) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(20.dp),
                             tint = page.color
                         )

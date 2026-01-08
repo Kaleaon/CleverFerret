@@ -79,7 +79,7 @@ fun FeatureFlagsSettingsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Warning,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.onWarningContainer,
                         modifier = Modifier.size(24.dp)
                     )
@@ -198,7 +198,7 @@ private fun FeatureFlagItem(
                 ) {
                     Icon(
                         imageVector = getIconForFlag(flag),
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp),
                         tint = if (enabled) {
                             MaterialTheme.colorScheme.primary

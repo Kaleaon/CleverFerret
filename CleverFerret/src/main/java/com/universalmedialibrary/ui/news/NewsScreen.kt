@@ -103,7 +103,7 @@ fun NewsRecipeCard(
                 }
                 Icon(
                     Icons.Default.Newspaper,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.padding(start = 8.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )

@@ -202,7 +202,7 @@ fun PDFSearchDialog(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Search,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.size(64.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -227,7 +227,7 @@ fun PDFSearchDialog(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.SearchOff,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.size(64.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -337,7 +337,7 @@ private fun SearchResultItem(
                 }
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

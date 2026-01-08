@@ -201,7 +201,7 @@ private fun StorageInfoCard(storageInfo: AudioPackImporter.StorageInfo?) {
                 ) {
                     Icon(
                         imageVector = if (info.isSDCard) Icons.Default.SdCard else Icons.Default.Storage,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -333,7 +333,7 @@ private fun SuccessCard(message: String, soundsImported: Int, onDismiss: () -> U
                 ) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -379,7 +379,7 @@ private fun ErrorCard(message: String, errors: List<String>, onDismiss: () -> Un
                 ) {
                     Icon(
                         imageVector = Icons.Default.Error,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -420,7 +420,7 @@ private fun InstructionsCard() {
             ) {
                 Icon(
                     imageVector = Icons.Default.Info,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.width(8.dp))

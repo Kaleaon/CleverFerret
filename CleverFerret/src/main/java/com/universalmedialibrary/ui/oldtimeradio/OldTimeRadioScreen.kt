@@ -124,7 +124,7 @@ private fun OTREmptyState(onImport: () -> Unit) {
         ) {
             Icon(
                 Icons.Default.Mic,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(80.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -228,7 +228,7 @@ private fun FavoritesTab() {
         ) {
             Icon(
                 Icons.Default.Favorite,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -262,7 +262,7 @@ private fun OTRSeriesCard(
             ) {
                 Icon(
                     Icons.Default.Mic,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.padding(12.dp),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
@@ -291,7 +291,7 @@ private fun OTRSeriesCard(
 
             Icon(
                 Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

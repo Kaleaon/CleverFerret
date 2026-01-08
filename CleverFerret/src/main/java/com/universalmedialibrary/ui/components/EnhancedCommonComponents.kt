@@ -55,7 +55,7 @@ fun DismissibleInfoBanner(
             ) {
                 Icon(
                     imageVector = type.icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = type.iconColor,
                     modifier = Modifier.size(24.dp)
                 )

@@ -94,7 +94,7 @@ fun FMRadioScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         Icons.Default.Radio,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.error
                     )

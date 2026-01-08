@@ -469,7 +469,7 @@ private fun EmptyState(onRetry: () -> Unit) {
     ) {
         Icon(
             imageVector = Icons.Default.Info,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(48.dp)
         )

@@ -169,7 +169,7 @@ private fun OPDSTopBar(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.LibraryBooks,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MediaColors.MediaTypes.Book,
                         modifier = Modifier.size(24.dp)
                     )
@@ -237,7 +237,7 @@ private fun BreadcrumbNavigation(
             if (index > 0) {
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.TextTertiary,
                     modifier = Modifier.size(16.dp)
                 )
@@ -346,7 +346,7 @@ private fun CatalogCard(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = catalog.icon,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = catalog.color,
                         modifier = Modifier.size(28.dp)
                     )
@@ -383,7 +383,7 @@ private fun CatalogCard(
             
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.TextTertiary
             )
         }
@@ -449,7 +449,7 @@ private fun NavigationEntryItem(
     ) {
         Icon(
             imageVector = Icons.Default.Folder,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.AccentPrimary,
             modifier = Modifier.size(24.dp)
         )
@@ -465,7 +465,7 @@ private fun NavigationEntryItem(
         
         Icon(
             imageVector = Icons.Default.ChevronRight,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary
         )
     }
@@ -502,7 +502,7 @@ private fun BookEntryItem(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.Book,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MediaColors.TextTertiary,
                         modifier = Modifier.size(32.dp)
                     )
@@ -666,7 +666,7 @@ private fun OPDSErrorState(
     ) {
         Icon(
             imageVector = Icons.Outlined.Error,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.Error,
             modifier = Modifier.size(64.dp)
         )

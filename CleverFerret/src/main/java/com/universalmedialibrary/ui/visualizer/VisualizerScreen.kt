@@ -413,7 +413,7 @@ private fun RecordAudioPermissionCard(
     ) {
         Icon(
             imageVector = Icons.Default.GraphicEq,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(72.dp)
         )

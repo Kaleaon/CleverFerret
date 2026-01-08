@@ -134,7 +134,7 @@ fun StoryManagerScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )

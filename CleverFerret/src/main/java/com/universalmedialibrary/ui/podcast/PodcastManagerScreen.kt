@@ -128,7 +128,7 @@ fun PodcastManagerScreen(
                         ) {
                             Icon(
                                 Icons.Default.Error,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -233,7 +233,7 @@ fun PodcastSubscriptionsTab(
         ) {
             Icon(
                 Icons.Default.Podcasts,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(80.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )

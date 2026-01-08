@@ -706,7 +706,7 @@ private fun SpeedPickerDialog(
                         if (speed == currentSpeed) {
                             Icon(
                                 imageVector = Icons.Default.Check,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MediaColors.AccentPrimary
                             )
                         }
@@ -760,7 +760,7 @@ private fun SleepTimerDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Timer,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MediaColors.AccentPrimary
                             )
                             Spacer(modifier = Modifier.width(MediaSpacing.SM))

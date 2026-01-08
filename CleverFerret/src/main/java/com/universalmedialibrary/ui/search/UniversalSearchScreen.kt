@@ -178,7 +178,7 @@ private fun SearchResultsView(
                     ) {
                         Icon(
                             Icons.Default.SearchOff,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )

@@ -181,7 +181,7 @@ private fun SearchTopBar(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MediaColors.TextTertiary
                     )
                 },
@@ -247,7 +247,7 @@ private fun CategoryFilterRow(
                     {
                         Icon(
                             imageVector = Icons.Default.Check,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -268,7 +268,7 @@ private fun CategoryFilterRow(
                 leadingIcon = {
                     Icon(
                         imageVector = category.icon,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(18.dp),
                         tint = if (selectedCategory == category)
                             category.color
@@ -329,7 +329,7 @@ private fun RecentSearchesSection(
             ) {
                 Icon(
                     imageVector = Icons.Default.History,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.TextTertiary,
                     modifier = Modifier.size(20.dp)
                 )
@@ -444,7 +444,7 @@ private fun ResultCategoryHeader(
     ) {
         Icon(
             imageVector = category.icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = category.color,
             modifier = Modifier.size(20.dp)
         )
@@ -520,7 +520,7 @@ private fun SearchResultItem(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = result.category.icon,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = result.category.color.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp)
                     )
@@ -570,7 +570,7 @@ private fun SearchResultItem(
         // Category indicator
         Icon(
             imageVector = result.category.icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = result.category.color,
             modifier = Modifier.size(16.dp)
         )
@@ -614,7 +614,7 @@ private fun SearchEmptyState() {
     ) {
         Icon(
             imageVector = Icons.Outlined.Search,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(72.dp)
         )
@@ -649,7 +649,7 @@ private fun NoResultsState(query: String) {
     ) {
         Icon(
             imageVector = Icons.Outlined.SearchOff,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(72.dp)
         )

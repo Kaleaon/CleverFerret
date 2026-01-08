@@ -841,7 +841,7 @@ private fun RadioEmptyState(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(64.dp)
         )

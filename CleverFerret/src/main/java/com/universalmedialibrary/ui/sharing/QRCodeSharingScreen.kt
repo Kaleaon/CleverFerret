@@ -110,7 +110,7 @@ private fun IdleSharingScreen(
     ) {
         Icon(
             imageVector = Icons.Default.QrCode,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )
@@ -196,7 +196,7 @@ private fun ActiveSharingScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     
@@ -349,7 +349,7 @@ private fun ReceivingScreen(
         if (url != null) {
             Icon(
                 imageVector = Icons.Default.Download,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -390,7 +390,7 @@ private fun ReceivingScreen(
         } else {
             Icon(
                 imageVector = Icons.Default.QrCodeScanner,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -434,7 +434,7 @@ private fun SharingOptionCard(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(32.dp)
             )
             
@@ -479,7 +479,7 @@ private fun ConnectedDeviceRow(
         ) {
             Icon(
                 imageVector = Icons.Default.Devices,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(20.dp)
             )
             

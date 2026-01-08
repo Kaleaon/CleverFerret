@@ -62,7 +62,7 @@ fun ThemeManagerScreen(
                         ) {
                             Icon(
                                 Icons.Default.MusicNote,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
@@ -142,7 +142,7 @@ private fun InfoCard(
             ) {
                 Icon(
                     Icons.Default.LibraryMusic,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
@@ -194,7 +194,7 @@ private fun StatItem(
         ) {
             Icon(
                 icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -232,7 +232,7 @@ private fun ThemeFilterChips(
             leadingIcon = {
                 Icon(
                     Icons.Default.ViewModule,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -278,7 +278,7 @@ private fun ThemeCollectionCard(
                         // Theme icon
                         Icon(
                             getThemeIcon(collection.theme),
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = if (collection.enabled) {
                                 MaterialTheme.colorScheme.primary
                             } else {
@@ -414,7 +414,7 @@ private fun HelpCard() {
             ) {
                 Icon(
                     Icons.Default.Info,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.onTertiaryContainer
                 )
                 Text(

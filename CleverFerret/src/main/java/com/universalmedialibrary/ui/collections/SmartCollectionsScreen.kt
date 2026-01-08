@@ -133,7 +133,7 @@ private fun SuggestionsTab(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(
                     Icons.Default.AutoAwesome,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(64.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -185,7 +185,7 @@ private fun SuggestionCard(
             ) {
                 Icon(
                     imageVector = getCollectionTypeIcon(suggestion.collectionType),
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(40.dp)
                 )
@@ -272,7 +272,7 @@ private fun ActiveCollectionsTab(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(
                     Icons.Default.PlaylistAdd,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(64.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -324,7 +324,7 @@ private fun ActiveCollectionCard(
         ) {
             Icon(
                 imageVector = getCollectionTypeIcon(collection.collectionType),
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(48.dp)
             )

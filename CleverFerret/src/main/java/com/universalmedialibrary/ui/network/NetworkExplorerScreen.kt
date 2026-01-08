@@ -144,7 +144,7 @@ private fun ConnectionStatusCard(
             ) {
                 Icon(
                     imageVector = if (isConnected) Icons.Default.Wifi else Icons.Default.WifiOff,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = if (isConnected) Color.Green else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
@@ -239,7 +239,7 @@ private fun NetworkFileRow(
         ) {
             Icon(
                 imageVector = if (file.isDirectory) Icons.Default.Folder else getFileIcon(file.mimeType),
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(24.dp)
             )
             
@@ -293,7 +293,7 @@ private fun NetworkDeviceCard(
                 ) {
                     Icon(
                         imageVector = getDeviceIcon(device.type),
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(24.dp)
                     )
                     

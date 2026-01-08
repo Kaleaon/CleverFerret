@@ -1052,7 +1052,7 @@ private fun GitHubTokenSection(
                 ) {
                     Icon(
                         imageVector = Icons.Default.BugReport,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.size(20.dp)
                     )

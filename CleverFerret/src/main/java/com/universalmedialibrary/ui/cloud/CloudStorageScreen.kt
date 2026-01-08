@@ -145,7 +145,7 @@ private fun SyncStatusCard(
                         SyncStatus.COMPLETED -> Icons.Default.CheckCircle
                         SyncStatus.ERROR -> Icons.Default.Error
                     },
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = when (status) {
                         SyncStatus.ERROR -> MaterialTheme.colorScheme.error
                         SyncStatus.COMPLETED -> Color.Green
@@ -234,7 +234,7 @@ private fun CloudProviderCard(
                 ) {
                     Icon(
                         imageVector = getProviderIcon(provider),
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(24.dp)
                     )
                     

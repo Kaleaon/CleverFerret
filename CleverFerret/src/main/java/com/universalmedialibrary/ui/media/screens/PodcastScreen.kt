@@ -208,7 +208,7 @@ private fun PodcastTopBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Podcasts,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.MediaTypes.Podcast,
                     modifier = Modifier.size(24.dp)
                 )
@@ -322,7 +322,7 @@ private fun PodcastShowCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Podcasts,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MediaColors.MediaTypes.Podcast.copy(alpha = 0.5f),
                         modifier = Modifier
                             .padding(MediaSpacing.XL)
@@ -569,7 +569,7 @@ private fun PodcastEpisodeCard(
                 ) {
                     Icon(
                         imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(MediaSpacing.XS))
@@ -807,7 +807,7 @@ private fun DownloadedEpisodeItem(
                 )
                 Icon(
                     imageVector = Icons.Default.DownloadDone,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.Success,
                     modifier = Modifier.size(14.dp)
                 )
@@ -986,7 +986,7 @@ private fun PodcastEmptyState(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(64.dp)
         )

@@ -195,7 +195,7 @@ fun MediaCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = Color(0xFFFFD700),
                             modifier = Modifier.size(12.dp)
                         )

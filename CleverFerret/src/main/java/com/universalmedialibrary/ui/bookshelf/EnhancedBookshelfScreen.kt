@@ -399,7 +399,7 @@ fun EnhancedBookshelfScreenDemo(
                         ) {
                             Icon(
                                 Icons.Default.ViewCarousel,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(80.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -491,7 +491,7 @@ private fun GridBookItem(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = Color.White
                         )
@@ -564,7 +564,7 @@ private fun GridBookItem(
                         repeat(5) { index ->
                             Icon(
                                 imageVector = if (index < book.rating) Icons.Default.Star else Icons.Default.StarBorder,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(12.dp),
                                 tint = if (index < book.rating) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline
                             )
@@ -639,7 +639,7 @@ private fun ListBookItem(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
@@ -727,7 +727,7 @@ private fun ListBookItem(
                                 repeat(book.rating) {
                                     Icon(
                                         Icons.Default.Star,
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         modifier = Modifier.size(14.dp),
                                         tint = Color(0xFFFFD700)
                                     )

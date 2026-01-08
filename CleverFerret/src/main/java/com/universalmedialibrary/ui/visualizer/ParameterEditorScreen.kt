@@ -388,7 +388,7 @@ private fun ParameterSlider(
             ) {
                 Icon(
                     icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )

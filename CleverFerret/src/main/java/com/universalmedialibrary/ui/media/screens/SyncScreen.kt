@@ -49,7 +49,7 @@ fun MediaSyncScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Sync,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MediaColors.Info,
                             modifier = Modifier.size(24.dp)
                         )
@@ -147,7 +147,7 @@ private fun SectionHeader(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.AccentPrimary,
             modifier = Modifier.size(20.dp)
         )
@@ -205,7 +205,7 @@ private fun SyncStatusCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Check,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MediaColors.Success,
                             modifier = Modifier.padding(6.dp)
                         )
@@ -225,7 +225,7 @@ private fun SyncStatusCard(
             ) {
                 Icon(
                     imageVector = Icons.Default.Sync,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -259,7 +259,7 @@ private fun SyncServiceCard(
             ) {
                 Icon(
                     imageVector = service.icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = service.color,
                     modifier = Modifier.padding(MediaSpacing.SM)
                 )
@@ -306,7 +306,7 @@ private fun SyncServiceCard(
             
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.TextTertiary
             )
         }
@@ -329,7 +329,7 @@ private fun SyncHistoryItem(
                 SyncType.DOWNLOAD -> Icons.Default.CloudDownload
                 SyncType.SYNC -> Icons.Default.Sync
             },
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = when (entry.success) {
                 true -> MediaColors.Success
                 false -> MediaColors.Error
@@ -455,7 +455,7 @@ private fun ImportExportCard(
         ) {
             Icon(
                 imageVector = if (isImport) Icons.Default.FileUpload else Icons.Default.FileDownload,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.AccentPrimary
             )
             
@@ -476,7 +476,7 @@ private fun ImportExportCard(
             
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.TextTertiary
             )
         }

@@ -230,7 +230,7 @@ private fun MediaTypeChip(
             ) {
                 Icon(
                     imageVector = mediaType.icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.height(4.dp))

@@ -85,7 +85,7 @@ fun GenreDetailScreen(
                             ) {
                                 Icon(
                                     Icons.Default.Category,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.padding(24.dp),
                                     tint = MaterialTheme.colorScheme.onTertiaryContainer
                                 )

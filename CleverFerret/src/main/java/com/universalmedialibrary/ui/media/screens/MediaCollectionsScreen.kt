@@ -100,7 +100,7 @@ private fun CollectionsTopBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Collections,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.AccentPrimary,
                     modifier = Modifier.size(24.dp)
                 )
@@ -204,7 +204,7 @@ private fun CollectionCard(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Collections,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MediaColors.TextTertiary,
                                 modifier = Modifier.padding(MediaSpacing.XL)
                             )
@@ -227,7 +227,7 @@ private fun CollectionCard(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AutoAwesome,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = Color.Black,
                                 modifier = Modifier.size(12.dp)
                             )
@@ -275,7 +275,7 @@ private fun CollectionsEmptyState(
     ) {
         Icon(
             imageVector = Icons.Outlined.Collections,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(72.dp)
         )

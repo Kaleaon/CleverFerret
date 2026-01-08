@@ -175,7 +175,7 @@ fun SecurityOptionsSection(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -222,7 +222,7 @@ fun AboutSection() {
         ) {
             Icon(
                 imageVector = Icons.Default.Book,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )

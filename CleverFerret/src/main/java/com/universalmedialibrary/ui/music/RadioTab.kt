@@ -37,7 +37,7 @@ fun RadioTab(
             ) {
                 Icon(
                     Icons.Default.Radio,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(64.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -118,7 +118,7 @@ private fun RadioStationItem(
                 ) {
                     Icon(
                         Icons.Default.Radio,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.padding(12.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )

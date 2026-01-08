@@ -611,7 +611,7 @@ private fun ErrorState(
         ) {
             Icon(
                 imageVector = Icons.Default.Error,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.error
             )

@@ -105,7 +105,7 @@ fun ArtistDetailScreen(
                             ) {
                                 Icon(
                                     Icons.Default.Person,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.padding(24.dp),
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
@@ -204,7 +204,7 @@ private fun AlbumListItem(album: Album, onClick: () -> Unit) {
             ) {
                 Icon(
                     Icons.Default.Album,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.padding(12.dp)
                 )
             }
@@ -238,7 +238,7 @@ private fun ArtistInfoCard(info: ArtistInfo) {
                 ) {
                     Icon(
                         Icons.Default.CalendarMonth,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -258,7 +258,7 @@ private fun ArtistInfoCard(info: ArtistInfo) {
                 ) {
                     Icon(
                         Icons.Default.Place,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -277,7 +277,7 @@ private fun ArtistInfoCard(info: ArtistInfo) {
                 ) {
                     Icon(
                         Icons.Default.MusicNote,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -343,7 +343,7 @@ private fun ArtistInfoCard(info: ArtistInfo) {
                 ) {
                     Icon(
                         Icons.Default.Star,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )

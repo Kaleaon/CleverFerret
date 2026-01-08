@@ -232,7 +232,7 @@ fun MediaErrorScreen(
     ) {
         Icon(
             imageVector = Icons.Outlined.Error,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.Error,
             modifier = Modifier.size(72.dp)
         )
@@ -299,7 +299,7 @@ fun MediaEmptyState(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.AccentPrimary.copy(alpha = 0.5f),
                 modifier = Modifier.padding(MediaSpacing.LG)
             )
@@ -454,7 +454,7 @@ fun MediaPrimaryButton(
         if (icon != null) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -484,7 +484,7 @@ fun MediaSecondaryButton(
         if (icon != null) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -605,7 +605,7 @@ fun MediaChip(
             {
                 Icon(
                     imageVector = icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(18.dp)
                 )
             }

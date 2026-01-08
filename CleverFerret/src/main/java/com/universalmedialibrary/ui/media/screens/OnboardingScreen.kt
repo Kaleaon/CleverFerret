@@ -187,7 +187,7 @@ private fun WelcomePage() {
         ) {
             Icon(
                 imageVector = Icons.Default.Pets, // Ferret-like icon
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.AccentPrimary,
                 modifier = Modifier.padding(MediaSpacing.XL)
             )
@@ -269,7 +269,7 @@ private fun StoragePage() {
                     ) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MediaColors.Success
                         )
                         Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -302,7 +302,7 @@ private fun StoragePage() {
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Folder,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MediaColors.AccentPrimary
                             )
                             Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -463,7 +463,7 @@ private fun ReadyPage() {
         ) {
             Icon(
                 imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.Success,
                 modifier = Modifier.padding(MediaSpacing.XL)
             )
@@ -493,7 +493,7 @@ private fun OnboardingPageContent(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = iconColor,
             modifier = Modifier.size(48.dp)
         )
@@ -540,7 +540,7 @@ private fun FeatureItem(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.AccentPrimary,
                 modifier = Modifier.padding(MediaSpacing.SM)
             )
@@ -585,7 +585,7 @@ private fun AccountOption(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = if (connected) MediaColors.AccentPrimary else MediaColors.TextSecondary
             )
             
@@ -613,7 +613,7 @@ private fun AccountOption(
             } else {
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.TextTertiary
                 )
             }

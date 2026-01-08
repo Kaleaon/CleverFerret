@@ -123,7 +123,7 @@ fun MediaItemDetailScreen(
                     ) {
                         Icon(
                             Icons.Default.PlayArrow,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -136,7 +136,7 @@ fun MediaItemDetailScreen(
                     ) {
                         Icon(
                             Icons.Default.Share,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -399,7 +399,7 @@ private fun CoverSection(
                             "MOVIE" -> Icons.Default.Movie
                             else -> Icons.Default.InsertDriveFile
                         },
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(80.dp),
                         tint = Color.White.copy(alpha = 0.7f)
                     )
@@ -444,7 +444,7 @@ private fun TitleSection(
                 ) {
                     Icon(
                         Icons.Default.Star,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = Color(0xFFFFD700),
                         modifier = Modifier.size(16.dp)
                     )
@@ -632,7 +632,7 @@ private fun ErrorView(
     ) {
         Icon(
             Icons.Default.Error,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.error
         )
@@ -696,7 +696,7 @@ private fun SuccessMessage(message: String, onDismiss: () -> Unit) {
             ) {
                 Icon(
                     Icons.Default.CheckCircle,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = Color.White
                 )
                 Text(
@@ -738,7 +738,7 @@ private fun ErrorMessage(message: String, onDismiss: () -> Unit) {
             ) {
                 Icon(
                     Icons.Default.Error,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.onErrorContainer
                 )
                 Text(

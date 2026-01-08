@@ -860,7 +860,7 @@ private fun EmptyResultsCard() {
         ) {
             Icon(
                 Icons.Default.Search,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -957,7 +957,7 @@ private fun DownloadTab(
                     ) {
                         Icon(
                             Icons.Default.Download,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp)
                         )
@@ -1059,7 +1059,7 @@ private fun DownloadTab(
                         ) {
                             Icon(
                                 Icons.Default.CheckCircle,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier.size(32.dp)
                             )
@@ -1121,7 +1121,7 @@ private fun DownloadTab(
                     ) {
                         Icon(
                             Icons.Default.Error,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.error
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -1155,7 +1155,7 @@ private fun DownloadTab(
                     ) {
                         Icon(
                             Icons.Default.Language,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -1198,7 +1198,7 @@ private fun DownloadTab(
                     ) {
                         Icon(
                             Icons.Default.Lightbulb,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.tertiary
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -1237,7 +1237,7 @@ private fun DownloadTab(
                 ) {
                     Icon(
                         Icons.Default.PhotoLibrary,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(32.dp)
                     )

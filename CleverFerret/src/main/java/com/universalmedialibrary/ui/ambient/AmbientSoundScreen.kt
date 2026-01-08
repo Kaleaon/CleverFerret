@@ -312,7 +312,7 @@ private fun EmptyState() {
         ) {
             Icon(
                 imageVector = PhosphorIcons.Nature,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -340,7 +340,7 @@ private fun ErrorState(message: String) {
         ) {
             Icon(
                 imageVector = Icons.Default.Error,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )

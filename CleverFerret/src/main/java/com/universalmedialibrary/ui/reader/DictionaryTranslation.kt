@@ -658,7 +658,7 @@ private fun WordList(
                         )
                         Icon(
                             Icons.Default.ChevronRight,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }

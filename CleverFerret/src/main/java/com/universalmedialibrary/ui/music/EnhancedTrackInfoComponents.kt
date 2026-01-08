@@ -171,7 +171,7 @@ fun EnhancedTrackInfoSection(
             Text("View Details")
             Icon(
                 Icons.Default.Info,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(16.dp).padding(start = 4.dp)
             )
         }
@@ -199,7 +199,7 @@ private fun TechnicalInfoChip(
         ) {
             Icon(
                 icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(14.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )

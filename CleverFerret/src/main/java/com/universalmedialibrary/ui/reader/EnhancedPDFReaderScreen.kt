@@ -515,7 +515,7 @@ fun FloatingAnnotationPanel(
                             AnnotationType.DRAWING -> Icons.Default.Draw
                             AnnotationType.STRIKETHROUGH -> Icons.Default.FormatStrikethrough
                         },
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(16.dp)
                     )
 

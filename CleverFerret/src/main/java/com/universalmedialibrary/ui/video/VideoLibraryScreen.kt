@@ -75,7 +75,7 @@ fun VideoLibraryScreen(
                         ) {
                             Icon(
                                 Icons.Default.VideoLibrary,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(80.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )

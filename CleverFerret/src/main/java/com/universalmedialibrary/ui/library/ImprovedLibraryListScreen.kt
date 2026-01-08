@@ -45,7 +45,7 @@ fun ImprovedLibraryListScreen(
                     ) {
                         Icon(
                             imageVector = PhosphorIcons.Book,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(24.dp)
                         )
                         Text("CleverFerret")

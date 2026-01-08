@@ -165,7 +165,7 @@ private fun DirectDownloadTab(
     ) {
         Icon(
             Icons.Default.CloudDownload,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )

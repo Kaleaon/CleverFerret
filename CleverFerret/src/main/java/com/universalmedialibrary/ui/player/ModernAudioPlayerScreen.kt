@@ -220,7 +220,7 @@ fun ModernAudioPlayerScreen(
                           ) {
                             Icon(
                                 Icons.Default.MusicNote,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(120.dp),
                                 tint = Color.White.copy(alpha = 0.5f)
                             )

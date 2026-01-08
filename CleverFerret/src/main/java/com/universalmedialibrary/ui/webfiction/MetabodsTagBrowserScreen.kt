@@ -568,7 +568,7 @@ private fun MetadataChip(icon: androidx.compose.ui.graphics.vector.ImageVector, 
     ) {
         Icon(
             icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(16.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -594,7 +594,7 @@ private fun ErrorCard(error: String, onDismiss: () -> Unit) {
         ) {
             Icon(
                 Icons.Default.Error,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.error
             )
             Spacer(modifier = Modifier.width(12.dp))

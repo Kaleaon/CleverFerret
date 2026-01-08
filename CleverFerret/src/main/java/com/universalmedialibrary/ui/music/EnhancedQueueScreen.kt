@@ -106,7 +106,7 @@ fun EnhancedQueueScreen(
                 ) {
                     Icon(
                         Icons.Default.QueueMusic,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -224,7 +224,7 @@ private fun QueueTrackItem(
                 if (isCurrentTrack) {
                     Icon(
                         Icons.Default.PlayArrow,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(20.dp)
                     )

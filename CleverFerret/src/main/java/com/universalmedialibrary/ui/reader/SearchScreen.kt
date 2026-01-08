@@ -247,7 +247,7 @@ private fun SearchHistory(
             ) {
                 Icon(
                     PhosphorIcons.History,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -288,7 +288,7 @@ private fun NoResultsMessage(
         ) {
             Icon(
                 Icons.Default.Search,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )

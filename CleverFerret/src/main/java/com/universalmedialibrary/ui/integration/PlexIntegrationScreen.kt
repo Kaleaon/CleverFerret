@@ -158,7 +158,7 @@ private fun ConnectionStatusCard(
             ) {
                 Icon(
                     Icons.Default.Cloud,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = when {
                         isConnecting -> MaterialTheme.colorScheme.primary
                         connectedServers.isNotEmpty() -> MaterialTheme.colorScheme.primary

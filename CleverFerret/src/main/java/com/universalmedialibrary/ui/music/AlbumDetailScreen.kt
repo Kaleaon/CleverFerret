@@ -120,7 +120,7 @@ fun AlbumDetailScreen(
                                 } else {
                                     Icon(
                                         Icons.Default.Album,
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         modifier = Modifier.fillMaxSize().padding(32.dp),
                                         tint = MaterialTheme.colorScheme.primary
                                     )

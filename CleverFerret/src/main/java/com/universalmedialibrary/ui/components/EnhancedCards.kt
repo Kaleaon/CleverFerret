@@ -73,7 +73,7 @@ fun EnhancedMediaCard(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 Icons.Default.Image,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(64.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                             )
@@ -114,7 +114,7 @@ fun EnhancedMediaCard(
                         ) {
                             Icon(
                                 getMediaTypeIcon(mediaType),
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -213,7 +213,7 @@ fun AnimatedInfoCard(
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             icon,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(24.dp)
                         )
@@ -242,7 +242,7 @@ fun AnimatedInfoCard(
                 ) {
                     Icon(
                         if (trendUp) Icons.AutoMirrored.Filled.TrendingUp else Icons.Default.TrendingDown,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = if (trendUp) Color(0xFF4CAF50) else Color(0xFFF44336),
                         modifier = Modifier.size(16.dp)
                     )
@@ -303,7 +303,7 @@ fun FeatureCard(
                     ) {
                         Icon(
                             icon,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = if (enabled) {
                                 MaterialTheme.colorScheme.onPrimary
                             } else {

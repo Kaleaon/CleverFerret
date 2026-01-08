@@ -191,7 +191,7 @@ fun ContentRatingBadge(
             if (isRestricted) {
                 Icon(
                     Icons.Default.Lock,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = textColor,
                     modifier = Modifier.size(14.dp)
                 )
@@ -261,7 +261,7 @@ fun FilteredMediaGridItem(
                 if (contentStatus == ContentStatus.Locked || contentStatus == ContentStatus.Blocked) {
                     Icon(
                         if (contentStatus == ContentStatus.Locked) Icons.Default.Lock else Icons.Default.VisibilityOff,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier
                             .size(32.dp)

@@ -274,7 +274,7 @@ fun APIKeysManagerScreen(
                         ) {
                             Icon(
                                 Icons.Default.Info,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -558,7 +558,7 @@ fun APIKeyCard(
                             ) {
                                 Icon(
                                     Icons.Default.CheckCircle,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )

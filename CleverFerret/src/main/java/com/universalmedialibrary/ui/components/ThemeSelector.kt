@@ -200,7 +200,7 @@ private fun FeatureChip(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(12.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )

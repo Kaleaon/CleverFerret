@@ -154,7 +154,7 @@ private fun SyncStatusCard(
             // Status Icon
             Icon(
                 if (syncState.isLoading) Icons.Default.Sync else Icons.Default.CloudSync,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = if (syncState.error != null) {
                     MaterialTheme.colorScheme.error
@@ -260,7 +260,7 @@ private fun ErrorCard(error: String, onDismiss: () -> Unit) {
             ) {
                 Icon(
                     Icons.Default.Error,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.onErrorContainer
                 )
                 Text(

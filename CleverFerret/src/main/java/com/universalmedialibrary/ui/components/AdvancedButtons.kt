@@ -68,7 +68,7 @@ fun AdvancedMetallicButton(
             if (icon != null) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -164,7 +164,7 @@ fun GradientButton(
             if (icon != null) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(20.dp)
                 )
             }

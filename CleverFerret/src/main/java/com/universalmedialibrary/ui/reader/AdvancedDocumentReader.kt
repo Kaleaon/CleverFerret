@@ -51,7 +51,7 @@ fun AdvancedDocumentReader(
         ) {
             Icon(
                 imageVector = Icons.Default.Description,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )

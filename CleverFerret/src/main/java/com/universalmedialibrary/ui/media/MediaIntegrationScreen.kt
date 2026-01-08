@@ -124,7 +124,7 @@ fun AuthenticationView(
     ) {
         Icon(
             Icons.Default.Cloud,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )
@@ -166,7 +166,7 @@ fun ServerDiscoveryView(
     ) {
         Icon(
             Icons.Default.Search,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )

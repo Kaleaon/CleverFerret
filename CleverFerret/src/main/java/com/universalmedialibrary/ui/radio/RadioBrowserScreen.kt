@@ -129,7 +129,7 @@ fun RadioStationCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Radio,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }

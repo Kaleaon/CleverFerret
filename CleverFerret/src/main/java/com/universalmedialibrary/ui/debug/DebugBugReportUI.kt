@@ -294,7 +294,7 @@ fun BugReportDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.BugReport,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(28.dp)
                         )
@@ -453,7 +453,7 @@ private fun BugReportForm(
                         ) {
                             Icon(
                                 Icons.Default.Image,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
@@ -546,7 +546,7 @@ private fun BugReportForm(
                 ) {
                     Icon(
                         Icons.Default.Info,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
@@ -567,7 +567,7 @@ private fun BugReportForm(
         ) {
             Icon(
                 Icons.Default.Send,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -617,7 +617,7 @@ private fun SubmissionResultContent(
             is SubmissionResult.Success -> {
                 Icon(
                     Icons.Default.Check,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(64.dp)
@@ -660,7 +660,7 @@ private fun SubmissionResultContent(
             is SubmissionResult.SavedLocally -> {
                 Icon(
                     Icons.Default.Check,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(64.dp)
@@ -692,7 +692,7 @@ private fun SubmissionResultContent(
             is SubmissionResult.Error -> {
                 Icon(
                     Icons.Default.Error,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .size(64.dp)

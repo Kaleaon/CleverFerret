@@ -302,7 +302,7 @@ fun TextToSpeechControlPanel(
                             TtsState.ERROR -> Icons.Default.Error
                             else -> Icons.AutoMirrored.Filled.VolumeUp
                         },
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(

@@ -1006,7 +1006,7 @@ private fun MetallicBorderCard(
                     ) {
                         Icon(
                             imageVector = item.mediaType.icon,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                         )
@@ -1187,7 +1187,7 @@ private fun RecentlyAddedGridItem(
                     ) {
                         Icon(
                             imageVector = item.mediaType.icon,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                         )
@@ -1208,7 +1208,7 @@ private fun RecentlyAddedGridItem(
                     ) {
                         Icon(
                             imageVector = item.mediaType.icon,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )

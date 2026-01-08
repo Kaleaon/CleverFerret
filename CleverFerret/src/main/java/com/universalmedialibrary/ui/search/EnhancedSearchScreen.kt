@@ -205,7 +205,7 @@ private fun ErrorState(error: String, onRetry: () -> Unit) {
         ) {
             Icon(
                 Icons.Default.Error,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )
@@ -318,7 +318,7 @@ private fun InitialState(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             Icons.Default.Search,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -351,7 +351,7 @@ private fun EmptyResultsState(query: String) {
         ) {
             Icon(
                 Icons.Default.SearchOff,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -486,7 +486,7 @@ private fun SearchResultCard(
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.Star,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.size(16.dp)
                                 )
                             }

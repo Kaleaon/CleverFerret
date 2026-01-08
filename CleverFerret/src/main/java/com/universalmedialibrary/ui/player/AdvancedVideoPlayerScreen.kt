@@ -381,7 +381,7 @@ private fun ErrorState(
         ) {
             Icon(
                 imageVector = Icons.Default.Error,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.error
             )
@@ -473,7 +473,7 @@ private fun GestureOverlays(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = Color.White,
                         modifier = Modifier.size(20.dp)
                     )
@@ -508,7 +508,7 @@ private fun GestureOverlays(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Brightness6,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = Color.White,
                         modifier = Modifier.size(20.dp)
                     )

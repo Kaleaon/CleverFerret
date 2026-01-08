@@ -183,7 +183,7 @@ fun ImportExportScreen(
                         ) {
                             Icon(
                                 Icons.Default.CheckCircle,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = Color.White
                             )
                             Text(
@@ -214,7 +214,7 @@ fun ImportExportScreen(
                         ) {
                             Icon(
                                 Icons.Default.Error,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.onErrorContainer
                             )
                             Text(

@@ -155,7 +155,7 @@ fun RadioScreen(
                                     ) {
                                         Icon(
                                             Icons.Default.MusicNote,
-                                            contentDescription = null,
+                                            contentDescription = "Media image",
                                             modifier = Modifier.size(20.dp),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
@@ -316,7 +316,7 @@ private fun RadioMediaPlayerBar(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Radio,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = Color.White.copy(alpha = 0.8f),
                                 modifier = Modifier.size(24.dp)
                             )
@@ -422,7 +422,7 @@ private fun StationList(
             ) {
                 Icon(
                     Icons.Default.Radio,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(80.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
@@ -492,7 +492,7 @@ private fun RadioStationCard(
                 } else {
                     Icon(
                         Icons.Default.Radio,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(12.dp),

@@ -132,7 +132,7 @@ private fun EmptySessionsView() {
     ) {
         Icon(
             Icons.Default.QrCode,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(120.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -330,7 +330,7 @@ private fun QueueItemCard(item: SessionQueueItem) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.ThumbUp,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -394,7 +394,7 @@ private fun ErrorView(message: String) {
     ) {
         Icon(
             Icons.Default.Error,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.error
         )

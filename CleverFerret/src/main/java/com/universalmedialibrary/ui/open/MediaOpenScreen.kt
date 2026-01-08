@@ -129,7 +129,7 @@ private fun AudioPlaybackScreen(
     ) {
         Icon(
             imageVector = Icons.Default.MusicNote,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )

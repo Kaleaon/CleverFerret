@@ -393,7 +393,7 @@ private fun SectionHeader(
             Text("See All")
             Icon(
                 Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -483,7 +483,7 @@ private fun ErrorState(
     ) {
         Icon(
             Icons.Default.Error,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.error
         )

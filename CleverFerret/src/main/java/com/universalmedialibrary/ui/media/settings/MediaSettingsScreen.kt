@@ -535,7 +535,7 @@ private fun ApiProviderItem(
         ) {
             Icon(
                 imageVector = if (isConfigured) Icons.Filled.CheckCircle else Icons.Outlined.Api,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.padding(MediaSpacing.SM),
                 tint = if (isConfigured) MediaColors.Success else MediaColors.TextSecondary
             )
@@ -599,7 +599,7 @@ private fun ApiProviderItem(
         
         Icon(
             imageVector = Icons.Default.ChevronRight,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary
         )
     }
@@ -943,7 +943,7 @@ private fun SettingsItem(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.padding(MediaSpacing.SM),
                 tint = iconColor
             )
@@ -966,7 +966,7 @@ private fun SettingsItem(
         
         Icon(
             imageVector = Icons.Default.ChevronRight,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary
         )
     }

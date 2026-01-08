@@ -781,7 +781,7 @@ private fun TrackGridItem(track: Track, onClick: () -> Unit) {
                 } else {
                     Icon(
                         Icons.Default.MusicNote,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(32.dp),
@@ -850,7 +850,7 @@ internal fun TrackListItem(track: Track, compact: Boolean = false, onClick: () -
                 } else {
                     Icon(
                         Icons.Default.MusicNote,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.padding(8.dp)
                     )
                 }
@@ -895,7 +895,7 @@ private fun AlbumGridItem(album: Album, onClick: () -> Unit) {
                 } else {
                     Icon(
                         Icons.Default.Album,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(32.dp),
@@ -954,7 +954,7 @@ private fun ArtistListItem(artist: Artist, onClick: () -> Unit) {
             ) {
                 Icon(
                     Icons.Default.Person,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.padding(12.dp),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -980,7 +980,7 @@ private fun GenreListItem(genre: Genre, onClick: () -> Unit) {
             ) {
                 Icon(
                     Icons.Default.Category,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.padding(12.dp),
                     tint = MaterialTheme.colorScheme.onTertiaryContainer
                 )

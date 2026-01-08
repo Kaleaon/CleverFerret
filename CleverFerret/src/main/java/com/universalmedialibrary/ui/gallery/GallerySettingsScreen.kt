@@ -199,7 +199,7 @@ fun GallerySettingsScreen(
                     ) {
                         Icon(
                             Icons.Default.Security,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Spacer(modifier = Modifier.width(16.dp))
@@ -244,7 +244,7 @@ private fun SettingsListItem(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -261,7 +261,7 @@ private fun SettingsListItem(
             }
             Icon(
                 Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -288,7 +288,7 @@ private fun SettingsSwitchItem(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.width(16.dp))

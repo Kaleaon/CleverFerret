@@ -147,7 +147,7 @@ fun VolumeDialog(
                     if (currentVolume > 0.5f) Icons.AutoMirrored.Filled.VolumeUp 
                     else if (currentVolume > 0f) Icons.Default.VolumeDown
                     else Icons.Default.VolumeOff,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(48.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )

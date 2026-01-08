@@ -146,7 +146,7 @@ fun MediaControlsBar(
                         } else {
                             Icon(
                                 Icons.Default.MusicNote,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
@@ -168,7 +168,7 @@ fun MediaControlsBar(
                             if (isCasting && castDeviceName != null) {
                                 Icon(
                                     Icons.Default.Cast,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.size(14.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )

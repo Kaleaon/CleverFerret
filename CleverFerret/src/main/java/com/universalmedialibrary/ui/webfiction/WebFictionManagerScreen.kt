@@ -130,7 +130,7 @@ fun WebFictionManagerScreen(
                         ) {
                             Icon(
                                 Icons.Default.Warning,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.tertiary
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -166,7 +166,7 @@ fun WebFictionManagerScreen(
                         ) {
                             Icon(
                                 Icons.Default.Error,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -198,7 +198,7 @@ fun WebFictionManagerScreen(
                         ) {
                             Icon(
                                 Icons.Default.NewReleases,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -235,7 +235,7 @@ fun WebFictionManagerScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(80.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
@@ -469,7 +469,7 @@ fun WebFictionStoryCard(
                     ) {
                         Icon(
                             Icons.Default.Refresh,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -484,7 +484,7 @@ fun WebFictionStoryCard(
                     ) {
                         Icon(
                             Icons.Default.Download,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -655,7 +655,7 @@ fun SupportedSitesDialog(
                         ) {
                             Icon(
                                 Icons.Default.Language,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -679,7 +679,7 @@ fun SupportedSitesDialog(
                                         leadingIcon = {
                                             Icon(
                                                 Icons.Default.Warning,
-                                                contentDescription = null,
+                                                contentDescription = "Media image",
                                                 tint = MaterialTheme.colorScheme.tertiary
                                             )
                                         },

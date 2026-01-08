@@ -176,7 +176,7 @@ private fun AmbientTopBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Spa,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.Success,
                     modifier = Modifier.size(24.dp)
                 )
@@ -279,7 +279,7 @@ private fun ActiveSoundItem(
         ) {
             Icon(
                 imageVector = sound.icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = sound.color,
                 modifier = Modifier.padding(MediaSpacing.SM)
             )
@@ -374,7 +374,7 @@ private fun PresetCard(
             ) {
                 Icon(
                     imageVector = preset.icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = preset.color,
                     modifier = Modifier.padding(MediaSpacing.SM)
                 )
@@ -411,7 +411,7 @@ private fun SectionTitle(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.AccentPrimary,
             modifier = Modifier.size(20.dp)
         )
@@ -474,7 +474,7 @@ private fun SoundCard(
         ) {
             Icon(
                 imageVector = sound.icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = if (isActive) sound.color else MediaColors.TextSecondary,
                 modifier = Modifier.size(32.dp)
             )
@@ -529,7 +529,7 @@ private fun AmbientNowPlayingBar(
                     ) {
                         Icon(
                             imageVector = sound.icon,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = sound.color,
                             modifier = Modifier.padding(6.dp)
                         )
@@ -561,7 +561,7 @@ private fun AmbientNowPlayingBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.VolumeDown,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.TextSecondary,
                     modifier = Modifier.size(20.dp)
                 )
@@ -578,7 +578,7 @@ private fun AmbientNowPlayingBar(
                 
                 Icon(
                     imageVector = Icons.Default.VolumeUp,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.TextSecondary,
                     modifier = Modifier.size(20.dp)
                 )
@@ -595,7 +595,7 @@ private fun AmbientNowPlayingBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Stop,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(MediaSpacing.XS))
@@ -683,7 +683,7 @@ private fun TimerDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Timer,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MediaColors.AccentPrimary
                             )
                             Spacer(modifier = Modifier.width(MediaSpacing.SM))

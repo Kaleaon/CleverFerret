@@ -41,7 +41,7 @@ fun ErrorStateCard(
         ) {
             Icon(
                 imageVector = Icons.Default.Error,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.error
             )
@@ -160,7 +160,7 @@ fun EmptyStateCard(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -218,7 +218,7 @@ fun InfoBanner(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
 
@@ -288,7 +288,7 @@ fun StatsCard(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )

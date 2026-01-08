@@ -104,7 +104,7 @@ private fun EpisodeCard(
             ) {
                 Icon(
                     Icons.Default.PlayCircle,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(32.dp)
                 )

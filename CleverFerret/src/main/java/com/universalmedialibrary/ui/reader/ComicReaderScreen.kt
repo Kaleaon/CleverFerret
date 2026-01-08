@@ -122,7 +122,7 @@ fun ComicReaderScreen(
 
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 currentBitmap?.let { bmp ->
-                    Image(bitmap = bmp.asImageBitmap(), contentDescription = null)
+                    Image(bitmap = bmp.asImageBitmap(), contentDescription = "Media image")
                     val apiSettings = settingsViewModel.apiSettings.collectAsState().value
                     val enabled = apiSettings.comicApis.geminiBubbleTranslationEnabled
                     if (enabled && translationsJson != null) {

@@ -74,7 +74,7 @@ fun EnhancedMediaCard(
                     ) {
                         Icon(
                             imageVector = getIconForMediaType(item.mediaItem.mediaType),
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(72.dp),
                             tint = Color.White.copy(alpha = 0.6f)
                         )
@@ -113,7 +113,7 @@ fun EnhancedMediaCard(
                         ) {
                             Icon(
                                 Icons.Default.Star,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(14.dp),
                                 tint = Color.Black
                             )
@@ -175,7 +175,7 @@ fun EnhancedMediaCard(
                         ) {
                             Icon(
                                 Icons.Default.CalendarToday,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -193,7 +193,7 @@ fun EnhancedMediaCard(
                     ) {
                         Icon(
                             Icons.Default.Storage,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(14.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -237,7 +237,7 @@ fun EnhancedMediaCard(
                         ) {
                             Icon(
                                 Icons.Default.PlayArrow,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -331,7 +331,7 @@ fun CompactMediaCard(
                     ) {
                         Icon(
                             imageVector = getIconForMediaType(item.mediaItem.mediaType),
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = Color.White.copy(alpha = 0.6f)
                         )

@@ -83,7 +83,7 @@ fun LoginScreen(
             ) {
                 Icon(
                     Icons.Default.SmartToy,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = Color.White,
                     modifier = Modifier.size(48.dp)
                 )
@@ -526,7 +526,7 @@ fun CharactersScreen(
                 ) {
                     Icon(
                         Icons.Default.PersonAdd,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(50.dp),
                         tint = SynthColors.primary
                     )
@@ -680,7 +680,7 @@ fun CharacterCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Outlined.ChatBubbleOutline,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(14.dp),
                         tint = SynthColors.textMuted
                     )
@@ -808,7 +808,7 @@ fun ChatScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             Icons.Outlined.ChatBubbleOutline,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(64.dp),
                             tint = SynthColors.textMuted
                         )
@@ -1026,7 +1026,7 @@ fun MessageBubble(
             ) {
                 Icon(
                     Icons.Default.Person,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = SynthColors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )

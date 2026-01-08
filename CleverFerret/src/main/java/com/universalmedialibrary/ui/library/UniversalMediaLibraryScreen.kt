@@ -183,7 +183,7 @@ fun UniversalMediaLibraryScreen(
                     icon = {
                         Icon(
                             mediaType.getIcon(),
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -449,7 +449,7 @@ fun MediaItemCard(
             ) {
                 Icon(
                     item.mediaType.getIcon(),
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(48.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -518,7 +518,7 @@ fun MediaItemListItem(
             // Icon
             Icon(
                 item.mediaType.getIcon(),
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(40.dp),
                 tint = MaterialTheme.colorScheme.primary
             )

@@ -197,7 +197,7 @@ private fun SectionHeader(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextSecondary,
             modifier = Modifier.size(18.dp)
         )
@@ -238,7 +238,7 @@ private fun FeatureCard(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = icon,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = iconTint,
                         modifier = Modifier.size(22.dp)
                     )
@@ -263,7 +263,7 @@ private fun FeatureCard(
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.TextTertiary
             )
         }

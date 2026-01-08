@@ -389,7 +389,7 @@ fun EnhancedMusicPlayerScreen(
                 ) {
                     Icon(
                         PhosphorIcons.MusicNote,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )

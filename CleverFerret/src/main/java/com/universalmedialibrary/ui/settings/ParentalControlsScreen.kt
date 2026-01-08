@@ -93,7 +93,7 @@ fun ParentalControlsScreen(
                     ) {
                         Icon(
                             Icons.Default.FamilyRestroom,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -292,7 +292,7 @@ private fun PinSetupCard(
             ) {
                 Icon(
                     if (hasPinSet) Icons.Default.Lock else Icons.Default.LockOpen,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = if (hasPinSet) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                 )
                 Text(
@@ -371,7 +371,7 @@ private fun ContentRestrictionsCard(
             ) {
                 Icon(
                     Icons.Default.Block,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.error
                 )
                 Text(
@@ -566,7 +566,7 @@ private fun <T : Enum<T>> RatingLimitSelector(
         ) {
             Icon(
                 icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(28.dp)
             )
@@ -622,7 +622,7 @@ private fun TagBlockingCard(
             ) {
                 Icon(
                     Icons.Default.Sell,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Column {
@@ -653,7 +653,7 @@ private fun TagBlockingCard(
                             if (isSelected) {
                                 Icon(
                                     Icons.Default.VisibilityOff,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -727,7 +727,7 @@ private fun TagBlockingCard(
                                 leadingIcon = {
                                     Icon(
                                         Icons.Default.Clear,
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         modifier = Modifier.size(16.dp)
                                     )
                                 },
@@ -762,7 +762,7 @@ private fun SwitchSettingItem(
         ) {
             Icon(
                 icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(20.dp),
                 tint = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
             )
@@ -805,7 +805,7 @@ private fun InfoCard() {
             ) {
                 Icon(
                     Icons.Default.Info,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.tertiary
                 )
                 Text(

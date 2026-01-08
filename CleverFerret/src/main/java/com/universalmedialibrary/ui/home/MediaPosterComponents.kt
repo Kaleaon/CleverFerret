@@ -137,7 +137,7 @@ fun MediaPosterCard(
             // Decorative overlay
             Icon(
                 imageVector = accentIconFor(media.type),
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier
                     .align(Alignment.Center)
                     .size(132.dp)

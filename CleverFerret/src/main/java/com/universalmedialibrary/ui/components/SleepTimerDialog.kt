@@ -45,7 +45,7 @@ fun SleepTimerDialog(
         icon = {
             Icon(
                 Icons.Default.Bedtime,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary
             )
         },
@@ -67,7 +67,7 @@ fun SleepTimerDialog(
                         leadingContent = {
                             Icon(
                                 Icons.Default.Timer,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         },

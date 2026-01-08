@@ -392,7 +392,7 @@ fun EnhancedPlaceholderCover(
         ) {
             Icon(
                 imageVector = Icons.Default.Book,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(40.dp),
                 tint = contentColor.copy(alpha = 0.8f)
             )
@@ -437,7 +437,7 @@ fun RatingStars(
         repeat(maxStars) { index ->
             Icon(
                 imageVector = if (index < rating.toInt()) Icons.Default.Star else Icons.Default.StarBorder,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(14.dp),
                 tint = Color(0xFFFFC107)
             )

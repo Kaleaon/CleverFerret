@@ -142,7 +142,7 @@ fun TagManagementDialog(
                         ) {
                             Icon(
                                 Icons.Default.AutoAwesome,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -285,7 +285,7 @@ private fun SuggestedTagChip(
         leadingIcon = {
             Icon(
                 Icons.Default.AutoAwesome,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(16.dp)
             )
         },
@@ -387,7 +387,7 @@ private fun CreateTagDialog(
                             if (selectedColor == color) {
                                 Icon(
                                     Icons.Default.Check,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     tint = Color.White,
                                     modifier = Modifier.align(Alignment.Center)
                                 )

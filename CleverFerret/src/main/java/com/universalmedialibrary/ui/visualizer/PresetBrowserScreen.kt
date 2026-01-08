@@ -248,7 +248,7 @@ private fun PresetCard(
                     ) {
                         Icon(
                             Icons.Default.Edit,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -262,7 +262,7 @@ private fun PresetCard(
                 ) {
                     Icon(
                         Icons.Default.Share,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -275,7 +275,7 @@ private fun PresetCard(
                 ) {
                     Icon(
                         Icons.Default.PlayArrow,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))

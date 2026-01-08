@@ -451,7 +451,7 @@ private fun EmptyMemoriesState() {
         ) {
             Icon(
                 Icons.Outlined.Psychology,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = SynthColors.textMuted
             )
@@ -646,7 +646,7 @@ private fun StorageCard(storage: StorageState) {
                             "EXTERNAL" -> Icons.Outlined.SdStorage
                             else -> Icons.Outlined.PhoneAndroid
                         },
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = SynthColors.primary
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -1051,7 +1051,7 @@ private fun StorageManagementDialog(
                                     "EXTERNAL" -> Icons.Outlined.SdStorage
                                     else -> Icons.Outlined.PhoneAndroid
                                 },
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = if (storage.isAvailable) SynthColors.primary else SynthColors.textMuted
                             )
                             

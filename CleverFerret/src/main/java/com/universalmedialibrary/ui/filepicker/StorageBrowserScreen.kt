@@ -292,7 +292,7 @@ private fun QuickAccessChip(
         leadingIcon = {
             Icon(
                 icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -365,7 +365,7 @@ private fun FileItem(
             if (file.isDirectory) {
                 Icon(
                     Icons.Default.ChevronRight,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -399,7 +399,7 @@ private fun FileIcon(file: File) {
     ) {
         Icon(
             icon,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = Color.White,
             modifier = Modifier.size(24.dp)
         )
@@ -418,7 +418,7 @@ private fun EmptyFolderView() {
         ) {
             Icon(
                 Icons.Default.FolderOpen,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -449,7 +449,7 @@ private fun ErrorView(
         ) {
             Icon(
                 Icons.Default.Error,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )
@@ -508,7 +508,7 @@ private fun StoragePermissionCard(
             ) {
                 Icon(
                     Icons.Default.Folder,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(72.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )

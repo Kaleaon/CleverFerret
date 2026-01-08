@@ -183,7 +183,7 @@ private fun NowPlayingCard(
                 ) {
                     Icon(
                         Icons.Default.MusicNote,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(48.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -248,7 +248,7 @@ private fun RadioCategoryCard(
             ) {
                 Icon(
                     icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.padding(16.dp),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -272,7 +272,7 @@ private fun RadioCategoryCard(
 
             Icon(
                 Icons.Default.ChevronRight,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

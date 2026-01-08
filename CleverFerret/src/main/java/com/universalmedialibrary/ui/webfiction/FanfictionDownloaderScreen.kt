@@ -75,7 +75,7 @@ fun FanfictionDownloaderScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -196,7 +196,7 @@ fun FanfictionDownloaderScreen(
                                 ) {
                                     Icon(
                                         Icons.Default.CheckCircle,
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         tint = MaterialTheme.colorScheme.tertiary,
                                         modifier = Modifier.size(32.dp)
                                     )
@@ -259,7 +259,7 @@ fun FanfictionDownloaderScreen(
                             ) {
                                 Icon(
                                     Icons.Default.Error,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     tint = MaterialTheme.colorScheme.error
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
@@ -297,7 +297,7 @@ fun FanfictionDownloaderScreen(
                         ) {
                             Icon(
                                 Icons.Default.LocalOffer,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.size(32.dp)
                             )
@@ -359,7 +359,7 @@ fun FanfictionDownloaderScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 Icons.AutoMirrored.Filled.LibraryBooks,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier.size(32.dp)
                             )
@@ -402,7 +402,7 @@ fun FanfictionDownloaderScreen(
                         ) {
                             Icon(
                                 Icons.Default.Language,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -441,7 +441,7 @@ fun FanfictionDownloaderScreen(
                         ) {
                             Icon(
                                 Icons.Default.Lightbulb,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.tertiary
                             )
                             Spacer(modifier = Modifier.width(8.dp))

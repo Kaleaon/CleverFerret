@@ -240,7 +240,7 @@ fun PodcastPlayerScreen(
                     ) {
                         Icon(
                             Icons.Default.Podcasts,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(80.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )

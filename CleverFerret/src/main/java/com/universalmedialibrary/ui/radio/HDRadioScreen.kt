@@ -165,7 +165,7 @@ fun HDRadioScreen(
                 ) {
                     Icon(
                         Icons.Default.Radio,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(40.dp),
                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -653,7 +653,7 @@ fun HDRadioStationCard(
                 ) {
                     Icon(
                         Icons.Default.Place,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(14.dp),
                         tint = if (isPlaying)
                             MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
@@ -692,7 +692,7 @@ fun HDRadioStationCard(
                                 leadingIcon = {
                                     Icon(
                                         Icons.Default.Info,
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         modifier = Modifier.size(16.dp)
                                     )
                                 },
@@ -706,7 +706,7 @@ fun HDRadioStationCard(
                                 leadingIcon = {
                                     Icon(
                                         Icons.Default.Image,
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         modifier = Modifier.size(16.dp)
                                     )
                                 },

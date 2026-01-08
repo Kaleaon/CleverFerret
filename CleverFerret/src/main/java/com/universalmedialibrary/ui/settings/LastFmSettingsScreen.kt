@@ -77,7 +77,7 @@ fun LastFmSettingsScreen(
                     ) {
                         Icon(
                             Icons.Filled.Info,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
@@ -113,7 +113,7 @@ fun LastFmSettingsScreen(
                     ) {
                         Icon(
                             if (uiState.isAuthenticated) Icons.Filled.CheckCircle else Icons.Filled.Warning,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = if (uiState.isAuthenticated) 
                                 MaterialTheme.colorScheme.primary 
                             else 

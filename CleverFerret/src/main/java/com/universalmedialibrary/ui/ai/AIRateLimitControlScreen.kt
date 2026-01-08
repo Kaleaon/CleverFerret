@@ -205,7 +205,7 @@ private fun RateLimitStatusCard(
             ) {
                 Icon(
                     imageVector = statusIcon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = statusColor,
                     modifier = Modifier.size(24.dp)
                 )

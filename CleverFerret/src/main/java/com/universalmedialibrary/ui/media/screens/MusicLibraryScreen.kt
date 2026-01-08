@@ -193,7 +193,7 @@ private fun MusicLibraryTopBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.MusicNote,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.MediaTypes.Music,
                     modifier = Modifier.size(24.dp)
                 )
@@ -296,7 +296,7 @@ private fun AlbumCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Album,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MediaColors.MediaTypes.Music.copy(alpha = 0.5f),
                         modifier = Modifier
                             .padding(MediaSpacing.XL)
@@ -441,7 +441,7 @@ private fun ArtistCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MediaColors.MediaTypes.Music.copy(alpha = 0.5f),
                         modifier = Modifier
                             .padding(MediaSpacing.LG)
@@ -561,7 +561,7 @@ private fun TrackListItem(
             } else {
                 Icon(
                     imageVector = Icons.Default.MusicNote,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.MediaTypes.Music.copy(alpha = 0.5f),
                     modifier = Modifier.padding(MediaSpacing.SM)
                 )
@@ -625,7 +625,7 @@ private fun PlaylistsPage(
         ) {
             Icon(
                 imageVector = Icons.Outlined.QueueMusic,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MediaColors.TextTertiary,
                 modifier = Modifier.size(64.dp)
             )
@@ -728,7 +728,7 @@ private fun PlaylistCard(
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.Default.QueueMusic,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             tint = MediaColors.MediaTypes.Music.copy(alpha = 0.5f),
                             modifier = Modifier.size(48.dp)
                         )
@@ -944,7 +944,7 @@ private fun EmptyMusicState(message: String) {
     ) {
         Icon(
             imageVector = Icons.Outlined.MusicNote,
-            contentDescription = null,
+            contentDescription = "Media image",
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(64.dp)
         )

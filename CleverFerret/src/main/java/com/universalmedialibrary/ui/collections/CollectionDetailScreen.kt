@@ -115,7 +115,7 @@ fun CollectionDetailScreen(
                     ) {
                         Icon(
                             Icons.Default.Error,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.error
                         )
@@ -135,7 +135,7 @@ fun CollectionDetailScreen(
                     ) {
                         Icon(
                             Icons.Default.LibraryAdd,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -227,7 +227,7 @@ private fun CollectionHeader(
                             CollectionType.USER_DEFINED -> Icons.Default.Folder
                             CollectionType.SMART -> Icons.Default.AutoAwesome
                         },
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
@@ -298,7 +298,7 @@ private fun CollectionItemCard(
                         "MOVIE" -> Icons.Default.Movie
                         else -> Icons.Default.InsertDriveFile
                     },
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = Color.White.copy(alpha = 0.7f),
                     modifier = Modifier.size(32.dp)
                 )
@@ -336,7 +336,7 @@ private fun CollectionItemCard(
             } else {
                 Icon(
                     Icons.Default.ChevronRight,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

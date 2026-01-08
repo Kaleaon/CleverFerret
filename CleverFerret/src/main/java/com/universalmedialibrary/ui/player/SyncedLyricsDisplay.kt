@@ -117,7 +117,7 @@ fun SyncedLyricsDisplay(
                     ) {
                         Icon(
                             Icons.Filled.MusicNote,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -148,7 +148,7 @@ fun SyncedLyricsDisplay(
                     ) {
                         Icon(
                             Icons.Filled.MusicNote,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )

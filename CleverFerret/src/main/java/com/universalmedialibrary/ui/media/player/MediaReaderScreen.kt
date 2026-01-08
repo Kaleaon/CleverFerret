@@ -454,7 +454,7 @@ private fun ReaderBottomBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ChevronLeft,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp)
                     )
                     Text("Prev")
@@ -486,7 +486,7 @@ private fun ReaderBottomBar(
                     Text("Next")
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp)
                     )
                 }

@@ -346,7 +346,7 @@ fun AudioEffectsSettingsScreen(
                 ) {
                     Icon(
                         Icons.Default.Info,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Column {

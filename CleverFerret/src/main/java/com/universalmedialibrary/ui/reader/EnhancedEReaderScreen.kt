@@ -631,7 +631,7 @@ private fun ErrorView(message: String, onRetry: () -> Unit) {
         ) {
             Icon(
                 Icons.Default.Error,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )

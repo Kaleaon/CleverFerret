@@ -70,7 +70,7 @@ fun EnhancedEmptyState(
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             icon,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -151,7 +151,7 @@ fun EnhancedErrorState(
                 ) {
                     Icon(
                         Icons.Default.ErrorOutline,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.error
                     )

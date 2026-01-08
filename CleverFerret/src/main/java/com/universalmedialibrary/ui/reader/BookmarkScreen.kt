@@ -264,7 +264,7 @@ private fun BookmarkItem(
 
             Icon(
                 PhosphorIcons.Bookmark,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
             )
@@ -383,7 +383,7 @@ private fun NoteItem(
 
                 Icon(
                     PhosphorIcons.Note,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(20.dp)
                 )
@@ -441,7 +441,7 @@ private fun EmptyState(
         ) {
             Icon(
                 icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )

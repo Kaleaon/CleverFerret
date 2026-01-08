@@ -182,7 +182,7 @@ fun AutoScrollControl(
                             AutoScrollState.CHAPTER_END_PAUSE -> Icons.Default.HourglassEmpty
                             else -> Icons.Default.Stop
                         },
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
@@ -249,7 +249,7 @@ fun AutoScrollControl(
                         } else {
                             Icons.Default.PlayArrow
                         },
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))

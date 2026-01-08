@@ -150,7 +150,7 @@ private fun EmptyState(
     ) {
         Icon(
             Icons.Filled.Headset,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -237,7 +237,7 @@ private fun AudiobookCard(
                     ) {
                         Icon(
                             Icons.Filled.Headset,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(40.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -291,7 +291,7 @@ private fun AudiobookCard(
                     ) {
                         Icon(
                             Icons.Default.Schedule, // Replace PhosphorIcons.Clock
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -304,7 +304,7 @@ private fun AudiobookCard(
                         if (audiobook.chapterCount > 0) {
                             Icon(
                                 Icons.AutoMirrored.Filled.List, // Replace PhosphorIcons.ListBullets
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )

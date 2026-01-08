@@ -475,7 +475,7 @@ private fun SmartCollectionChip(
         ) {
             Icon(
                 imageVector = collection.type.toIcon(),
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -651,7 +651,7 @@ private fun MediaItemCard(
         if (item.isFavorite) {
             Icon(
                 Icons.Default.Favorite,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(4.dp)
@@ -822,7 +822,7 @@ private fun EmptyStateContent(message: String) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 Icons.Default.PhotoLibrary,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
@@ -848,7 +848,7 @@ private fun PermissionRequestContent() {
         ) {
             Icon(
                 Icons.Default.Photo,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(80.dp),
                 tint = MaterialTheme.colorScheme.primary
             )

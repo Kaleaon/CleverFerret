@@ -723,7 +723,7 @@ private fun FileListItem(
         ) {
             Icon(
                 imageVector = if (item.isDirectory) Icons.Default.Folder else Icons.Default.Description,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(48.dp),
                 tint = if (item.isDirectory) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
             )
@@ -835,7 +835,7 @@ private fun FileGridItem(
         ) {
             Icon(
                 imageVector = if (item.isDirectory) Icons.Default.Folder else Icons.Default.Description,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(48.dp),
                 tint = if (item.isDirectory) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
             )

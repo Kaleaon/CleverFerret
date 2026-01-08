@@ -70,7 +70,7 @@ fun EnhancedLoadingState(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         icon,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(48.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )

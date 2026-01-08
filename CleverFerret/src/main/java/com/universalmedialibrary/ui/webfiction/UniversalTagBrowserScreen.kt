@@ -214,7 +214,7 @@ private fun SiteCard(
                         leadingIcon = {
                             Icon(
                                 Icons.Default.Warning,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.tertiary
                             )
                         },
@@ -696,7 +696,7 @@ private fun SuccessCard(message: String, onDismiss: () -> Unit) {
         ) {
             Icon(
                 Icons.Default.CheckCircle,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.width(12.dp))

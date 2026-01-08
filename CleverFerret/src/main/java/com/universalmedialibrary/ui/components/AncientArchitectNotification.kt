@@ -163,7 +163,7 @@ fun AncientArchitectNotification(
                 ) {
                     Icon(
                         imageVector = icon ?: defaultIcon,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         tint = accentColor,
                         modifier = Modifier.size(24.dp)
                     )

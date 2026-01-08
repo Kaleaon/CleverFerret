@@ -74,7 +74,7 @@ fun BarcodeScannerScreen(
             // Icon
             Icon(
                 imageVector = Icons.Default.QrCodeScanner,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(120.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -122,7 +122,7 @@ fun BarcodeScannerScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.CameraAlt,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -151,7 +151,7 @@ fun BarcodeScannerScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Error,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.error
                             )
                             Text(
@@ -178,7 +178,7 @@ fun BarcodeScannerScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
@@ -214,7 +214,7 @@ fun BarcodeScannerScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )

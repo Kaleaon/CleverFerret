@@ -37,7 +37,7 @@ fun ChapterListDialog(
         icon = {
             Icon(
                 Icons.AutoMirrored.Filled.List,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary
             )
         },
@@ -74,7 +74,7 @@ fun ChapterListDialog(
                             } else {
                                 Icon(
                                     Icons.AutoMirrored.Filled.List,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }

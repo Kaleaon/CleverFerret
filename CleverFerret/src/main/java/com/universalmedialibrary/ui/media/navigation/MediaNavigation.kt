@@ -567,7 +567,7 @@ private fun SidebarUserProfile(
             } else {
                 Icon(
                     imageVector = Icons.Default.Person,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     tint = MediaColors.TextSecondary,
                     modifier = Modifier.size(20.dp)
                 )

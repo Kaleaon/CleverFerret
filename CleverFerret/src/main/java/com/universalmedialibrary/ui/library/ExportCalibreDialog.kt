@@ -81,7 +81,7 @@ fun ExportCalibreDialog(
                         ) {
                             Icon(
                                 Icons.Default.Info,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                             Spacer(modifier = Modifier.width(8.dp))

@@ -203,7 +203,7 @@ fun ServerTypeCard(
         ) {
             Icon(
                 icon,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.size(48.dp),
                 tint = color
             )
@@ -244,7 +244,7 @@ fun ConnectedServerCard(
         ) {
             Icon(
                 Icons.Default.CheckCircle,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.width(16.dp))

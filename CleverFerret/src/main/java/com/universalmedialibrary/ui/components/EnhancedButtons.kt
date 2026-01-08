@@ -65,7 +65,7 @@ fun LoadingButton(
                 if (icon != null) {
                     Icon(
                         icon,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -151,7 +151,7 @@ fun AnimatedFilterChip(
             {
                 Icon(
                     icon,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.size(18.dp)
                 )
             }

@@ -50,7 +50,7 @@ fun LayeredSoundscapeScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = PhosphorIcons.Nature,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -264,7 +264,7 @@ fun LayeredSoundscapeScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )

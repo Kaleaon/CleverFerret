@@ -304,7 +304,7 @@ fun FavoritesSection(
         ) {
             Icon(
                 Icons.Default.Favorite,
-                contentDescription = null,
+                contentDescription = "Media image",
                 tint = Color(0xFFE91E63),
                 modifier = Modifier.size(20.dp)
             )

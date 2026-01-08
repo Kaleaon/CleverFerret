@@ -197,7 +197,7 @@ fun EnhancedBookCard(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Star,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )

@@ -352,7 +352,7 @@ fun OcrResultDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))

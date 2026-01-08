@@ -161,7 +161,7 @@ private fun ErrorView(
     ) {
         Icon(
             Icons.Default.Close,
-            contentDescription = null,
+            contentDescription = "Media image",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.error
         )

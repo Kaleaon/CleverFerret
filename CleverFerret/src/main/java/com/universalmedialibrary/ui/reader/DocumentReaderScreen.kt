@@ -236,7 +236,7 @@ private fun PdfReaderView(uri: Uri) {
         }
 
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            bitmap?.let { Image(bitmap = it.asImageBitmap(), contentDescription = null) }
+            bitmap?.let { Image(bitmap = it.asImageBitmap(), contentDescription = "Media image") }
         }
     }
 }

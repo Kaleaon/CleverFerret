@@ -305,7 +305,7 @@ fun LibraryDetailsScreen(
                             ) {
                                 Icon(
                                     PhosphorIcons.FolderOpen,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier.size(64.dp),
                                     tint = Color(0xFF666666)
                                 )
@@ -474,7 +474,7 @@ private fun LibraryScanSettingsCard(
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             modifier = Modifier.clickable { strategyExpanded = !strategyExpanded }
                         )
                     },
