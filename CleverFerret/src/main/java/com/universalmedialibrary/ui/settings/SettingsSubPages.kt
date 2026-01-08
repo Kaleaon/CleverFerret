@@ -196,8 +196,8 @@ fun DisplaySettingsScreen(
                 ListItem(
                     headlineContent = { Text("Bottom gear position") },
                     supportingContent = { Text(uiState.bottomGearPosition.name.lowercase().replaceFirstChar { it.uppercase() }) },
-                    leadingContent = { Icon(Icons.Default.Settings, contentDescription = null) },
-                    trailingContent = { Icon(Icons.Default.ArrowDropDown, contentDescription = null) },
+                    leadingContent = { Icon(Icons.Default.Settings, contentDescription = "Gear position") },
+                    trailingContent = { Icon(Icons.Default.ArrowDropDown, contentDescription = "Select position") },
                     modifier = Modifier.clickable { showGearMenu = true }
                 )
                 DropdownMenu(expanded = showGearMenu, onDismissRequest = { showGearMenu = false }) {
@@ -218,8 +218,8 @@ fun DisplaySettingsScreen(
                 ListItem(
                     headlineContent = { Text("Mini-player background") },
                     supportingContent = { Text(uiState.miniPlayerBackgroundMode.name.lowercase().replaceFirstChar { it.uppercase() }) },
-                    leadingContent = { Icon(Icons.Default.PictureInPictureAlt, contentDescription = null) },
-                    trailingContent = { Icon(Icons.Default.ArrowDropDown, contentDescription = null) },
+                    leadingContent = { Icon(Icons.Default.PictureInPictureAlt, contentDescription = "Mini-player") },
+                    trailingContent = { Icon(Icons.Default.ArrowDropDown, contentDescription = "Select mode") },
                     modifier = Modifier.clickable { showMiniPlayerMenu = true }
                 )
                 DropdownMenu(expanded = showMiniPlayerMenu, onDismissRequest = { showMiniPlayerMenu = false }) {
@@ -238,16 +238,16 @@ fun DisplaySettingsScreen(
             ListItem(
                 headlineContent = { Text("Customize bottom bar") },
                 supportingContent = { Text("Reorder/hide items") },
-                leadingContent = { Icon(Icons.Default.ViewCarousel, contentDescription = null) },
-                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                leadingContent = { Icon(Icons.Default.ViewCarousel, contentDescription = "Bottom bar") },
+                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = "Open customization") },
                 modifier = Modifier.clickable { navController.navigate("settings") }
             )
 
             ListItem(
                 headlineContent = { Text("Theme") },
                 supportingContent = { Text("Change palette and dark mode") },
-                leadingContent = { Icon(Icons.Default.Palette, contentDescription = null) },
-                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                leadingContent = { Icon(Icons.Default.Palette, contentDescription = "Theme") },
+                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = "Open theme settings") },
                 modifier = Modifier.clickable { navController.navigate("settings/appearance") }
             )
         }
