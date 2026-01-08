@@ -347,7 +347,7 @@ private fun ExpandedContent(
             if (state.artworkUrl != null) {
                 AsyncImage(
                     model = state.artworkUrl,
-                    contentDescription = null,
+                    contentDescription = "${state.title} album artwork",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -360,7 +360,7 @@ private fun ExpandedContent(
                         "ambient" -> Icons.Default.Spa
                         else -> Icons.Default.PlayArrow
                     },
-                    contentDescription = null,
+                    contentDescription = "Media type: ${state.mediaType}",
                     tint = MediaColors.AccentPrimary,
                     modifier = Modifier.padding(MediaSpacing.XL)
                 )
