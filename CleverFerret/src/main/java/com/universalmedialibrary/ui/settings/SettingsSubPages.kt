@@ -127,8 +127,8 @@ fun AppearanceSettingsScreen(
             ListItem(
                 headlineContent = { Text("Theme") },
                 supportingContent = { Text(uiState.selectedTheme.name.replace("_", " ")) },
-                leadingContent = { Icon(Icons.Default.Palette, contentDescription = null) },
-                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                leadingContent = { Icon(Icons.Default.Palette, contentDescription = "Theme") },
+                trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = "Open theme settings") },
                 modifier = Modifier.clickable { navController.navigate("theme_showcase") }
             )
 
