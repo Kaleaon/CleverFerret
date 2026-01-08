@@ -261,7 +261,7 @@ fun FilterRow(
                 onClick = { /* Show recent */ },
                 label = { Text("Recent") },
                 selected = false,
-                leadingIcon = { Icon(Icons.Default.AccessTime, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                leadingIcon = { Icon(Icons.Default.AccessTime, contentDescription = "Time", modifier = Modifier.size(16.dp)) }
             )
         }
 
