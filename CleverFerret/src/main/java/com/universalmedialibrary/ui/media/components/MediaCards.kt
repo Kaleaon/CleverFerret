@@ -622,7 +622,7 @@ fun MediaHeroCard(
                 ) {
                     Icon(
                         imageVector = item.mediaType.icon,
-                        contentDescription = null,
+                        contentDescription = "Media type: ${item.mediaType.name}",
                         modifier = Modifier.size(MediaSizes.IconXS),
                         tint = item.mediaType.color
                     )
@@ -662,7 +662,7 @@ fun MediaHeroCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = null,
+                            contentDescription = "Rating",
                             modifier = Modifier.size(MediaSizes.IconSM),
                             tint = MediaColors.Warning
                         )
