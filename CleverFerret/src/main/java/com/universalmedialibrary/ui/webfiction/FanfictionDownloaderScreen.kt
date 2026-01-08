@@ -382,7 +382,7 @@ fun FanfictionDownloaderScreen(
                             onClick = { navController.navigate("webfiction_manager") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "Library")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Open Web Fiction Manager")
                         }

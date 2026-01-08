@@ -295,7 +295,7 @@ fun BadgedButton(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (icon != null) {
-                    Icon(icon, contentDescription = null)
+                    Icon(icon, contentDescription = "Icon")
                 }
                 Text(text)
             }

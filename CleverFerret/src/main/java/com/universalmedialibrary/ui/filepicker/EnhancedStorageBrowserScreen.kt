@@ -180,7 +180,7 @@ fun EnhancedStorageBrowserScreen(
                                 showMenu = false
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.GridView, contentDescription = null)
+                                Icon(Icons.Default.GridView, contentDescription = "Grid view")
                             }
                         )
                         DropdownMenuItem(
@@ -190,7 +190,7 @@ fun EnhancedStorageBrowserScreen(
                                 showMenu = false
                             },
                             leadingIcon = {
-                                Icon(Icons.AutoMirrored.Filled.ViewList, contentDescription = null)
+                                Icon(Icons.AutoMirrored.Filled.ViewList, contentDescription = "List view")
                             }
                         )
                         HorizontalDivider()

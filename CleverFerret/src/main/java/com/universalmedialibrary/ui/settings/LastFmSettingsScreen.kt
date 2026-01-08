@@ -259,7 +259,7 @@ fun LastFmSettingsScreen(
                                 onClick = { viewModel.retryQueuedScrobbles() },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Icon(Icons.Filled.Refresh, contentDescription = null)
+                                Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
                                 Spacer(Modifier.width(8.dp))
                                 Text("Retry Queued Scrobbles")
                             }

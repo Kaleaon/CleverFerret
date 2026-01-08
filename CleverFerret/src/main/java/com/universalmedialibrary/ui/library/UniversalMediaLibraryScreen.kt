@@ -252,7 +252,7 @@ fun FilterRow(
                 onClick = { /* Show favorites only */ },
                 label = { Text("Favorites") },
                 selected = false,
-                leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = "Favorite", modifier = Modifier.size(16.dp)) }
             )
         }
 

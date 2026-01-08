@@ -30,8 +30,8 @@ fun QueueScreen(
                     } else null,
                     trailingContent = {
                         Row {
-                            IconButton(onClick = { viewModel.moveUp(index) }, enabled = index > 0) { Icon(Icons.Default.KeyboardArrowUp, contentDescription = null) }
-                            IconButton(onClick = { viewModel.moveDown(index) }, enabled = index < state.queue.lastIndex) { Icon(Icons.Default.KeyboardArrowDown, contentDescription = null) }
+                            IconButton(onClick = { viewModel.moveUp(index) }, enabled = index > 0) { Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Move up") }
+                            IconButton(onClick = { viewModel.moveDown(index) }, enabled = index < state.queue.lastIndex) { Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Move down") }
                             IconButton(onClick = { viewModel.remove(index) }) { Icon(Icons.Default.Delete, contentDescription = "Delete") }
                         }
                     }

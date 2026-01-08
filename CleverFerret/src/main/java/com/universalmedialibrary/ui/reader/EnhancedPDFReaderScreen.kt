@@ -117,7 +117,7 @@ fun EnhancedPDFReaderScreen(
                                         showAnnotationMenu = false
                                     },
                                     leadingIcon = {
-                                        Icon(tool.icon, contentDescription = null)
+                                        Icon(tool.icon, contentDescription = "Tool")
                                     }
                                 )
                             }
@@ -145,7 +145,7 @@ fun EnhancedPDFReaderScreen(
                                 showPageMenu = false
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Pages, contentDescription = null)
+                                Icon(Icons.Default.Pages, contentDescription = "Pages")
                             }
                         )
 

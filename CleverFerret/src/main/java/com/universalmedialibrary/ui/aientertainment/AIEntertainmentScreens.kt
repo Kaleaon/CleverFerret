@@ -112,7 +112,7 @@ fun LoginScreen(
                     value = username,
                     onValueChange = { username = it },
                     label = { Text("Username or Email") },
-                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Person") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = SynthColors.primary,
@@ -163,7 +163,7 @@ fun LoginScreen(
                     value = blueskyHandle,
                     onValueChange = { blueskyHandle = it },
                     label = { Text("Handle (e.g., user.bsky.social)") },
-                    leadingIcon = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
+                    leadingIcon = { Icon(Icons.Default.AlternateEmail, contentDescription = "Email") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = SynthColors.info,
@@ -305,7 +305,7 @@ fun RegisterScreen(
                 value = username,
                 onValueChange = { username = it },
                 label = { Text("Username") },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Person") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = SynthColors.primary,

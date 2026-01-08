@@ -43,7 +43,7 @@ fun PlaylistSettingsScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Playlists") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(PhosphorIcons.ArrowLeft, contentDescription = null) } }
+                navigationIcon = { IconButton(onClick = onBack) { Icon(PhosphorIcons.ArrowLeft, contentDescription = "Back") } }
             )
         }
     ) { paddingValues ->

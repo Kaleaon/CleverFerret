@@ -157,7 +157,7 @@ fun ImportExportScreen(
                             modifier = Modifier.fillMaxWidth(),
                             enabled = !uiState.isExporting
                         ) {
-                            Icon(Icons.Default.TableChart, contentDescription = null)
+                            Icon(Icons.Default.TableChart, contentDescription = "Table")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Export to CSV")
                         }

@@ -225,7 +225,7 @@ fun ExportCalibreDialog(
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Icon(Icons.Default.Upload, contentDescription = null)
+                            Icon(Icons.Default.Upload, contentDescription = "Upload")
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(if (isLoading) "Exporting..." else "Export Library")

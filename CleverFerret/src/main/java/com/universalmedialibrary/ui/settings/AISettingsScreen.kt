@@ -795,7 +795,7 @@ private fun StorageLocationSelector(
                         onLocationSelected("external")
                         expanded = false
                     },
-                    leadingIcon = { Icon(Icons.Default.Folder, contentDescription = null) }
+                    leadingIcon = { Icon(Icons.Default.Folder, contentDescription = "Folder") }
                 )
                 if (sdCardAvailable) {
                     DropdownMenuItem(
@@ -804,7 +804,7 @@ private fun StorageLocationSelector(
                             onLocationSelected("sd_card")
                             expanded = false
                         },
-                        leadingIcon = { Icon(Icons.Default.SdStorage, contentDescription = null) }
+                        leadingIcon = { Icon(Icons.Default.SdStorage, contentDescription = "Storage") }
                     )
                 }
             }

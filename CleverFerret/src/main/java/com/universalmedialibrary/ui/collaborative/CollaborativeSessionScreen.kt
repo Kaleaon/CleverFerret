@@ -293,7 +293,7 @@ private fun ActiveSessionView(
                 contentColor = MaterialTheme.colorScheme.error
             )
         ) {
-            Icon(Icons.Default.Stop, contentDescription = null)
+            Icon(Icons.Default.Stop, contentDescription = "Stop")
             Spacer(modifier = Modifier.width(8.dp))
             Text("End Session")
         }

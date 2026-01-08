@@ -108,7 +108,7 @@ fun EnhancedBookshelfScreen(
                                     showViewModeMenu = false
                                 },
                                 leadingIcon = {
-                                    Icon(mode.icon, contentDescription = null)
+                                    Icon(mode.icon, contentDescription = "Mode")
                                 }
                             )
                         }
@@ -131,7 +131,7 @@ fun EnhancedBookshelfScreen(
                                     showSortMenu = false
                                 },
                                 leadingIcon = {
-                                    Icon(option.icon, contentDescription = null)
+                                    Icon(option.icon, contentDescription = "Option")
                                 }
                             )
                         }

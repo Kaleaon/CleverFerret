@@ -330,7 +330,7 @@ private fun ServerActionCard(
                             strokeWidth = 1.5.dp
                         )
                     } else {
-                        Icon(Icons.Default.FindInPage, contentDescription = null, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.FindInPage, contentDescription = "Find", modifier = Modifier.size(14.dp))
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Duplicates", style = MaterialTheme.typography.labelSmall)

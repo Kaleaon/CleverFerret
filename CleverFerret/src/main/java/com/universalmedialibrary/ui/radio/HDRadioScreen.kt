@@ -103,7 +103,7 @@ fun HDRadioScreen(
                     ) {
                         DropdownMenuItem(
                             text = { Text("Add Custom Station") },
-                            leadingIcon = { Icon(Icons.Default.LibraryAdd, contentDescription = null) },
+                            leadingIcon = { Icon(Icons.Default.LibraryAdd, contentDescription = "Add to library") },
                             onClick = {
                                 showAddMenu = false
                                 viewModel.openManualDialog()

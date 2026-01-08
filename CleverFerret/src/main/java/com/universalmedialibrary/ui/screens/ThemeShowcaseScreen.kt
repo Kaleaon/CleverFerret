@@ -133,7 +133,7 @@ fun ThemeShowcaseScreen(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 AncientArchitectIconButton(onClick = {}) {
-                                    Icon(Icons.Default.Favorite, contentDescription = null)
+                                    Icon(Icons.Default.Favorite, contentDescription = "Favorite")
                                 }
                                 AncientArchitectIconButton(onClick = {}) {
                                     Icon(Icons.Default.Star, contentDescription = null)

@@ -279,7 +279,7 @@ fun AudioEffectsSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Volume")
                             Text(
                                 "ReplayGain",
                                 style = MaterialTheme.typography.titleMedium,
