@@ -456,7 +456,7 @@ fun AutoScanSettingsScreen(
                 },
                 label = { Text("Interval (hours)") },
                 supportingText = { Text("Minimum 1 hour") },
-                leadingIcon = { Icon(Icons.Default.Schedule, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Default.Schedule, contentDescription = "Scan interval") },
                 enabled = state.enabled,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -493,7 +493,7 @@ fun AutoScanSettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.Search, contentDescription = null)
+                Icon(Icons.Default.Search, contentDescription = "Scan")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Scan now")
             }
