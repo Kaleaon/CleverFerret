@@ -242,7 +242,7 @@ private fun EmptyNowPlayingContent(
     ) {
         Icon(
             imageVector = Icons.Default.PlayArrow, // Use available icon
-            contentDescription = null,
+            contentDescription = "No media playing",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
