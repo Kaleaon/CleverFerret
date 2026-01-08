@@ -72,7 +72,10 @@ private fun TextReaderView(uri: Uri) {
     LaunchedEffect(uri) {
         text = try {
             context.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) } ?: ""
-        } catch (_: Exception) { "" }
+        } catch (e: Exception) { 
+            android.util.Log.w("DocumentReader", "Failed to read text document", e)
+            "" 
+        }
     }
 
     Column(
