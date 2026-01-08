@@ -834,18 +834,23 @@ fun MediaBottomNavigation(
             applyBottomBarPreferencesToMediaDestinations(destinations, bottomBarPreferences)
         }
         
-        // Track if we've done the initial scroll to end
+        // ===================================================================================
+        // FIX: Navigation scroll bar was snapping to top/left instead of bottom/right
+        // SOLUTION: Track initial scroll state and scroll to end after layout is measured
+        // This ensures users see the rightmost items first and can scroll left to discover more
+        // ===================================================================================
         var hasScrolledInitially by remember { mutableStateOf(false) }
         
         // Scroll to end (right side) on first composition so users see the full bar
         // and the settings gear is properly positioned. We need to wait for layout
-        // to complete so maxValue is accurate.
+        // to complete so maxValue is accurate (maxValue is 0 before measurement).
         LaunchedEffect(scrollState.maxValue, hasScrolledInitially) {
             if (!hasScrolledInitially && scrollState.maxValue > 0) {
                 scrollState.scrollTo(scrollState.maxValue)
                 hasScrolledInitially = true
             }
         }
+        // ===================================================================================
         
         val showLeftFade by remember { derivedStateOf { scrollState.value > 0 } }
         val showRightFade by remember { derivedStateOf { scrollState.value < scrollState.maxValue } }
