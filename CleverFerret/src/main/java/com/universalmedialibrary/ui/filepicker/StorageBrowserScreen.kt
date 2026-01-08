@@ -469,7 +469,7 @@ private fun ErrorView(
                 )
                 
                 OutlinedButton(onClick = onRequestPermission) {
-                    Icon(Icons.Default.Security, contentDescription = null)
+                    Icon(Icons.Default.Security, contentDescription = "Security")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Grant Permission")
                 }
@@ -540,7 +540,7 @@ private fun StoragePermissionCard(
                     onClick = onRequestPermission,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(Icons.Default.Security, contentDescription = null)
+                    Icon(Icons.Default.Security, contentDescription = "Security")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Grant Access")
                 }

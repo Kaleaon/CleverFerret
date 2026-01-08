@@ -338,7 +338,7 @@ fun FanfictionDownloaderScreen(
                             onClick = { navController.navigate("universal_tag_browser") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.Language, contentDescription = null)
+                            Icon(Icons.Default.Language, contentDescription = "Language")
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Browse Tags Across Sites")
                         }

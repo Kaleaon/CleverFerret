@@ -230,7 +230,7 @@ private fun ActiveSessionView(
                 )
                 if (isCasting && castDeviceName != null) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Cast, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Cast, contentDescription = "Cast", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             "Casting to $castDeviceName",

@@ -209,7 +209,7 @@ fun AudioPlayerScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
                     ) {
-                        Icon(Icons.Default.VolumeDown, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.Default.VolumeDown, contentDescription = "Volume down", modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Slider(
                             value = volume,
                             onValueChange = {

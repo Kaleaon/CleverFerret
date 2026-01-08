@@ -219,7 +219,7 @@ private fun PlaybackControls(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Speed, contentDescription = null)
+                Icon(Icons.Default.Speed, contentDescription = "Playback speed")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("${playbackState.currentTempo} BPM")
             }

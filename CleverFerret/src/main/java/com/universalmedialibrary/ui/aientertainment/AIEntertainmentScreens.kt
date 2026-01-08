@@ -130,7 +130,7 @@ fun LoginScreen(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password") },
-                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Lock") },
                     trailingIcon = {
                         IconButton(onClick = { showPassword = !showPassword }) {
                             Icon(
@@ -178,7 +178,7 @@ fun LoginScreen(
                     value = blueskyAppPassword,
                     onValueChange = { blueskyAppPassword = it },
                     label = { Text("App Password") },
-                    leadingIcon = { Icon(Icons.Default.Key, contentDescription = null) },
+                    leadingIcon = { Icon(Icons.Default.Key, contentDescription = "Key") },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -336,7 +336,7 @@ fun RegisterScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Lock") },
                 trailingIcon = {
                     IconButton(onClick = { showPassword = !showPassword }) {
                         Icon(
@@ -360,7 +360,7 @@ fun RegisterScreen(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
                 label = { Text("Confirm Password") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Lock") },
                 visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(

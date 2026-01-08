@@ -147,7 +147,7 @@ fun AuthenticationView(
             onClick = onStartAuth,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Default.Login, contentDescription = null)
+            Icon(Icons.Default.Login, contentDescription = "Login")
             Spacer(modifier = Modifier.width(8.dp))
             Text("Sign in with Plex")
         }
@@ -346,7 +346,7 @@ fun PlexPinDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
-            Icon(Icons.Default.Key, contentDescription = null)
+            Icon(Icons.Default.Key, contentDescription = "Key")
         },
         title = {
             Text("Authenticate with Plex")

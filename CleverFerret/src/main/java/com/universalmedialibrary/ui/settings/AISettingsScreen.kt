@@ -787,7 +787,7 @@ private fun StorageLocationSelector(
                         onLocationSelected("internal")
                         expanded = false
                     },
-                    leadingIcon = { Icon(Icons.Default.Storage, contentDescription = null) }
+                    leadingIcon = { Icon(Icons.Default.Storage, contentDescription = "Storage") }
                 )
                 DropdownMenuItem(
                     text = { Text("External Storage") },
