@@ -579,7 +579,7 @@ private fun StatCard(
             ) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = null,
+                    contentDescription = "$label statistics",
                     modifier = Modifier
                         .padding(MediaSpacing.SM)
                         .fillMaxSize(),
