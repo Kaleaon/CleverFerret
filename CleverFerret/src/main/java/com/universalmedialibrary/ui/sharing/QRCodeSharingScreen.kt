@@ -458,7 +458,7 @@ private fun SharingOptionCard(
             
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null
+                contentDescription = "Media image"
             )
         }
     }

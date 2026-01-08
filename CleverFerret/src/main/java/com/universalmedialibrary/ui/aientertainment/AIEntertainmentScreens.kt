@@ -135,7 +135,7 @@ fun LoginScreen(
                         IconButton(onClick = { showPassword = !showPassword }) {
                             Icon(
                                 if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null
+                                contentDescription = "Media image"
                             )
                         }
                     },
@@ -341,7 +341,7 @@ fun RegisterScreen(
                     IconButton(onClick = { showPassword = !showPassword }) {
                         Icon(
                             if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = null
+                            contentDescription = "Media image"
                         )
                     }
                 },

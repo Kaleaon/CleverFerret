@@ -61,7 +61,7 @@ fun AutoScrollController(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Speed,
-                        contentDescription = null
+                        contentDescription = "Media image"
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Slider(

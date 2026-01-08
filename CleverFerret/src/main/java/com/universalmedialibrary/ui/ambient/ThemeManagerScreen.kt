@@ -333,7 +333,7 @@ private fun ThemeCollectionCard(
                 Text(if (isExpanded) "Hide Sounds" else "Show Sounds (${collection.sounds.size})")
                 Icon(
                     if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null
+                    contentDescription = "Media image"
                 )
             }
             

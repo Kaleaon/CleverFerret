@@ -468,7 +468,7 @@ private fun AdditionalSettingsCard(
             ) {
                 Icon(
                     Icons.Default.Settings,
-                    contentDescription = null
+                    contentDescription = "Media image"
                 )
                 Text(
                     "Additional Settings",

@@ -116,7 +116,7 @@ fun UniversalMediaLibraryScreen(
                                         ViewMode.LIST -> Icons.Default.ViewList
                                         ViewMode.COVER_FLOW -> Icons.Default.ViewCarousel
                                     },
-                                    contentDescription = null
+                                    contentDescription = "Media image"
                                 )
                             }
                         )

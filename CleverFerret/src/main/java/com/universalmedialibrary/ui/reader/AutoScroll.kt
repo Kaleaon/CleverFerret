@@ -316,7 +316,7 @@ fun AutoScrollControl(
                 Text(if (showSettings) "Hide Settings" else "Show Settings")
                 Icon(
                     imageVector = if (showSettings) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null
+                    contentDescription = "Media image"
                 )
             }
 

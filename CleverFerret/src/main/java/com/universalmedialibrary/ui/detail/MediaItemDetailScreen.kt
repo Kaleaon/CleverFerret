@@ -813,7 +813,7 @@ fun AddToCollectionDialog(
                                         com.universalmedialibrary.data.local.entity.CollectionType.USER_DEFINED -> Icons.Default.Folder
                                         com.universalmedialibrary.data.local.entity.CollectionType.SMART -> Icons.Default.AutoAwesome
                                     },
-                                    contentDescription = null
+                                    contentDescription = "Media image"
                                 )
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(

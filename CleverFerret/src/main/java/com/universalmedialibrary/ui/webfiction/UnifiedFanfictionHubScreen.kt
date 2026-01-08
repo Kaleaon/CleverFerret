@@ -127,7 +127,7 @@ fun UnifiedFanfictionHubScreen(
                                             HubTabs.LIBRARY -> Icons.AutoMirrored.Filled.LibraryBooks
                                             else -> Icons.Default.Download
                                         },
-                                        contentDescription = null
+                                        contentDescription = "Media image"
                                     )
                                 }
                             )

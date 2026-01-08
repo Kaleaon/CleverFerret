@@ -104,7 +104,7 @@ fun PDFSearchDialog(
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
-                                contentDescription = null
+                                contentDescription = "Media image"
                             )
                         },
                         trailingIcon = {

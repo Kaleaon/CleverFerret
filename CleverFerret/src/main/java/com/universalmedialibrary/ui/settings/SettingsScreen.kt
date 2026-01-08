@@ -1284,7 +1284,7 @@ private fun MiniPlayerBackgroundDialog(
                                         com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode.ALBUM_ART_SLIVER -> Icons.Default.Image
                                         com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode.VISUALIZER -> Icons.Default.GraphicEq
                                     },
-                                    contentDescription = null
+                                    contentDescription = "Media image"
                                 )
                                 Text(
                                     text = mode.displayName,

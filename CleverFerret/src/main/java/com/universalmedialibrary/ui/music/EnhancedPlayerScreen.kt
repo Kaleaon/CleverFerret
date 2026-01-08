@@ -126,7 +126,7 @@ fun EnhancedPlayerUI(
                     ) {
                         Icon(
                             if (showLyrics) Icons.Default.MusicNote else Icons.Default.Lyrics,
-                            contentDescription = null
+                            contentDescription = "Media image"
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(if (showLyrics) "Hide Lyrics" else "Show Lyrics")

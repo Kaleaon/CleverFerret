@@ -772,7 +772,7 @@ private fun StorageLocationSelector(
                             "external" -> Icons.Default.Folder
                             else -> Icons.Default.Storage
                         },
-                        contentDescription = null
+                        contentDescription = "Media image"
                     )
                 }
             )

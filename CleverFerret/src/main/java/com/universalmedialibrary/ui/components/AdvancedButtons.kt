@@ -233,7 +233,7 @@ fun GlowingFab(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null
+            contentDescription = "Media image"
         )
     }
 }

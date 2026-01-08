@@ -141,7 +141,7 @@ fun StorageBrowserScreen(
                             leadingIcon = {
                                 Icon(
                                     if (uiState.showHidden) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
-                                    contentDescription = null
+                                    contentDescription = "Media image"
                                 )
                             }
                         )

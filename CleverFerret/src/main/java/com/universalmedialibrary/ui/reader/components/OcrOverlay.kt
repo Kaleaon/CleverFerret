@@ -141,7 +141,7 @@ fun OcrOverlay(
             } else {
                 Icon(
                     imageVector = Icons.Default.TextFields,
-                    contentDescription = null
+                    contentDescription = "Media image"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Extract Text")

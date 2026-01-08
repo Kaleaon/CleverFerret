@@ -329,7 +329,7 @@ fun EnhancedMusicPlayerScreen(
                       TextButton(onClick = { showLyrics = !showLyrics }) {
                           Icon(
                               imageVector = if (showLyrics) Icons.Default.MusicNote else Icons.Default.Lyrics,
-                              contentDescription = null
+                              contentDescription = "Media image"
                           )
                           Spacer(modifier = Modifier.width(8.dp))
                           Text(if (showLyrics) "Hide Lyrics" else "Show Lyrics")
