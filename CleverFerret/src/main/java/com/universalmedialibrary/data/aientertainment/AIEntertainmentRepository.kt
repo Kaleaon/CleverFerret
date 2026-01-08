@@ -31,7 +31,9 @@ class AIEntertainmentRepository @Inject constructor(
     private val memoryDao: SynthMemoryDao,
     private val memoryBlockDao: SynthMemoryBlockDao,
     private val memorySyncRecordDao: SynthMemorySyncRecordDao,
-    private val memoryAccessLogDao: SynthMemoryAccessLogDao
+    private val memoryAccessLogDao: SynthMemoryAccessLogDao,
+    // Chat Preset DAO
+    private val chatPresetDao: ChatPresetDao
 ) {
     private val json = Json { ignoreUnknownKeys = true }
     
@@ -180,6 +182,9 @@ class AIEntertainmentRepository @Inject constructor(
     
     suspend fun getCharactersByUserIdOnce(userId: Long): List<CharacterWithMessageCount> =
         characterDao.getCharactersByUserIdOnce(userId)
+    
+    suspend fun getAllCharacters(): List<SynthCharacter> =
+        characterDao.getAllCharacters()
     
     suspend fun updateCharacter(character: SynthCharacter) {
         characterDao.update(character.copy(updatedAt = System.currentTimeMillis()))
@@ -678,16 +683,13 @@ class AIEntertainmentRepository @Inject constructor(
     }
     
     // ==================== Chat Preset Operations ====================
-    // These methods require ChatPresetDao to be injected
-    // For now, providing stubs that can be implemented when the DAO is added to DI
     
     private var currentUserId: Long? = null
     
     /**
-     * Get the current logged in user (stub implementation)
+     * Get the current logged in user
      */
     suspend fun getCurrentUser(): SynthUser? {
-        // In a real implementation, this would check session/preferences
         currentUserId?.let { id ->
             return userDao.getById(id)
         }
@@ -702,51 +704,65 @@ class AIEntertainmentRepository @Inject constructor(
     }
     
     /**
-     * Get presets for a user - stub that needs ChatPresetDao
+     * Get presets for a user
      */
     fun getPresetsForUser(userId: Long): Flow<List<ChatPreset>> {
-        // TODO: Inject ChatPresetDao and implement
-        return kotlinx.coroutines.flow.flowOf(emptyList())
+        return chatPresetDao.getPresetsForUser(userId)
+    }
+    
+    /**
+     * Get favorite presets for a user
+     */
+    fun getFavoritePresets(userId: Long): Flow<List<ChatPreset>> {
+        return chatPresetDao.getFavoritePresets(userId)
+    }
+    
+    /**
+     * Get a preset by ID
+     */
+    suspend fun getPresetById(presetId: Long): ChatPreset? {
+        return chatPresetDao.getPresetById(presetId)
+    }
+    
+    /**
+     * Get recent presets for a user
+     */
+    suspend fun getRecentPresets(userId: Long): List<ChatPreset> {
+        return chatPresetDao.getRecentPresets(userId)
     }
     
     /**
      * Create a new preset
      */
     suspend fun createPreset(preset: ChatPreset): Long {
-        // TODO: Inject ChatPresetDao and implement
-        // return chatPresetDao.insertPreset(preset)
-        return 0L
+        return chatPresetDao.insertPreset(preset)
     }
     
     /**
      * Update an existing preset
      */
     suspend fun updatePreset(preset: ChatPreset) {
-        // TODO: Inject ChatPresetDao and implement
-        // chatPresetDao.updatePreset(preset)
+        chatPresetDao.updatePreset(preset)
     }
     
     /**
      * Delete a preset by ID
      */
     suspend fun deletePreset(presetId: Long) {
-        // TODO: Inject ChatPresetDao and implement
-        // chatPresetDao.deletePresetById(presetId)
+        chatPresetDao.deletePresetById(presetId)
     }
     
     /**
      * Toggle preset favorite status
      */
     suspend fun setPresetFavorite(presetId: Long, isFavorite: Boolean) {
-        // TODO: Inject ChatPresetDao and implement
-        // chatPresetDao.setFavorite(presetId, isFavorite)
+        chatPresetDao.setFavorite(presetId, isFavorite)
     }
     
     /**
      * Increment preset use count
      */
     suspend fun incrementPresetUseCount(presetId: Long) {
-        // TODO: Inject ChatPresetDao and implement
-        // chatPresetDao.incrementUseCount(presetId)
+        chatPresetDao.incrementUseCount(presetId)
     }
 }

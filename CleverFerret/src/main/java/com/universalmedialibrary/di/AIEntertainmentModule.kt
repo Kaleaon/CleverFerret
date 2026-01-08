@@ -124,6 +124,12 @@ object AIEntertainmentModule {
         return database.synthMemoryAccessLogDao()
     }
     
+    @Provides
+    @Singleton
+    fun provideChatPresetDao(database: AIEntertainmentDatabase): ChatPresetDao {
+        return database.chatPresetDao()
+    }
+    
     // ==================== Repository Provider ====================
     
     @Provides
@@ -144,7 +150,9 @@ object AIEntertainmentModule {
         memoryDao: SynthMemoryDao,
         memoryBlockDao: SynthMemoryBlockDao,
         memorySyncRecordDao: SynthMemorySyncRecordDao,
-        memoryAccessLogDao: SynthMemoryAccessLogDao
+        memoryAccessLogDao: SynthMemoryAccessLogDao,
+        // Chat Preset DAO
+        chatPresetDao: ChatPresetDao
     ): AIEntertainmentRepository {
         return AIEntertainmentRepository(
             userDao = userDao,
@@ -161,7 +169,8 @@ object AIEntertainmentModule {
             memoryDao = memoryDao,
             memoryBlockDao = memoryBlockDao,
             memorySyncRecordDao = memorySyncRecordDao,
-            memoryAccessLogDao = memoryAccessLogDao
+            memoryAccessLogDao = memoryAccessLogDao,
+            chatPresetDao = chatPresetDao
         )
     }
     

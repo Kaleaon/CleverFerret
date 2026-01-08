@@ -38,9 +38,11 @@ import javax.inject.Singleton
         SynthMemory::class,
         SynthMemoryBlock::class,
         SynthMemorySyncRecord::class,
-        SynthMemoryAccessLog::class
+        SynthMemoryAccessLog::class,
+        // Chat Presets
+        ChatPreset::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AIEntertainmentDatabase : RoomDatabase() {
@@ -63,6 +65,9 @@ abstract class AIEntertainmentDatabase : RoomDatabase() {
     abstract fun synthMemorySyncRecordDao(): SynthMemorySyncRecordDao
     abstract fun synthMemoryAccessLogDao(): SynthMemoryAccessLogDao
     
+    // Chat Preset DAO
+    abstract fun chatPresetDao(): ChatPresetDao
+    
     companion object {
         const val DATABASE_NAME = "synth_chat.db"
         
@@ -76,6 +81,7 @@ abstract class AIEntertainmentDatabase : RoomDatabase() {
                     AIEntertainmentDatabase::class.java,
                     DATABASE_NAME
                 )
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

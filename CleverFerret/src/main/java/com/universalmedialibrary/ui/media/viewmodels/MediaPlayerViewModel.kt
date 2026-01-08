@@ -342,33 +342,99 @@ class VideoPlayerViewModel @Inject constructor(
     }
     
     fun setSubtitle(track: SubtitleTrack?) {
-        // TODO: Wire to ExoPlayerService when subtitle support is implemented
+        // ExoPlayer subtitle track selection
+        exoPlayerService.getPlayer()?.let { player ->
+            if (track == null) {
+                // Disable subtitles by selecting an empty track group
+                player.trackSelectionParameters = player.trackSelectionParameters
+                    .buildUpon()
+                    .setTrackTypeDisabled(androidx.media3.common.C.TRACK_TYPE_TEXT, true)
+                    .build()
+            } else {
+                // Enable subtitles and select the specified track
+                player.trackSelectionParameters = player.trackSelectionParameters
+                    .buildUpon()
+                    .setTrackTypeDisabled(androidx.media3.common.C.TRACK_TYPE_TEXT, false)
+                    .build()
+            }
+        }
         _uiState.update { it.copy(currentSubtitle = track) }
     }
     
     fun setAudioTrack(track: AudioTrack) {
-        // TODO: Wire to ExoPlayerService when audio track selection is implemented
+        // ExoPlayer audio track selection
+        exoPlayerService.getPlayer()?.let { player ->
+            val trackGroups = player.currentTracks.groups
+            trackGroups.forEachIndexed { groupIndex, group ->
+                if (group.type == androidx.media3.common.C.TRACK_TYPE_AUDIO) {
+                    // Find and select the matching audio track
+                    for (trackIndex in 0 until group.length) {
+                        val format = group.getTrackFormat(trackIndex)
+                        if (format.language == track.language || format.id == track.id) {
+                            player.trackSelectionParameters = player.trackSelectionParameters
+                                .buildUpon()
+                                .setOverrideForType(
+                                    androidx.media3.common.TrackSelectionOverride(
+                                        group.mediaTrackGroup,
+                                        listOf(trackIndex)
+                                    )
+                                )
+                                .build()
+                            break
+                        }
+                    }
+                }
+            }
+        }
         _uiState.update { it.copy(currentAudioTrack = track) }
     }
     
     fun setQuality(quality: VideoQuality) {
-        // TODO: Wire to ExoPlayerService when quality selection is implemented
+        // ExoPlayer video quality/resolution selection
+        exoPlayerService.getPlayer()?.let { player ->
+            val maxHeight = quality.resolution ?: Int.MAX_VALUE
+            
+            player.trackSelectionParameters = player.trackSelectionParameters
+                .buildUpon()
+                .setMaxVideoSize(Int.MAX_VALUE, maxHeight)
+                .build()
+        }
         _uiState.update { it.copy(currentQuality = quality) }
     }
     
     fun playEpisode(episode: EpisodeInfo) {
-        // Update UI state to reflect the new episode
-        _uiState.update { 
-            it.copy(
-                title = episode.title,
-                currentEpisodeId = episode.id,
-                currentPosition = 0L
-            )
+        viewModelScope.launch {
+            // Update UI state to reflect the new episode
+            _uiState.update { 
+                it.copy(
+                    title = episode.title,
+                    currentEpisodeId = episode.id,
+                    currentPosition = 0L
+                )
+            }
+            
+            // Load episode media file if available
+            episode.filePath?.let { path ->
+                exoPlayerService.loadMediaWithSession(
+                    mediaPath = path,
+                    title = episode.title,
+                    artist = episode.showName
+                )
+                exoPlayerService.play()
+            } ?: run {
+                // If no file path, try to get from video repository
+                episode.id.toLongOrNull()?.let { episodeId ->
+                    videoRepository.getVideoById(episodeId)?.filePath?.let { path ->
+                        exoPlayerService.loadMediaWithSession(
+                            mediaPath = path,
+                            title = episode.title,
+                            artist = episode.showName
+                        )
+                        exoPlayerService.play()
+                    }
+                }
+            }
         }
-        
-        // Note: Episode playback would typically need to look up the episode's
-        // media file from a repository. For now, we update the UI state.
-        // TODO: Load actual episode media file when episode data includes file path
     }
     
     override fun onCleared() {

@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Singleton
 
 /**
@@ -54,9 +55,6 @@ object MediaUiModule {
  * 
  * Aggregates playback state from all audio services
  * to provide a unified mini player experience.
- * 
- * Note: This is a simplified stub implementation. The full implementation
- * would observe each service's playback state and aggregate them.
  */
 class PlaybackStateManagerImpl(
     private val musicPlayerService: AdvancedMusicPlayerService,
@@ -70,20 +68,106 @@ class PlaybackStateManagerImpl(
     
     private var activePlayerType: String? = null
     
-    // TODO: Wire up actual playback state observation when service APIs are finalized
-    // For now, this provides a functional interface that can be expanded
+    init {
+        // Observe music player state
+        scope.launch {
+            combine(
+                musicPlayerService.currentTrack,
+                musicPlayerService.playbackState
+            ) { track, state ->
+                if (track != null && state.isPlaying) {
+                    MiniPlayerState(
+                        title = track.title,
+                        artist = track.artist,
+                        albumArtUrl = track.albumArtUrl,
+                        isPlaying = state.isPlaying,
+                        progress = if (track.duration > 0) state.currentPositionMs.toFloat() / track.duration else 0f,
+                        duration = track.duration,
+                        currentPosition = state.currentPositionMs,
+                        playerType = "music"
+                    )
+                } else null
+            }.collect { state ->
+                if (state != null || activePlayerType == "music") {
+                    _currentPlayback.value = state
+                    activePlayerType = state?.playerType
+                }
+            }
+        }
+        
+        // Observe audiobook player state
+        scope.launch {
+            audiobookService.playbackState.collect { state ->
+                if (state.isPlaying || activePlayerType == "audiobook") {
+                    val miniState = if (state.isPlaying) {
+                        MiniPlayerState(
+                            title = state.chapterTitle ?: "Audiobook",
+                            artist = state.bookTitle,
+                            albumArtUrl = state.coverUrl,
+                            isPlaying = state.isPlaying,
+                            progress = state.progress,
+                            duration = state.duration,
+                            currentPosition = state.currentPosition,
+                            playerType = "audiobook"
+                        )
+                    } else null
+                    
+                    if (miniState != null || activePlayerType == "audiobook") {
+                        _currentPlayback.value = miniState
+                        activePlayerType = miniState?.playerType
+                    }
+                }
+            }
+        }
+        
+        // Observe podcast player state
+        scope.launch {
+            podcastService.playbackState.collect { state ->
+                if (state.isPlaying || activePlayerType == "podcast") {
+                    val miniState = if (state.isPlaying) {
+                        MiniPlayerState(
+                            title = state.episodeTitle ?: "Podcast",
+                            artist = state.podcastTitle,
+                            albumArtUrl = state.artworkUrl,
+                            isPlaying = state.isPlaying,
+                            progress = if (state.duration > 0) state.currentPosition.toFloat() / state.duration else 0f,
+                            duration = state.duration,
+                            currentPosition = state.currentPosition,
+                            playerType = "podcast"
+                        )
+                    } else null
+                    
+                    if (miniState != null || activePlayerType == "podcast") {
+                        _currentPlayback.value = miniState
+                        activePlayerType = miniState?.playerType
+                    }
+                }
+            }
+        }
+    }
     
     override fun playPause() {
-        // Delegate to the active player service
-        // Implementation depends on which service is currently active
+        when (activePlayerType) {
+            "music" -> musicPlayerService.togglePlayPause()
+            "audiobook" -> audiobookService.togglePlayPause()
+            "podcast" -> podcastService.togglePlayPause()
+        }
     }
     
     override fun skipNext() {
-        // Delegate to the active player service
+        when (activePlayerType) {
+            "music" -> musicPlayerService.skipNext()
+            "audiobook" -> audiobookService.skipNext()
+            "podcast" -> podcastService.skipNext()
+        }
     }
     
     override fun skipPrevious() {
-        // Delegate to the active player service
+        when (activePlayerType) {
+            "music" -> musicPlayerService.skipPrevious()
+            "audiobook" -> audiobookService.skipPrevious()
+            "podcast" -> podcastService.skipPrevious()
+        }
     }
     
     /**

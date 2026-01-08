@@ -8,6 +8,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.dao.RadioStationDao
+import com.universalmedialibrary.data.local.entity.RadioStation as RadioStationEntity
 import com.universalmedialibrary.services.radio.RadioBrowserService
 import com.universalmedialibrary.services.radio.FMRadioService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
@@ -35,7 +37,8 @@ class EnhancedRadioViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val radioBrowserService: RadioBrowserService,
     private val fmRadioService: FMRadioService,
-    private val exoPlayerService: ExoPlayerService
+    private val exoPlayerService: ExoPlayerService,
+    private val radioStationDao: RadioStationDao
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(EnhancedRadioState())
@@ -51,6 +54,29 @@ class EnhancedRadioViewModel @Inject constructor(
         loadCategories()
         loadPopularStations()
         observeFMRadioState()
+        loadFavoritesFromDatabase()
+    }
+    
+    /**
+     * Load favorite stations from database on startup
+     */
+    private fun loadFavoritesFromDatabase() {
+        viewModelScope.launch {
+            radioStationDao.getFavoriteStations().collect { dbStations ->
+                val favorites = dbStations.map { station ->
+                    RadioStation(
+                        id = station.id.toString(),
+                        name = station.name,
+                        streamUrl = station.streamUrl,
+                        logoUrl = station.logoUrl,
+                        genre = station.genre ?: "",
+                        country = station.country,
+                        isFavorite = true
+                    )
+                }
+                _uiState.update { it.copy(favoriteStations = favorites) }
+            }
+        }
     }
     
     /**
@@ -438,13 +464,35 @@ class EnhancedRadioViewModel @Inject constructor(
     
     fun toggleFavorite(station: RadioStation) {
         viewModelScope.launch {
-            val updatedFavorites = if (station.isFavorite) {
-                _uiState.value.favoriteStations.filter { it.id != station.id }
+            val stationId = station.id.toLongOrNull()
+            
+            if (station.isFavorite) {
+                // Remove from favorites
+                stationId?.let { id ->
+                    radioStationDao.updateFavoriteStatus(id, false)
+                }
             } else {
-                _uiState.value.favoriteStations + station.copy(isFavorite = true)
+                // Add to favorites - first check if station exists in DB
+                val existingStation = stationId?.let { radioStationDao.getStationByIdDirect(it) }
+                    ?: radioStationDao.getStationByStreamUrl(station.streamUrl)
+                
+                if (existingStation != null) {
+                    // Update existing station's favorite status
+                    radioStationDao.updateFavoriteStatus(existingStation.id, true)
+                } else {
+                    // Insert new station as favorite
+                    val newStation = RadioStationEntity(
+                        name = station.name,
+                        streamUrl = station.streamUrl,
+                        logoUrl = station.logoUrl,
+                        genre = station.genre,
+                        country = station.country,
+                        isFavorite = true
+                    )
+                    radioStationDao.insertStation(newStation)
+                }
             }
-            _uiState.update { it.copy(favoriteStations = updatedFavorites) }
-            // TODO: Persist favorites to database
+            // UI state will be updated by loadFavoritesFromDatabase() flow collector
         }
     }
     

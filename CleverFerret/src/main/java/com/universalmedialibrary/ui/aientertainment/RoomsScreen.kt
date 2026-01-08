@@ -29,6 +29,7 @@ import com.universalmedialibrary.data.aientertainment.*
 @Composable
 fun RoomsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToRoomChat: (roomId: Long) -> Unit = {},
     viewModel: RoomsViewModel = hiltViewModel()
 ) {
     val rooms by viewModel.rooms.collectAsState()
@@ -193,14 +194,10 @@ fun RoomsScreen(
                 onAddCharacter = { showAddCharacterDialog = true },
                 onEnterRoom = {
                     showRoomDetails = false
-                    // Navigate to room chat (room ID: ${currentRoom?.id})
-                    // For now, show a toast indicating the feature
-                    android.widget.Toast.makeText(
-                        context,
-                        "Entering room: ${currentRoom?.name}",
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
-                    // TODO: Implement full room chat screen
+                    currentRoom?.let { room ->
+                        // Navigate to room chat screen
+                        onNavigateToRoomChat(room.id)
+                    }
                 }
             )
         }

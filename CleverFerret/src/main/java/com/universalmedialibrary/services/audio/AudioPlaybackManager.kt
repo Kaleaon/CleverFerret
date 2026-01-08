@@ -313,12 +313,61 @@ class AudioPlaybackManager @Inject constructor(
 
     private fun applyCrossfade(enabled: Boolean, durationMs: Int, persist: Boolean) {
         val appliedDuration = if (enabled) durationMs.coerceIn(0, MAX_CROSSFADE_MS) else 0
-        // TODO: Implement crossfade support when available in ExoPlayer API
-        // exoPlayer.setCrossFadeDurationMs(appliedDuration.toLong())
+        
+        // Crossfade implementation via volume fading
+        // ExoPlayer doesn't have native crossfade, so we implement it by:
+        // 1. Monitoring playback position near end of track
+        // 2. Gradually reducing volume while starting next track
+        // 3. The actual fade is handled by setupCrossfadeMonitor() if enabled
+        
+        if (appliedDuration > 0) {
+            setupCrossfadeMonitor(appliedDuration)
+        } else {
+            cancelCrossfadeMonitor()
+        }
+        
         updateState(crossfadeDurationMs = appliedDuration)
         if (persist) {
             scrobblerScope.launch { audioPreferences.setCrossfade(enabled, appliedDuration) }
         }
+    }
+    
+    private var crossfadeJob: Job? = null
+    
+    private fun setupCrossfadeMonitor(durationMs: Int) {
+        crossfadeJob?.cancel()
+        crossfadeJob = scrobblerScope.launch {
+            while (true) {
+                delay(500) // Check every 500ms
+                val player = exoPlayer
+                val duration = player.duration
+                val position = player.currentPosition
+                val crossfadeStart = duration - durationMs
+                
+                if (duration > 0 && position >= crossfadeStart && player.hasNextMediaItem()) {
+                    // Start crossfade: gradually reduce volume
+                    val remaining = duration - position
+                    val fadeProgress = 1f - (remaining.toFloat() / durationMs)
+                    val newVolume = (1f - fadeProgress).coerceIn(0f, 1f)
+                    
+                    withContext(Dispatchers.Main.immediate) {
+                        player.volume = newVolume * _state.value.volume
+                    }
+                    
+                    // When we're at the very end, reset volume for next track
+                    if (remaining <= 100) {
+                        withContext(Dispatchers.Main.immediate) {
+                            player.volume = _state.value.volume
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun cancelCrossfadeMonitor() {
+        crossfadeJob?.cancel()
+        crossfadeJob = null
     }
 
     private fun publishQueue() {

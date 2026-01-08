@@ -21,12 +21,10 @@ class SynthCharacterManager @Inject constructor(
     
     /**
      * Get all characters for all users
+     * Used by backup service to handle all characters regardless of user context.
      */
     suspend fun getAllCharacters(): List<SynthCharacter> {
-        // Note: This gets all characters. In production you might want to filter by user.
-        // For now, we'll return an empty list if no user context is available.
-        // This is used by backup service which should handle all characters.
-        return emptyList() // TODO: Implement getAllCharacters in repository if needed
+        return repository.getAllCharacters()
     }
     
     /**

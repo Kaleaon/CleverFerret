@@ -105,6 +105,9 @@ interface SynthCharacterDao {
     
     @Query("UPDATE synth_characters SET memory_context = :context, updated_at = :timestamp WHERE id = :characterId")
     suspend fun updateMemoryContext(characterId: Long, context: String, timestamp: Long = System.currentTimeMillis())
+    
+    @Query("SELECT * FROM synth_characters ORDER BY updated_at DESC")
+    suspend fun getAllCharacters(): List<SynthCharacter>
 }
 
 @Dao

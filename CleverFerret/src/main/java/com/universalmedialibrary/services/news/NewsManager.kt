@@ -135,8 +135,22 @@ class NewsManager @Inject constructor(
                         if (xpp.name.lowercase() == "item" || xpp.name.lowercase() == "entry") {
                             insideItem = false
                             if (title.isNotBlank() && link.isNotBlank()) {
-                                // TODO: Check date filter
-                                articles.add(NewsArticle(title, link, desc, pubDate, feed.title))
+                                // Check date filter based on oldestArticleDays
+                                val passesDateFilter = if (recipe.oldestArticleDays > 0 && pubDate.isNotBlank()) {
+                                    try {
+                                        val articleDate = parseDate(pubDate)
+                                        val cutoffTime = System.currentTimeMillis() - (recipe.oldestArticleDays * 24 * 60 * 60 * 1000L)
+                                        articleDate?.time?.let { it >= cutoffTime } ?: true
+                                    } catch (e: Exception) {
+                                        true // Include article if date parsing fails
+                                    }
+                                } else {
+                                    true // No date filter or no publish date
+                                }
+                                
+                                if (passesDateFilter) {
+                                    articles.add(NewsArticle(title, link, desc, pubDate, feed.title))
+                                }
                             }
                         }
                     }
@@ -258,4 +272,32 @@ class NewsManager @Inject constructor(
         val date: String,
         val feedName: String
     )
+    
+    /**
+     * Parse various date formats commonly used in RSS/Atom feeds
+     */
+    private fun parseDate(dateStr: String): Date? {
+        val dateFormats = listOf(
+            // RFC 822 formats (used in RSS)
+            SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US),
+            SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US),
+            SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", Locale.US),
+            // ISO 8601 formats (used in Atom)
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US),
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US),
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US),
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US),
+            // Dublin Core format
+            SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        )
+        
+        for (format in dateFormats) {
+            try {
+                return format.parse(dateStr.trim())
+            } catch (e: Exception) {
+                // Try next format
+            }
+        }
+        return null
+    }
 }
