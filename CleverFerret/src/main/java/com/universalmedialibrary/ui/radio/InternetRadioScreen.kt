@@ -188,7 +188,7 @@ private fun InternetRadioStationCard(
                 AsyncImage(
                     
                     model = url,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier
                         .size(48.dp)
                         .clip(RoundedCornerShape(8.dp)),

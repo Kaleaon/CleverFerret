@@ -113,7 +113,7 @@ fun RadioStationCard(
                 AsyncImage(
                     
                     model = station.logoUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier
                         .size(64.dp)
                         .clip(RoundedCornerShape(8.dp)),

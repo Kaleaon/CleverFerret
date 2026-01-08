@@ -521,7 +521,7 @@ private fun LibraryListItem(
                 AsyncImage(
                     
                     model = item.imageUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )

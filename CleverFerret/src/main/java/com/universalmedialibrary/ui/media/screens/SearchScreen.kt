@@ -512,7 +512,7 @@ private fun SearchResultItem(
                 AsyncImage(
                     
                     model = result.imageUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )

@@ -448,7 +448,7 @@ private fun SearchResultCard(
             AsyncImage(
                     
                 model = result.thumbnailUrl,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier
                     .size(80.dp)
                     .clip(MaterialTheme.shapes.small)

@@ -236,7 +236,7 @@ private fun FeaturedArticleCard(
                     AsyncImage(
                     
                         model = article.imageUrl,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -350,7 +350,7 @@ private fun NewsArticleCard(
                     AsyncImage(
                     
                         model = article.imageUrl,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )

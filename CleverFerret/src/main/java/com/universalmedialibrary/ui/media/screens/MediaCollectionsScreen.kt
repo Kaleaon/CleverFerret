@@ -165,7 +165,7 @@ private fun CollectionCard(
                                     AsyncImage(
                     
                                         model = url,
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .weight(1f)
@@ -178,7 +178,7 @@ private fun CollectionCard(
                                     AsyncImage(
                     
                                         model = url,
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .weight(1f)
@@ -192,7 +192,7 @@ private fun CollectionCard(
                         AsyncImage(
                     
                             model = collection.coverUrls.first(),
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )

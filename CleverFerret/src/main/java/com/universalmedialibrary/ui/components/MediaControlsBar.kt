@@ -139,7 +139,7 @@ fun MediaControlsBar(
                             AsyncImage(
                     
                                 model = albumArtUrl,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
@@ -337,7 +337,7 @@ private fun AlbumArtSliverBackground(albumArtUrl: String?) {
     AsyncImage(
                     
         model = albumArtUrl,
-        contentDescription = null,
+        contentDescription = "Media image",
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer {

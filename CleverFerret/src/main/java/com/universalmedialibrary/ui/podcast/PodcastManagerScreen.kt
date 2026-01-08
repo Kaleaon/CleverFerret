@@ -610,7 +610,7 @@ fun PodcastSearchDialog(
                                 AsyncImage(
                     
                                     model = result.imageUrl,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier
                                         .size(40.dp)
                                         .clip(MaterialTheme.shapes.small),

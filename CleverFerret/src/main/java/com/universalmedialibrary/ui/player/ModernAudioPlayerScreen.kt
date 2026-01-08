@@ -117,7 +117,7 @@ fun ModernAudioPlayerScreen(
             AsyncImage(
                     
                 model = coverUrl,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier
                     .fillMaxSize()
                     .blur(100.dp)

@@ -251,7 +251,7 @@ private fun RecommendationCard(
                 AsyncImage(
                     
                     model = recommendation.thumbnailUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(220.dp)

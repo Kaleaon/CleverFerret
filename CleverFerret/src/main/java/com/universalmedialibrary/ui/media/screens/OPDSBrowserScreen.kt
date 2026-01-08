@@ -494,7 +494,7 @@ private fun BookEntryItem(
                 AsyncImage(
                     
                     model = entry.coverUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )

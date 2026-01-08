@@ -888,7 +888,7 @@ private fun AlbumGridItem(album: Album, onClick: () -> Unit) {
                     AsyncImage(
                     
                         model = album.artworkUri,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )

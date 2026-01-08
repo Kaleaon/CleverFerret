@@ -385,7 +385,7 @@ fun EnhancedMetadataEditorScreen(
                                     AsyncImage(
                     
                                         model = result.coverUrl ?: "https://via.placeholder.com/60x80/2d3136/e5a00d?text=?",
-                                        contentDescription = null,
+                                        contentDescription = "Media image",
                                         modifier = Modifier
                                             .size(40.dp, 60.dp)
                                             .clip(MaterialTheme.shapes.small),

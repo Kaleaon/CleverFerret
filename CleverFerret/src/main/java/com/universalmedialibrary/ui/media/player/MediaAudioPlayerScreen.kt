@@ -612,7 +612,7 @@ private fun QueueSheet(
                             AsyncImage(
                     
                                 model = item.artworkUrl,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )

@@ -230,7 +230,7 @@ private fun ComicSeriesCard(series: ComicSeries) {
                 AsyncImage(
                     
                     model = series.imageUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier
                         .size(80.dp)
                         .padding(end = 8.dp)

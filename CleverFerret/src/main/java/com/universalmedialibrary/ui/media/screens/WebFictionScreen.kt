@@ -277,7 +277,7 @@ private fun WebFictionStoryCard(
                     AsyncImage(
                     
                         model = story.coverUrl,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -559,7 +559,7 @@ private fun UpdateItem(
                 AsyncImage(
                     
                     model = update.storyCoverUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )

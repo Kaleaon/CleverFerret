@@ -75,7 +75,7 @@ fun PodcastDetailScreen(
                                 AsyncImage(
                     
                                     model = podcast.imageUrl,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     modifier = Modifier
                                         .size(100.dp)
                                         .clip(MaterialTheme.shapes.medium)

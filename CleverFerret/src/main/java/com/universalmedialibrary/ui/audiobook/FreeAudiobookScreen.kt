@@ -239,7 +239,7 @@ private fun AudiobookCard(
             AsyncImage(
                     
                 model = audiobook.coverUrl,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier
                     .size(width = 96.dp, height = 96.dp)
             )

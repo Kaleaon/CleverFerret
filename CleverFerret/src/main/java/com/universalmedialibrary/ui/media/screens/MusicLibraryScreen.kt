@@ -554,7 +554,7 @@ private fun TrackListItem(
                 AsyncImage(
                     
                     model = track.albumArtUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -692,7 +692,7 @@ private fun PlaylistCard(
                                 AsyncImage(
                     
                                     model = url,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .weight(1f)
@@ -705,7 +705,7 @@ private fun PlaylistCard(
                                 AsyncImage(
                     
                                     model = url,
-                                    contentDescription = null,
+                                    contentDescription = "Media image",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .weight(1f)
@@ -719,7 +719,7 @@ private fun PlaylistCard(
                     AsyncImage(
                     
                         model = playlist.artworkUrls.first(),
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -867,7 +867,7 @@ private fun NowPlayingMiniBar(
                         AsyncImage(
                     
                             model = track.albumArtUrl,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )

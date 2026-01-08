@@ -120,7 +120,7 @@ fun MediaPosterCard(
             if (coverPainter != null) {
                 Image(
                     painter = coverPainter,
-                    contentDescription = null,
+                    contentDescription = "Image",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )

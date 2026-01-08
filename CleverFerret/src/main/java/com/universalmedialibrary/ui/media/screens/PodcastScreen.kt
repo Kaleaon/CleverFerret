@@ -443,7 +443,7 @@ private fun PodcastEpisodeCard(
                         AsyncImage(
                     
                             model = episode.showArtworkUrl,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )
@@ -685,7 +685,7 @@ private fun QueueEpisodeItem(
                 AsyncImage(
                     
                     model = episode.showArtworkUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -774,7 +774,7 @@ private fun DownloadedEpisodeItem(
                 AsyncImage(
                     
                     model = episode.showArtworkUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -894,7 +894,7 @@ private fun PodcastMiniPlayer(
                         AsyncImage(
                     
                             model = episode.showArtworkUrl,
-                            contentDescription = null,
+                            contentDescription = "Media image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )

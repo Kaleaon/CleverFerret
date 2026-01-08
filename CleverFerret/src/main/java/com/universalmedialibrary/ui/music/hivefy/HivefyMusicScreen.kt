@@ -273,7 +273,7 @@ private fun HivefyPlaylistRow(
                     AsyncImage(
                     
                         model = playlist.artworkUrl,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp)
@@ -331,7 +331,7 @@ private fun HivefyAlbumRow(
                     AsyncImage(
                     
                         model = album.artworkUrl,
-                        contentDescription = null,
+                        contentDescription = "Media image",
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp)

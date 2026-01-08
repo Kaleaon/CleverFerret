@@ -114,7 +114,7 @@ fun MediaVideoPlayerScreen(
                 AsyncImage(
                     
                     model = state.thumbnailUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit
                 )
@@ -750,7 +750,7 @@ private fun SeekPreview(
                 AsyncImage(
                     
                     model = thumbnailUrl,
-                    contentDescription = null,
+                    contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -961,7 +961,7 @@ private fun EpisodesSheet(
                             AsyncImage(
                     
                                 model = episode.thumbnailUrl,
-                                contentDescription = null,
+                                contentDescription = "Media image",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )

@@ -261,7 +261,7 @@ private fun ComicPageView(
             coil.compose.AsyncImage(
                     
                 model = imageUrl,
-                contentDescription = null,
+                contentDescription = "Media image",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = androidx.compose.ui.layout.ContentScale.Fit
             )
