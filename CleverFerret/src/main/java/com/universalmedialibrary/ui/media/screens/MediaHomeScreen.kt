@@ -258,7 +258,7 @@ fun MediaHomeScreen(
             }
         }
         
-        // Floating Top Bar (fades in on scroll)
+        // Floating Top Bar (fades in on scroll) - kept for visual feedback
         AnimatedVisibility(
             visible = showFloatingTopBar,
             enter = fadeIn() + slideInVertically(),
@@ -271,6 +271,7 @@ fun MediaHomeScreen(
             )
         }
     }
+    } // End Scaffold
 }
 
 // =============================================================================
