@@ -54,6 +54,8 @@ fun MediaHomeScreen(
     onSeeAllClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     onNotificationClick: () -> Unit,
+    onAddLocalFilesClick: () -> Unit = {},
+    onSubscribePodcastsClick: () -> Unit = {},
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -92,9 +94,20 @@ fun MediaHomeScreen(
         }
     }
     
+    // Scaffold with sticky top header
+    Scaffold(
+        topBar = {
+            StickyContentLibraryHeader(
+                onSearchClick = onSearchClick,
+                onNotificationClick = onNotificationClick
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
     Box(
         modifier = modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .background(MaterialTheme.colorScheme.background)
     ) {
         // Handle error, loading, and content states
