@@ -205,7 +205,9 @@ fun MediaAppNavHost(
                 },
                 onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
                 onRetry = { viewModel.refresh() },
-                onNotificationClick = { navController.navigate(MediaRoutes.ACTIVITY) }
+                onNotificationClick = { navController.navigate(MediaRoutes.ACTIVITY) },
+                onAddLocalFilesClick = { navController.navigate(MediaRoutes.FILE_BROWSER) },
+                onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) }
             )
         }
 
