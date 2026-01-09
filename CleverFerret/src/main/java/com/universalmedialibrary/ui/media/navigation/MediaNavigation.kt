@@ -825,6 +825,7 @@ fun MediaBottomNavigation(
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .height(MediaSizes.BottomBarHeight)
             .windowInsetsPadding(NavigationBarDefaults.windowInsets),
         color = cs.surface,
         tonalElevation = MediaElevation.MD,
