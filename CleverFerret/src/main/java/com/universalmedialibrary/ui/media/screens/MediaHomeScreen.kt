@@ -280,13 +280,15 @@ fun MediaHomeScreen(
 @Composable
 private fun WelcomeSection(
     onSearchClick: () -> Unit,
-    onBrowseClick: () -> Unit
+    onBrowseClick: () -> Unit,
+    onAddLocalFilesClick: () -> Unit,
+    onSubscribePodcastsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = MediaSpacing.ScreenHorizontal)
-            .padding(top = MediaSpacing.Huge, bottom = MediaSpacing.XL),
+            .padding(top = MediaSpacing.LG, bottom = MediaSpacing.XL),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Welcome Icon
@@ -350,7 +352,8 @@ private fun WelcomeSection(
                 GettingStartedItem(
                     icon = Icons.Default.FolderOpen,
                     title = "Add Local Files",
-                    description = "Import books, music, and videos from your device"
+                    description = "Import books, music, and videos from your device",
+                    onClick = onAddLocalFilesClick
                 )
                 
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
@@ -367,7 +370,8 @@ private fun WelcomeSection(
                 GettingStartedItem(
                     icon = Icons.Default.Podcasts,
                     title = "Subscribe to Podcasts",
-                    description = "Add your favorite podcast feeds"
+                    description = "Add your favorite podcast feeds",
+                    onClick = onSubscribePodcastsClick
                 )
                 
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
