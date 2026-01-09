@@ -1969,7 +1969,9 @@ fun MediaAppNavHost(
                 },
                 onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
                 onRetry = { viewModel.refresh() },
-                onNotificationClick = { }
+                onNotificationClick = { },
+                onAddLocalFilesClick = { navController.navigate(MediaRoutes.FILE_BROWSER) },
+                onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) }
             )
         }
         
