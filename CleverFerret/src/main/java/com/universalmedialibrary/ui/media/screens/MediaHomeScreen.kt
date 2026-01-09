@@ -128,18 +128,14 @@ fun MediaHomeScreen(
                     .fillMaxSize()
                     .padding(bottom = MediaSpacing.Huge) // Extra padding for bottom nav
             ) {
-                // Sticky Header - "Content Library" with search
-                item {
-                    ContentLibraryHeader(
-                        onSearchClick = onSearchClick
-                    )
-                }
-                
+                // Welcome section (Get Started) for empty library - now always at top after sticky header
                 if (isLibraryEmpty) {
                     item {
                         WelcomeSection(
                             onSearchClick = onSearchClick,
-                            onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) }
+                            onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) },
+                            onAddLocalFilesClick = onAddLocalFilesClick,
+                            onSubscribePodcastsClick = onSubscribePodcastsClick
                         )
                     }
                 }
