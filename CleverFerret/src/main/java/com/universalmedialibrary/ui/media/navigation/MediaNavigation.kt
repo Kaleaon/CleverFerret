@@ -980,34 +980,35 @@ private fun BottomNavItem(
     
     Column(
         modifier = Modifier
-            .widthIn(min = 72.dp)
+            .widthIn(min = 80.dp)
             .clickable(enabled = enabled, onClick = onClick)
             .alpha(if (enabled) 1f else 0.55f)
-            .padding(MediaSpacing.SM),
+            .padding(horizontal = MediaSpacing.MD, vertical = MediaSpacing.SM),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Selection indicator dot
         Box(
             modifier = Modifier
-                .size(4.dp)
+                .size(5.dp)
                 .clip(CircleShape)
                 .background(if (isSelected) cs.primary else Color.Transparent)
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.XS))
         
+        // Increased icon size from IconMD (24dp) to IconLG (32dp) for better visibility
         Icon(
             imageVector = if (isSelected) destination.selectedIcon else destination.icon,
             contentDescription = destination.label,
             tint = iconColor,
-            modifier = Modifier.size(MediaSizes.IconMD)
+            modifier = Modifier.size(MediaSizes.IconLG)
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.XS))
         
         Text(
             text = destination.label,
-            style = MediaTypography.LabelSmall,
+            style = MediaTypography.LabelMedium,
             color = textColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
