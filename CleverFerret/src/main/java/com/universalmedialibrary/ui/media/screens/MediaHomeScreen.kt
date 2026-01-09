@@ -901,6 +901,61 @@ private fun ContentLibraryHeader(
 }
 
 // =============================================================================
+// STICKY CONTENT LIBRARY HEADER (Fixed at top)
+// =============================================================================
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun StickyContentLibraryHeader(
+    onSearchClick: () -> Unit,
+    onNotificationClick: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                Text(
+                    text = "Content ",
+                    style = MediaTypography.TitleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Library",
+                    style = MediaTypography.TitleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        actions = {
+            // Notifications button
+            IconButton(onClick = onNotificationClick) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifications",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+            // Search button
+            IconButton(onClick = onSearchClick) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            titleContentColor = MaterialTheme.colorScheme.onBackground
+        )
+    )
+}
+
+// =============================================================================
 // CONTINUE WATCHING ROW (Matching mockup with metallic borders)
 // =============================================================================
 
