@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.services.metadata.AudioMetadataService
 import com.universalmedialibrary.services.metadata.BookMetadataService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FolderImportViewModel @Inject constructor(
-    private val metadataService: BookMetadataService
+    private val bookMetadataService: BookMetadataService,
+    private val audioMetadataService: AudioMetadataService
 ) : ViewModel() {
     
     companion object {
