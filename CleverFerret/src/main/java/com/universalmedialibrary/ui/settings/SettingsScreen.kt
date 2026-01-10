@@ -262,6 +262,38 @@ fun SettingsScreen(
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                     )
                 }
+                
+                // Quick Import - Add Media to Library
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate(com.universalmedialibrary.ui.media.navigation.MediaRoutes.FOLDER_IMPORT) }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Import Media to Library",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Import files or folders with auto-sorting and metadata from Open Library & Google Books",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.FileDownload,
+                                contentDescription = "Import Media"
+                            )
+                        }
+                    }
+                }
 
                 item {
                     MetallicCard(
