@@ -767,6 +767,7 @@ enum class ScannedFileType(val icon: ImageVector, val color: Color) {
     PODCAST(Icons.Default.Podcasts, Color(0xFFE91E63)),
     VIDEO(Icons.Default.VideoLibrary, Color(0xFFF44336)),
     DOCUMENT(Icons.Default.Description, Color(0xFF607D8B)),
+    FANFICTION(Icons.Default.Create, Color(0xFF00BCD4)),
     OTHER(Icons.Default.InsertDriveFile, Color(0xFF9E9E9E))
 }
 
