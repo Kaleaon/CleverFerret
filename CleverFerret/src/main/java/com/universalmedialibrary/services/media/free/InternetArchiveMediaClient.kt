@@ -58,29 +58,55 @@ class InternetArchiveMediaClient @Inject constructor(
             .header("User-Agent", USER_AGENT)
             .build()
 
-        okHttpClient.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw IOException("Internet Archive request failed: HTTP ${response.code}")
+        try {
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    // Return empty list for server errors instead of crashing
+                    if (response.code >= 500) {
+                        return@withContext emptyList()
+                    }
+                    throw IOException("Internet Archive request failed: HTTP ${response.code}")
+                }
+
+                val body = response.body?.string() ?: ""
+                if (body.isBlank()) return@withContext emptyList()
+
+                val root = try {
+                    json.parseToJsonElement(body)
+                } catch (e: Exception) {
+                    // Handle malformed JSON gracefully
+                    return@withContext emptyList()
+                }
+                
+                val docs = (root as? JsonObject)
+                    ?.get("response") as? JsonObject
+                    ?: return@withContext emptyList()
+
+                val results = docs["docs"]?.jsonArray ?: JsonArray(emptyList())
+
+                results.mapNotNull { doc ->
+                    try {
+                        parseMediaDocument(
+                            doc,
+                            preferredFormats,
+                            fallbackFormats,
+                            type
+                        )
+                    } catch (e: Exception) {
+                        // Skip individual items that fail to parse
+                        null
+                    }
+                }
             }
-
-            val body = response.body?.string() ?: ""
-            if (body.isBlank()) return@withContext emptyList()
-
-            val root = json.parseToJsonElement(body)
-            val docs = (root as? JsonObject)
-                ?.get("response") as? JsonObject
-                ?: return@withContext emptyList()
-
-            val results = docs["docs"]?.jsonArray ?: JsonArray(emptyList())
-
-            results.mapNotNull { doc ->
-                parseMediaDocument(
-                    doc,
-                    preferredFormats,
-                    fallbackFormats,
-                    type
-                )
-            }
+        } catch (e: java.net.SocketTimeoutException) {
+            // Return empty list on timeout instead of crashing
+            emptyList()
+        } catch (e: java.net.UnknownHostException) {
+            // Return empty list when offline instead of crashing
+            emptyList()
+        } catch (e: IOException) {
+            // Return empty list for network errors
+            emptyList()
         }
     }
 

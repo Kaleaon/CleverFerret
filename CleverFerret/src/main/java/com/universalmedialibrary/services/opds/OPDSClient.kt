@@ -30,16 +30,27 @@ class OPDSClient @Inject constructor(
 ) {
 
     suspend fun fetchFeed(url: String): OPDSFeed = withContext(Dispatchers.IO) {
-        val request = Request.Builder()
-            .url(url)
-            .header("User-Agent", USER_AGENT)
-            .build()
+        try {
+            val request = Request.Builder()
+                .url(url)
+                .header("User-Agent", USER_AGENT)
+                .header("Accept", "application/atom+xml, application/xml, text/xml, */*")
+                .build()
 
-        okHttpClient.newCall(request).execute().use { response ->
-            ensureSuccess(response)
-            response.body?.byteStream()?.use { stream ->
-                parseFeed(stream, url)
-            } ?: throw IllegalStateException("Empty OPDS response body")
+            okHttpClient.newCall(request).execute().use { response ->
+                ensureSuccess(response)
+                response.body?.byteStream()?.use { stream ->
+                    parseFeed(stream, url)
+                } ?: throw IllegalStateException("Empty OPDS response body")
+            }
+        } catch (e: java.net.SocketTimeoutException) {
+            throw IllegalStateException("Connection timed out. The server may be busy or unavailable.", e)
+        } catch (e: java.net.UnknownHostException) {
+            throw IllegalStateException("Unable to reach server. Please check your internet connection.", e)
+        } catch (e: javax.net.ssl.SSLException) {
+            throw IllegalStateException("Secure connection failed. The server may have certificate issues.", e)
+        } catch (e: java.io.IOException) {
+            throw IllegalStateException("Network error: ${e.message ?: "Connection failed"}", e)
         }
     }
 
@@ -55,12 +66,22 @@ class OPDSClient @Inject constructor(
         // Read and sanitize XML content to handle malformed entity references
         // (e.g., unescaped & characters in Internet Archive feeds)
         val rawContent = stream.bufferedReader().use { it.readText() }
+        
+        if (rawContent.isBlank()) {
+            return OPDSFeed(title = "Empty Catalog", entries = emptyList(), navigation = emptyList())
+        }
+        
+        // Sanitize XML content for common issues in OPDS feeds
         val sanitizedContent = sanitizeXmlEntities(rawContent)
         
-        val parser = XmlPullParserFactory.newInstance().apply {
-            isNamespaceAware = true
-        }.newPullParser().apply {
-            setInput(StringReader(sanitizedContent))
+        val parser = try {
+            XmlPullParserFactory.newInstance().apply {
+                isNamespaceAware = true
+            }.newPullParser().apply {
+                setInput(StringReader(sanitizedContent))
+            }
+        } catch (e: Exception) {
+            throw IllegalStateException("Failed to parse catalog XML: ${e.message}", e)
         }
 
         val baseUrl = requestUrl.toHttpUrlOrNull()

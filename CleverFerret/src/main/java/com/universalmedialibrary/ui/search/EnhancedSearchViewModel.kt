@@ -224,9 +224,17 @@ class EnhancedSearchViewModel @Inject constructor(
                 // Search was cancelled (e.g., user typed new query), don't update state
                 throw e
             } catch (e: Exception) {
+                // Filter out internal coroutine messages that shouldn't be shown to users
+                val errorMessage = when {
+                    e.message?.contains("coroutine", ignoreCase = true) == true -> "Search cancelled. Please try again."
+                    e.message?.contains("StandaloneCoroutine", ignoreCase = true) == true -> "Search cancelled. Please try again."
+                    e.message?.contains("timeout", ignoreCase = true) == true -> "Search timed out. Please try again."
+                    e.message?.contains("network", ignoreCase = true) == true -> "Network error. Please check your connection."
+                    else -> e.message ?: "Search failed. Please try again."
+                }
                 _uiState.value = _uiState.value.copy(
                     isSearching = false,
-                    error = e.message ?: "Search failed"
+                    error = errorMessage
                 )
             }
         }

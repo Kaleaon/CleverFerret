@@ -598,10 +598,19 @@ fun PodcastSearchDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(searchResults) { result ->
+                        // Only show subscribe action if podcast has an RSS feed
+                        val hasRssFeed = result.feedUrl.isNotBlank()
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onSubscribe(result) }
+                                .clickable(enabled = hasRssFeed) { onSubscribe(result) },
+                            colors = if (hasRssFeed) {
+                                CardDefaults.cardColors()
+                            } else {
+                                CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                )
+                            }
                         ) {
                             Row(
                                 modifier = Modifier.padding(12.dp),
@@ -631,6 +640,13 @@ fun PodcastSearchDialog(
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
+                                    if (!hasRssFeed) {
+                                        Text(
+                                            text = "No RSS feed available (${result.source})",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                                        )
+                                    }
                                 }
                             }
                         }

@@ -58,6 +58,42 @@ class LibraryRepository @Inject constructor(
         return path.isNotBlank() && getLibraryByPath(path) == null
     }
 
+    /**
+     * Get or create the default unified library
+     * This is the primary library that contains all media types
+     */
+    suspend fun getOrCreateDefaultLibrary(): Library {
+        // Try to find an existing default library
+        val existingLibrary = libraryDao.getLibraryById(1L) 
+            ?: libraryDao.getLibraryByName("My Library")
+            ?: libraryDao.getLibraryByName("Universal Media Library")
+        
+        if (existingLibrary != null) {
+            return existingLibrary
+        }
+        
+        // Create the default unified library
+        val defaultLibrary = Library(
+            libraryId = 0,
+            name = "My Library",
+            type = "ALL", // Unified library supports all media types
+            path = "",
+            source = "LOCAL",
+            description = "Your unified media library",
+            isActive = true
+        )
+        
+        val id = libraryDao.insertLibrary(defaultLibrary)
+        return defaultLibrary.copy(libraryId = id)
+    }
+    
+    /**
+     * Get the default library ID, creating it if it doesn't exist
+     */
+    suspend fun getDefaultLibraryId(): Long {
+        return getOrCreateDefaultLibrary().libraryId
+    }
+
     suspend fun getLibraryStats(): Map<String, Int> {
         val totalLibraries = getActiveLibraryCount()
         val bookLibraries = getActiveLibraryCountByType("BOOK")

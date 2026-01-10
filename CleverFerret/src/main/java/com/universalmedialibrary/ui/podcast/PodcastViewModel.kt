@@ -64,9 +64,14 @@ class PodcastViewModel @Inject constructor(
 
             // Validate feedUrl before attempting to subscribe
             if (searchResult.feedUrl.isBlank()) {
+                // Provide a helpful message based on the source
+                val sourceSpecificMessage = when (searchResult.source) {
+                    "spotify" -> "This Spotify podcast doesn't provide an RSS feed. Try searching in other sources like Apple Podcasts or PodcastIndex."
+                    else -> "This podcast doesn't have an RSS feed URL. Try searching for it in a different source."
+                }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Cannot subscribe: Feed URL is missing for this podcast"
+                    error = sourceSpecificMessage
                 )
                 return@launch
             }

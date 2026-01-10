@@ -238,9 +238,11 @@ class UniversalTagBrowserViewModel @Inject constructor(
      * Download a story
      */
     fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false) {
+        // Use composite key to uniquely identify the story
+        val storyKey = "${story.site ?: ""}-${story.id}"
         val activeDownloadId = _uiState.value.downloadingStoryId
         if (activeDownloadId != null) {
-            if (activeDownloadId == story.id) {
+            if (activeDownloadId == storyKey) {
                 // Already downloading this story; ignore duplicate tap.
                 return
             }
@@ -251,7 +253,7 @@ class UniversalTagBrowserViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
-                downloadingStoryId = story.id,
+                downloadingStoryId = storyKey,
                 error = null,
                 successMessage = null
             )
