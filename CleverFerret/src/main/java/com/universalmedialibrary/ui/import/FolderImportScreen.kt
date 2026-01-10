@@ -728,8 +728,8 @@ private fun ScannedFileItem(
                 }
             }
             
-            // Fetch metadata button
-            if (file.type == ScannedFileType.BOOK && file.metadata == null) {
+            // Fetch metadata button - for books and audio without metadata
+            if ((file.type == ScannedFileType.BOOK || file.type == ScannedFileType.MUSIC || file.type == ScannedFileType.AUDIOBOOK) && file.metadata == null) {
                 IconButton(onClick = onFetchMetadata) {
                     Icon(
                         Icons.Default.Search,
