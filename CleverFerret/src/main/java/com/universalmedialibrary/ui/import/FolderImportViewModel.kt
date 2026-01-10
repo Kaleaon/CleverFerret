@@ -238,22 +238,27 @@ class FolderImportViewModel @Inject constructor(
     
     private fun fetchMetadataForAllFiles() {
         viewModelScope.launch {
-            // Fetch metadata for books
-            val books = _uiState.value.scannedFiles.filter { 
-                it.type == ScannedFileType.BOOK && it.metadata == null 
+            // Fetch metadata for all supported file types
+            val filesToProcess = _uiState.value.scannedFiles.filter { 
+                it.metadata == null && it.type in listOf(
+                    ScannedFileType.BOOK, 
+                    ScannedFileType.COMIC,
+                    ScannedFileType.MUSIC, 
+                    ScannedFileType.AUDIOBOOK,
+                    ScannedFileType.FANFICTION
+                )
             }
-            books.forEach { book ->
-                fetchMetadataForFile(book)
-            }
-            
-            // Fetch metadata for audio files
-            val audioFiles = _uiState.value.scannedFiles.filter { 
-                it.type in listOf(ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK) && it.metadata == null 
-            }
-            audioFiles.forEach { audio ->
-                fetchMetadataForFile(audio)
+            filesToProcess.forEach { file ->
+                fetchMetadataForFile(file)
             }
         }
+    }
+    
+    /**
+     * Detect if a file is likely fanfiction based on filename patterns
+     */
+    private fun isFanfiction(filename: String): Boolean {
+        return FANFICTION_PATTERNS.any { it.containsMatchIn(filename) }
     }
     
     fun fetchMetadataForFile(file: ScannedFile) {
@@ -262,51 +267,25 @@ class FolderImportViewModel @Inject constructor(
             
             try {
                 when (file.type) {
-                    ScannedFileType.BOOK, ScannedFileType.COMIC -> {
-                        // Use BookMetadataService for books
-                        val metadata = bookMetadataService.fetchMetadata(
-                            filename = file.name
-                        )
-                        
-                        if (metadata != null) {
-                            val fileMetadata = FileMetadata(
-                                title = metadata.title,
-                                authors = metadata.authors,
-                                isbn = metadata.isbn,
-                                publisher = metadata.publisher,
-                                coverUrl = metadata.coverUrl,
-                                description = metadata.description,
-                                subjects = metadata.subjects
-                            )
-                            updateFileMetadata(file.uri, fileMetadata)
+                    ScannedFileType.BOOK -> {
+                        // Check if it might be fanfiction
+                        if (isFanfiction(file.name)) {
+                            fetchFanfictionMetadata(file)
+                        } else {
+                            fetchBookMetadata(file)
                         }
                     }
                     
+                    ScannedFileType.COMIC -> {
+                        fetchComicMetadata(file)
+                    }
+                    
                     ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK -> {
-                        // Use AudioMetadataService for audio files
-                        val uri = Uri.parse(file.uri)
-                        val metadata = audioMetadataService.autoTag(uri)
-                        
-                        if (metadata != null) {
-                            val fileMetadata = FileMetadata(
-                                title = metadata.title,
-                                authors = listOfNotNull(metadata.artist),
-                                isbn = null,
-                                publisher = metadata.album, // Use album as "publisher" for audio
-                                coverUrl = null, // Cover art is embedded, not URL
-                                description = null,
-                                subjects = metadata.genres,
-                                // Audio-specific fields
-                                album = metadata.album,
-                                albumArtist = metadata.albumArtist,
-                                trackNumber = metadata.trackNumber,
-                                year = metadata.year,
-                                genre = metadata.genre,
-                                duration = metadata.duration,
-                                musicBrainzId = metadata.musicBrainzRecordingId
-                            )
-                            updateFileMetadata(file.uri, fileMetadata)
-                        }
+                        fetchAudioMetadata(file)
+                    }
+                    
+                    ScannedFileType.FANFICTION -> {
+                        fetchFanfictionMetadata(file)
                     }
                     
                     else -> {
@@ -318,6 +297,134 @@ class FolderImportViewModel @Inject constructor(
             } finally {
                 _uiState.update { it.copy(isFetchingMetadata = false) }
             }
+        }
+    }
+    
+    private suspend fun fetchBookMetadata(file: ScannedFile) {
+        val metadata = bookMetadataService.fetchMetadata(filename = file.name)
+        
+        if (metadata != null) {
+            val fileMetadata = FileMetadata(
+                title = metadata.title,
+                authors = metadata.authors,
+                isbn = metadata.isbn,
+                publisher = metadata.publisher,
+                coverUrl = metadata.coverUrl,
+                description = metadata.description,
+                subjects = metadata.subjects
+            )
+            updateFileMetadata(file.uri, fileMetadata)
+        }
+    }
+    
+    private suspend fun fetchAudioMetadata(file: ScannedFile) {
+        val uri = Uri.parse(file.uri)
+        val metadata = audioMetadataService.autoTag(uri)
+        
+        if (metadata != null) {
+            val fileMetadata = FileMetadata(
+                title = metadata.title,
+                authors = listOfNotNull(metadata.artist),
+                coverUrl = null,
+                description = null,
+                subjects = metadata.genres,
+                album = metadata.album,
+                albumArtist = metadata.albumArtist,
+                trackNumber = metadata.trackNumber,
+                year = metadata.year,
+                genre = metadata.genre,
+                duration = metadata.duration,
+                musicBrainzId = metadata.musicBrainzRecordingId
+            )
+            updateFileMetadata(file.uri, fileMetadata)
+        }
+    }
+    
+    private suspend fun fetchComicMetadata(file: ScannedFile) {
+        // Get actual file path from URI for CBZ parsing
+        val filePath = getFilePathFromUri(file.uri)
+        
+        val metadata = if (filePath != null) {
+            comicMetadataService.autoTag(filePath, file.name)
+        } else {
+            // Fallback to just searching by filename
+            val (series, issue) = comicMetadataService.parseFilename(file.name)
+            comicMetadataService.searchComicVine(series, issue)
+        }
+        
+        if (metadata != null) {
+            // Extract primary writer from credits
+            val writers = metadata.credits.filter { it.role.equals("Writer", ignoreCase = true) }
+            val artists = metadata.credits.filter { it.role.equals("Penciller", ignoreCase = true) || it.role.equals("Artist", ignoreCase = true) }
+            
+            val fileMetadata = FileMetadata(
+                title = metadata.title ?: "${metadata.series} #${metadata.number}",
+                authors = writers.map { it.person }.ifEmpty { artists.map { it.person } },
+                coverUrl = metadata.coverUrl,
+                description = metadata.summary,
+                subjects = metadata.tags + metadata.genre,
+                // Comic-specific fields
+                series = metadata.series,
+                issueNumber = metadata.number,
+                volume = metadata.volume,
+                storyArc = metadata.storyArc,
+                characters = metadata.characters,
+                teams = metadata.teams,
+                locations = metadata.locations,
+                publisher = metadata.publisher,
+                year = metadata.year,
+                comicVineId = metadata.comicVineIssueId
+            )
+            updateFileMetadata(file.uri, fileMetadata)
+        }
+    }
+    
+    private suspend fun fetchFanfictionMetadata(file: ScannedFile) {
+        val filePath = getFilePathFromUri(file.uri)
+        
+        val metadata = if (filePath != null && file.extension.equals("epub", ignoreCase = true)) {
+            fanfictionMetadataService.autoTag(filePath, file.name)
+        } else {
+            fanfictionMetadataService.parseFilename(file.name)
+        }
+        
+        if (metadata != null && metadata.title != null) {
+            val fileMetadata = FileMetadata(
+                title = metadata.title,
+                authors = listOfNotNull(metadata.author),
+                coverUrl = null,
+                description = metadata.summary,
+                subjects = metadata.additionalTags,
+                // Fanfiction-specific fields
+                fandoms = metadata.fandoms,
+                relationships = metadata.relationships,
+                characters = metadata.characters,
+                rating = metadata.rating,
+                warnings = metadata.warnings,
+                categories = metadata.categories,
+                wordCount = metadata.wordCount,
+                chapterInfo = metadata.chapterInfo,
+                ao3WorkId = metadata.ao3WorkId,
+                ffnStoryId = metadata.ffnStoryId,
+                seriesName = metadata.seriesName,
+                seriesPart = metadata.seriesPart
+            )
+            updateFileMetadata(file.uri, fileMetadata)
+        }
+    }
+    
+    private fun getFilePathFromUri(uriString: String): String? {
+        return try {
+            val uri = Uri.parse(uriString)
+            // For content URIs, we'd need to copy to cache or use ContentResolver
+            // For file URIs, we can use the path directly
+            if (uri.scheme == "file") {
+                uri.path
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
         }
     }
     
