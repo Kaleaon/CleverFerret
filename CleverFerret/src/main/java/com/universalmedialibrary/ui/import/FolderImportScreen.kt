@@ -785,19 +785,23 @@ data class ScannedFile(
     val metadata: FileMetadata? = null
 )
 
+/**
+ * Universal file metadata that supports all media types.
+ * All tags are searchable via UniversalSearchService.
+ */
 data class FileMetadata(
-    // Common fields
+    // === Common fields (all media types) ===
     val title: String?,
     val authors: List<String>,
     val coverUrl: String?,
     val description: String?,
-    val subjects: List<String>,
+    val subjects: List<String>,  // General tags, genres, subjects
     
-    // Book-specific fields
+    // === Book-specific fields ===
     val isbn: String? = null,
     val publisher: String? = null,
     
-    // Audio-specific fields (inspired by TagLib/Metadator)
+    // === Audio-specific fields (TagLib/Metadator style) ===
     val album: String? = null,
     val albumArtist: String? = null,
     val trackNumber: Int? = null,
@@ -805,5 +809,47 @@ data class FileMetadata(
     val year: Int? = null,
     val genre: String? = null,
     val duration: Long? = null,
-    val musicBrainzId: String? = null
-)
+    val musicBrainzId: String? = null,
+    
+    // === Comic-specific fields (ComicTagger style) ===
+    val series: String? = null,
+    val issueNumber: String? = null,
+    val volume: Int? = null,
+    val storyArc: String? = null,
+    val characters: List<String> = emptyList(),
+    val teams: List<String> = emptyList(),
+    val locations: List<String> = emptyList(),
+    val comicVineId: Int? = null,
+    
+    // === Fanfiction-specific fields (AO3 style) ===
+    val fandoms: List<String> = emptyList(),
+    val relationships: List<String> = emptyList(),
+    val rating: String? = null,  // G, T, M, E
+    val warnings: List<String> = emptyList(),
+    val categories: List<String> = emptyList(),  // F/F, F/M, M/M, Gen, Multi
+    val wordCount: Int? = null,
+    val chapterInfo: String? = null,  // "3/5" format
+    val ao3WorkId: Long? = null,
+    val ffnStoryId: Long? = null,
+    val seriesName: String? = null,
+    val seriesPart: Int? = null
+) {
+    /**
+     * Get all searchable tags for universal search indexing.
+     */
+    fun getAllSearchableTags(): List<String> {
+        return buildList {
+            addAll(subjects)
+            addAll(fandoms)
+            addAll(relationships)
+            addAll(characters)
+            addAll(teams)
+            addAll(locations)
+            addAll(warnings)
+            addAll(categories)
+            genre?.let { add(it) }
+            storyArc?.let { add(it) }
+            rating?.let { add(it) }
+        }.distinct()
+    }
+}
