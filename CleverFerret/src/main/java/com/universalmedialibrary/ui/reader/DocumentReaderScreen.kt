@@ -545,3 +545,39 @@ private fun renderToBitmap(renderer: PdfRenderer?, index: Int, onRendered: (Bitm
         onRendered(null) 
     }
 }
+
+/**
+ * Render PDF page at higher quality for better zoom experience
+ * @param scaleFactor Multiplier for render resolution (1.0 = native, 2.0 = 2x resolution)
+ */
+private fun renderToBitmapHighQuality(
+    renderer: PdfRenderer?, 
+    index: Int, 
+    scaleFactor: Float = 2f,
+    onRendered: (Bitmap?) -> Unit
+) {
+    try {
+        val page = renderer?.openPage(index) ?: return onRendered(null)
+        
+        // Calculate scaled dimensions for higher quality rendering
+        val width = (page.width * scaleFactor).toInt().coerceAtLeast(100)
+        val height = (page.height * scaleFactor).toInt().coerceAtLeast(100)
+        
+        // Create bitmap with scaled dimensions
+        val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        
+        // Create transformation matrix to scale the render
+        val matrix = android.graphics.Matrix()
+        matrix.setScale(scaleFactor, scaleFactor)
+        
+        // Render at higher resolution
+        page.render(bmp, null, matrix, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+        page.close()
+        
+        onRendered(bmp)
+    } catch (e: Exception) { 
+        android.util.Log.w("PdfReader", "Failed to render PDF page $index at scale $scaleFactor", e)
+        // Fallback to standard render
+        renderToBitmap(renderer, index, onRendered)
+    }
+}
