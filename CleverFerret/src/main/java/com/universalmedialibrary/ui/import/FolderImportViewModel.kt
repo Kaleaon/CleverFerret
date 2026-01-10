@@ -217,18 +217,26 @@ class FolderImportViewModel @Inject constructor(
         _uiState.update { it.copy(autoSortEnabled = !it.autoSortEnabled) }
         
         if (_uiState.value.autoSortEnabled) {
-            fetchMetadataForBooks()
+            fetchMetadataForAllFiles()
         }
     }
     
-    private fun fetchMetadataForBooks() {
+    private fun fetchMetadataForAllFiles() {
         viewModelScope.launch {
+            // Fetch metadata for books
             val books = _uiState.value.scannedFiles.filter { 
                 it.type == ScannedFileType.BOOK && it.metadata == null 
             }
-            
             books.forEach { book ->
                 fetchMetadataForFile(book)
+            }
+            
+            // Fetch metadata for audio files
+            val audioFiles = _uiState.value.scannedFiles.filter { 
+                it.type in listOf(ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK) && it.metadata == null 
+            }
+            audioFiles.forEach { audio ->
+                fetchMetadataForFile(audio)
             }
         }
     }
@@ -238,22 +246,57 @@ class FolderImportViewModel @Inject constructor(
             _uiState.update { it.copy(isFetchingMetadata = true) }
             
             try {
-                val metadata = metadataService.fetchMetadata(
-                    filename = file.name
-                )
-                
-                if (metadata != null) {
-                    val fileMetadata = FileMetadata(
-                        title = metadata.title,
-                        authors = metadata.authors,
-                        isbn = metadata.isbn,
-                        publisher = metadata.publisher,
-                        coverUrl = metadata.coverUrl,
-                        description = metadata.description,
-                        subjects = metadata.subjects
-                    )
+                when (file.type) {
+                    ScannedFileType.BOOK, ScannedFileType.COMIC -> {
+                        // Use BookMetadataService for books
+                        val metadata = bookMetadataService.fetchMetadata(
+                            filename = file.name
+                        )
+                        
+                        if (metadata != null) {
+                            val fileMetadata = FileMetadata(
+                                title = metadata.title,
+                                authors = metadata.authors,
+                                isbn = metadata.isbn,
+                                publisher = metadata.publisher,
+                                coverUrl = metadata.coverUrl,
+                                description = metadata.description,
+                                subjects = metadata.subjects
+                            )
+                            updateFileMetadata(file.uri, fileMetadata)
+                        }
+                    }
                     
-                    updateFileMetadata(file.uri, fileMetadata)
+                    ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK -> {
+                        // Use AudioMetadataService for audio files
+                        val uri = Uri.parse(file.uri)
+                        val metadata = audioMetadataService.autoTag(uri)
+                        
+                        if (metadata != null) {
+                            val fileMetadata = FileMetadata(
+                                title = metadata.title,
+                                authors = listOfNotNull(metadata.artist),
+                                isbn = null,
+                                publisher = metadata.album, // Use album as "publisher" for audio
+                                coverUrl = null, // Cover art is embedded, not URL
+                                description = null,
+                                subjects = metadata.genres,
+                                // Audio-specific fields
+                                album = metadata.album,
+                                albumArtist = metadata.albumArtist,
+                                trackNumber = metadata.trackNumber,
+                                year = metadata.year,
+                                genre = metadata.genre,
+                                duration = metadata.duration,
+                                musicBrainzId = metadata.musicBrainzRecordingId
+                            )
+                            updateFileMetadata(file.uri, fileMetadata)
+                        }
+                    }
+                    
+                    else -> {
+                        // No metadata fetching for other types
+                    }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching metadata for ${file.name}", e)
