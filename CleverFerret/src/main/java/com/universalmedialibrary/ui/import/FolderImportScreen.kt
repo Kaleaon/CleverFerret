@@ -682,9 +682,25 @@ private fun ScannedFileItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 
-                if (file.metadata?.authors?.isNotEmpty() == true) {
+                // Show authors for books, artist for audio
+                val secondaryText = when (file.type) {
+                    ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK -> {
+                        buildString {
+                            file.metadata?.authors?.firstOrNull()?.let { append(it) }
+                            file.metadata?.album?.let { 
+                                if (isNotEmpty()) append(" • ")
+                                append(it)
+                            }
+                        }.ifEmpty { null }
+                    }
+                    else -> {
+                        file.metadata?.authors?.takeIf { it.isNotEmpty() }?.joinToString(", ")
+                    }
+                }
+                
+                if (!secondaryText.isNullOrBlank()) {
                     Text(
-                        text = file.metadata.authors.joinToString(", "),
+                        text = secondaryText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
