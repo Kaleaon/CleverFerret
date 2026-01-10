@@ -770,11 +770,24 @@ data class ScannedFile(
 )
 
 data class FileMetadata(
+    // Common fields
     val title: String?,
     val authors: List<String>,
-    val isbn: String?,
-    val publisher: String?,
     val coverUrl: String?,
     val description: String?,
-    val subjects: List<String>
+    val subjects: List<String>,
+    
+    // Book-specific fields
+    val isbn: String? = null,
+    val publisher: String? = null,
+    
+    // Audio-specific fields (inspired by TagLib/Metadator)
+    val album: String? = null,
+    val albumArtist: String? = null,
+    val trackNumber: Int? = null,
+    val discNumber: Int? = null,
+    val year: Int? = null,
+    val genre: String? = null,
+    val duration: Long? = null,
+    val musicBrainzId: String? = null
 )
