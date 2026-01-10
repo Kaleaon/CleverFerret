@@ -103,6 +103,7 @@ object MediaRoutes {
     const val VISUALIZER = "visualizer"
     const val SYNC = "sync"
     const val IMPORT_EXPORT = "import-export"
+    const val FOLDER_IMPORT = "folder-import"
     
     // AI Entertainment (SynthChat Integration)
     const val AI_ENTERTAINMENT = "ai-entertainment"
