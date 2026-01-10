@@ -341,22 +341,50 @@ class FolderImportViewModel @Inject constructor(
                 )}
                 
                 try {
-                    // Fetch metadata if not already fetched for books
-                    if (file.type == ScannedFileType.BOOK && file.metadata == null) {
+                    // Fetch metadata if not already fetched
+                    if (file.metadata == null) {
                         _uiState.update { it.copy(isFetchingMetadata = true) }
                         
-                        val metadata = metadataService.fetchMetadata(filename = file.name)
-                        if (metadata != null) {
-                            val fileMetadata = FileMetadata(
-                                title = metadata.title,
-                                authors = metadata.authors,
-                                isbn = metadata.isbn,
-                                publisher = metadata.publisher,
-                                coverUrl = metadata.coverUrl,
-                                description = metadata.description,
-                                subjects = metadata.subjects
-                            )
-                            updateFileMetadata(file.uri, fileMetadata)
+                        when (file.type) {
+                            ScannedFileType.BOOK, ScannedFileType.COMIC -> {
+                                val metadata = bookMetadataService.fetchMetadata(filename = file.name)
+                                if (metadata != null) {
+                                    val fileMetadata = FileMetadata(
+                                        title = metadata.title,
+                                        authors = metadata.authors,
+                                        isbn = metadata.isbn,
+                                        publisher = metadata.publisher,
+                                        coverUrl = metadata.coverUrl,
+                                        description = metadata.description,
+                                        subjects = metadata.subjects
+                                    )
+                                    updateFileMetadata(file.uri, fileMetadata)
+                                }
+                            }
+                            
+                            ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK -> {
+                                val uri = Uri.parse(file.uri)
+                                val metadata = audioMetadataService.autoTag(uri)
+                                if (metadata != null) {
+                                    val fileMetadata = FileMetadata(
+                                        title = metadata.title,
+                                        authors = listOfNotNull(metadata.artist),
+                                        coverUrl = null,
+                                        description = null,
+                                        subjects = metadata.genres,
+                                        album = metadata.album,
+                                        albumArtist = metadata.albumArtist,
+                                        trackNumber = metadata.trackNumber,
+                                        year = metadata.year,
+                                        genre = metadata.genre,
+                                        duration = metadata.duration,
+                                        musicBrainzId = metadata.musicBrainzRecordingId
+                                    )
+                                    updateFileMetadata(file.uri, fileMetadata)
+                                }
+                            }
+                            
+                            else -> { /* No metadata fetching for other types */ }
                         }
                         
                         _uiState.update { it.copy(isFetchingMetadata = false) }
