@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.metadata.AudioMetadataService
 import com.universalmedialibrary.services.metadata.BookMetadataService
+import com.universalmedialibrary.services.metadata.ComicMetadataService
+import com.universalmedialibrary.services.metadata.FanfictionMetadataService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +23,9 @@ import javax.inject.Inject
 @HiltViewModel
 class FolderImportViewModel @Inject constructor(
     private val bookMetadataService: BookMetadataService,
-    private val audioMetadataService: AudioMetadataService
+    private val audioMetadataService: AudioMetadataService,
+    private val comicMetadataService: ComicMetadataService,
+    private val fanfictionMetadataService: FanfictionMetadataService
 ) : ViewModel() {
     
     companion object {
@@ -35,6 +39,17 @@ class FolderImportViewModel @Inject constructor(
         val PODCAST_EXTENSIONS = setOf("podcast") // Special marker
         val VIDEO_EXTENSIONS = setOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "mpg", "mpeg")
         val DOCUMENT_EXTENSIONS = setOf("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp")
+        val FANFICTION_EXTENSIONS = setOf("epub") // Fanfiction typically in EPUB format
+        
+        // Fanfiction detection patterns in filename
+        val FANFICTION_PATTERNS = listOf(
+            Regex("""(?i)\bao3\b"""),
+            Regex("""(?i)\barchiveofourown\b"""),
+            Regex("""(?i)\bfanfiction\.net\b"""),
+            Regex("""(?i)\bffn\b"""),
+            Regex("""(?i)\bfanfic\b"""),
+            Regex("""(?i)\bfandom\b""")
+        )
     }
     
     private val _uiState = MutableStateFlow(FolderImportUiState())
