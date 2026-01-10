@@ -1768,9 +1768,42 @@ fun MediaAppNavHost(
         }
         
         composable("storage_browser") {
+            val scope = rememberCoroutineScope()
+            val context = LocalContext.current
+            
             com.universalmedialibrary.ui.filepicker.EnhancedFileBrowser(
                 onFileSelected = { file ->
-                    onShowSnackbar("Selected: ${file.name}")
+                    // Import the selected file to library
+                    scope.launch {
+                        try {
+                            val uri = android.net.Uri.fromFile(file)
+                            val mediaType = when {
+                                file.extension.lowercase() in listOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx") -> "BOOK"
+                                file.extension.lowercase() in listOf("mp3", "m4a", "m4b", "aac", "ogg", "opus", "flac", "wav", "wma") -> "MUSIC"
+                                file.extension.lowercase() in listOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v") -> "VIDEO"
+                                file.extension.lowercase() in listOf("cbz", "cbr", "cb7", "cbt") -> "COMIC"
+                                else -> "DOCUMENT"
+                            }
+                            onShowSnackbar("Importing ${file.name}...")
+                            
+                            // Navigate to appropriate detail/reader based on type
+                            when (mediaType) {
+                                "BOOK", "COMIC", "DOCUMENT" -> {
+                                    val encodedUri = java.net.URLEncoder.encode(uri.toString(), "UTF-8")
+                                    val encodedName = java.net.URLEncoder.encode(file.name, "UTF-8")
+                                    navController.navigate("document-reader/$encodedUri/$encodedName")
+                                }
+                                else -> {
+                                    onShowSnackbar("Added ${file.name} to library")
+                                }
+                            }
+                        } catch (e: Exception) {
+                            onShowSnackbar("Error importing file: ${e.message}")
+                        }
+                    }
+                },
+                onFolderSelected = { folder ->
+                    onShowSnackbar("Folder: ${folder.name}")
                 }
             )
         }
