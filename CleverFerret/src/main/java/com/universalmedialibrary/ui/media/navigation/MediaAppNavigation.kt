@@ -1114,6 +1114,17 @@ fun MediaAppNavHost(
                 onBackClick = { navController.popBackStack() }
             )
         }
+        
+        // Enhanced Folder Import Screen with metadata fetching
+        composable(MediaRoutes.FOLDER_IMPORT) {
+            com.universalmedialibrary.ui.import.FolderImportScreen(
+                onBack = { navController.popBackStack() },
+                onImportComplete = { 
+                    navController.popBackStack()
+                    onShowSnackbar("Import complete!")
+                }
+            )
+        }
 
         composable(MediaRoutes.FILE_BROWSER) {
             val scope = rememberCoroutineScope()
@@ -1162,7 +1173,8 @@ fun MediaAppNavHost(
                     }
                 },
                 onFolderSelected = { folder ->
-                    onShowSnackbar("Folder: ${folder.name}")
+                    // Navigate to enhanced folder import for bulk import
+                    navController.navigate(MediaRoutes.FOLDER_IMPORT)
                 }
             )
         }
