@@ -238,8 +238,8 @@ class UniversalTagBrowserViewModel @Inject constructor(
      * Download a story
      */
     fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false) {
-        // Use composite key to uniquely identify the story
-        val storyKey = "${story.site ?: ""}-${story.id}"
+        // Use composite key to uniquely identify the story (using :: as delimiter to avoid collisions)
+        val storyKey = "${story.site ?: ""}::${story.id}"
         val activeDownloadId = _uiState.value.downloadingStoryId
         if (activeDownloadId != null) {
             if (activeDownloadId == storyKey) {

@@ -357,8 +357,8 @@ private fun TagBrowsingContent(
                     items = uiState.searchResult.stories,
                     key = { "${it.site}-${it.id}-${it.url}" }
                 ) { story ->
-                    // Use composite key to match the ViewModel's download tracking
-                    val storyKey = "${story.site ?: ""}-${story.id}"
+                    // Use composite key to match the ViewModel's download tracking (using :: as delimiter)
+                    val storyKey = "${story.site ?: ""}::${story.id}"
                     val isDownloading = uiState.downloadingStoryId == storyKey
                     val isDownloadEnabled = uiState.downloadingStoryId == null || isDownloading
                     StoryResultCard(

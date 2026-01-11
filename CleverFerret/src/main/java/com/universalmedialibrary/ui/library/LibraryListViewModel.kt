@@ -86,6 +86,7 @@ fun LibraryListViewModel.LibraryWithCount.toLibraryItem(): LibraryItem {
             "PODCAST" -> LibraryType.PODCAST
             "MAGAZINE" -> LibraryType.MAGAZINE
             "DOCUMENT" -> LibraryType.DOCUMENT
+            "ALL" -> LibraryType.ALL
             else -> LibraryType.DOCUMENT
         },
         itemCount = itemCount,

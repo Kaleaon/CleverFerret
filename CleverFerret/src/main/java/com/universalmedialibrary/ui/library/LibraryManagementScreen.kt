@@ -450,6 +450,7 @@ private fun getLibraryIcon(type: String): ImageVector {
         "PODCAST_EPISODE" -> Icons.Default.PlayArrow
         "DOCUMENT" -> Icons.AutoMirrored.Filled.List
         "COMIC" -> Icons.AutoMirrored.Filled.List
+        "ALL" -> Icons.Default.Folder
         else -> Icons.Default.Star
     }
 }
@@ -465,6 +466,7 @@ private fun getLibraryTypeDisplayName(type: String): String {
         "PODCAST_EPISODE" -> "Podcasts"
         "DOCUMENT" -> "Documents"
         "COMIC" -> "Comics"
+        "ALL" -> "All Media"
         else -> type.lowercase().replaceFirstChar { it.uppercase() }
     }
 }
