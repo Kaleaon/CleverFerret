@@ -54,6 +54,8 @@ fun MediaHomeScreen(
     onSeeAllClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     onNotificationClick: () -> Unit,
+    onAddLocalFilesClick: () -> Unit = {},
+    onSubscribePodcastsClick: () -> Unit = {},
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -92,9 +94,20 @@ fun MediaHomeScreen(
         }
     }
     
+    // Scaffold with sticky top header
+    Scaffold(
+        topBar = {
+            StickyContentLibraryHeader(
+                onSearchClick = onSearchClick,
+                onNotificationClick = onNotificationClick
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
     Box(
         modifier = modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .background(MaterialTheme.colorScheme.background)
     ) {
         // Handle error, loading, and content states
@@ -115,18 +128,14 @@ fun MediaHomeScreen(
                     .fillMaxSize()
                     .padding(bottom = MediaSpacing.Huge) // Extra padding for bottom nav
             ) {
-                // Sticky Header - "Content Library" with search
-                item {
-                    ContentLibraryHeader(
-                        onSearchClick = onSearchClick
-                    )
-                }
-                
+                // Welcome section (Get Started) for empty library - now always at top after sticky header
                 if (isLibraryEmpty) {
                     item {
                         WelcomeSection(
                             onSearchClick = onSearchClick,
-                            onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) }
+                            onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) },
+                            onAddLocalFilesClick = onAddLocalFilesClick,
+                            onSubscribePodcastsClick = onSubscribePodcastsClick
                         )
                     }
                 }
@@ -249,7 +258,7 @@ fun MediaHomeScreen(
             }
         }
         
-        // Floating Top Bar (fades in on scroll)
+        // Floating Top Bar (fades in on scroll) - kept for visual feedback
         AnimatedVisibility(
             visible = showFloatingTopBar,
             enter = fadeIn() + slideInVertically(),
@@ -262,6 +271,7 @@ fun MediaHomeScreen(
             )
         }
     }
+    } // End Scaffold
 }
 
 // =============================================================================
@@ -271,13 +281,15 @@ fun MediaHomeScreen(
 @Composable
 private fun WelcomeSection(
     onSearchClick: () -> Unit,
-    onBrowseClick: () -> Unit
+    onBrowseClick: () -> Unit,
+    onAddLocalFilesClick: () -> Unit,
+    onSubscribePodcastsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = MediaSpacing.ScreenHorizontal)
-            .padding(top = MediaSpacing.Huge, bottom = MediaSpacing.XL),
+            .padding(top = MediaSpacing.LG, bottom = MediaSpacing.XL),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Welcome Icon
@@ -341,7 +353,8 @@ private fun WelcomeSection(
                 GettingStartedItem(
                     icon = Icons.Default.FolderOpen,
                     title = "Add Local Files",
-                    description = "Import books, music, and videos from your device"
+                    description = "Import books, music, and videos from your device",
+                    onClick = onAddLocalFilesClick
                 )
                 
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
@@ -358,7 +371,8 @@ private fun WelcomeSection(
                 GettingStartedItem(
                     icon = Icons.Default.Podcasts,
                     title = "Subscribe to Podcasts",
-                    description = "Add your favorite podcast feeds"
+                    description = "Add your favorite podcast feeds",
+                    onClick = onSubscribePodcastsClick
                 )
                 
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
@@ -884,6 +898,61 @@ private fun ContentLibraryHeader(
             }
         }
     }
+}
+
+// =============================================================================
+// STICKY CONTENT LIBRARY HEADER (Fixed at top)
+// =============================================================================
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun StickyContentLibraryHeader(
+    onSearchClick: () -> Unit,
+    onNotificationClick: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                Text(
+                    text = "Content ",
+                    style = MediaTypography.TitleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Library",
+                    style = MediaTypography.TitleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        actions = {
+            // Notifications button
+            IconButton(onClick = onNotificationClick) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifications",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+            // Search button
+            IconButton(onClick = onSearchClick) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            titleContentColor = MaterialTheme.colorScheme.onBackground
+        )
+    )
 }
 
 // =============================================================================

@@ -372,7 +372,7 @@ object MediaSizes {
     // Navigation
     val SidebarWidth = 240.dp
     val SidebarCollapsedWidth = 72.dp
-    val BottomBarHeight = 80.dp
+    val BottomBarHeight = 88.dp  // Increased from 80.dp for larger icons
     val TopBarHeight = 64.dp
     
     // Cards
