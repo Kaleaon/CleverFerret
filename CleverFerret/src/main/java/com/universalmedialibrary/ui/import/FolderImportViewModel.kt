@@ -1,4 +1,4 @@
-package com.universalmedialibrary.ui.import
+package com.universalmedialibrary.ui.folderimport
 
 import android.content.Context
 import android.net.Uri
@@ -233,6 +233,21 @@ class FolderImportViewModel @Inject constructor(
         
         if (_uiState.value.autoSortEnabled) {
             fetchMetadataForAllFiles()
+        }
+    }
+
+    private fun fetchMetadataForBooks() {
+        viewModelScope.launch {
+            val filesToProcess = _uiState.value.scannedFiles.filter {
+                it.metadata == null && it.type in listOf(
+                    ScannedFileType.BOOK,
+                    ScannedFileType.COMIC,
+                    ScannedFileType.FANFICTION
+                )
+            }
+            filesToProcess.forEach { file ->
+                fetchMetadataForFile(file)
+            }
         }
     }
     
