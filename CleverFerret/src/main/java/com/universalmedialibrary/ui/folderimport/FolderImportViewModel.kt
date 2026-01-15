@@ -98,7 +98,13 @@ class FolderImportViewModel @Inject constructor(
             
             // Auto-fetch metadata for books if enabled
             if (_uiState.value.autoSortEnabled) {
-                fetchMetadataForBooks()
+                fetchMetadataForFiles(
+                    setOf(
+                        ScannedFileType.BOOK,
+                        ScannedFileType.COMIC,
+                        ScannedFileType.FANFICTION
+                    )
+                )
             }
         }
     }
@@ -234,12 +240,6 @@ class FolderImportViewModel @Inject constructor(
         if (_uiState.value.autoSortEnabled) {
             fetchMetadataForAllFiles()
         }
-    }
-
-    private fun fetchMetadataForBooks() {
-        fetchMetadataForFiles(
-            setOf(ScannedFileType.BOOK, ScannedFileType.COMIC, ScannedFileType.FANFICTION)
-        )
     }
 
     private fun fetchMetadataForAllFiles() {
