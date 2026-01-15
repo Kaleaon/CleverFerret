@@ -30,9 +30,18 @@ import com.universalmedialibrary.ui.theme.crystalGlow
 import com.universalmedialibrary.ui.theme.gradientOverlay
 import com.universalmedialibrary.ui.theme.metallicShimmer
 
+/**
+ * Normalizes theme labels by lowercasing and stripping non-alphanumeric characters.
+ * For example: "sci-fi" -> "scifi", "sci fi" -> "scifi".
+ */
+private fun normalizeThemeKey(theme: String) = theme.lowercase().replace(Regex("[^a-z0-9]"), "")
+
 private object ThemeEffectPalette {
-    val cyberThemeKeys = listOf("scifi", "cyber")
-    val fantasyThemeKeys = listOf("fantasy")
+    val cyberThemeKeys = listOf(
+        normalizeThemeKey("sci-fi"),
+        normalizeThemeKey("cyber")
+    )
+    val fantasyThemeKeys = listOf(normalizeThemeKey("fantasy"))
     val sciFiGradient = listOf(Color(0xFF0D47A1), Color(0xFF00E5FF))
     val fantasyGradient = listOf(Color(0xFF4A148C), Color(0xFF7C4DFF))
     val sciFiGlow = Color(0xFF00B0FF)
@@ -42,8 +51,6 @@ private object ThemeEffectPalette {
     val fantasyShimmer = Color(0xFFB388FF)
     val fantasyHighlight = Color(0xFFFFD1FF)
 }
-
-private fun normalizeThemeKey(theme: String) = theme.lowercase().replace(Regex("[^a-z0-9]"), "")
 
 /**
  * Theme Manager Screen
