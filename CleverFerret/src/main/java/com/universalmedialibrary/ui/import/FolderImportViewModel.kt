@@ -237,31 +237,27 @@ class FolderImportViewModel @Inject constructor(
     }
 
     private fun fetchMetadataForBooks() {
+        fetchMetadataForFiles(
+            setOf(ScannedFileType.BOOK, ScannedFileType.COMIC, ScannedFileType.FANFICTION)
+        )
+    }
+
+    private fun fetchMetadataForAllFiles() {
+        fetchMetadataForFiles(
+            setOf(
+                ScannedFileType.BOOK,
+                ScannedFileType.COMIC,
+                ScannedFileType.MUSIC,
+                ScannedFileType.AUDIOBOOK,
+                ScannedFileType.FANFICTION
+            )
+        )
+    }
+
+    private fun fetchMetadataForFiles(types: Set<ScannedFileType>) {
         viewModelScope.launch {
             val filesToProcess = _uiState.value.scannedFiles.filter {
-                it.metadata == null && it.type in listOf(
-                    ScannedFileType.BOOK,
-                    ScannedFileType.COMIC,
-                    ScannedFileType.FANFICTION
-                )
-            }
-            filesToProcess.forEach { file ->
-                fetchMetadataForFile(file)
-            }
-        }
-    }
-    
-    private fun fetchMetadataForAllFiles() {
-        viewModelScope.launch {
-            // Fetch metadata for all supported file types
-            val filesToProcess = _uiState.value.scannedFiles.filter { 
-                it.metadata == null && it.type in listOf(
-                    ScannedFileType.BOOK, 
-                    ScannedFileType.COMIC,
-                    ScannedFileType.MUSIC, 
-                    ScannedFileType.AUDIOBOOK,
-                    ScannedFileType.FANFICTION
-                )
+                it.metadata == null && it.type in types
             }
             filesToProcess.forEach { file ->
                 fetchMetadataForFile(file)
