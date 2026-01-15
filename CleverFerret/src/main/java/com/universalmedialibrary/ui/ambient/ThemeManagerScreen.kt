@@ -286,7 +286,7 @@ private fun ThemeCollectionCard(
 ) {
     val themeKey = normalizeThemeKey(collection.theme)
     val themeModifier = when {
-        ThemeEffectPalette.cyberThemeKeys.any(themeKey::contains) -> {
+        ThemeEffectPalette.cyberThemeKeys.any { themeKey == it } -> {
             Modifier
                 .gradientOverlay(
                     gradient = ThemeEffectPalette.sciFiGradient,
@@ -303,7 +303,7 @@ private fun ThemeCollectionCard(
                     speed = 2200
                 )
         }
-        ThemeEffectPalette.fantasyThemeKeys.any(themeKey::contains) -> {
+        ThemeEffectPalette.fantasyThemeKeys.any { themeKey == it } -> {
             Modifier
                 .gradientOverlay(
                     gradient = ThemeEffectPalette.fantasyGradient,
