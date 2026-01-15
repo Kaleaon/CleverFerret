@@ -174,6 +174,8 @@ fun BottomReaderControls(
     onNextPage: () -> Unit,
     onPageSeek: (Int) -> Unit
 ) {
+    val previousAlpha = if (canGoPrevious) 1f else 0.4f
+    val nextAlpha = if (canGoNext) 1f else 0.4f
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -235,16 +237,26 @@ fun BottomReaderControls(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Previous page
-                IconButton(
-                    onClick = onPreviousPage,
-                    enabled = canGoPrevious
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.widthIn(min = 72.dp)
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.NavigateBefore,
-                        contentDescription = "Previous Page",
-                        tint = if (canGoPrevious) Color.White else Color.White.copy(alpha = 0.3f),
-                        modifier = Modifier.size(32.dp)
+                    IconButton(
+                        onClick = onPreviousPage,
+                        enabled = canGoPrevious,
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.NavigateBefore,
+                            contentDescription = "Previous Page",
+                            tint = Color.White.copy(alpha = previousAlpha),
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                    Text(
+                        text = "Previous",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = previousAlpha)
                     )
                 }
 
@@ -259,16 +271,26 @@ fun BottomReaderControls(
                     trackColor = Color.White.copy(alpha = 0.3f)
                 )
 
-                // Next page
-                IconButton(
-                    onClick = onNextPage,
-                    enabled = canGoNext
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.widthIn(min = 72.dp)
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.NavigateNext,
-                        contentDescription = "Next Page",
-                        tint = if (canGoNext) Color.White else Color.White.copy(alpha = 0.3f),
-                        modifier = Modifier.size(32.dp)
+                    IconButton(
+                        onClick = onNextPage,
+                        enabled = canGoNext,
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.NavigateNext,
+                            contentDescription = "Next Page",
+                            tint = Color.White.copy(alpha = nextAlpha),
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                    Text(
+                        text = "Next",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = nextAlpha)
                     )
                 }
             }

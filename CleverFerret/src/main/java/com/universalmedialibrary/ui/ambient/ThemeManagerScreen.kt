@@ -21,10 +21,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.ambient.SoundLibrary
+import com.universalmedialibrary.ui.theme.crystalGlow
+import com.universalmedialibrary.ui.theme.gradientOverlay
+import com.universalmedialibrary.ui.theme.metallicShimmer
 
 /**
  * Theme Manager Screen
@@ -258,8 +262,48 @@ private fun ThemeCollectionCard(
     onExpand: () -> Unit,
     isExpanded: Boolean
 ) {
+    val themeKey = collection.theme.lowercase()
+    val themeModifier = when {
+        themeKey.contains("sci-fi") || themeKey.contains("scifi") || themeKey.contains("cyber") -> {
+            Modifier
+                .gradientOverlay(
+                    gradient = listOf(Color(0xFF0D47A1), Color(0xFF00E5FF)),
+                    angle = 135f,
+                    alpha = 0.22f
+                )
+                .crystalGlow(
+                    glowColor = Color(0xFF00B0FF),
+                    intensity = 0.28f
+                )
+                .metallicShimmer(
+                    baseColor = Color(0xFF00E5FF),
+                    highlightColor = Color(0xFF80D8FF),
+                    speed = 2200
+                )
+        }
+        themeKey.contains("fantasy") -> {
+            Modifier
+                .gradientOverlay(
+                    gradient = listOf(Color(0xFF4A148C), Color(0xFF7C4DFF)),
+                    angle = 135f,
+                    alpha = 0.24f
+                )
+                .crystalGlow(
+                    glowColor = Color(0xFFB388FF),
+                    intensity = 0.3f
+                )
+                .metallicShimmer(
+                    baseColor = Color(0xFFB388FF),
+                    highlightColor = Color(0xFFFFD1FF),
+                    speed = 2600
+                )
+        }
+        else -> Modifier
+    }
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(themeModifier)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
