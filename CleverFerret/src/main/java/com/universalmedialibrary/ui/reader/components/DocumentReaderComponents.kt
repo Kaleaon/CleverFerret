@@ -63,6 +63,9 @@ data class TableOfContentsItem(
     val children: List<TableOfContentsItem> = emptyList()
 )
 
+private const val ENABLED_ALPHA = 1f
+private const val DISABLED_ALPHA = 0.4f
+
 @Composable
 fun TopReaderControls(
     title: String,
@@ -174,8 +177,8 @@ fun BottomReaderControls(
     onNextPage: () -> Unit,
     onPageSeek: (Int) -> Unit
 ) {
-    val previousAlpha = if (canGoPrevious) 1f else 0.4f
-    val nextAlpha = if (canGoNext) 1f else 0.4f
+    val previousAlpha = if (canGoPrevious) ENABLED_ALPHA else DISABLED_ALPHA
+    val nextAlpha = if (canGoNext) ENABLED_ALPHA else DISABLED_ALPHA
     Box(
         modifier = Modifier
             .fillMaxWidth()

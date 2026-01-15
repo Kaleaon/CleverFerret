@@ -30,16 +30,20 @@ import com.universalmedialibrary.ui.theme.crystalGlow
 import com.universalmedialibrary.ui.theme.gradientOverlay
 import com.universalmedialibrary.ui.theme.metallicShimmer
 
-private val CYBER_THEME_KEYS = listOf("sci-fi", "scifi", "cyber")
-private val FANTASY_THEME_KEYS = listOf("fantasy")
-private val SCI_FI_GRADIENT = listOf(Color(0xFF0D47A1), Color(0xFF00E5FF))
-private val FANTASY_GRADIENT = listOf(Color(0xFF4A148C), Color(0xFF7C4DFF))
-private val SCI_FI_GLOW = Color(0xFF00B0FF)
-private val FANTASY_GLOW = Color(0xFFB388FF)
-private val SCI_FI_SHIMMER = Color(0xFF00E5FF)
-private val SCI_FI_HIGHLIGHT = Color(0xFF80D8FF)
-private val FANTASY_SHIMMER = Color(0xFFB388FF)
-private val FANTASY_HIGHLIGHT = Color(0xFFFFD1FF)
+private object ThemeEffectPalette {
+    val cyberThemeKeys = listOf("scifi", "cyber")
+    val fantasyThemeKeys = listOf("fantasy")
+    val sciFiGradient = listOf(Color(0xFF0D47A1), Color(0xFF00E5FF))
+    val fantasyGradient = listOf(Color(0xFF4A148C), Color(0xFF7C4DFF))
+    val sciFiGlow = Color(0xFF00B0FF)
+    val fantasyGlow = Color(0xFFB388FF)
+    val sciFiShimmer = Color(0xFF00E5FF)
+    val sciFiHighlight = Color(0xFF80D8FF)
+    val fantasyShimmer = Color(0xFFB388FF)
+    val fantasyHighlight = Color(0xFFFFD1FF)
+}
+
+private fun normalizeThemeKey(theme: String) = theme.lowercase().replace(Regex("[^a-z0-9]"), "")
 
 /**
  * Theme Manager Screen
@@ -273,39 +277,39 @@ private fun ThemeCollectionCard(
     onExpand: () -> Unit,
     isExpanded: Boolean
 ) {
-    val themeKey = collection.theme.lowercase()
+    val themeKey = normalizeThemeKey(collection.theme)
     val themeModifier = when {
-        CYBER_THEME_KEYS.any(themeKey::contains) -> {
+        ThemeEffectPalette.cyberThemeKeys.any(themeKey::contains) -> {
             Modifier
                 .gradientOverlay(
-                    gradient = SCI_FI_GRADIENT,
+                    gradient = ThemeEffectPalette.sciFiGradient,
                     angle = 135f,
                     alpha = 0.22f
                 )
                 .crystalGlow(
-                    glowColor = SCI_FI_GLOW,
+                    glowColor = ThemeEffectPalette.sciFiGlow,
                     intensity = 0.28f
                 )
                 .metallicShimmer(
-                    baseColor = SCI_FI_SHIMMER,
-                    highlightColor = SCI_FI_HIGHLIGHT,
+                    baseColor = ThemeEffectPalette.sciFiShimmer,
+                    highlightColor = ThemeEffectPalette.sciFiHighlight,
                     speed = 2200
                 )
         }
-        FANTASY_THEME_KEYS.any(themeKey::contains) -> {
+        ThemeEffectPalette.fantasyThemeKeys.any(themeKey::contains) -> {
             Modifier
                 .gradientOverlay(
-                    gradient = FANTASY_GRADIENT,
+                    gradient = ThemeEffectPalette.fantasyGradient,
                     angle = 135f,
                     alpha = 0.24f
                 )
                 .crystalGlow(
-                    glowColor = FANTASY_GLOW,
+                    glowColor = ThemeEffectPalette.fantasyGlow,
                     intensity = 0.3f
                 )
                 .metallicShimmer(
-                    baseColor = FANTASY_SHIMMER,
-                    highlightColor = FANTASY_HIGHLIGHT,
+                    baseColor = ThemeEffectPalette.fantasyShimmer,
+                    highlightColor = ThemeEffectPalette.fantasyHighlight,
                     speed = 2600
                 )
         }
