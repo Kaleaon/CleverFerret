@@ -30,6 +30,17 @@ import com.universalmedialibrary.ui.theme.crystalGlow
 import com.universalmedialibrary.ui.theme.gradientOverlay
 import com.universalmedialibrary.ui.theme.metallicShimmer
 
+private val CYBER_THEME_KEYS = listOf("sci-fi", "scifi", "cyber")
+private val FANTASY_THEME_KEYS = listOf("fantasy")
+private val SCI_FI_GRADIENT = listOf(Color(0xFF0D47A1), Color(0xFF00E5FF))
+private val FANTASY_GRADIENT = listOf(Color(0xFF4A148C), Color(0xFF7C4DFF))
+private val SCI_FI_GLOW = Color(0xFF00B0FF)
+private val FANTASY_GLOW = Color(0xFFB388FF)
+private val SCI_FI_SHIMMER = Color(0xFF00E5FF)
+private val SCI_FI_HIGHLIGHT = Color(0xFF80D8FF)
+private val FANTASY_SHIMMER = Color(0xFFB388FF)
+private val FANTASY_HIGHLIGHT = Color(0xFFFFD1FF)
+
 /**
  * Theme Manager Screen
  * Allows users to browse, enable/disable, and manage themed sound collections
@@ -264,37 +275,37 @@ private fun ThemeCollectionCard(
 ) {
     val themeKey = collection.theme.lowercase()
     val themeModifier = when {
-        themeKey.contains("sci-fi") || themeKey.contains("scifi") || themeKey.contains("cyber") -> {
+        CYBER_THEME_KEYS.any(themeKey::contains) -> {
             Modifier
                 .gradientOverlay(
-                    gradient = listOf(Color(0xFF0D47A1), Color(0xFF00E5FF)),
+                    gradient = SCI_FI_GRADIENT,
                     angle = 135f,
                     alpha = 0.22f
                 )
                 .crystalGlow(
-                    glowColor = Color(0xFF00B0FF),
+                    glowColor = SCI_FI_GLOW,
                     intensity = 0.28f
                 )
                 .metallicShimmer(
-                    baseColor = Color(0xFF00E5FF),
-                    highlightColor = Color(0xFF80D8FF),
+                    baseColor = SCI_FI_SHIMMER,
+                    highlightColor = SCI_FI_HIGHLIGHT,
                     speed = 2200
                 )
         }
-        themeKey.contains("fantasy") -> {
+        FANTASY_THEME_KEYS.any(themeKey::contains) -> {
             Modifier
                 .gradientOverlay(
-                    gradient = listOf(Color(0xFF4A148C), Color(0xFF7C4DFF)),
+                    gradient = FANTASY_GRADIENT,
                     angle = 135f,
                     alpha = 0.24f
                 )
                 .crystalGlow(
-                    glowColor = Color(0xFFB388FF),
+                    glowColor = FANTASY_GLOW,
                     intensity = 0.3f
                 )
                 .metallicShimmer(
-                    baseColor = Color(0xFFB388FF),
-                    highlightColor = Color(0xFFFFD1FF),
+                    baseColor = FANTASY_SHIMMER,
+                    highlightColor = FANTASY_HIGHLIGHT,
                     speed = 2600
                 )
         }
