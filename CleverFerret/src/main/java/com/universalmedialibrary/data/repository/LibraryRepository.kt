@@ -58,6 +58,50 @@ class LibraryRepository @Inject constructor(
         return path.isNotBlank() && getLibraryByPath(path) == null
     }
 
+    /**
+     * Get or create the default unified library
+     * This is the primary library that contains all media types.
+     * Uses @Synchronized to prevent race conditions during concurrent calls.
+     */
+    @Synchronized
+    suspend fun getOrCreateDefaultLibrary(): Library {
+        // Try to find an existing default library by name (not by hard-coded ID)
+        val existingLibrary = libraryDao.getLibraryByName("My Library")
+            ?: libraryDao.getLibraryByName("Universal Media Library")
+        
+        if (existingLibrary != null) {
+            return existingLibrary
+        }
+        
+        // Create the default unified library
+        // Note: Uses "ALL" type which is a virtual library type that doesn't require scanning
+        val defaultLibrary = Library(
+            libraryId = 0,
+            name = "My Library",
+            type = "ALL", // Unified library supports all media types
+            path = "", // Empty path - this is a virtual unified library, not a file-based one
+            source = "VIRTUAL", // Mark as virtual to distinguish from file-based libraries
+            description = "Your unified media library",
+            isActive = true
+        )
+        
+        val id = libraryDao.insertLibrary(defaultLibrary)
+        val library = defaultLibrary.copy(libraryId = id)
+        
+        // Initialize scan settings for consistency with createLibrary()
+        val defaults = LibraryScanSettings.defaults(id, library.path)
+        libraryScanSettingsDao.upsert(defaults)
+        
+        return library
+    }
+    
+    /**
+     * Get the default library ID, creating it if it doesn't exist
+     */
+    suspend fun getDefaultLibraryId(): Long {
+        return getOrCreateDefaultLibrary().libraryId
+    }
+
     suspend fun getLibraryStats(): Map<String, Int> {
         val totalLibraries = getActiveLibraryCount()
         val bookLibraries = getActiveLibraryCountByType("BOOK")

@@ -16,6 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.universalmedialibrary.data.local.entity.BookDetails
 import kotlin.math.absoluteValue
 import com.universalmedialibrary.data.local.entity.ReadingProgress
@@ -37,7 +40,8 @@ fun EnhancedBookCard(
     ) {
         Column {
             Box {
-                EnhancedPlaceholderCover(
+                BookCoverImage(
+                    coverUrl = book.metadata.coverImagePath,
                     title = book.metadata.title,
                     author = book.authorName
                 )
@@ -147,7 +151,8 @@ fun CompactBookCard(
         shape = RoundedCornerShape(8.dp)
     ) {
         Column {
-            EnhancedPlaceholderCover(
+            BookCoverImage(
+                coverUrl = book.metadata.coverImagePath,
                 title = book.metadata.title,
                 author = book.authorName,
                 modifier = Modifier.height(160.dp)
@@ -196,7 +201,8 @@ fun ListBookItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Compact cover
-            EnhancedPlaceholderCover(
+            BookCoverImage(
+                coverUrl = book.metadata.coverImagePath,
                 title = book.metadata.title,
                 author = book.authorName,
                 modifier = Modifier
@@ -296,7 +302,8 @@ fun CoverFlowCard(
     ) {
         Column {
             Box {
-                EnhancedPlaceholderCover(
+                BookCoverImage(
+                    coverUrl = book.metadata.coverImagePath,
                     title = book.metadata.title,
                     author = book.authorName,
                     modifier = Modifier.height(280.dp)
@@ -353,6 +360,59 @@ fun CoverFlowCard(
                         rating = book.metadata.rating,
                         modifier = Modifier.fillMaxWidth()
                     )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Book cover image composable that loads cover from URL/path with fallback to placeholder
+ */
+@Composable
+fun BookCoverImage(
+    coverUrl: String?,
+    title: String,
+    author: String?,
+    modifier: Modifier = Modifier
+) {
+    if (coverUrl.isNullOrBlank()) {
+        EnhancedPlaceholderCover(
+            title = title,
+            author = author,
+            modifier = modifier
+        )
+    } else {
+        SubcomposeAsyncImage(
+            model = coverUrl,
+            contentDescription = "Cover for $title",
+            modifier = modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 220.dp),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+        ) {
+            val state = painter.state
+            when (state) {
+                is AsyncImagePainter.State.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Gray.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        androidx.compose.material3.CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+                is AsyncImagePainter.State.Error, is AsyncImagePainter.State.Empty -> {
+                    EnhancedPlaceholderCover(
+                        title = title,
+                        author = author
+                    )
+                }
+                is AsyncImagePainter.State.Success -> {
+                    SubcomposeAsyncImageContent()
                 }
             }
         }

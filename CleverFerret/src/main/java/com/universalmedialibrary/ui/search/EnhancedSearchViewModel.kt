@@ -224,9 +224,17 @@ class EnhancedSearchViewModel @Inject constructor(
                 // Search was cancelled (e.g., user typed new query), don't update state
                 throw e
             } catch (e: Exception) {
+                // Use exception types for robust error classification
+                val errorMessage = when (e) {
+                    is java.net.SocketTimeoutException -> "Search timed out. Please try again."
+                    is java.util.concurrent.TimeoutException -> "Search timed out. Please try again."
+                    is java.net.UnknownHostException -> "Network error. Please check your connection."
+                    is java.io.IOException -> "Network error. Please check your connection."
+                    else -> e.message ?: "Search failed. Please try again."
+                }
                 _uiState.value = _uiState.value.copy(
                     isSearching = false,
-                    error = e.message ?: "Search failed"
+                    error = errorMessage
                 )
             }
         }

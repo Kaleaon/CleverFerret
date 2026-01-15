@@ -76,17 +76,37 @@ class FreeMediaViewModel @Inject constructor(
                     }
                 }
 
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    results = results
-                )
+                // Check if results are empty and provide a better message
+                if (results.isEmpty() && currentQuery.isBlank()) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        results = emptyList(),
+                        error = "No items available. The Internet Archive may be temporarily unavailable."
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        results = results,
+                        error = null
+                    )
+                }
             } catch (e: kotlinx.coroutines.CancellationException) {
                 // Job was cancelled (e.g., by user switching tabs), don't update state
                 throw e
+            } catch (e: java.net.UnknownHostException) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "No internet connection. Please check your network and try again."
+                )
+            } catch (e: java.net.SocketTimeoutException) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Connection timed out. The Internet Archive may be busy. Please try again."
+                )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message ?: "Failed to load media items"
+                    error = e.message ?: "Failed to load media items. Please try again."
                 )
             }
         }

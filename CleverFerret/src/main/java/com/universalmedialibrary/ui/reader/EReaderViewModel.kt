@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.reader
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.zip.ZipFile
+import java.util.zip.ZipException
 import javax.inject.Inject
 
 /**
@@ -29,17 +31,28 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
 
     /**
      * Load a book file for reading
+     * Handles both file paths and content URIs
      */
     fun loadBook(context: Context, filePath: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
             try {
-                val file = File(filePath)
-                if (!file.exists()) {
+                if (filePath.isBlank()) {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        error = "File not found: $filePath"
+                        error = "No file path provided"
+                    )
+                    return@launch
+                }
+
+                // Handle content URIs by copying to temp file
+                val file = resolveToFile(context, filePath)
+                
+                if (file == null || !file.exists()) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "File not found or cannot be accessed: $filePath"
                     )
                     return@launch
                 }
@@ -63,6 +76,41 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                     error = "Failed to load book: ${e.message}"
                 )
             }
+        }
+    }
+    
+    /**
+     * Resolve a file path or content URI to a File object
+     * For content URIs, copies the content to a temp file
+     */
+    private suspend fun resolveToFile(context: Context, path: String): File? = withContext(Dispatchers.IO) {
+        try {
+            when {
+                path.startsWith("content://") -> {
+                    // Handle content URI - copy to temp file
+                    val uri = Uri.parse(path)
+                    val extension = path.substringAfterLast('.', "epub").lowercase()
+                    val tempFile = File(context.cacheDir, "temp_book_${System.currentTimeMillis()}.$extension")
+                    
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        tempFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    } ?: return@withContext null
+                    
+                    tempFile
+                }
+                path.startsWith("file://") -> {
+                    // Handle file:// URI
+                    File(Uri.parse(path).path ?: return@withContext null)
+                }
+                else -> {
+                    // Assume it's a regular file path
+                    File(path)
+                }
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -109,8 +157,34 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
 
     private suspend fun loadEpubFile(file: File) = withContext(Dispatchers.IO) {
         try {
+            // Verify file is readable and has content
+            if (!file.canRead()) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Cannot read EPUB file. Please check file permissions."
+                )
+                return@withContext
+            }
+            
+            if (file.length() == 0L) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "EPUB file is empty or corrupted."
+                )
+                return@withContext
+            }
+            
             // EPUB is a ZIP file - extract and read content
-            val zipFile = ZipFile(file)
+            val zipFile = try {
+                ZipFile(file)
+            } catch (e: ZipException) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Invalid EPUB file format. The file may be corrupted or not a valid EPUB."
+                )
+                return@withContext
+            }
+            
             val entries = zipFile.entries().toList()
             
             // Find content files (usually in OEBPS or similar directory)
@@ -161,10 +235,20 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                 currentChapterIndex = 0,
                 currentChapterContent = chapters[0]
             )
+        } catch (e: SecurityException) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                error = "Permission denied. Cannot access the EPUB file."
+            )
+        } catch (e: OutOfMemoryError) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                error = "EPUB file is too large to open. Try a smaller file."
+            )
         } catch (e: Exception) {
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
-                error = "Failed to parse EPUB: ${e.message}"
+                error = "Failed to parse EPUB: ${e.message ?: "Unknown error"}"
             )
         }
     }

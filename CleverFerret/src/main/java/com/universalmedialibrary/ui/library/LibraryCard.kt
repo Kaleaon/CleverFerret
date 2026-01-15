@@ -34,7 +34,7 @@ data class LibraryItem(
 )
 
 enum class LibraryType {
-    BOOK, MOVIE, MUSIC, PODCAST, MAGAZINE, DOCUMENT
+    BOOK, MOVIE, MUSIC, PODCAST, MAGAZINE, DOCUMENT, ALL
 }
 
 /**
@@ -164,5 +164,6 @@ private fun getLibraryIcon(type: LibraryType): ImageVector {
         LibraryType.PODCAST -> PhosphorIcons.Microphone
         LibraryType.MAGAZINE -> PhosphorIcons.Newspaper
         LibraryType.DOCUMENT -> PhosphorIcons.FileText
+        LibraryType.ALL -> PhosphorIcons.FolderOpen
     }
 }

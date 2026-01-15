@@ -15,11 +15,13 @@ import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.ComicReaderScreen
 
 private val AUDIO_EXTENSIONS = setOf(
-    "mp3", "flac", "m4a", "aac", "ogg", "opus", "wav", "wma", "aiff", "alac"
+    "mp3", "flac", "m4a", "aac", "ogg", "opus", "wav", "wma", "aiff", "alac",
+    "ape", "dsf", "dff", "mpc", "wv", "tta", "mka", "spx", "caf", "ac3"
 )
 
 private val VIDEO_EXTENSIONS = setOf(
-    "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "3gp"
+    "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "3gp", "ts", 
+    "m2ts", "mts", "vob", "ogv", "rm", "rmvb", "asf", "divx"
 )
 
 @Composable
@@ -45,14 +47,24 @@ fun MediaOpenScreen(
             }
             
             // Also check mediaType for audio/video content (handles streams without extensions)
-            val isAudioByType = item.mediaType.uppercase() in setOf("MUSIC_TRACK", "AUDIO", "PODCAST", "PODCAST_EPISODE", "AUDIOBOOK")
-            val isVideoByType = item.mediaType.uppercase() in setOf("MOVIE", "TV_SHOW", "TV_EPISODE", "VIDEO")
+            val isAudioByType = item.mediaType.uppercase() in setOf(
+                "MUSIC_TRACK", "AUDIO", "PODCAST", "PODCAST_EPISODE", "AUDIOBOOK",
+                "MUSIC", "SONG", "TRACK", "AUDIO_TRACK"
+            )
+            val isVideoByType = item.mediaType.uppercase() in setOf(
+                "MOVIE", "TV_SHOW", "TV_EPISODE", "VIDEO", "FILM", "CLIP"
+            )
+            
+            // Also check mimeType as a fallback
+            val mimeType = item.mimeType?.lowercase() ?: ""
+            val isAudioByMime = mimeType.startsWith("audio/")
+            val isVideoByMime = mimeType.startsWith("video/")
             
             when {
                 ext == "epub" -> EReaderScreen(bookFilePath = path, onBack = onBack)
                 ext in setOf("pdf", "txt", "html", "htm", "docx") -> DocumentReaderScreen(uriString = path, fileName = name, onBack = onBack)
                 ext in setOf("cbz", "cbr") -> ComicReaderScreen(uriString = path, fileName = name, onBack = onBack)
-                ext in AUDIO_EXTENSIONS || isAudioByType -> {
+                ext in AUDIO_EXTENSIONS || isAudioByType || isAudioByMime -> {
                     // Start audio playback and show a simple player UI
                     LaunchedEffect(item) {
                         viewModel.playAudioFile(item)
@@ -63,7 +75,7 @@ fun MediaOpenScreen(
                         onBack = onBack
                     )
                 }
-                ext in VIDEO_EXTENSIONS || isVideoByType -> {
+                ext in VIDEO_EXTENSIONS || isVideoByType || isVideoByMime -> {
                     // Video files - start video playback
                     LaunchedEffect(item) {
                         viewModel.playVideoFile(item)

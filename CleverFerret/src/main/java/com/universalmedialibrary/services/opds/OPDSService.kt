@@ -95,12 +95,21 @@ class OPDSCatalogService @Inject constructor(
 
     suspend fun browseCatalog(catalog: OPDSCatalog): Result<OPDSFeed> = withContext(Dispatchers.IO) {
         ensureDefaultCatalogs()
-        runCatching {
+        try {
             val feed = opdsClient.fetchFeed(catalog.url)
             if (catalog.id != 0L) {
-                catalogDao.updateLastAccessed(catalog.id, System.currentTimeMillis())
+                try {
+                    catalogDao.updateLastAccessed(catalog.id, System.currentTimeMillis())
+                } catch (e: Exception) {
+                    // Don't fail the browse if access time update fails
+                }
             }
-            feed
+            Result.success(feed)
+        } catch (e: IllegalStateException) {
+            // Pass through our custom error messages
+            Result.failure(e)
+        } catch (e: Exception) {
+            Result.failure(IllegalStateException("Failed to load ${catalog.name}: ${e.message ?: "Unknown error"}", e))
         }
     }
 
@@ -112,9 +121,14 @@ class OPDSCatalogService @Inject constructor(
             )
         }
 
-        runCatching {
+        try {
             val searchUrl = opdsClient.buildSearchUrl(catalog.searchUrl!!, query)
-            opdsClient.fetchFeed(searchUrl)
+            val feed = opdsClient.fetchFeed(searchUrl)
+            Result.success(feed)
+        } catch (e: IllegalStateException) {
+            Result.failure(e)
+        } catch (e: Exception) {
+            Result.failure(IllegalStateException("Search failed: ${e.message ?: "Unknown error"}", e))
         }
     }
 
