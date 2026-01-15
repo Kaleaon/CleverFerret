@@ -21,10 +21,36 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.ambient.SoundLibrary
+import com.universalmedialibrary.ui.theme.crystalGlow
+import com.universalmedialibrary.ui.theme.gradientOverlay
+import com.universalmedialibrary.ui.theme.metallicShimmer
+
+/**
+ * Normalizes theme labels by lowercasing and stripping non-alphanumeric characters.
+ * For example: "sci-fi" -> "scifi", "sci fi" -> "scifi".
+ */
+private fun normalizeThemeKey(theme: String) = theme.lowercase().replace(Regex("[^a-z0-9]"), "")
+
+private object ThemeEffectPalette {
+    val cyberThemeKeys = listOf(
+        normalizeThemeKey("sci-fi"),
+        normalizeThemeKey("cyber")
+    )
+    val fantasyThemeKeys = listOf(normalizeThemeKey("fantasy"))
+    val sciFiGradient = listOf(Color(0xFF0D47A1), Color(0xFF00E5FF))
+    val fantasyGradient = listOf(Color(0xFF4A148C), Color(0xFF7C4DFF))
+    val sciFiGlow = Color(0xFF00B0FF)
+    val fantasyGlow = Color(0xFFB388FF)
+    val sciFiShimmer = Color(0xFF00E5FF)
+    val sciFiHighlight = Color(0xFF80D8FF)
+    val fantasyShimmer = Color(0xFFB388FF)
+    val fantasyHighlight = Color(0xFFFFD1FF)
+}
 
 /**
  * Theme Manager Screen
@@ -258,8 +284,48 @@ private fun ThemeCollectionCard(
     onExpand: () -> Unit,
     isExpanded: Boolean
 ) {
+    val themeKey = normalizeThemeKey(collection.theme)
+    val themeModifier = when {
+        ThemeEffectPalette.cyberThemeKeys.any { themeKey == it } -> {
+            Modifier
+                .gradientOverlay(
+                    gradient = ThemeEffectPalette.sciFiGradient,
+                    angle = 135f,
+                    alpha = 0.22f
+                )
+                .crystalGlow(
+                    glowColor = ThemeEffectPalette.sciFiGlow,
+                    intensity = 0.28f
+                )
+                .metallicShimmer(
+                    baseColor = ThemeEffectPalette.sciFiShimmer,
+                    highlightColor = ThemeEffectPalette.sciFiHighlight,
+                    speed = 2200
+                )
+        }
+        ThemeEffectPalette.fantasyThemeKeys.any { themeKey == it } -> {
+            Modifier
+                .gradientOverlay(
+                    gradient = ThemeEffectPalette.fantasyGradient,
+                    angle = 135f,
+                    alpha = 0.24f
+                )
+                .crystalGlow(
+                    glowColor = ThemeEffectPalette.fantasyGlow,
+                    intensity = 0.3f
+                )
+                .metallicShimmer(
+                    baseColor = ThemeEffectPalette.fantasyShimmer,
+                    highlightColor = ThemeEffectPalette.fantasyHighlight,
+                    speed = 2600
+                )
+        }
+        else -> Modifier
+    }
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(themeModifier)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

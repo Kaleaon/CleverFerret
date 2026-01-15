@@ -1117,7 +1117,7 @@ fun MediaAppNavHost(
         
         // Enhanced Folder Import Screen with metadata fetching
         composable(MediaRoutes.FOLDER_IMPORT) {
-            com.universalmedialibrary.ui.import.FolderImportScreen(
+            com.universalmedialibrary.ui.folderimport.FolderImportScreen(
                 onBack = { navController.popBackStack() },
                 onImportComplete = { 
                     navController.popBackStack()

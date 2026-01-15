@@ -1,4 +1,4 @@
-package com.universalmedialibrary.ui.import
+package com.universalmedialibrary.ui.folderimport
 
 import android.content.Context
 import android.net.Uri
@@ -98,7 +98,13 @@ class FolderImportViewModel @Inject constructor(
             
             // Auto-fetch metadata for books if enabled
             if (_uiState.value.autoSortEnabled) {
-                fetchMetadataForBooks()
+                fetchMetadataForFiles(
+                    setOf(
+                        ScannedFileType.BOOK,
+                        ScannedFileType.COMIC,
+                        ScannedFileType.FANFICTION
+                    )
+                )
             }
         }
     }
@@ -235,18 +241,23 @@ class FolderImportViewModel @Inject constructor(
             fetchMetadataForAllFiles()
         }
     }
-    
+
     private fun fetchMetadataForAllFiles() {
+        fetchMetadataForFiles(
+            setOf(
+                ScannedFileType.BOOK,
+                ScannedFileType.COMIC,
+                ScannedFileType.MUSIC,
+                ScannedFileType.AUDIOBOOK,
+                ScannedFileType.FANFICTION
+            )
+        )
+    }
+
+    private fun fetchMetadataForFiles(types: Set<ScannedFileType>) {
         viewModelScope.launch {
-            // Fetch metadata for all supported file types
-            val filesToProcess = _uiState.value.scannedFiles.filter { 
-                it.metadata == null && it.type in listOf(
-                    ScannedFileType.BOOK, 
-                    ScannedFileType.COMIC,
-                    ScannedFileType.MUSIC, 
-                    ScannedFileType.AUDIOBOOK,
-                    ScannedFileType.FANFICTION
-                )
+            val filesToProcess = _uiState.value.scannedFiles.filter {
+                it.metadata == null && it.type in types
             }
             filesToProcess.forEach { file ->
                 fetchMetadataForFile(file)

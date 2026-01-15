@@ -1,4 +1,4 @@
-package com.universalmedialibrary.ui.import
+package com.universalmedialibrary.ui.folderimport
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
