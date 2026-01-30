@@ -97,9 +97,9 @@ jobs:
           api-level: ${{ matrix.config.api }}
           arch: ${{ matrix.config.arch }}
           target: ${{ matrix.config.target }}
-          emulator-options: -no-window -gpu swiftshader_indirect -no-boot-anim
+          emulator-options: -no-window -no-snapshot-save -no-audio -no-boot-anim
           disable-animations: true
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 1200
           script: |
             echo "Verifying emulator is available..."
             $ANDROID_HOME/platform-tools/adb devices
