@@ -542,7 +542,7 @@ fun EnhancedPDFReaderScreen(
                                     bitmap = currentPageBitmap!!.asImageBitmap(),
                                     contentDescription = "PDF Page ${uiState.currentPage}",
                                     modifier = Modifier.fillMaxWidth(),
-                                    contentScale = ContentScale.FitWidth
+                                    contentScale = ContentScale.FillWidth
                                 )
                             } else {
                                 // Fallback: Show text content representation

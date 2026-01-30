@@ -23,7 +23,6 @@ import com.universalmedialibrary.ui.media.player.*
 import com.universalmedialibrary.ui.media.screens.*
 import com.universalmedialibrary.ui.media.viewmodels.*
 import com.universalmedialibrary.debug.ui.DebugMenuScreen
-import com.universalmedialibrary.ui.aientertainment.aiEntertainmentNavGraph
 import com.universalmedialibrary.ui.components.NavigationItems
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
@@ -106,12 +105,12 @@ object MediaRoutes {
     const val FOLDER_IMPORT = "folder-import"
     
     // AI Entertainment (SynthChat Integration)
-    const val AI_ENTERTAINMENT = "ai-entertainment"
+    // Removed
+
+    // Link to Landseek
+    const val LANDSEEK = "landseek"
     
     // Enhanced AI Systems
-    const val AI_RATE_LIMITS = "ai-rate-limits"
-    const val AI_BACKUP_SETTINGS = "ai-backup-settings"
-    const val AI_CONTENT_CACHE = "ai-content-cache"
     const val ENHANCED_FILE_BROWSER = "enhanced-file-browser"
     
     // Settings sub-routes
@@ -1194,39 +1193,20 @@ fun MediaAppNavHost(
         }
         
         // =====================================================================
-        // AI ENTERTAINMENT (SynthChat Integration)
+        // WORK WITH LANDSEEK
         // =====================================================================
-        
-        composable(MediaRoutes.AI_ENTERTAINMENT) {
-            // Entry point: redirect to AI Entertainment login or characters screen
-            com.universalmedialibrary.ui.aientertainment.AIEntertainmentEntryScreen(
-                navController = navController
-            )
-        }
-        
-        // Include the full AI Entertainment navigation graph
-        aiEntertainmentNavGraph(
-            navController = navController,
-            onShowSnackbar = onShowSnackbar
-        )
-        
-        // Enhanced AI Systems Screens
-        composable(MediaRoutes.AI_RATE_LIMITS) {
-            com.universalmedialibrary.ui.ai.AIRateLimitControlScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
-        
-        composable(MediaRoutes.AI_BACKUP_SETTINGS) {
-            com.universalmedialibrary.ui.ai.AIBackupSettingsScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
-        
-        composable(MediaRoutes.AI_CONTENT_CACHE) {
-            com.universalmedialibrary.ui.ai.AIContentCacheScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+
+        composable(MediaRoutes.LANDSEEK) {
+            val context = LocalContext.current
+            LaunchedEffect(Unit) {
+                try {
+                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse("https://GitHub.com/Kaleaon/Landseek"))
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    onShowSnackbar("Could not open link")
+                }
+                navController.popBackStack()
+            }
         }
         
         composable(MediaRoutes.ENHANCED_FILE_BROWSER) {

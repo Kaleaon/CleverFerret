@@ -268,14 +268,13 @@ object MediaNavDestinations {
         section = NavSection.DISCOVER
     )
     
-    val aiEntertainment = MediaNavDestination(
-        id = "ai_entertainment",
-        label = "AI Entertainment",
-        icon = Icons.Outlined.AutoAwesome,
-        selectedIcon = Icons.Filled.AutoAwesome,
-        route = MediaRoutes.AI_ENTERTAINMENT,
-        section = NavSection.DISCOVER,
-        mediaTypeColor = Color(0xFF8B5CF6) // Purple for AI
+    val landseek = MediaNavDestination(
+        id = "landseek",
+        label = "Work with Landseek",
+        icon = Icons.Outlined.Public,
+        selectedIcon = Icons.Filled.Public,
+        route = MediaRoutes.LANDSEEK,
+        section = NavSection.DISCOVER
     )
     
     // Downloads Section
@@ -352,7 +351,7 @@ object MediaNavDestinations {
         home,
         search,
         books, audiobooks, comics, movies, tvShows, music, podcasts, radio, documents,
-        discover, webFiction, opds, freeAudiobooks, hivefy, ambient, visualizer, aiEntertainment,
+        discover, webFiction, opds, freeAudiobooks, hivefy, ambient, visualizer, landseek,
         downloads, storage, sync, importExport,
         collections, statistics, settings
     )
@@ -377,7 +376,7 @@ object MediaNavDestinations {
         opds,
         ambient,
         visualizer,
-        aiEntertainment,
+        landseek,
         collections,
         sync,
         importExport
