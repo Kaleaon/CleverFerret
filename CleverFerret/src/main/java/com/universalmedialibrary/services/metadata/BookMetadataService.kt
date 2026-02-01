@@ -59,7 +59,7 @@ class BookMetadataService @Inject constructor(
         title: String? = null,
         authors: List<String>? = null,
         filename: String? = null
-    ): BookMetadata? = withContext(Dispatchers.IO) {
+    ): ScrapedBookMetadata? = withContext(Dispatchers.IO) {
         Log.d(TAG, "Fetching metadata - ISBN: $isbn, Title: $title, Authors: $authors")
         
         // Extract info from filename if no other data
@@ -109,7 +109,7 @@ class BookMetadataService @Inject constructor(
      * Fetch metadata from Open Library by ISBN.
      * Endpoint: https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data
      */
-    private suspend fun fetchFromOpenLibraryByIsbn(isbn: String): BookMetadata? = withContext(Dispatchers.IO) {
+    private suspend fun fetchFromOpenLibraryByIsbn(isbn: String): ScrapedBookMetadata? = withContext(Dispatchers.IO) {
         try {
             val url = "$OPEN_LIBRARY_ISBN_API?bibkeys=ISBN:$isbn&format=json&jscmd=data"
             val response = makeHttpRequest(url)
@@ -133,7 +133,7 @@ class BookMetadataService @Inject constructor(
      * Search Open Library by title and author.
      * Endpoint: https://openlibrary.org/search.json?title={title}&author={author}
      */
-    private suspend fun searchOpenLibrary(title: String, author: String?): BookMetadata? = withContext(Dispatchers.IO) {
+    private suspend fun searchOpenLibrary(title: String, author: String?): ScrapedBookMetadata? = withContext(Dispatchers.IO) {
         try {
             val encodedTitle = URLEncoder.encode(title, "UTF-8")
             var url = "$OPEN_LIBRARY_SEARCH_API?title=$encodedTitle&limit=5"
@@ -164,7 +164,7 @@ class BookMetadataService @Inject constructor(
      * Fetch metadata from Google Books API by ISBN.
      * Similar to Calibre's google.py implementation.
      */
-    private suspend fun fetchFromGoogleBooksByIsbn(isbn: String): BookMetadata? = withContext(Dispatchers.IO) {
+    private suspend fun fetchFromGoogleBooksByIsbn(isbn: String): ScrapedBookMetadata? = withContext(Dispatchers.IO) {
         try {
             val url = "$GOOGLE_BOOKS_API?q=isbn:$isbn&maxResults=1"
             val response = makeHttpRequest(url)
@@ -187,7 +187,7 @@ class BookMetadataService @Inject constructor(
     /**
      * Search Google Books by title and author.
      */
-    private suspend fun searchGoogleBooks(title: String, author: String?): BookMetadata? = withContext(Dispatchers.IO) {
+    private suspend fun searchGoogleBooks(title: String, author: String?): ScrapedBookMetadata? = withContext(Dispatchers.IO) {
         try {
             val query = buildString {
                 append("intitle:")
@@ -216,7 +216,7 @@ class BookMetadataService @Inject constructor(
         null
     }
     
-    private fun parseOpenLibraryData(data: org.json.JSONObject, isbn: String): BookMetadata {
+    private fun parseOpenLibraryData(data: org.json.JSONObject, isbn: String): ScrapedBookMetadata {
         val title = data.optString("title", "")
         
         val authors = mutableListOf<String>()
@@ -244,7 +244,7 @@ class BookMetadataService @Inject constructor(
         val coverId = data.optJSONObject("cover")?.optString("medium")
             ?: "$OPEN_LIBRARY_COVERS/isbn/$isbn-M.jpg"
         
-        return BookMetadata(
+        return ScrapedBookMetadata(
             title = title,
             authors = authors,
             isbn = isbn,
@@ -259,7 +259,7 @@ class BookMetadataService @Inject constructor(
         )
     }
     
-    private fun parseOpenLibrarySearchResult(data: org.json.JSONObject): BookMetadata {
+    private fun parseOpenLibrarySearchResult(data: org.json.JSONObject): ScrapedBookMetadata {
         val title = data.optString("title", "")
         
         val authors = mutableListOf<String>()
@@ -289,7 +289,7 @@ class BookMetadataService @Inject constructor(
         val coverId = data.optInt("cover_i", -1)
         val coverUrl = if (coverId > 0) "$OPEN_LIBRARY_COVERS/id/$coverId-M.jpg" else null
         
-        return BookMetadata(
+        return ScrapedBookMetadata(
             title = title,
             authors = authors,
             isbn = isbn,
@@ -304,7 +304,7 @@ class BookMetadataService @Inject constructor(
         )
     }
     
-    private fun parseGoogleBooksData(volumeInfo: org.json.JSONObject, isbn: String?): BookMetadata {
+    private fun parseGoogleBooksData(volumeInfo: org.json.JSONObject, isbn: String?): ScrapedBookMetadata {
         val title = volumeInfo.optString("title", "")
         
         val authors = mutableListOf<String>()
@@ -341,7 +341,7 @@ class BookMetadataService @Inject constructor(
         val coverUrl = imageLinks?.optString("thumbnail")
             ?: imageLinks?.optString("smallThumbnail")
         
-        return BookMetadata(
+        return ScrapedBookMetadata(
             title = title,
             authors = authors,
             isbn = resolvedIsbn,
@@ -360,14 +360,14 @@ class BookMetadataService @Inject constructor(
      * Merge metadata from multiple sources.
      * Prioritizes non-null values and prefers certain sources for specific fields.
      */
-    private fun mergeMetadata(results: List<BookMetadata>): BookMetadata? {
+    private fun mergeMetadata(results: List<ScrapedBookMetadata>): ScrapedBookMetadata? {
         if (results.isEmpty()) return null
         if (results.size == 1) return results.first()
         
         val primary = results.first()
         val secondary = results.getOrNull(1)
         
-        return BookMetadata(
+        return ScrapedBookMetadata(
             title = primary.title.ifBlank { secondary?.title ?: "" },
             authors = primary.authors.ifEmpty { secondary?.authors ?: emptyList() },
             isbn = primary.isbn ?: secondary?.isbn,
@@ -476,9 +476,10 @@ class BookMetadataService @Inject constructor(
 }
 
 /**
- * Book metadata data class
+ * Scraped book metadata data class
+ * Renamed to avoid conflict with RealMetadataService.BookMetadata
  */
-data class BookMetadata(
+data class ScrapedBookMetadata(
     val title: String,
     val authors: List<String>,
     val isbn: String?,
@@ -491,13 +492,6 @@ data class BookMetadata(
     val pageCount: Int?,
     val source: MetadataSource
 )
-
-enum class MetadataSource {
-    OPEN_LIBRARY,
-    GOOGLE_BOOKS,
-    LOCAL,
-    MERGED
-}
 
 private data class ExtractedFileInfo(
     val title: String?,
