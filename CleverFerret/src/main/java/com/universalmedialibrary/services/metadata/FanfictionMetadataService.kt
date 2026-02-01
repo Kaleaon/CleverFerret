@@ -558,7 +558,7 @@ class FanfictionMetadataService @Inject constructor(
             language = online?.language ?: embedded?.language,
             seriesName = online?.seriesName ?: embedded?.seriesName,
             seriesPart = online?.seriesPart ?: embedded?.seriesPart,
-            collections = (online?.collections ?: embedded?.collections ?: emptyList()).ifEmpty { emptyList() },
+            collections = (online?.collections ?: embedded?.collections).orEmpty(),
             publishedDate = online?.publishedDate ?: embedded?.publishedDate,
             updatedDate = online?.updatedDate ?: embedded?.updatedDate,
             wordCount = online?.wordCount ?: embedded?.wordCount,
