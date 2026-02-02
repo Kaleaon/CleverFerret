@@ -8,6 +8,17 @@ Clever Ferret is a comprehensive media library and reader application for Androi
 - **Dependency Injection:** Hilt
 - **Architecture Pattern:** MVVM (Model-View-ViewModel) + Clean Architecture principles
 
+## App Organization (Piazza Comparison)
+
+Piazza-style organization emphasizes clear boundaries between UI, data, and service layers. CleverFerret mirrors that structure with well-defined packages so navigation, media handling, and storage stay separated and discoverable.
+
+- **UI-first navigation:** `ui/` contains screen flows, while `ui/media/navigation/` centralizes routing similar to Piazza's feature-first navigation.
+- **Service boundary:** `services/` isolates playback, reader, and sync logic so UI remains focused on presentation.
+- **Data boundary:** `data/` is dedicated to Room entities and repositories, keeping persistence separate from business logic.
+- **Integration boundary:** `parsers/` and `di/` hold parsing engines and dependency wiring to keep cross-cutting concerns isolated.
+
+When adding new features, follow this same separation: introduce UI in `ui/<feature>/`, logic in `services/<feature>/`, and storage in `data/` with a matching repository.
+
 ## Core Components
 
 ### 1. Unified Reader Service (`UnifiedReaderService`)

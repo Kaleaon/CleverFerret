@@ -36,6 +36,17 @@ CleverFerret is a comprehensive media library application for Android, designed 
 *   **Async:** Coroutines & Flow
 *   **Media Engine:** ExoPlayer (Media3)
 
+## 🧭 App Organization (Piazza Comparison)
+
+The app follows a Piazza-style layered layout so UI, services, and data are easy to locate:
+
+*   **UI & Navigation:** `ui/` and `ui/media/navigation/` keep screen flows and routes centralized.
+*   **Services:** `services/` encapsulates reader, playback, and sync logic.
+*   **Data:** `data/` contains Room entities and repositories.
+*   **Integration:** `parsers/` and `di/` handle file parsing and dependency wiring.
+
+See [Architecture](docs/ARCHITECTURE.md) for the detailed organization guide.
+
 ## 📂 Project Structure
 
 *   `CleverFerret/`: Main Android application source code.
