@@ -16,6 +16,7 @@ import com.universalmedialibrary.services.reading.AnnotationExportService
 import com.universalmedialibrary.services.reading.BookSourceService
 import com.universalmedialibrary.services.reading.ReadingAnalyticsService
 import com.universalmedialibrary.services.ai.AIServiceManager
+import com.universalmedialibrary.utils.FilebotDataService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,8 +48,15 @@ object ServicesModule {
         libraryDao: LibraryDao,
         mediaItemDao: MediaItemDao,
         metadataDao: MetadataDao,
-        fileNameSanitizer: FileNameSanitizer
-    ): StorageAccessService = StorageAccessService(libraryDao, mediaItemDao, metadataDao, fileNameSanitizer)
+        fileNameSanitizer: FileNameSanitizer,
+        filebotDataService: FilebotDataService
+    ): StorageAccessService = StorageAccessService(
+        libraryDao,
+        mediaItemDao,
+        metadataDao,
+        fileNameSanitizer,
+        filebotDataService
+    )
 
     /**
      * Provides a singleton APIKeyRepository for managing third-party API keys.

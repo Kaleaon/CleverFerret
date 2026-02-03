@@ -22,6 +22,7 @@ import com.universalmedialibrary.data.local.entity.MetadataBook
 import com.universalmedialibrary.data.local.entity.Series
 import com.universalmedialibrary.utils.ComicInfoParser
 import com.universalmedialibrary.utils.ComicArchiveUtils
+import com.universalmedialibrary.utils.FilebotDataService
 import com.universalmedialibrary.utils.FileNameSanitizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -57,11 +58,16 @@ class StorageAccessService @Inject constructor(
     private val libraryDao: LibraryDao,
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao,
-    private val fileNameSanitizer: FileNameSanitizer
+    private val fileNameSanitizer: FileNameSanitizer,
+    private val filebotDataService: FilebotDataService
 ) {
     private val importLogJson = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
+    }
+
+    init {
+        filebotDataService.warmCache()
     }
 
     companion object {
@@ -1018,7 +1024,8 @@ class StorageAccessService @Inject constructor(
 
     private fun deriveMetadataFromName(fileName: String): DerivedMetadata {
         val base = fileName.substringBeforeLast('.').trim()
-        val normalized = base
+        val cleanedByFilebot = filebotDataService.stripFilebotNoise(base)
+        val normalized = cleanedByFilebot
             .replace("—", "-")
             .replace("–", "-")
             .replace("_", " ")

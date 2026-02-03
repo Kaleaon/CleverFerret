@@ -5,8 +5,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URLEncoder
+import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
@@ -21,6 +26,12 @@ import com.universalmedialibrary.utils.ErrorLogger
 class FanfictionToEPUBConverter @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    private val httpClient = OkHttpClient.Builder()
+        .connectTimeout(20, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    private val ficHubApiUrl = "https://fichub.net/api/v0/epub"
 
     data class Story(
         val title: String,
@@ -77,6 +88,15 @@ class FanfictionToEPUBConverter @Inject constructor(
         outputFileName: String? = null
     ): File? = withContext(Dispatchers.IO) {
         try {
+            val ficHubResult = fetchFromFicHub(storyUrl)
+            if (ficHubResult != null) {
+                val fileName = outputFileName ?: "${sanitizeFileName(ficHubResult.story.title)}.epub"
+                val outputFile = File(context.filesDir, fileName)
+                if (downloadEpub(ficHubResult.epubUrl, outputFile)) {
+                    return@withContext outputFile
+                }
+            }
+
             val site = FanfictionSite.fromUrl(storyUrl)
             if (site == null) {
                 return@withContext null
@@ -113,6 +133,15 @@ class FanfictionToEPUBConverter @Inject constructor(
         outputFileName: String? = null
     ): ConversionResult? = withContext(Dispatchers.IO) {
         try {
+            val ficHubResult = fetchFromFicHub(storyUrl)
+            if (ficHubResult != null) {
+                val fileName = outputFileName ?: "${sanitizeFileName(ficHubResult.story.title)}.epub"
+                val outputFile = File(context.filesDir, fileName)
+                if (downloadEpub(ficHubResult.epubUrl, outputFile)) {
+                    return@withContext ConversionResult(outputFile, ficHubResult.story)
+                }
+            }
+
             val site = FanfictionSite.fromUrl(storyUrl)
             if (site == null) {
                 return@withContext null
@@ -138,6 +167,118 @@ class FanfictionToEPUBConverter @Inject constructor(
         } catch (e: Exception) {
             ErrorLogger.logError("FanfictionToEPUBConverter", "Error converting story to EPUB (detailed)", e)
             null
+        }
+    }
+
+    private data class FicHubResult(
+        val epubUrl: String,
+        val story: Story
+    )
+
+    private suspend fun fetchFromFicHub(storyUrl: String): FicHubResult? = withContext(Dispatchers.IO) {
+        try {
+            val encoded = URLEncoder.encode(storyUrl, "UTF-8")
+            val request = Request.Builder()
+                .url("$ficHubApiUrl?q=$encoded")
+                .header("User-Agent", "CleverFerret/1.0 (FicHub)")
+                .get()
+                .build()
+
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext null
+                val body = response.body?.string().orEmpty()
+                val json = JSONObject(body)
+                if (json.optInt("err", -1) != 0) return@withContext null
+
+                val epubUrl = json.optString("epub_url")
+                    .ifBlank { json.optJSONObject("urls")?.optString("epub").orEmpty() }
+                if (epubUrl.isBlank()) return@withContext null
+
+                val meta = json.optJSONObject("meta")
+                val info = json.optString("info")
+                val story = parseFicHubStory(meta, info, storyUrl)
+                return@withContext FicHubResult(epubUrl, story)
+            }
+        } catch (e: Exception) {
+            ErrorLogger.logWarning("FanfictionToEPUBConverter", "FicHub fallback failed", e)
+            null
+        }
+    }
+
+    private fun parseFicHubStory(meta: JSONObject?, info: String?, url: String): Story {
+        val title = meta?.optString("title").takeIf { !it.isNullOrBlank() }
+            ?: parseInfoField(info, "Title")
+            ?: "Unknown Title"
+        val author = meta?.optString("author").takeIf { !it.isNullOrBlank() }
+            ?: parseInfoField(info, "Author")
+            ?: "Unknown Author"
+        val summary = meta?.optString("description").takeIf { !it.isNullOrBlank() }
+            ?: meta?.optString("summary").orEmpty()
+
+        val chapterCount = listOf(
+            meta?.optInt("chapters", -1),
+            meta?.optInt("chapterCount", -1),
+            meta?.optInt("numChapters", -1)
+        ).firstOrNull { it != null && it > 0 } ?: 0
+
+        val chapters = if (chapterCount > 0) {
+            (1..chapterCount).map { Chapter(it, "Chapter $it", "") }
+        } else {
+            emptyList()
+        }
+
+        val metadata = StoryMetadata(
+            fandom = meta?.optString("fandom").takeIf { !it.isNullOrBlank() },
+            characters = meta?.optJSONArray("characters").toStringList(),
+            rating = meta?.optString("rating").takeIf { !it.isNullOrBlank() },
+            genre = meta?.optString("genre").takeIf { !it.isNullOrBlank() },
+            wordCount = meta?.optInt("words", 0) ?: 0,
+            publishDate = meta?.optString("published").takeIf { !it.isNullOrBlank() },
+            updateDate = meta?.optString("updated").takeIf { !it.isNullOrBlank() },
+            language = meta?.optString("language").takeIf { !it.isNullOrBlank() } ?: "en",
+            status = meta?.optString("status").takeIf { !it.isNullOrBlank() }
+        )
+
+        return Story(
+            title = title,
+            author = author,
+            summary = summary,
+            chapters = chapters,
+            metadata = metadata
+        )
+    }
+
+    private fun parseInfoField(info: String?, field: String): String? {
+        if (info.isNullOrBlank()) return null
+        val regex = Regex("$field:\\s*([^\\n]+)", RegexOption.IGNORE_CASE)
+        return regex.find(info)?.groupValues?.getOrNull(1)?.trim()?.takeIf { it.isNotBlank() }
+    }
+
+    private fun org.json.JSONArray?.toStringList(): List<String> {
+        val array = this ?: return emptyList()
+        return (0 until array.length())
+            .mapNotNull { idx -> array.optString(idx).takeIf { it.isNotBlank() } }
+    }
+
+    private fun downloadEpub(epubUrl: String, outputFile: File): Boolean {
+        return try {
+            val request = Request.Builder()
+                .url(epubUrl)
+                .header("User-Agent", "CleverFerret/1.0 (FicHub)")
+                .get()
+                .build()
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return false
+                response.body?.byteStream()?.use { input ->
+                    FileOutputStream(outputFile).use { output ->
+                        input.copyTo(output)
+                    }
+                } ?: return false
+            }
+            true
+        } catch (e: Exception) {
+            ErrorLogger.logWarning("FanfictionToEPUBConverter", "Failed to download FicHub EPUB", e)
+            false
         }
     }
 
