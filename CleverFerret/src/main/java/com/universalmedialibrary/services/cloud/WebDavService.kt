@@ -1,21 +1,20 @@
 package com.universalmedialibrary.services.cloud
 
 import android.content.Context
+import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import com.universalmedialibrary.services.network.WebDavClient
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * WebDAV Integration Service for CleverFerret
- * 
- * Note: This is a stub implementation. To enable full WebDAV integration,
- * add the Sardine WebDAV library dependency and implement the actual API calls.
  * 
  * Provides WebDAV protocol support for various cloud storage providers:
  * - OwnCloud/NextCloud
@@ -25,7 +24,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class WebDavService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val webDavClient: WebDavClient
 ) {
     
     private val _isAuthenticated = MutableStateFlow(false)
@@ -53,6 +53,7 @@ class WebDavService @Inject constructor(
                     serverUrl = credentials.url
                     username = credentials.username
                     password = credentials.password
+                    webDavClient.initialize(credentials.url, credentials.username, credentials.password)
                     _isAuthenticated.value = true
                     true
                 } else {
@@ -78,6 +79,7 @@ class WebDavService @Inject constructor(
                 this@WebDavService.serverUrl = url
                 this@WebDavService.username = username
                 this@WebDavService.password = password
+                webDavClient.initialize(url, username, password)
                 
                 storeCredentials(url, username, password)
                 _isAuthenticated.value = true
@@ -102,7 +104,6 @@ class WebDavService @Inject constructor(
 
     /**
      * Upload file to WebDAV
-     * Note: Stub implementation - returns false
      */
     suspend fun uploadFile(
         localPath: String,
@@ -110,14 +111,17 @@ class WebDavService @Inject constructor(
         progressCallback: ((Float) -> Unit)? = null
     ): Boolean {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Sardine library not available
-            false
+            if (!isConfigured()) return@withContext false
+            progressCallback?.invoke(0f)
+            val uri = Uri.fromFile(File(localPath))
+            val result = webDavClient.uploadFile(uri, remotePath)
+            progressCallback?.invoke(if (result.isSuccess) 1f else 0f)
+            result.isSuccess
         }
     }
 
     /**
      * Download file from WebDAV
-     * Note: Stub implementation - returns false
      */
     suspend fun downloadFile(
         remotePath: String,
@@ -125,67 +129,97 @@ class WebDavService @Inject constructor(
         progressCallback: ((Float) -> Unit)? = null
     ): Boolean {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Sardine library not available
-            false
+            if (!isConfigured()) return@withContext false
+            progressCallback?.invoke(0f)
+            val result = webDavClient.downloadFile(remotePath)
+            if (result.isSuccess) {
+                val inputStream = result.getOrNull()
+                if (inputStream != null) {
+                    File(localPath).outputStream().use { out ->
+                        inputStream.copyTo(out)
+                    }
+                    progressCallback?.invoke(1f)
+                    true
+                } else {
+                    progressCallback?.invoke(0f)
+                    false
+                }
+            } else {
+                progressCallback?.invoke(0f)
+                false
+            }
         }
     }
 
     /**
      * List files in directory
-     * Note: Stub implementation - returns empty list
      */
     suspend fun listFiles(remotePath: String = APP_FOLDER): List<WebDavFile> {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Sardine library not available
-            emptyList()
+            if (!isConfigured()) return@withContext emptyList()
+            webDavClient.listFiles(remotePath).getOrElse { emptyList() }.map { file ->
+                WebDavFile(
+                    name = file.displayName,
+                    path = file.path,
+                    isDirectory = file.isDirectory,
+                    size = file.size,
+                    lastModified = file.lastModified
+                )
+            }
         }
     }
 
     /**
      * Delete file from WebDAV
-     * Note: Stub implementation - returns false
      */
     suspend fun deleteFile(remotePath: String): Boolean {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Sardine library not available
-            false
+            if (!isConfigured()) return@withContext false
+            webDavClient.delete(remotePath).isSuccess
         }
     }
 
     /**
      * Create directory on WebDAV
-     * Note: Stub implementation - returns false
      */
     suspend fun createDirectory(remotePath: String): Boolean {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Sardine library not available
-            false
+            if (!isConfigured()) return@withContext false
+            webDavClient.createDirectory(remotePath).isSuccess
         }
     }
 
     /**
      * Sync media with WebDAV
-     * Note: Stub implementation
      */
     suspend fun syncMedia(): SyncResult {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Sardine library not available
-            SyncResult(
-                success = false,
-                error = "Sardine WebDAV library not configured. Please add the Sardine dependency."
-            )
+            if (!isConfigured()) {
+                return@withContext SyncResult(
+                    success = false,
+                    error = "WebDAV credentials not configured"
+                )
+            }
+            val listing = webDavClient.listFiles(APP_FOLDER)
+            if (listing.isSuccess) {
+                SyncResult(success = true, error = null)
+            } else {
+                SyncResult(success = false, error = listing.exceptionOrNull()?.message)
+            }
         }
     }
 
     /**
-     * Get storage usage
-     * Note: Stub implementation - returns null
+     * Get storage usage (WebDAV does not expose usage universally; returns null when unavailable)
      */
     suspend fun getStorageUsage(): StorageUsage? {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Sardine library not available
             null
         }
+    }
+
+    private fun isConfigured(): Boolean {
+        return !serverUrl.isNullOrBlank() && !username.isNullOrBlank() && !password.isNullOrBlank()
     }
 
     private fun getStoredCredentials(): WebDavCredentials? {

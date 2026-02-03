@@ -16,6 +16,10 @@ import org.xmlpull.v1.XmlPullParserFactory
 import java.io.File
 import java.net.URL
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -135,8 +139,9 @@ class NewsManager @Inject constructor(
                         if (xpp.name.lowercase() == "item" || xpp.name.lowercase() == "entry") {
                             insideItem = false
                             if (title.isNotBlank() && link.isNotBlank()) {
-                                // TODO: Check date filter
-                                articles.add(NewsArticle(title, link, desc, pubDate, feed.title))
+                                if (isWithinAge(pubDate, recipe.oldestArticleDays)) {
+                                    articles.add(NewsArticle(title, link, desc, pubDate, feed.title))
+                                }
                             }
                         }
                     }
@@ -154,6 +159,54 @@ class NewsManager @Inject constructor(
             e.printStackTrace()
             emptyList()
         }
+    }
+
+    private fun isWithinAge(pubDate: String, maxAgeDays: Int): Boolean {
+        if (maxAgeDays <= 0) return true
+        if (pubDate.isBlank()) return true
+
+        val publishedAt = parseDate(pubDate) ?: return true
+        val cutoff = Instant.now().minusSeconds(maxAgeDays.toLong() * 24 * 60 * 60)
+        return publishedAt.isAfter(cutoff)
+    }
+
+    private fun parseDate(raw: String): Instant? {
+        val cleaned = raw.trim()
+        val rfc1123 = runCatching { DateTimeFormatter.RFC_1123_DATE_TIME.parse(cleaned, Instant::from) }
+            .getOrNull()
+        if (rfc1123 != null) return rfc1123
+
+        val isoFormats = listOf(
+            DateTimeFormatter.ISO_OFFSET_DATE_TIME,
+            DateTimeFormatter.ISO_INSTANT,
+            DateTimeFormatter.ISO_ZONED_DATE_TIME,
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        )
+        isoFormats.forEach { formatter ->
+            try {
+                return formatter.parse(cleaned, Instant::from)
+            } catch (_: DateTimeParseException) {
+                // continue
+            }
+        }
+
+        val legacyFormats = listOf(
+            "EEE, dd MMM yyyy HH:mm:ss Z",
+            "EEE, dd MMM yyyy HH:mm Z",
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "yyyy-MM-dd"
+        )
+        legacyFormats.forEach { pattern ->
+            runCatching {
+                val formatter = SimpleDateFormat(pattern, Locale.US).apply {
+                    timeZone = TimeZone.getTimeZone("UTC")
+                }
+                return formatter.parse(cleaned)?.toInstant()
+            }
+        }
+
+        return null
     }
 
     private fun downloadArticleContent(article: NewsArticle, recipe: NewsRecipe): String? {

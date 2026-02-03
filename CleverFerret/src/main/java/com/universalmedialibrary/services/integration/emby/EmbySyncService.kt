@@ -218,15 +218,28 @@ class EmbySyncService @Inject constructor(
                     val itemId = item["Id"] as? String ?: return@forEach
                     val name = item["Name"] as? String ?: "Unknown"
                     val type = item["Type"] as? String
+                    val path = item["Path"] as? String
+                        ?: (item["MediaSources"] as? List<Map<String, Any>>)
+                            ?.firstOrNull()
+                            ?.get("Path") as? String
+                    val size = (item["Size"] as? Number)?.toLong()
+                        ?: (item["MediaSources"] as? List<Map<String, Any>>)
+                            ?.firstOrNull()
+                            ?.get("Size") as? Number
+                            ?.toLong()
+                        ?: 0L
+                    val fileExtension = path?.substringAfterLast('.', "")?.lowercase().orEmpty()
+                    val fileName = path?.substringAfterLast('/')?.ifBlank { name } ?: name
 
-                    // Create MediaItem stub
                     val mediaItem = MediaItem(
                         libraryId = localLibraryId,
-                        filePath = "emby://${server.id}/$itemId",
-                        fileName = name,
-                        fileExtension = "",
-                        fileSize = 0,
-                        mediaType = getMediaTypeFromEmbyType(type)
+                        filePath = path ?: "emby://${server.id}/$itemId",
+                        fileName = fileName,
+                        fileExtension = fileExtension,
+                        fileSize = size,
+                        mediaType = getMediaTypeFromEmbyType(type),
+                        isAvailable = path != null,
+                        hasMetadata = true
                     )
 
                     val localItemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -236,7 +249,9 @@ class EmbySyncService @Inject constructor(
                     val thumbnailUrl = getEmbyImageUrl(serverUrl, itemId, server.apiKey ?: "")
                     val metadata = MetadataCommon(
                         itemId = localItemId,
-                        title = name
+                        title = name,
+                        summary = item["Overview"] as? String,
+                        coverImagePath = thumbnailUrl
                     )
 
                     metadataDao.insertMetadataCommon(metadata)

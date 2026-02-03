@@ -26,6 +26,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.universalmedialibrary.ui.media.theme.*
+import androidx.compose.ui.viewinterop.AndroidView
+import android.webkit.WebView
+import android.webkit.WebViewClient
 
 /**
  * Clean Media-Centric Reader Screen
@@ -106,7 +109,8 @@ fun MediaReaderScreen(
             content = state.currentContent,
             theme = state.theme,
             typography = state.typography,
-            isComic = state.isComic
+            isComic = state.isComic,
+            currentPage = state.currentPage
         )
         
         // Animated top bar
@@ -212,40 +216,151 @@ private fun ReaderContent(
     content: ReaderContent,
     theme: ReaderTheme,
     typography: ReaderTypography,
-    isComic: Boolean
+    isComic: Boolean,
+    currentPage: Int
 ) {
     if (isComic) {
         // Comic/manga page view
         ComicPageView(
-            imageUrl = content.imageUrl,
+            imageUrl = content.imageUrls.getOrNull(currentPage - 1) ?: content.imageUrl,
             modifier = Modifier.fillMaxSize()
         )
     } else {
-        // Text content
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = typography.marginHorizontal.dp),
-            contentPadding = PaddingValues(vertical = typography.marginVertical.dp)
-        ) {
-            item {
-                Text(
-                    text = content.text,
-                    color = theme.textColor,
-                    fontSize = typography.fontSize.sp,
-                    lineHeight = (typography.fontSize * typography.lineHeight).sp,
-                    fontFamily = typography.fontFamily,
-                    letterSpacing = typography.letterSpacing.sp,
-                    textAlign = when (typography.textAlign) {
-                        TextAlignment.LEFT -> TextAlign.Start
-                        TextAlignment.CENTER -> TextAlign.Center
-                        TextAlignment.RIGHT -> TextAlign.End
-                        TextAlignment.JUSTIFY -> TextAlign.Justify
-                    }
-                )
+        if (!content.htmlContent.isNullOrBlank()) {
+            HtmlReaderContent(
+                htmlContent = content.htmlContent,
+                theme = theme,
+                typography = typography
+            )
+        } else {
+            // Text content
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = typography.marginHorizontal.dp),
+                contentPadding = PaddingValues(vertical = typography.marginVertical.dp)
+            ) {
+                item {
+                    Text(
+                        text = content.text,
+                        color = theme.textColor,
+                        fontSize = typography.fontSize.sp,
+                        lineHeight = (typography.fontSize * typography.lineHeight).sp,
+                        fontFamily = typography.fontFamily,
+                        letterSpacing = typography.letterSpacing.sp,
+                        textAlign = when (typography.textAlign) {
+                            TextAlignment.LEFT -> TextAlign.Start
+                            TextAlignment.CENTER -> TextAlign.Center
+                            TextAlignment.RIGHT -> TextAlign.End
+                            TextAlignment.JUSTIFY -> TextAlign.Justify
+                        }
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+private fun HtmlReaderContent(
+    htmlContent: String,
+    theme: ReaderTheme,
+    typography: ReaderTypography
+) {
+    var webView by remember { mutableStateOf<WebView?>(null) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            webView?.apply {
+                loadUrl("about:blank")
+                clearHistory()
+                clearCache(true)
+                removeAllViews()
+                destroy()
+            }
+            webView = null
+        }
+    }
+
+    AndroidView(
+        factory = { context ->
+            WebView(context).apply {
+                webViewClient = WebViewClient()
+                settings.apply {
+                    javaScriptEnabled = false
+                    allowFileAccess = false
+                    allowContentAccess = false
+                    domStorageEnabled = false
+                    setSupportZoom(true)
+                    builtInZoomControls = true
+                    displayZoomControls = false
+                    loadWithOverviewMode = true
+                    useWideViewPort = true
+                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                    safeBrowsingEnabled = true
+                }
+                webView = this
+            }
+        },
+        update = { view ->
+            view.loadDataWithBaseURL(
+                null,
+                buildHtmlForReader(htmlContent, theme, typography),
+                "text/html",
+                "UTF-8",
+                null
+            )
+        },
+        modifier = Modifier.fillMaxSize()
+    )
+}
+
+private fun buildHtmlForReader(
+    content: String,
+    theme: ReaderTheme,
+    typography: ReaderTypography
+): String {
+    val backgroundColor = theme.backgroundColor.toHexColor()
+    val textColor = theme.textColor.toHexColor()
+    return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    font-family: ${typography.fontFamily};
+                    font-size: ${typography.fontSize}px;
+                    line-height: ${typography.lineHeight};
+                    background-color: $backgroundColor;
+                    color: $textColor;
+                    padding: ${typography.marginVertical}px ${typography.marginHorizontal}px;
+                    margin: 0;
+                    text-align: ${typography.textAlign.name.lowercase()};
+                }
+                img {
+                    max-width: 100%;
+                    height: auto;
+                }
+                a {
+                    color: ${theme.linkColor.toHexColor()};
+                }
+            </style>
+        </head>
+        <body>
+            $content
+        </body>
+        </html>
+    """.trimIndent()
+}
+
+private fun Color.toHexColor(): String {
+    val intColor = (alpha * 255).toInt() shl 24 or
+        ((red * 255).toInt() shl 16) or
+        ((green * 255).toInt() shl 8) or
+        (blue * 255).toInt()
+    return String.format("#%06X", 0xFFFFFF and intColor)
 }
 
 @Composable

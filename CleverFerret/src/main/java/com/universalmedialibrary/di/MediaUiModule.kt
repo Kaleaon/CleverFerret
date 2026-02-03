@@ -70,20 +70,44 @@ class PlaybackStateManagerImpl(
     
     private var activePlayerType: String? = null
     
-    // TODO: Wire up actual playback state observation when service APIs are finalized
-    // For now, this provides a functional interface that can be expanded
+    init {
+        observeMusic()
+        observeAudiobook()
+    }
     
     override fun playPause() {
         // Delegate to the active player service
         // Implementation depends on which service is currently active
+        when (activePlayerType) {
+            PLAYER_MUSIC -> {
+                if (musicPlayerService.playbackState.value.isPlaying) {
+                    musicPlayerService.pause()
+                } else {
+                    musicPlayerService.play()
+                }
+            }
+            PLAYER_AUDIOBOOK -> {
+                if (audiobookService.audiobookState.value.isPlaying) {
+                    audiobookService.pause()
+                } else {
+                    audiobookService.play()
+                }
+            }
+        }
     }
     
     override fun skipNext() {
         // Delegate to the active player service
+        if (activePlayerType == PLAYER_MUSIC) {
+            musicPlayerService.skipNext()
+        }
     }
     
     override fun skipPrevious() {
         // Delegate to the active player service
+        if (activePlayerType == PLAYER_MUSIC) {
+            musicPlayerService.skipPrevious()
+        }
     }
     
     /**
@@ -93,6 +117,63 @@ class PlaybackStateManagerImpl(
     fun updatePlaybackState(state: MiniPlayerState?) {
         _currentPlayback.value = state
         activePlayerType = state?.playerType
+    }
+
+    private fun observeMusic() {
+        scope.launch {
+            combine(
+                musicPlayerService.currentTrack,
+                musicPlayerService.playbackState
+            ) { track, playback ->
+                if (track == null) return@combine null
+                MiniPlayerState(
+                    title = track.title,
+                    subtitle = track.artist ?: track.album ?: "",
+                    artworkUrl = track.albumArtUrl,
+                    progress = if (track.duration > 0) {
+                        playback.currentPositionMs.toFloat() / track.duration
+                    } else 0f,
+                    isPlaying = playback.isPlaying,
+                    playerType = PLAYER_MUSIC
+                ) to playback.isPlaying
+            }.collect { result ->
+                result?.let { (state, isPlaying) ->
+                    _currentPlayback.value = state
+                    if (isPlaying) {
+                        activePlayerType = PLAYER_MUSIC
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeAudiobook() {
+        scope.launch {
+            audiobookService.audiobookState.collect { state ->
+                val book = state.audiobook ?: return@collect
+                val duration = state.duration.takeIf { it > 0 } ?: state.totalDuration
+                val progress = if (duration > 0) {
+                    state.currentPosition.toFloat() / duration
+                } else 0f
+                val miniState = MiniPlayerState(
+                    title = state.title.ifBlank { book.title },
+                    subtitle = state.author.ifBlank { book.author ?: "" },
+                    artworkUrl = book.coverPath,
+                    progress = progress.coerceIn(0f, 1f),
+                    isPlaying = state.isPlaying,
+                    playerType = PLAYER_AUDIOBOOK
+                )
+                _currentPlayback.value = miniState
+                if (state.isPlaying) {
+                    activePlayerType = PLAYER_AUDIOBOOK
+                }
+            }
+        }
+    }
+
+    private companion object {
+        const val PLAYER_MUSIC = "music"
+        const val PLAYER_AUDIOBOOK = "audiobook"
     }
 }
 

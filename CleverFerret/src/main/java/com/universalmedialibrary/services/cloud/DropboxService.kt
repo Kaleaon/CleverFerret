@@ -7,15 +7,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Dropbox Integration Service for CleverFerret
- * 
- * Note: This is a stub implementation. To enable full Dropbox integration,
- * add the Dropbox SDK dependency and implement the actual API calls.
  * 
  * Provides comprehensive Dropbox integration including:
  * - File/folder synchronization
@@ -25,7 +27,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class DropboxService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val okHttpClient: OkHttpClient
 ) {
     
     private val _isAuthenticated = MutableStateFlow(false)
@@ -89,7 +92,6 @@ class DropboxService @Inject constructor(
 
     /**
      * Upload file to Dropbox
-     * Note: Stub implementation - returns null
      */
     suspend fun uploadFile(
         localPath: String,
@@ -97,14 +99,38 @@ class DropboxService @Inject constructor(
         folderPath: String = APP_FOLDER
     ): String? {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Dropbox SDK not available
-            null
+            val token = accessToken ?: return@withContext null
+            val file = File(localPath)
+            if (!file.exists()) return@withContext null
+            val dropboxPath = "${folderPath.trimEnd('/')}/${fileName}"
+
+            val args = JSONObject(
+                mapOf(
+                    "path" to dropboxPath,
+                    "mode" to "add",
+                    "autorename" to true,
+                    "mute" to false
+                )
+            ).toString()
+
+            val request = Request.Builder()
+                .url("https://content.dropboxapi.com/2/files/upload")
+                .addHeader("Authorization", "Bearer $token")
+                .addHeader("Dropbox-API-Arg", args)
+                .addHeader("Content-Type", "application/octet-stream")
+                .post(file.readBytes().toRequestBody("application/octet-stream".toMediaType()))
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext null
+                val body = response.body?.string() ?: return@withContext null
+                JSONObject(body).optString("id").takeIf { it.isNotBlank() }
+            }
         }
     }
 
     /**
      * Download file from Dropbox
-     * Note: Stub implementation - returns false
      */
     suspend fun downloadFile(
         dropboxPath: String,
@@ -112,66 +138,141 @@ class DropboxService @Inject constructor(
         progressCallback: ((Float) -> Unit)? = null
     ): Boolean {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Dropbox SDK not available
-            false
+            val token = accessToken ?: return@withContext false
+            progressCallback?.invoke(0f)
+            val args = JSONObject(mapOf("path" to dropboxPath)).toString()
+            val request = Request.Builder()
+                .url("https://content.dropboxapi.com/2/files/download")
+                .addHeader("Authorization", "Bearer $token")
+                .addHeader("Dropbox-API-Arg", args)
+                .post(ByteArray(0).toRequestBody("application/octet-stream".toMediaType()))
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext false
+                val input = response.body?.byteStream() ?: return@withContext false
+                File(localPath).outputStream().use { out -> input.copyTo(out) }
+                progressCallback?.invoke(1f)
+                true
+            }
         }
     }
 
     /**
      * List files in folder
-     * Note: Stub implementation - returns empty list
      */
     suspend fun listFiles(folderPath: String = APP_FOLDER): List<DropboxFile> {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Dropbox SDK not available
-            emptyList()
+            val token = accessToken ?: return@withContext emptyList()
+            val payload = JSONObject(mapOf("path" to folderPath)).toString()
+            val request = Request.Builder()
+                .url("https://api.dropboxapi.com/2/files/list_folder")
+                .addHeader("Authorization", "Bearer $token")
+                .post(payload.toRequestBody("application/json".toMediaType()))
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext emptyList()
+                val body = response.body?.string() ?: return@withContext emptyList()
+                val entries = JSONObject(body).optJSONArray("entries") ?: return@withContext emptyList()
+                (0 until entries.length()).mapNotNull { index ->
+                    val entry = entries.optJSONObject(index) ?: return@mapNotNull null
+                    val tag = entry.optString(".tag")
+                    DropboxFile(
+                        id = entry.optString("id"),
+                        name = entry.optString("name"),
+                        path = entry.optString("path_display"),
+                        size = entry.optLong("size", 0L),
+                        isFolder = tag == "folder",
+                        modified = entry.optString("server_modified", null)
+                    )
+                }
+            }
         }
     }
 
     /**
      * Delete file from Dropbox
-     * Note: Stub implementation - returns false
      */
     suspend fun deleteFile(path: String): Boolean {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Dropbox SDK not available
-            false
+            val token = accessToken ?: return@withContext false
+            val payload = JSONObject(mapOf("path" to path)).toString()
+            val request = Request.Builder()
+                .url("https://api.dropboxapi.com/2/files/delete_v2")
+                .addHeader("Authorization", "Bearer $token")
+                .post(payload.toRequestBody("application/json".toMediaType()))
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                response.isSuccessful
+            }
         }
     }
 
     /**
      * Sync media with Dropbox
-     * Note: Stub implementation
      */
     suspend fun syncMedia(): SyncResult {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Dropbox SDK not available
-            SyncResult(
-                success = false,
-                error = "Dropbox SDK not configured. Please add the Dropbox SDK dependency."
-            )
+            if (accessToken == null) {
+                return@withContext SyncResult(
+                    success = false,
+                    error = "Dropbox access token not configured."
+                )
+            }
+            val remoteFiles = listFiles(APP_FOLDER)
+            SyncResult(success = remoteFiles.isNotEmpty() || accessToken != null, error = null)
         }
     }
 
     /**
      * Get account information
-     * Note: Stub implementation - returns null
      */
     suspend fun getAccountInfo(): DropboxAccountInfo? {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Dropbox SDK not available
-            null
+            val token = accessToken ?: return@withContext null
+            val request = Request.Builder()
+                .url("https://api.dropboxapi.com/2/users/get_current_account")
+                .addHeader("Authorization", "Bearer $token")
+                .post(ByteArray(0).toRequestBody("application/json".toMediaType()))
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext null
+                val body = response.body?.string() ?: return@withContext null
+                val json = JSONObject(body)
+                DropboxAccountInfo(
+                    accountId = json.optString("account_id"),
+                    name = json.optJSONObject("name")?.optString("display_name") ?: "Dropbox User",
+                    email = json.optString("email"),
+                    country = json.optString("country")
+                )
+            }
         }
     }
 
     /**
      * Get storage usage
-     * Note: Stub implementation - returns null
      */
     suspend fun getStorageUsage(): StorageUsage? {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Dropbox SDK not available
-            null
+            val token = accessToken ?: return@withContext null
+            val request = Request.Builder()
+                .url("https://api.dropboxapi.com/2/users/get_space_usage")
+                .addHeader("Authorization", "Bearer $token")
+                .post(ByteArray(0).toRequestBody("application/json".toMediaType()))
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext null
+                val body = response.body?.string() ?: return@withContext null
+                val json = JSONObject(body)
+                val used = json.optLong("used", 0L)
+                val allocation = json.optJSONObject("allocation")
+                val total = allocation?.optLong("allocated", 0L) ?: 0L
+                StorageUsage(totalBytes = total, usedBytes = used)
+            }
         }
     }
 

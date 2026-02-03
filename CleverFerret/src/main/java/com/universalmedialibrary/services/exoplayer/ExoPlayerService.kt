@@ -3,8 +3,10 @@ package com.universalmedialibrary.services.exoplayer
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.ExoPlayer
 import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.services.media.MediaController
@@ -33,6 +35,7 @@ class ExoPlayerService @Inject constructor(
 ) {
 
     private var exoPlayer: ExoPlayer? = null
+    private val trackSelector = DefaultTrackSelector(context)
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private val _playerState = MutableStateFlow(ExoPlayerState())
@@ -50,6 +53,7 @@ class ExoPlayerService @Inject constructor(
         runOnMainThread {
             if (exoPlayer == null) {
                 exoPlayer = ExoPlayer.Builder(context)
+                    .setTrackSelector(trackSelector)
                     .setHandleAudioBecomingNoisy(true)
                     .build().apply {
                     addListener(object : Player.Listener {
@@ -202,6 +206,57 @@ class ExoPlayerService @Inject constructor(
             }
         }
         return result
+    }
+
+    /**
+     * Select preferred subtitle language. Pass null to disable subtitles.
+     */
+    fun selectSubtitleLanguage(language: String?) {
+        if (!FeatureFlags.ENABLE_EXOPLAYER) return
+        runOnMainThread {
+            val paramsBuilder = trackSelector.buildUponParameters()
+            if (language.isNullOrBlank()) {
+                paramsBuilder.setRendererDisabled(C.TRACK_TYPE_TEXT, true)
+                paramsBuilder.setPreferredTextLanguage(null)
+            } else {
+                paramsBuilder.setRendererDisabled(C.TRACK_TYPE_TEXT, false)
+                paramsBuilder.setPreferredTextLanguage(language)
+            }
+            trackSelector.setParameters(paramsBuilder)
+        }
+    }
+
+    /**
+     * Select preferred audio language.
+     */
+    fun selectAudioLanguage(language: String?) {
+        if (!FeatureFlags.ENABLE_EXOPLAYER) return
+        runOnMainThread {
+            val paramsBuilder = trackSelector.buildUponParameters()
+            if (language.isNullOrBlank()) {
+                paramsBuilder.setPreferredAudioLanguage(null)
+            } else {
+                paramsBuilder.setPreferredAudioLanguage(language)
+            }
+            trackSelector.setParameters(paramsBuilder)
+        }
+    }
+
+    /**
+     * Set maximum video quality by vertical resolution (e.g., 720, 1080).
+     * Pass null to clear constraints (Auto).
+     */
+    fun setMaxVideoResolution(maxHeight: Int?) {
+        if (!FeatureFlags.ENABLE_EXOPLAYER) return
+        runOnMainThread {
+            val paramsBuilder = trackSelector.buildUponParameters()
+            if (maxHeight == null) {
+                paramsBuilder.clearVideoSizeConstraints()
+            } else {
+                paramsBuilder.setMaxVideoSize(Int.MAX_VALUE, maxHeight)
+            }
+            trackSelector.setParameters(paramsBuilder)
+        }
     }
 
     /**

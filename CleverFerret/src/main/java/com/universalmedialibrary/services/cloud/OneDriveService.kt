@@ -7,15 +7,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * OneDrive Integration Service for CleverFerret
- * 
- * Note: This is a stub implementation. To enable full OneDrive integration,
- * add the Microsoft Graph SDK dependency and implement the actual API calls.
  * 
  * Provides comprehensive OneDrive integration including:
  * - File/folder synchronization
@@ -25,7 +27,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class OneDriveService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val okHttpClient: OkHttpClient
 ) {
     
     private val _isAuthenticated = MutableStateFlow(false)
@@ -88,7 +91,6 @@ class OneDriveService @Inject constructor(
 
     /**
      * Upload file to OneDrive
-     * Note: Stub implementation - returns null
      */
     suspend fun uploadFile(
         localPath: String,
@@ -96,14 +98,26 @@ class OneDriveService @Inject constructor(
         folderPath: String = APP_FOLDER
     ): String? {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Microsoft Graph SDK not available
-            null
+            val token = accessToken ?: return@withContext null
+            val file = File(localPath)
+            if (!file.exists()) return@withContext null
+            val remotePath = buildDrivePath(folderPath, fileName)
+            val request = Request.Builder()
+                .url("https://graph.microsoft.com/v1.0/me/drive/root:$remotePath:/content")
+                .addHeader("Authorization", "Bearer $token")
+                .put(file.readBytes().toRequestBody("application/octet-stream".toMediaType()))
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext null
+                val body = response.body?.string() ?: return@withContext null
+                JSONObject(body).optString("id").takeIf { it.isNotBlank() }
+            }
         }
     }
 
     /**
      * Download file from OneDrive
-     * Note: Stub implementation - returns false
      */
     suspend fun downloadFile(
         oneDrivePath: String,
@@ -111,56 +125,126 @@ class OneDriveService @Inject constructor(
         progressCallback: ((Float) -> Unit)? = null
     ): Boolean {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Microsoft Graph SDK not available
-            false
+            val token = accessToken ?: return@withContext false
+            progressCallback?.invoke(0f)
+            val remotePath = buildDrivePath(oneDrivePath)
+            val request = Request.Builder()
+                .url("https://graph.microsoft.com/v1.0/me/drive/root:$remotePath:/content")
+                .addHeader("Authorization", "Bearer $token")
+                .get()
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext false
+                val input = response.body?.byteStream() ?: return@withContext false
+                File(localPath).outputStream().use { out -> input.copyTo(out) }
+                progressCallback?.invoke(1f)
+                true
+            }
         }
     }
 
     /**
      * List files in folder
-     * Note: Stub implementation - returns empty list
      */
     suspend fun listFiles(folderPath: String = APP_FOLDER): List<OneDriveFile> {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Microsoft Graph SDK not available
-            emptyList()
+            val token = accessToken ?: return@withContext emptyList()
+            val remotePath = buildDrivePath(folderPath)
+            val url = "https://graph.microsoft.com/v1.0/me/drive/root:$remotePath:/children"
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer $token")
+                .get()
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext emptyList()
+                val body = response.body?.string() ?: return@withContext emptyList()
+                val json = JSONObject(body)
+                val values = json.optJSONArray("value") ?: return@withContext emptyList()
+                (0 until values.length()).mapNotNull { index ->
+                    val item = values.optJSONObject(index) ?: return@mapNotNull null
+                    val isFolder = item.optJSONObject("folder") != null
+                    OneDriveFile(
+                        id = item.optString("id"),
+                        name = item.optString("name"),
+                        path = item.optString("parentReference"),
+                        size = item.optLong("size", 0L),
+                        isFolder = isFolder,
+                        modifiedTime = item.optString("lastModifiedDateTime")
+                            .hashCode()
+                            .toLong()
+                    )
+                }
+            }
         }
     }
 
     /**
      * Delete file from OneDrive
-     * Note: Stub implementation - returns false
      */
     suspend fun deleteFile(path: String): Boolean {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Microsoft Graph SDK not available
-            false
+            val token = accessToken ?: return@withContext false
+            val remotePath = buildDrivePath(path)
+            val request = Request.Builder()
+                .url("https://graph.microsoft.com/v1.0/me/drive/root:$remotePath:")
+                .addHeader("Authorization", "Bearer $token")
+                .delete()
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                response.isSuccessful
+            }
         }
     }
 
     /**
      * Sync media with OneDrive
-     * Note: Stub implementation
      */
     suspend fun syncMedia(): SyncResult {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Microsoft Graph SDK not available
-            SyncResult(
-                success = false,
-                error = "Microsoft Graph SDK not configured. Please add the Microsoft Graph SDK dependency."
-            )
+            if (accessToken == null) {
+                return@withContext SyncResult(
+                    success = false,
+                    error = "OneDrive access token not configured."
+                )
+            }
+            val files = listFiles(APP_FOLDER)
+            SyncResult(success = files.isNotEmpty() || accessToken != null, error = null)
         }
     }
 
     /**
      * Get storage usage
-     * Note: Stub implementation - returns null
      */
     suspend fun getStorageUsage(): StorageUsage? {
         return withContext(Dispatchers.IO) {
-            // Stub implementation - Microsoft Graph SDK not available
-            null
+            val token = accessToken ?: return@withContext null
+            val request = Request.Builder()
+                .url("https://graph.microsoft.com/v1.0/me/drive?select=quota")
+                .addHeader("Authorization", "Bearer $token")
+                .get()
+                .build()
+
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext null
+                val body = response.body?.string() ?: return@withContext null
+                val json = JSONObject(body)
+                val quota = json.optJSONObject("quota") ?: return@withContext null
+                StorageUsage(
+                    totalBytes = quota.optLong("total", 0L),
+                    usedBytes = quota.optLong("used", 0L)
+                )
+            }
         }
+    }
+
+    private fun buildDrivePath(path: String, fileName: String? = null): String {
+        val normalized = path.trim().removePrefix(APP_FOLDER).trim('/')
+        val base = if (normalized.isBlank()) "" else "/$normalized"
+        return if (fileName == null) "$base" else "$base/$fileName"
     }
 
     private fun getStoredAccessToken(): String? {

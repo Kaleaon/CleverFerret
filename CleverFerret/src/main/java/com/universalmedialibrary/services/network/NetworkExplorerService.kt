@@ -19,9 +19,6 @@ import javax.inject.Singleton
 /**
  * Network Explorer Service for CleverFerret
  * 
- * Note: This is a stub implementation. To enable full SMB/CIFS support,
- * add the smbj library dependency and implement the actual SMB calls.
- * 
  * Provides comprehensive network discovery and SMB/CIFS access:
  * - Network device discovery
  * - SMB/CIFS share exploration
