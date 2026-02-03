@@ -7,7 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.jsoup.Jsoup
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.net.URLEncoder
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,6 +34,11 @@ import javax.inject.Singleton
 class FanfictionMetadataService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    private val httpClient = OkHttpClient.Builder()
+        .connectTimeout(20, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+
     companion object {
         private const val TAG = "FanfictionMetadataService"
         
@@ -42,6 +50,7 @@ class FanfictionMetadataService @Inject constructor(
         // FFN URLs
         private const val FFN_BASE = "https://www.fanfiction.net"
         private const val FFN_STORY = "$FFN_BASE/s"
+        private const val FICHUB_API = "https://fichub.net/api/v0/epub"
         
         private const val USER_AGENT = "CleverFerret/1.0 (Android; Universal Media Library; Contact: cleverferret@example.com)"
         private const val TIMEOUT = 15000
@@ -69,6 +78,50 @@ class FanfictionMetadataService @Inject constructor(
         val AO3_CATEGORIES = listOf(
             "F/F", "F/M", "Gen", "M/M", "Multi", "Other"
         )
+    }
+
+    /**
+     * Fetch metadata via FicHub's API (useful for broad site coverage).
+     */
+    suspend fun fetchFromFicHub(storyUrl: String): FanfictionMetadata? = withContext(Dispatchers.IO) {
+        try {
+            val encoded = URLEncoder.encode(storyUrl, "UTF-8")
+            val request = Request.Builder()
+                .url("$FICHUB_API?q=$encoded")
+                .header("User-Agent", USER_AGENT)
+                .get()
+                .build()
+
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext null
+                val body = response.body?.string().orEmpty()
+                val json = JSONObject(body)
+                if (json.optInt("err", -1) != 0) return@withContext null
+
+                val meta = json.optJSONObject("meta")
+                val metadata = FanfictionMetadata()
+                metadata.title = meta?.optString("title")
+                metadata.author = meta?.optString("author")
+                metadata.summary = meta?.optString("description")
+                    ?.takeIf { it.isNotBlank() }
+                    ?: meta?.optString("summary")
+                metadata.language = meta?.optString("language")
+                metadata.rating = meta?.optString("rating")
+                metadata.genre = meta?.optString("genre")
+                metadata.wordCount = meta?.optInt("words")?.takeIf { it > 0 }
+                metadata.chapterInfo = meta?.optInt("chapters")?.takeIf { it > 0 }?.let { "$it/$it" }
+                metadata.fandoms = meta?.optJSONArray("fandoms")?.toStringList() ?: emptyList()
+                metadata.characters = meta?.optJSONArray("characters")?.toStringList() ?: emptyList()
+                metadata.publishedDate = meta?.optString("published")
+                metadata.updatedDate = meta?.optString("updated")
+                metadata.webLink = storyUrl
+                metadata.source = FanfictionSource.FICHUB
+                return@withContext metadata
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching FicHub metadata", e)
+        }
+        null
     }
     
     /**
@@ -392,7 +445,12 @@ class FanfictionMetadataService @Inject constructor(
                 metadata.source = FanfictionSource.AO3
             } else if (publisher?.contains("FanFiction.net", ignoreCase = true) == true) {
                 metadata.source = FanfictionSource.FFN
+            } else if (publisher?.contains("FicHub", ignoreCase = true) == true) {
+                metadata.source = FanfictionSource.FICHUB
             }
+
+            metadata.webLink = getOpfValue(document, "source")
+                ?: getOpfValue(document, "identifier")?.takeIf { it.startsWith("http") }
             
             // Subjects (tags)
             val subjects = getOpfValues(document, "subject")
@@ -530,6 +588,7 @@ class FanfictionMetadataService @Inject constructor(
         val online = when {
             embedded?.ao3WorkId != null -> fetchFromAO3(embedded.ao3WorkId!!)
             embedded?.ffnStoryId != null -> fetchFromFFN(embedded.ffnStoryId!!)
+            !embedded?.webLink.isNullOrBlank() -> fetchFromFicHub(embedded?.webLink!!)
             else -> null
         }
         
@@ -637,6 +696,13 @@ enum class FanfictionSource {
     AO3,
     FFN,
     WATTPAD,
+    FICHUB,
     LOCAL,
     UNKNOWN
+}
+
+private fun org.json.JSONArray?.toStringList(): List<String> {
+    val array = this ?: return emptyList()
+    return (0 until array.length())
+        .mapNotNull { idx -> array.optString(idx).takeIf { it.isNotBlank() } }
 }
