@@ -17,12 +17,14 @@ import com.universalmedialibrary.services.reader.ReaderType
 import com.universalmedialibrary.services.reader.ComicReaderEngine
 import com.universalmedialibrary.services.reader.core.BookSource
 import com.universalmedialibrary.services.webfiction.WebFictionService
+import com.universalmedialibrary.services.epub.EpubReaderService
 import com.universalmedialibrary.ui.media.player.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.io.File
+import org.jsoup.Jsoup
 import javax.inject.Inject
 
 private const val TAG = "ReaderViewModel"
@@ -48,6 +50,7 @@ class ReaderViewModel @Inject constructor(
     private val bookmarkRepository: BookmarkRepository,
     private val webFictionRepository: WebFictionRepository,
     private val unifiedReaderService: UnifiedReaderService,
+    private val epubReaderService: EpubReaderService,
     private val comicReaderEngine: ComicReaderEngine,
     private val webFictionService: WebFictionService
 ) : ViewModel() {
@@ -65,6 +68,9 @@ class ReaderViewModel @Inject constructor(
         currentChapterIndex = 0
     ))
     val uiState: StateFlow<ReaderState> = _uiState.asStateFlow()
+
+    private var chapterContents: List<ReaderContent> = emptyList()
+    private var textPages: List<ReaderContent> = emptyList()
     
     init {
         loadContent()
@@ -148,13 +154,43 @@ class ReaderViewModel @Inject constructor(
             
             // Load actual content from the file using UnifiedReaderService
             try {
+                chapterContents = emptyList()
+                textPages = emptyList()
                 val readerType = unifiedReaderService.openPublication(book.filePath)
                 
                 when (readerType) {
                     is ReaderType.Epub -> {
                         // Extract TOC and content from EPUB
-                        val tocItems = readerType.service.extractToc(book.filePath)
-                        val chapters = tocItems.mapIndexed { index, item ->
+                        val epubLoaded = epubReaderService.loadEPUB(File(book.filePath))
+                        if (!epubLoaded) {
+                            _uiState.update {
+                                it.copy(
+                                    currentContent = ReaderContent(text = "Failed to load EPUB content."),
+                                    chapters = emptyList()
+                                )
+                            }
+                            return
+                        }
+                        val epubState = epubReaderService.readerState.value
+                        val fallbackToc = readerType.service.extractToc(book.filePath)
+                        val chapterList = epubState.chapters.ifEmpty {
+                            fallbackToc.mapIndexed { index, item ->
+                                com.universalmedialibrary.services.epub.EpubChapter(
+                                    index = index,
+                                    title = item.title,
+                                    content = "",
+                                    resourceId = "toc_$index"
+                                )
+                            }
+                        }
+
+                        chapterContents = chapterList.map { chapter ->
+                            val html = chapter.content
+                            val text = if (html.isNotBlank()) Jsoup.parse(html).text().trim() else chapter.title
+                            ReaderContent(text = text, htmlContent = html.ifBlank { null })
+                        }
+
+                        val chapters = chapterList.mapIndexed { index, item ->
                             ChapterInfo(
                                 id = "chapter_$index",
                                 title = item.title,
@@ -162,15 +198,14 @@ class ReaderViewModel @Inject constructor(
                                 endPage = index + 1,
                                 progress = 0f
                             )
-                        }.ifEmpty { generateChaptersFromPageCount(10) } // Default if TOC empty
-                        
+                        }.ifEmpty { generateChaptersFromPageCount(10) }
+
+                        val initialContent = chapterContents.firstOrNull() ?: ReaderContent(text = "No EPUB content found.")
+
                         _uiState.update {
                             it.copy(
                                 totalPages = chapters.size.coerceAtLeast(1),
-                                currentContent = ReaderContent(
-                                    text = "EPUB loaded successfully",
-                                    htmlContent = null // Content will be rendered by WebView
-                                ),
+                                currentContent = initialContent,
                                 chapters = chapters
                             )
                         }
@@ -190,14 +225,22 @@ class ReaderViewModel @Inject constructor(
                     }
                     is ReaderType.Text -> {
                         val content = readerType.content
-                        val estimatedPages = (content.length / 2000).coerceAtLeast(1)
+                        val isHtml = content.contains("<html", ignoreCase = true) || content.contains("<body", ignoreCase = true)
+                        textPages = if (isHtml) {
+                            listOf(
+                                ReaderContent(
+                                    text = Jsoup.parse(content).text().trim(),
+                                    htmlContent = content
+                                )
+                            )
+                        } else {
+                            paginateText(content).map { page -> ReaderContent(text = page) }
+                        }
+                        val estimatedPages = textPages.size.coerceAtLeast(1)
                         _uiState.update {
                             it.copy(
                                 totalPages = estimatedPages,
-                                currentContent = ReaderContent(
-                                    text = content,
-                                    htmlContent = if (content.contains("<")) content else null
-                                ),
+                                currentContent = textPages.firstOrNull() ?: ReaderContent(text = content),
                                 chapters = generateChaptersFromPageCount(estimatedPages)
                             )
                         }
@@ -532,11 +575,18 @@ class ReaderViewModel @Inject constructor(
             _uiState.update { state ->
                 val newChapterIndex = state.chapters.indexOfLast { it.startPage <= page }
                     .coerceAtLeast(0)
+
+                val updatedContent = when {
+                    chapterContents.isNotEmpty() -> chapterContents.getOrNull(page - 1) ?: state.currentContent
+                    textPages.isNotEmpty() -> textPages.getOrNull(page - 1) ?: state.currentContent
+                    else -> state.currentContent
+                }
                 
                 state.copy(
                     currentPage = page,
                     currentChapterIndex = newChapterIndex,
                     currentChapter = state.chapters.getOrNull(newChapterIndex),
+                    currentContent = updatedContent,
                     overallProgress = page.toFloat() / state.totalPages,
                     isCurrentPageBookmarked = state.bookmarks.any { it.page == page }
                 )
@@ -618,6 +668,17 @@ class ReaderViewModel @Inject constructor(
     
     fun toggleTts() {
         _uiState.update { it.copy(isTtsActive = !it.isTtsActive) }
+    }
+
+    private fun paginateText(content: String, wordsPerPage: Int = 300): List<String> {
+        val words = content.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        if (words.isEmpty()) return listOf("")
+        val pages = mutableListOf<String>()
+        for (i in words.indices step wordsPerPage) {
+            val endIndex = (i + wordsPerPage).coerceAtMost(words.size)
+            pages.add(words.subList(i, endIndex).joinToString(" "))
+        }
+        return pages
     }
     
     fun updateTheme(theme: ReaderTheme) {

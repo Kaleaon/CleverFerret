@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -44,6 +46,7 @@ import coil.request.ImageRequest
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.viewer.common.ComicSettings
+import com.universalmedialibrary.ui.viewer.common.FitMode
 import com.universalmedialibrary.ui.viewer.common.ReadingDirection
 import com.universalmedialibrary.ui.viewer.common.ReadingMode
 import com.universalmedialibrary.ui.viewer.common.ViewerSettings
@@ -764,9 +767,88 @@ private fun ComicReaderSettingsSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Reading Mode", style = MaterialTheme.typography.titleMedium)
-            // Add basic settings UI - stub implementation
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                ReadingMode.values().forEach { mode ->
+                    FilterChip(
+                        selected = comicSettings.readingMode == mode,
+                        onClick = { onComicSettingsChanged(comicSettings.copy(readingMode = mode)) },
+                        label = { Text(mode.name.replace("_", " ")) }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Reading Direction", style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                ReadingDirection.values().forEach { direction ->
+                    FilterChip(
+                        selected = comicSettings.readingDirection == direction,
+                        onClick = { onComicSettingsChanged(comicSettings.copy(readingDirection = direction)) },
+                        label = { Text(direction.name.replace("_", " ")) }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Fit Mode", style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                FitMode.values().forEach { mode ->
+                    FilterChip(
+                        selected = comicSettings.fitMode == mode,
+                        onClick = { onComicSettingsChanged(comicSettings.copy(fitMode = mode)) },
+                        label = { Text(mode.name.replace("_", " ")) }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Zoom Limit: ${String.format("%.1f", comicSettings.maxZoom)}x", style = MaterialTheme.typography.titleMedium)
+            Slider(
+                value = comicSettings.maxZoom,
+                onValueChange = { onComicSettingsChanged(comicSettings.copy(maxZoom = it)) },
+                valueRange = 1.5f..6f,
+                steps = 9
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Reader Comfort", style = MaterialTheme.typography.titleMedium)
+            SettingToggleRow(
+                title = "Night Mode",
+                checked = settings.nightMode,
+                onCheckedChange = { onSettingsChanged(settings.copy(nightMode = it)) }
+            )
+            SettingToggleRow(
+                title = "Blue Light Filter",
+                checked = settings.blueLightFilter,
+                onCheckedChange = { onSettingsChanged(settings.copy(blueLightFilter = it)) }
+            )
+            SettingToggleRow(
+                title = "Keep Screen On",
+                checked = settings.keepScreenOn,
+                onCheckedChange = { onSettingsChanged(settings.copy(keepScreenOn = it)) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Panel Navigation", style = MaterialTheme.typography.titleMedium)
+            SettingToggleRow(
+                title = "Panel Detection",
+                checked = comicSettings.panelDetection,
+                onCheckedChange = { onComicSettingsChanged(comicSettings.copy(panelDetection = it)) }
+            )
+            SettingToggleRow(
+                title = "Panel-by-Panel Mode",
+                checked = comicSettings.panelByPanelMode,
+                onCheckedChange = { onComicSettingsChanged(comicSettings.copy(panelByPanelMode = it)) }
+            )
+            SettingToggleRow(
+                title = "Show Panel Borders",
+                checked = comicSettings.showPanelBorders,
+                onCheckedChange = { onComicSettingsChanged(comicSettings.copy(showPanelBorders = it)) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
-                Text("Close")
+                Text("Done")
             }
         }
     }
@@ -791,23 +873,95 @@ private fun PanelBrowserSheet(
             Text("Panel Browser", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Add thumbnail grid - stub implementation
-            LazyColumn {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                contentPadding = PaddingValues(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxHeight()
+            ) {
                 items(pages.size) { index ->
+                    val pageNumber = index + 1
+                    val panelCount = panels[pageNumber]?.size ?: 0
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
-                            .clickable { onPageSelected(index + 1) }
-                    ) {
-                        Text(
-                            "Page ${index + 1}",
-                            modifier = Modifier.padding(16.dp),
-                            style = MaterialTheme.typography.bodyLarge
+                            .clickable { onPageSelected(pageNumber) },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (pageNumber == currentPage) {
+                                MaterialTheme.colorScheme.primaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surface
+                            }
                         )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            AsyncImage(
+                                model = pages[index],
+                                contentDescription = "Page $pageNumber",
+                                modifier = Modifier
+                                    .height(120.dp)
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Page $pageNumber",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                            if (panelCount > 0) {
+                                Text(
+                                    "$panelCount panels",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier.padding(top = 4.dp)
+                                ) {
+                                    panels[pageNumber]?.take(3)?.forEachIndexed { panelIndex, _ ->
+                                        AssistChip(
+                                            onClick = { onPanelSelected(pageNumber, panelIndex) },
+                                            label = { Text("#${panelIndex + 1}") }
+                                        )
+                                    }
+                                    if (panelCount > 3) {
+                                        AssistChip(
+                                            onClick = { onPageSelected(pageNumber) },
+                                            label = { Text("+${panelCount - 3}") }
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SettingToggleRow(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(title, style = MaterialTheme.typography.bodyLarge)
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }

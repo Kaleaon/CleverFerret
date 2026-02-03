@@ -61,10 +61,12 @@ class AudioPlaybackManager @Inject constructor(
 
     private val queue: MutableList<MediaItem> = mutableListOf()
     private val scrobblerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val historyLock = Any()
     private var currentHistoryCandidate: HistoryCandidate? = null
     private var sleepTimerJob: Job? = null
     private var cachedPreferences: AudioPlaybackPreferences = AudioPlaybackPreferences()
+    private var crossfadeJob: Job? = null
 
     val exoPlayer: ExoPlayer by lazy {
         val renderersFactory = DefaultRenderersFactory(context)
@@ -110,9 +112,10 @@ class AudioPlaybackManager @Inject constructor(
                                 album = meta.albumTitle?.toString()
                             )
                         }
-                          scheduleHistoryCandidate(mediaItem)
+                        scheduleHistoryCandidate(mediaItem)
                           publishQueue()
                         updateState(duration = duration)
+                        maybeStartCrossfadeFadeIn()
                     }
                     override fun onRepeatModeChanged(repeatMode: Int) {
                         updateState(repeatMode = when (repeatMode) {
@@ -313,11 +316,31 @@ class AudioPlaybackManager @Inject constructor(
 
     private fun applyCrossfade(enabled: Boolean, durationMs: Int, persist: Boolean) {
         val appliedDuration = if (enabled) durationMs.coerceIn(0, MAX_CROSSFADE_MS) else 0
-        // TODO: Implement crossfade support when available in ExoPlayer API
-        // exoPlayer.setCrossFadeDurationMs(appliedDuration.toLong())
+        if (!enabled) {
+            crossfadeJob?.cancel()
+            exoPlayer.volume = _state.value.volume
+        }
         updateState(crossfadeDurationMs = appliedDuration)
         if (persist) {
             scrobblerScope.launch { audioPreferences.setCrossfade(enabled, appliedDuration) }
+        }
+    }
+
+    private fun maybeStartCrossfadeFadeIn() {
+        val duration = _state.value.crossfadeDurationMs
+        if (duration <= 0) return
+        val targetVolume = _state.value.volume.coerceIn(0f, 1f)
+        crossfadeJob?.cancel()
+        crossfadeJob = mainScope.launch {
+            exoPlayer.volume = 0f
+            val steps = 20
+            val stepDelay = (duration / steps).coerceAtLeast(10)
+            for (i in 1..steps) {
+                val fraction = i.toFloat() / steps.toFloat()
+                exoPlayer.volume = targetVolume * fraction
+                delay(stepDelay.toLong())
+            }
+            exoPlayer.volume = targetVolume
         }
     }
 

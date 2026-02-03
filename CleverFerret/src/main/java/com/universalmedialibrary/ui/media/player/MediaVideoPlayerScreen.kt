@@ -1116,5 +1116,6 @@ data class EpisodeInfo(
     val title: String,
     val duration: String,
     val thumbnailUrl: String?,
+    val mediaPath: String? = null,
     val progress: Float = 0f
 )

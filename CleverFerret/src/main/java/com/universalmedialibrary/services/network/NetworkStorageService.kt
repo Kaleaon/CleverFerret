@@ -2,11 +2,15 @@ package com.universalmedialibrary.services.network
 
 import android.content.Context
 import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject
@@ -16,8 +20,8 @@ import javax.inject.Singleton
  * Network Storage Service for SMB/CIFS file access
  * Supports Windows shares, NAS devices, and Samba servers
  * 
- * Note: This is a stub implementation. To enable full SMB/CIFS support,
- * add the jcifs-ng library dependency and implement the actual SMB calls.
+ * Note: SMB/CIFS support requires jcifs-ng (not bundled). Local file and SAF
+ * content URIs are supported as a fallback.
  */
 @Singleton
 class NetworkStorageService @Inject constructor(
@@ -51,9 +55,40 @@ class NetworkStorageService @Inject constructor(
                 IllegalStateException("SMB context not initialized")
             )
         }
-        
-        // Stub: Return empty list - implement with jcifs-ng for real SMB access
-        Result.success(emptyList())
+        val uri = Uri.parse(smbUrl)
+        when (uri.scheme) {
+            "file" -> {
+                val root = File(uri.path ?: return@withContext Result.success(emptyList()))
+                if (!root.exists()) return@withContext Result.success(emptyList())
+                val files = root.listFiles().orEmpty().map { file ->
+                    StorageNetworkFile(
+                        name = file.name,
+                        path = file.absolutePath,
+                        smbUrl = file.toURI().toString(),
+                        isDirectory = file.isDirectory,
+                        size = file.length(),
+                        lastModified = file.lastModified()
+                    )
+                }
+                Result.success(files)
+            }
+            "content" -> {
+                val documentFile = DocumentFile.fromTreeUri(context, uri)
+                val children = documentFile?.listFiles().orEmpty()
+                val files = children.map { doc ->
+                    StorageNetworkFile(
+                        name = doc.name.orEmpty(),
+                        path = doc.uri.toString(),
+                        smbUrl = doc.uri.toString(),
+                        isDirectory = doc.isDirectory,
+                        size = doc.length(),
+                        lastModified = doc.lastModified()
+                    )
+                }
+                Result.success(files)
+            }
+            else -> Result.failure(IllegalStateException("Unsupported SMB scheme: ${uri.scheme}"))
+        }
     }
 
     /**
@@ -66,9 +101,20 @@ class NetworkStorageService @Inject constructor(
                 IllegalStateException("SMB context not initialized")
             )
         }
-        
-        // Stub: Return empty stream - implement with jcifs-ng for real SMB access
-        Result.success(ByteArrayInputStream(ByteArray(0)))
+        val uri = Uri.parse(smbUrl)
+        when (uri.scheme) {
+            "file" -> {
+                val file = File(uri.path ?: return@withContext Result.failure(IllegalArgumentException("Invalid file URI")))
+                if (!file.exists()) return@withContext Result.failure(IllegalArgumentException("File not found"))
+                Result.success(FileInputStream(file))
+            }
+            "content" -> {
+                val stream = context.contentResolver.openInputStream(uri)
+                    ?: return@withContext Result.failure(IllegalArgumentException("Unable to open content URI"))
+                Result.success(stream)
+            }
+            else -> Result.failure(IllegalStateException("Unsupported SMB scheme: ${uri.scheme}"))
+        }
     }
 
     /**
@@ -81,9 +127,19 @@ class NetworkStorageService @Inject constructor(
                 IllegalStateException("SMB context not initialized")
             )
         }
-        
-        // Stub: Return memory stream - implement with jcifs-ng for real SMB access
-        Result.success(ByteArrayOutputStream())
+        val uri = Uri.parse(smbUrl)
+        when (uri.scheme) {
+            "file" -> {
+                val file = File(uri.path ?: return@withContext Result.failure(IllegalArgumentException("Invalid file URI")))
+                Result.success(FileOutputStream(file))
+            }
+            "content" -> {
+                val stream = context.contentResolver.openOutputStream(uri)
+                    ?: return@withContext Result.failure(IllegalArgumentException("Unable to open content URI"))
+                Result.success(stream)
+            }
+            else -> Result.failure(IllegalStateException("Unsupported SMB scheme: ${uri.scheme}"))
+        }
     }
 
     /**

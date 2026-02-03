@@ -29,6 +29,9 @@ import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import kotlinx.coroutines.launch
+import com.universalmedialibrary.ui.reader.DocumentReaderScreen
+import com.universalmedialibrary.ui.reader.EPUBReaderScreen
+import java.io.File
 
 /**
  * Main Navigation Routes for Clean media-centric CleverFerret
@@ -1483,39 +1486,21 @@ fun MediaAppNavHost(
         
         composable("epub_reader/{path}") { backStackEntry ->
             val path = backStackEntry.arguments?.getString("path") ?: ""
-            val viewModel: ReaderViewModel = hiltViewModel()
-            val state by viewModel.uiState.collectAsState()
-            
-            MediaReaderScreen(
-                state = state,
-                onPageChange = { viewModel.goToPage(it) },
-                onChapterChange = { viewModel.goToChapter(it) },
-                onBookmarkToggle = { viewModel.toggleBookmark() },
-                onTocOpen = { },
-                onSettingsOpen = { },
-                onSearch = { },
-                onClose = { navController.popBackStack() },
-                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
-                onTtsToggle = { viewModel.toggleTts() }
+            EPUBReaderScreen(
+                navController = navController,
+                bookUri = path
             )
         }
         
         composable("pdf_reader/{path}") { backStackEntry ->
             val path = backStackEntry.arguments?.getString("path") ?: ""
-            val viewModel: ReaderViewModel = hiltViewModel()
-            val state by viewModel.uiState.collectAsState()
-            
-            MediaReaderScreen(
-                state = state,
-                onPageChange = { viewModel.goToPage(it) },
-                onChapterChange = { viewModel.goToChapter(it) },
-                onBookmarkToggle = { viewModel.toggleBookmark() },
-                onTocOpen = { },
-                onSettingsOpen = { },
-                onSearch = { },
-                onClose = { navController.popBackStack() },
-                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
-                onTtsToggle = { viewModel.toggleTts() }
+            val decodedPath = remember(path) { Uri.decode(path) }
+            val fileName = remember(decodedPath) { File(decodedPath).name }
+
+            DocumentReaderScreen(
+                uriString = decodedPath,
+                fileName = fileName,
+                onBack = { navController.popBackStack() }
             )
         }
         

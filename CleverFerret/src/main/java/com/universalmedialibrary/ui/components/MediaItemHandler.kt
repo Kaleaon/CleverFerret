@@ -34,7 +34,7 @@ object MediaItemHandler {
                 when (extension) {
                     "epub" -> navController.navigate("epub_reader/$encodedPath")
                     "pdf" -> navController.navigate("pdf_reader/$encodedPath")
-                    else -> navController.navigate("epub_reader/$encodedPath") // Default to EPUB reader
+                    else -> navController.navigate("reader/book/${mediaItem.itemId}")
                 }
             }
             MediaType.MUSIC, MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM, MediaType.AUDIOBOOK -> {

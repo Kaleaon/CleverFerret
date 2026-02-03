@@ -8,6 +8,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.dao.RadioStationDao
+import com.universalmedialibrary.data.local.entity.RadioStation as DbRadioStation
 import com.universalmedialibrary.services.radio.RadioBrowserService
 import com.universalmedialibrary.services.radio.FMRadioService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
@@ -35,7 +37,8 @@ class EnhancedRadioViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val radioBrowserService: RadioBrowserService,
     private val fmRadioService: FMRadioService,
-    private val exoPlayerService: ExoPlayerService
+    private val exoPlayerService: ExoPlayerService,
+    private val radioStationDao: RadioStationDao
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(EnhancedRadioState())
@@ -46,11 +49,35 @@ class EnhancedRadioViewModel @Inject constructor(
     
     private val _hdState = MutableStateFlow(HDRadioState())
     val hdState: StateFlow<HDRadioState> = _hdState.asStateFlow()
+
+    private val favoriteStreamUrls = MutableStateFlow<Set<String>>(emptySet())
     
     init {
         loadCategories()
         loadPopularStations()
         observeFMRadioState()
+        observeFavorites()
+    }
+
+    private fun observeFavorites() {
+        viewModelScope.launch {
+            radioStationDao.getFavoriteStations().collect { favorites ->
+                val favoriteUrls = favorites.mapNotNull { it.streamUrl }.toSet()
+                favoriteStreamUrls.value = favoriteUrls
+                _uiState.update { state ->
+                    state.copy(
+                        favoriteStations = favorites.mapNotNull { it.toUiStation() },
+                        popularStations = applyFavorites(state.popularStations, favoriteUrls),
+                        recentlyPlayed = applyFavorites(state.recentlyPlayed, favoriteUrls),
+                        searchResults = applyFavorites(state.searchResults, favoriteUrls),
+                        categoryStations = applyFavorites(state.categoryStations, favoriteUrls),
+                        nowPlaying = state.nowPlaying?.let { now ->
+                            now.copy(isFavorite = favoriteUrls.contains(now.streamUrl))
+                        }
+                    )
+                }
+            }
+        }
     }
     
     /**
@@ -128,9 +155,10 @@ class EnhancedRadioViewModel @Inject constructor(
                         isFavorite = false
                     )
                 }
-                _uiState.update { 
+                val favorites = favoriteStreamUrls.value
+                _uiState.update {
                     it.copy(
-                        popularStations = uiStations,
+                        popularStations = applyFavorites(uiStations, favorites),
                         isLoading = false,
                         error = null
                     )
@@ -438,13 +466,23 @@ class EnhancedRadioViewModel @Inject constructor(
     
     fun toggleFavorite(station: RadioStation) {
         viewModelScope.launch {
-            val updatedFavorites = if (station.isFavorite) {
-                _uiState.value.favoriteStations.filter { it.id != station.id }
+            val existing = radioStationDao.getStationByStreamUrl(station.streamUrl)
+            if (existing == null) {
+                val newStation = DbRadioStation(
+                    name = station.name,
+                    streamUrl = station.streamUrl,
+                    logoUrl = station.logoUrl,
+                    genre = station.genre,
+                    country = station.country,
+                    bitrate = station.bitrate,
+                    isFavorite = true
+                )
+                radioStationDao.insertStation(newStation)
             } else {
-                _uiState.value.favoriteStations + station.copy(isFavorite = true)
+                radioStationDao.updateStation(
+                    existing.copy(isFavorite = !existing.isFavorite)
+                )
             }
-            _uiState.update { it.copy(favoriteStations = updatedFavorites) }
-            // TODO: Persist favorites to database
         }
     }
     
@@ -461,8 +499,18 @@ class EnhancedRadioViewModel @Inject constructor(
                 genre = "FM Radio",
                 isFavorite = true
             )
-            _uiState.update { 
-                it.copy(favoriteStations = it.favoriteStations + station)
+            val existing = radioStationDao.getStationByStreamUrl(station.streamUrl)
+            if (existing == null) {
+                val newStation = DbRadioStation(
+                    name = station.name,
+                    streamUrl = station.streamUrl,
+                    logoUrl = station.logoUrl,
+                    genre = station.genre,
+                    isFavorite = true
+                )
+                radioStationDao.insertStation(newStation)
+            } else {
+                radioStationDao.updateStation(existing.copy(isFavorite = true))
             }
         }
     }
@@ -474,6 +522,47 @@ class EnhancedRadioViewModel @Inject constructor(
         // in other screens. The service manages its own lifecycle.
         fmRadioService.stop()
     }
+
+    private fun applyFavorites(
+        stations: List<RadioStation>,
+        favorites: Set<String>
+    ): List<RadioStation> {
+        return stations.map { station ->
+            station.copy(isFavorite = favorites.contains(station.streamUrl))
+        }
+    }
+}
+
+private fun getGenreColor(genre: String?): Color {
+    val key = genre?.lowercase().orEmpty()
+    return when {
+        "rock" in key -> Color(0xFF9C27B0)
+        "jazz" in key -> Color(0xFF3F51B5)
+        "classical" in key -> Color(0xFF795548)
+        "news" in key -> Color(0xFF607D8B)
+        "sports" in key -> Color(0xFF4CAF50)
+        "talk" in key -> Color(0xFFFF9800)
+        "country" in key -> Color(0xFFCDDC39)
+        "electronic" in key -> Color(0xFF00BCD4)
+        "hip" in key -> Color(0xFFF44336)
+        "pop" in key -> Color(0xFFE91E63)
+        else -> Color(0xFF607D8B)
+    }
+}
+
+private fun DbRadioStation.toUiStation(): RadioStation? {
+    val stream = streamUrl ?: return null
+    return RadioStation(
+        id = id.toString(),
+        name = name,
+        logoUrl = logoUrl,
+        streamUrl = stream,
+        genre = genre ?: "Various",
+        genreColor = getGenreColor(genre),
+        country = country,
+        bitrate = bitrate,
+        isFavorite = isFavorite
+    )
 }
 
 // =============================================================================

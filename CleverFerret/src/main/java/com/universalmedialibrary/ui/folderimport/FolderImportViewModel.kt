@@ -6,6 +6,11 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.repository.LibraryRepository
+import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.metadata.AudioMetadataService
 import com.universalmedialibrary.services.metadata.BookMetadataService
 import com.universalmedialibrary.services.metadata.ComicMetadataService
@@ -25,7 +30,9 @@ class FolderImportViewModel @Inject constructor(
     private val bookMetadataService: BookMetadataService,
     private val audioMetadataService: AudioMetadataService,
     private val comicMetadataService: ComicMetadataService,
-    private val fanfictionMetadataService: FanfictionMetadataService
+    private val fanfictionMetadataService: FanfictionMetadataService,
+    private val mediaRepository: MediaRepository,
+    private val libraryRepository: LibraryRepository
 ) : ViewModel() {
     
     companion object {
@@ -54,6 +61,8 @@ class FolderImportViewModel @Inject constructor(
     
     private val _uiState = MutableStateFlow(FolderImportUiState())
     val uiState: StateFlow<FolderImportUiState> = _uiState.asStateFlow()
+
+    private val importLibraryCache = mutableMapOf<ScannedFileType, Library>()
     
     fun scanFolder(context: Context, folderUri: Uri) {
         viewModelScope.launch {
@@ -523,16 +532,7 @@ class FolderImportViewModel @Inject constructor(
                         _uiState.update { it.copy(isFetchingMetadata = false) }
                     }
                     
-                    // TODO: Actually import file to library database
-                    // This would involve:
-                    // 1. Copying file to app's media directory (if needed)
-                    // 2. Creating database entry with metadata
-                    // 3. Downloading cover image if available
-                    // 4. Auto-sorting into appropriate category
-                    
-                    // Simulate import delay for now
-                    kotlinx.coroutines.delay(100)
-                    
+                    importFileToLibrary(context, file)
                     Log.d(TAG, "Imported: ${file.name} (${file.type})")
                 } catch (e: Exception) {
                     Log.e(TAG, "Error importing ${file.name}", e)
@@ -556,6 +556,98 @@ class FolderImportViewModel @Inject constructor(
             extension in VIDEO_EXTENSIONS -> ScannedFileType.VIDEO
             extension in DOCUMENT_EXTENSIONS -> ScannedFileType.DOCUMENT
             else -> ScannedFileType.OTHER
+        }
+    }
+
+    private suspend fun importFileToLibrary(context: Context, file: ScannedFile) {
+        val uri = Uri.parse(file.uri)
+        val document = DocumentFile.fromSingleUri(context, uri)
+        val fileName = document?.name ?: file.name
+        val fileExtension = fileName.substringAfterLast('.', "").lowercase()
+        val fileSize = document?.length() ?: 0L
+        val lastModified = document?.lastModified() ?: 0L
+
+        val library = getOrCreateImportLibrary(file.type)
+        val existing = mediaRepository.getMediaItemByPath(file.uri)
+        if (existing != null) return
+
+        val mediaItem = MediaItem(
+            libraryId = library.libraryId,
+            filePath = file.uri,
+            fileName = fileName,
+            fileExtension = fileExtension,
+            fileSize = fileSize,
+            lastModified = lastModified,
+            mediaType = mapMediaType(file.type),
+            hasMetadata = file.metadata != null
+        )
+
+        val itemId = mediaRepository.createMediaItem(mediaItem)
+        val metadata = file.metadata
+        if (metadata != null) {
+            val common = MetadataCommon(
+                itemId = itemId,
+                title = metadata.title ?: fileName.substringBeforeLast('.'),
+                summary = metadata.description,
+                metadataSource = "Folder Import"
+            )
+            mediaRepository.saveCommonMetadata(common)
+        }
+    }
+
+    private suspend fun getOrCreateImportLibrary(type: ScannedFileType): Library {
+        return importLibraryCache[type] ?: run {
+            val typeLabel = when (type) {
+                ScannedFileType.BOOK -> "Books"
+                ScannedFileType.COMIC -> "Comics"
+                ScannedFileType.AUDIOBOOK -> "Audiobooks"
+                ScannedFileType.MUSIC -> "Music"
+                ScannedFileType.PODCAST -> "Podcasts"
+                ScannedFileType.VIDEO -> "Videos"
+                ScannedFileType.DOCUMENT -> "Documents"
+                ScannedFileType.FANFICTION -> "Fanfiction"
+                else -> "Misc"
+            }
+            val path = "import://${type.name.lowercase()}"
+            val existing = libraryRepository.getLibraryByPath(path)
+            val library = existing ?: run {
+                val createdId = libraryRepository.createLibrary(
+                    Library(
+                        name = "Imported $typeLabel",
+                        type = mapLibraryType(type),
+                        path = path
+                    )
+                )
+                libraryRepository.getLibraryById(createdId)!!
+            }
+            importLibraryCache[type] = library
+            library
+        }
+    }
+
+    private fun mapLibraryType(type: ScannedFileType): String {
+        return when (type) {
+            ScannedFileType.BOOK, ScannedFileType.FANFICTION -> "BOOK"
+            ScannedFileType.COMIC -> "COMIC"
+            ScannedFileType.AUDIOBOOK -> "AUDIOBOOK"
+            ScannedFileType.MUSIC -> "MUSIC"
+            ScannedFileType.PODCAST -> "PODCAST"
+            ScannedFileType.VIDEO -> "MOVIE"
+            ScannedFileType.DOCUMENT -> "DOCUMENT"
+            else -> "UNKNOWN"
+        }
+    }
+
+    private fun mapMediaType(type: ScannedFileType): String {
+        return when (type) {
+            ScannedFileType.BOOK, ScannedFileType.FANFICTION -> "BOOK"
+            ScannedFileType.COMIC -> "COMIC"
+            ScannedFileType.AUDIOBOOK -> "AUDIOBOOK"
+            ScannedFileType.MUSIC -> "MUSIC_TRACK"
+            ScannedFileType.PODCAST -> "PODCAST_EPISODE"
+            ScannedFileType.VIDEO -> "MOVIE"
+            ScannedFileType.DOCUMENT -> "DOCUMENT"
+            else -> "UNKNOWN"
         }
     }
     

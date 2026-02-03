@@ -342,17 +342,17 @@ class VideoPlayerViewModel @Inject constructor(
     }
     
     fun setSubtitle(track: SubtitleTrack?) {
-        // TODO: Wire to ExoPlayerService when subtitle support is implemented
+        exoPlayerService.selectSubtitleLanguage(track?.language)
         _uiState.update { it.copy(currentSubtitle = track) }
     }
     
     fun setAudioTrack(track: AudioTrack) {
-        // TODO: Wire to ExoPlayerService when audio track selection is implemented
+        exoPlayerService.selectAudioLanguage(track.language)
         _uiState.update { it.copy(currentAudioTrack = track) }
     }
     
     fun setQuality(quality: VideoQuality) {
-        // TODO: Wire to ExoPlayerService when quality selection is implemented
+        exoPlayerService.setMaxVideoResolution(quality.resolution)
         _uiState.update { it.copy(currentQuality = quality) }
     }
     
@@ -366,9 +366,10 @@ class VideoPlayerViewModel @Inject constructor(
             )
         }
         
-        // Note: Episode playback would typically need to look up the episode's
-        // media file from a repository. For now, we update the UI state.
-        // TODO: Load actual episode media file when episode data includes file path
+        episode.mediaPath?.let { path ->
+            exoPlayerService.loadMedia(path)
+            exoPlayerService.play()
+        }
     }
     
     override fun onCleared() {

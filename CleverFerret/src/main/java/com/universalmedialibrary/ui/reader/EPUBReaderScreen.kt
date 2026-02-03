@@ -1,6 +1,5 @@
 package com.universalmedialibrary.ui.reader
 
-import android.net.Uri
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
@@ -13,14 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-// import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,33 +28,17 @@ import androidx.compose.foundation.lazy.itemsIndexed
 @Composable
 fun EPUBReaderScreen(
     navController: NavController,
-    bookUri: String
-    // viewModel: EPUBReaderViewModel = hiltViewModel()  // Temporarily disabled
+    bookUri: String,
+    viewModel: EPUBReaderViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    // Local reader state (standalone, no ViewModel dependency)
-    var readerState by remember {
-        mutableStateOf(
-            EpubReaderState(
-                bookTitle = "",
-                bookAuthor = "",
-                isLoaded = false,
-                isBookmarked = false,
-                currentChapter = 0,
-                totalChapters = 0,
-                error = null,
-                currentContent = "",
-                chapters = emptyList()
-            )
-        )
-    }
+    val readerState by viewModel.uiState.collectAsState()
     var uiSettings by remember { mutableStateOf(ReaderSettings()) }
-    val scope = rememberCoroutineScope()
 
     var showToc by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var isBookmarked by remember { mutableStateOf(false) }
 
     // WebView reference for JavaScript interaction
     var webView by remember { mutableStateOf<WebView?>(null) }
@@ -78,17 +58,7 @@ fun EPUBReaderScreen(
     }
 
     LaunchedEffect(bookUri) {
-        // Minimal inline loader stub; replace with real VM/service call when ready
-        // For now we mark as loaded and set placeholder content
-        readerState = readerState.copy(
-            bookTitle = Uri.parse(bookUri).lastPathSegment ?: "Book",
-            bookAuthor = "",
-            isLoaded = true,
-            totalChapters = 10,
-            currentChapter = 0,
-            currentContent = "<h1>Chapter 1</h1><p>Sample EPUB content preview.</p>",
-            chapters = (1..10).map { "Chapter $it" }
-        )
+        viewModel.loadBook(bookUri)
     }
 
     Scaffold(
@@ -127,10 +97,10 @@ fun EPUBReaderScreen(
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
                     IconButton(onClick = {
-                        readerState = readerState.copy(isBookmarked = !readerState.isBookmarked)
+                        isBookmarked = !isBookmarked
                     }) {
                         Icon(
-                            if (readerState.isBookmarked) Icons.Default.Bookmark
+                            if (isBookmarked) Icons.Default.Bookmark
                             else Icons.Default.BookmarkBorder,
                             contentDescription = "Bookmark"
                         )
@@ -150,13 +120,7 @@ fun EPUBReaderScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                if (readerState.currentChapter > 0) {
-                                    val newIndex = readerState.currentChapter - 1
-                                    readerState = readerState.copy(
-                                        currentChapter = newIndex,
-                                        currentContent = "<h1>${readerState.chapters.getOrNull(newIndex) ?: "Chapter"}</h1><p>Sample content.</p>"
-                                    )
-                                }
+                                viewModel.previousChapter()
                             },
                             enabled = readerState.currentChapter > 0
                         ) {
@@ -185,13 +149,7 @@ fun EPUBReaderScreen(
 
                         IconButton(
                             onClick = {
-                                if (readerState.currentChapter < readerState.totalChapters - 1) {
-                                    val newIndex = readerState.currentChapter + 1
-                                    readerState = readerState.copy(
-                                        currentChapter = newIndex,
-                                        currentContent = "<h1>${readerState.chapters.getOrNull(newIndex) ?: "Chapter"}</h1><p>Sample content.</p>"
-                                    )
-                                }
+                                viewModel.nextChapter()
                             },
                             enabled = readerState.currentChapter < readerState.totalChapters - 1
                         ) {
@@ -212,8 +170,7 @@ fun EPUBReaderScreen(
                     ErrorContent(
                         error = readerState.error ?: "Unknown error",
                         onRetry = {
-                            // Simple retry: re-trigger LaunchedEffect by updating settings
-                            readerState = readerState.copy(error = null, isLoaded = true)
+                            viewModel.loadBook(bookUri)
                         }
                     )
                 }
@@ -276,10 +233,7 @@ fun EPUBReaderScreen(
             chapters = readerState.chapters,
             currentChapter = readerState.currentChapter,
             onChapterSelected = { index ->
-                readerState = readerState.copy(
-                    currentChapter = index,
-                    currentContent = "<h1>${readerState.chapters.getOrNull(index) ?: "Chapter"}</h1><p>Sample content.</p>"
-                )
+                viewModel.jumpToChapter(index)
                 showToc = false
             },
             onDismiss = { showToc = false }
@@ -552,11 +506,10 @@ private fun buildHTMLContent(
     """.trimIndent()
 }
 
-data class EpubReaderState(
+data class EpubReaderUiState(
     val bookTitle: String = "",
     val bookAuthor: String = "",
     val isLoaded: Boolean = false,
-    val isBookmarked: Boolean = false,
     val currentChapter: Int = 0,
     val totalChapters: Int = 0,
     val error: String? = null,
