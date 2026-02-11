@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.audio
 
+import android.util.Log
 import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
@@ -170,15 +171,16 @@ class WaveformGenerator @Inject constructor() {
                     generatedAt = System.currentTimeMillis()
                 )
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w("WaveformGenerator", "Error generating waveform", e)
             null
         } finally {
             try {
                 codec.stop()
-            } catch (_: Exception) { }
+            } catch (e: Exception) { Log.w("WaveformGenerator", "Error stopping codec", e) }
             try {
                 codec.release()
-            } catch (_: Exception) { }
+            } catch (e: Exception) { Log.w("WaveformGenerator", "Error releasing codec", e) }
             extractor.release()
         }
     }

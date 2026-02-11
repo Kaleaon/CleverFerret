@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.player
 
+import android.util.Log
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -302,7 +303,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
             ErrorLogger.logWarning("AudioPlayerViewModel", "Failed to extract metadata for $filePath", e)
             ExtractedMeta(File(filePath).nameWithoutExtension, null, null, null)
         } finally {
-            try { retriever.release() } catch (_: Exception) {}
+            try { retriever.release() } catch (e: Exception) { Log.w("AudioPlayerViewModel", "Error releasing MediaMetadataRetriever", e) }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.webfiction
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -317,8 +318,9 @@ class RedditFanficDownloader {
                     
                     return postContent + commentsHtml
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 // Try the next option
+                Log.d("RedditFanficDownloader", "Option failed, trying next: ${e.message}")
             }
         }
 

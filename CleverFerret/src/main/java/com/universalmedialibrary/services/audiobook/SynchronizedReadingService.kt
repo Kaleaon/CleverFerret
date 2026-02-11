@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.audiobook
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.epub.EpubReaderService
@@ -218,23 +219,56 @@ class SynchronizedReadingService @Inject constructor(
     }
 
     private suspend fun analyzeAudioStructure(audiobookItem: MediaItem): AudioStructure {
-        // This would analyze the audiobook file to extract:
-        // - Chapter boundaries
-        // - Total duration
-        // - Audio quality metrics
-        // - Embedded metadata
+        return withContext(Dispatchers.IO) {
+            val retriever = MediaMetadataRetriever()
+            try {
+                retriever.setDataSource(audiobookItem.filePath)
 
-        return AudioStructure(
-            totalDurationMs = 3600000, // Placeholder
-            chapters = listOf(
-                AudioChapter(
-                    index = 0,
-                    title = "Chapter 1",
-                    startTimeMs = 0,
-                    durationMs = 3600000
+                val durationStr = retriever.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_DURATION
                 )
-            )
-        )
+                val totalDurationMs = durationStr?.toLongOrNull() ?: 0L
+
+                // Try to extract chapter information from metadata
+                val numTracks = retriever.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS
+                )?.toIntOrNull()
+
+                val chapters = if (numTracks != null && numTracks > 1) {
+                    // Estimate chapter boundaries based on track count
+                    val chapterDuration = totalDurationMs / numTracks
+                    (0 until numTracks).map { index ->
+                        AudioChapter(
+                            index = index,
+                            title = "Chapter ${index + 1}",
+                            startTimeMs = index * chapterDuration,
+                            durationMs = chapterDuration
+                        )
+                    }
+                } else if (totalDurationMs > 0) {
+                    // Single chapter for the whole file
+                    listOf(
+                        AudioChapter(
+                            index = 0,
+                            title = audiobookItem.title,
+                            startTimeMs = 0,
+                            durationMs = totalDurationMs
+                        )
+                    )
+                } else {
+                    emptyList()
+                }
+
+                AudioStructure(
+                    totalDurationMs = totalDurationMs,
+                    chapters = chapters
+                )
+            } catch (e: Exception) {
+                AudioStructure(totalDurationMs = 0, chapters = emptyList())
+            } finally {
+                try { retriever.release() } catch (_: Exception) {}
+            }
+        }
     }
 
     private suspend fun createAISynchronization(
@@ -405,8 +439,47 @@ class SynchronizedReadingService @Inject constructor(
         chapter: SynchronizedChapter,
         calibration: CalibrationPoint
     ) {
-        // Implement timing adjustment logic based on user calibration
-        // This would interpolate timing adjustments across nearby segments
+        val sync = currentSynchronization ?: return
+
+        // Find the segment closest to the calibration point
+        val segments = chapter.synchronizedSegments
+        if (segments.isEmpty()) return
+
+        val closestSegmentIndex = segments.indices.minByOrNull { index ->
+            kotlin.math.abs(segments[index].textStartPosition - calibration.textPosition)
+        } ?: return
+
+        val closestSegment = segments[closestSegmentIndex]
+        val timeOffset = calibration.audioPositionMs - closestSegment.startTimeMs
+
+        // Apply proportional adjustment to all segments in this chapter
+        // Segments before the calibration point get proportionally less adjustment
+        // Segments after get proportionally more
+        val adjustedSegments = segments.mapIndexed { index, segment ->
+            val adjustmentFactor = when {
+                index < closestSegmentIndex -> index.toFloat() / closestSegmentIndex.toFloat()
+                index == closestSegmentIndex -> 1.0f
+                else -> 1.0f - ((index - closestSegmentIndex).toFloat() / (segments.size - closestSegmentIndex).toFloat()) * 0.5f
+            }
+
+            val adjustment = (timeOffset * adjustmentFactor).toLong()
+            segment.copy(
+                startTimeMs = segment.startTimeMs + adjustment,
+                endTimeMs = segment.endTimeMs + adjustment,
+                confidence = minOf(segment.confidence + 0.1f, 1.0f)
+            )
+        }
+
+        val adjustedChapter = chapter.copy(synchronizedSegments = adjustedSegments)
+
+        // Rebuild currentSynchronization with the adjusted chapter
+        val updatedChapters = sync.chapters.map { ch ->
+            if (ch.index == chapter.index) adjustedChapter else ch
+        }
+        currentSynchronization = sync.copy(
+            chapters = updatedChapters,
+            synchronizationType = SynchronizationType.USER_CALIBRATED
+        )
     }
 
     private fun generateWebVTT(sync: BookAudioSync): String {
@@ -428,8 +501,95 @@ class SynchronizedReadingService @Inject constructor(
     }
 
     private fun parseWebVTT(data: String): BookAudioSync? {
-        // Implementation would parse WebVTT format and create BookAudioSync
-        return null // Placeholder
+        if (!data.trimStart().startsWith("WEBVTT")) return null
+
+        val chapters = mutableListOf<SynchronizedChapter>()
+        var currentChapterTitle = ""
+        var currentChapterIndex = 0
+        var currentSegments = mutableListOf<SynchronizedSegment>()
+
+        val lines = data.lines()
+        var i = 0
+
+        while (i < lines.size) {
+            val line = lines[i].trim()
+
+            when {
+                line.startsWith("NOTE Chapter:") -> {
+                    // Save previous chapter if any
+                    if (currentSegments.isNotEmpty()) {
+                        chapters.add(SynchronizedChapter(
+                            index = currentChapterIndex,
+                            title = currentChapterTitle,
+                            synchronizedSegments = currentSegments.toList()
+                        ))
+                        currentChapterIndex++
+                        currentSegments = mutableListOf()
+                    }
+                    currentChapterTitle = line.removePrefix("NOTE Chapter:").trim()
+                }
+                line.contains("-->") -> {
+                    // Parse timestamp line: "00:00:00.000 --> 00:00:05.000"
+                    val parts = line.split("-->").map { it.trim() }
+                    if (parts.size == 2) {
+                        val startMs = parseWebVTTTimestamp(parts[0])
+                        val endMs = parseWebVTTTimestamp(parts[1])
+
+                        // Next line(s) contain the text until empty line
+                        val textBuilder = StringBuilder()
+                        i++
+                        while (i < lines.size && lines[i].isNotBlank()) {
+                            if (textBuilder.isNotEmpty()) textBuilder.append(" ")
+                            textBuilder.append(lines[i].trim())
+                            i++
+                        }
+
+                        if (textBuilder.isNotEmpty()) {
+                            val text = textBuilder.toString()
+                            val textStart = currentSegments.lastOrNull()?.textEndPosition ?: 0
+                            currentSegments.add(SynchronizedSegment(
+                                text = text,
+                                startTimeMs = startMs,
+                                endTimeMs = endMs,
+                                textStartPosition = textStart,
+                                textEndPosition = textStart + text.length,
+                                confidence = 0.8f
+                            ))
+                        }
+                    }
+                }
+            }
+            i++
+        }
+
+        // Save last chapter
+        if (currentSegments.isNotEmpty()) {
+            chapters.add(SynchronizedChapter(
+                index = currentChapterIndex,
+                title = currentChapterTitle,
+                synchronizedSegments = currentSegments.toList()
+            ))
+        }
+
+        if (chapters.isEmpty()) return null
+
+        return BookAudioSync(
+            ebookId = 0,
+            audiobookId = 0,
+            chapters = chapters,
+            synchronizationType = SynchronizationType.PRE_SYNCHRONIZED,
+            accuracy = 0.8f
+        )
+    }
+
+    private fun parseWebVTTTimestamp(timestamp: String): Long {
+        val parts = timestamp.split(":", ".")
+        if (parts.size < 4) return 0
+        val hours = parts[0].toLongOrNull() ?: 0
+        val minutes = parts[1].toLongOrNull() ?: 0
+        val seconds = parts[2].toLongOrNull() ?: 0
+        val millis = parts[3].toLongOrNull() ?: 0
+        return hours * 3600000 + minutes * 60000 + seconds * 1000 + millis
     }
 
     private fun formatWebVTTTime(timeMs: Long): String {

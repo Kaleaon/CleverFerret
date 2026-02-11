@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.media
 
+import android.util.Log
 import android.content.Context
 import android.net.Uri
 import com.universalmedialibrary.data.local.entity.MediaItem
@@ -204,8 +205,9 @@ class UniversalMediaPlayerService @Inject constructor(
     private fun releaseCurrentPlayer() {
         try {
             exoPlayer?.release()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             // Ignore release errors
+            Log.w("UniversalMediaPlayerService", "Error releasing player resources", e)
         } finally {
             exoPlayer = null
         }

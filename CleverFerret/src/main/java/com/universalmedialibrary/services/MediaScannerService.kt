@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services
 
+import android.util.Log
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -562,7 +563,7 @@ class MediaScannerService : Service() {
         } finally {
             try {
                 retriever.release()
-            } catch (_: Exception) { }
+            } catch (e: Exception) { Log.w("MediaScannerService", "Error releasing MediaMetadataRetriever", e) }
         }
     }
 
@@ -636,7 +637,7 @@ class MediaScannerService : Service() {
         } finally {
             try {
                 retriever.release()
-            } catch (_: Exception) { }
+            } catch (e: Exception) { Log.w("MediaScannerService", "Error releasing MediaMetadataRetriever", e) }
         }
     }
 
@@ -701,7 +702,7 @@ class MediaScannerService : Service() {
         } finally {
             try {
                 retriever.release()
-            } catch (_: Exception) { }
+            } catch (e: Exception) { Log.w("MediaScannerService", "Error releasing MediaMetadataRetriever", e) }
         }
     }
 

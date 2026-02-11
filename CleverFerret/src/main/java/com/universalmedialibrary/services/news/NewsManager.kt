@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.news
 
+import android.util.Log
 import android.content.Context
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
@@ -185,8 +186,9 @@ class NewsManager @Inject constructor(
         isoFormats.forEach { formatter ->
             try {
                 return formatter.parse(cleaned, Instant::from)
-            } catch (_: DateTimeParseException) {
+            } catch (e: DateTimeParseException) {
                 // continue
+                Log.d("NewsManager", "Non-critical error, continuing: ${e.message}")
             }
         }
 
