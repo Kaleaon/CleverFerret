@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 import java.io.File
 import java.util.zip.ZipFile
 import javax.inject.Inject
@@ -68,17 +69,24 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
 
     private suspend fun loadTextFile(file: File) = withContext(Dispatchers.IO) {
         val content = file.readText()
-        
-        // Split into chapters based on common chapter markers
-        chapters = content.split(Regex("\\n\\s*(Chapter|CHAPTER|Part|PART)\\s+\\d+[:\\s]"))
+
+        // Split into chapters using lookahead so chapter headings are preserved.
+        // Matches: Chapter, Ch., Part, Section, Book (case-insensitive)
+        // Supports Arabic numerals, Roman numerals (I-XXXIX style), or named chapters (no number).
+        val chapterPattern = Regex(
+            """(?=\n\s*(?:(?:Chapter|Ch\.|Section|Part|Book)\s+(?:\d+|[IVXLCDM]+)(?:[:\s.\-]|$)|(?:Chapter|Ch\.|Section|Part|Book)\s+[A-Z][A-Za-z\s]+$))""",
+            setOf(RegexOption.IGNORE_CASE, RegexOption.MULTILINE)
+        )
+
+        chapters = content.split(chapterPattern)
             .filter { it.isNotBlank() }
-        
+
         if (chapters.isEmpty()) {
             chapters = listOf(content)
         }
-        
+
         currentChapterIndex = 0
-        
+
         _uiState.value = _uiState.value.copy(
             isLoading = false,
             isLoaded = true,
@@ -91,12 +99,11 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
 
     private suspend fun loadHtmlFile(file: File) = withContext(Dispatchers.IO) {
         val content = file.readText()
-        // Strip HTML tags for basic reading
-        val strippedContent = content.replace(Regex("<[^>]*>"), "").trim()
-        
+        val strippedContent = stripHtmlWithJsoup(content)
+
         chapters = listOf(strippedContent)
         currentChapterIndex = 0
-        
+
         _uiState.value = _uiState.value.copy(
             isLoading = false,
             isLoaded = true,
@@ -107,52 +114,103 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
         )
     }
 
+    /**
+     * Properly strip HTML using Jsoup: removes script/style elements,
+     * decodes all HTML entities (including numeric like &#123; and &#x7B;),
+     * and preserves meaningful whitespace.
+     */
+    private fun stripHtmlWithJsoup(html: String): String {
+        val doc = Jsoup.parse(html)
+        // Remove script and style elements entirely
+        doc.select("script, style").remove()
+        // Jsoup's text() decodes all HTML entities and extracts clean text
+        // Use wholeText() to preserve paragraph/block-level whitespace structure
+        val body = doc.body() ?: return doc.text()
+        // Insert newlines for block-level elements so paragraphs are separated
+        body.select("br").append("\\n")
+        body.select("p, div, h1, h2, h3, h4, h5, h6, li, tr, blockquote").forEach { el ->
+            el.prepend("\\n")
+            el.append("\\n")
+        }
+        return body.text()
+            .replace("\\n", "\n")
+            .replace(Regex("\n{3,}"), "\n\n")
+            .trim()
+    }
+
     private suspend fun loadEpubFile(file: File) = withContext(Dispatchers.IO) {
         try {
-            // EPUB is a ZIP file - extract and read content
             val zipFile = ZipFile(file)
             val entries = zipFile.entries().toList()
-            
-            // Find content files (usually in OEBPS or similar directory)
-            val contentFiles = entries.filter { 
-                it.name.endsWith(".html") || it.name.endsWith(".xhtml") || it.name.endsWith(".htm")
-            }.sortedBy { it.name }
-            
-            chapters = contentFiles.mapNotNull { entry ->
+            val entryMap = entries.associateBy { it.name }
+
+            // --- Determine spine order from OPF ---
+            val orderedContentPaths = resolveSpineOrder(zipFile, entryMap)
+
+            // If spine resolution succeeded, use that order; otherwise fall back
+            // to all HTML/XHTML files sorted by name.
+            val contentEntries = if (orderedContentPaths.isNotEmpty()) {
+                orderedContentPaths.mapNotNull { entryMap[it] }
+            } else {
+                entries.filter {
+                    it.name.endsWith(".html") || it.name.endsWith(".xhtml") || it.name.endsWith(".htm")
+                }.sortedBy { it.name }
+            }
+
+            chapters = contentEntries.mapNotNull { entry ->
                 try {
                     zipFile.getInputStream(entry).use { inputStream ->
-                        val content = inputStream.bufferedReader().use { it.readText() }
-                        // Strip HTML tags
-                        content.replace(Regex("<[^>]*>"), "")
-                            .replace(Regex("&nbsp;"), " ")
-                            .replace(Regex("&[a-z]+;"), "")
-                            .trim()
+                        // EPUB spec requires UTF-8 encoding
+                        val html = inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                        val doc = Jsoup.parse(html)
+
+                        // Try to extract a chapter title from headings
+                        val heading = doc.select("h1, h2, h3").firstOrNull()?.text()?.trim()
+
+                        // Strip using Jsoup (same logic as stripHtmlWithJsoup)
+                        val text = stripHtmlWithJsoup(html)
+
+                        // Prepend a heading line if we found one and it is not
+                        // already the first line of the extracted text.
+                        if (!heading.isNullOrBlank() && !text.startsWith(heading)) {
+                            "$heading\n\n$text"
+                        } else {
+                            text
+                        }
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     null
                 }
             }.filter { it.isNotBlank() }
-            
+
             zipFile.close()
-            
+
             if (chapters.isEmpty()) {
-                // Fallback: show basic file info
-                chapters = listOf("""
-                    EPUB File Loaded
-                    
+                val entryCount = entries.size
+                val htmlCount = entries.count {
+                    it.name.endsWith(".html") || it.name.endsWith(".xhtml") || it.name.endsWith(".htm")
+                }
+                chapters = listOf(
+                    """
+                    Unable to extract readable text from this EPUB.
+
                     File: ${file.name}
                     Size: ${file.length() / 1024} KB
-                    
-                    This EPUB file has been loaded. The content extraction process completed,
-                    but the chapters may require a more sophisticated EPUB parser for proper
-                    formatting and layout.
-                    
-                    Basic text content has been extracted where possible.
-                """.trimIndent())
+                    Total entries in archive: $entryCount
+                    HTML/XHTML entries found: $htmlCount
+
+                    Possible reasons:
+                    • The EPUB may use DRM protection that prevents text extraction.
+                    • Content may be stored in an unsupported format (e.g., images only).
+                    • The archive structure may be non-standard or corrupted.
+
+                    Try opening this file with a dedicated EPUB reader application.
+                    """.trimIndent()
+                )
             }
-            
+
             currentChapterIndex = 0
-            
+
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
                 isLoaded = true,
@@ -166,6 +224,54 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                 isLoading = false,
                 error = "Failed to parse EPUB: ${e.message}"
             )
+        }
+    }
+
+    /**
+     * Parse META-INF/container.xml to find the OPF file, then parse the OPF
+     * spine + manifest to return content file paths in reading order.
+     */
+    private fun resolveSpineOrder(
+        zipFile: ZipFile,
+        entryMap: Map<String, java.util.zip.ZipEntry>
+    ): List<String> {
+        try {
+            // 1. Parse container.xml to find the .opf path
+            val containerEntry = entryMap["META-INF/container.xml"] ?: return emptyList()
+            val containerDoc = zipFile.getInputStream(containerEntry).use { stream ->
+                Jsoup.parse(stream.bufferedReader(Charsets.UTF_8).use { it.readText() }, "", org.jsoup.parser.Parser.xmlParser())
+            }
+            val opfPath = containerDoc.select("rootfile[full-path]")
+                .firstOrNull()?.attr("full-path") ?: return emptyList()
+
+            // Determine the directory prefix for relative paths in the OPF
+            val opfDir = if (opfPath.contains("/")) opfPath.substringBeforeLast("/") + "/" else ""
+
+            // 2. Parse the OPF file
+            val opfEntry = entryMap[opfPath] ?: return emptyList()
+            val opfDoc = zipFile.getInputStream(opfEntry).use { stream ->
+                Jsoup.parse(stream.bufferedReader(Charsets.UTF_8).use { it.readText() }, "", org.jsoup.parser.Parser.xmlParser())
+            }
+
+            // 3. Build manifest id -> href map
+            val manifest = mutableMapOf<String, String>()
+            opfDoc.select("manifest item").forEach { item ->
+                val id = item.attr("id")
+                val href = item.attr("href")
+                if (id.isNotBlank() && href.isNotBlank()) {
+                    manifest[id] = href
+                }
+            }
+
+            // 4. Read spine order
+            return opfDoc.select("spine itemref").mapNotNull { itemref ->
+                val idref = itemref.attr("idref")
+                val href = manifest[idref] ?: return@mapNotNull null
+                // Resolve relative path against OPF directory
+                opfDir + href
+            }
+        } catch (_: Exception) {
+            return emptyList()
         }
     }
 

@@ -70,11 +70,31 @@ class EpubReaderEngine @Inject constructor(
                         }
                     }
                     is BookSource.Stream -> {
-                        // Streaming support for remote EPUB files planned for future release
-                        // Would require: HTTP range request support and progressive loading
-                        return@withContext Result.failure(
-                            UnsupportedOperationException("Stream sources not yet implemented")
+                        // Download to temp file for processing
+                        val tempFile = File(
+                            context.cacheDir,
+                            "temp_epub_stream_${System.currentTimeMillis()}.epub"
                         )
+                        tempFile.deleteOnExit()
+                        try {
+                            val url = java.net.URL(source.url)
+                            val connection = url.openConnection() as java.net.HttpURLConnection
+                            source.headers.forEach { (key, value) ->
+                                connection.setRequestProperty(key, value)
+                            }
+                            connection.inputStream.use { input ->
+                                tempFile.outputStream().use { output ->
+                                    input.copyTo(output)
+                                }
+                            }
+                            connection.disconnect()
+                            tempFile
+                        } catch (e: Exception) {
+                            tempFile.delete()
+                            return@withContext Result.failure(
+                                RuntimeException("Failed to download EPUB from stream: ${e.message}", e)
+                            )
+                        }
                     }
                 }
 
@@ -85,9 +105,6 @@ class EpubReaderEngine @Inject constructor(
                 }
 
                 val epub = parseEpubFile(file)
-                    ?: return@withContext Result.failure(
-                        RuntimeException("Failed to parse EPUB file")
-                    )
 
                 currentEpub = epub
                 currentChapters = epub.chapters
@@ -259,34 +276,31 @@ class EpubReaderEngine @Inject constructor(
         )
     }
 
-    private fun parseEpubFile(file: File): EpubBook? {
+    private fun parseEpubFile(file: File): EpubBook {
         // Reuse the existing EPUB parsing logic from EpubReaderService
         // This would be refactored to share the parsing code
-        return try {
-            ZipFile(file).use { zipFile ->
-                val contentOpf = findContentOpf(zipFile) ?: return null
-                val metadata = parseMetadata(zipFile, contentOpf)
-                val manifest = parseManifest(zipFile, contentOpf)
-                val spineOrder = parseSpine(zipFile, contentOpf)
-                val tocItems = parseToc(zipFile, manifest)
-                val chapters = extractChapters(zipFile, spineOrder, manifest, tocItems)
+        return ZipFile(file).use { zipFile ->
+            val contentOpf = findContentOpf(zipFile)
+                ?: throw RuntimeException("Failed to parse EPUB file: could not find content.opf in ${file.name}")
+            val metadata = parseMetadata(zipFile, contentOpf)
+            val manifest = parseManifest(zipFile, contentOpf)
+            val spineOrder = parseSpine(zipFile, contentOpf)
+            val tocItems = parseToc(zipFile, manifest)
+            val chapters = extractChapters(zipFile, spineOrder, manifest, tocItems)
 
-                EpubBook(
-                    metadata = SimpleEpubMetadata(
-                        title = metadata.title,
-                        authors = metadata.authors,
-                        description = metadata.description ?: "",
-                        language = metadata.language ?: "",
-                        publisher = metadata.publisher ?: "",
-                        publishDate = metadata.publishedDate ?: "",
-                        isbn = metadata.identifier ?: "",
-                        coverImageData = null
-                    ),
-                    chapters = chapters
-                )
-            }
-        } catch (e: Exception) {
-            null
+            EpubBook(
+                metadata = SimpleEpubMetadata(
+                    title = metadata.title,
+                    authors = metadata.authors,
+                    description = metadata.description ?: "",
+                    language = metadata.language ?: "",
+                    publisher = metadata.publisher ?: "",
+                    publishDate = metadata.publishedDate ?: "",
+                    isbn = metadata.identifier ?: "",
+                    coverImageData = null
+                ),
+                chapters = chapters
+            )
         }
     }
 
@@ -385,7 +399,7 @@ class EpubReaderEngine @Inject constructor(
                     
                     // Read chapter content from zip entry
                     val content = try {
-                        zipFile.getInputStream(entry).bufferedReader().use { it.readText() }
+                        zipFile.getInputStream(entry).bufferedReader(Charsets.UTF_8).use { it.readText() }
                     } catch (e: Exception) {
                         "" // Empty content if reading fails
                     }

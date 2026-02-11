@@ -2,7 +2,9 @@ package com.universalmedialibrary.services.epub
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 import java.io.File
+import java.nio.charset.CodingErrorAction
 import java.util.zip.ZipFile
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -118,6 +120,129 @@ class EpubValidationService @Inject constructor() {
                                 "Files larger than 10MB may cause performance issues: ${largeFiles.joinToString()}"
                             )
                         )
+                    }
+
+                    // Check for DRM/encryption
+                    val encryptionEntry = zip.getEntry("META-INF/encryption.xml")
+                    val rightsEntry = zip.getEntry("META-INF/rights.xml")
+                    if (encryptionEntry != null || rightsEntry != null) {
+                        val detectedFiles = listOfNotNull(
+                            if (encryptionEntry != null) "encryption.xml" else null,
+                            if (rightsEntry != null) "rights.xml" else null
+                        )
+                        warnings.add(
+                            ValidationWarning(
+                                "DRM/encryption detected",
+                                "This EPUB may be DRM-protected (found ${detectedFiles.joinToString()}). Content extraction may be limited."
+                            )
+                        )
+                    }
+
+                    // Check content encoding (UTF-8 validation)
+                    val contentEntries = zip.entries().asSequence()
+                        .filter { !it.isDirectory && (it.name.endsWith(".xhtml") || it.name.endsWith(".html")) }
+                        .toList()
+
+                    val encodingIssueFiles = mutableListOf<String>()
+                    for (entry in contentEntries) {
+                        try {
+                            val decoder = Charsets.UTF_8.newDecoder()
+                                .onMalformedInput(CodingErrorAction.REPORT)
+                                .onUnmappableCharacter(CodingErrorAction.REPORT)
+                            zip.getInputStream(entry).use { inputStream ->
+                                val bytes = inputStream.readBytes()
+                                decoder.decode(java.nio.ByteBuffer.wrap(bytes))
+                            }
+                        } catch (e: java.nio.charset.MalformedInputException) {
+                            encodingIssueFiles.add(entry.name)
+                        } catch (e: java.nio.charset.UnmappableCharacterException) {
+                            encodingIssueFiles.add(entry.name)
+                        }
+                    }
+
+                    if (encodingIssueFiles.isNotEmpty()) {
+                        warnings.add(
+                            ValidationWarning(
+                                "Content encoding issues",
+                                "The following files may have encoding issues (EPUB spec requires UTF-8 or UTF-16): ${encodingIssueFiles.joinToString()}"
+                            )
+                        )
+                    }
+
+                    // Check for broken references and spine validity using content.opf
+                    val opfEntry = zip.entries().asSequence()
+                        .firstOrNull { it.name.endsWith(".opf") }
+
+                    if (opfEntry != null) {
+                        val opfContent = zip.getInputStream(opfEntry).bufferedReader().readText()
+                        val opfDoc = Jsoup.parse(opfContent)
+
+                        // Determine the base directory of the OPF file
+                        val opfDir = if (opfEntry.name.contains("/")) {
+                            opfEntry.name.substringBeforeLast("/") + "/"
+                        } else {
+                            ""
+                        }
+
+                        // Collect all ZIP entry names for lookup
+                        val zipEntryNames = zip.entries().asSequence()
+                            .map { it.name }
+                            .toSet()
+
+                        // Build manifest map: id -> href
+                        val manifestItems = opfDoc.select("manifest item")
+                        val manifestMap = mutableMapOf<String, String>()
+                        val missingFiles = mutableListOf<String>()
+
+                        for (item in manifestItems) {
+                            val id = item.attr("id")
+                            val href = item.attr("href")
+                            if (id.isNotEmpty() && href.isNotEmpty()) {
+                                manifestMap[id] = href
+
+                                // Resolve href relative to OPF directory
+                                val resolvedPath = opfDir + href
+                                // Decode percent-encoded characters for comparison
+                                val decodedPath = try {
+                                    java.net.URLDecoder.decode(resolvedPath, "UTF-8")
+                                } catch (e: Exception) {
+                                    resolvedPath
+                                }
+
+                                if (decodedPath !in zipEntryNames && resolvedPath !in zipEntryNames) {
+                                    missingFiles.add(href)
+                                }
+                            }
+                        }
+
+                        if (missingFiles.isNotEmpty()) {
+                            errors.add(
+                                ValidationError(
+                                    "Broken references in manifest",
+                                    "The following files are referenced in the manifest but missing from the archive: ${missingFiles.joinToString()}"
+                                )
+                            )
+                        }
+
+                        // Spine validation: check that itemrefs reference existing manifest items
+                        val spineItemrefs = opfDoc.select("spine itemref")
+                        val invalidSpineRefs = mutableListOf<String>()
+
+                        for (itemref in spineItemrefs) {
+                            val idref = itemref.attr("idref")
+                            if (idref.isNotEmpty() && idref !in manifestMap) {
+                                invalidSpineRefs.add(idref)
+                            }
+                        }
+
+                        if (invalidSpineRefs.isNotEmpty()) {
+                            errors.add(
+                                ValidationError(
+                                    "Invalid spine references",
+                                    "The following spine itemrefs do not reference existing manifest items: ${invalidSpineRefs.joinToString()}"
+                                )
+                            )
+                        }
                     }
                 }
                 

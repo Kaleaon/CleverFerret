@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import org.jsoup.nodes.TextNode
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipFile
@@ -179,20 +180,34 @@ class EPUBReaderService @Inject constructor(
     }
 
     /**
-     * Parse OPF file for metadata
+     * Parse OPF file for metadata.
+     * Uses multiple selector patterns for Dublin Core elements to handle
+     * different namespace serializations across EPUB files.
      */
     private fun parseOPF(xml: String): EPUBMetadata {
         val doc = Jsoup.parse(xml, "", org.jsoup.parser.Parser.xmlParser())
         val metadata = doc.select("metadata").first()
 
+        // Helper that tries multiple selector patterns for Dublin Core elements.
+        // JSoup's XML parser may represent namespaced tags differently depending
+        // on how the EPUB serializes them (e.g. <dc:title> vs <title>).
+        fun selectDC(field: String): String? {
+            if (metadata == null) return null
+            // Pattern 1: pipe namespace syntax  (dc|title)
+            // Pattern 2: escaped colon syntax   (dc\:title)
+            // Pattern 3: bare element name      (title)
+            val text = metadata.select("dc|$field, dc\\:$field, $field").text()
+            return text.ifEmpty { null }
+        }
+
         return EPUBMetadata(
-            title = metadata?.select("dc|title, title")?.text() ?: "Unknown Title",
-            author = metadata?.select("dc|creator, creator")?.text() ?: "Unknown Author",
-            publisher = metadata?.select("dc|publisher, publisher")?.text(),
-            publicationDate = metadata?.select("dc|date, date")?.text(),
-            identifier = metadata?.select("dc|identifier, identifier")?.text(),
-            language = metadata?.select("dc|language, language")?.text(),
-            description = metadata?.select("dc|description, description")?.text()
+            title = selectDC("title") ?: "Unknown Title",
+            author = selectDC("creator") ?: "Unknown Author",
+            publisher = selectDC("publisher"),
+            publicationDate = selectDC("date"),
+            identifier = selectDC("identifier"),
+            language = selectDC("language"),
+            description = selectDC("description")
         )
     }
 
@@ -228,7 +243,8 @@ class EPUBReaderService @Inject constructor(
     }
 
     /**
-     * Parse HTML content and extract text
+     * Parse HTML content and extract clean readable plain text.
+     * Properly handles block elements, line breaks, and HTML entities.
      */
     private fun parseHTMLContent(html: String): String {
         val doc = Jsoup.parse(html)
@@ -236,16 +252,35 @@ class EPUBReaderService @Inject constructor(
         // Remove script and style elements
         doc.select("script, style").remove()
 
-        // Get text content
-        val body = doc.body()
-        if (body != null) {
-            // Preserve paragraphs and line breaks
-            body.select("br").append("\\n")
-            body.select("p").prepend("\\n\\n")
-            return body.text().replace("\\n", "\n")
+        val root = doc.body() ?: return doc.text()
+
+        // Replace <br> tags with actual newline text nodes
+        root.select("br").forEach { br ->
+            br.before(TextNode("\n"))
+            br.remove()
         }
 
-        return doc.text()
+        // Insert newlines around block-level elements to preserve structure
+        val blockSelectors = "p, div, h1, h2, h3, h4, h5, h6, li, blockquote, tr, figcaption, section, article, header, footer, aside, nav, pre"
+        root.select(blockSelectors).forEach { block ->
+            block.prepend("\u0000BLOCK_START\u0000")
+            block.append("\u0000BLOCK_END\u0000")
+        }
+
+        // Extract full text (JSoup's text() handles HTML entity decoding: &amp; &lt; &#123; &mdash; etc.)
+        val rawText = root.text()
+
+        // Convert block markers into newlines
+        val structured = rawText
+            .replace("\u0000BLOCK_START\u0000", "\n")
+            .replace("\u0000BLOCK_END\u0000", "\n")
+
+        // Normalize whitespace: collapse runs of spaces/tabs on each line, then collapse excessive blank lines
+        return structured
+            .lines()
+            .joinToString("\n") { it.replace(Regex("[ \\t]+"), " ").trim() }
+            .replace(Regex("\\n{3,}"), "\n\n")
+            .trim()
     }
 
     /**
