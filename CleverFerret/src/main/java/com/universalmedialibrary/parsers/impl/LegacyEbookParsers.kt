@@ -26,6 +26,9 @@ abstract class LegacyEbookParser : DocumentParser {
     private val tika = Tika()
     protected abstract fun getFormatName(): String
     
+    // Note: FileInputStream is used as a raw byte stream here. Charset detection
+    // is handled internally by Apache Tika during parsing, so no explicit charset
+    // is needed at the stream level.
     override suspend fun parse(filePath: String): ParsedDocument = withContext(Dispatchers.IO) {
         try {
             FileInputStream(filePath).use { fis ->
@@ -62,8 +65,12 @@ abstract class LegacyEbookParser : DocumentParser {
         try {
             parser.parse(inputStream, handler, metadata, context)
         } catch (e: Exception) {
-            // If Tika fails, provide a helpful error message
-            val content = buildFallbackContent(fileName)
+            // If Tika fails, provide a helpful error message with diagnostic info
+            val content = buildFallbackContent(
+                fileName,
+                tikaMetadata = metadata,
+                errorMessage = e.message ?: e::class.simpleName
+            )
             val documentMetadata = buildFallbackMetadata(fileName)
             return ParsedDocument(content, documentMetadata, null)
         }
@@ -73,35 +80,70 @@ abstract class LegacyEbookParser : DocumentParser {
         val structure = extractStructure(content)
         
         return ParsedDocument(
-            content = if (content.isBlank()) buildFallbackContent(fileName) else content,
+            content = if (content.isBlank()) buildFallbackContent(fileName, tikaMetadata = metadata) else content,
             metadata = documentMetadata,
             structure = structure
         )
     }
     
-    private fun buildFallbackContent(fileName: String): String {
-        return """
-            ${getFormatName()} Document
-            ${"=".repeat(getFormatName().length + 9)}
-            
-            File: $fileName
-            Format: ${getFormatName()}
-            
-            Note: This legacy format has limited support in the current parser.
-            
-            The ${getFormatName()} format is a legacy eBook format that may require
-            specialized tools for full content extraction.
-            
-            Recommendations:
-            1. Try converting the file to EPUB or PDF using Calibre
-            2. Use a dedicated ${getFormatName()} reader application
-            3. Check if the file is corrupted or encrypted
-            
-            For better support of legacy formats, consider:
-            - Using Calibre's ebook-convert tool to convert to modern formats
-            - Installing format-specific reader applications
-            - Checking for updated versions of this parser
-        """.trimIndent()
+    private fun buildFallbackContent(
+        fileName: String,
+        tikaMetadata: Metadata? = null,
+        errorMessage: String? = null
+    ): String {
+        val sb = StringBuilder()
+        sb.appendLine("${getFormatName()} Document")
+        sb.appendLine("=".repeat(getFormatName().length + 9))
+        sb.appendLine()
+        sb.appendLine("File: $fileName")
+        sb.appendLine("Format: ${getFormatName()}")
+        sb.appendLine()
+        sb.appendLine("The file was detected as a ${getFormatName()} document, but full content extraction was limited.")
+
+        if (errorMessage != null) {
+            sb.appendLine()
+            sb.appendLine("Parser diagnostic: $errorMessage")
+        }
+
+        if (tikaMetadata != null && tikaMetadata.names().isNotEmpty()) {
+            sb.appendLine()
+            sb.appendLine("Metadata successfully extracted:")
+            tikaMetadata.names().sorted().forEach { name ->
+                tikaMetadata.get(name)?.let { value ->
+                    sb.appendLine("  $name: $value")
+                }
+            }
+        }
+
+        sb.appendLine()
+        sb.appendLine(getFormatSpecificGuidance())
+
+        return sb.toString().trimEnd()
+    }
+
+    private fun getFormatSpecificGuidance(): String {
+        return when (getFormatName()) {
+            "PDB" -> """
+                |Note: PDB files can contain various sub-formats (Palm Doc, eReader, Plucker, iSilo, TealDoc).
+                |The specific sub-format may not be supported by the current parser.
+                |Try converting with Calibre, specifying the input format explicitly if auto-detection fails.
+            """.trimMargin()
+            "LIT" -> """
+                |Note: LIT is a proprietary Microsoft format based on compressed HTML.
+                |Conversion tools such as Calibre or ConvertLIT may produce better results.
+            """.trimMargin()
+            "SNB" -> """
+                |Note: SNB is a proprietary Shanda Bambook format.
+                |Calibre supports SNB-to-EPUB conversion and may extract more content.
+            """.trimMargin()
+            "RB" -> """
+                |Note: RB is a RocketBook format with limited third-party tool support.
+                |Calibre may be able to convert this file to EPUB or PDF.
+            """.trimMargin()
+            else -> """
+                |Consider converting this file to EPUB or PDF using Calibre for better content extraction.
+            """.trimMargin()
+        }
     }
     
     private fun buildFallbackMetadata(fileName: String): DocumentMetadata {
@@ -172,10 +214,11 @@ abstract class LegacyEbookParser : DocumentParser {
         lines.forEach { line ->
             val trimmed = line.trim()
             
-            if (trimmed.length in 1..100 && trimmed.isNotBlank()) {
-                val isAllCaps = trimmed.all { it.isUpperCase() || !it.isLetter() }
-                val endsWithColon = trimmed.endsWith(":")
-                
+            if (trimmed.length in 3..100 && trimmed.isNotBlank()) {
+                val letterCount = trimmed.count { it.isLetter() }
+                val isAllCaps = letterCount >= 2 && trimmed.all { it.isUpperCase() || !it.isLetter() }
+                val endsWithColon = trimmed.endsWith(":") && letterCount >= 2
+
                 if (isAllCaps || endsWithColon) {
                     headings.add(Heading(trimmed, 1, position))
                 }

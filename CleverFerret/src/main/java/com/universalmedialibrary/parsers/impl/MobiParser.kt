@@ -13,7 +13,6 @@ import java.io.DataInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
-import java.io.BufferedInputStream
 
 /**
  * Parser for MOBI/AZW/AZW3 files using lib-mobi (Pure Java) AND Apache Tika
@@ -78,48 +77,48 @@ class MobiParser : DocumentParser {
         }
     }
     
-    override suspend fun parse(inputStream: InputStream, fileName: String): ParsedDocument = 
+    override suspend fun parse(inputStream: InputStream, fileName: String): ParsedDocument =
         withContext(Dispatchers.IO) {
             try {
-                // InputStreams can usually only be read once.
-                // We wrap it in a BufferedInputStream and mark it if supported,
-                // or we prioritize Tika for content if we can't rewind.
+                // Read all bytes from the input stream once, so we can create
+                // independent streams for metadata extraction and content extraction.
+                // This avoids the problem of MobiHeader.read potentially closing
+                // or consuming the stream before Tika can use it.
+                val bytes = inputStream.readBytes()
 
-                val bufferedIs = if (inputStream.markSupported()) inputStream else BufferedInputStream(inputStream)
-                bufferedIs.mark(Int.MAX_VALUE)
-
-                // 1. Try to read metadata with lib-mobi
+                // 1. Extract metadata using lib-mobi from a new stream
                 val metadata = try {
-                    DataInputStream(bufferedIs).use { dis ->
-                        // Note: MobiHeader.read might close the stream, which is problematic.
-                        // Ideally we should use a copy or Tika's metadata if we can't reset.
-                        // For safety in this generic stream context, let's try Tika first for content
-                        // as that's the primary user goal.
-                        null
+                    DataInputStream(bytes.inputStream()).use { dis ->
+                        val header = MobiHeader.read(dis)
+                        extractMetadata(header, fileName)
                     }
                 } catch (e: Exception) {
-                    null
+                    DocumentMetadata(
+                        title = fileName,
+                        format = "MOBI",
+                        customProperties = emptyMap()
+                    )
                 }
 
-                // Reset stream for content parsing
-                try { bufferedIs.reset() } catch (e: Exception) {
-                    // If we can't reset, we might be in trouble if we read anything above.
-                    // But we set metadata to null above to skip reading, so we should be at start.
+                // 2. Extract content using Tika from a new stream
+                val content = try {
+                    extractContentWithTika(bytes.inputStream())
+                } catch (e: Exception) {
+                    // Fallback if Tika fails: extract summary info from lib-mobi
+                    try {
+                        "Failed to extract text content. \n\n" +
+                        DataInputStream(bytes.inputStream()).use { dis ->
+                            val header = MobiHeader.read(dis)
+                            extractContentInfo(header, fileName)
+                        }
+                    } catch (e2: Exception) {
+                        "Failed to extract text content from MOBI stream: $fileName"
+                    }
                 }
-
-                // 2. Extract content with Tika
-                val content = extractContentWithTika(bufferedIs)
-
-                // 3. Fallback metadata if lib-mobi wasn't used
-                val finalMetadata = metadata ?: DocumentMetadata(
-                    title = fileName,
-                    format = "MOBI",
-                    customProperties = emptyMap()
-                )
 
                 return@withContext ParsedDocument(
                     content = content,
-                    metadata = finalMetadata,
+                    metadata = metadata,
                     structure = null
                 )
             } catch (e: Exception) {
@@ -202,12 +201,45 @@ class MobiParser : DocumentParser {
     }
     
     private fun extractContentInfo(header: MobiHeader, filePath: String?): String {
-        // Fallback method that just describes the file if text extraction fails
+        // Fallback method that describes the file when full text extraction fails.
+        // Includes all available metadata to give the user as much context as possible.
+        val exthHeader = header.exthHeader
+        val EXTH_AUTHOR = 100
+        val EXTH_CREATOR = 108
+
         val info = StringBuilder()
         info.appendLine("MOBI/AZW Document (Metadata Only)")
         info.appendLine("=================================")
-        info.appendLine("Title: ${header.palmDatabaseHeader?.name}")
+        info.appendLine()
+        info.appendLine("Note: Full text content could not be extracted from this file.")
+        info.appendLine("This may be due to DRM encryption, an unsupported MOBI variant,")
+        info.appendLine("or a corrupted file. The available metadata is shown below.")
+        info.appendLine()
+        info.appendLine("Title: ${header.palmDatabaseHeader?.name ?: "Unknown"}")
+
+        val author = exthHeader?.getRecordByTypeCode(EXTH_AUTHOR)?.data
+            ?: exthHeader?.getRecordByTypeCode(EXTH_CREATOR)?.data
+        info.appendLine("Author: ${author ?: "Unknown"}")
+
         info.appendLine("Format: ${determineFormat(filePath ?: "", header)}")
+
+        val encoding = header.encoding?.toString() ?: "UNKNOWN"
+        info.appendLine("Encoding: $encoding")
+
+        val encrypted = header.encryptionType > 0
+        info.appendLine("Encrypted: ${if (encrypted) "Yes (encryption type ${header.encryptionType})" else "No"}")
+
+        if (filePath != null) {
+            try {
+                val file = File(filePath)
+                if (file.exists()) {
+                    info.appendLine("File size: ${file.length()} bytes")
+                }
+            } catch (_: Exception) {
+                // File size is best-effort; ignore errors
+            }
+        }
+
         return info.toString()
     }
     

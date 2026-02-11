@@ -137,7 +137,7 @@ class EpubReaderService @Inject constructor(
         // First look for META-INF/container.xml
         val containerEntry = zipFile.getEntry("META-INF/container.xml")
         if (containerEntry != null) {
-            val containerContent = zipFile.getInputStream(containerEntry).bufferedReader().readText()
+            val containerContent = zipFile.getInputStream(containerEntry).bufferedReader(Charsets.UTF_8).readText()
             val containerDoc = Jsoup.parse(containerContent, "", org.jsoup.parser.Parser.xmlParser())
             val rootfilePath = containerDoc.select("rootfile").attr("full-path")
             if (rootfilePath.isNotEmpty()) {
@@ -157,15 +157,19 @@ class EpubReaderService @Inject constructor(
     private fun parseMetadata(zipFile: ZipFile): SimpleEpubMetadata {
         val contentOpf = findContentOpf(zipFile)
         if (contentOpf != null) {
-            val opfContent = zipFile.getInputStream(contentOpf).bufferedReader().readText()
+            val opfContent = zipFile.getInputStream(contentOpf).bufferedReader(Charsets.UTF_8).readText()
             val opfDoc = Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser())
 
-            val title = opfDoc.select("metadata title").text().ifEmpty { "Unknown Title" }
-            val authors = opfDoc.select("metadata creator").map { it.text() }
-            val description = opfDoc.select("metadata description").text()
-            val language = opfDoc.select("metadata language").text().ifEmpty { "en" }
-            val publisher = opfDoc.select("metadata publisher").text()
-            val isbn = opfDoc.select("metadata identifier[scheme=ISBN]").text()
+            val title = selectText(opfDoc, "metadata", "dc|title", "dc\\:title", "title").ifEmpty { "Unknown Title" }
+            val authors = selectAll(opfDoc, "metadata", "dc|creator", "dc\\:creator", "creator")
+            val description = selectText(opfDoc, "metadata", "dc|description", "dc\\:description", "description")
+            val language = selectText(opfDoc, "metadata", "dc|language", "dc\\:language", "language").ifEmpty { "en" }
+            val publisher = selectText(opfDoc, "metadata", "dc|publisher", "dc\\:publisher", "publisher")
+            val isbn = selectText(opfDoc, "metadata",
+                "dc|identifier[scheme=ISBN]", "dc\\:identifier[scheme=ISBN]",
+                "dc|identifier[opf|scheme=ISBN]", "dc\\:identifier[opf\\:scheme=ISBN]",
+                "identifier[scheme=ISBN]"
+            )
 
             return SimpleEpubMetadata(
                 title = title,
@@ -192,10 +196,34 @@ class EpubReaderService @Inject constructor(
     }
 
     /**
+     * Helper to select text from an XML document trying multiple namespace-aware selectors.
+     * Returns the text of the first matching selector, or empty string if none match.
+     */
+    private fun selectText(doc: org.jsoup.nodes.Document, parent: String, vararg selectors: String): String {
+        for (selector in selectors) {
+            val text = doc.select("$parent $selector").text()
+            if (text.isNotEmpty()) return text
+        }
+        return ""
+    }
+
+    /**
+     * Helper to select all matching elements trying multiple namespace-aware selectors.
+     * Returns the text of each matched element from the first selector that produces results.
+     */
+    private fun selectAll(doc: org.jsoup.nodes.Document, parent: String, vararg selectors: String): List<String> {
+        for (selector in selectors) {
+            val elements = doc.select("$parent $selector")
+            if (elements.isNotEmpty()) return elements.map { it.text() }
+        }
+        return emptyList()
+    }
+
+    /**
      * Parse manifest items from content.opf
      */
     private fun parseManifest(zipFile: ZipFile, contentOpf: ZipEntry): Map<String, ManifestItem> {
-        val opfContent = zipFile.getInputStream(contentOpf).bufferedReader().readText()
+        val opfContent = zipFile.getInputStream(contentOpf).bufferedReader(Charsets.UTF_8).readText()
         val opfDoc = Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser())
         val manifest = mutableMapOf<String, ManifestItem>()
 
@@ -216,7 +244,7 @@ class EpubReaderService @Inject constructor(
      * Parse spine order from content.opf
      */
     private fun parseSpine(zipFile: ZipFile, contentOpf: ZipEntry): List<String> {
-        val opfContent = zipFile.getInputStream(contentOpf).bufferedReader().readText()
+        val opfContent = zipFile.getInputStream(contentOpf).bufferedReader(Charsets.UTF_8).readText()
         val opfDoc = Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser())
 
         return opfDoc.select("spine itemref").map { it.attr("idref") }
@@ -234,7 +262,7 @@ class EpubReaderService @Inject constructor(
         if (tocManifest != null) {
             val tocEntry = zipFile.getEntry(tocManifest.href)
             if (tocEntry != null) {
-                val tocContent = zipFile.getInputStream(tocEntry).bufferedReader().readText()
+                val tocContent = zipFile.getInputStream(tocEntry).bufferedReader(Charsets.UTF_8).readText()
                 val tocDoc = Jsoup.parse(tocContent, "", org.jsoup.parser.Parser.xmlParser())
 
                 return tocDoc.select("navMap navPoint").map { navPoint ->
@@ -268,7 +296,7 @@ class EpubReaderService @Inject constructor(
 
                 if (entry != null) {
                     zipFile.getInputStream(entry).use { inputStream ->
-                        val content = inputStream.bufferedReader().readText()
+                        val content = inputStream.bufferedReader(Charsets.UTF_8).readText()
                         val title = tocItems.find { it.src.contains(manifestItem.href) }?.title
                             ?: "Chapter ${index + 1}"
 
