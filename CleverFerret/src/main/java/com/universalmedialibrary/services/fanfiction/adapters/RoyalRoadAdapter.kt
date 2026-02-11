@@ -60,10 +60,30 @@ class RoyalRoadAdapter @Inject constructor(
                     tags = doc.select("span.label").map { it.text() },
                     language = "English",
                     status = extractStatus(doc),
-                    wordCount = 0, // Would need to sum all chapters
+                    wordCount = doc.select("div.fiction-stats li").let { stats ->
+                        // Royal Road shows "XXX Pages" and "XXX,XXX Words" in the stats section
+                        stats.find { it.text().contains("Words", ignoreCase = true) }
+                            ?.text()
+                            ?.replace(Regex("[^\\d]"), "")
+                            ?.toIntOrNull() ?: 0
+                    },
                     chapterCount = doc.select("table#chapters tr[data-url]").size,
-                    publishDate = null, // Would need more parsing
-                    updateDate = null,
+                    publishDate = doc.select("div.fiction-stats time").firstOrNull()?.let { timeElement ->
+                        try {
+                            val dateAttr = timeElement.attr("datetime") // ISO 8601 format
+                            if (dateAttr.isNotBlank()) {
+                                LocalDate.parse(dateAttr.substringBefore("T"))
+                            } else null
+                        } catch (e: Exception) { null }
+                    },
+                    updateDate = doc.select("div.fiction-stats time").lastOrNull()?.let { timeElement ->
+                        try {
+                            val dateAttr = timeElement.attr("datetime")
+                            if (dateAttr.isNotBlank()) {
+                                LocalDate.parse(dateAttr.substringBefore("T"))
+                            } else null
+                        } catch (e: Exception) { null }
+                    },
                     coverUrl = doc.select("img.thumbnail").attr("abs:src"),
                     sourceUrl = url,
                     sourceSite = siteName
@@ -135,7 +155,11 @@ class RoyalRoadAdapter @Inject constructor(
                     hasUpdates = currentChapters > lastChapter,
                     newChapters = (currentChapters - lastChapter).coerceAtLeast(0),
                     currentChapterCount = currentChapters,
-                    lastUpdateDate = null
+                    lastUpdateDate = doc.select("div.fiction-stats time").lastOrNull()?.let { timeElement ->
+                        try {
+                            LocalDate.parse(timeElement.attr("datetime").substringBefore("T"))
+                        } catch (e: Exception) { null }
+                    }
                 )
                 
                 Result.success(updateInfo)

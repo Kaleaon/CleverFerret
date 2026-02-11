@@ -15,6 +15,8 @@ import javax.inject.Singleton
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.io.File
+import java.security.MessageDigest
 
 /**
  * Enhanced Sync Service with Conflict Resolution
@@ -168,7 +170,7 @@ class EnhancedSyncService @Inject constructor(
     /**
      * Resolve a conflict based on resolution strategy
      */
-    private fun resolveConflict(
+    private suspend fun resolveConflict(
         conflict: EnhancedSyncConflict,
         strategy: EnhancedConflictResolution
     ): EnhancedConflictResolution {
@@ -204,7 +206,7 @@ class EnhancedSyncService @Inject constructor(
     /**
      * Attempt to merge conflicting changes
      */
-    private fun tryMerge(conflict: EnhancedSyncConflict) {
+    private suspend fun tryMerge(conflict: EnhancedSyncConflict) {
         when (conflict.itemType) {
             "READING_PROGRESS" -> mergeReadingProgress(conflict)
             "BOOKMARKS" -> mergeBookmarks(conflict)
@@ -215,7 +217,7 @@ class EnhancedSyncService @Inject constructor(
         }
     }
 
-    private fun mergeReadingProgress(conflict: EnhancedSyncConflict) {
+    private suspend fun mergeReadingProgress(conflict: EnhancedSyncConflict) {
         // Merge reading progress: use furthest position
         val localProgress = (conflict.localData as? SyncChange)?.data as? ReadingProgress
         val remoteProgress = (conflict.remoteData as? SyncChange)?.data as? ReadingProgress
@@ -227,18 +229,82 @@ class EnhancedSyncService @Inject constructor(
                 remoteProgress
             }
             // Save merged progress
-            // readingProgressDao.insertOrUpdate(merged)
+            try {
+                readingProgressDao.insertProgress(merged)
+            } catch (e: SQLiteConstraintException) {
+                updateState(error = "Failed to save merged reading progress: ${e.message}")
+            }
         }
     }
 
-    private fun mergeBookmarks(conflict: EnhancedSyncConflict) {
+    private suspend fun mergeBookmarks(conflict: EnhancedSyncConflict) {
         // Merge bookmarks: combine unique bookmarks from both
-        // Union of both bookmark lists
+        // Union of both bookmark lists, deduplicated by bookmarkId
+        val localChange = conflict.localData as? SyncChange
+        val remoteChange = conflict.remoteData as? SyncChange
+
+        val localBookmarks = when (val data = localChange?.data) {
+            is Bookmark -> listOf(data)
+            is List<*> -> data.filterIsInstance<Bookmark>()
+            else -> emptyList()
+        }
+        val remoteBookmarks = when (val data = remoteChange?.data) {
+            is Bookmark -> listOf(data)
+            is List<*> -> data.filterIsInstance<Bookmark>()
+            else -> emptyList()
+        }
+
+        // Combine bookmarks, keeping unique by bookmarkId; prefer the newer one on conflict
+        val mergedMap = mutableMapOf<Long, Bookmark>()
+        for (bookmark in localBookmarks) {
+            mergedMap[bookmark.bookmarkId] = bookmark
+        }
+        for (bookmark in remoteBookmarks) {
+            val existing = mergedMap[bookmark.bookmarkId]
+            if (existing == null || bookmark.dateCreated > existing.dateCreated) {
+                mergedMap[bookmark.bookmarkId] = bookmark
+            }
+        }
+
+        // Persist each merged bookmark
+        for (bookmark in mergedMap.values) {
+            try {
+                bookmarkDao.insertBookmark(bookmark)
+            } catch (e: SQLiteConstraintException) {
+                updateState(error = "Failed to save merged bookmark ${bookmark.bookmarkId}: ${e.message}")
+            }
+        }
     }
 
-    private fun mergeMediaItem(conflict: EnhancedSyncConflict) {
+    private suspend fun mergeMediaItem(conflict: EnhancedSyncConflict) {
         // Merge metadata: combine non-conflicting fields
-        // Keep most complete metadata
+        // Keep most complete metadata, prefer non-null fields and newer timestamps
+        val localItem = (conflict.localData as? SyncChange)?.data as? MediaItem
+        val remoteItem = (conflict.remoteData as? SyncChange)?.data as? MediaItem
+
+        if (localItem != null && remoteItem != null) {
+            // Use the newer item as the base, then fill in any null fields from the other
+            val newer = if (localItem.lastModified >= remoteItem.lastModified) localItem else remoteItem
+            val older = if (localItem.lastModified >= remoteItem.lastModified) remoteItem else localItem
+
+            val merged = newer.copy(
+                fileHash = newer.fileHash ?: older.fileHash,
+                mimeType = newer.mimeType ?: older.mimeType,
+                thumbnailPath = newer.thumbnailPath ?: older.thumbnailPath,
+                hasMetadata = newer.hasMetadata || older.hasMetadata,
+                hasThumbnail = newer.hasThumbnail || older.hasThumbnail,
+                isFavorite = newer.isFavorite || older.isFavorite,
+                playCount = maxOf(newer.playCount, older.playCount),
+                lastPlayed = maxOf(newer.lastPlayed, older.lastPlayed),
+                lastModified = maxOf(newer.lastModified, older.lastModified)
+            )
+
+            try {
+                mediaItemDao.insertMediaItem(merged)
+            } catch (e: SQLiteConstraintException) {
+                updateState(error = "Failed to save merged media item ${merged.itemId}: ${e.message}")
+            }
+        }
     }
 
     private fun detectConflictType(local: SyncChange, remote: SyncChange): ConflictType {
@@ -289,23 +355,21 @@ class EnhancedSyncService @Inject constructor(
                 )
             }
             
-            // Get bookmark changes (pending bookmark lastModified support)
-            /*
+            // Get bookmark changes (using dateCreated as timestamp fallback)
             val allBookmarks = bookmarkDao.getAllBookmarks()
-            val bookmarkChanges = allBookmarks.filter { it.lastModified > since }
+            val bookmarkChanges = allBookmarks.filter { it.dateCreated > since }
             for (bookmark in bookmarkChanges) {
                 changes.add(
                     SyncChange(
                         itemId = bookmark.itemId,
                         itemType = "BOOKMARK",
                         operation = ChangeOperation.MODIFY,
-                        timestamp = bookmark.lastModified,
+                        timestamp = bookmark.dateCreated,
                         data = bookmark,
                         checksum = generateChecksum(bookmark)
                     )
                 )
             }
-            */
             
         } catch (e: Exception) {
             updateState(error = "Failed to get local changes: ${e.message}")
@@ -316,35 +380,57 @@ class EnhancedSyncService @Inject constructor(
 
     private suspend fun getRemoteChanges(since: Long): List<SyncChange> {
         val changes = mutableListOf<SyncChange>()
-        
+
         try {
-            // In a real implementation, this would fetch from cloud storage
-            // For now, simulate remote changes by checking network availability
-            // and preparing to fetch from cloud endpoints
-            
-            val syncPrefs = context.getSharedPreferences("sync_state", Context.MODE_PRIVATE)
-            val lastRemoteSync = syncPrefs.getLong("last_remote_sync", 0)
-            
-            if (lastRemoteSync > since) {
-                // Simulate fetching remote changes from cloud storage
-                // This would typically involve API calls to cloud providers
-                // like Google Drive, Dropbox, or self-hosted sync server
-                
-                updateState(status = "Fetching remote changes from cloud...")
-                
-                // Placeholder: In production, implement actual cloud fetching logic
-                // Example:
-                // val remoteData = cloudStorageClient.fetchChanges(since)
-                // changes.addAll(parseRemoteChanges(remoteData))
-                
-            } else {
+            val syncDir = File(context.filesDir, "sync_data")
+            val syncJournalFile = File(syncDir, "sync_journal.json")
+
+            if (!syncJournalFile.exists()) {
                 updateState(status = "No remote changes available")
+                return emptyList()
             }
-            
+
+            updateState(status = "Reading sync data from local storage...")
+
+            val content = syncJournalFile.readText()
+            if (content.isBlank()) {
+                return emptyList()
+            }
+
+            val records = json.decodeFromString<List<SyncChangeRecord>>(content)
+
+            for (record in records) {
+                if (record.timestamp > since) {
+                    // Reconstruct SyncChange from the stored record
+                    // The actual data object is reconstructed based on itemType
+                    val data: Any? = try {
+                        when (record.itemType) {
+                            "MEDIA_ITEM" -> record.dataJson?.let { json.decodeFromString<MediaItem>(it) }
+                            "READING_PROGRESS" -> record.dataJson?.let { json.decodeFromString<ReadingProgress>(it) }
+                            "BOOKMARK" -> record.dataJson?.let { json.decodeFromString<Bookmark>(it) }
+                            else -> null
+                        }
+                    } catch (e: Exception) {
+                        null
+                    }
+
+                    changes.add(
+                        SyncChange(
+                            itemId = record.itemId,
+                            itemType = record.itemType,
+                            operation = record.operation,
+                            timestamp = record.timestamp,
+                            data = data,
+                            checksum = record.checksum
+                        )
+                    )
+                }
+            }
+
         } catch (e: Exception) {
             updateState(error = "Failed to fetch remote changes: ${e.message}")
         }
-        
+
         return changes.sortedBy { it.timestamp }
     }
 
@@ -414,25 +500,52 @@ class EnhancedSyncService @Inject constructor(
     private suspend fun uploadLocalChange(change: SyncChange) {
         try {
             updateState(status = "Uploading local change: ${change.itemType} ${change.itemId}")
-            
-            // In a real implementation, this would upload to cloud storage
-            // For now, prepare the data and simulate upload
-            
-            val changeJson = json.encodeToString(change)
-            
-            // Placeholder: In production, implement actual cloud upload logic
-            // Example:
-            // when (syncProvider) {
-            //     "GOOGLE_DRIVE" -> googleDriveClient.uploadFile(changeJson, change.itemId)
-            //     "DROPBOX" -> dropboxClient.uploadFile(changeJson, change.itemId)
-            //     "SELF_HOSTED" -> syncServerClient.uploadChange(change)
-            // }
-            
-            // Simulate upload delay
-            kotlinx.coroutines.delay(100)
-            
+
+            // Serialize the data object to JSON based on its type
+            val dataJson: String? = when (val data = change.data) {
+                is MediaItem -> json.encodeToString(data)
+                is ReadingProgress -> json.encodeToString(data)
+                is Bookmark -> json.encodeToString(data)
+                else -> null
+            }
+
+            val record = SyncChangeRecord(
+                itemId = change.itemId,
+                itemType = change.itemType,
+                operation = change.operation,
+                timestamp = change.timestamp,
+                dataJson = dataJson,
+                checksum = change.checksum
+            )
+
+            // Write to local sync data file
+            val syncDir = File(context.filesDir, "sync_data")
+            if (!syncDir.exists()) {
+                syncDir.mkdirs()
+            }
+            val syncJournalFile = File(syncDir, "sync_journal.json")
+
+            // Read existing records, append the new one, and write back
+            val existingRecords: MutableList<SyncChangeRecord> = if (syncJournalFile.exists()) {
+                val content = syncJournalFile.readText()
+                if (content.isBlank()) {
+                    mutableListOf()
+                } else {
+                    try {
+                        json.decodeFromString<List<SyncChangeRecord>>(content).toMutableList()
+                    } catch (e: Exception) {
+                        mutableListOf()
+                    }
+                }
+            } else {
+                mutableListOf()
+            }
+
+            existingRecords.add(record)
+            syncJournalFile.writeText(json.encodeToString(existingRecords))
+
             updateState(status = "Successfully uploaded: ${change.itemType} ${change.itemId}")
-            
+
         } catch (e: Exception) {
             updateState(error = "Failed to upload local change: ${e.message}")
         }
@@ -468,12 +581,18 @@ class EnhancedSyncService @Inject constructor(
     }
     
     /**
-     * Generate checksum for data integrity verification
+     * Generate checksum for data integrity verification using SHA-256
      */
     private fun generateChecksum(data: Any): String {
-        // Simple hashcode-based checksum
-        // In production, use a proper hashing algorithm like MD5 or SHA-256
-        return data.hashCode().toString()
+        val dataString = when (data) {
+            is MediaItem -> json.encodeToString(data)
+            is ReadingProgress -> json.encodeToString(data)
+            is Bookmark -> json.encodeToString(data)
+            else -> data.toString()
+        }
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hashBytes = digest.digest(dataString.toByteArray(Charsets.UTF_8))
+        return hashBytes.joinToString("") { "%02x".format(it) }
     }
 }
 
@@ -528,11 +647,27 @@ data class SyncChange(
 /**
  * Change operation type
  */
+@Serializable
 enum class ChangeOperation {
     CREATE,
     MODIFY,
     DELETE
 }
+
+/**
+ * Serializable record for persisting sync changes to local file storage.
+ * Unlike SyncChange which holds an Any? data field, this stores the data
+ * as a JSON string so it can be serialized/deserialized safely.
+ */
+@Serializable
+data class SyncChangeRecord(
+    val itemId: Long,
+    val itemType: String,
+    val operation: ChangeOperation,
+    val timestamp: Long,
+    val dataJson: String? = null,
+    val checksum: String? = null
+)
 
 /**
  * Enhanced sync conflict with detailed change tracking

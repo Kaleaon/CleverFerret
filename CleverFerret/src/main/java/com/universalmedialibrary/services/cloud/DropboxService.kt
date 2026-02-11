@@ -1,6 +1,9 @@
 package com.universalmedialibrary.services.cloud
 
 import android.content.Context
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +41,20 @@ class DropboxService @Inject constructor(
     val syncProgress: Flow<Float> = _syncProgress.asStateFlow()
     
     private var accessToken: String? = null
-    
+
+    private val securePrefs: SharedPreferences by lazy {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        EncryptedSharedPreferences.create(
+            context,
+            "dropbox_secure_prefs",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
     companion object {
         const val APP_FOLDER = "/CleverFerret"
     }
@@ -213,16 +229,16 @@ class DropboxService @Inject constructor(
     /**
      * Sync media with Dropbox
      */
-    suspend fun syncMedia(): SyncResult {
+    suspend fun syncMedia(): DropboxSyncResult {
         return withContext(Dispatchers.IO) {
             if (accessToken == null) {
-                return@withContext SyncResult(
+                return@withContext DropboxSyncResult(
                     success = false,
                     error = "Dropbox access token not configured."
                 )
             }
             val remoteFiles = listFiles(APP_FOLDER)
-            SyncResult(success = remoteFiles.isNotEmpty() || accessToken != null, error = null)
+            DropboxSyncResult(success = remoteFiles.isNotEmpty() || accessToken != null, error = null)
         }
     }
 
@@ -277,26 +293,33 @@ class DropboxService @Inject constructor(
     }
 
     private fun getStoredAccessToken(): String? {
-        // Implementation would retrieve from secure storage
-        val prefs = context.getSharedPreferences("dropbox_prefs", Context.MODE_PRIVATE)
-        return prefs.getString("access_token", null)
+        return securePrefs.getString("access_token", null)
     }
 
     private fun storeAccessToken(token: String) {
-        // Implementation would store in secure storage
-        val prefs = context.getSharedPreferences("dropbox_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putString("access_token", token).apply()
+        securePrefs.edit().putString("access_token", token).apply()
     }
 
     private fun clearStoredToken() {
-        // Implementation would clear from secure storage
-        val prefs = context.getSharedPreferences("dropbox_prefs", Context.MODE_PRIVATE)
-        prefs.edit().remove("access_token").apply()
+        securePrefs.edit().remove("access_token").apply()
     }
 
     private suspend fun getLocalMediaFiles(): List<LocalMediaFile> {
-        // Implementation would scan local media directories
-        return emptyList()
+        return withContext(Dispatchers.IO) {
+            val mediaDir = context.getExternalFilesDir(null) ?: return@withContext emptyList()
+            val files = mutableListOf<LocalMediaFile>()
+            mediaDir.walkTopDown()
+                .filter { it.isFile }
+                .forEach { file ->
+                    files.add(LocalMediaFile(
+                        path = file.absolutePath,
+                        name = file.name,
+                        lastModified = file.lastModified(),
+                        size = file.length()
+                    ))
+                }
+            files
+        }
     }
 
     private fun getDownloadPath(fileName: String): String {
@@ -310,11 +333,10 @@ class DropboxService @Inject constructor(
 data class DropboxFile(
     val id: String,
     val name: String,
-    val pathLower: String?,
-    val pathDisplay: String?,
+    val path: String,
     val size: Long,
     val isFolder: Boolean,
-    val modifiedTime: Long
+    val modified: String?
 )
 
 /**
@@ -322,27 +344,26 @@ data class DropboxFile(
  */
 data class DropboxAccountInfo(
     val accountId: String,
-    val displayName: String,
-    val email: String
+    val name: String,
+    val email: String,
+    val country: String? = null
 )
 
 /**
  * Data class for storage usage
  */
 data class StorageUsage(
-    val used: Long,
-    val limit: Long,
-    val usageInDrive: Long = 0L,
-    val usageInDriveTrash: Long = 0L
+    val totalBytes: Long,
+    val usedBytes: Long
 ) {
     val usagePercentage: Float
-        get() = if (limit > 0) (used.toFloat() / limit.toFloat()) * 100f else 0f
+        get() = if (totalBytes > 0) (usedBytes.toFloat() / totalBytes.toFloat()) * 100f else 0f
 }
 
 /**
  * Data class for sync results
  */
-data class SyncResult(
+data class DropboxSyncResult(
     val success: Boolean,
     val uploadedCount: Int = 0,
     val downloadedCount: Int = 0,

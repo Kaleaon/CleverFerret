@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.audio
 
+import android.util.Log
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -434,7 +435,7 @@ class AudioPlaybackManager @Inject constructor(
                 lines.forEach { line ->
                     val trimmed = line.trim()
                     if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEach
-                    try { uris.add(Uri.parse(trimmed)) } catch (_: Exception) {}
+                    try { uris.add(Uri.parse(trimmed)) } catch (e: Exception) { Log.w("AudioPlaybackManager", "Error parsing URI: $trimmed", e) }
                 }
             }
             if (uris.isEmpty()) return false

@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.thumbnails
 
+import android.util.Log
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -37,7 +38,7 @@ class ThumbnailService @Inject constructor(
                 }
             }
             null
-        } catch (_: Exception) { null }
+        } catch (e: Exception) { Log.w("ThumbnailService", "Error extracting cover from EPUB", e); null }
     }
 
     suspend fun extractCoverFromCbz(uri: Uri, sizePx: Int = 600): File? = withContext(Dispatchers.IO) {
@@ -59,7 +60,7 @@ class ThumbnailService @Inject constructor(
                     best?.second
                 }
             }
-        } catch (_: Exception) { null }
+        } catch (e: Exception) { Log.w("ThumbnailService", "Error extracting cover from CBZ", e); null }
     }
     suspend fun generatePlaceholder(title: String, sizePx: Int = 600): File = withContext(Dispatchers.IO) {
         val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)

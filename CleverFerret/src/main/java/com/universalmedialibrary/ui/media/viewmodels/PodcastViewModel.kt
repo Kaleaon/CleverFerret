@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.PodcastEpisodeDao
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.podcast.PodcastDownloadManager
+import com.universalmedialibrary.services.podcast.PodcastService
 import com.universalmedialibrary.services.podcast.Podcast as DomainPodcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode as DomainEpisode
 import com.universalmedialibrary.ui.media.screens.*
@@ -23,7 +24,8 @@ import java.util.Locale
 class PodcastViewModel @Inject constructor(
     private val podcastRepository: PodcastRepository,
     private val episodeDao: PodcastEpisodeDao,
-    private val downloadManager: PodcastDownloadManager
+    private val downloadManager: PodcastDownloadManager,
+    private val podcastService: PodcastService
 ) : ViewModel() {
 
     private val nowPlaying = MutableStateFlow<PodcastEpisode?>(null)
@@ -140,27 +142,45 @@ class PodcastViewModel @Inject constructor(
     
     fun refreshFeeds() {
         viewModelScope.launch {
-            // Feed refresh is handled by PodcastService/Repository when subscriptions update.
-            // Keep this as a lightweight UI hint.
             isLoading.value = true
-            isLoading.value = false
+            try {
+                val podcasts = podcastRepository.getSubscribedPodcasts().firstOrNull().orEmpty()
+                for (podcast in podcasts) {
+                    try {
+                        podcastRepository.refreshPodcast(podcast.id)
+                    } catch (e: Exception) {
+                        android.util.Log.e("PodcastViewModel", "Failed to refresh podcast: ${podcast.title}", e)
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("PodcastViewModel", "Failed to refresh feeds", e)
+            } finally {
+                isLoading.value = false
+            }
         }
     }
     
     fun importOpml(opmlContent: String) {
         viewModelScope.launch {
-            // OPML import is handled by the legacy podcast manager for now.
-            // Wire this to a proper importer when the media-centric flow is finalized.
+            isLoading.value = true
+            try {
+                podcastService.importOPML(opmlContent)
+            } catch (e: Exception) {
+                android.util.Log.e("PodcastViewModel", "Failed to import OPML", e)
+            } finally {
+                isLoading.value = false
+            }
         }
     }
     
-    fun exportOpml(): String {
-        // OPML export is handled by the legacy podcast manager for now.
-        return """<?xml version="1.0" encoding="UTF-8"?>
-            |<opml version="1.0">
-            |  <head><title>Podcast Subscriptions</title></head>
-            |  <body></body>
-            |</opml>""".trimMargin()
+    suspend fun exportOpml(): String {
+        return try {
+            val podcasts = podcastRepository.getSubscribedPodcasts().firstOrNull().orEmpty()
+            podcastService.exportToOPML(podcasts)
+        } catch (e: Exception) {
+            android.util.Log.e("PodcastViewModel", "Failed to export OPML", e)
+            ""
+        }
     }
 
     private fun DomainPodcast.toUiShow(unplayedCount: Int): PodcastShow {

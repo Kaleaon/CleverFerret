@@ -50,6 +50,9 @@ class FMRadioService @Inject constructor(
     private val _isAvailable = MutableStateFlow(false)
     val isAvailable: StateFlow<Boolean> = _isAvailable.asStateFlow()
 
+    private val _isSimulationMode = MutableStateFlow(false)
+    val isSimulationMode: StateFlow<Boolean> = _isSimulationMode.asStateFlow()
+
     private val _currentFrequency = MutableStateFlow(87500) // Default start of FM band
     val currentFrequency: StateFlow<Int> = _currentFrequency.asStateFlow()
 
@@ -105,11 +108,10 @@ class FMRadioService @Inject constructor(
             Log.w(TAG, "System Radio API not supported on this device (missing classes)")
         }
         
-        // If we reach here, hardware is unavailable.
-        // We set available=true ONLY to allow UI testing/Simulation if desired.
-        // User requested "actually utilize hardware", so this state might indicate failure to them.
-        // However, for app stability, we allow the service to exist.
-        _isAvailable.value = true 
+        // Hardware unavailable - enable simulation mode for testing
+        _isAvailable.value = false
+        _isSimulationMode.value = true
+        Log.w(TAG, "FM Radio hardware unavailable. Simulation mode enabled for UI testing.")
     }
 
     fun initialize(): Boolean {
@@ -137,7 +139,7 @@ class FMRadioService @Inject constructor(
                              try {
                                 _dnsMetadata.value = radioDnsService.lookupFmStation(piHex, mhz)
                              } catch (e: Exception) {
-                                 // Ignore dns errors
+                                 Log.w(TAG, "RadioDNS lookup failed for PI=$piHex freq=$mhz: ${e.message}")
                              }
                          }
                      }
@@ -163,8 +165,10 @@ class FMRadioService @Inject constructor(
              }
         }
 
-        // Fallback to simulation if hardware failed but we want to show UI
-        return true
+        // Fallback to simulation if hardware failed
+        Log.w(TAG, "Hardware initialization failed. Operating in simulation mode.")
+        _isSimulationMode.value = true
+        return false
     }
 
     fun tune(frequencyKhz: Int): Boolean {
@@ -179,9 +183,12 @@ class FMRadioService @Inject constructor(
             return systemRadio.tune(frequencyKhz)
         }
         
-        // Simulation Logic (Fallback)
-        simulateTuning(frequencyKhz)
-        return true
+        if (!isHardwareConnected) {
+            Log.d(TAG, "Tuning in simulation mode to ${formatFrequency(frequencyKhz)}")
+            simulateTuning(frequencyKhz)
+            return true
+        }
+        return false
     }
 
     fun play() {
@@ -189,6 +196,7 @@ class FMRadioService @Inject constructor(
             val res = systemRadio.setMute(false)
             if (res) _isPlaying.value = true
         } else {
+            Log.d(TAG, "Playing in simulation mode (no audio output)")
             _isPlaying.value = true
         }
     }

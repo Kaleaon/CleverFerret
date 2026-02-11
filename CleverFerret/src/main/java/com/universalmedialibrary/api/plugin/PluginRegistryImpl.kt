@@ -1,5 +1,6 @@
 package com.universalmedialibrary.api.plugin
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -96,7 +97,7 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
             scope.launch {
                 try {
                     plugin.shutdown()
-                } catch (_: Exception) { }
+                } catch (e: Exception) { Log.w("PluginRegistryImpl", "Error shutting down plugin: ${plugin.id}", e) }
             }
             lifecycleCallbacks.forEach { it.onPluginUnregistered(id) }
             scope.launch {

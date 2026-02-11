@@ -13,6 +13,7 @@ import okhttp3.Request
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -240,12 +241,31 @@ class FFNAdapter @Inject constructor(
     }
     
     private fun parseFFNDate(dateStr: String): LocalDate? {
-        // FFN uses format like "Jan 15, 2023" or "1/15/2023"
+        val cleanDate = dateStr.trim()
+        if (cleanDate.isBlank()) return null
+
         return try {
-            // This is simplified - would need more robust date parsing
-            null
+            // Try "MMM d, yyyy" format (e.g., "Jan 15, 2023")
+            DateTimeFormatter.ofPattern("MMM d, yyyy", java.util.Locale.ENGLISH)
+                .let { LocalDate.parse(cleanDate, it) }
         } catch (e: Exception) {
-            null
+            try {
+                // Try "M/d/yyyy" format (e.g., "1/15/2023")
+                DateTimeFormatter.ofPattern("M/d/yyyy", java.util.Locale.ENGLISH)
+                    .let { LocalDate.parse(cleanDate, it) }
+            } catch (e2: Exception) {
+                try {
+                    // Try "M/d" format (e.g., "1/15" - assume current year)
+                    val parts = cleanDate.split("/")
+                    if (parts.size == 2) {
+                        val month = parts[0].toIntOrNull() ?: return null
+                        val day = parts[1].toIntOrNull() ?: return null
+                        LocalDate.of(LocalDate.now().year, month, day)
+                    } else null
+                } catch (e3: Exception) {
+                    null
+                }
+            }
         }
     }
     
