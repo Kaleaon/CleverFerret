@@ -15,6 +15,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [IMPROVEMENTS_SUMMARY](IMPROVEMENTS_SUMMARY.md) - Recent improvements and reorganization
 - [FEATURES](FEATURES.md) - Supported file formats and key features
 - [ROADMAP](ROADMAP.md) - Planned features and development priorities
+- [Build Toolchain Versions](BUILD_TOOLCHAIN_VERSIONS.md) - Canonical AGP/Kotlin/KSP/Gradle version sources and upgrade steps
 
 ---
 

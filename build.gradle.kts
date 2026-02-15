@@ -1,21 +1,25 @@
 /**
  * Universal Media Library - Root Build Configuration
- * 
+ *
  * Top-level build file for project-wide plugin versions and configuration.
  * Individual module configurations are in their respective build.gradle.kts files.
- * 
- * Pinned Versions (per project standards):
- * - Kotlin: 2.1.0
- * - Android Gradle Plugin: 8.13.0
- * - Hilt: 2.53
- * - Gradle: 8.13
+ *
+ * Canonical toolchain versions:
+ * - AGP/Kotlin/KSP/Hilt plugin versions: gradle/libs.versions.toml ([versions] + [plugins])
+ * - Gradle runtime version: gradle/wrapper/gradle-wrapper.properties (distributionUrl)
+ *
+ * Upgrade procedure:
+ * 1) Update plugin/tool versions in gradle/libs.versions.toml.
+ * 2) Update Gradle wrapper via ./gradlew wrapper --gradle-version <version>.
+ * 3) Run ./gradlew --version and ./gradlew help to validate the toolchain.
+ * See docs/BUILD_TOOLCHAIN_VERSIONS.md for full details.
  */
 
 plugins {
-    id("com.android.application") version "8.13.1" apply false
-    id("org.jetbrains.kotlin.android") version "2.1.0" apply false
-    id("com.google.devtools.ksp") version "2.1.0-1.0.29" apply false
-    id("com.google.dagger.hilt.android") version "2.53" apply false
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0" apply false
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0" apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.hilt) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.compose) apply false
 }
