@@ -113,7 +113,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 52
+        versionCode = 53
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -188,10 +188,19 @@ android {
             excludes += "/META-INF/*.properties"
         }
     }
-    
+
+    val isCiBuild = providers.environmentVariable("CI").orNull.equals("true", ignoreCase = true)
+    val isReleaseTaskRequested = gradle.startParameter.taskNames.any { taskName ->
+        taskName.contains("release", ignoreCase = true)
+    }
+    val lintAbortOnError = providers.gradleProperty("lint.abortOnError")
+        .map { it.equals("true", ignoreCase = true) }
+        .orElse(isCiBuild || isReleaseTaskRequested)
+
     lint {
-        abortOnError = false
-        checkReleaseBuilds = false
+        abortOnError = lintAbortOnError.get()
+        checkReleaseBuilds = true
+        baseline = file("lint-baseline.xml")
         lintConfig = file("lint.xml")
         htmlReport = true
         xmlReport = true

@@ -40,8 +40,7 @@ jobs:
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
 
       - name: Run Android Lint
-        run: ./gradlew lint --no-daemon --stacktrace
-        continue-on-error: true
+        run: ./gradlew lintDebug -Plint.abortOnError=true --no-daemon --stacktrace
 
       - name: Upload Lint Results
         uses: actions/upload-artifact@v4
@@ -51,6 +50,8 @@ jobs:
           path: |
             CleverFerret/build/reports/lint-results-*.html
             CleverFerret/build/reports/lint-results-*.xml
+            CleverFerret/build/reports/lint-results-*.txt
+            CleverFerret/lint-baseline.xml
 
       - name: Comment Lint Results on PR
         if: github.event_name == 'pull_request' && always()

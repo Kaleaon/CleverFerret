@@ -106,8 +106,7 @@ jobs:
       
     - name: Run lint checks
       if: steps.compile.outcome == 'success'
-      run: ./gradlew lintDebug --continue
-      continue-on-error: true
+      run: ./gradlew lintDebug -Plint.abortOnError=true --stacktrace
       id: lint-checks
       
     - name: Report test and lint results
@@ -117,14 +116,14 @@ jobs:
           echo "::error::Unit tests failed. Check test reports for details."
         fi
         if [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
-          echo "::warning::Lint checks found issues. Check lint reports for details."
+          echo "::error::Lint checks failed. New lint issues must be fixed or explicitly suppressed."
         fi
       
     - name: Fail workflow if compilation or tests failed
       if: always()
       run: |
-        if [ "${{ steps.compile.outcome }}" == "failure" ] || [ "${{ steps.unit-tests.outcome }}" == "failure" ]; then
-          echo "Workflow failed due to compilation or test failures"
+        if [ "${{ steps.compile.outcome }}" == "failure" ] || [ "${{ steps.unit-tests.outcome }}" == "failure" ] || [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
+          echo "Workflow failed due to compilation, test, or lint failures"
           exit 1
         fi
       
@@ -136,6 +135,9 @@ jobs:
         path: |
           CleverFerret/build/reports/tests/
           CleverFerret/build/reports/lint-results-debug.html
+          CleverFerret/build/reports/lint-results-debug.xml
+          CleverFerret/build/reports/lint-results-debug.txt
+          CleverFerret/lint-baseline.xml
 
   build:
     name: Build APK
