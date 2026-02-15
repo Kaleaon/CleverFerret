@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshotFlow
@@ -29,11 +30,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
@@ -671,7 +680,8 @@ private fun CollectionsSection(
         Text(
             text = "Your Collections",
             style = MediaTypography.TitleMedium,
-            color = MediaColors.TextPrimary
+            color = MediaColors.TextPrimary,
+            modifier = Modifier.semantics { heading() }
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
@@ -764,7 +774,8 @@ private fun QuickAccessGrid(
         Text(
             text = "Explore Your Library",
             style = MediaTypography.TitleMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.semantics { heading() }
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
@@ -807,13 +818,17 @@ private fun QuickAccessFlowGrid(
             maxItemsInEachRow = columns,
             horizontalArrangement = Arrangement.spacedBy(spacing),
             verticalArrangement = Arrangement.spacedBy(spacing),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics { isTraversalGroup = true }
         ) {
-            items.forEach { item ->
+            items.forEachIndexed { index, item ->
                 QuickAccessCard(
                     item = item,
                     onClick = { onCategoryClick(item.id) },
-                    modifier = Modifier.width(cardWidth)
+                    modifier = Modifier
+                        .width(cardWidth)
+                        .semantics { traversalIndex = index.toFloat() }
                 )
             }
         }
@@ -826,11 +841,19 @@ private fun QuickAccessCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cardContentDescription = stringResource(
+        id = R.string.cd_open_category,
+        item.label
+    )
     val quickAccessAlphas = MediaColors.quickAccessCardAlphas()
 
     Surface(
         modifier = modifier
-            .aspectRatio(1f),
+            .aspectRatio(1f)
+            .semantics {
+                role = Role.Button
+                contentDescription = cardContentDescription
+            },
         shape = RoundedCornerShape(MediaCorners.Card),
         color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(
@@ -853,7 +876,7 @@ private fun QuickAccessCard(
             ) {
                 Icon(
                     imageVector = item.icon,
-                    contentDescription = item.label,
+                    contentDescription = null,
                     modifier = Modifier
                         .padding(MediaSpacing.SM)
                         .fillMaxSize(),
@@ -1242,7 +1265,8 @@ private fun RecentlyAddedGridSection(
             text = title,
             style = MediaTypography.TitleSmall,
             color = MaterialTheme.colorScheme.onBackground,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.semantics { heading() }
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
