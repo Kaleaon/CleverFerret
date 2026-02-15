@@ -69,11 +69,18 @@ data class MediaItem(
     val rating: Float? = null,          // 1.0 to 10.0
     val year: Int? = null,
     val duration: String? = null,
+    val remainingTimeText: String? = null,
     val mediaType: MediaType = MediaType.UNKNOWN,
     val badges: List<MediaBadge> = emptyList(),
     val isNew: Boolean = false,
     val isUnwatched: Boolean = false
 )
+
+@Composable
+private fun mediaProgressColors(): Pair<Color, Color> {
+    val scheme = MaterialTheme.colorScheme
+    return scheme.primary to scheme.surfaceContainerHighest
+}
 
 enum class MediaType(val color: Color, val icon: ImageVector) {
     BOOK(MediaColors.MediaTypes.Book, Icons.Default.MenuBook),
@@ -215,14 +222,15 @@ fun MediaPosterCard(
             
             // Progress bar
             if (showProgress && item.progress > 0) {
+                val (progressColor, progressTrackColor) = mediaProgressColors()
                 LinearProgressIndicator(
                     progress = { item.progress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(MediaSizes.ProgressHeight)
                         .align(Alignment.BottomCenter),
-                    color = MediaColors.AccentPrimary,
-                    trackColor = MediaColors.ProgressBackground
+                    color = progressColor,
+                    trackColor = progressTrackColor
                 )
             }
             
@@ -510,14 +518,15 @@ fun MediaWideCard(
         
         // Progress bar
         if (item.progress > 0) {
+            val (progressColor, progressTrackColor) = mediaProgressColors()
             LinearProgressIndicator(
                 progress = { item.progress },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(MediaSizes.ProgressHeight)
                     .align(Alignment.BottomCenter),
-                color = MediaColors.AccentPrimary,
-                trackColor = MediaColors.ProgressBackground
+                color = progressColor,
+                trackColor = progressTrackColor
             )
         }
         
@@ -748,14 +757,15 @@ fun MediaHeroCard(
         
         // Progress bar
         if (item.progress > 0) {
+            val (progressColor, progressTrackColor) = mediaProgressColors()
             LinearProgressIndicator(
                 progress = { item.progress },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(MediaSizes.ProgressHeightThick)
                     .align(Alignment.BottomCenter),
-                color = MediaColors.AccentPrimary,
-                trackColor = MediaColors.ProgressBackground
+                color = progressColor,
+                trackColor = progressTrackColor
             )
         }
     }
@@ -849,14 +859,15 @@ fun MediaListItem(
                 
                 // Progress bar
                 if (showProgress && item.progress > 0) {
+                    val (progressColor, progressTrackColor) = mediaProgressColors()
                     Spacer(modifier = Modifier.height(MediaSpacing.XS))
                     LinearProgressIndicator(
                         progress = { item.progress },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(2.dp),
-                        color = MediaColors.AccentPrimary,
-                        trackColor = MediaColors.ProgressBackground
+                        color = progressColor,
+                        trackColor = progressTrackColor
                     )
                 }
             }
