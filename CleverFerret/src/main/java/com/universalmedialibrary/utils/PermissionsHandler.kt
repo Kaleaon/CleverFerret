@@ -3,11 +3,8 @@ package com.universalmedialibrary.utils
 import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Environment
-import android.provider.Settings
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -103,48 +99,6 @@ object PermissionsHandler {
         }
     }
     
-    /**
-     * Check if full storage access is granted (needed for documents/ebooks on Android 11+)
-     * On Android 13+, READ_MEDIA_* permissions don't cover documents like epub, pdf, etc.
-     * MANAGE_EXTERNAL_STORAGE is required for full file access including ebooks.
-     */
-    fun hasFullStorageAccess(context: Context): Boolean {
-        return when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                // Android 11+ (restricted) "All files access" for full document scanning.
-                Environment.isExternalStorageManager()
-            }
-            else -> {
-                // Android 10 and below
-                hasPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        }
-    }
-    
-    /**
-     * Request full storage access permission (for documents/ebooks)
-     * This opens system settings to grant MANAGE_EXTERNAL_STORAGE on Android 11+
-     * 
-     * Note: On Android versions below 11, this function does nothing as 
-     * MANAGE_EXTERNAL_STORAGE permission doesn't exist.
-     */
-    fun requestFullStorageAccess(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                intent.data = android.net.Uri.parse("package:${context.packageName}")
-                // Add FLAG_ACTIVITY_NEW_TASK if not called from an Activity context
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            } catch (e: Exception) {
-                // Fallback to general settings if app-specific intent is not available
-                android.util.Log.w("PermissionsHandler", "App-specific settings not available, falling back", e)
-                val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            }
-        }
-    }
 
     /**
      * Check if notification permissions are granted
@@ -157,23 +111,6 @@ object PermissionsHandler {
         }
     }
 
-    /**
-     * Launch storage permission request (for Android 11-12 only)
-     * Android 13+ uses granular READ_MEDIA_* permissions instead
-     */
-    fun requestStorageManagement(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            try {
-                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                intent.data = "package:${context.packageName}".toUri()
-                context.startActivity(intent)
-            } catch (e: Exception) {
-                // Fallback to general settings
-                val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                context.startActivity(intent)
-            }
-        }
-    }
 }
 
 /**
