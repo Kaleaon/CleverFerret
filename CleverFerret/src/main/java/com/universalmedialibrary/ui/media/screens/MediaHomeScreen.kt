@@ -1,6 +1,12 @@
 package com.universalmedialibrary.ui.media.screens
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -22,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -119,7 +126,7 @@ fun MediaHomeScreen(
             )
         } else if (state.isLoading) {
             LoadingStateContent(
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.fillMaxSize()
             )
         } else {
             LazyColumn(
@@ -1489,26 +1496,159 @@ private fun ErrorStateContent(
 private fun LoadingStateContent(
     modifier: Modifier = Modifier
 ) {
-    Column(
+    val shimmerBrush = rememberShimmerBrush()
+
+    LazyColumn(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(MediaSpacing.XL),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .fillMaxSize()
+            .padding(bottom = MediaSpacing.Huge)
     ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(48.dp),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 4.dp
+        item {
+            HeroSkeletonRow(brush = shimmerBrush)
+        }
+
+        item {
+            QuickStatsSkeletonRow(brush = shimmerBrush)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+            QuickAccessSkeletonGrid(brush = shimmerBrush)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(MediaSpacing.Huge))
+        }
+    }
+}
+
+@Composable
+private fun rememberShimmerBrush(): Brush {
+    val transition = rememberInfiniteTransition(label = "home_loading_shimmer")
+    val translateX by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "home_loading_shimmer_translate"
+    )
+
+    return Brush.linearGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+        ),
+        start = Offset(translateX - 500f, 0f),
+        end = Offset(translateX, 0f)
+    )
+}
+
+@Composable
+private fun HeroSkeletonRow(brush: Brush) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(MediaSizes.HeroHeight)
+                .background(brush)
         )
-        
-        Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
-        Text(
-            text = "Loading your library...",
-            style = MediaTypography.BodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = MediaSpacing.LG),
+            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+        ) {
+            repeat(3) { index ->
+                Box(
+                    modifier = Modifier
+                        .size(if (index == 0) 24.dp else 8.dp, 4.dp)
+                        .clip(RoundedCornerShape(MediaCorners.Full))
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f))
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickStatsSkeletonRow(brush: Brush) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal, vertical = MediaSpacing.MD)
+    ) {
+        val isCompact = maxWidth < 420.dp
+        val spacing = MediaSpacing.MD
+
+        val statCard: @Composable (Modifier) -> Unit = { cardModifier ->
+            Box(
+                modifier = cardModifier
+                    .height(72.dp)
+                    .clip(RoundedCornerShape(MediaCorners.Card))
+                    .background(brush)
+            )
+        }
+
+        if (isCompact) {
+            Column(verticalArrangement = Arrangement.spacedBy(spacing)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                    repeat(2) { statCard(Modifier.weight(1f)) }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                    repeat(2) { statCard(Modifier.weight(1f)) }
+                }
+            }
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                repeat(4) { statCard(Modifier.weight(1f)) }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun QuickAccessSkeletonGrid(brush: Brush) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.5f)
+                .height(24.dp)
+                .clip(RoundedCornerShape(MediaCorners.XS))
+                .background(brush)
         )
+
+        Spacer(modifier = Modifier.height(MediaSpacing.MD))
+
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val columns = if (maxWidth < 360.dp) 2 else 3
+            val spacing = MediaSpacing.MD
+            val cardWidth = (maxWidth - spacing * (columns - 1)) / columns
+
+            FlowRow(
+                maxItemsInEachRow = columns,
+                horizontalArrangement = Arrangement.spacedBy(spacing),
+                verticalArrangement = Arrangement.spacedBy(spacing),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                repeat(13) {
+                    Box(
+                        modifier = Modifier
+                            .width(cardWidth)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(MediaCorners.Card))
+                            .background(brush)
+                    )
+                }
+            }
+        }
     }
 }
