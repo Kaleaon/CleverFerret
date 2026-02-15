@@ -1,6 +1,5 @@
 package com.universalmedialibrary.services.news
 
-import android.util.Log
 import android.content.Context
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
@@ -18,12 +17,12 @@ import java.io.File
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Manages the downloading and generation of news ebooks from recipes.
@@ -93,7 +92,7 @@ class NewsManager @Inject constructor(
             Result.success(outputFile)
 
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("NewsManager", "Unhandled exception", e)
             Result.failure(e)
         }
     }
@@ -157,7 +156,7 @@ class NewsManager @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("NewsManager", "Unhandled exception", e)
             emptyList()
         }
     }
@@ -188,7 +187,7 @@ class NewsManager @Inject constructor(
                 return formatter.parse(cleaned, Instant::from)
             } catch (e: DateTimeParseException) {
                 // continue
-                Log.d("NewsManager", "Non-critical error, continuing: ${e.message}")
+                AppLogger.debug("NewsManager", "Non-critical date parsing issue", e)
             }
         }
 
@@ -258,7 +257,7 @@ class NewsManager @Inject constructor(
             }
 
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("NewsManager", "Unhandled exception", e)
             return null
         }
     }

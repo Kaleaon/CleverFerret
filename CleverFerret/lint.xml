@@ -89,6 +89,7 @@
     <!-- Development and debugging -->
     <issue id="LogConditional" severity="ignore" />
     <issue id="StopShip" severity="error" />
+    <issue id="PrintStackTrace" severity="error" />
     
     <!-- Manifest issues that are acceptable -->
     <issue id="PermissionImpliesUnsupportedChromeOsHardware" severity="warning" />

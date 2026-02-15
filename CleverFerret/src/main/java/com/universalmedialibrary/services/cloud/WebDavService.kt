@@ -12,6 +12,7 @@ import com.universalmedialibrary.services.network.WebDavClient
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * WebDAV Integration Service for CleverFerret
@@ -60,7 +61,7 @@ class WebDavService @Inject constructor(
                     false
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.error("WebDavService", "Unhandled exception", e)
                 false
             }
         }
@@ -85,7 +86,7 @@ class WebDavService @Inject constructor(
                 _isAuthenticated.value = true
                 true
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.error("WebDavService", "Unhandled exception", e)
                 false
             }
         }

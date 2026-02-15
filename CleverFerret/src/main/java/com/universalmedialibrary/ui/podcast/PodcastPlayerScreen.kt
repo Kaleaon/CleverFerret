@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.theme.*
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Podcast Player Screen - Working version with metallic theme
@@ -82,7 +83,7 @@ fun PodcastPlayerScreen(
                                 context.startActivity(shareIntent)
                             } catch (e: Exception) {
                                 // Handle the case where no app can handle the share intent
-                                e.printStackTrace()
+                                AppLogger.error("PodcastPlayerScreen", "Unhandled exception", e)
                             }
                         }
                     }) {

@@ -12,6 +12,7 @@ import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 @Singleton
 class AmbientSoundDownloader @Inject constructor(
@@ -68,7 +69,7 @@ class AmbientSoundDownloader @Inject constructor(
             ambientSoundDao.updateSound(sound.copy(audioResourcePath = file.absolutePath))
             return@withContext true
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("AmbientSoundDownloader", "Unhandled exception", e)
             // Clean up partial file
             if (file.exists()) file.delete()
             return@withContext false

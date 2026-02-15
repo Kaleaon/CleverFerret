@@ -8,6 +8,8 @@
 import java.io.File
 import java.util.Base64
 import java.util.Properties
+import org.gradle.api.GradleException
+import org.gradle.api.Project
 
 plugins {
     id("com.android.application")
@@ -25,6 +27,32 @@ configurations.all {
         force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0")
         force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0")
         force("org.jetbrains.kotlin:kotlin-stdlib-common:2.1.0")
+    }
+}
+
+
+fun resolveSecret(project: Project, key: String): String? {
+    val localProperties = Properties().apply {
+        val file = project.rootProject.file("local.properties")
+        if (file.exists()) {
+            file.inputStream().use { load(it) }
+        }
+    }
+
+    val localValue = localProperties.getProperty(key)
+    val projectValue = project.findProperty(key) as String?
+    return System.getenv(key)?.takeIf { it.isNotBlank() }
+        ?: localValue?.takeIf { it.isNotBlank() }
+        ?: projectValue?.takeIf { it.isNotBlank() }
+}
+
+fun verifyRuntimeSecretsOrThrow(project: Project, buildVariant: String, requiredKeys: List<String>) {
+    val missing = requiredKeys.filter { resolveSecret(project, it).isNullOrBlank() }
+    if (missing.isNotEmpty()) {
+        throw GradleException(
+            "Missing required runtime secrets for $buildVariant: ${missing.joinToString()}. " +
+                "Provide them via local.properties (untracked) or environment variables."
+        )
     }
 }
 
@@ -96,26 +124,6 @@ android {
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
 
-        // Load API keys from secrets.properties (fallback to default for development)
-        val secretsFile = rootProject.file("secrets.properties")
-        val secrets = Properties()
-        if (secretsFile.exists()) {
-            secrets.load(secretsFile.inputStream())
-        }
-        
-        val tasteDiveKey = secrets.getProperty("TASTEDIVE_API_KEY") 
-            ?: project.properties["TASTEDIVE_API_KEY"] as String? 
-            ?: "1062990-CleverFe-17BF9586" // Default dev key
-        buildConfigField("String", "TASTEDIVE_API_KEY", "\"$tasteDiveKey\"")
-
-        val nytApiKey = project.properties["NYT_API_KEY"] ?: ""
-        buildConfigField("String", "NYT_API_KEY", "\"$nytApiKey\"")
-
-        val nytApiSecret = project.properties["NYT_API_SECRET"] ?: ""
-        buildConfigField("String", "NYT_API_SECRET", "\"$nytApiSecret\"")
-
-        val nytAppId = project.properties["NYT_APP_ID"] ?: ""
-        buildConfigField("String", "NYT_APP_ID", "\"$nytAppId\"")
     }
 
     buildTypes {
@@ -200,6 +208,22 @@ android {
         htmlOutput = file("build/reports/lint-results-debug.html")
         xmlOutput = file("build/reports/lint-results-debug.xml")
         textOutput = file("build/reports/lint-results-debug.txt")
+    }
+}
+
+val runtimeRequiredSecrets = listOf(
+    "TASTEDIVE_API_KEY"
+)
+
+tasks.matching { it.name == "preDebugBuild" }.configureEach {
+    doFirst {
+        verifyRuntimeSecretsOrThrow(project, "debug", runtimeRequiredSecrets)
+    }
+}
+
+tasks.matching { it.name == "preReleaseBuild" }.configureEach {
+    doFirst {
+        verifyRuntimeSecretsOrThrow(project, "release", runtimeRequiredSecrets)
     }
 }
 
