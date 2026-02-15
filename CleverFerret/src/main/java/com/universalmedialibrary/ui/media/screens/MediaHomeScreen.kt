@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshotFlow
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
@@ -839,12 +841,17 @@ private fun QuickAccessCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cardContentDescription = stringResource(
+        id = R.string.cd_open_category,
+        item.label
+    )
+
     Surface(
         modifier = modifier
             .aspectRatio(1f)
             .semantics {
                 role = Role.Button
-                contentDescription = "Open ${item.label} category"
+                contentDescription = cardContentDescription
             },
         shape = RoundedCornerShape(MediaCorners.Card),
         color = MaterialTheme.colorScheme.surface,
