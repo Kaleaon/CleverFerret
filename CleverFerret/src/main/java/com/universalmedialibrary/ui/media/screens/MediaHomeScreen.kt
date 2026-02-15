@@ -39,6 +39,7 @@ import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * Clean Media-Centric Home/Dashboard Screen
@@ -1046,6 +1047,11 @@ private fun MetallicBorderCard(
     item: MediaItem,
     onClick: () -> Unit
 ) {
+    val progress = item.progress.coerceIn(0f, 1f)
+    val hasProgress = progress > 0f && progress < 1f
+    val progressTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    val progressBackgroundColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)
+
     val primaryColor = MaterialTheme.colorScheme.primary
     val metallicGradient = Brush.linearGradient(
         colors = listOf(
@@ -1113,18 +1119,18 @@ private fun MetallicBorderCard(
                 }
                 
                 // Progress bar at bottom
-                if (item.progress > 0f) {
+                if (hasProgress) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            .height(4.dp)
-                            .background(Color.Black.copy(alpha = 0.5f))
+                            .height(6.dp)
+                            .background(progressTrackColor)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
-                                .fillMaxWidth(item.progress)
+                                .fillMaxWidth(progress)
                                 .background(MaterialTheme.colorScheme.primary)
                         )
                     }
@@ -1145,20 +1151,68 @@ private fun MetallicBorderCard(
         )
         
         // Subtitle (remaining time or metadata)
-        val subtitleText = when {
-            item.duration != null -> item.duration
-            item.subtitle != null -> item.subtitle
-            else -> ""
-        }
+        val subtitleText = remember(item) { item.remainingLabel() }
         if (subtitleText.isNotEmpty()) {
-            Text(
-                text = subtitleText,
-                style = MediaTypography.BodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Surface(
+                color = progressBackgroundColor,
+                shape = RoundedCornerShape(MediaCorners.SM)
+            ) {
+                Text(
+                    text = subtitleText,
+                    style = MediaTypography.BodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = MediaSpacing.XS, vertical = 2.dp)
+                )
+            }
         }
+    }
+}
+
+private fun MediaItem.remainingLabel(): String {
+    val clampedProgress = progress.coerceIn(0f, 1f)
+    if (clampedProgress <= 0f || clampedProgress >= 1f) {
+        return subtitle ?: duration.orEmpty()
+    }
+
+    if (!remainingTimeText.isNullOrBlank()) {
+        return "${remainingTimeText.trim()} left"
+    }
+
+    val parsedDurationSeconds = parseDurationToSeconds(duration)
+    if (parsedDurationSeconds != null) {
+        val remainingSeconds = (parsedDurationSeconds * (1f - clampedProgress)).roundToInt()
+        return "${formatRemainingTime(remainingSeconds)} left"
+    }
+
+    if (!subtitle.isNullOrBlank()) {
+        return subtitle
+    }
+
+    val remainingPercent = ((1f - clampedProgress) * 100).roundToInt().coerceIn(1, 99)
+    return "$remainingPercent% remaining"
+}
+
+private fun parseDurationToSeconds(duration: String?): Int? {
+    if (duration.isNullOrBlank()) return null
+    val normalized = duration.trim().lowercase()
+    val hours = "(\\d+)\\s*h".toRegex().find(normalized)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+    val minutes = "(\\d+)\\s*m".toRegex().find(normalized)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+    val seconds = "(\\d+)\\s*s".toRegex().find(normalized)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+    if (hours == 0 && minutes == 0 && seconds == 0) return null
+    return (hours * 3600) + (minutes * 60) + seconds
+}
+
+private fun formatRemainingTime(totalSeconds: Int): String {
+    val safeSeconds = totalSeconds.coerceAtLeast(0)
+    val hours = safeSeconds / 3600
+    val minutes = (safeSeconds % 3600) / 60
+
+    return when {
+        hours > 0 -> "${hours}h ${minutes}m"
+        minutes > 0 -> "${minutes}m"
+        else -> "<1m"
     }
 }
 
