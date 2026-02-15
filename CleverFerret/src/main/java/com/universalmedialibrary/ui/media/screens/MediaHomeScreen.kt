@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -81,17 +82,6 @@ fun MediaHomeScreen(
         state.libraryStats.totalMusic == 0 &&
         state.libraryStats.totalAudiobooks == 0 &&
         state.libraryStats.totalVideos == 0
-    }
-    
-    // Auto-scroll hero carousel
-    LaunchedEffect(state.featuredItems) {
-        if (state.featuredItems.isNotEmpty()) {
-            while (true) {
-                delay(6000)
-                val nextPage = (heroCarouselPagerState.currentPage + 1) % state.featuredItems.size
-                heroCarouselPagerState.animateScrollToPage(nextPage)
-            }
-        }
     }
     
     // Scaffold with sticky top header
@@ -471,6 +461,36 @@ private fun HeroCarousel(
     onItemClick: (MediaItem) -> Unit,
     onPlayClick: (MediaItem) -> Unit
 ) {
+    var lastPagerInteractionTimestamp by remember(pagerState) { mutableLongStateOf(0L) }
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.isScrollInProgress }
+            .collect {
+                lastPagerInteractionTimestamp = System.currentTimeMillis()
+            }
+    }
+
+    LaunchedEffect(pagerState, items.size) {
+        if (items.size <= 1) return@LaunchedEffect
+
+        while (true) {
+            delay(HERO_CAROUSEL_AUTO_ADVANCE_INTERVAL_MS)
+
+            val itemCount = items.size
+            if (itemCount <= 1) continue
+
+            val now = System.currentTimeMillis()
+            val userRecentlyInteracted =
+                now - lastPagerInteractionTimestamp < HERO_CAROUSEL_IDLE_RESUME_DELAY_MS
+
+            if (pagerState.isScrollInProgress || userRecentlyInteracted) continue
+
+            val currentPage = pagerState.currentPage.coerceIn(0, itemCount - 1)
+            val nextPage = (currentPage + 1) % itemCount
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
+
     Box {
         HorizontalPager(
             state = pagerState,
@@ -507,6 +527,9 @@ private fun HeroCarousel(
         }
     }
 }
+
+private const val HERO_CAROUSEL_AUTO_ADVANCE_INTERVAL_MS = 6000L
+private const val HERO_CAROUSEL_IDLE_RESUME_DELAY_MS = 1800L
 
 // =============================================================================
 // QUICK STATS ROW
