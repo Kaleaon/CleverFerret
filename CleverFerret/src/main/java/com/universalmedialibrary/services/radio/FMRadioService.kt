@@ -22,6 +22,7 @@ import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Service for FM radio tuning.
@@ -265,7 +266,7 @@ class FMRadioService @Inject constructor(
             recorder?.stop()
             recorder?.release()
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("FMRadioService", "Unhandled exception", e)
         } finally {
             recorder = null
             _isRecording.value = false

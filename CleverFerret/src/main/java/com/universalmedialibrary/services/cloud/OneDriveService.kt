@@ -15,6 +15,7 @@ import org.json.JSONObject
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * OneDrive Integration Service for CleverFerret
@@ -57,7 +58,7 @@ class OneDriveService @Inject constructor(
                     false
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.error("OneDriveService", "Unhandled exception", e)
                 false
             }
         }
@@ -74,7 +75,7 @@ class OneDriveService @Inject constructor(
                 _isAuthenticated.value = true
                 true
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.error("OneDriveService", "Unhandled exception", e)
                 false
             }
         }

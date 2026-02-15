@@ -17,6 +17,7 @@ import java.io.File
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Google Drive Integration Service for CleverFerret
@@ -65,7 +66,7 @@ class GoogleDriveService @Inject constructor(
                     false
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.error("GoogleDriveService", "Unhandled exception", e)
                 false
             }
         }
@@ -88,7 +89,7 @@ class GoogleDriveService @Inject constructor(
                 _isAuthenticated.value = true
                 true
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.error("GoogleDriveService", "Unhandled exception", e)
                 false
             }
         }

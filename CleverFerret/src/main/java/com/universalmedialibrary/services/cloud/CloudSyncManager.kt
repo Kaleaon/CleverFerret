@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Cloud Sync Manager for CleverFerret
@@ -92,7 +93,7 @@ class CloudSyncManager @Inject constructor(
             
         } catch (e: Exception) {
             _syncStatus.value = SyncStatus.ERROR
-            e.printStackTrace()
+            AppLogger.error("CloudSyncManager", "Unhandled exception", e)
         }
         
         return results

@@ -25,6 +25,7 @@ import java.net.URLEncoder
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * QR Code Sharing Service for CleverFerret
@@ -99,8 +100,8 @@ class QRCodeSharingService @Inject constructor(
             
             ShareResult(true, shareUrl, qrBitmap)
         } catch (e: Exception) {
-            e.printStackTrace()
-            ShareResult(false, e.message ?: "Unknown error")
+            AppLogger.error("QRCodeSharingService", "Unhandled exception", e)
+            ShareResult(false, "Unable to start sharing right now. Please try again.")
         }
     }
 
@@ -141,8 +142,8 @@ class QRCodeSharingService @Inject constructor(
             
             ShareResult(true, shareUrl, qrBitmap)
         } catch (e: Exception) {
-            e.printStackTrace()
-            ShareResult(false, e.message ?: "Unknown error")
+            AppLogger.error("QRCodeSharingService", "Unhandled exception", e)
+            ShareResult(false, "Unable to start sharing right now. Please try again.")
         }
     }
 
@@ -235,8 +236,8 @@ class QRCodeSharingService @Inject constructor(
                 importedCount = importedItems.size
             )
         } catch (e: Exception) {
-            e.printStackTrace()
-            ReceiveResult(false, e.message ?: "Unknown error")
+            AppLogger.error("QRCodeSharingService", "Unhandled exception", e)
+            ReceiveResult(false, "Unable to import shared content right now. Please try again.")
         }
     }
 
@@ -294,7 +295,7 @@ class QRCodeSharingService @Inject constructor(
                 null
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("QRCodeSharingService", "Unhandled exception", e)
             null
         }
     }
@@ -314,7 +315,7 @@ class QRCodeSharingService @Inject constructor(
             )
             mediaLibraryService.addMediaItem(streamItem)
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("QRCodeSharingService", "Unhandled exception", e)
             false
         }
     }
@@ -350,7 +351,7 @@ class QRCodeSharingService @Inject constructor(
                 Thread { runServer() }.start()
                 true
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.error("QRCodeSharingService", "Unhandled exception", e)
                 false
             }
         }
@@ -366,7 +367,7 @@ class QRCodeSharingService @Inject constructor(
                     val client = serverSocket?.accept() ?: break
                     Thread { handleClient(client) }.start()
                 } catch (e: Exception) {
-                    if (isRunning) e.printStackTrace()
+                    if (isRunning) AppLogger.error("QRCodeSharingService", "Unhandled exception", e)
                 }
             }
         }
@@ -418,7 +419,7 @@ class QRCodeSharingService @Inject constructor(
                 }
                 
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.error("QRCodeSharingService", "Unhandled exception", e)
             } finally {
                 client.close()
             }

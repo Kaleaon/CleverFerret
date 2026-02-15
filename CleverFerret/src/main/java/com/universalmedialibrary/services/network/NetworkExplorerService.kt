@@ -15,6 +15,7 @@ import java.net.NetworkInterface
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Network Explorer Service for CleverFerret
@@ -83,7 +84,7 @@ class NetworkExplorerService @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("NetworkExplorerService", "Unhandled exception", e)
         }
         
         _discoveredDevices.value = devices
@@ -168,7 +169,7 @@ class NetworkExplorerService @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("NetworkExplorerService", "Unhandled exception", e)
         }
         return null
     }

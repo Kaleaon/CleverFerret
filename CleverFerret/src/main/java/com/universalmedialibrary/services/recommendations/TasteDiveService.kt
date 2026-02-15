@@ -12,6 +12,7 @@ import okhttp3.Request
 import java.net.URLEncoder
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 @Singleton
 class TasteDiveService @Inject constructor(
@@ -50,7 +51,7 @@ class TasteDiveService @Inject constructor(
             
             result.similar.results
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("TasteDiveService", "Unhandled exception", e)
             emptyList()
         }
     }

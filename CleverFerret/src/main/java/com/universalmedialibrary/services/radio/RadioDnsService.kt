@@ -9,6 +9,7 @@ import java.util.Locale
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Service to fetch FM/DAB station metadata using RadioDNS.
@@ -76,7 +77,7 @@ class RadioDnsService @Inject constructor(
             return@withContext fetchServiceInformation(target, port)
 
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("RadioDnsService", "Unhandled exception", e)
             null
         }
     }
@@ -134,7 +135,7 @@ class RadioDnsService @Inject constructor(
             )
             
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("RadioDnsService", "Unhandled exception", e)
             return null
         }
     }
