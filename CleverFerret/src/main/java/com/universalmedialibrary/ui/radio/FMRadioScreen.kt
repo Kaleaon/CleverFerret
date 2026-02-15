@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * FM Radio screen with tuner interface
@@ -528,7 +529,7 @@ class FMRadioViewModel @Inject constructor(
                 // but simpler to just show a toast or ignore if no handler.
                 // For now, let's try generic web search for lyrics?
                 // Or maybe just log.
-                e2.printStackTrace()
+                AppLogger.error("FMRadioScreen", "Unhandled exception", e2)
             }
         }
     }

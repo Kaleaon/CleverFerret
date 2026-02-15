@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
 import javax.inject.Inject
+import com.universalmedialibrary.core.logging.AppLogger
 
 @HiltViewModel
 class FanfictionDownloaderViewModel @Inject constructor(
@@ -258,7 +259,7 @@ class FanfictionDownloaderViewModel @Inject constructor(
                     }
                 } catch (e: Exception) {
                     // Log error but continue to delete from DB
-                    e.printStackTrace()
+                    AppLogger.error("FanfictionDownloaderViewModel", "Unhandled exception", e)
                 }
                 
                 // Delete from DB

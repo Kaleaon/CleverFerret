@@ -14,6 +14,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Smart Recommendation Service using ML and AI
@@ -435,7 +436,7 @@ class SmartRecommendationService @Inject constructor(
             
             return recommendations
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("SmartRecommendationService", "Unhandled exception", e)
             return emptyList()
         }
     }

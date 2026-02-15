@@ -10,6 +10,7 @@ import org.json.JSONObject
 import java.net.URLEncoder
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 @Singleton
 class MusicInfoService @Inject constructor(
@@ -52,7 +53,7 @@ class MusicInfoService @Inject constructor(
             SongInfo(artist, title, album, coverUrl, year)
             
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("MusicInfoService", "Unhandled exception", e)
             null
         }
     }

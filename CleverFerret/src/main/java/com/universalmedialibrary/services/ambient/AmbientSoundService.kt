@@ -20,6 +20,7 @@ import kotlinx.coroutines.cancel
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Service for managing ambient sounds for reading
@@ -112,12 +113,12 @@ class AmbientSoundService @Inject constructor(
                                 }
                             }
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            AppLogger.error("AmbientSoundService", "Unhandled exception", e)
                         }
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.error("AmbientSoundService", "Unhandled exception", e)
             }
         }
     }
@@ -216,7 +217,7 @@ class AmbientSoundService @Inject constructor(
                          // The downloadSound function updates the DB.
                      }
                  } catch (e: Exception) {
-                     e.printStackTrace()
+                     AppLogger.error("AmbientSoundService", "Unhandled exception", e)
                  }
              }
         }
@@ -238,10 +239,10 @@ class AmbientSoundService @Inject constructor(
             mediaPlayers[sound.id] = mediaPlayer
             return@withContext PlayResult.Success
         } catch (e: java.io.IOException) {
-            e.printStackTrace()
+            AppLogger.error("AmbientSoundService", "Unhandled exception", e)
             return@withContext PlayResult.Error("Unable to play sound: file not found or network error")
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.error("AmbientSoundService", "Unhandled exception", e)
             return@withContext PlayResult.Error("Error playing sound: ${e.message}")
         }
     }
