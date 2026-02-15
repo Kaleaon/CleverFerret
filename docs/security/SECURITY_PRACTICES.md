@@ -64,22 +64,25 @@ For production, consider implementing certificate pinning for critical services:
 
 ### ✅ Secrets Management
 
-API keys are managed through `secrets.properties` file:
+Sensitive API keys are **not** written to `BuildConfig` and must be provided at runtime through secure provisioning.
 
-**Setup Process**:
+**Provisioning model**:
 
-1. Copy template:
-   ```bash
-   cp secrets.properties.template secrets.properties
-   ```
+1. **Production/Release**: provision secrets through backend token exchange or encrypted local key provisioning (for example, user-provided keys stored in encrypted app storage).
+2. **Local development**: place untracked values in `local.properties` or export environment variables before running Gradle tasks.
+3. **Build enforcement**: `preDebugBuild` and `preReleaseBuild` fail fast when required runtime secrets (currently `TASTEDIVE_API_KEY`) are missing.
 
-2. Fill in your actual API keys:
-   ```properties
-   TASTEDIVE_API_KEY=your_actual_key
-   OPENAI_API_KEY=your_actual_key
-   ```
+**Local setup example** (`local.properties`, untracked):
 
-3. **NEVER** commit `secrets.properties` to version control
+```properties
+TASTEDIVE_API_KEY=your_local_dev_key
+```
+
+Or use environment variables:
+
+```bash
+export TASTEDIVE_API_KEY="your-key"
+```
 
 ### 🔐 Supported API Keys
 
@@ -94,10 +97,18 @@ API keys are managed through `secrets.properties` file:
 ### ⚠️ API Key Security Rules
 
 1. **Never hardcode** API keys in source code
-2. **Never commit** secrets.properties to git
+2. **Never commit** secrets to tracked files (`gradle.properties`, source, or VCS history)
 3. **Use environment variables** in CI/CD pipelines
 4. **Rotate keys** periodically
 5. **Restrict key permissions** to minimum required scope
+
+### 🔁 Secret Rotation Runbook
+
+1. Generate a new provider key in the upstream service.
+2. Update backend/token-exchange secret storage first.
+3. Update CI secret values (`TASTEDIVE_API_KEY`, etc.) and local `local.properties` copies.
+4. Revoke old keys after rollout validation.
+5. Record rotation date and owner in your team security log.
 
 ### 🔄 CI/CD Integration
 
