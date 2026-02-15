@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Network permissions -->
+    <!-- === Required permissions: core networking === -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
-    <!-- Storage permissions for older Android versions -->
+    <!-- === Required permissions: legacy and scoped storage === -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
@@ -24,13 +24,13 @@
     <!-- Android 14+ Photo Picker Permission -->
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     
-    <!-- Audio recording and playback -->
+    <!-- === Required permissions: media playback and device controls === -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO" tools:ignore="ProtectedPermissions" />
     
-    <!-- Notification permissions for Android 13+ -->
+    <!-- === Required permissions: notifications and foreground services === -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     
     <!-- Foreground service permissions for API 34+ -->
@@ -63,36 +63,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Chromecast Configuration -->
-        <meta-data
-            android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.universalmedialibrary.services.cast.CastOptionsProvider" />
-        <!-- Cast Expanded Controls Activity -->
-        <activity
-            android:name=".ui.cast.ExpandedControlsActivity"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:screenOrientation="fullSensor"
-            android:theme="@style/Theme.CleverFerretMediaLibrary"
-            tools:ignore="DiscouragedApi" />
-            
-        <!-- Android Auto MediaBrowserService -->
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
-            
-        <service
-            android:name=".services.auto.AutoMediaBrowserService"
-            android:exported="true"
-            android:foregroundServiceType="mediaPlayback"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
-            </intent-filter>
-        </service>
+        <!-- Feature-specific declarations (Cast, Android Auto, widgets) live in src/debug and src/release manifests. -->
 
         <!-- Crash Handler Activity -->
         <activity
@@ -213,150 +184,8 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
         
-        <!-- Media Playback Widget -->
-        <receiver
-            android:name=".widgets.MediaPlaybackWidgetReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/media_playback_widget_info" />
-        </receiver>
-        
-        <!-- Music Player Widget -->
-        <receiver
-            android:name=".widgets.MusicPlayerWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_music_player_info" />
-        </receiver>
-        
-        <!-- Audiobook Player Widget -->
-        <receiver
-            android:name=".widgets.AudiobookPlayerWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_audiobook_player_info" />
-        </receiver>
-        
-        <!-- Radio Player Widget -->
-        <receiver
-            android:name=".widgets.RadioPlayerWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_radio_player_info" />
-        </receiver>
-        
-        <!-- Podcast Player Widget -->
-        <receiver
-            android:name=".widgets.PodcastPlayerWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_podcast_player_info" />
-        </receiver>
-        
-        <!-- Text-to-Speech Widget -->
-        <receiver
-            android:name=".widgets.TextToSpeechWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_tts_player_info" />
-        </receiver>
-        
-        <!-- Comic Reader Widget -->
-        <receiver
-            android:name=".widgets.ComicReaderWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_comic_reader_info" />
-        </receiver>
-        
-        <!-- Video Player Widget -->
-        <receiver
-            android:name=".widgets.VideoPlayerWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_video_player_info" />
-        </receiver>
-        
-        <!-- Currently Reading Widget -->
-        <receiver
-            android:name=".widgets.CurrentlyReadingWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_currently_reading_info" />
-        </receiver>
-        
-        <!-- Quick Access Widget -->
-        <receiver
-            android:name=".widgets.QuickAccessWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_quick_access_info" />
-        </receiver>
-        
-        <!-- Reading Stats Widget -->
-        <receiver
-            android:name=".widgets.ReadingStatsWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_reading_stats_info" />
-        </receiver>
-        
-        <!-- Reading Goal Widget -->
-        <receiver
-            android:name=".widgets.ReadingGoalWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_reading_goal_info" />
-        </receiver>
-        
+        <!-- App widgets are declared in src/debug and src/release manifests. -->
+
         <!-- CleverFerret API Receiver for internal broadcast control -->
         <!-- exported=false: Internal use only. For external control, use exported=true with signature permission -->
         <receiver
