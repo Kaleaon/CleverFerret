@@ -845,6 +845,7 @@ private fun QuickAccessCard(
         id = R.string.cd_open_category,
         item.label
     )
+    val quickAccessAlphas = MediaColors.quickAccessCardAlphas()
 
     Surface(
         modifier = modifier
@@ -855,6 +856,10 @@ private fun QuickAccessCard(
             },
         shape = RoundedCornerShape(MediaCorners.Card),
         color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = quickAccessAlphas.border)
+        ),
         onClick = onClick
     ) {
         Column(
@@ -866,7 +871,7 @@ private fun QuickAccessCard(
         ) {
             Surface(
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = quickAccessAlphas.chip),
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
