@@ -4,10 +4,8 @@ import android.util.Log
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat
 import android.graphics.BitmapFactory
@@ -17,7 +15,6 @@ import android.os.Build
 import android.os.Environment
 import android.os.IBinder
 import android.provider.MediaStore
-import android.provider.OpenableColumns
 import androidx.core.app.NotificationCompat
 import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.local.dao.LibraryDao
@@ -127,8 +124,10 @@ class MediaScannerService : Service() {
                 scanVideoWithMediaStore()
                 scanImagesWithMediaStore()
 
-                // Also scan standard directories
-                scanStandardDirectories()
+                // Scoped storage: avoid raw external directory traversal on Android 11+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                    scanStandardDirectories()
+                }
 
                 updateNotification("Media scan complete!")
                 delay(2000)
@@ -144,27 +143,19 @@ class MediaScannerService : Service() {
 
     private suspend fun scanBooksWithMediaStore() {
         withContext(Dispatchers.IO) {
-            // For books, we need to scan Documents directory
-            val documentsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-
-            scanDirectoryForBooks(documentsDir)
-            scanDirectoryForBooks(downloadsDir)
-
-            // Also scan using MediaStore for PDFs
             val projection = arrayOf(
                 MediaStore.Files.FileColumns._ID,
                 MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.DATA,
                 MediaStore.Files.FileColumns.SIZE,
-                MediaStore.Files.FileColumns.DATE_MODIFIED
+                MediaStore.Files.FileColumns.DATE_MODIFIED,
+                MediaStore.Files.FileColumns.MIME_TYPE
             )
 
             val selection = buildString {
                 append("(")
                 BOOK_EXTENSIONS.forEachIndexed { index, ext ->
                     if (index > 0) append(" OR ")
-                    append("${MediaStore.Files.FileColumns.DATA} LIKE '%.$ext'")
+                    append("${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.${ext}'")
                 }
                 append(")")
             }
@@ -179,11 +170,13 @@ class MediaScannerService : Service() {
 
             cursor?.use {
                 while (it.moveToNext()) {
-                    val path = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
                     val name = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
                     val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
-
-                    processMediaFile(File(path), "BOOK")
+                    val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID))
+                    val mimeType = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE))
+                    val itemUri = Uri.withAppendedPath(MediaStore.Files.getContentUri("external"), id.toString())
+                    val mediaType = if (name.substringAfterLast('.', "").lowercase() in COMIC_EXTENSIONS) "COMIC" else "BOOK"
+                    processMediaStoreItem(itemUri, name, size, mediaType, mimeType)
                 }
             }
         }
@@ -210,9 +203,9 @@ class MediaScannerService : Service() {
             val projection = arrayOf(
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.SIZE,
                 MediaStore.Audio.Media.DATE_MODIFIED,
+                MediaStore.Audio.Media.MIME_TYPE,
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.ALBUM,
@@ -229,16 +222,17 @@ class MediaScannerService : Service() {
 
             cursor?.use {
                 while (it.moveToNext()) {
-                    val path = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+                    val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID))
+                    val name = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
+                    val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE))
                     val duration = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
+                    val mimeType = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE))
+                    val itemUri = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
 
-                    val file = File(path)
-                    if (file.exists()) {
-                        if (file.length() < MIN_AUDIO_FILE_SIZE_BYTES || duration < MIN_AUDIO_DURATION_MS) {
-                            continue
-                        }
-                        processMediaFile(file, "MUSIC")
+                    if (size < MIN_AUDIO_FILE_SIZE_BYTES || duration < MIN_AUDIO_DURATION_MS) {
+                        continue
                     }
+                    processMediaStoreItem(itemUri, name, size, "MUSIC", mimeType)
                 }
             }
         }
@@ -249,9 +243,9 @@ class MediaScannerService : Service() {
             val projection = arrayOf(
                 MediaStore.Video.Media._ID,
                 MediaStore.Video.Media.DISPLAY_NAME,
-                MediaStore.Video.Media.DATA,
                 MediaStore.Video.Media.SIZE,
                 MediaStore.Video.Media.DATE_MODIFIED,
+                MediaStore.Video.Media.MIME_TYPE,
                 MediaStore.Video.Media.DURATION,
                 MediaStore.Video.Media.WIDTH,
                 MediaStore.Video.Media.HEIGHT
@@ -267,30 +261,29 @@ class MediaScannerService : Service() {
 
             cursor?.use {
                 while (it.moveToNext()) {
-                    val path = it.getString(it.getColumnIndexOrThrow(MediaStore.Video.Media.DATA))
+                    val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Video.Media._ID))
+                    val name = it.getString(it.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME))
+                    val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE))
                     val duration = it.getLong(it.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION))
                     val width = it.getInt(it.getColumnIndexOrThrow(MediaStore.Video.Media.WIDTH))
                     val height = it.getInt(it.getColumnIndexOrThrow(MediaStore.Video.Media.HEIGHT))
+                    val mimeType = it.getString(it.getColumnIndexOrThrow(MediaStore.Video.Media.MIME_TYPE))
+                    val itemUri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id.toString())
 
-                    val file = File(path)
-                    if (file.exists()) {
-                        val mediaItem = processMediaFile(file, "MOVIE")
+                    val mediaItem = processMediaStoreItem(itemUri, name, size, "MOVIE", mimeType)
 
-                        // Add video-specific metadata
-                        mediaItem?.let { item ->
-                            val metadata = MetadataMovie(
-                                itemId = item.itemId,
-
-                                runtime = (duration / 1000 / 60).toInt(), // Convert to minutes
-                                imdbId = null,
-                                tmdbId = null,
-                                resolution = "${width}x${height}",
-                                videoCodec = null,
-                                audioCodec = null
-
-                            )
-                            metadataDao.insertMetadataMovie(metadata)
-                        }
+                    // Add video-specific metadata
+                    mediaItem?.let { item ->
+                        val metadata = MetadataMovie(
+                            itemId = item.itemId,
+                            runtime = (duration / 1000 / 60).toInt(),
+                            imdbId = null,
+                            tmdbId = null,
+                            resolution = "${width}x${height}",
+                            videoCodec = null,
+                            audioCodec = null
+                        )
+                        metadataDao.insertMetadataMovie(metadata)
                     }
                 }
             }
@@ -302,9 +295,9 @@ class MediaScannerService : Service() {
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATA,
                 MediaStore.Images.Media.SIZE,
                 MediaStore.Images.Media.DATE_MODIFIED,
+                MediaStore.Images.Media.MIME_TYPE,
                 MediaStore.Images.Media.WIDTH,
                 MediaStore.Images.Media.HEIGHT
             )
@@ -320,14 +313,91 @@ class MediaScannerService : Service() {
             cursor?.use {
                 var count = 0
                 while (it.moveToNext() && count < 1000) { // Limit to 1000 images
-                    val path = it.getString(it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
-                    val file = File(path)
-                    if (file.exists() && file.length() > 100000) { // Only process images > 100KB
-                        processMediaFile(file, "DOCUMENT")
+                    val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                    val name = it.getString(it.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME))
+                    val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE))
+                    val mimeType = it.getString(it.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE))
+                    val itemUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id.toString())
+                    if (size > 100000) { // Only process images > 100KB
+                        processMediaStoreItem(itemUri, name, size, "DOCUMENT", mimeType)
                         count++
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun processMediaStoreItem(
+        itemUri: Uri,
+        displayName: String,
+        size: Long,
+        mediaType: String,
+        mimeType: String?
+    ): MediaItem? = withContext(Dispatchers.IO) {
+        try {
+            val pathKey = itemUri.toString()
+            mediaItemDao.getItemByPath(pathKey)?.let { return@withContext it }
+
+            var library = libraryDao.getLibrariesByType(mediaType).firstOrNull()
+            if (library == null) {
+                library = Library(
+                    name = "${mediaType.lowercase().replaceFirstChar { it.uppercase() }} Library",
+                    type = mediaType,
+                    path = "mediastore://external",
+                    dateModified = System.currentTimeMillis()
+                )
+                val libraryId = libraryDao.insertLibrary(library)
+                library = library.copy(libraryId = libraryId)
+            }
+
+            val extension = displayName.substringAfterLast('.', "").lowercase()
+            val item = MediaItem(
+                libraryId = library.libraryId,
+                filePath = pathKey,
+                fileName = displayName,
+                fileExtension = extension,
+                fileSize = size,
+                fileHash = null,
+                dateAdded = System.currentTimeMillis(),
+                lastScanned = System.currentTimeMillis(),
+                lastModified = System.currentTimeMillis(),
+                mediaType = mediaType,
+                mimeType = mimeType,
+                isAvailable = true,
+                hasMetadata = false,
+                hasThumbnail = false,
+                thumbnailPath = null
+            )
+            val newId = mediaItemDao.insertMediaItem(item)
+            val inserted = item.copy(itemId = newId)
+
+            metadataDao.insertMetadataCommon(
+                MetadataCommon(
+                    itemId = newId,
+                    title = displayName.substringBeforeLast('.'),
+                    sortTitle = null,
+                    originalTitle = null,
+                    year = null,
+                    releaseDate = null,
+                    rating = null,
+                    userRating = null,
+                    communityRating = null,
+                    summary = null,
+                    plot = null,
+                    tagline = null,
+                    coverImagePath = null,
+                    backdropImagePath = null,
+                    language = null,
+                    country = null,
+                    lastUpdated = System.currentTimeMillis(),
+                    metadataSource = "MediaStore",
+                    externalId = null
+                )
+            )
+            inserted
+        } catch (e: Exception) {
+            ErrorLogger.logMediaScanError("Error processing MediaStore URI", e)
+            null
         }
     }
 
