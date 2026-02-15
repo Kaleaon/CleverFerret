@@ -3,6 +3,7 @@ package com.universalmedialibrary
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
         
         // Check if we have a file to open
         val fileUri = intent?.data
+        maybePersistIncomingUriPermission(fileUri)
         
         if (fileUri == null && intent?.action != Intent.ACTION_VIEW) {
             // No file intent - redirect to main app
@@ -89,8 +91,19 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        maybePersistIncomingUriPermission(intent.data)
         // Recreate to handle new file
         recreate()
+    }
+
+    private fun maybePersistIncomingUriPermission(fileUri: Uri?) {
+        if (fileUri == null || fileUri.scheme != "content") return
+        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        runCatching {
+            contentResolver.takePersistableUriPermission(fileUri, flags)
+        }.onFailure {
+            Log.d("MainActivity", "URI permission not persistable for $fileUri")
+        }
     }
     
     override fun onUserInteraction() {

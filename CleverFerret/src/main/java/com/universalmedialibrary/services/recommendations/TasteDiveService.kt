@@ -1,5 +1,7 @@
 package com.universalmedialibrary.services.recommendations
 
+import android.util.Log
+import com.universalmedialibrary.data.repository.APIKeyRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -15,9 +17,9 @@ import com.universalmedialibrary.core.logging.AppLogger
 @Singleton
 class TasteDiveService @Inject constructor(
     private val okHttpClient: OkHttpClient,
-    private val json: Json
+    private val json: Json,
+    private val apiKeyRepository: APIKeyRepository
 ) {
-    private val apiKey = com.universalmedialibrary.BuildConfig.TASTEDIVE_API_KEY
     private val baseUrl = "https://tastedive.com/api/similar"
 
     suspend fun getSimilarItems(
@@ -26,6 +28,12 @@ class TasteDiveService @Inject constructor(
         limit: Int = 10
     ): List<TasteDiveItem> = withContext(Dispatchers.IO) {
         try {
+            val apiKey = apiKeyRepository.getAPIKeyValue("tastedive")?.trim().orEmpty()
+            if (apiKey.isBlank()) {
+                Log.w(TAG, "TasteDive key missing. Configure runtime API key provisioning before calling recommendations.")
+                return@withContext emptyList()
+            }
+
             val encodedQuery = URLEncoder.encode(query, "UTF-8")
             var url = "$baseUrl?q=$encodedQuery&k=$apiKey&limit=$limit&info=1"
             
@@ -46,6 +54,10 @@ class TasteDiveService @Inject constructor(
             AppLogger.error("TasteDiveService", "Unhandled exception", e)
             emptyList()
         }
+    }
+
+    private companion object {
+        const val TAG = "TasteDiveService"
     }
 }
 

@@ -120,13 +120,10 @@ class APIKeyRepository @Inject constructor(
         defaultConfigs.forEach { (provider, category, isRequired) ->
             val existingKey = apiKeyDao.getAPIKeyByProvider(provider)
             if (existingKey == null) {
-                // Use BuildConfig for defaults if available
-                val defaultKeyValue = when(provider) {
-                    "tastedive" -> try { com.universalmedialibrary.BuildConfig.TASTEDIVE_API_KEY } catch (e: Exception) { "" }
-                    "nyt" -> try { com.universalmedialibrary.BuildConfig.NYT_API_KEY } catch (e: Exception) { "" }
-                    else -> ""
-                }
-                
+                // Runtime provisioning only: secrets must be supplied via secure backend
+                // token exchange or encrypted local key management.
+                val defaultKeyValue = ""
+
                 val apiKey = APIKey(
                     displayName = getDisplayNameForProvider(provider),
                     keyValue = defaultKeyValue,

@@ -1,11 +1,13 @@
 package com.universalmedialibrary.utils
 
+import com.universalmedialibrary.data.local.entity.DictionaryEntry
 import com.universalmedialibrary.data.repository.DictionaryRepository
 import com.universalmedialibrary.services.dictionary.DictionaryService
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Utility for cleaning up text content in downloaded stories.
@@ -26,25 +28,21 @@ class TextSanitizer @Inject constructor(
 
     // Base fictional terms (hardcoded whitelist fallback)
     private val baseFictionalTerms = setOf(
-        "Axiom", "Cannidor", "Centris", "Nagasha", "Sonir", "Tret", "Lydris", 
-        "Metak", "Undaunted", "Dauntless", "Apuk", "Gravia", "Phosa", "Slob", 
+        "Axiom", "Cannidor", "Centris", "Nagasha", "Sonir", "Tret", "Lydris",
+        "Metak", "Undaunted", "Dauntless", "Apuk", "Gravia", "Phosa", "Slob",
         "Yauya", "Zullt", "Porg", "Kohb", "Gorg", "Horchka"
     )
 
-    // Common Fictional Typos Correction Map
-    // These are specific to "Out of Cruel Space" and similar HFY stories where users might
-    // consistently misspell certain made-up terms.
     private val fictionalTypos = mapOf(
         "camidor" to "Cannidor",
         "axium" to "Axiom",
         "centis" to "Centris",
-        "nagasha" to "Nagasha", // Capitalization
-        "sonir" to "Sonir",     // Capitalization
-        "tret" to "Tret",       // Capitalization
-        "metak" to "Metak"      // Capitalization
+        "nagasha" to "Nagasha",
+        "sonir" to "Sonir",
+        "tret" to "Tret",
+        "metak" to "Metak"
     )
 
-    // Safe, common English typos that are almost always errors
     private val commonTypos = mapOf(
         "teh" to "the",
         "recieve" to "receive",
@@ -58,163 +56,118 @@ class TextSanitizer @Inject constructor(
         "towrads" to "towards"
     )
 
+    private val allTypos = commonTypos + fictionalTypos
+
     /**
      * Sanitize HTML content using global rules and specific book dictionary.
-     * 
-     * @param htmlContent The raw HTML content.
-     * @param bookId Optional ID of the book to apply specific dictionary rules.
      */
-    fun sanitize(htmlContent: String, bookId: Long? = null): String {
-        var text = htmlContent
-
-        // 1. Standardize Punctuation (Safe Regex)
-        text = text.replace("...", "…") // Standard ellipsis
-        text = text.replace("..", "…")  // Lazy ellipsis
-        text = text.replace(" ,", ",")  // Space before comma
-        text = text.replace(" .", ".")  // Space before period
-        text = text.replace(" !", "!")
-        text = text.replace(" ?", "?")
-
-        // 2. Whitespace Cleanup
-        text = text.replace(Regex("\\s+"), " ") // Collapse multiple spaces
-        text = text.replace(Regex("\\s<"), "<") // Remove space before tag start
-
-        // 3. Apply Typos (Common + Fictional)
-        // Merged list of standard typos and fictional specific typos
-        val allTypos = commonTypos + fictionalTypos
-        
-        allTypos.forEach { (typo, correction) ->
-            val pattern = Pattern.compile("\\b$typo\\b", Pattern.CASE_INSENSITIVE)
-            val matcher = pattern.matcher(text)
-            val sb = StringBuffer()
-            while (matcher.find()) {
-                val found = matcher.group()
-                val replacement = if (found[0].isUpperCase()) {
-                    correction.replaceFirstChar { it.uppercase() }
-                } else {
-                    correction
-                }
-                matcher.appendReplacement(sb, replacement)
-            }
-            matcher.appendTail(sb)
-            text = sb.toString()
+    suspend fun sanitize(htmlContent: String, bookId: Long? = null): String {
+        val replacements = loadDictionaryReplacements(bookId)
+        return withContext(Dispatchers.Default) {
+            val base = sanitizeHtmlCore(htmlContent)
+            applyCustomReplacements(base, replacements)
         }
-
-        // 4. Apply Custom Dictionary Replacements (Global + Book Specific)
-        if (bookId != null) {
-            val dictionary = runBlocking { dictionaryRepository.getApplicableDictionary(bookId) }
-            val replacements = dictionary.filter { it.replacement != null }
-            
-            replacements.forEach { entry ->
-                val pattern = Pattern.compile("\\b${Pattern.quote(entry.word)}\\b", Pattern.CASE_INSENSITIVE)
-                val matcher = pattern.matcher(text)
-                val sb = StringBuffer()
-                while (matcher.find()) {
-                    val found = matcher.group()
-                    val replacement = entry.replacement!!
-                    val finalReplacement = if (found[0].isUpperCase()) {
-                        replacement.replaceFirstChar { it.uppercase() }
-                    } else {
-                        replacement
-                    }
-                    matcher.appendReplacement(sb, finalReplacement)
-                }
-                matcher.appendTail(sb)
-                text = sb.toString()
-            }
-        }
-
-        return text
     }
 
     /**
      * Sanitize raw text (before HTML conversion) or extracted text nodes.
      */
-    fun sanitizeText(text: String, bookId: Long? = null): String {
+    suspend fun sanitizeText(text: String, bookId: Long? = null): String {
+        val replacements = loadDictionaryReplacements(bookId)
+        return withContext(Dispatchers.Default) {
+            val base = sanitizeTextCore(text)
+            applyCustomReplacements(base, replacements)
+        }
+    }
+
+    private suspend fun loadDictionaryReplacements(bookId: Long?): List<DictionaryEntry> {
+        if (bookId == null) return emptyList()
+        return withContext(Dispatchers.IO) {
+            dictionaryRepository.getApplicableDictionary(bookId)
+                .filter { it.replacement != null }
+        }
+    }
+
+    private fun sanitizeHtmlCore(htmlContent: String): String {
+        var text = htmlContent
+
+        text = text.replace("...", "…")
+        text = text.replace("..", "…")
+        text = text.replace(" ,", ",")
+        text = text.replace(" .", ".")
+        text = text.replace(" !", "!")
+        text = text.replace(" ?", "?")
+
+        text = text.replace(Regex("\\s+"), " ")
+        text = text.replace(Regex("\\s<"), "<")
+
+        return applyTypos(text)
+    }
+
+    private fun sanitizeTextCore(text: String): String {
         var clean = text
 
-        // Whitespace
         clean = clean.replace(Regex("[ \\t]+"), " ")
-        
-        // Punctuation
         clean = clean.replace("...", "…")
         clean = clean.replace("..", "…")
-        
-        // Smart Quotes
+
         clean = clean.replace("\"", "”")
-               .replace(Regex("(\\s)\""), "$1“")
-               .replace(Regex("^\""), "“")
-               
+            .replace(Regex("(\\s)\""), "$1“")
+            .replace(Regex("^\""), "“")
+
         clean = clean.replace("'", "’")
-               .replace(Regex("(\\s)'"), "$1‘")
-               .replace(Regex("^'"), "‘")
+            .replace(Regex("(\\s)'"), "$1‘")
+            .replace(Regex("^'"), "‘")
 
-        // Apply Typos (Common + Fictional)
-        val allTypos = commonTypos + fictionalTypos
-        allTypos.forEach { (typo, correction) ->
-            val pattern = Pattern.compile("\\b$typo\\b", Pattern.CASE_INSENSITIVE)
-            val matcher = pattern.matcher(clean)
-            val sb = StringBuffer()
-            while (matcher.find()) {
-                val found = matcher.group()
-                val replacement = if (found[0].isUpperCase()) {
-                    correction.replaceFirstChar { it.uppercase() }
-                } else {
-                    correction
-                }
-                matcher.appendReplacement(sb, replacement)
-            }
-            matcher.appendTail(sb)
-            clean = sb.toString()
-        }
-        
-        // Apply Custom Replacements
-        if (bookId != null) {
-            val dictionary = runBlocking { dictionaryRepository.getApplicableDictionary(bookId) }
-            val replacements = dictionary.filter { it.replacement != null }
-            
-            replacements.forEach { entry ->
-                val pattern = Pattern.compile("\\b${Pattern.quote(entry.word)}\\b", Pattern.CASE_INSENSITIVE)
-                val matcher = pattern.matcher(clean)
-                val sb = StringBuffer()
-                while (matcher.find()) {
-                    val found = matcher.group()
-                    val replacement = entry.replacement!!
-                    val finalReplacement = if (found[0].isUpperCase()) {
-                        replacement.replaceFirstChar { it.uppercase() }
-                    } else {
-                        replacement
-                    }
-                    matcher.appendReplacement(sb, finalReplacement)
-                }
-                matcher.appendTail(sb)
-                clean = sb.toString()
-            }
-        }
-
-        return clean
+        return applyTypos(clean)
     }
-    
-    /**
-     * Verify a word against online dictionary and local whitelist.
-     * Returns TRUE if word is valid (Real word OR Whitelisted).
-     */
+
+    private fun applyTypos(input: String): String {
+        var output = input
+        allTypos.forEach { (typo, correction) ->
+            output = replaceWord(output, typo, correction)
+        }
+        return output
+    }
+
+    private fun applyCustomReplacements(input: String, replacements: List<DictionaryEntry>): String {
+        var output = input
+        replacements.forEach { entry ->
+            output = replaceWord(output, entry.word, entry.replacement.orEmpty())
+        }
+        return output
+    }
+
+    private fun replaceWord(input: String, word: String, replacement: String): String {
+        val pattern = Pattern.compile("\\b${Pattern.quote(word)}\\b", Pattern.CASE_INSENSITIVE)
+        val matcher = pattern.matcher(input)
+        val sb = StringBuffer()
+        while (matcher.find()) {
+            val found = matcher.group()
+            val finalReplacement = if (found.firstOrNull()?.isUpperCase() == true) {
+                replacement.replaceFirstChar { it.uppercase() }
+            } else {
+                replacement
+            }
+            matcher.appendReplacement(sb, finalReplacement)
+        }
+        matcher.appendTail(sb)
+        return sb.toString()
+    }
+
     suspend fun verifyWord(word: String, bookId: Long? = null): Boolean {
-        // 1. Check basic fictional terms
         if (baseFictionalTerms.contains(word)) return true
-        if (fictionalTypos.containsValue(word)) return true // It's a valid correction term
-        
-        // 2. Check custom dictionary
+        if (fictionalTypos.containsValue(word)) return true
+
         if (bookId != null) {
-            val dict = dictionaryRepository.getApplicableDictionary(bookId)
+            val dict = withContext(Dispatchers.IO) { dictionaryRepository.getApplicableDictionary(bookId) }
             if (dict.any { it.word.equals(word, ignoreCase = true) && it.replacement == null }) {
                 return true
             }
         }
-        
-        // 3. Check online dictionary
+
         return dictionaryService.isValidWord(word)
     }
-    
+
     fun getBaseFictionalTerms(): Set<String> = baseFictionalTerms
 }
