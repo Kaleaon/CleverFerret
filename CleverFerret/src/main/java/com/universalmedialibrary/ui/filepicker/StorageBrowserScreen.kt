@@ -1,6 +1,5 @@
 package com.universalmedialibrary.ui.filepicker
 
-import android.os.Build
 import android.os.Environment
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -24,17 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.universalmedialibrary.utils.PermissionsHandler
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -53,27 +47,7 @@ fun StorageBrowserScreen(
     filterMediaTypes: List<String> = listOf("epub", "pdf", "mp3", "mp4", "mkv", "cbz", "cbr"),
     viewModel: StorageBrowserViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
-    // Check for full storage access permission (needed for documents/ebooks on Android 11+)
-    var permissionChecked by remember { 
-        mutableStateOf(PermissionsHandler.hasFullStorageAccess(context)) 
-    }
-    
-    // Re-check permission when screen resumes (user might have granted it in settings)
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                permissionChecked = PermissionsHandler.hasFullStorageAccess(context)
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -155,69 +129,55 @@ fun StorageBrowserScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Show permission request card if needed (Android 11+)
-            if (!permissionChecked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                StoragePermissionCard(
-                    onRequestPermission = {
-                        PermissionsHandler.requestFullStorageAccess(context)
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                // Quick access shortcuts
-                QuickAccessBar(
-                    onPathSelected = { path -> viewModel.navigateTo(path) },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            // Quick access shortcuts
+            QuickAccessBar(
+                onPathSelected = { path -> viewModel.navigateTo(path) },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                HorizontalDivider()
+            HorizontalDivider()
 
-                // File list
-                when {
-                    uiState.isLoading -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
+            // File list
+            when {
+                uiState.isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
-                    uiState.error != null -> {
-                        ErrorView(
-                            message = uiState.error!!,
-                            onRetry = { viewModel.refresh() },
-                            showPermissionHint = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R,
-                            onRequestPermission = {
-                                PermissionsHandler.requestFullStorageAccess(context)
-                            }
-                        )
-                    }
-                    uiState.files.isEmpty() -> {
-                        EmptyFolderView()
-                    }
-                    else -> {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            items(
-                                items = uiState.files,
-                                key = { it.absolutePath }
-                            ) { file ->
-                                FileItem(
-                                    file = file,
-                                    viewMode = uiState.viewMode,
-                                    onClick = {
-                                        if (file.isDirectory) {
-                                            viewModel.navigateInto(file)
-                                        } else {
-                                            onFileSelected(file)
-                                        }
-                                    },
-                                    modifier = Modifier
-                                )
-                            }
+                }
+                uiState.error != null -> {
+                    ErrorView(
+                        message = uiState.error!!,
+                        onRetry = { viewModel.refresh() }
+                    )
+                }
+                uiState.files.isEmpty() -> {
+                    EmptyFolderView()
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(
+                            items = uiState.files,
+                            key = { it.absolutePath }
+                        ) { file ->
+                            FileItem(
+                                file = file,
+                                viewMode = uiState.viewMode,
+                                onClick = {
+                                    if (file.isDirectory) {
+                                        viewModel.navigateInto(file)
+                                    } else {
+                                        onFileSelected(file)
+                                    }
+                                },
+                                modifier = Modifier
+                            )
                         }
                     }
                 }
