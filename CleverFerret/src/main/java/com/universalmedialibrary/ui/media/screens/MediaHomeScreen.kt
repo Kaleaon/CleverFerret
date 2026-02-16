@@ -1,6 +1,12 @@
 package com.universalmedialibrary.ui.media.screens
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -15,22 +21,34 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * Clean Media-Centric Home/Dashboard Screen
@@ -84,17 +102,6 @@ fun MediaHomeScreen(
         state.libraryStats.totalVideos == 0
     }
     
-    // Auto-scroll hero carousel
-    LaunchedEffect(state.featuredItems) {
-        if (state.featuredItems.isNotEmpty()) {
-            while (true) {
-                delay(6000)
-                val nextPage = (heroCarouselPagerState.currentPage + 1) % state.featuredItems.size
-                heroCarouselPagerState.animateScrollToPage(nextPage)
-            }
-        }
-    }
-    
     // Scaffold with sticky top header
     Scaffold(
         topBar = {
@@ -120,7 +127,7 @@ fun MediaHomeScreen(
             )
         } else if (state.isLoading) {
             LoadingStateContent(
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.fillMaxSize()
             )
         } else {
             LazyColumn(
@@ -489,6 +496,36 @@ private fun HeroCarousel(
     onItemClick: (MediaItem) -> Unit,
     onPlayClick: (MediaItem) -> Unit
 ) {
+    var lastPagerInteractionTimestamp by remember(pagerState) { mutableLongStateOf(0L) }
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.isScrollInProgress }
+            .collect {
+                lastPagerInteractionTimestamp = System.currentTimeMillis()
+            }
+    }
+
+    LaunchedEffect(pagerState, items.size) {
+        if (items.size <= 1) return@LaunchedEffect
+
+        while (true) {
+            delay(HERO_CAROUSEL_AUTO_ADVANCE_INTERVAL_MS)
+
+            val itemCount = items.size
+            if (itemCount <= 1) continue
+
+            val now = System.currentTimeMillis()
+            val userRecentlyInteracted =
+                now - lastPagerInteractionTimestamp < HERO_CAROUSEL_IDLE_RESUME_DELAY_MS
+
+            if (pagerState.isScrollInProgress || userRecentlyInteracted) continue
+
+            val currentPage = pagerState.currentPage.coerceIn(0, itemCount - 1)
+            val nextPage = (currentPage + 1) % itemCount
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
+
     Box {
         HorizontalPager(
             state = pagerState,
@@ -525,6 +562,9 @@ private fun HeroCarousel(
         }
     }
 }
+
+private const val HERO_CAROUSEL_AUTO_ADVANCE_INTERVAL_MS = 6000L
+private const val HERO_CAROUSEL_IDLE_RESUME_DELAY_MS = 1800L
 
 // =============================================================================
 // QUICK STATS ROW
@@ -658,7 +698,8 @@ private fun CollectionsSection(
         Text(
             text = "Your Collections",
             style = MediaTypography.TitleMedium,
-            color = MediaColors.TextPrimary
+            color = MediaColors.TextPrimary,
+            modifier = Modifier.semantics { heading() }
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
@@ -751,7 +792,8 @@ private fun QuickAccessGrid(
         Text(
             text = "Explore Your Library",
             style = MediaTypography.TitleMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.semantics { heading() }
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
@@ -794,13 +836,17 @@ private fun QuickAccessFlowGrid(
             maxItemsInEachRow = columns,
             horizontalArrangement = Arrangement.spacedBy(spacing),
             verticalArrangement = Arrangement.spacedBy(spacing),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics { isTraversalGroup = true }
         ) {
-            items.forEach { item ->
+            items.forEachIndexed { index, item ->
                 QuickAccessCard(
                     item = item,
                     onClick = { onCategoryClick(item.id) },
-                    modifier = Modifier.width(cardWidth)
+                    modifier = Modifier
+                        .width(cardWidth)
+                        .semantics { traversalIndex = index.toFloat() }
                 )
             }
         }
@@ -813,11 +859,25 @@ private fun QuickAccessCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cardContentDescription = stringResource(
+        id = R.string.cd_open_category,
+        item.label
+    )
+    val quickAccessAlphas = MediaColors.quickAccessCardAlphas()
+
     Surface(
         modifier = modifier
-            .aspectRatio(1f),
+            .aspectRatio(1f)
+            .semantics {
+                role = Role.Button
+                contentDescription = cardContentDescription
+            },
         shape = RoundedCornerShape(MediaCorners.Card),
         color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = quickAccessAlphas.border)
+        ),
         onClick = onClick
     ) {
         Column(
@@ -829,12 +889,12 @@ private fun QuickAccessCard(
         ) {
             Surface(
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = quickAccessAlphas.chip),
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
                     imageVector = item.icon,
-                    contentDescription = item.label,
+                    contentDescription = null,
                     modifier = Modifier
                         .padding(MediaSpacing.SM)
                         .fillMaxSize(),
@@ -1034,6 +1094,11 @@ private fun MetallicBorderCard(
     item: MediaItem,
     onClick: () -> Unit
 ) {
+    val progress = item.progress.coerceIn(0f, 1f)
+    val hasProgress = progress > 0f && progress < 1f
+    val progressTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    val progressBackgroundColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)
+
     val primaryColor = MaterialTheme.colorScheme.primary
     val metallicGradient = Brush.linearGradient(
         colors = listOf(
@@ -1101,18 +1166,18 @@ private fun MetallicBorderCard(
                 }
                 
                 // Progress bar at bottom
-                if (item.progress > 0f) {
+                if (hasProgress) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            .height(4.dp)
-                            .background(Color.Black.copy(alpha = 0.5f))
+                            .height(6.dp)
+                            .background(progressTrackColor)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
-                                .fillMaxWidth(item.progress)
+                                .fillMaxWidth(progress)
                                 .background(MaterialTheme.colorScheme.primary)
                         )
                     }
@@ -1133,20 +1198,68 @@ private fun MetallicBorderCard(
         )
         
         // Subtitle (remaining time or metadata)
-        val subtitleText = when {
-            item.duration != null -> item.duration
-            item.subtitle != null -> item.subtitle
-            else -> ""
-        }
+        val subtitleText = remember(item) { item.remainingLabel() }
         if (subtitleText.isNotEmpty()) {
-            Text(
-                text = subtitleText,
-                style = MediaTypography.BodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Surface(
+                color = progressBackgroundColor,
+                shape = RoundedCornerShape(MediaCorners.SM)
+            ) {
+                Text(
+                    text = subtitleText,
+                    style = MediaTypography.BodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = MediaSpacing.XS, vertical = 2.dp)
+                )
+            }
         }
+    }
+}
+
+private fun MediaItem.remainingLabel(): String {
+    val clampedProgress = progress.coerceIn(0f, 1f)
+    if (clampedProgress <= 0f || clampedProgress >= 1f) {
+        return subtitle ?: duration.orEmpty()
+    }
+
+    if (!remainingTimeText.isNullOrBlank()) {
+        return "${remainingTimeText.trim()} left"
+    }
+
+    val parsedDurationSeconds = parseDurationToSeconds(duration)
+    if (parsedDurationSeconds != null) {
+        val remainingSeconds = (parsedDurationSeconds * (1f - clampedProgress)).roundToInt()
+        return "${formatRemainingTime(remainingSeconds)} left"
+    }
+
+    if (!subtitle.isNullOrBlank()) {
+        return subtitle
+    }
+
+    val remainingPercent = ((1f - clampedProgress) * 100).roundToInt().coerceIn(1, 99)
+    return "$remainingPercent% remaining"
+}
+
+private fun parseDurationToSeconds(duration: String?): Int? {
+    if (duration.isNullOrBlank()) return null
+    val normalized = duration.trim().lowercase()
+    val hours = "(\\d+)\\s*h".toRegex().find(normalized)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+    val minutes = "(\\d+)\\s*m".toRegex().find(normalized)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+    val seconds = "(\\d+)\\s*s".toRegex().find(normalized)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+    if (hours == 0 && minutes == 0 && seconds == 0) return null
+    return (hours * 3600) + (minutes * 60) + seconds
+}
+
+private fun formatRemainingTime(totalSeconds: Int): String {
+    val safeSeconds = totalSeconds.coerceAtLeast(0)
+    val hours = safeSeconds / 3600
+    val minutes = (safeSeconds % 3600) / 60
+
+    return when {
+        hours > 0 -> "${hours}h ${minutes}m"
+        minutes > 0 -> "${minutes}m"
+        else -> "<1m"
     }
 }
 
@@ -1170,7 +1283,8 @@ private fun RecentlyAddedGridSection(
             text = title,
             style = MediaTypography.TitleSmall,
             color = MaterialTheme.colorScheme.onBackground,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.semantics { heading() }
         )
         
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
@@ -1509,26 +1623,159 @@ private fun ErrorStateContent(
 private fun LoadingStateContent(
     modifier: Modifier = Modifier
 ) {
-    Column(
+    val shimmerBrush = rememberShimmerBrush()
+
+    LazyColumn(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(MediaSpacing.XL),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .fillMaxSize()
+            .padding(bottom = MediaSpacing.Huge)
     ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(48.dp),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 4.dp
+        item {
+            HeroSkeletonRow(brush = shimmerBrush)
+        }
+
+        item {
+            QuickStatsSkeletonRow(brush = shimmerBrush)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+            QuickAccessSkeletonGrid(brush = shimmerBrush)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(MediaSpacing.Huge))
+        }
+    }
+}
+
+@Composable
+private fun rememberShimmerBrush(): Brush {
+    val transition = rememberInfiniteTransition(label = "home_loading_shimmer")
+    val translateX by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "home_loading_shimmer_translate"
+    )
+
+    return Brush.linearGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+        ),
+        start = Offset(translateX - 500f, 0f),
+        end = Offset(translateX, 0f)
+    )
+}
+
+@Composable
+private fun HeroSkeletonRow(brush: Brush) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(MediaSizes.HeroHeight)
+                .background(brush)
         )
-        
-        Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
-        Text(
-            text = "Loading your library...",
-            style = MediaTypography.BodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = MediaSpacing.LG),
+            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+        ) {
+            repeat(3) { index ->
+                Box(
+                    modifier = Modifier
+                        .size(if (index == 0) 24.dp else 8.dp, 4.dp)
+                        .clip(RoundedCornerShape(MediaCorners.Full))
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f))
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickStatsSkeletonRow(brush: Brush) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal, vertical = MediaSpacing.MD)
+    ) {
+        val isCompact = maxWidth < 420.dp
+        val spacing = MediaSpacing.MD
+
+        val statCard: @Composable (Modifier) -> Unit = { cardModifier ->
+            Box(
+                modifier = cardModifier
+                    .height(72.dp)
+                    .clip(RoundedCornerShape(MediaCorners.Card))
+                    .background(brush)
+            )
+        }
+
+        if (isCompact) {
+            Column(verticalArrangement = Arrangement.spacedBy(spacing)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                    repeat(2) { statCard(Modifier.weight(1f)) }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                    repeat(2) { statCard(Modifier.weight(1f)) }
+                }
+            }
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                repeat(4) { statCard(Modifier.weight(1f)) }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun QuickAccessSkeletonGrid(brush: Brush) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.5f)
+                .height(24.dp)
+                .clip(RoundedCornerShape(MediaCorners.XS))
+                .background(brush)
         )
+
+        Spacer(modifier = Modifier.height(MediaSpacing.MD))
+
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val columns = if (maxWidth < 360.dp) 2 else 3
+            val spacing = MediaSpacing.MD
+            val cardWidth = (maxWidth - spacing * (columns - 1)) / columns
+
+            FlowRow(
+                maxItemsInEachRow = columns,
+                horizontalArrangement = Arrangement.spacedBy(spacing),
+                verticalArrangement = Arrangement.spacedBy(spacing),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                repeat(13) {
+                    Box(
+                        modifier = Modifier
+                            .width(cardWidth)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(MediaCorners.Card))
+                            .background(brush)
+                    )
+                }
+            }
+        }
     }
 }

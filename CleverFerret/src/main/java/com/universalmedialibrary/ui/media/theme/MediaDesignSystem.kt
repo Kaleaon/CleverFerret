@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -30,6 +31,12 @@ import com.universalmedialibrary.R
  * Dark backgrounds with warm gold/orange accents for a premium feel
  */
 object MediaColors {
+
+    @Immutable
+    data class QuickAccessCardAlphas(
+        val border: Float,
+        val chip: Float
+    )
     /**
      * Alternative accent colors (static). These are used by optional accent-only themes
      * and should not be treated as the primary theme system.
@@ -196,6 +203,87 @@ object MediaColors {
             updateFromColorScheme(scheme)
         }
     }
+
+    @Composable
+    fun quickAccessCardAlphas(
+        surface: Color = MaterialTheme.colorScheme.surface,
+        primary: Color = MaterialTheme.colorScheme.primary
+    ): QuickAccessCardAlphas = remember(surface, primary) {
+        computeQuickAccessCardAlphas(surface = surface, primary = primary)
+    }
+}
+
+private const val QUICK_ACCESS_BORDER_MIN_CONTRAST = 1.3f
+private const val QUICK_ACCESS_CHIP_MIN_CONTRAST = 1.6f
+private const val QUICK_ACCESS_ALPHA_STEP = 0.01f
+
+internal fun computeQuickAccessCardAlphas(
+    surface: Color,
+    primary: Color
+): MediaColors.QuickAccessCardAlphas {
+    val isLightSurface = surface.luminance() >= 0.5f
+    val preferredBorderAlpha = if (isLightSurface) 0.26f else 0.14f
+    val preferredChipAlpha = if (isLightSurface) 0.34f else 0.20f
+
+    val borderAlpha = maxOf(
+        preferredBorderAlpha,
+        findAlphaForMinContrast(
+            overlay = primary,
+            surface = surface,
+            minContrast = QUICK_ACCESS_BORDER_MIN_CONTRAST
+        )
+    )
+    val chipAlpha = maxOf(
+        preferredChipAlpha,
+        findAlphaForMinContrast(
+            overlay = primary,
+            surface = surface,
+            minContrast = QUICK_ACCESS_CHIP_MIN_CONTRAST
+        )
+    )
+
+    return MediaColors.QuickAccessCardAlphas(
+        border = borderAlpha.coerceIn(0f, 1f),
+        chip = chipAlpha.coerceIn(0f, 1f)
+    )
+}
+
+internal data class QuickAccessContrastRatios(
+    val borderToSurface: Float,
+    val chipToSurface: Float
+)
+
+internal fun computeQuickAccessContrastRatios(
+    surface: Color,
+    primary: Color,
+    alphas: MediaColors.QuickAccessCardAlphas = computeQuickAccessCardAlphas(surface, primary)
+): QuickAccessContrastRatios {
+    val borderColor = primary.copy(alpha = alphas.border).compositeOver(surface)
+    val chipColor = primary.copy(alpha = alphas.chip).compositeOver(surface)
+    return QuickAccessContrastRatios(
+        borderToSurface = contrastRatio(borderColor, surface),
+        chipToSurface = contrastRatio(chipColor, surface)
+    )
+}
+
+private fun findAlphaForMinContrast(
+    overlay: Color,
+    surface: Color,
+    minContrast: Float
+): Float {
+    var alpha = 0f
+    while (alpha <= 1f) {
+        val blended = overlay.copy(alpha = alpha).compositeOver(surface)
+        if (contrastRatio(blended, surface) >= minContrast) return alpha
+        alpha += QUICK_ACCESS_ALPHA_STEP
+    }
+    return 1f
+}
+
+private fun contrastRatio(foreground: Color, background: Color): Float {
+    val lighter = maxOf(foreground.luminance(), background.luminance())
+    val darker = minOf(foreground.luminance(), background.luminance())
+    return (lighter + 0.05f) / (darker + 0.05f)
 }
 
 // =============================================================================
@@ -676,7 +764,7 @@ fun MediaAccentTheme(
     val colorScheme = remember(accentColors) {
         DefaultMediaDarkColorScheme.copy(
             primary = accentColors.primary,
-            onPrimary = if (accentColors.primary.luminance() > 0.5f) 
+            onPrimary = if (accentColors.primary.luminance() > 0.5f)
                 Color.Black else Color.White,
             primaryContainer = accentColors.tertiary,
             secondary = accentColors.secondary
@@ -693,14 +781,4 @@ fun MediaAccentTheme(
             content = content
         )
     }
-}
-
-/**
- * Helper extension to calculate luminance
- */
-private fun Color.luminance(): Float {
-    val r = red
-    val g = green
-    val b = blue
-    return 0.299f * r + 0.587f * g + 0.114f * b
 }
