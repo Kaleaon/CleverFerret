@@ -11,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.pager.*
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.ContentScale
@@ -71,6 +73,7 @@ import kotlin.math.roundToInt
 @Composable
 fun MediaHomeScreen(
     state: MediaHomeState,
+    isRefreshing: Boolean,
     onItemClick: (MediaItem) -> Unit,
     onPlayClick: (MediaItem) -> Unit,
     onSeeAllClick: (String) -> Unit,
@@ -79,6 +82,7 @@ fun MediaHomeScreen(
     onNotificationClick: () -> Unit,
     onAddLocalFilesClick: () -> Unit = {},
     onSubscribePodcastsClick: () -> Unit = {},
+    onRefresh: () -> Unit,
     onQuickAccessPreferencesChange: (order: List<String>, favorites: Set<String>) -> Unit = { _, _ -> },
     onDismissWelcomeTips: () -> Unit = {},
     onRetry: () -> Unit,
@@ -91,6 +95,17 @@ fun MediaHomeScreen(
         derivedStateOf { scrollState.firstVisibleItemIndex > 0 }
     }
     val heroCarouselPagerState = rememberPagerState(pageCount = { state.featuredItems.size })
+    val isHeroCarouselBeingDragged by heroCarouselPagerState.interactionSource.collectIsDraggedAsState()
+    val isPullToRefreshEnabled by remember(scrollState, state.error, state.isLoading, isHeroCarouselBeingDragged) {
+        derivedStateOf {
+            scrollState.firstVisibleItemIndex == 0 &&
+                scrollState.firstVisibleItemScrollOffset == 0 &&
+                state.error == null &&
+                !state.isLoading &&
+                !isHeroCarouselBeingDragged
+        }
+    }
+    
     val context = LocalContext.current
     val platformAnimationsDisabled = remember(context) {
         Settings.Global.getFloat(
@@ -157,11 +172,11 @@ fun MediaHomeScreen(
                 modifier = Modifier.fillMaxSize()
             )
         } else {
-            LazyColumn(
-                state = scrollState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = MediaSpacing.Huge) // Extra padding for bottom nav
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                isEnabled = isPullToRefreshEnabled,
+                modifier = Modifier.fillMaxSize()
             ) {
                 // Welcome section (Get Started) for empty library - now always at top after sticky header
                 if (isLibraryEmpty) {
@@ -207,8 +222,16 @@ fun MediaHomeScreen(
                             )
                         }
                     }
-                }
 
+                    // Hero Carousel
+                    if (state.featuredItems.isNotEmpty()) {
+                        item {
+                            HeroCarousel(
+                                items = state.featuredItems,
+                                pagerState = heroCarouselPagerState,
+                                onItemClick = onItemClick,
+                                onPlayClick = onPlayClick
+                            )
                 // Quick Stats Row - always show if library has content OR show minimal version for empty
                 item(key = "quick-stats") {
                     if (!isLibraryEmpty) {
@@ -220,8 +243,11 @@ fun MediaHomeScreen(
                             QuickStatsRow(stats = state.libraryStats)
                         }
                     }
-                }
 
+                    // Quick Stats Row - always show if library has content OR show minimal version for empty
+                    item {
+                        if (!isLibraryEmpty) {
+                            QuickStatsRow(stats = state.libraryStats)
                 // Continue Section (Reading, Watching, Listening) - matching mockup "Continue Watching"
                 if (state.continueItems.isNotEmpty()) {
                     item(key = "continue-section") {
@@ -239,8 +265,65 @@ fun MediaHomeScreen(
                             )
                         }
                     }
-                }
 
+                    // Continue Section (Reading, Watching, Listening) - matching mockup "Continue Watching"
+                    if (state.continueItems.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                            ContinueWatchingRow(
+                                title = "Continue Watching",
+                                items = state.continueItems,
+                                onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) },
+                                onItemClick = onItemClick
+                            )
+                        }
+                    }
+
+                    // Recently Added - Combined Grid Section (matching mockup)
+                    item {
+                        val recentlyAddedItems = remember(state) {
+                            (state.recentBooks.take(2) +
+                             state.recentMusic.take(1) +
+                             state.recentVideos.take(2) +
+                             state.recentComics.take(1) +
+                             state.recentPodcasts.take(1) +
+                             state.recentAudiobooks.take(1))
+                                .take(6) // Show max 6 items in grid
+                        }
+
+                        if (recentlyAddedItems.isNotEmpty()) {
+                            Column {
+                                Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                RecentlyAddedGridSection(
+                                    title = "Recently Added",
+                                    items = recentlyAddedItems,
+                                    onItemClick = onItemClick
+                                )
+                            }
+                        }
+                    }
+
+                    // Comics
+                    if (state.recentComics.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                            MediaCarouselRow(
+                                title = "Recently Added Comics",
+                                items = state.recentComics,
+                                onSeeAllClick = { onSeeAllClick(MediaRoutes.COMICS) }
+                            ) { item ->
+                                MediaPosterCard(
+                                    item = item,
+                                    onClick = { onItemClick(item) },
+                                    width = MediaSizes.CardMedium
+                                )
+                            }
+                        }
+                    }
+
+                    // Web Fiction
+                    if (state.recentFanfiction.isNotEmpty()) {
+                        item {
                 // Recently Added - Combined Grid Section (matching mockup)
                 item(key = "recently-added") {
                     val recentlyAddedItems = remember(state) {
@@ -354,6 +437,32 @@ fun MediaHomeScreen(
                                     width = MediaSizes.CardMedium
                                 )
                             }
+                        }
+                    }
+
+                    // Collections
+                    if (state.collections.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                            CollectionsSection(
+                                collections = state.collections,
+                                onCollectionClick = { onSeeAllClick(MediaRoutes.collectionDetailRoute(it.id)) }
+                            )
+                        }
+                    }
+
+                    // Quick Access Grid - ALWAYS show this
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                        QuickAccessGrid(
+                            onCategoryClick = onSeeAllClick
+                        )
+                    }
+
+                    // Bottom padding
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.Huge))
+                    }
                         }
                     }
                 }
