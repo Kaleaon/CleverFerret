@@ -56,6 +56,7 @@ fun MediaHomeScreen(
     onNotificationClick: () -> Unit,
     onAddLocalFilesClick: () -> Unit = {},
     onSubscribePodcastsClick: () -> Unit = {},
+    onDismissWelcomeTips: () -> Unit = {},
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -129,13 +130,15 @@ fun MediaHomeScreen(
                     .padding(bottom = MediaSpacing.Huge) // Extra padding for bottom nav
             ) {
                 // Welcome section (Get Started) for empty library - now always at top after sticky header
-                if (isLibraryEmpty) {
+                if (isLibraryEmpty && state.showOnboardingTips) {
                     item {
                         WelcomeSection(
                             onSearchClick = onSearchClick,
                             onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) },
                             onAddLocalFilesClick = onAddLocalFilesClick,
-                            onSubscribePodcastsClick = onSubscribePodcastsClick
+                            onSubscribePodcastsClick = onSubscribePodcastsClick,
+                            canDismiss = state.hasConfiguredContentSource,
+                            onDismiss = onDismissWelcomeTips
                         )
                     }
                 }
@@ -283,7 +286,9 @@ private fun WelcomeSection(
     onSearchClick: () -> Unit,
     onBrowseClick: () -> Unit,
     onAddLocalFilesClick: () -> Unit,
-    onSubscribePodcastsClick: () -> Unit
+    onSubscribePodcastsClick: () -> Unit,
+    canDismiss: Boolean,
+    onDismiss: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -329,8 +334,21 @@ private fun WelcomeSection(
             textAlign = TextAlign.Center
         )
         
+        Spacer(modifier = Modifier.height(MediaSpacing.MD))
+
+        if (canDismiss) {
+            TextButton(onClick = onDismiss) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Dismiss onboarding tips"
+                )
+                Spacer(modifier = Modifier.width(MediaSpacing.XS))
+                Text("Dismiss onboarding tips")
+            }
+        }
+
         Spacer(modifier = Modifier.height(MediaSpacing.XL))
-        
+
         // Getting Started Card
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -1381,7 +1399,9 @@ data class MediaHomeState(
     val recentVideos: List<MediaItem> = emptyList(),
     val recentFanfiction: List<MediaItem> = emptyList(),
     val collections: List<HomeCollection> = emptyList(),
-    val libraryStats: HomeLibraryStats = HomeLibraryStats()
+    val libraryStats: HomeLibraryStats = HomeLibraryStats(),
+    val showOnboardingTips: Boolean = true,
+    val hasConfiguredContentSource: Boolean = false
 )
 
 data class HomeLibraryStats(
