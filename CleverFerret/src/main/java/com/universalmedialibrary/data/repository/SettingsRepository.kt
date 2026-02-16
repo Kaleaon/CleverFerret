@@ -38,6 +38,7 @@ class SettingsRepository @Inject constructor(
         val BOTTOM_GEAR_POSITION = stringPreferencesKey("bottom_gear_position")
         val MINI_PLAYER_BACKGROUND = stringPreferencesKey("mini_player_background")
         val BOTTOM_BAR_CONFIG = stringPreferencesKey("bottom_bar_config")
+        val HOME_QUICK_ACCESS_CONFIG = stringPreferencesKey("home_quick_access_config")
         val SHOW_DEBUG_BUG_BUTTON = booleanPreferencesKey("show_debug_bug_button")
         val IMPORT_SORTER_INPUT_URI = stringPreferencesKey("import_sorter_input_uri")
         val IMPORT_SORTER_OUTPUT_URI = stringPreferencesKey("import_sorter_output_uri")
@@ -66,6 +67,7 @@ class SettingsRepository @Inject constructor(
 
         // Casting
         val CASTING_ENABLED = booleanPreferencesKey("casting_enabled")
+        val SHOW_HOME_ONBOARDING_TIPS = booleanPreferencesKey("show_home_onboarding_tips")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -134,6 +136,16 @@ class SettingsRepository @Inject constructor(
         } else {
             runCatching { json.decodeFromString<BottomBarPreferences>(configJson) }
                 .getOrDefault(BottomBarPreferences.Default)
+        }
+    }
+
+    val quickAccessPreferencesFlow: Flow<QuickAccessPreferences> = context.dataStore.data.map { preferences ->
+        val configJson = preferences[PreferencesKeys.HOME_QUICK_ACCESS_CONFIG]
+        if (configJson.isNullOrBlank()) {
+            QuickAccessPreferences.Default
+        } else {
+            runCatching { json.decodeFromString<QuickAccessPreferences>(configJson) }
+                .getOrDefault(QuickAccessPreferences.Default)
         }
     }
 
@@ -221,6 +233,10 @@ class SettingsRepository @Inject constructor(
         preferences[PreferencesKeys.CASTING_ENABLED] ?: true
     }
 
+    val showHomeOnboardingTipsFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_HOME_ONBOARDING_TIPS] ?: true
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -287,6 +303,16 @@ class SettingsRepository @Inject constructor(
                 preferences.remove(PreferencesKeys.BOTTOM_BAR_CONFIG)
             } else {
                 preferences[PreferencesKeys.BOTTOM_BAR_CONFIG] = json.encodeToString(preferencesValue)
+            }
+        }
+    }
+
+    suspend fun setQuickAccessPreferences(preferencesValue: QuickAccessPreferences) {
+        context.dataStore.edit { preferences ->
+            if (preferencesValue == QuickAccessPreferences.Default) {
+                preferences.remove(PreferencesKeys.HOME_QUICK_ACCESS_CONFIG)
+            } else {
+                preferences[PreferencesKeys.HOME_QUICK_ACCESS_CONFIG] = json.encodeToString(preferencesValue)
             }
         }
     }
@@ -360,6 +386,12 @@ class SettingsRepository @Inject constructor(
     suspend fun setCastingEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.CASTING_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setShowHomeOnboardingTips(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_HOME_ONBOARDING_TIPS] = enabled
         }
     }
 

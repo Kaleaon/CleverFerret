@@ -143,6 +143,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun showOnboardingTipsAgain() {
+        viewModelScope.launch {
+            settingsRepository.setShowHomeOnboardingTips(true)
+        }
+    }
+
     fun updateBottomBarPreferences(order: List<String>, hidden: Set<String>) {
         viewModelScope.launch {
             settingsRepository.setBottomBarPreferences(
