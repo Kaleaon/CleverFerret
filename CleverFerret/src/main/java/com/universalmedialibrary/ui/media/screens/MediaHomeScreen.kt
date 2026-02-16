@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.media.screens
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.pager.*
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -30,7 +32,6 @@ import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * Clean Media-Centric Home/Dashboard Screen
@@ -49,6 +50,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MediaHomeScreen(
     state: MediaHomeState,
+    isRefreshing: Boolean,
     onItemClick: (MediaItem) -> Unit,
     onPlayClick: (MediaItem) -> Unit,
     onSeeAllClick: (String) -> Unit,
@@ -56,6 +58,7 @@ fun MediaHomeScreen(
     onNotificationClick: () -> Unit,
     onAddLocalFilesClick: () -> Unit = {},
     onSubscribePodcastsClick: () -> Unit = {},
+    onRefresh: () -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -64,7 +67,16 @@ fun MediaHomeScreen(
         derivedStateOf { scrollState.firstVisibleItemIndex > 0 }
     }
     val heroCarouselPagerState = rememberPagerState(pageCount = { state.featuredItems.size })
-    val coroutineScope = rememberCoroutineScope()
+    val isHeroCarouselBeingDragged by heroCarouselPagerState.interactionSource.collectIsDraggedAsState()
+    val isPullToRefreshEnabled by remember(scrollState, state.error, state.isLoading, isHeroCarouselBeingDragged) {
+        derivedStateOf {
+            scrollState.firstVisibleItemIndex == 0 &&
+                scrollState.firstVisibleItemScrollOffset == 0 &&
+                state.error == null &&
+                !state.isLoading &&
+                !isHeroCarouselBeingDragged
+        }
+    }
     
     // Check if library is empty
     val isLibraryEmpty = remember(state) {
@@ -122,138 +134,145 @@ fun MediaHomeScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
-            LazyColumn(
-                state = scrollState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = MediaSpacing.Huge) // Extra padding for bottom nav
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                isEnabled = isPullToRefreshEnabled,
+                modifier = Modifier.fillMaxSize()
             ) {
-                // Welcome section (Get Started) for empty library - now always at top after sticky header
-                if (isLibraryEmpty) {
+                LazyColumn(
+                    state = scrollState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = MediaSpacing.Huge) // Extra padding for bottom nav
+                ) {
+                    // Welcome section (Get Started) for empty library - now always at top after sticky header
+                    if (isLibraryEmpty) {
+                        item {
+                            WelcomeSection(
+                                onSearchClick = onSearchClick,
+                                onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) },
+                                onAddLocalFilesClick = onAddLocalFilesClick,
+                                onSubscribePodcastsClick = onSubscribePodcastsClick
+                            )
+                        }
+                    }
+
+                    // Hero Carousel
+                    if (state.featuredItems.isNotEmpty()) {
+                        item {
+                            HeroCarousel(
+                                items = state.featuredItems,
+                                pagerState = heroCarouselPagerState,
+                                onItemClick = onItemClick,
+                                onPlayClick = onPlayClick
+                            )
+                        }
+                    }
+
+                    // Quick Stats Row - always show if library has content OR show minimal version for empty
                     item {
-                        WelcomeSection(
-                            onSearchClick = onSearchClick,
-                            onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) },
-                            onAddLocalFilesClick = onAddLocalFilesClick,
-                            onSubscribePodcastsClick = onSubscribePodcastsClick
-                        )
+                        if (!isLibraryEmpty) {
+                            QuickStatsRow(stats = state.libraryStats)
+                        }
                     }
-                }
 
-                // Hero Carousel
-                if (state.featuredItems.isNotEmpty()) {
-                    item {
-                        HeroCarousel(
-                            items = state.featuredItems,
-                            pagerState = heroCarouselPagerState,
-                            onItemClick = onItemClick,
-                            onPlayClick = onPlayClick
-                        )
-                    }
-                }
-
-                // Quick Stats Row - always show if library has content OR show minimal version for empty
-                item {
-                    if (!isLibraryEmpty) {
-                        QuickStatsRow(stats = state.libraryStats)
-                    }
-                }
-
-                // Continue Section (Reading, Watching, Listening) - matching mockup "Continue Watching"
-                if (state.continueItems.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        ContinueWatchingRow(
-                            title = "Continue Watching",
-                            items = state.continueItems,
-                            onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) },
-                            onItemClick = onItemClick
-                        )
-                    }
-                }
-
-                // Recently Added - Combined Grid Section (matching mockup)
-                item {
-                    val recentlyAddedItems = remember(state) {
-                        (state.recentBooks.take(2) +
-                         state.recentMusic.take(1) +
-                         state.recentVideos.take(2) +
-                         state.recentComics.take(1) +
-                         state.recentPodcasts.take(1) +
-                         state.recentAudiobooks.take(1))
-                            .take(6) // Show max 6 items in grid
-                    }
-                    
-                    if (recentlyAddedItems.isNotEmpty()) {
-                        Column {
+                    // Continue Section (Reading, Watching, Listening) - matching mockup "Continue Watching"
+                    if (state.continueItems.isNotEmpty()) {
+                        item {
                             Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                            RecentlyAddedGridSection(
-                                title = "Recently Added",
-                                items = recentlyAddedItems,
+                            ContinueWatchingRow(
+                                title = "Continue Watching",
+                                items = state.continueItems,
+                                onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) },
                                 onItemClick = onItemClick
                             )
                         }
                     }
-                }
-                
-                // Comics
-                if (state.recentComics.isNotEmpty()) {
+
+                    // Recently Added - Combined Grid Section (matching mockup)
                     item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        MediaCarouselRow(
-                            title = "Recently Added Comics",
-                            items = state.recentComics,
-                            onSeeAllClick = { onSeeAllClick(MediaRoutes.COMICS) }
-                        ) { item ->
-                            MediaPosterCard(
-                                item = item,
-                                onClick = { onItemClick(item) },
-                                width = MediaSizes.CardMedium
+                        val recentlyAddedItems = remember(state) {
+                            (state.recentBooks.take(2) +
+                             state.recentMusic.take(1) +
+                             state.recentVideos.take(2) +
+                             state.recentComics.take(1) +
+                             state.recentPodcasts.take(1) +
+                             state.recentAudiobooks.take(1))
+                                .take(6) // Show max 6 items in grid
+                        }
+
+                        if (recentlyAddedItems.isNotEmpty()) {
+                            Column {
+                                Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                RecentlyAddedGridSection(
+                                    title = "Recently Added",
+                                    items = recentlyAddedItems,
+                                    onItemClick = onItemClick
+                                )
+                            }
+                        }
+                    }
+
+                    // Comics
+                    if (state.recentComics.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                            MediaCarouselRow(
+                                title = "Recently Added Comics",
+                                items = state.recentComics,
+                                onSeeAllClick = { onSeeAllClick(MediaRoutes.COMICS) }
+                            ) { item ->
+                                MediaPosterCard(
+                                    item = item,
+                                    onClick = { onItemClick(item) },
+                                    width = MediaSizes.CardMedium
+                                )
+                            }
+                        }
+                    }
+
+                    // Web Fiction
+                    if (state.recentFanfiction.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                            MediaCarouselRow(
+                                title = "Web Fiction Updates",
+                                items = state.recentFanfiction,
+                                onSeeAllClick = { onSeeAllClick(MediaRoutes.WEB_FICTION) }
+                            ) { item ->
+                                MediaPosterCard(
+                                    item = item,
+                                    onClick = { onItemClick(item) },
+                                    width = MediaSizes.CardMedium
+                                )
+                            }
+                        }
+                    }
+
+                    // Collections
+                    if (state.collections.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                            CollectionsSection(
+                                collections = state.collections,
+                                onCollectionClick = { onSeeAllClick(MediaRoutes.collectionDetailRoute(it.id)) }
                             )
                         }
                     }
-                }
-                
-                // Web Fiction
-                if (state.recentFanfiction.isNotEmpty()) {
+
+                    // Quick Access Grid - ALWAYS show this
                     item {
                         Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        MediaCarouselRow(
-                            title = "Web Fiction Updates",
-                            items = state.recentFanfiction,
-                            onSeeAllClick = { onSeeAllClick(MediaRoutes.WEB_FICTION) }
-                        ) { item ->
-                            MediaPosterCard(
-                                item = item,
-                                onClick = { onItemClick(item) },
-                                width = MediaSizes.CardMedium
-                            )
-                        }
-                    }
-                }
-                
-                // Collections
-                if (state.collections.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        CollectionsSection(
-                            collections = state.collections,
-                            onCollectionClick = { onSeeAllClick(MediaRoutes.collectionDetailRoute(it.id)) }
+                        QuickAccessGrid(
+                            onCategoryClick = onSeeAllClick
                         )
                     }
-                }
-                
-                // Quick Access Grid - ALWAYS show this
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    QuickAccessGrid(
-                        onCategoryClick = onSeeAllClick
-                    )
-                }
-                
-                // Bottom padding
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.Huge))
+
+                    // Bottom padding
+                    item {
+                        Spacer(modifier = Modifier.height(MediaSpacing.Huge))
+                    }
                 }
             }
         }

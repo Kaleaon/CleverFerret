@@ -177,9 +177,11 @@ fun MediaAppNavHost(
         composable(MediaRoutes.HOME) {
             val viewModel: MediaHomeViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
+            val isRefreshing by viewModel.isRefreshing.collectAsState()
             
             MediaHomeScreen(
                 state = state,
+                isRefreshing = isRefreshing,
                 onItemClick = { item ->
                     navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
                 },
@@ -209,6 +211,7 @@ fun MediaAppNavHost(
                     navController.navigate(section)
                 },
                 onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
+                onRefresh = { viewModel.refresh() },
                 onRetry = { viewModel.refresh() },
                 onNotificationClick = { navController.navigate(MediaRoutes.ACTIVITY) },
                 onAddLocalFilesClick = { navController.navigate(MediaRoutes.FOLDER_IMPORT) },
@@ -1993,9 +1996,11 @@ fun MediaAppNavHost(
         composable("home") {
             val viewModel: MediaHomeViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
+            val isRefreshing by viewModel.isRefreshing.collectAsState()
             
             MediaHomeScreen(
                 state = state,
+                isRefreshing = isRefreshing,
                 onItemClick = { item ->
                     navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
                 },
@@ -2025,6 +2030,7 @@ fun MediaAppNavHost(
                     navController.navigate(section)
                 },
                 onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
+                onRefresh = { viewModel.refresh() },
                 onRetry = { viewModel.refresh() },
                 onNotificationClick = { },
                 onAddLocalFilesClick = { navController.navigate(MediaRoutes.FILE_BROWSER) },
