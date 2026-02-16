@@ -71,6 +71,7 @@ fun MediaHomeScreen(
     onItemClick: (MediaItem) -> Unit,
     onPlayClick: (MediaItem) -> Unit,
     onSeeAllClick: (String) -> Unit,
+    onQuickAccessCategoryClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onAddLocalFilesClick: () -> Unit = {},
@@ -259,6 +260,8 @@ fun MediaHomeScreen(
                 item {
                     Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
                     QuickAccessGrid(
+                        lastOpenedCategory = state.lastOpenedCategory,
+                        onCategoryClick = onQuickAccessCategoryClick
                         items = state.quickAccessItems,
                         onCategoryClick = onSeeAllClick,
                         onPreferencesChange = onQuickAccessPreferencesChange
@@ -859,6 +862,8 @@ private fun QuickAccessGrid(
 @Composable
 private fun QuickAccessFlowGrid(
     items: List<QuickAccessItem>,
+    lastOpenedCategory: String?,
+    onCategoryClick: (String) -> Unit
     reorderMode: Boolean,
     onCategoryClick: (String) -> Unit,
     onEnableReorder: () -> Unit,
@@ -881,6 +886,7 @@ private fun QuickAccessFlowGrid(
             items.forEachIndexed { index, item ->
                 QuickAccessCard(
                     item = item,
+                    isHighlighted = item.id == lastOpenedCategory,
                     reorderMode = reorderMode,
                     canMoveUp = index > 0,
                     canMoveDown = index < items.lastIndex,
@@ -900,6 +906,7 @@ private fun QuickAccessFlowGrid(
 @Composable
 private fun QuickAccessCard(
     item: QuickAccessItem,
+    isHighlighted: Boolean,
     reorderMode: Boolean,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
@@ -924,6 +931,17 @@ private fun QuickAccessCard(
                 onLongClick = onLongClick
             ),
         shape = RoundedCornerShape(MediaCorners.Card),
+        color = if (isHighlighted) {
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        border = if (isHighlighted) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+        } else {
+            null
+        },
+        onClick = onClick
         color = MaterialTheme.colorScheme.surface
     ) {
         Column(
@@ -986,6 +1004,16 @@ private fun QuickAccessCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+
+            if (isHighlighted) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Last opened",
+                    style = MediaTypography.LabelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
     }
 }
@@ -1589,6 +1617,7 @@ data class MediaHomeState(
     val recentFanfiction: List<MediaItem> = emptyList(),
     val collections: List<HomeCollection> = emptyList(),
     val libraryStats: HomeLibraryStats = HomeLibraryStats(),
+    val lastOpenedCategory: String? = null
     val quickAccessItems: List<QuickAccessItem> = defaultQuickAccessItems
 )
 

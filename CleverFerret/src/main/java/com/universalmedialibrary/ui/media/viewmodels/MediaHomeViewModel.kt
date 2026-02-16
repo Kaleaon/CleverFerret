@@ -126,6 +126,17 @@ class MediaHomeViewModel @Inject constructor(
             _isRefreshing.value = false
         }
     }
+
+    fun onQuickAccessCategoryOpened(categoryRoute: String) {
+        _uiState.update { it.copy(lastOpenedCategory = categoryRoute) }
+    }
+
+    fun clearLastOpenedCategory() {
+        _uiState.update { currentState ->
+            if (currentState.lastOpenedCategory == null) currentState
+            else currentState.copy(lastOpenedCategory = null)
+        }
+    }
     
     private fun checkServiceAvailability() {
         viewModelScope.launch {
@@ -177,6 +188,7 @@ class MediaHomeViewModel @Inject constructor(
                     .take(10)
                 
                 _uiState.update {
+                    val lastOpenedCategory = it.lastOpenedCategory
                     MediaHomeState(
                         isLoading = false,
                         error = null,
@@ -191,6 +203,7 @@ class MediaHomeViewModel @Inject constructor(
                         recentFanfiction = recentFanfiction,
                         libraryStats = stats,
                         collections = collections,
+                        lastOpenedCategory = lastOpenedCategory
                         quickAccessItems = buildQuickAccessItems(currentQuickAccessPrefs)
                     )
             }
