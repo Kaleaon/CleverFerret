@@ -140,6 +140,34 @@ fun SettingsScreen(
                                     onCheckedChange = { viewModel.setDarkMode(it) }
                                 )
                             }
+
+                            MetallicDivider()
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Reduce Motion",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = "Turn off auto-scrolling and animated transitions",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                Switch(
+                                    checked = uiState.reduceMotion,
+                                    onCheckedChange = { viewModel.setReduceMotion(it) }
+                                )
+                            }
                         }
                     }
                 }
@@ -352,6 +380,37 @@ fun SettingsScreen(
                             Icon(
                                 imageVector = Icons.Default.History,
                                 contentDescription = "Import History"
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { viewModel.showOnboardingTipsAgain() }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Show onboarding tips again",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Restore the Home welcome tips if you dismissed them.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.TipsAndUpdates,
+                                contentDescription = "Show onboarding tips"
                             )
                         }
                     }

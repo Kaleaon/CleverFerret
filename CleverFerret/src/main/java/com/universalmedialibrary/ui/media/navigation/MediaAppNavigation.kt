@@ -182,10 +182,17 @@ fun MediaAppNavHost(
             MediaHomeScreen(
                 state = state,
                 isRefreshing = isRefreshing,
+            val reduceMotionEnabled by viewModel.reduceMotionEnabled.collectAsState()
+
+            MediaHomeScreen(
+                state = state,
+                reduceMotionEnabled = reduceMotionEnabled,
                 onItemClick = { item ->
+                    viewModel.clearLastOpenedCategory()
                     navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
                 },
                 onPlayClick = { item ->
+                    viewModel.clearLastOpenedCategory()
                     when (item.mediaType) {
                         MediaType.BOOK, MediaType.COMIC, MediaType.DOCUMENT, MediaType.FANFICTION -> {
                             navController.navigate(MediaRoutes.readerRoute(item.mediaType.routeName, item.id))
@@ -208,14 +215,32 @@ fun MediaAppNavHost(
                     }
                 },
                 onSeeAllClick = { section ->
+                    viewModel.clearLastOpenedCategory()
                     navController.navigate(section)
                 },
                 onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
                 onRefresh = { viewModel.refresh() },
+                onQuickAccessCategoryClick = { category ->
+                    viewModel.onQuickAccessCategoryOpened(category)
+                    navController.navigate(category)
+                },
+                onSearchClick = {
+                    viewModel.clearLastOpenedCategory()
+                    navController.navigate(MediaRoutes.SEARCH)
+                },
                 onRetry = { viewModel.refresh() },
-                onNotificationClick = { navController.navigate(MediaRoutes.ACTIVITY) },
-                onAddLocalFilesClick = { navController.navigate(MediaRoutes.FOLDER_IMPORT) },
-                onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) }
+                onNotificationClick = {
+                    viewModel.clearLastOpenedCategory()
+                    navController.navigate(MediaRoutes.ACTIVITY)
+                },
+                onAddLocalFilesClick = {
+                    viewModel.clearLastOpenedCategory()
+                    navController.navigate(MediaRoutes.FOLDER_IMPORT)
+                },
+                onSubscribePodcastsClick = {
+                    viewModel.clearLastOpenedCategory()
+                    navController.navigate(MediaRoutes.PODCASTS)
+                }
             )
         }
 
@@ -2001,10 +2026,17 @@ fun MediaAppNavHost(
             MediaHomeScreen(
                 state = state,
                 isRefreshing = isRefreshing,
+            val reduceMotionEnabled by viewModel.reduceMotionEnabled.collectAsState()
+
+            MediaHomeScreen(
+                state = state,
+                reduceMotionEnabled = reduceMotionEnabled,
                 onItemClick = { item ->
+                    viewModel.clearLastOpenedCategory()
                     navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
                 },
                 onPlayClick = { item ->
+                    viewModel.clearLastOpenedCategory()
                     when (item.mediaType) {
                         MediaType.BOOK, MediaType.COMIC, MediaType.DOCUMENT, MediaType.FANFICTION -> {
                             navController.navigate(MediaRoutes.readerRoute(item.mediaType.routeName, item.id))
@@ -2027,14 +2059,29 @@ fun MediaAppNavHost(
                     }
                 },
                 onSeeAllClick = { section ->
+                    viewModel.clearLastOpenedCategory()
                     navController.navigate(section)
                 },
                 onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
                 onRefresh = { viewModel.refresh() },
+                onQuickAccessCategoryClick = { category ->
+                    viewModel.onQuickAccessCategoryOpened(category)
+                    navController.navigate(category)
+                },
+                onSearchClick = {
+                    viewModel.clearLastOpenedCategory()
+                    navController.navigate(MediaRoutes.SEARCH)
+                },
                 onRetry = { viewModel.refresh() },
-                onNotificationClick = { },
-                onAddLocalFilesClick = { navController.navigate(MediaRoutes.FILE_BROWSER) },
-                onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) }
+                onNotificationClick = { viewModel.clearLastOpenedCategory() },
+                onAddLocalFilesClick = {
+                    viewModel.clearLastOpenedCategory()
+                    navController.navigate(MediaRoutes.FILE_BROWSER)
+                },
+                onSubscribePodcastsClick = {
+                    viewModel.clearLastOpenedCategory()
+                    navController.navigate(MediaRoutes.PODCASTS)
+                }
             )
         }
         

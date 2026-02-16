@@ -157,6 +157,7 @@
     <string name="cd_close_button">Close</string>
     <string name="cd_play_button">Play</string>
     <string name="cd_pause_button">Pause</string>
+    <string name="cd_open_category">Open %1$s category</string>
 
     <!-- File formats -->
     <string name="format_epub">EPUB</string>
