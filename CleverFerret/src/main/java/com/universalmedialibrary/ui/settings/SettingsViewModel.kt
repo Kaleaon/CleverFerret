@@ -72,7 +72,8 @@ class SettingsViewModel @Inject constructor(
                 settingsRepository.notificationsEnabledFlow,
                 settingsRepository.bottomGearPositionFlow,
                 settingsRepository.miniPlayerBackgroundModeFlow,
-                settingsRepository.bottomBarPreferencesFlow
+                settingsRepository.bottomBarPreferencesFlow,
+                settingsRepository.reduceMotionFlow
             ) { values: Array<Any?> ->
                 createSettingsUiState(values)
             }.collect { newState ->
@@ -143,6 +144,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setReduceMotion(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setReduceMotion(enabled)
     fun showOnboardingTipsAgain() {
         viewModelScope.launch {
             settingsRepository.setShowHomeOnboardingTips(true)
@@ -352,6 +356,7 @@ class SettingsViewModel @Inject constructor(
         val bottomGear = values[5] as BottomGearPosition
         val backgroundMode = values[6] as MiniPlayerBackgroundMode
         val bottomBarPrefs = values[7] as BottomBarPreferences
+        val reduceMotion = values[8] as Boolean
 
         return SettingsUiState(
             selectedTheme = theme,
@@ -361,7 +366,8 @@ class SettingsViewModel @Inject constructor(
             notificationsEnabled = notificationsEnabled,
             bottomGearPosition = bottomGear,
             miniPlayerBackgroundMode = backgroundMode,
-            bottomBarPreferences = bottomBarPrefs
+            bottomBarPreferences = bottomBarPrefs,
+            reduceMotion = reduceMotion
         )
     }
 }
@@ -374,5 +380,6 @@ data class SettingsUiState(
     val notificationsEnabled: Boolean = true,
     val bottomGearPosition: BottomGearPosition = BottomGearPosition.RIGHT,
     val miniPlayerBackgroundMode: MiniPlayerBackgroundMode = MiniPlayerBackgroundMode.THEME,
-    val bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default
+    val bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default,
+    val reduceMotion: Boolean = false
 )

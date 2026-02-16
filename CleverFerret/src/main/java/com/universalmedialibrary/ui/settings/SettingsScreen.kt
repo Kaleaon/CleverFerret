@@ -140,6 +140,34 @@ fun SettingsScreen(
                                     onCheckedChange = { viewModel.setDarkMode(it) }
                                 )
                             }
+
+                            MetallicDivider()
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Reduce Motion",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = "Turn off auto-scrolling and animated transitions",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                Switch(
+                                    checked = uiState.reduceMotion,
+                                    onCheckedChange = { viewModel.setReduceMotion(it) }
+                                )
+                            }
                         }
                     }
                 }

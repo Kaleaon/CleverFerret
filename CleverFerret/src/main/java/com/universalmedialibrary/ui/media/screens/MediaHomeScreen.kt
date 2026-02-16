@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.media.screens
 
+import android.provider.Settings
 import androidx.compose.animation.*
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -80,6 +82,7 @@ fun MediaHomeScreen(
     onQuickAccessPreferencesChange: (order: List<String>, favorites: Set<String>) -> Unit = { _, _ -> },
     onDismissWelcomeTips: () -> Unit = {},
     onRetry: () -> Unit,
+    reduceMotionEnabled: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val reducedMotionEnabled = isReducedMotionEnabled()
@@ -88,8 +91,16 @@ fun MediaHomeScreen(
         derivedStateOf { scrollState.firstVisibleItemIndex > 0 }
     }
     val heroCarouselPagerState = rememberPagerState(pageCount = { state.featuredItems.size })
-    val coroutineScope = rememberCoroutineScope()
-    
+    val context = LocalContext.current
+    val platformAnimationsDisabled = remember(context) {
+        Settings.Global.getFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        ) == 0f
+    }
+    val shouldReduceMotion = reduceMotionEnabled || platformAnimationsDisabled
+
     // Check if library is empty
     val isLibraryEmpty = remember(state) {
         state.featuredItems.isEmpty() &&
@@ -105,6 +116,17 @@ fun MediaHomeScreen(
         state.libraryStats.totalMusic == 0 &&
         state.libraryStats.totalAudiobooks == 0 &&
         state.libraryStats.totalVideos == 0
+    }
+    
+    // Auto-scroll hero carousel (disabled when reduced motion is enabled)
+    LaunchedEffect(state.featuredItems, shouldReduceMotion) {
+        if (state.featuredItems.isNotEmpty() && !shouldReduceMotion) {
+            while (true) {
+                delay(6000)
+                val nextPage = (heroCarouselPagerState.currentPage + 1) % state.featuredItems.size
+                heroCarouselPagerState.animateScrollToPage(nextPage)
+            }
+        }
     }
     
     // Scaffold with sticky top header
