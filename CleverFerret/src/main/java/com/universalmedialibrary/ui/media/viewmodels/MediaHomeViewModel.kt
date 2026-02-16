@@ -45,7 +45,9 @@ class MediaHomeViewModel @Inject constructor(
     private val collectionRepository: CollectionRepository,
     private val podcastRepository: PodcastRepository,
     private val webFictionRepository: WebFictionRepository,
-    private val serviceAvailabilityManager: ServiceAvailabilityManager
+    private val serviceAvailabilityManager: ServiceAvailabilityManager,
+    private val settingsRepository: SettingsRepository,
+    private val libraryRepository: LibraryRepository
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(MediaHomeState(isLoading = true))
@@ -60,6 +62,23 @@ class MediaHomeViewModel @Inject constructor(
     init {
         loadHomeData()
         checkServiceAvailability()
+        observeOnboardingPreference()
+    }
+
+    private fun observeOnboardingPreference() {
+        viewModelScope.launch {
+            settingsRepository.showHomeOnboardingTipsFlow.collect { showTips ->
+                _uiState.update { it.copy(showOnboardingTips = showTips) }
+            }
+        }
+    }
+
+    fun dismissOnboardingTips() {
+        viewModelScope.launch {
+            if (_uiState.value.hasConfiguredContentSource) {
+                settingsRepository.setShowHomeOnboardingTips(false)
+            }
+        }
     }
     
     fun refresh() {
@@ -96,6 +115,9 @@ class MediaHomeViewModel @Inject constructor(
                 val fanfictionDeferred = async { loadRecentFanfiction() }
                 val collectionsDeferred = async { loadCollections() }
                 val statsDeferred = async { loadLibraryStats() }
+                val hasConfiguredContentSourceDeferred = async {
+                    libraryRepository.getAllActiveLibraries().first().isNotEmpty()
+                }
                 
                 val recentBooks = booksDeferred.await()
                 val recentMusic = musicDeferred.await()
@@ -106,6 +128,7 @@ class MediaHomeViewModel @Inject constructor(
                 val recentFanfiction = fanfictionDeferred.await()
                 val collections = collectionsDeferred.await()
                 val stats = statsDeferred.await()
+                val hasConfiguredContentSource = hasConfiguredContentSourceDeferred.await()
                 
                 // Create featured items from recent content
                 val featured = createFeaturedItems(recentBooks, recentAudiobooks, recentMusic)
@@ -130,7 +153,9 @@ class MediaHomeViewModel @Inject constructor(
                         recentComics = recentComics,
                         recentFanfiction = recentFanfiction,
                         libraryStats = stats,
-                        collections = collections
+                        collections = collections,
+                        hasConfiguredContentSource = hasConfiguredContentSource,
+                        showOnboardingTips = _uiState.value.showOnboardingTips
                     )
             }
             } catch (e: Exception) {
@@ -152,7 +177,9 @@ class MediaHomeViewModel @Inject constructor(
                         recentComics = it.recentComics,
                         recentFanfiction = it.recentFanfiction,
                         libraryStats = it.libraryStats,
-                        collections = it.collections
+                        collections = it.collections,
+                        hasConfiguredContentSource = it.hasConfiguredContentSource,
+                        showOnboardingTips = it.showOnboardingTips
                     )
                 }
             }
