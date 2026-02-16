@@ -211,22 +211,6 @@ android {
     }
 }
 
-val runtimeRequiredSecrets = listOf(
-    "TASTEDIVE_API_KEY"
-)
-
-tasks.matching { it.name == "preDebugBuild" }.configureEach {
-    doFirst {
-        verifyRuntimeSecretsOrThrow(project, "debug", runtimeRequiredSecrets)
-    }
-}
-
-tasks.matching { it.name == "preReleaseBuild" }.configureEach {
-    doFirst {
-        verifyRuntimeSecretsOrThrow(project, "release", runtimeRequiredSecrets)
-    }
-}
-
 fun getGitCommitHash(): String {
     return try {
         val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
