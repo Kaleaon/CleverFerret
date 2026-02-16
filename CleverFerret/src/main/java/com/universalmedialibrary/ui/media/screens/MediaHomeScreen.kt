@@ -208,6 +208,45 @@ fun MediaHomeScreen(
                         }
                     }
                 }
+
+                // Partial empty-state guidance for mixed libraries
+                if (!isLibraryEmpty) {
+                    item {
+                        val emptySections = remember(state) {
+                            buildList {
+                                if (state.libraryStats.totalBooks == 0 && state.recentBooks.isEmpty()) {
+                                    add(EmptySectionHint("Books", MediaRoutes.BOOKS, Icons.Default.MenuBook))
+                                }
+                                if (state.libraryStats.totalMusic == 0 && state.recentMusic.isEmpty()) {
+                                    add(EmptySectionHint("Music", MediaRoutes.MUSIC, Icons.Default.MusicNote))
+                                }
+                                if (state.libraryStats.totalPodcasts == 0 && state.recentPodcasts.isEmpty()) {
+                                    add(EmptySectionHint("Podcasts", MediaRoutes.PODCASTS, Icons.Default.Podcasts))
+                                }
+                                if (state.libraryStats.totalAudiobooks == 0 && state.recentAudiobooks.isEmpty()) {
+                                    add(EmptySectionHint("Audiobooks", MediaRoutes.AUDIOBOOKS, Icons.Default.Headphones))
+                                }
+                                if (state.libraryStats.totalVideos == 0 && state.recentVideos.isEmpty()) {
+                                    add(EmptySectionHint("Videos", MediaRoutes.MOVIES, Icons.Default.Movie))
+                                }
+                                if (state.libraryStats.totalComics == 0 && state.recentComics.isEmpty()) {
+                                    add(EmptySectionHint("Comics", MediaRoutes.COMICS, Icons.Default.AutoStories))
+                                }
+                                if (state.libraryStats.totalFanfiction == 0 && state.recentFanfiction.isEmpty()) {
+                                    add(EmptySectionHint("Web Fiction", MediaRoutes.WEB_FICTION, Icons.Default.Public))
+                                }
+                            }
+                        }
+
+                        if (emptySections.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                            EmptySectionGuidanceRow(
+                                emptySections = emptySections,
+                                onSectionClick = onSeeAllClick
+                            )
+                        }
+                    }
+                }
                 
                 // Comics
                 if (state.recentComics.isNotEmpty()) {
@@ -289,6 +328,80 @@ fun MediaHomeScreen(
         }
     }
     } // End Scaffold
+}
+
+private data class EmptySectionHint(
+    val name: String,
+    val route: String,
+    val icon: ImageVector
+)
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun EmptySectionGuidanceRow(
+    emptySections: List<EmptySectionHint>,
+    onSectionClick: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal),
+        verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
+    ) {
+        Text(
+            text = "Add more to your library",
+            style = MediaTypography.TitleSmall,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.SemiBold
+        )
+
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
+            verticalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+        ) {
+            emptySections.forEach { emptySection ->
+                EmptySectionCard(
+                    section = emptySection,
+                    onClick = { onSectionClick(emptySection.route) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptySectionCard(
+    section: EmptySectionHint,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .widthIn(min = 150.dp)
+            .clip(RoundedCornerShape(MediaCorners.Card))
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(MediaCorners.Card),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = MediaSpacing.MD, vertical = MediaSpacing.SM),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+        ) {
+            Icon(
+                imageVector = section.icon,
+                contentDescription = section.name,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(MediaSizes.IconSM)
+            )
+            Text(
+                text = "Browse ${section.name}",
+                style = MediaTypography.LabelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
 }
 
 // =============================================================================
