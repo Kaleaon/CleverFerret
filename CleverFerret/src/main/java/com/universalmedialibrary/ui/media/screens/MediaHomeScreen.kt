@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.media.screens
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.*
@@ -56,6 +57,7 @@ fun MediaHomeScreen(
     onNotificationClick: () -> Unit,
     onAddLocalFilesClick: () -> Unit = {},
     onSubscribePodcastsClick: () -> Unit = {},
+    onQuickAccessPreferencesChange: (order: List<String>, favorites: Set<String>) -> Unit = { _, _ -> },
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -247,7 +249,9 @@ fun MediaHomeScreen(
                 item {
                     Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
                     QuickAccessGrid(
-                        onCategoryClick = onSeeAllClick
+                        items = state.quickAccessItems,
+                        onCategoryClick = onSeeAllClick,
+                        onPreferencesChange = onQuickAccessPreferencesChange
                     )
                 }
                 
@@ -723,40 +727,71 @@ private fun CollectionCard(
 
 @Composable
 private fun QuickAccessGrid(
-    onCategoryClick: (String) -> Unit
+    items: List<QuickAccessItem>,
+    onCategoryClick: (String) -> Unit,
+    onPreferencesChange: (order: List<String>, favorites: Set<String>) -> Unit
 ) {
+    var reorderMode by remember { mutableStateOf(false) }
+    var editableItems by remember(items) { mutableStateOf(items) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = MediaSpacing.ScreenHorizontal)
     ) {
-        Text(
-            text = "Explore Your Library",
-            style = MediaTypography.TitleMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Explore Your Library",
+                style = MediaTypography.TitleMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            if (reorderMode) {
+                TextButton(
+                    onClick = {
+                        reorderMode = false
+                        onPreferencesChange(
+                            editableItems.map { it.id },
+                            editableItems.filter { it.isFavorite }.mapTo(mutableSetOf()) { it.id }
+                        )
+                    }
+                ) {
+                    Text("Done")
+                }
+            }
+        }
+
+        if (reorderMode) {
+            Text(
+                text = "Long-press enabled reorder mode: use arrows to reorder and star to pin favorites.",
+                style = MediaTypography.BodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(MediaSpacing.SM))
+        }
+
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
-        
-        val categories = listOf(
-            QuickAccessItem(MediaRoutes.BOOKS, "Books", Icons.Default.MenuBook, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.AUDIOBOOKS, "Audiobooks", Icons.Default.Headphones, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.COMICS, "Comics", Icons.Default.AutoStories, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.MUSIC, "Music", Icons.Default.MusicNote, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.PODCASTS, "Podcasts", Icons.Default.Podcasts, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.RADIO, "Radio", Icons.Default.Radio, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.MOVIES, "Movies", Icons.Default.Movie, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.TV_SHOWS, "TV Shows", Icons.Default.Tv, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.WEB_FICTION, "Web Fiction", Icons.Default.Language, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.DOCUMENTS, "Documents", Icons.Default.Description, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.OPDS_BROWSER, "OPDS", Icons.Default.CloudDownload, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.AMBIENT_SOUNDS, "Ambient", Icons.Default.Spa, MediaColors.AccentPrimary),
-            QuickAccessItem(MediaRoutes.COLLECTIONS, "Collections", Icons.Default.Collections, MediaColors.AccentPrimary)
-        )
-        
+
         QuickAccessFlowGrid(
-            items = categories,
-            onCategoryClick = onCategoryClick
+            items = editableItems,
+            reorderMode = reorderMode,
+            onCategoryClick = onCategoryClick,
+            onEnableReorder = { reorderMode = true },
+            onMoveItem = { fromIndex, toIndex ->
+                if (fromIndex in editableItems.indices && toIndex in editableItems.indices) {
+                    editableItems = editableItems.toMutableList().apply {
+                        add(toIndex, removeAt(fromIndex))
+                    }
+                }
+            },
+            onToggleFavorite = { id ->
+                editableItems = editableItems.map { item ->
+                    if (item.id == id) item.copy(isFavorite = !item.isFavorite) else item
+                }
+            }
         )
     }
 }
@@ -765,7 +800,11 @@ private fun QuickAccessGrid(
 @Composable
 private fun QuickAccessFlowGrid(
     items: List<QuickAccessItem>,
-    onCategoryClick: (String) -> Unit
+    reorderMode: Boolean,
+    onCategoryClick: (String) -> Unit,
+    onEnableReorder: () -> Unit,
+    onMoveItem: (fromIndex: Int, toIndex: Int) -> Unit,
+    onToggleFavorite: (String) -> Unit
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val columns = if (maxWidth < 360.dp) 2 else 3
@@ -778,10 +817,17 @@ private fun QuickAccessFlowGrid(
             verticalArrangement = Arrangement.spacedBy(spacing),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items.forEach { item ->
+            items.forEachIndexed { index, item ->
                 QuickAccessCard(
                     item = item,
+                    reorderMode = reorderMode,
+                    canMoveUp = index > 0,
+                    canMoveDown = index < items.lastIndex,
                     onClick = { onCategoryClick(item.id) },
+                    onLongClick = onEnableReorder,
+                    onMoveUp = { onMoveItem(index, index - 1) },
+                    onMoveDown = { onMoveItem(index, index + 1) },
+                    onToggleFavorite = { onToggleFavorite(item.id) },
                     modifier = Modifier.width(cardWidth)
                 )
             }
@@ -789,18 +835,29 @@ private fun QuickAccessFlowGrid(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun QuickAccessCard(
     item: QuickAccessItem,
+    reorderMode: Boolean,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+    onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
         modifier = modifier
-            .aspectRatio(1f),
+            .aspectRatio(1f)
+            .combinedClickable(
+                onClick = { if (!reorderMode) onClick() },
+                onLongClick = onLongClick
+            ),
         shape = RoundedCornerShape(MediaCorners.Card),
-        color = MaterialTheme.colorScheme.surface,
-        onClick = onClick
+        color = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
@@ -809,6 +866,35 @@ private fun QuickAccessCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            if (reorderMode) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onMoveUp, enabled = canMoveUp) {
+                        Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Move up")
+                    }
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            imageVector = if (item.isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
+                            contentDescription = if (item.isFavorite) "Unpin favorite" else "Pin favorite",
+                            tint = if (item.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    IconButton(onClick = onMoveDown, enabled = canMoveDown) {
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Move down")
+                    }
+                }
+            } else if (item.isFavorite) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Favorite",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.End)
+                )
+            }
+
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
@@ -823,9 +909,9 @@ private fun QuickAccessCard(
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             Text(
                 text = item.label,
                 style = MediaTypography.LabelMedium,
@@ -1381,7 +1467,8 @@ data class MediaHomeState(
     val recentVideos: List<MediaItem> = emptyList(),
     val recentFanfiction: List<MediaItem> = emptyList(),
     val collections: List<HomeCollection> = emptyList(),
-    val libraryStats: HomeLibraryStats = HomeLibraryStats()
+    val libraryStats: HomeLibraryStats = HomeLibraryStats(),
+    val quickAccessItems: List<QuickAccessItem> = defaultQuickAccessItems
 )
 
 data class HomeLibraryStats(
@@ -1402,11 +1489,28 @@ data class HomeCollection(
     val color: Color
 )
 
-private data class QuickAccessItem(
+data class QuickAccessItem(
     val id: String,
     val label: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val color: Color
+    val color: Color,
+    val isFavorite: Boolean = false
+)
+
+val defaultQuickAccessItems = listOf(
+    QuickAccessItem(MediaRoutes.BOOKS, "Books", Icons.Default.MenuBook, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.AUDIOBOOKS, "Audiobooks", Icons.Default.Headphones, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.COMICS, "Comics", Icons.Default.AutoStories, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.MUSIC, "Music", Icons.Default.MusicNote, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.PODCASTS, "Podcasts", Icons.Default.Podcasts, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.RADIO, "Radio", Icons.Default.Radio, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.MOVIES, "Movies", Icons.Default.Movie, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.TV_SHOWS, "TV Shows", Icons.Default.Tv, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.WEB_FICTION, "Web Fiction", Icons.Default.Language, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.DOCUMENTS, "Documents", Icons.Default.Description, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.OPDS_BROWSER, "OPDS", Icons.Default.CloudDownload, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.AMBIENT_SOUNDS, "Ambient", Icons.Default.Spa, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.COLLECTIONS, "Collections", Icons.Default.Collections, MediaColors.AccentPrimary)
 )
 
 // =============================================================================

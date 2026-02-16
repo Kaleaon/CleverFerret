@@ -212,7 +212,8 @@ fun MediaAppNavHost(
                 onRetry = { viewModel.refresh() },
                 onNotificationClick = { navController.navigate(MediaRoutes.ACTIVITY) },
                 onAddLocalFilesClick = { navController.navigate(MediaRoutes.FOLDER_IMPORT) },
-                onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) }
+                onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) },
+                onQuickAccessPreferencesChange = viewModel::updateQuickAccessPreferences
             )
         }
 
@@ -2028,7 +2029,8 @@ fun MediaAppNavHost(
                 onRetry = { viewModel.refresh() },
                 onNotificationClick = { },
                 onAddLocalFilesClick = { navController.navigate(MediaRoutes.FILE_BROWSER) },
-                onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) }
+                onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) },
+                onQuickAccessPreferencesChange = viewModel::updateQuickAccessPreferences
             )
         }
         
