@@ -52,6 +52,7 @@ fun MediaHomeScreen(
     onItemClick: (MediaItem) -> Unit,
     onPlayClick: (MediaItem) -> Unit,
     onSeeAllClick: (String) -> Unit,
+    onQuickAccessCategoryClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onAddLocalFilesClick: () -> Unit = {},
@@ -247,7 +248,8 @@ fun MediaHomeScreen(
                 item {
                     Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
                     QuickAccessGrid(
-                        onCategoryClick = onSeeAllClick
+                        lastOpenedCategory = state.lastOpenedCategory,
+                        onCategoryClick = onQuickAccessCategoryClick
                     )
                 }
                 
@@ -723,6 +725,7 @@ private fun CollectionCard(
 
 @Composable
 private fun QuickAccessGrid(
+    lastOpenedCategory: String?,
     onCategoryClick: (String) -> Unit
 ) {
     Column(
@@ -756,6 +759,7 @@ private fun QuickAccessGrid(
         
         QuickAccessFlowGrid(
             items = categories,
+            lastOpenedCategory = lastOpenedCategory,
             onCategoryClick = onCategoryClick
         )
     }
@@ -765,6 +769,7 @@ private fun QuickAccessGrid(
 @Composable
 private fun QuickAccessFlowGrid(
     items: List<QuickAccessItem>,
+    lastOpenedCategory: String?,
     onCategoryClick: (String) -> Unit
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -781,6 +786,7 @@ private fun QuickAccessFlowGrid(
             items.forEach { item ->
                 QuickAccessCard(
                     item = item,
+                    isHighlighted = item.id == lastOpenedCategory,
                     onClick = { onCategoryClick(item.id) },
                     modifier = Modifier.width(cardWidth)
                 )
@@ -792,6 +798,7 @@ private fun QuickAccessFlowGrid(
 @Composable
 private fun QuickAccessCard(
     item: QuickAccessItem,
+    isHighlighted: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -799,7 +806,16 @@ private fun QuickAccessCard(
         modifier = modifier
             .aspectRatio(1f),
         shape = RoundedCornerShape(MediaCorners.Card),
-        color = MaterialTheme.colorScheme.surface,
+        color = if (isHighlighted) {
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        border = if (isHighlighted) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+        } else {
+            null
+        },
         onClick = onClick
     ) {
         Column(
@@ -833,6 +849,16 @@ private fun QuickAccessCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+
+            if (isHighlighted) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Last opened",
+                    style = MediaTypography.LabelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
     }
 }
@@ -1381,7 +1407,8 @@ data class MediaHomeState(
     val recentVideos: List<MediaItem> = emptyList(),
     val recentFanfiction: List<MediaItem> = emptyList(),
     val collections: List<HomeCollection> = emptyList(),
-    val libraryStats: HomeLibraryStats = HomeLibraryStats()
+    val libraryStats: HomeLibraryStats = HomeLibraryStats(),
+    val lastOpenedCategory: String? = null
 )
 
 data class HomeLibraryStats(
