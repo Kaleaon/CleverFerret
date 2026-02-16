@@ -177,9 +177,11 @@ fun MediaAppNavHost(
         composable(MediaRoutes.HOME) {
             val viewModel: MediaHomeViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
-            
+            val reduceMotionEnabled by viewModel.reduceMotionEnabled.collectAsState()
+
             MediaHomeScreen(
                 state = state,
+                reduceMotionEnabled = reduceMotionEnabled,
                 onItemClick = { item ->
                     navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
                 },
@@ -1993,9 +1995,11 @@ fun MediaAppNavHost(
         composable("home") {
             val viewModel: MediaHomeViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
-            
+            val reduceMotionEnabled by viewModel.reduceMotionEnabled.collectAsState()
+
             MediaHomeScreen(
                 state = state,
+                reduceMotionEnabled = reduceMotionEnabled,
                 onItemClick = { item ->
                     navController.navigate(MediaRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
                 },

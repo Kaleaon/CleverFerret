@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.media.screens
 
+import android.provider.Settings
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.*
@@ -30,7 +32,6 @@ import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * Clean Media-Centric Home/Dashboard Screen
@@ -57,6 +58,7 @@ fun MediaHomeScreen(
     onAddLocalFilesClick: () -> Unit = {},
     onSubscribePodcastsClick: () -> Unit = {},
     onRetry: () -> Unit,
+    reduceMotionEnabled: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberLazyListState()
@@ -64,8 +66,16 @@ fun MediaHomeScreen(
         derivedStateOf { scrollState.firstVisibleItemIndex > 0 }
     }
     val heroCarouselPagerState = rememberPagerState(pageCount = { state.featuredItems.size })
-    val coroutineScope = rememberCoroutineScope()
-    
+    val context = LocalContext.current
+    val platformAnimationsDisabled = remember(context) {
+        Settings.Global.getFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        ) == 0f
+    }
+    val shouldReduceMotion = reduceMotionEnabled || platformAnimationsDisabled
+
     // Check if library is empty
     val isLibraryEmpty = remember(state) {
         state.featuredItems.isEmpty() &&
@@ -83,9 +93,9 @@ fun MediaHomeScreen(
         state.libraryStats.totalVideos == 0
     }
     
-    // Auto-scroll hero carousel
-    LaunchedEffect(state.featuredItems) {
-        if (state.featuredItems.isNotEmpty()) {
+    // Auto-scroll hero carousel (disabled when reduced motion is enabled)
+    LaunchedEffect(state.featuredItems, shouldReduceMotion) {
+        if (state.featuredItems.isNotEmpty() && !shouldReduceMotion) {
             while (true) {
                 delay(6000)
                 val nextPage = (heroCarouselPagerState.currentPage + 1) % state.featuredItems.size

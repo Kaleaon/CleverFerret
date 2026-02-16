@@ -38,6 +38,7 @@ class SettingsRepository @Inject constructor(
         val BOTTOM_GEAR_POSITION = stringPreferencesKey("bottom_gear_position")
         val MINI_PLAYER_BACKGROUND = stringPreferencesKey("mini_player_background")
         val BOTTOM_BAR_CONFIG = stringPreferencesKey("bottom_bar_config")
+        val REDUCE_MOTION = booleanPreferencesKey("reduce_motion")
         val SHOW_DEBUG_BUG_BUTTON = booleanPreferencesKey("show_debug_bug_button")
         val IMPORT_SORTER_INPUT_URI = stringPreferencesKey("import_sorter_input_uri")
         val IMPORT_SORTER_OUTPUT_URI = stringPreferencesKey("import_sorter_output_uri")
@@ -139,6 +140,10 @@ class SettingsRepository @Inject constructor(
 
     val showDebugBugButtonFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.SHOW_DEBUG_BUG_BUTTON] ?: true // Default to shown in debug builds
+    }
+
+    val reduceMotionFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.REDUCE_MOTION] ?: false
     }
 
     val importSorterInputUriFlow: Flow<String?> = context.dataStore.data.map { preferences ->
@@ -294,6 +299,12 @@ class SettingsRepository @Inject constructor(
     suspend fun setShowDebugBugButton(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_DEBUG_BUG_BUTTON] = enabled
+        }
+    }
+
+    suspend fun setReduceMotion(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.REDUCE_MOTION] = enabled
         }
     }
 

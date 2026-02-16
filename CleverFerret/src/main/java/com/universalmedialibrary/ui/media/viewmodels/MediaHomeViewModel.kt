@@ -45,7 +45,8 @@ class MediaHomeViewModel @Inject constructor(
     private val collectionRepository: CollectionRepository,
     private val podcastRepository: PodcastRepository,
     private val webFictionRepository: WebFictionRepository,
-    private val serviceAvailabilityManager: ServiceAvailabilityManager
+    private val serviceAvailabilityManager: ServiceAvailabilityManager,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(MediaHomeState(isLoading = true))
@@ -56,6 +57,8 @@ class MediaHomeViewModel @Inject constructor(
     
     private val _serviceStatuses = MutableStateFlow<Map<ServiceType, Boolean>>(emptyMap())
     val serviceStatuses: StateFlow<Map<ServiceType, Boolean>> = _serviceStatuses.asStateFlow()
+    val reduceMotionEnabled: StateFlow<Boolean> = settingsRepository.reduceMotionFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
     
     init {
         loadHomeData()
