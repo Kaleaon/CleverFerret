@@ -269,116 +269,15 @@ fun UnifiedCleverFerretTheme(
 /**
  * Get color scheme for a traditional theme
  */
-private fun getColorSchemeForTheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme {
-    return when (theme) {
-        CleverFerretTheme.NAVY_GOLD -> NavyGoldUnified.darkScheme
-        CleverFerretTheme.EMERALD_SILVER -> EmeraldSilverUnified.darkScheme
-        CleverFerretTheme.ROYAL_BRONZE -> RoyalBronzeUnified.darkScheme
-        CleverFerretTheme.MIDNIGHT_AMBER -> MidnightAmberUnified.darkScheme
-        CleverFerretTheme.OBSIDIAN_CRIMSON -> ObsidianCrimsonUnified.darkScheme
-        CleverFerretTheme.SLATE_CYAN -> SlateCyanUnified.darkScheme
-        CleverFerretTheme.ROYAL_SILVER -> RoyalSilverUnified.darkScheme
-        CleverFerretTheme.FOREST_COPPER -> ForestCopperUnified.darkScheme
-        CleverFerretTheme.BURGUNDY_ROSE_GOLD -> BurgundyRoseGoldUnified.darkScheme
-        CleverFerretTheme.CHARCOAL_CHAMPAGNE -> CharcoalChampagneUnified.darkScheme
-        CleverFerretTheme.SLATE_GUNMETAL -> SlateGunmetalUnified.darkScheme
-        CleverFerretTheme.DEEP_PURPLE_PLATINUM -> DeepPurplePlatinumUnified.darkScheme
-        CleverFerretTheme.PAPER_INK -> PaperInkUnified.lightScheme
-        else -> NavyGoldUnified.darkScheme // Fallback
-    }
-}
+private fun getColorSchemeForTheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme =
+    KthemeBridge.resolveColorScheme(theme, darkTheme)
 
 /**
  * Get metallic colors for a traditional theme
  */
-private fun getMetallicColorsForTheme(theme: CleverFerretTheme): MetallicGradient {
-    return when (theme) {
-        CleverFerretTheme.NAVY_GOLD -> MetallicGradient(
-            base = Color(0xFFD4AF37),
-            highlight = Color(0xFFFFD700),
-            shadow = Color(0xFF856D34),
-            shimmer = Color(0xFFFFF8DC)
-        )
-        CleverFerretTheme.EMERALD_SILVER -> MetallicGradient(
-            base = Color(0xFFC0C0C0),
-            highlight = Color(0xFFE0E0E0),
-            shadow = Color(0xFF808080),
-            shimmer = Color(0xFFF5F5F5)
-        )
-        CleverFerretTheme.ROYAL_BRONZE -> MetallicGradient(
-            base = Color(0xFFCD7F32),
-            highlight = Color(0xFFD99952),
-            shadow = Color(0xFF8B5A2B),
-            shimmer = Color(0xFFF0D9C0)
-        )
-        CleverFerretTheme.MIDNIGHT_AMBER -> MetallicGradient(
-            base = Color(0xFFFFBF00),
-            highlight = Color(0xFFFFD700),
-            shadow = Color(0xFFCC9900),
-            shimmer = Color(0xFFFFF8DC)
-        )
-        CleverFerretTheme.OBSIDIAN_CRIMSON -> MetallicGradient(
-            base = Color(0xFFDC143C),
-            highlight = Color(0xFFE5395F),
-            shadow = Color(0xFFB00F30),
-            shimmer = Color(0xFFFFB3C1)
-        )
-        CleverFerretTheme.SLATE_CYAN -> MetallicGradient(
-            base = Color(0xFF00D9FF),
-            highlight = Color(0xFF4DE2FF),
-            shadow = Color(0xFF00A8CC),
-            shimmer = Color(0xFFB3F5FF)
-        )
-        CleverFerretTheme.ROYAL_SILVER -> MetallicGradient(
-            base = Color(0xFFC0C0C0),
-            highlight = Color(0xFFE0E0E0),
-            shadow = Color(0xFF9A9A9A),
-            shimmer = Color(0xFFF5F5F5)
-        )
-        CleverFerretTheme.FOREST_COPPER -> MetallicGradient(
-            base = Color(0xFFB87333),
-            highlight = Color(0xFFD4965A),
-            shadow = Color(0xFF935E29),
-            shimmer = Color(0xFFF2D2B0)
-        )
-        CleverFerretTheme.BURGUNDY_ROSE_GOLD -> MetallicGradient(
-            base = Color(0xFFB76E79),
-            highlight = Color(0xFFD4969E),
-            shadow = Color(0xFF93575F),
-            shimmer = Color(0xFFF5D5D8)
-        )
-        CleverFerretTheme.CHARCOAL_CHAMPAGNE -> MetallicGradient(
-            base = Color(0xFFF7E7CE),
-            highlight = Color(0xFFFFF5E6),
-            shadow = Color(0xFFC5B8A5),
-            shimmer = Color(0xFFFFFFFF)
-        )
-        CleverFerretTheme.SLATE_GUNMETAL -> MetallicGradient(
-            base = Color(0xFF8F9CA8),
-            highlight = Color(0xFFB0BDC9),
-            shadow = Color(0xFF6F7D87),
-            shimmer = Color(0xFFD0DFEB)
-        )
-        CleverFerretTheme.DEEP_PURPLE_PLATINUM -> MetallicGradient(
-            base = Color(0xFFE5E4E2),
-            highlight = Color(0xFFF5F4F2),
-            shadow = Color(0xFFB8B7B5),
-            shimmer = Color(0xFFFFFFFF)
-        )
-        CleverFerretTheme.PAPER_INK -> MetallicGradient(
-            base = Color(0xFF2C2C2C),
-            highlight = Color(0xFF454545),
-            shadow = Color(0xFF1A1A1A),
-            shimmer = Color(0xFF595959)
-        )
-        else -> MetallicGradient(
-            base = Color(0xFFD4AF37),
-            highlight = Color(0xFFFFD700),
-            shadow = Color(0xFF856D34),
-            shimmer = Color(0xFFFFF8DC)
-        )
-    }
-}
+private fun getMetallicColorsForTheme(theme: CleverFerretTheme): MetallicGradient =
+    KthemeBridge.resolveMetallicGradient(theme)
+
 
 /**
  * Composition local for metallic colors
