@@ -67,6 +67,23 @@ class MediaHomeViewModel @Inject constructor(
         observeQuickAccessPreferences()
         loadHomeData()
         checkServiceAvailability()
+        observeOnboardingPreference()
+    }
+
+    private fun observeOnboardingPreference() {
+        viewModelScope.launch {
+            settingsRepository.showHomeOnboardingTipsFlow.collect { showTips ->
+                _uiState.update { it.copy(showOnboardingTips = showTips) }
+            }
+        }
+    }
+
+    fun dismissOnboardingTips() {
+        viewModelScope.launch {
+            if (_uiState.value.hasConfiguredContentSource) {
+                settingsRepository.setShowHomeOnboardingTips(false)
+            }
+        }
     }
     
     private fun observeQuickAccessPreferences() {
@@ -135,6 +152,9 @@ class MediaHomeViewModel @Inject constructor(
                 val fanfictionDeferred = async { loadRecentFanfiction() }
                 val collectionsDeferred = async { loadCollections() }
                 val statsDeferred = async { loadLibraryStats() }
+                val hasConfiguredContentSourceDeferred = async {
+                    libraryRepository.getAllActiveLibraries().first().isNotEmpty()
+                }
                 
                 val recentBooks = booksDeferred.await()
                 val recentMusic = musicDeferred.await()
@@ -145,6 +165,7 @@ class MediaHomeViewModel @Inject constructor(
                 val recentFanfiction = fanfictionDeferred.await()
                 val collections = collectionsDeferred.await()
                 val stats = statsDeferred.await()
+                val hasConfiguredContentSource = hasConfiguredContentSourceDeferred.await()
                 
                 // Create featured items from recent content
                 val featured = createFeaturedItems(recentBooks, recentAudiobooks, recentMusic)

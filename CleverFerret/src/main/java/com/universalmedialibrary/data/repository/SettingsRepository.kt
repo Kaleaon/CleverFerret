@@ -67,6 +67,7 @@ class SettingsRepository @Inject constructor(
 
         // Casting
         val CASTING_ENABLED = booleanPreferencesKey("casting_enabled")
+        val SHOW_HOME_ONBOARDING_TIPS = booleanPreferencesKey("show_home_onboarding_tips")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -232,6 +233,10 @@ class SettingsRepository @Inject constructor(
         preferences[PreferencesKeys.CASTING_ENABLED] ?: true
     }
 
+    val showHomeOnboardingTipsFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_HOME_ONBOARDING_TIPS] ?: true
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -381,6 +386,12 @@ class SettingsRepository @Inject constructor(
     suspend fun setCastingEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.CASTING_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setShowHomeOnboardingTips(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_HOME_ONBOARDING_TIPS] = enabled
         }
     }
 
