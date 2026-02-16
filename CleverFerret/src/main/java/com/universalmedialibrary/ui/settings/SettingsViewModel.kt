@@ -147,6 +147,9 @@ class SettingsViewModel @Inject constructor(
     fun setReduceMotion(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setReduceMotion(enabled)
+    fun showOnboardingTipsAgain() {
+        viewModelScope.launch {
+            settingsRepository.setShowHomeOnboardingTips(true)
         }
     }
 

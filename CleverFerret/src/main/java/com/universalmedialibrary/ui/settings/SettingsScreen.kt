@@ -385,6 +385,37 @@ fun SettingsScreen(
                     }
                 }
 
+                item {
+                    MetallicCard(
+                        onClick = { viewModel.showOnboardingTipsAgain() }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Show onboarding tips again",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Restore the Home welcome tips if you dismissed them.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.TipsAndUpdates,
+                                contentDescription = "Show onboarding tips"
+                            )
+                        }
+                    }
+                }
+
                   // Navigation Section
                   item {
                       MetallicText(
