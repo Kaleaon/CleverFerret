@@ -213,6 +213,7 @@ fun MediaAppNavHost(
                 onNotificationClick = { navController.navigate(MediaRoutes.ACTIVITY) },
                 onAddLocalFilesClick = { navController.navigate(MediaRoutes.FOLDER_IMPORT) },
                 onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) },
+                onQuickAccessPreferencesChange = viewModel::updateQuickAccessPreferences
                 onDismissWelcomeTips = { viewModel.dismissOnboardingTips() }
             )
         }
@@ -2030,6 +2031,7 @@ fun MediaAppNavHost(
                 onNotificationClick = { },
                 onAddLocalFilesClick = { navController.navigate(MediaRoutes.FILE_BROWSER) },
                 onSubscribePodcastsClick = { navController.navigate(MediaRoutes.PODCASTS) },
+                onQuickAccessPreferencesChange = viewModel::updateQuickAccessPreferences
                 onDismissWelcomeTips = { viewModel.dismissOnboardingTips() }
             )
         }
