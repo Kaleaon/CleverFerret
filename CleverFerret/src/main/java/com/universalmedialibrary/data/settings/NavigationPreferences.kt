@@ -32,3 +32,19 @@ data class BottomBarPreferences(
         val Default = BottomBarPreferences()
     }
 }
+
+/**
+ * Persisted quick-access customization for the media home screen.
+ *
+ * @param order Preferred ordering of quick-access route ids.
+ * @param favorites Set of route ids marked as pinned/favorite by the user.
+ */
+@Serializable
+data class QuickAccessPreferences(
+    val order: List<String> = emptyList(),
+    val favorites: Set<String> = emptySet()
+) {
+    companion object {
+        val Default = QuickAccessPreferences()
+    }
+}

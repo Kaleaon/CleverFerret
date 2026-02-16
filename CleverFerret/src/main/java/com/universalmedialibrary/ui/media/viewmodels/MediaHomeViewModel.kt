@@ -15,7 +15,10 @@ import com.universalmedialibrary.ui.media.components.MediaType
 import com.universalmedialibrary.ui.media.screens.HomeLibraryStats
 import com.universalmedialibrary.ui.media.screens.HomeCollection
 import com.universalmedialibrary.ui.media.screens.MediaHomeState
+import com.universalmedialibrary.ui.media.screens.QuickAccessItem
+import com.universalmedialibrary.ui.media.screens.defaultQuickAccessItems
 import com.universalmedialibrary.ui.media.theme.MediaColors
+import com.universalmedialibrary.data.settings.QuickAccessPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
@@ -45,7 +48,8 @@ class MediaHomeViewModel @Inject constructor(
     private val collectionRepository: CollectionRepository,
     private val podcastRepository: PodcastRepository,
     private val webFictionRepository: WebFictionRepository,
-    private val serviceAvailabilityManager: ServiceAvailabilityManager
+    private val serviceAvailabilityManager: ServiceAvailabilityManager,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(MediaHomeState(isLoading = true))
@@ -57,11 +61,63 @@ class MediaHomeViewModel @Inject constructor(
     private val _serviceStatuses = MutableStateFlow<Map<ServiceType, Boolean>>(emptyMap())
     val serviceStatuses: StateFlow<Map<ServiceType, Boolean>> = _serviceStatuses.asStateFlow()
     
+    private var currentQuickAccessPrefs: QuickAccessPreferences = QuickAccessPreferences.Default
+
     init {
+        observeQuickAccessPreferences()
         loadHomeData()
         checkServiceAvailability()
+        observeOnboardingPreference()
+    }
+
+    private fun observeOnboardingPreference() {
+        viewModelScope.launch {
+            settingsRepository.showHomeOnboardingTipsFlow.collect { showTips ->
+                _uiState.update { it.copy(showOnboardingTips = showTips) }
+            }
+        }
+    }
+
+    fun dismissOnboardingTips() {
+        viewModelScope.launch {
+            if (_uiState.value.hasConfiguredContentSource) {
+                settingsRepository.setShowHomeOnboardingTips(false)
+            }
+        }
     }
     
+    private fun observeQuickAccessPreferences() {
+        viewModelScope.launch {
+            settingsRepository.quickAccessPreferencesFlow.collect { prefs ->
+                currentQuickAccessPrefs = prefs
+                _uiState.update { current ->
+                    current.copy(quickAccessItems = buildQuickAccessItems(prefs))
+                }
+            }
+        }
+    }
+
+    fun updateQuickAccessPreferences(order: List<String>, favorites: Set<String>) {
+        viewModelScope.launch {
+            settingsRepository.setQuickAccessPreferences(
+                QuickAccessPreferences(order = order, favorites = favorites)
+            )
+        }
+    }
+
+    private fun buildQuickAccessItems(preferences: QuickAccessPreferences): List<QuickAccessItem> {
+        val defaultById = defaultQuickAccessItems.associateBy { it.id }
+        val orderedIds = if (preferences.order.isNotEmpty()) {
+            preferences.order + (defaultById.keys - preferences.order.toSet())
+        } else {
+            defaultQuickAccessItems.map { it.id }
+        }
+
+        return orderedIds.mapNotNull { id ->
+            defaultById[id]?.copy(isFavorite = id in preferences.favorites)
+        }
+    }
+
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
@@ -107,6 +163,9 @@ class MediaHomeViewModel @Inject constructor(
                 val fanfictionDeferred = async { loadRecentFanfiction() }
                 val collectionsDeferred = async { loadCollections() }
                 val statsDeferred = async { loadLibraryStats() }
+                val hasConfiguredContentSourceDeferred = async {
+                    libraryRepository.getAllActiveLibraries().first().isNotEmpty()
+                }
                 
                 val recentBooks = booksDeferred.await()
                 val recentMusic = musicDeferred.await()
@@ -117,6 +176,7 @@ class MediaHomeViewModel @Inject constructor(
                 val recentFanfiction = fanfictionDeferred.await()
                 val collections = collectionsDeferred.await()
                 val stats = statsDeferred.await()
+                val hasConfiguredContentSource = hasConfiguredContentSourceDeferred.await()
                 
                 // Create featured items from recent content
                 val featured = createFeaturedItems(recentBooks, recentAudiobooks, recentMusic)
@@ -144,6 +204,7 @@ class MediaHomeViewModel @Inject constructor(
                         libraryStats = stats,
                         collections = collections,
                         lastOpenedCategory = lastOpenedCategory
+                        quickAccessItems = buildQuickAccessItems(currentQuickAccessPrefs)
                     )
             }
             } catch (e: Exception) {
@@ -166,7 +227,7 @@ class MediaHomeViewModel @Inject constructor(
                         recentFanfiction = it.recentFanfiction,
                         libraryStats = it.libraryStats,
                         collections = it.collections,
-                        lastOpenedCategory = it.lastOpenedCategory
+                        quickAccessItems = it.quickAccessItems
                     )
                 }
             }
