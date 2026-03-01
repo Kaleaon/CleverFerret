@@ -43,7 +43,7 @@ jobs:
         run: ./gradlew lintDebug -Plint.abortOnError=true --no-daemon --stacktrace
 
       - name: Upload Lint Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: lint-results
