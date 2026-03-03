@@ -80,10 +80,20 @@ run_gradle_quiet() {
 
 resolve_version_from_file() {
   local build_file="$APP_DIR/build.gradle.kts"
-  require_file "$build_file" "Cannot find $build_file for fallback version parsing."
+  local version_file="$APP_DIR/version.gradle"
 
-  VERSION_NAME="$(sed -nE 's/.*versionName\s*=\s*"([^"]+)".*/\1/p' "$build_file" | head -n1)"
-  VERSION_CODE="$(sed -nE 's/.*versionCode\s*=\s*([0-9]+).*/\1/p' "$build_file" | head -n1)"
+  if [[ -f "$build_file" ]]; then
+    VERSION_NAME="$(sed -nE 's/.*versionName\s*=\s*"([^"]+)".*/\1/p' "$build_file" | head -n1)"
+    VERSION_CODE="$(sed -nE 's/.*versionCode\s*=\s*([0-9]+).*/\1/p' "$build_file" | head -n1)"
+  fi
+
+  if [[ -z "${VERSION_NAME:-}" && -f "$version_file" ]]; then
+    VERSION_NAME="$(sed -nE 's/.*appVersionName\s*=\s*"([^"]+)".*/\1/p' "$version_file" | head -n1)"
+  fi
+
+  if [[ -z "${VERSION_CODE:-}" && -f "$version_file" ]]; then
+    VERSION_CODE="$(sed -nE 's/.*appVersionCode\s*=\s*([0-9]+).*/\1/p' "$version_file" | head -n1)"
+  fi
 
   VERSION_NAME="${VERSION_NAME:-1.0.0}"
   VERSION_CODE="${VERSION_CODE:-1}"
@@ -98,7 +108,7 @@ resolve_version_info() {
 
   if [[ -z "$VERSION_NAME" || -z "$VERSION_CODE" ]]; then
     log_warn "Could not read version from Gradle tasks (often caused by local Android SDK/JDK config)."
-    echo "  Action: fix local build env, or continue with fallback parsing from CleverFerret/build.gradle.kts."
+    echo "  Action: fix local build env, or continue with fallback parsing from CleverFerret/build.gradle.kts/version.gradle."
     resolve_version_from_file
   fi
 
