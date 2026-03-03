@@ -3,6 +3,11 @@ package com.universalmedialibrary.services.sync
 import android.content.Context
 import android.util.Log
 import androidx.work.*
+import com.universalmedialibrary.jobs.JobContractType
+import com.universalmedialibrary.jobs.JobExecutionState
+import com.universalmedialibrary.jobs.JobStatusBus
+import com.universalmedialibrary.jobs.JobStatusEvent
+import com.universalmedialibrary.jobs.WorkScheduler
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -16,7 +21,6 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.io.File
-import java.util.concurrent.TimeUnit
 
 /**
  * Cloud Sync Service
@@ -716,26 +720,10 @@ class CloudSyncService @Inject constructor(
      * Schedule periodic background sync
      */
     private fun schedulePeriodicSync() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(
-                if (_settings.value.syncOnWifiOnly)
-                    NetworkType.UNMETERED
-                else
-                    NetworkType.CONNECTED
-            )
-            .build()
-
-        val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-            _settings.value.syncInterval,
-            TimeUnit.MINUTES
-        )
-            .setConstraints(constraints)
-            .build()
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "cloud_sync",
-            ExistingPeriodicWorkPolicy.REPLACE,
-            syncRequest
+        WorkScheduler.scheduleFeedCatalogSync(
+            context = context,
+            intervalMinutes = _settings.value.syncInterval,
+            wifiOnly = _settings.value.syncOnWifiOnly
         )
     }
 
@@ -743,7 +731,7 @@ class CloudSyncService @Inject constructor(
      * Cancel scheduled sync
      */
     fun cancelScheduledSync() {
-        WorkManager.getInstance(context).cancelUniqueWork("cloud_sync")
+        WorkScheduler.cancelFeedCatalogSync(context)
     }
 
     /**
@@ -909,6 +897,14 @@ class SyncWorker(
 
     override suspend fun doWork(): Result {
         Log.d(TAG, "SyncWorker executing: periodic sync triggered at ${System.currentTimeMillis()}")
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.FEED_CATALOG_SYNC,
+                state = JobExecutionState.RUNNING,
+                jobId = id.toString(),
+                message = "Feed/catalog sync started"
+            )
+        )
         return try {
             // Attempt to get the CloudSyncService via Hilt entry point
             val entryPoint = EntryPointAccessors.fromApplication(
@@ -919,13 +915,38 @@ class SyncWorker(
             val result = syncService.syncNow()
             if (result.isSuccess) {
                 Log.d(TAG, "SyncWorker completed successfully")
+                JobStatusBus.publish(
+                    JobStatusEvent(
+                        contractType = JobContractType.FEED_CATALOG_SYNC,
+                        state = JobExecutionState.SUCCEEDED,
+                        jobId = id.toString(),
+                        message = "Feed/catalog sync completed"
+                    )
+                )
                 Result.success()
             } else {
-                Log.w(TAG, "SyncWorker sync failed: ${result.exceptionOrNull()?.message}")
+                val errorMessage = result.exceptionOrNull()?.message
+                Log.w(TAG, "SyncWorker sync failed: $errorMessage")
+                JobStatusBus.publish(
+                    JobStatusEvent(
+                        contractType = JobContractType.FEED_CATALOG_SYNC,
+                        state = JobExecutionState.FAILED,
+                        jobId = id.toString(),
+                        message = errorMessage ?: "Feed/catalog sync failed"
+                    )
+                )
                 Result.retry()
             }
         } catch (e: Exception) {
             Log.e(TAG, "SyncWorker failed with exception: ${e.message}")
+            JobStatusBus.publish(
+                JobStatusEvent(
+                    contractType = JobContractType.FEED_CATALOG_SYNC,
+                    state = JobExecutionState.FAILED,
+                    jobId = id.toString(),
+                    message = e.message ?: "Feed/catalog sync threw an exception"
+                )
+            )
             Result.retry()
         }
     }

@@ -24,7 +24,6 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import androidx.work.*
 import com.universalmedialibrary.data.repository.CacheLocation
 import com.universalmedialibrary.data.repository.SettingsRepository
 import com.universalmedialibrary.data.settings.BottomGearPosition
@@ -33,7 +32,7 @@ import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.services.debug.DebugBugReportService
 import com.universalmedialibrary.utils.PermissionsHandler
 import com.universalmedialibrary.utils.rememberPermissionsHandler
-import com.universalmedialibrary.workers.AutoScanWorker
+import com.universalmedialibrary.jobs.WorkScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -371,29 +370,18 @@ fun AutoScanSettingsScreen(
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
-    val wm = remember(context) { WorkManager.getInstance(context) }
     val permissions = rememberPermissionsHandler()
 
     fun rescheduleWork() {
         if (!state.enabled) {
-            wm.cancelUniqueWork(AutoScanWorker.UNIQUE_WORK_NAME)
+            WorkScheduler.cancelPeriodicMetadataRefresh(context)
             return
         }
 
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(if (state.wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED)
-            .build()
-
-        val request = PeriodicWorkRequestBuilder<AutoScanWorker>(
-            state.intervalHours.toLong(),
-            TimeUnit.HOURS
-        ).setConstraints(constraints)
-            .build()
-
-        wm.enqueueUniquePeriodicWork(
-            AutoScanWorker.UNIQUE_WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
-            request
+        WorkScheduler.schedulePeriodicMetadataRefresh(
+            context = context,
+            intervalHours = state.intervalHours.toLong(),
+            wifiOnly = state.wifiOnly
         )
     }
 
@@ -499,7 +487,7 @@ fun AutoScanSettingsScreen(
             }
 
             Text(
-                text = "Auto-scan uses WorkManager and runs a foreground scan job when scheduled.",
+                text = "Auto-scan uses the scheduler layer and runs a foreground scan job when scheduled.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -4,11 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.universalmedialibrary.data.repository.SettingsRepository
+import com.universalmedialibrary.jobs.JobStatusBus
+import com.universalmedialibrary.jobs.WorkScheduler
 import com.universalmedialibrary.services.ImportConflictStrategy
 import com.universalmedialibrary.services.ImportPlan
 import com.universalmedialibrary.services.ImportPlanItem
@@ -84,6 +83,8 @@ class ImportSorterViewModel @Inject constructor(
                 state.copy(duplicateStrategy = strategy)
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ImportSorterPrefsState())
+
+    val importJobEvents = JobStatusBus.events
 
     private val _runtimeState = MutableStateFlow(ImportSorterRuntimeState())
     val runtimeState: StateFlow<ImportSorterRuntimeState> = _runtimeState.asStateFlow()
@@ -199,26 +200,18 @@ class ImportSorterViewModel @Inject constructor(
                         File(dir, planName).writeText(json.encodeToString(execPlan))
                     }
 
-                    val request = OneTimeWorkRequestBuilder<ImportPlanWorker>()
-                        .addTag("import_sorter")
-                        .setInputData(
-                            workDataOf(
-                                ImportPlanWorker.KEY_PLAN_FILE to planName,
-                                ImportPlanWorker.KEY_OPTIONS_JSON to json.encodeToString(options),
-                                ImportPlanWorker.KEY_STATE_FILE to "state_${planName}.txt"
-                            )
+                    WorkScheduler.scheduleOneOffImport(
+                        context = context,
+                        inputData = workDataOf(
+                            ImportPlanWorker.KEY_PLAN_FILE to planName,
+                            ImportPlanWorker.KEY_OPTIONS_JSON to json.encodeToString(options),
+                            ImportPlanWorker.KEY_STATE_FILE to "state_${planName}.txt"
                         )
-                        .build()
-
-                    WorkManager.getInstance(context).enqueueUniqueWork(
-                        "import_sorter",
-                        ExistingWorkPolicy.REPLACE,
-                        request
                     )
                     _runtimeState.update {
                         it.copy(
                             progress = "",
-                            backgroundStatus = "Import queued in background (WorkManager). You can leave the app."
+                            backgroundStatus = "Import queued in background scheduler. You can leave the app."
                         )
                     }
                 } else {
@@ -319,4 +312,3 @@ data class ImportSorterRuntimeState(
     val backgroundStatus: String? = null,
     val onlineMetadataLoadingSourceUris: Set<String> = emptySet()
 )
-
