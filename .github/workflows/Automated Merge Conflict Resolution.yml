@@ -37,8 +37,8 @@ jobs:
       if: steps.merge.outcome == 'failure'
       run: |
         echo "Merge conflict detected. Attempting to resolve..."
-        # Ensure your resolution script is executable in your repository, e.g., by running `git update-index --chmod=+x scripts/resolve-merge-conflicts.sh`.
-        ./scripts/resolve-merge-conflicts.sh
+        # Ensure your resolution script is executable in your repository, e.g., by running `git update-index --chmod=+x tooling/scripts/resolve-merge-conflicts.sh`.
+        ./tooling/scripts/resolve-merge-conflicts.sh
 
     - name: Commit and push changes
       # BUG FIX 4: Corrected conditional logic to run only after a successful resolution.

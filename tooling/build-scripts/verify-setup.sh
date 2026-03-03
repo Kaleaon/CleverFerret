@@ -5,7 +5,7 @@
 # ==============================================================================
 # 
 # PURPOSE: Verify that the build environment is properly set up
-# USAGE: ./build-scripts/verify-setup.sh
+# USAGE: ./tooling/build-scripts/verify-setup.sh
 # 
 # EXIT CODES:
 # 0 = All checks passed (ready to build)
@@ -106,8 +106,8 @@ run_test "gradle.properties has memory config" "grep -q \"Xmx6144m\" gradle.prop
 log_info "6. Checking build scripts..."
 run_test "Main build script exists" "[ -f \"build_enhanced_permanent.sh\" ]"
 run_test "Main build script executable" "[ -x \"build_enhanced_permanent.sh\" ]"
-run_test "Setup script exists" "[ -f \"build-scripts/setup-build-environment.sh\" ]"
-run_test "AI setup script exists" "[ -f \"build-scripts/ai-auto-setup.sh\" ]"
+run_test "Setup script exists" "[ -f \"tooling/build-scripts/setup-build-environment.sh\" ]"
+run_test "AI setup script exists" "[ -f \"tooling/build-scripts/ai-auto-setup.sh\" ]"
 
 # AI-FRIENDLY: Test 7 - Debug Keystore
 log_info "7. Checking debug keystore..."
@@ -171,7 +171,7 @@ else
     echo "Some components are missing or misconfigured."
     echo
     echo "📋 Recommended fixes for AI:"
-    echo "1. Re-run setup: ./build-scripts/ai-auto-setup.sh"
+    echo "1. Re-run setup: ./tooling/build-scripts/ai-auto-setup.sh"
     echo "2. Check error messages above for specific issues"
     echo "3. Ensure internet connection and sufficient disk space"
     echo "4. Verify system permissions"
