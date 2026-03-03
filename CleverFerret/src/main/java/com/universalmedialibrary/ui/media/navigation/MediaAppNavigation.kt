@@ -628,7 +628,7 @@ fun MediaAppNavHost(
         
         // Web Fiction with special tabbed view
         composable(MediaRoutes.WEB_FICTION) {
-            val viewModel: WebFictionViewModel = hiltViewModel()
+            val viewModel: TransitionalWebFictionViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
             WebFictionScreen(
@@ -653,7 +653,7 @@ fun MediaAppNavHost(
         
         // Radio screen
         composable(MediaRoutes.RADIO) {
-            val viewModel: RadioViewModel = hiltViewModel()
+            val viewModel: TransitionalRadioViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
             RadioScreen(
@@ -994,7 +994,7 @@ fun MediaAppNavHost(
         }
         
         composable(MediaRoutes.NEWS) {
-            val viewModel: NewsViewModel = hiltViewModel()
+            val viewModel: TransitionalNewsViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
             NewsScreen(
@@ -1679,7 +1679,7 @@ fun MediaAppNavHost(
         
         // Legacy browse/manager routes
         composable("webfiction_manager") {
-            val viewModel: WebFictionViewModel = hiltViewModel()
+            val viewModel: TransitionalWebFictionViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
             WebFictionScreen(
@@ -1875,7 +1875,7 @@ fun MediaAppNavHost(
         }
         
         composable("radio") {
-            val viewModel: RadioViewModel = hiltViewModel()
+            val viewModel: TransitionalRadioViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
             RadioScreen(

@@ -37,7 +37,7 @@ import com.universalmedialibrary.ui.theme.*
 @Composable
 fun RadioScreen(
     onBack: () -> Unit,
-    viewModel: RadioViewModel = hiltViewModel()
+    viewModel: RadioScreenViewModel = hiltViewModel()
 ) {
     val allStations by viewModel.allStations.collectAsState()
     val favoriteStations by viewModel.favoriteStations.collectAsState()

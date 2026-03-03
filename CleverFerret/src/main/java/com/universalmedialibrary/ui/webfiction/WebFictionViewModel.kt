@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WebFictionViewModel @Inject constructor(
+class WebFictionManagerScreenViewModel @Inject constructor(
     private val webFictionService: WebFictionService,
     private val redditStoryManager: com.universalmedialibrary.services.webfiction.RedditStoryManager,
     private val parentalControlsSettings: ParentalControlsSettings

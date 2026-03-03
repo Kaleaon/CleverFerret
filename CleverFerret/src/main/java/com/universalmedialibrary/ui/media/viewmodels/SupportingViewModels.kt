@@ -25,8 +25,9 @@ import kotlin.math.roundToInt
  * - Internet radio catalog via `RadioBrowserService`
  * - Favorites / history via `RadioStationDao`
  */
+@Deprecated("Transitional stub. Use com.universalmedialibrary.ui.radio.RadioScreenViewModel for canonical radio logic.")
 @HiltViewModel
-class RadioViewModel @Inject constructor(
+class TransitionalRadioViewModel @Inject constructor(
     private val radioBrowserService: RadioBrowserService,
     private val radioStationDao: RadioStationDao
 ) : ViewModel() {
@@ -206,8 +207,9 @@ class RadioViewModel @Inject constructor(
 /**
  * Web Fiction ViewModel (Simplified)
  */
+@Deprecated("Transitional stub. Use com.universalmedialibrary.ui.webfiction.WebFictionManagerScreenViewModel for canonical web fiction logic.")
 @HiltViewModel
-class WebFictionViewModel @Inject constructor() : ViewModel() {
+class TransitionalWebFictionViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(WebFictionScreenState())
     val uiState: StateFlow<WebFictionScreenState> = _uiState.asStateFlow()
@@ -375,8 +377,9 @@ class AmbientViewModel @Inject constructor() : ViewModel() {
 /**
  * News ViewModel (Simplified)
  */
+@Deprecated("Transitional stub. Use com.universalmedialibrary.ui.news.NewsScreenViewModel for canonical news logic.")
 @HiltViewModel
-class NewsViewModel @Inject constructor() : ViewModel() {
+class TransitionalNewsViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(NewsScreenState())
     val uiState: StateFlow<NewsScreenState> = _uiState.asStateFlow()

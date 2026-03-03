@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun WebFictionManagerScreen(
     navController: NavController,
-    viewModel: WebFictionViewModel = hiltViewModel()
+    viewModel: WebFictionManagerScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
