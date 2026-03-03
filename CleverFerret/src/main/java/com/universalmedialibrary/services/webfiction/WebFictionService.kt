@@ -3,6 +3,7 @@ package com.universalmedialibrary.services.webfiction
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
 import com.universalmedialibrary.services.ContentPinRequiredException
 import com.universalmedialibrary.services.DownloadBlockedException
+import com.universalmedialibrary.services.ingestion.IngestionPipeline
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -81,7 +82,8 @@ data class RoyalRoadChapter(
 
 @Singleton
 class WebFictionService @Inject constructor(
-    private val parentalControlsSettings: ParentalControlsSettings
+    private val parentalControlsSettings: ParentalControlsSettings,
+    private val ingestionPipeline: IngestionPipeline
 ) {
 
     private val royalRoadApi: RoyalRoadApi by lazy {
@@ -156,25 +158,39 @@ class WebFictionService @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val site = detectSite(url)
-                ensureAdultAccess(site)
-                val story = when (site) {
-                    WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> extractFromAO3(url)
-                    WebFictionSiteType.FANFICTION_NET -> extractFromFFN(url)
-                    WebFictionSiteType.ROYAL_ROAD -> extractFromRoyalRoad(url)
-                    WebFictionSiteType.WEBNOVEL -> extractFromWebnovel(url)
-                    WebFictionSiteType.WATTPAD -> extractFromWattpad(url)
-                    WebFictionSiteType.SCRIBBLE_HUB -> extractFromScribbleHub(url)
-                    WebFictionSiteType.FIMFICTION -> extractFromFimFiction(url)
-                    WebFictionSiteType.METABODS -> extractFromMetabods(url)
-                    WebFictionSiteType.LITEROTICA -> extractFromLiterotica(url)
-                    WebFictionSiteType.NIFTY -> extractFromNifty(url)
-                    WebFictionSiteType.ADULT_FANFICTION -> extractFromAdultFanFiction(url)
-                    WebFictionSiteType.BDSM_LIBRARY -> extractFromBdsmlibrary(url)
-                    WebFictionSiteType.MCSTORIES -> extractFromMcstories(url)
-                    else -> extractGeneric(url)
-                }
-                story?.let { enforceStoryAccess(it, bypassPin) }
-                story
+                ingestionPipeline.execute(
+                    sourceId = "webfiction:${site.name.lowercase()}",
+                    authenticate = {
+                        ensureAdultAccess(site)
+                        site
+                    },
+                    fetchPage = { authedSite, _ ->
+                        when (authedSite) {
+                            WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> extractFromAO3(url)
+                            WebFictionSiteType.FANFICTION_NET -> extractFromFFN(url)
+                            WebFictionSiteType.ROYAL_ROAD -> extractFromRoyalRoad(url)
+                            WebFictionSiteType.WEBNOVEL -> extractFromWebnovel(url)
+                            WebFictionSiteType.WATTPAD -> extractFromWattpad(url)
+                            WebFictionSiteType.SCRIBBLE_HUB -> extractFromScribbleHub(url)
+                            WebFictionSiteType.FIMFICTION -> extractFromFimFiction(url)
+                            WebFictionSiteType.METABODS -> extractFromMetabods(url)
+                            WebFictionSiteType.LITEROTICA -> extractFromLiterotica(url)
+                            WebFictionSiteType.NIFTY -> extractFromNifty(url)
+                            WebFictionSiteType.ADULT_FANFICTION -> extractFromAdultFanFiction(url)
+                            WebFictionSiteType.BDSM_LIBRARY -> extractFromBdsmlibrary(url)
+                            WebFictionSiteType.MCSTORIES -> extractFromMcstories(url)
+                            else -> extractGeneric(url)
+                        }
+                    },
+                    parse = { it },
+                    deduplicate = { it },
+                    enrichMetadata = { story ->
+                        story?.let { enforceStoryAccess(it, bypassPin) }
+                        story
+                    },
+                    persist = { it },
+                    nextIncrementalToken = { System.currentTimeMillis().toString() }
+                ).result
             } catch (e: AdultSitesDisabledException) {
                 throw e
             } catch (e: ContentPinRequiredException) {

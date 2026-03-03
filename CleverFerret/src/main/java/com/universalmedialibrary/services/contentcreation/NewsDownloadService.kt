@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.contentcreation
 
 import android.content.Context
 import android.util.Log
+import com.universalmedialibrary.services.ingestion.IngestionPipeline
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,8 @@ import javax.inject.Singleton
 @Singleton
 class NewsDownloadService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val httpClient: OkHttpClient
+    private val httpClient: OkHttpClient,
+    private val ingestionPipeline: IngestionPipeline
 ) {
     private val epubCreator = SimpleEpubCreator()
 
@@ -161,60 +163,56 @@ class NewsDownloadService @Inject constructor(
         try {
             _downloadProgress.value = DownloadState.Downloading(source.displayName, 0.1f)
 
-            // Fetch RSS feed
-            val articles = fetchRssFeed(source.rssUrl, maxArticles)
+            ingestionPipeline.execute(
+                sourceId = "news:${source.name.lowercase()}",
+                authenticate = { source },
+                fetchPage = { authedSource, _ -> fetchRssFeed(authedSource.rssUrl, maxArticles) },
+                parse = { it },
+                deduplicate = { articles -> articles.distinctBy { it.link.ifEmpty { it.title } } },
+                enrichMetadata = { it },
+                persist = { articles ->
+                    if (articles.isEmpty()) {
+                        val error = "No articles found in feed"
+                        _downloadProgress.value = DownloadState.Error(error)
+                        throw Exception(error)
+                    }
 
-            if (articles.isEmpty()) {
-                val error = "No articles found in feed"
-                _downloadProgress.value = DownloadState.Error(error)
-                return@withContext Result.failure(Exception(error))
-            }
+                    _downloadProgress.value = DownloadState.Downloading(source.displayName, 0.5f)
 
-            _downloadProgress.value = DownloadState.Downloading(source.displayName, 0.5f)
-
-            // Convert to chapters
-            val chapters = articles.mapIndexed { index, article ->
-                SimpleEpubCreator.Chapter(
-                    title = article.title,
-                    content = """
+                    val chapters = articles.mapIndexed { index, article ->
+                        SimpleEpubCreator.Chapter(
+                            title = article.title,
+                            content = """
                         <h2>${article.title}</h2>
                         <p><em>Published: ${article.pubDate}</em></p>
                         <p><em>Source: <a href="${article.link}">${source.displayName}</a></em></p>
                         <hr/>
                         ${article.content}
                     """.trimIndent(),
-                    id = "article_$index"
-                )
-            }
+                            id = "article_$index"
+                        )
+                    }
 
-            // Create EPUB
-            val outputDir = File(context.filesDir, "news")
-            outputDir.mkdirs()
+                    val outputDir = File(context.filesDir, "news")
+                    outputDir.mkdirs()
+                    val timestamp = System.currentTimeMillis()
+                    val fileName = "${source.displayName.replace(" ", "_")}_$timestamp.epub"
+                    val outputFile = File(outputDir, fileName)
 
-            val timestamp = System.currentTimeMillis()
-            val fileName = "${source.displayName.replace(" ", "_")}_$timestamp.epub"
-            val outputFile = File(outputDir, fileName)
+                    val metadata = SimpleEpubCreator.EpubMetadata(
+                        title = "${source.displayName} - ${java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.US).format(java.util.Date())}",
+                        author = source.displayName,
+                        description = source.description,
+                        publisher = "CleverFerret News"
+                    )
 
-            val metadata = SimpleEpubCreator.EpubMetadata(
-                title = "${source.displayName} - ${java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.US).format(java.util.Date())}",
-                author = source.displayName,
-                description = source.description,
-                publisher = "CleverFerret News"
-            )
+                    epubCreator.createEpub(outputFile, metadata, chapters)
 
-            epubCreator.createEpub(outputFile, metadata, chapters)
-
-            _downloadProgress.value = DownloadState.Success(
-                outputFile.absolutePath,
-                articles.size
-            )
-
-            Result.success(DownloadResult(
-                filePath = outputFile.absolutePath,
-                source = source.displayName,
-                articleCount = articles.size
-            ))
-
+                    _downloadProgress.value = DownloadState.Success(outputFile.absolutePath, articles.size)
+                    DownloadResult(outputFile.absolutePath, source.displayName, articles.size)
+                },
+                nextIncrementalToken = { System.currentTimeMillis().toString() }
+            ).result.let { Result.success(it) }
         } catch (e: Exception) {
             Log.e("NewsDownload", "Failed to download news", e)
             val error = "Download failed: ${e.message}"
