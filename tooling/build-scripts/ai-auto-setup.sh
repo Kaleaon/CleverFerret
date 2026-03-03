@@ -5,7 +5,7 @@
 # ==============================================================================
 # 
 # PURPOSE: Fully automated setup for AI assistants (Jules, Copilot, Claude, etc.)
-# USAGE: chmod +x build-scripts/ai-auto-setup.sh && ./build-scripts/ai-auto-setup.sh
+# USAGE: chmod +x tooling/build-scripts/ai-auto-setup.sh && ./tooling/build-scripts/ai-auto-setup.sh
 # 
 # This script will:
 # 1. Detect the operating system automatically
@@ -367,8 +367,8 @@ make_scripts_executable() {
     # AI-FRIENDLY: List of scripts that need execute permissions
     local scripts=(
         "build_enhanced_permanent.sh"
-        "build-scripts/setup-build-environment.sh"
-        "build-scripts/ai-auto-setup.sh"
+        "tooling/build-scripts/setup-build-environment.sh"
+        "tooling/build-scripts/ai-auto-setup.sh"
     )
     
     for script in "${scripts[@]}"; do
@@ -456,7 +456,7 @@ main() {
         echo "1. Ensure internet connection is available"
         echo "2. Check available disk space (need ~2GB)"
         echo "3. Verify system permissions"
-        echo "4. Retry with: ./build-scripts/ai-auto-setup.sh"
+        echo "4. Retry with: ./tooling/build-scripts/ai-auto-setup.sh"
         echo
         echo "❌ Setup failed"
         exit 1

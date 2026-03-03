@@ -39,9 +39,11 @@ CleverFerret is a comprehensive media library application for Android, designed 
 ## 📂 Project Structure
 
 *   `CleverFerret/`: Main Android application source code.
-*   `android-sdk/`: Local Android SDK dependencies.
-*   `docs/`: Project documentation and logs.
-*   `scripts/`: Utility scripts for building and maintenance.
+*   `tooling/`: Build and development automation scripts.
+*   `docs/`: Product and engineering documentation.
+*   `infra/`: CI/CD, container, and deployment definitions.
+*   `archive/`: Historical non-runtime artifacts.
+*   `android-sdk/`: Local Android SDK dependencies (legacy environment support).
 
 ## 📝 Documentation
 

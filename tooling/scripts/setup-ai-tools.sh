@@ -35,9 +35,9 @@ log_header "Configuring CleverFerret for AI Development Tools..."
 
 # 1. Verify Universal Build System
 log_info "Verifying Universal Build System..."
-if [ -d "modern-android-tools" ] && [ -f "build-scripts/universal-build.sh" ]; then
+if [ -d "modern-android-tools" ] && [ -f "tooling/build-scripts/universal-build.sh" ]; then
     log_success "Universal Build System detected and ready"
-    chmod +x build-scripts/*.sh
+    chmod +x tooling/build-scripts/*.sh
     chmod +x gradlew
 else
     log_warning "Universal Build System components missing"
@@ -99,13 +99,13 @@ fi
 
 # 5. Test Universal Build System integration
 log_info "Testing Universal Build System with AI tools..."
-if ./build-scripts/universal-build.sh info >/dev/null 2>&1; then
+if ./tooling/build-scripts/universal-build.sh info >/dev/null 2>&1; then
     log_success "Universal Build System is functional"
     
     # Show architecture info for AI tools
     echo ""
     echo "🏗️ Architecture Information for AI Tools:"
-    ./build-scripts/universal-build.sh info | grep -E "(Architecture|AAPT2|Android Tools)" || true
+    ./tooling/build-scripts/universal-build.sh info | grep -E "(Architecture|AAPT2|Android Tools)" || true
 else
     log_warning "Universal Build System test failed"
 fi
@@ -130,8 +130,8 @@ CleverFerret is now fully configured for AI development tools with Universal Bui
 ### 🏗️ Universal Build System Commands
 ```bash
 # These commands are now recognized by all AI tools:
-./build-scripts/universal-build.sh info          # System status
-./build-scripts/simple-build.sh build debug      # Reliable build
+./tooling/build-scripts/universal-build.sh info          # System status
+./tooling/build-scripts/simple-build.sh build debug      # Reliable build
 ./gradlew diagnose                                # Full diagnostics
 ```
 
@@ -181,6 +181,6 @@ echo "🎯 Next Steps:"
 echo "1. Open the project in your preferred AI-enabled IDE"
 echo "2. AI tools will automatically detect configurations"
 echo "3. Start coding with intelligent, context-aware suggestions"
-echo "4. Use './build-scripts/universal-build.sh info' to verify setup"
+echo "4. Use './tooling/build-scripts/universal-build.sh info' to verify setup"
 echo ""
 echo "🚀 Happy AI-powered development with CleverFerret!"
