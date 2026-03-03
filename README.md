@@ -39,9 +39,11 @@ CleverFerret is a comprehensive media library application for Android, designed 
 ## 📂 Project Structure
 
 *   `CleverFerret/`: Main Android application source code.
-*   `android-sdk/`: Local Android SDK dependencies.
-*   `docs/`: Project documentation and logs.
-*   `scripts/`: Utility scripts for building and maintenance.
+*   `tooling/`: Build and development automation scripts.
+*   `docs/`: Product and engineering documentation.
+*   `infra/`: CI/CD, container, and deployment definitions.
+*   `archive/`: Historical non-runtime artifacts.
+*   `android-sdk/`: Local Android SDK dependencies (legacy environment support).
 
 ## 📝 Documentation
 
@@ -59,6 +61,25 @@ CleverFerret is a comprehensive media library application for Android, designed 
 *   **[Implementation Guides](docs/implementation/)**: Parser integration and technical guides
 *   **[Planning & TODO](docs/planning/)**: Development roadmap and task lists
 *   **[Historical Archives](docs/archive/)**: Completed work and research notes
+
+
+## 🧭 Frontend Workspace Status
+
+The standalone JavaScript frontend is **inactive** for now. The former `frontend/` directory has been archived to `archive/frontend/`, and dependency artifacts were removed from Git to avoid stale package-manager state.
+
+If frontend work is restarted, expected bootstrap commands are:
+
+```bash
+mkdir -p frontend/src frontend/tests
+cd frontend
+# choose one package manager, then initialize
+# npm example:
+npm init -y
+npm install
+npm run dev
+npm run build
+npm test
+```
 
 ## 🚧 Status
 

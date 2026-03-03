@@ -5,7 +5,7 @@
 # ==============================================================================
 # 
 # PURPOSE: Test the build system without doing a full compilation
-# USAGE: ./build-scripts/test-build-system.sh
+# USAGE: ./tooling/build-scripts/test-build-system.sh
 # 
 # This script will:
 # 1. Test Gradle wrapper functionality
@@ -167,7 +167,7 @@ else
     echo "1. Check error messages above"
     echo "2. Verify Android SDK installation"
     echo "3. Ensure all dependencies are available"
-    echo "4. Re-run setup if necessary: ./build-scripts/ai-auto-setup.sh"
+    echo "4. Re-run setup if necessary: ./tooling/build-scripts/ai-auto-setup.sh"
     echo "5. Check system resources (memory, disk space)"
     echo
     echo "❌ Build system test failed"

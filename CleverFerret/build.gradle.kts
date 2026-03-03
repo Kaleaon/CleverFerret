@@ -68,7 +68,7 @@ android {
     // - If different machines generate different debug keystores, installs will fail with
     //   "conflicting package" / INSTALL_FAILED_UPDATE_INCOMPATIBLE.
     //
-    // CI-friendly release signing uses the secrets described in scripts/setup-automated-builds.sh:
+    // CI-friendly release signing uses the secrets described in tooling/scripts/setup-automated-builds.sh:
     // - KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
     // =========================================================================
     val keystoreBase64Raw: String? =

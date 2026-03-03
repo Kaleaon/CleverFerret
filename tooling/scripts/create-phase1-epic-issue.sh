@@ -5,7 +5,7 @@
 # This script creates a GitHub issue with all the specifications for the Phase 1 epic.
 # It requires gh CLI to be installed and authenticated.
 #
-# Usage: ./scripts/create-phase1-epic-issue.sh
+# Usage: ./tooling/scripts/create-phase1-epic-issue.sh
 #
 
 set -e
