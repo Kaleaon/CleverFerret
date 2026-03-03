@@ -23,7 +23,7 @@ import com.universalmedialibrary.utils.ErrorLogger
  * Supports multiple fanfiction platforms
  */
 @Singleton
-class FanfictionToEPUBConverter @Inject constructor(
+class FanfictionEpubConversionService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val httpClient = OkHttpClient.Builder()
@@ -83,7 +83,7 @@ class FanfictionToEPUBConverter @Inject constructor(
     /**
      * Convert a fanfiction story URL to EPUB
      */
-    suspend fun convertStoryToEPUB(
+    suspend fun convertStoryToEpub(
         storyUrl: String,
         outputFileName: String? = null
     ): File? = withContext(Dispatchers.IO) {
@@ -120,7 +120,7 @@ class FanfictionToEPUBConverter @Inject constructor(
 
             outputFile
         } catch (e: Exception) {
-            ErrorLogger.logError("FanfictionToEPUBConverter", "Error converting story to EPUB", e)
+            ErrorLogger.logError("FanfictionEpubConversionService", "Error converting story to EPUB", e)
             null
         }
     }
@@ -128,7 +128,7 @@ class FanfictionToEPUBConverter @Inject constructor(
     /**
      * Convert a fanfiction story URL to EPUB with detailed result
      */
-    suspend fun convertStoryToEPUBWithDetails(
+    suspend fun convertStoryToEpubWithDetails(
         storyUrl: String,
         outputFileName: String? = null
     ): ConversionResult? = withContext(Dispatchers.IO) {
@@ -165,7 +165,7 @@ class FanfictionToEPUBConverter @Inject constructor(
 
             ConversionResult(outputFile, story)
         } catch (e: Exception) {
-            ErrorLogger.logError("FanfictionToEPUBConverter", "Error converting story to EPUB (detailed)", e)
+            ErrorLogger.logError("FanfictionEpubConversionService", "Error converting story to EPUB (detailed)", e)
             null
         }
     }
@@ -200,7 +200,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 return@withContext FicHubResult(epubUrl, story)
             }
         } catch (e: Exception) {
-            ErrorLogger.logWarning("FanfictionToEPUBConverter", "FicHub fallback failed", e)
+            ErrorLogger.logWarning("FanfictionEpubConversionService", "FicHub fallback failed", e)
             null
         }
     }
@@ -277,7 +277,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             }
             true
         } catch (e: Exception) {
-            ErrorLogger.logWarning("FanfictionToEPUBConverter", "Failed to download FicHub EPUB", e)
+            ErrorLogger.logWarning("FanfictionEpubConversionService", "Failed to download FicHub EPUB", e)
             false
         }
     }
@@ -329,7 +329,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 metadata = metadata
             )
         } catch (e: Exception) {
-            ErrorLogger.logError("FanfictionToEPUBConverter", "Error fetching FFNet story", e)
+            ErrorLogger.logError("FanfictionEpubConversionService", "Error fetching FFNet story", e)
             null
         }
     }
@@ -355,7 +355,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 content = cleanHtml(content)
             )
         } catch (e: Exception) {
-            ErrorLogger.logWarning("FanfictionToEPUBConverter", "Error fetching FFNet chapter $chapterNumber", e)
+            ErrorLogger.logWarning("FanfictionEpubConversionService", "Error fetching FFNet chapter $chapterNumber", e)
             null
         }
     }
@@ -420,7 +420,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 metadata = metadata
             )
         } catch (e: Exception) {
-            ErrorLogger.logError("FanfictionToEPUBConverter", "Error fetching AO3 story", e)
+            ErrorLogger.logError("FanfictionEpubConversionService", "Error fetching AO3 story", e)
             null
         }
     }
@@ -460,7 +460,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 metadata = StoryMetadata()
             )
         } catch (e: Exception) {
-            ErrorLogger.logError("FanfictionToEPUBConverter", "Error fetching Wattpad story", e)
+            ErrorLogger.logError("FanfictionEpubConversionService", "Error fetching Wattpad story", e)
             null
         }
     }
@@ -484,7 +484,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 content = cleanHtml(content)
             )
         } catch (e: Exception) {
-            ErrorLogger.logWarning("FanfictionToEPUBConverter", "Error fetching Wattpad chapter $chapterNumber", e)
+            ErrorLogger.logWarning("FanfictionEpubConversionService", "Error fetching Wattpad chapter $chapterNumber", e)
             null
         }
     }
@@ -579,7 +579,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 )
             )
         } catch (e: Exception) {
-            ErrorLogger.logError("FanfictionToEPUBConverter", "Error fetching Royal Road story", e)
+            ErrorLogger.logError("FanfictionEpubConversionService", "Error fetching Royal Road story", e)
             null
         }
     }
@@ -609,7 +609,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 content = cleanHtml(content)
             )
         } catch (e: Exception) {
-            ErrorLogger.logWarning("FanfictionToEPUBConverter", "Error fetching Royal Road chapter $chapterNumber", e)
+            ErrorLogger.logWarning("FanfictionEpubConversionService", "Error fetching Royal Road chapter $chapterNumber", e)
             null
         }
     }
@@ -655,7 +655,7 @@ class FanfictionToEPUBConverter @Inject constructor(
     }
 
     /**
-     * Create EPUB file from story
+     * Create EPUB file from story content
      */
     private fun createEPUB(story: Story, outputFile: File) {
         ZipOutputStream(FileOutputStream(outputFile)).use { zip ->
