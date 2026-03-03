@@ -5,7 +5,7 @@
 # This script creates the necessary labels if they don't already exist.
 # It requires gh CLI to be installed and authenticated.
 #
-# Usage: ./scripts/setup-epic-labels.sh
+# Usage: ./tooling/scripts/setup-epic-labels.sh
 #
 
 set -e
@@ -61,4 +61,4 @@ create_label_if_missing \
 echo ""
 echo "✅ All required labels are set up!"
 echo ""
-echo "You can now run: ./scripts/create-phase1-epic-issue.sh"
+echo "You can now run: ./tooling/scripts/create-phase1-epic-issue.sh"

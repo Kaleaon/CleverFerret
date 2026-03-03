@@ -19,6 +19,22 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ---
 
+## 🧭 Frontend Workspace Decision
+
+- **Decision:** Frontend is currently inactive.
+- **Action taken:** Moved `frontend/` to `archive/frontend/` and removed dependency artifacts from version control.
+- **When reactivating:** recreate `frontend/` with source directories and scripts (`dev`, `build`, `test`) under a single package manager.
+- **Expected commands on reactivation:**
+  - `mkdir -p frontend/src frontend/tests`
+  - `cd frontend`
+  - `npm init -y` *(or equivalent for yarn/pnpm)*
+  - `npm install`
+  - `npm run dev`
+  - `npm run build`
+  - `npm test`
+
+---
+
 ## 🔒 Security
 
 - [Security Practices](security/SECURITY_PRACTICES.md) - **NEW** Security guidelines and best practices

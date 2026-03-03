@@ -45,7 +45,7 @@ jobs:
           print(m.group(1))
           PY
           )
-          HEAD_CODE=$(python3 scripts/bump_version_code.py --file CleverFerret/build.gradle.kts)
+          HEAD_CODE=$(python3 tooling/scripts/bump_version_code.py --file CleverFerret/build.gradle.kts)
           echo "base=$BASE_CODE" >> "$GITHUB_OUTPUT"
           echo "head=$HEAD_CODE" >> "$GITHUB_OUTPUT"
           echo "Base versionCode: $BASE_CODE"
@@ -59,7 +59,7 @@ jobs:
           HEAD="${{ steps.versions.outputs.head }}"
           if [ "$HEAD" -le "$BASE" ]; then
             NEW=$((BASE + 1))
-            python3 scripts/bump_version_code.py --file CleverFerret/build.gradle.kts --set "$NEW"
+            python3 tooling/scripts/bump_version_code.py --file CleverFerret/build.gradle.kts --set "$NEW"
             echo "new=$NEW" >> "$GITHUB_OUTPUT"
           else
             echo "No bump needed."
@@ -79,4 +79,3 @@ jobs:
           git add CleverFerret/build.gradle.kts
           git commit -m "chore: bump versionCode to ${{ steps.bump.outputs.new }}"
           git push
-
