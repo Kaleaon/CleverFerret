@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
 import com.universalmedialibrary.services.ContentPinRequiredException
 import com.universalmedialibrary.services.DownloadBlockedException
-import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverterBasic
 import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
 import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionStory
@@ -23,7 +22,6 @@ import javax.inject.Inject
 @HiltViewModel
 class WebFictionViewModel @Inject constructor(
     private val webFictionService: WebFictionService,
-    private val basicConverter: FanfictionToEpubConverterBasic,
     private val redditStoryManager: com.universalmedialibrary.services.webfiction.RedditStoryManager,
     private val parentalControlsSettings: ParentalControlsSettings
 ) : ViewModel() {
