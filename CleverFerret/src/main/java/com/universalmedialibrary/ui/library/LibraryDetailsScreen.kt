@@ -42,7 +42,7 @@ fun LibraryDetailsScreen(
     libraryId: Int,
     onNavigateBack: () -> Unit = {},
     onNavigateToMediaViewer: (Int) -> Unit = {},
-    viewModel: LibraryDetailsViewModel = hiltViewModel()
+    viewModel: LibraryDetailsScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectionViewModel: GlobalSelectionViewModel = hiltViewModel()

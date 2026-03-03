@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RadioViewModel @Inject constructor(
+class RadioScreenViewModel @Inject constructor(
     private val radioStationDao: RadioStationDao,
     private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService,
     private val radioIdentificationService: RadioIdentificationService,

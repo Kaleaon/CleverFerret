@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class LibraryDetailsViewModel @Inject constructor(
+class DetailsLibraryDetailsScreenViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {

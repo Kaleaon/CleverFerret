@@ -27,7 +27,7 @@ import javax.inject.Inject
  * Manages the state of media items within a specific library
  */
 @HiltViewModel
-    class LibraryDetailsViewModel @Inject constructor(
+    class LibraryDetailsScreenViewModel @Inject constructor(
         private val libraryDao: LibraryDao,
         private val mediaItemDao: MediaItemDao,
         private val metadataDao: MetadataDao,
@@ -133,7 +133,7 @@ import javax.inject.Inject
 /**
  * Extension function to convert Room MediaItem with metadata to UI MediaItemData
  */
-fun LibraryDetailsViewModel.MediaItemWithMetadata.toMediaItemData(): MediaItemData {
+fun LibraryDetailsScreenViewModel.MediaItemWithMetadata.toMediaItemData(): MediaItemData {
     val title = metadata?.title ?: mediaItem.fileName
     val author = when (mediaItem.mediaType) {
         "BOOK" -> "Unknown Author"

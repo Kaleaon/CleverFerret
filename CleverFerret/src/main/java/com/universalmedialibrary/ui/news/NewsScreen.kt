@@ -22,7 +22,7 @@ import com.universalmedialibrary.services.news.NewsRecipe
 fun NewsScreen(
     onNavigateBack: () -> Unit,
     onOpenEpub: (String) -> Unit,
-    viewModel: NewsViewModel = hiltViewModel()
+    viewModel: NewsScreenViewModel = hiltViewModel()
 ) {
     val recipes by viewModel.recipes.collectAsState()
     val downloadStatus by viewModel.downloadStatus.collectAsState()
