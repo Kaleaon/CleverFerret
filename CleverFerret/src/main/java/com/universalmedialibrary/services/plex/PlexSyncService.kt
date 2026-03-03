@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.services.ingestion.IngestionPipeline
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,8 @@ class PlexSyncService @Inject constructor(
     private val plexSyncDao: PlexSyncDao,
     private val mediaItemDao: MediaItemDao,
     private val libraryDao: LibraryDao,
-    private val authService: PlexAuthService
+    private val authService: PlexAuthService,
+    private val ingestionPipeline: IngestionPipeline
 ) {
 
     companion object {
@@ -102,31 +104,38 @@ class PlexSyncService @Inject constructor(
         return try {
             _syncStatus.value = PlexSyncStatus.Syncing("Syncing ${server.name}...")
 
-            val api = getPlexApi(server.host, server.port)
-
-            // Test connection
-            val serverInfo = api.getServerInfo(server.token)
-            if (!serverInfo.isSuccessful) {
-                throw Exception("Cannot connect to ${server.name}")
-            }
-
-            // Update last connected
-            plexServerDao.updateLastConnected(server.serverId, System.currentTimeMillis())
-
-            // Sync libraries and media items
-            syncMediaItems(server, api)
-
-            // Sync progress
-            syncProgress(server, api)
-
-            // Sync ratings
-            syncRatings(server, api)
-
-            // Sync collections
-            syncCollections(server, api)
-
-            // Update last synced
-            plexServerDao.updateLastSynced(server.serverId, System.currentTimeMillis())
+            ingestionPipeline.execute(
+                sourceId = "plex:${server.machineIdentifier}",
+                authenticate = {
+                    val api = getPlexApi(server.host, server.port)
+                    val serverInfo = api.getServerInfo(server.token)
+                    if (!serverInfo.isSuccessful) {
+                        throw Exception("Cannot connect to ${server.name}")
+                    }
+                    plexServerDao.updateLastConnected(server.serverId, System.currentTimeMillis())
+                    api
+                },
+                fetchPage = { api, _ ->
+                    syncMediaItems(server, api)
+                    api
+                },
+                parse = { api ->
+                    syncProgress(server, api)
+                    api
+                },
+                deduplicate = { api ->
+                    syncRatings(server, api)
+                    api
+                },
+                enrichMetadata = { api ->
+                    syncCollections(server, api)
+                    api
+                },
+                persist = {
+                    plexServerDao.updateLastSynced(server.serverId, System.currentTimeMillis())
+                },
+                nextIncrementalToken = { System.currentTimeMillis().toString() }
+            )
 
             Result.success(Unit)
         } catch (e: Exception) {

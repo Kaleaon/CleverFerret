@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.opds
 
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
 import com.universalmedialibrary.data.local.entity.OPDSCatalog
+import com.universalmedialibrary.services.ingestion.IngestionPipeline
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -17,7 +18,8 @@ import javax.inject.Singleton
 @Singleton
 class OPDSCatalogService @Inject constructor(
     private val catalogDao: OPDSCatalogDao,
-    private val opdsClient: OPDSClient
+    private val opdsClient: OPDSClient,
+    private val ingestionPipeline: IngestionPipeline
 ) {
 
     private val defaultCatalogs: List<OPDSCatalog> by lazy {
@@ -96,11 +98,23 @@ class OPDSCatalogService @Inject constructor(
     suspend fun browseCatalog(catalog: OPDSCatalog): Result<OPDSFeed> = withContext(Dispatchers.IO) {
         ensureDefaultCatalogs()
         runCatching {
-            val feed = opdsClient.fetchFeed(catalog.url)
-            if (catalog.id != 0L) {
-                catalogDao.updateLastAccessed(catalog.id, System.currentTimeMillis())
-            }
-            feed
+            ingestionPipeline.execute(
+                sourceId = "opds:${catalog.url.lowercase()}",
+                authenticate = { Unit },
+                fetchPage = { _, _ -> opdsClient.fetchFeed(catalog.url) },
+                parse = { it },
+                deduplicate = { feed ->
+                    feed.copy(entries = feed.entries.distinctBy { "${it.title}:${it.acquisitionLinks.firstOrNull()?.href.orEmpty()}" })
+                },
+                enrichMetadata = { it },
+                persist = { feed ->
+                    if (catalog.id != 0L) {
+                        catalogDao.updateLastAccessed(catalog.id, System.currentTimeMillis())
+                    }
+                    feed
+                },
+                nextIncrementalToken = { System.currentTimeMillis().toString() }
+            ).result
         }
     }
 
@@ -114,12 +128,34 @@ class OPDSCatalogService @Inject constructor(
 
         runCatching {
             val searchUrl = opdsClient.buildSearchUrl(catalog.searchUrl!!, query)
-            opdsClient.fetchFeed(searchUrl)
+            ingestionPipeline.execute(
+                sourceId = "opds-search:${catalog.url.lowercase()}",
+                authenticate = { Unit },
+                fetchPage = { _, _ -> opdsClient.fetchFeed(searchUrl) },
+                parse = { it },
+                deduplicate = { feed ->
+                    feed.copy(entries = feed.entries.distinctBy { "${it.title}:${it.acquisitionLinks.firstOrNull()?.href.orEmpty()}" })
+                },
+                enrichMetadata = { it },
+                persist = { it },
+                nextIncrementalToken = { System.currentTimeMillis().toString() }
+            ).result
         }
     }
 
     suspend fun fetchUrl(url: String): OPDSFeed = withContext(Dispatchers.IO) {
-        opdsClient.fetchFeed(url)
+        ingestionPipeline.execute(
+            sourceId = "opds-direct:${url.lowercase()}",
+            authenticate = { Unit },
+            fetchPage = { _, _ -> opdsClient.fetchFeed(url) },
+            parse = { it },
+            deduplicate = { feed ->
+                feed.copy(entries = feed.entries.distinctBy { "${it.title}:${it.acquisitionLinks.firstOrNull()?.href.orEmpty()}" })
+            },
+            enrichMetadata = { it },
+            persist = { it },
+            nextIncrementalToken = { System.currentTimeMillis().toString() }
+        ).result
     }
 
     fun getAllCatalogs(): Flow<List<OPDSCatalog>> {

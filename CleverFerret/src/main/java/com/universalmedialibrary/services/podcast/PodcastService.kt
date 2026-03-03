@@ -28,6 +28,7 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 import com.universalmedialibrary.utils.FileNameSanitizer
+import com.universalmedialibrary.services.ingestion.IngestionPipeline
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -302,7 +303,8 @@ class PodcastService @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
     private val podcastRepository: com.universalmedialibrary.data.repository.podcast.PodcastRepository,
     private val applePodcastsApi: ApplePodcastsApi,
-    private val fileNameSanitizer: FileNameSanitizer
+    private val fileNameSanitizer: FileNameSanitizer,
+    private val ingestionPipeline: IngestionPipeline
 ) {
 
     private val httpClient = OkHttpClient.Builder().build()
@@ -374,70 +376,29 @@ class PodcastService @Inject constructor(
         apiKeys: Map<String, String> = emptyMap()
     ): List<PodcastSearchResult> {
         return withContext(Dispatchers.IO) {
-            val resolvedApiKeys = if (apiKeys.isEmpty()) {
-                loadStoredPodcastApiKeys()
-            } else {
-                apiKeys
-            }
-            val podcastIndexCredentials = parsePodcastIndexCredentials(resolvedApiKeys)
-            val allResults = mutableListOf<PodcastSearchResult>()
+            ingestionPipeline.execute(
+                sourceId = "podcast:directory-search",
+                authenticate = {
+                    if (apiKeys.isEmpty()) loadStoredPodcastApiKeys() else apiKeys
+                },
+                fetchPage = { resolvedApiKeys, _ ->
+                    val podcastIndexCredentials = parsePodcastIndexCredentials(resolvedApiKeys)
+                    val allResults = mutableListOf<PodcastSearchResult>()
 
-            // 1. PodcastIndex.org (free, no key required)
-            try {
-                val podcastIndexResults = searchPodcastIndex(query, podcastIndexCredentials)
-                allResults.addAll(podcastIndexResults)
-            } catch (e: Exception) {
-                // Continue with other sources
-            }
-
-            // 2. iTunes/Apple Podcasts (free, largest directory)
-            try {
-                val iTunesResults = searchiTunesPodcasts(query)
-                allResults.addAll(iTunesResults)
-            } catch (e: Exception) {
-                // Continue with other sources
-            }
-
-            // 3. Listen Notes (requires API key, most comprehensive)
-            try {
-                resolvedApiKeys["listen_notes"]?.let { key ->
-                    val listenNotesResults = searchListenNotes(query, key)
-                    allResults.addAll(listenNotesResults)
-                }
-            } catch (e: Exception) {
-                // Continue with other sources
-            }
-
-            // 4. Spotify (requires OAuth token)
-            try {
-                resolvedApiKeys["spotify_token"]?.let { token ->
-                    val spotifyResults = searchSpotifyPodcasts(query, token)
-                    allResults.addAll(spotifyResults)
-                }
-            } catch (e: Exception) {
-                // Continue with other sources
-            }
-
-            // 5. Taddy (requires API key, has webhooks)
-            try {
-                resolvedApiKeys["taddy"]?.let { key ->
-                    val taddyResults = searchTaddyPodcasts(query, key)
-                    allResults.addAll(taddyResults)
-                }
-            } catch (e: Exception) {
-                // Continue with other sources
-            }
-
-            // 6. gpodder.net (open directory with community stats)
-            try {
-                val gpodderResults = searchGPodderPodcasts(query)
-                allResults.addAll(gpodderResults)
-            } catch (e: Exception) {
-                // Continue with other sources
-            }
-
-            // Remove duplicates based on feed URL and title similarity
-            deduplicatePodcastResults(allResults)
+                    try { allResults.addAll(searchPodcastIndex(query, podcastIndexCredentials)) } catch (_: Exception) {}
+                    try { allResults.addAll(searchiTunesPodcasts(query)) } catch (_: Exception) {}
+                    try { resolvedApiKeys["listen_notes"]?.let { allResults.addAll(searchListenNotes(query, it)) } } catch (_: Exception) {}
+                    try { resolvedApiKeys["spotify_token"]?.let { allResults.addAll(searchSpotifyPodcasts(query, it)) } } catch (_: Exception) {}
+                    try { resolvedApiKeys["taddy"]?.let { allResults.addAll(searchTaddyPodcasts(query, it)) } } catch (_: Exception) {}
+                    try { allResults.addAll(searchGPodderPodcasts(query)) } catch (_: Exception) {}
+                    allResults
+                },
+                parse = { it },
+                deduplicate = { results -> deduplicatePodcastResults(results) },
+                enrichMetadata = { results -> results.sortedBy { it.title.lowercase(Locale.US) } },
+                persist = { it },
+                nextIncrementalToken = { System.currentTimeMillis().toString() }
+            ).result
         }
     }
 
