@@ -8,12 +8,8 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.universalmedialibrary.R
+import com.universalmedialibrary.jobs.WorkScheduler
 import com.universalmedialibrary.services.manga.library.MangaLibraryRepository
 import com.universalmedialibrary.services.manga.source.MangaChapter
 import com.universalmedialibrary.services.manga.source.MangaSourceService
@@ -30,7 +26,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -57,7 +52,6 @@ class MangaUpdateService @Inject constructor(
     
     companion object {
         private const val TAG = "MangaUpdateService"
-        private const val WORK_NAME = "manga_update_check"
         private const val NOTIFICATION_CHANNEL_ID = "manga_updates"
         private const val NOTIFICATION_GROUP = "com.universalmedialibrary.MANGA_UPDATES"
     }
@@ -83,22 +77,7 @@ class MangaUpdateService @Inject constructor(
      * Schedule periodic update checks
      */
     fun scheduleUpdateChecks(intervalHours: Long = 6) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-        
-        val workRequest = PeriodicWorkRequestBuilder<MangaUpdateWorker>(
-            intervalHours, TimeUnit.HOURS
-        )
-            .setConstraints(constraints)
-            .build()
-        
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
-            workRequest
-        )
-        
+        WorkScheduler.scheduleWebFictionUpdateScan(context, intervalHours)
         Log.d(TAG, "Scheduled update checks every $intervalHours hours")
     }
     
@@ -106,7 +85,7 @@ class MangaUpdateService @Inject constructor(
      * Cancel scheduled update checks
      */
     fun cancelUpdateChecks() {
-        WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
+        WorkScheduler.cancelWebFictionUpdateScan(context)
     }
     
     /**

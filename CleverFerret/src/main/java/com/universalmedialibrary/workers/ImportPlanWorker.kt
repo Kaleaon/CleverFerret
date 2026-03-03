@@ -10,6 +10,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.universalmedialibrary.jobs.JobContractType
+import com.universalmedialibrary.jobs.JobExecutionState
+import com.universalmedialibrary.jobs.JobStatusBus
+import com.universalmedialibrary.jobs.JobStatusEvent
 import com.universalmedialibrary.utils.ErrorLogger
 import com.universalmedialibrary.services.ImportPlan
 import com.universalmedialibrary.services.ImportSortOptions
@@ -80,6 +84,15 @@ class ImportPlanWorker(
 
         val startIndex = runCatching { stateFile.readText().trim().toInt() }.getOrNull()?.coerceAtLeast(0) ?: 0
 
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.ONE_OFF_IMPORT,
+                state = JobExecutionState.RUNNING,
+                jobId = id.toString(),
+                message = "Import execution started"
+            )
+        )
+
         setForeground(createForegroundInfo("Starting import…"))
 
         val storageService = EntryPointAccessors.fromApplication(
@@ -100,6 +113,14 @@ class ImportPlanWorker(
                 if (msg != lastForegroundMsg && (now - lastForegroundUpdateMs) >= 400) {
                     lastForegroundMsg = msg
                     lastForegroundUpdateMs = now
+                    JobStatusBus.publish(
+                        JobStatusEvent(
+                            contractType = JobContractType.ONE_OFF_IMPORT,
+                            state = JobExecutionState.PROGRESS,
+                            jobId = id.toString(),
+                            message = msg
+                        )
+                    )
                     setForegroundAsync(createForegroundInfo(msg))
                 }
             },
@@ -111,6 +132,16 @@ class ImportPlanWorker(
                 }.onFailure { e ->
                     ErrorLogger.logWarning("ImportPlanWorker", "Checkpoint save failed at index $idx", e)
                 }
+                JobStatusBus.publish(
+                    JobStatusEvent(
+                        contractType = JobContractType.ONE_OFF_IMPORT,
+                        state = JobExecutionState.PROGRESS,
+                        jobId = id.toString(),
+                        message = "Import checkpoint",
+                        progress = idx + 1,
+                        total = plan.items.size
+                    )
+                )
                 setProgressAsync(workDataOf("index" to idx, "total" to plan.items.size))
             }
         )
@@ -119,9 +150,39 @@ class ImportPlanWorker(
         if (result.errors == 0) runCatching { stateFile.delete() }
 
         when {
-            result.errors == 0 -> Result.success()
-            runAttemptCount < 3 -> Result.retry()
-            else -> Result.failure(workDataOf("errors" to result.errors))
+            result.errors == 0 -> {
+                JobStatusBus.publish(
+                    JobStatusEvent(
+                        contractType = JobContractType.ONE_OFF_IMPORT,
+                        state = JobExecutionState.SUCCEEDED,
+                        jobId = id.toString(),
+                        message = "Import completed successfully"
+                    )
+                )
+                Result.success()
+            }
+            runAttemptCount < 3 -> {
+                JobStatusBus.publish(
+                    JobStatusEvent(
+                        contractType = JobContractType.ONE_OFF_IMPORT,
+                        state = JobExecutionState.FAILED,
+                        jobId = id.toString(),
+                        message = "Import failed, retrying"
+                    )
+                )
+                Result.retry()
+            }
+            else -> {
+                JobStatusBus.publish(
+                    JobStatusEvent(
+                        contractType = JobContractType.ONE_OFF_IMPORT,
+                        state = JobExecutionState.FAILED,
+                        jobId = id.toString(),
+                        message = "Import failed permanently"
+                    )
+                )
+                Result.failure(workDataOf("errors" to result.errors))
+            }
         }
     }
 
