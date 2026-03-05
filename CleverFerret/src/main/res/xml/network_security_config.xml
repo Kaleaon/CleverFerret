@@ -21,12 +21,9 @@
     
     <!-- Allow cleartext traffic only for specific domains -->
     <domain-config cleartextTrafficPermitted="true">
-        <!-- Local network access (for local servers, development) -->
+        <!-- Loopback access for the internal OpdsServer -->
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>
-        <domain includeSubdomains="true">10.0.0.0/8</domain>
-        <domain includeSubdomains="true">192.168.0.0/16</domain>
-        <domain includeSubdomains="true">172.16.0.0/12</domain>
         
         <!-- Add specific domains that require HTTP (if any) -->
         <!-- Example: <domain includeSubdomains="true">example.com</domain> -->
