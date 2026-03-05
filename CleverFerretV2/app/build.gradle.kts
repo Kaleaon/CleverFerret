@@ -9,7 +9,7 @@ java {
 }
 
 application {
-    mainClass.set("com.cleverferret.v2.app.Main")
+    mainClass.set("com.cleverferret.v2.app.MainKt")
 }
 
 dependencies {
