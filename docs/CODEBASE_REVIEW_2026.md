@@ -68,6 +68,27 @@ Full codebase review of the CleverFerret Universal Media Library Android app.
     - Added `if (e is CancellationException) throw e` to catch blocks inside `viewModelScope.launch` and similar coroutine contexts
     - Files fixed: `MediaItemDetailViewModel.kt`, `MediaPlaybackWidgetService.kt`, `UserLibraryBackupService.kt`, `SettingsBackupService.kt`, `ImportExportRepository.kt`, `MetadataFetchRepository.kt`, `AppUpgradeManager.kt`
 
+### MediaType Enum Consolidation
+
+13. **Added missing `STORY` value** to canonical `data/MediaType.kt` enum
+    - Used as string `"STORY"` in 10+ files for web fiction/fanfiction content
+    - Added display name and icon
+
+14. **Added `IMAGE`, `VIDEO`, `AUDIO` values** to canonical `data/MediaType.kt`
+    - Migrated from the duplicate enum in `UnifiedMediaModel.kt`
+
+15. **Removed dead `lastViewed` property** from `MediaItem.kt`
+    - Computed property that always returned null with zero external usages
+
+16. **Removed dead `ApiProvider` and `MediaType` enum** from `data/settings/ApiSettings.kt`
+    - `ApiProvider` was shadowed by the newer version in `api/plugin/MultiPurposeApiSystem.kt`
+    - The local `MediaType` enum (BOOKS, COMICS, AUDIOBOOKS, MOVIES_TV, MUSIC) was only used by the dead `ApiProvider`
+
+17. **Replaced duplicate `MediaType` enum** in `data/models/UnifiedMediaModel.kt`
+    - Removed local 12-value `MediaType` enum with `displayName`/`extensions` properties
+    - Now imports canonical `data.MediaType` instead
+    - Updated `fromString()` call to use `MediaType.valueOf()` with `UNKNOWN` fallback
+
 ---
 
 ## Remaining Recommendations (Not Addressed)
@@ -123,13 +144,7 @@ Full codebase review of the CleverFerret Universal Media Library Android app.
 
 ### Additional Findings
 
-**Dead Computed Properties in `MediaItem.kt`**: Several properties always return null:
-```kotlin
-val creator: String? get() = null
-val rating: Float? get() = null
-val lastViewed: Long? get() = null
-```
-These should either be removed or populated from metadata tables via a `MediaItemWithMetadata` wrapper.
+**Dead Computed Properties in `MediaItem.kt`**: Several properties always return null (`creator`, `rating`, `contentRating`, `author`, `duration`). `lastViewed` was removed (zero usages). The remaining properties are referenced by 10-20+ files and should be populated from metadata tables via a `MediaItemWithMetadata` wrapper rather than deleted.
 
 **Multiple Overlapping Metadata Services**: `MetadataService`, `EnhancedMetadataService`, `ComprehensiveMetadataService`, and `MetadataApiService` have unclear responsibilities and potential duplicate logic. Consider consolidating with a strategy pattern.
 
@@ -137,4 +152,6 @@ These should either be removed or populated from metadata tables via a `MediaIte
 
 **`@Suppress("unused")` on Injected Dependencies**: Several ViewModels have `@Suppress("unused")` on constructor-injected dependencies (e.g., `radioStationDao` in `HDRadioViewModel`). These should be removed if truly unused.
 
-**String-Based Media Types**: `MediaItem.mediaType` is a `String` instead of an enum. Recommend creating a `MediaType` enum for type safety across the codebase.
+**String-Based Media Types**: `MediaItem.mediaType` is a `String` instead of the `MediaType` enum. The canonical enum now exists at `data/MediaType.kt` with 34 values. Recommend migrating `MediaItem.mediaType` from `String` to the enum type for compile-time safety.
+
+**Duplicate `ApiProvider` in `MultiPurposeApiSystem.kt`**: The `api/plugin/` package defines its own `ApiProvider` data class, separate from the now-removed one in `ApiSettings.kt`. Consider whether this should be the single source of truth or if additional consolidation is needed.
