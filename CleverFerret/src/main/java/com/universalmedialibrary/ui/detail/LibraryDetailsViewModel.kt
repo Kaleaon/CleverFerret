@@ -1,4 +1,4 @@
-package com.universalmedialibrary.ui.details
+package com.universalmedialibrary.ui.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

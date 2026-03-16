@@ -4,6 +4,7 @@ import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.services.metadata.RealMetadataService
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -99,6 +100,7 @@ class MetadataFetchRepository @Inject constructor(
                 metadata = updatedMetadata
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             MetadataFetchResult.Error(e.message ?: "Failed to fetch metadata")
         }
     }
@@ -171,6 +173,7 @@ class MetadataFetchRepository @Inject constructor(
                 metadata = updatedMetadata
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             MetadataFetchResult.Error(e.message ?: "Failed to fetch metadata")
         }
     }
@@ -241,6 +244,7 @@ class MetadataFetchRepository @Inject constructor(
                 metadata = updatedMetadata
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             MetadataFetchResult.Error(e.message ?: "Failed to fetch metadata")
         }
     }

@@ -15,6 +15,7 @@ import com.universalmedialibrary.data.local.entity.ApiSettingsEntity
 import com.universalmedialibrary.data.local.entity.GeneralSettingsEntity
 import com.universalmedialibrary.data.local.entity.SecuritySettingsEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -101,9 +102,10 @@ class SettingsBackupService @Inject constructor(
             context.contentResolver.openOutputStream(outputUri)?.use { output ->
                 output.write(jsonString.toByteArray())
             } ?: return@withContext Result.failure(Exception("Failed to open output stream"))
-            
+
             Result.success("Backup exported successfully to ${outputUri.lastPathSegment}")
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -115,17 +117,18 @@ class SettingsBackupService @Inject constructor(
         try {
             val backup = createBackup()
             val jsonString = json.encodeToString(backup)
-            
+
             val backupDir = File(context.getExternalFilesDir(null), "backups")
             backupDir.mkdirs()
-            
+
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
             val backupFile = File(backupDir, "cleverferret_backup_$timestamp.json")
-            
+
             backupFile.writeText(jsonString)
-            
+
             Result.success(backupFile)
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -142,9 +145,10 @@ class SettingsBackupService @Inject constructor(
             val backup = json.decodeFromString<SettingsBackup>(jsonString)
             
             restoreBackup(backup)
-            
+
             Result.success("Backup restored successfully")
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -330,6 +334,7 @@ class SettingsBackupService @Inject constructor(
                 Result.failure(Exception("Failed to delete backup"))
             }
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.failure(e)
         }
     }

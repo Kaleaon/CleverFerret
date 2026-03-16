@@ -1,4 +1,4 @@
-package com.universalmedialibrary.ui.details
+package com.universalmedialibrary.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

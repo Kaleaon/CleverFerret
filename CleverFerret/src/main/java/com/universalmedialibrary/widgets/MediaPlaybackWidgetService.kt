@@ -8,6 +8,7 @@ import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.artwork.ArtworkLoader
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -74,6 +75,7 @@ class MediaPlaybackWidgetService @Inject constructor(
                     try {
                         database.mediaItemDao().getMediaItemById(queueItem.mediaItemId)
                     } catch (e: Exception) {
+                        if (e is CancellationException) throw e
                         Log.e(TAG, "Failed to load media item", e)
                         null
                     }
@@ -143,12 +145,14 @@ class MediaPlaybackWidgetService @Inject constructor(
                         
                         Log.d(TAG, "Artwork saved and URI updated for: ${mediaItem.fileName}")
                     } catch (e: Exception) {
+                        if (e is CancellationException) throw e
                         Log.e(TAG, "Failed to save artwork to cache: ${e.message}", e)
                     }
                 } else {
                     Log.d(TAG, "No artwork available for: ${mediaItem.fileName}")
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(TAG, "Error loading artwork for widget", e)
             }
         }
@@ -182,6 +186,7 @@ class MediaPlaybackWidgetService @Inject constructor(
                 queueManager.skipToNext()
                 Log.d(TAG, "Skipped to next track")
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(TAG, "Failed to skip to next", e)
             }
         }
@@ -197,6 +202,7 @@ class MediaPlaybackWidgetService @Inject constructor(
                 queueManager.skipToPrevious()
                 Log.d(TAG, "Skipped to previous track")
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(TAG, "Failed to skip to previous", e)
             }
         }
