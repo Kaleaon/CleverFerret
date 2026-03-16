@@ -105,3 +105,36 @@ Full codebase review of the CleverFerret Universal Media Library Android app.
 **`ThemePalette` Typealias**: Used by 31 files via `typealias ThemePalette = CleverFerretTheme`. Consider a bulk rename to use `CleverFerretTheme` directly and remove the alias.
 
 **Broad Exception Catching**: Beyond the coroutine-specific fixes applied, there are additional `catch (e: Exception)` blocks in non-coroutine contexts that could be narrowed to specific exception types for better error handling.
+
+---
+
+## Architecture Scorecard
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| Architecture | 8/10 | Good MVVM layering, proper Hilt DI, Repository pattern |
+| Type Safety | 7/10 | Good nullable handling, but `mediaType` uses String instead of enum |
+| Error Handling | 6/10 | Too many generic catch blocks, silent failures in metadata services |
+| Code Duplication | 6/10 | DAO query duplication, multiple metadata service variants |
+| Naming Conventions | 8/10 | Generally consistent PascalCase/camelCase |
+| Testing | 5/10 | Tests exist but ~2.5% coverage ratio |
+| Security | 8/10 | AppLogger redacts tokens, proper secret management, HTTPS enforced |
+| Documentation | 8/10 | 45+ docs files, well-organized |
+
+### Additional Findings
+
+**Dead Computed Properties in `MediaItem.kt`**: Several properties always return null:
+```kotlin
+val creator: String? get() = null
+val rating: Float? get() = null
+val lastViewed: Long? get() = null
+```
+These should either be removed or populated from metadata tables via a `MediaItemWithMetadata` wrapper.
+
+**Multiple Overlapping Metadata Services**: `MetadataService`, `EnhancedMetadataService`, `ComprehensiveMetadataService`, and `MetadataApiService` have unclear responsibilities and potential duplicate logic. Consider consolidating with a strategy pattern.
+
+**Mutable State in Services**: `AudioPlaybackManager` uses manual `synchronized` locks on mutable lists. Consider replacing with `Mutex` from `kotlinx.coroutines` for safer coroutine-compatible locking.
+
+**`@Suppress("unused")` on Injected Dependencies**: Several ViewModels have `@Suppress("unused")` on constructor-injected dependencies (e.g., `radioStationDao` in `HDRadioViewModel`). These should be removed if truly unused.
+
+**String-Based Media Types**: `MediaItem.mediaType` is a `String` instead of an enum. Recommend creating a `MediaType` enum for type safety across the codebase.
