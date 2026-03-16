@@ -1,4 +1,4 @@
-package com.universalmedialibrary.data.model
+package com.universalmedialibrary.data.models
 
 /**
  * Data class representing a search result

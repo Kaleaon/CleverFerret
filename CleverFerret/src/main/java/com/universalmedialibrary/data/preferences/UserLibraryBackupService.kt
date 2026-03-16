@@ -5,6 +5,7 @@ import android.util.Log
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.*
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -84,6 +85,7 @@ class UserLibraryBackupService @Inject constructor(
             
             backupFile.absolutePath
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e(TAG, "Failed to create automatic backup: ${e.message}", e)
             null
         }
@@ -107,6 +109,7 @@ class UserLibraryBackupService @Inject constructor(
             Log.i(TAG, "Library exported to: $exportPath")
             true
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e(TAG, "Failed to export library: ${e.message}", e)
             false
         }
@@ -147,6 +150,7 @@ class UserLibraryBackupService @Inject constructor(
                     database.mediaItemDao().insertMediaItem(item)
                     itemsRestored++
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Failed to restore media item: ${item.fileName}", e)
                 }
             }
@@ -156,6 +160,7 @@ class UserLibraryBackupService @Inject constructor(
                 try {
                     database.metadataDao().insertMetadataCommon(meta)
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Failed to restore metadata", e)
                 }
             }
@@ -166,6 +171,7 @@ class UserLibraryBackupService @Inject constructor(
                     database.readingProgressDao().insertProgress(progress)
                     progressRestored++
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Failed to restore reading progress", e)
                 }
             }
@@ -175,6 +181,7 @@ class UserLibraryBackupService @Inject constructor(
                 try {
                     database.bookmarkDao().insertBookmark(bookmark)
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Failed to restore bookmark", e)
                 }
             }
@@ -184,6 +191,7 @@ class UserLibraryBackupService @Inject constructor(
                 try {
                     database.playlistDao().insertPlaylist(playlist)
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Failed to restore playlist", e)
                 }
             }
@@ -193,6 +201,7 @@ class UserLibraryBackupService @Inject constructor(
                 try {
                     database.comicPanelDao().insertReadingSession(session)
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Failed to restore reading session", e)
                 }
             }
@@ -202,6 +211,7 @@ class UserLibraryBackupService @Inject constructor(
                 try {
                     database.comicPanelDao().insertPanel(panel)
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Failed to restore comic panel", e)
                 }
             }
@@ -210,6 +220,7 @@ class UserLibraryBackupService @Inject constructor(
                 try {
                     database.comicPanelDao().insertTranslation(translation)
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Failed to restore comic translation", e)
                 }
             }
@@ -228,6 +239,7 @@ class UserLibraryBackupService @Inject constructor(
                 preferencesRestored = preferencesRestored
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e(TAG, "Failed to restore from backup: ${e.message}", e)
             RestoreResult.Error(e.message ?: "Unknown error")
         }

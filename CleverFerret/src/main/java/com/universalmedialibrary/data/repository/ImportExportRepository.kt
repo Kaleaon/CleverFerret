@@ -4,6 +4,7 @@ import android.content.Context
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -113,6 +114,7 @@ class ImportExportRepository @Inject constructor(
                 fileSize = file.length()
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             ExportResult.Error(e.message ?: "Export failed")
         }
     }
@@ -152,6 +154,7 @@ class ImportExportRepository @Inject constructor(
                         }
                     }
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     errors++
                 }
             }
@@ -176,6 +179,7 @@ class ImportExportRepository @Inject constructor(
                         skippedItems++
                     }
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     errors++
                 }
             }
@@ -188,6 +192,7 @@ class ImportExportRepository @Inject constructor(
                         metadataDao.insertMetadataCommon(metadata.copy(itemId = newItemId))
                     }
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     // Continue on metadata errors
                 }
             }
@@ -200,6 +205,7 @@ class ImportExportRepository @Inject constructor(
                         readingProgressDao.upsert(progress.copy(itemId = newItemId))
                     }
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     // Continue on progress errors
                 }
             }
@@ -212,6 +218,7 @@ class ImportExportRepository @Inject constructor(
                         bookmarkDao.insertBookmark(bookmark.copy(itemId = newItemId))
                     }
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     // Continue on bookmark errors
                 }
             }
@@ -221,6 +228,7 @@ class ImportExportRepository @Inject constructor(
                 try {
                     collectionDao.insert(collection)
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     // Continue on collection errors
                 }
             }
@@ -231,6 +239,7 @@ class ImportExportRepository @Inject constructor(
                 errors = errors
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             ImportResult.Error(e.message ?: "Import failed")
         }
     }
@@ -294,6 +303,7 @@ class ImportExportRepository @Inject constructor(
                 fileSize = file.length()
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             ExportResult.Error(e.message ?: "CSV export failed")
         }
     }
@@ -326,6 +336,7 @@ class ImportExportRepository @Inject constructor(
             val file = File(filePath)
             file.delete()
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             false
         }
     }

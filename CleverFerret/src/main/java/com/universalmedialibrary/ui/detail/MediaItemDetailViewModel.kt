@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -74,6 +75,7 @@ class MediaItemDetailViewModel @Inject constructor(
                     isFavorite = mediaItem.isFavorite || metadata?.isFavorite == true
                 )
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Unknown error occurred"
@@ -97,6 +99,7 @@ class MediaItemDetailViewModel @Inject constructor(
                     metadata = _uiState.value.metadata?.copy(isFavorite = newFavoriteState)
                 )
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 // Handle error
             }
         }
@@ -131,6 +134,7 @@ class MediaItemDetailViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 _uiState.value = _uiState.value.copy(
                     isFetchingMetadata = false,
                     metadataFetchError = e.message ?: "Failed to fetch metadata"
@@ -157,6 +161,7 @@ class MediaItemDetailViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(availableCollections = collections)
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 // Silently fail for collections
             }
         }
@@ -180,6 +185,7 @@ class MediaItemDetailViewModel @Inject constructor(
                     addToCollectionSuccess = "Added to collection"
                 )
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 _uiState.value = _uiState.value.copy(
                     addToCollectionError = e.message ?: "Failed to add to collection"
                 )
@@ -219,6 +225,7 @@ class MediaItemDetailViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 _uiState.value = _uiState.value.copy(
                     isSuggestingTags = false,
                     tagSuggestionError = e.message ?: "Failed to suggest tags"
@@ -240,6 +247,7 @@ class MediaItemDetailViewModel @Inject constructor(
                     suggestedTags = emptyList() // Clear suggestions after saving
                 )
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 _uiState.value = _uiState.value.copy(
                     tagSuggestionError = e.message ?: "Failed to save tags"
                 )

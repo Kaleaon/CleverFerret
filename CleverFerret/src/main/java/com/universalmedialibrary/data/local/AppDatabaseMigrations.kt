@@ -13,19 +13,21 @@ object AppDatabaseMigrations {
     
     /**
      * Migration from version 20 to 21
+     * No-op: version bump only, no schema changes.
      */
     val MIGRATION_20_21 = object : Migration(20, 21) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            // Add any schema changes for version 21
+            // No schema changes — version bump only
         }
     }
-    
+
     /**
      * Migration from version 21 to 22
+     * No-op: version bump only, no schema changes.
      */
     val MIGRATION_21_22 = object : Migration(21, 22) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            // Add any schema changes for version 22
+            // No schema changes — version bump only
         }
     }
     

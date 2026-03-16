@@ -1,0 +1,107 @@
+# CleverFerret Codebase Review — March 2026
+
+## Overview
+
+Full codebase review of the CleverFerret Universal Media Library Android app.
+- **Scope:** 1,004 Kotlin source files, 288,006 lines of code
+- **Architecture:** Single-module Android app with MVVM + Repository pattern, Hilt DI, Jetpack Compose UI, Room database
+
+## Changes Applied in This Review
+
+### Critical Bug Fixes
+
+1. **`APIKeyRepository.kt` — Redundant validation condition**
+   - `validationStatus = if (keyValue.isBlank()) "UNKNOWN" else "UNKNOWN"` — both branches returned the same value
+   - Fixed: non-blank keys now get `"PENDING_VALIDATION"` status
+
+2. **`APIKeyRepository.kt` — Category mismatch**
+   - `setGeminiApiKey()` used category `"AI"` while `initializeDefaultAPIKeys()` used `"AI_SERVICES"` for the same provider
+   - Fixed: unified to `"AI_SERVICES"`
+
+3. **`APIKeyRepository.kt` — False `@Deprecated` annotation**
+   - `getGeminiApiKey()` was marked deprecated but is actively used by 12+ files
+   - Fixed: removed the incorrect deprecation
+
+### Dead Code Removal
+
+4. **Deleted 4 unused API settings files** (unreferenced in navigation):
+   - `ui/settings/ApiSettingsScreen.kt` (lowercase variant)
+   - `ui/settings/ApiSettingsViewModel.kt`
+   - `ui/settings/APIKeysManagerScreen.kt`
+   - `ui/settings/APIKeysViewModel.kt`
+
+5. **Deleted 2 unused UI component files:**
+   - `ui/components/EnhancedButtons.kt` — zero imports anywhere
+   - `ui/components/EnhancedMediaCard.kt` — zero imports, duplicate `EnhancedMediaCard` name collision with `EnhancedCards.kt`
+
+6. **Deleted unused `PlexTheme.kt`** — legacy `MediaTheme` function with zero callers
+
+7. **Removed unused `FloatingSettingsButton`** from `MediaMainActivity.kt` — deprecated composable with zero callers
+
+### Structural Cleanup
+
+8. **Merged `data/model/` into `data/models/`**
+   - Moved `SearchResult.kt` to `data/models/`
+   - Updated imports in `PDFSearchEngine.kt` and `PDFSearchDialog.kt`
+   - Eliminated confusing duplicate directory
+
+9. **Merged `ui/details/` into `ui/detail/`**
+   - Moved `BookDetailsScreen.kt`, `BookDetailsViewModel.kt`, `LibraryDetailsViewModel.kt`
+   - Updated package declarations
+
+10. **Documented empty database migrations**
+    - `MIGRATION_20_21` and `MIGRATION_21_22` had unexplained empty bodies
+    - Added documentation clarifying these are intentional no-op version bumps
+
+### Code Quality
+
+11. **Extracted 7 co-located ViewModels** from Screen files into separate files:
+    - `OldTimeRadioScreen.kt` -> `OldTimeRadioViewModel.kt`
+    - `InternetRadioScreen.kt` -> `InternetRadioViewModel.kt`
+    - `EnhancedRadioScreen.kt` -> `EnhancedRadioViewModel.kt`
+    - `HDRadioScreen.kt` -> `HDRadioViewModel.kt`
+    - `VisualizerScreen.kt` -> `VisualizerViewModel.kt`
+    - `PresetBrowserScreen.kt` -> `PresetBrowserViewModel.kt`
+    - `AudioPackImportScreen.kt` -> `AudioPackImportViewModel.kt`
+
+12. **Fixed `CancellationException` swallowing** in coroutine scopes
+    - Added `if (e is CancellationException) throw e` to catch blocks inside `viewModelScope.launch` and similar coroutine contexts
+    - Files fixed: `MediaItemDetailViewModel.kt`, `MediaPlaybackWidgetService.kt`, `UserLibraryBackupService.kt`, `SettingsBackupService.kt`, `ImportExportRepository.kt`, `MetadataFetchRepository.kt`, `AppUpgradeManager.kt`
+
+---
+
+## Remaining Recommendations (Not Addressed)
+
+### High Priority
+
+**Test Coverage**: Only 25 unit tests for 1,004 source files (~2.5% coverage). Priority targets:
+- `StorageAccessService` (1,853 lines, core file scanning logic)
+- `APIKeyRepository` (key management, validation)
+- All ViewModels with business logic
+- Database migrations
+
+**Transitional ViewModels in `SupportingViewModels.kt`**: Three `@Deprecated` transitional ViewModels (`TransitionalRadioViewModel`, `TransitionalWebFictionViewModel`, `TransitionalNewsViewModel`) are still referenced in `MediaAppNavigation.kt`. These should be replaced with their canonical counterparts.
+
+### Medium Priority
+
+**Large File Decomposition**: 149 files exceed 500 lines. Top candidates for splitting:
+- `MediaHomeScreen.kt` (2,214 lines) — extract hero carousel, section composables
+- `MediaAppNavigation.kt` (2,117 lines) — split by feature area
+- `StorageAccessService.kt` (1,853 lines) — split into scanning, importing, permissions
+- `SettingsScreen.kt` (1,425 lines) — already has SettingsSubPages, continue splitting
+
+**Modularization**: The V2 multi-module architecture (`CleverFerretV2/`) has API interfaces defined but no implementation migration. Continue migrating features into isolated Gradle modules for build performance and code isolation.
+
+**Component Library Consolidation**: While showcase screens use the various card/button variants, the naming is confusing:
+- 6 card files: `CommonCards`, `AdvancedCards`, `EnhancedCards`, `FilteredMediaCard`, `AncientArchitectCard`, `LibraryCard`
+- 3 button files: `AdvancedButtons`, `AncientArchitectButton` + `DesignTokens`
+- 3 navigation files: `MediaNavigationRail`, `AncientArchitectNavigationRail`, `ResponsiveNavigation`
+- Consider establishing a single design system with clear naming
+
+### Low Priority
+
+**Wildcard Imports**: `.editorconfig` disables the `no-wildcard-imports` ktlint rule. Many files use `import androidx.compose.material3.*`. Consider enabling specific imports.
+
+**`ThemePalette` Typealias**: Used by 31 files via `typealias ThemePalette = CleverFerretTheme`. Consider a bulk rename to use `CleverFerretTheme` directly and remove the alias.
+
+**Broad Exception Catching**: Beyond the coroutine-specific fixes applied, there are additional `catch (e: Exception)` blocks in non-coroutine contexts that could be narrowed to specific exception types for better error handling.
