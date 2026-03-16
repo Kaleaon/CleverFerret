@@ -52,6 +52,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 - [ARCHITECTURE](ARCHITECTURE.md) - System architecture and design patterns
 - [THEMING](THEMING.md) - Theming system and customization
+- [App Organization (Piazza Comparison)](ARCHITECTURE.md#app-organization-piazza-comparison) - Layered structure guide
 
 ---
 
