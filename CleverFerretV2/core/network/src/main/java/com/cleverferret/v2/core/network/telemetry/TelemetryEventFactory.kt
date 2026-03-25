@@ -5,9 +5,28 @@ import com.cleverferret.v2.core.common.error.UserFacingState
 import java.time.Instant
 
 object TelemetryEventFactory {
-    fun success(eventName: String, integration: String, operation: String, requestId: String, attributes: Map<String, String>): TelemetryEvent =
-        TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, eventName, integration, operation, requestId, Instant.now(), true, null, null, attributes)
 
-    fun failure(eventName: String, integration: String, operation: String, requestId: String, error: AppError, state: UserFacingState, attributes: Map<String, String>): TelemetryEvent =
-        TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, eventName, integration, operation, requestId, Instant.now(), false, error::class.simpleName, state.name, attributes)
+    data class SuccessParams(
+        val eventName: String,
+        val integration: String,
+        val operation: String,
+        val requestId: String,
+        val attributes: Map<String, String>
+    )
+
+    data class FailureParams(
+        val eventName: String,
+        val integration: String,
+        val operation: String,
+        val requestId: String,
+        val error: AppError,
+        val state: UserFacingState,
+        val attributes: Map<String, String>
+    )
+
+    fun success(params: SuccessParams): TelemetryEvent =
+        TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, params.eventName, params.integration, params.operation, params.requestId, Instant.now(), true, null, null, params.attributes)
+
+    fun failure(params: FailureParams): TelemetryEvent =
+        TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, params.eventName, params.integration, params.operation, params.requestId, Instant.now(), false, params.error::class.simpleName, params.state.name, params.attributes)
 }
