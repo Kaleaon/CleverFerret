@@ -178,14 +178,11 @@ fun MediaAppNavHost(
             val viewModel: MediaHomeViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             val isRefreshing by viewModel.isRefreshing.collectAsState()
-            
-            MediaHomeScreen(
-                state = state,
-                isRefreshing = isRefreshing,
             val reduceMotionEnabled by viewModel.reduceMotionEnabled.collectAsState()
 
             MediaHomeScreen(
                 state = state,
+                isRefreshing = isRefreshing,
                 reduceMotionEnabled = reduceMotionEnabled,
                 onItemClick = { item ->
                     viewModel.clearLastOpenedCategory()
@@ -2022,14 +2019,11 @@ fun MediaAppNavHost(
             val viewModel: MediaHomeViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             val isRefreshing by viewModel.isRefreshing.collectAsState()
-            
-            MediaHomeScreen(
-                state = state,
-                isRefreshing = isRefreshing,
             val reduceMotionEnabled by viewModel.reduceMotionEnabled.collectAsState()
 
             MediaHomeScreen(
                 state = state,
+                isRefreshing = isRefreshing,
                 reduceMotionEnabled = reduceMotionEnabled,
                 onItemClick = { item ->
                     viewModel.clearLastOpenedCategory()

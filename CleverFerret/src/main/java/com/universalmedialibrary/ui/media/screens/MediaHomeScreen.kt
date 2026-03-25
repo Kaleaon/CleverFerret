@@ -500,7 +500,6 @@ fun MediaHomeScreen(
                     Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
                     QuickAccessGrid(
                         lastOpenedCategory = state.lastOpenedCategory,
-                        onCategoryClick = onQuickAccessCategoryClick
                         items = state.quickAccessItems,
                         onCategoryClick = onSeeAllClick,
                         onPreferencesChange = onQuickAccessPreferencesChange
@@ -1176,7 +1175,6 @@ private fun QuickAccessGrid(
 private fun QuickAccessFlowGrid(
     items: List<QuickAccessItem>,
     lastOpenedCategory: String?,
-    onCategoryClick: (String) -> Unit
     reorderMode: Boolean,
     onCategoryClick: (String) -> Unit,
     onEnableReorder: () -> Unit,
@@ -1254,7 +1252,7 @@ private fun QuickAccessCard(
         } else {
             null
         },
-        onClick = onClick
+        onClick = onClick,
         color = MaterialTheme.colorScheme.surface
     ) {
         Column(
@@ -1930,7 +1928,7 @@ data class MediaHomeState(
     val recentFanfiction: List<MediaItem> = emptyList(),
     val collections: List<HomeCollection> = emptyList(),
     val libraryStats: HomeLibraryStats = HomeLibraryStats(),
-    val lastOpenedCategory: String? = null
+    val lastOpenedCategory: String? = null,
     val quickAccessItems: List<QuickAccessItem> = defaultQuickAccessItems
 )
 
@@ -2211,4 +2209,24 @@ private fun QuickAccessSkeletonGrid(brush: Brush) {
             }
         }
     }
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
 }

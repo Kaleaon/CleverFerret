@@ -383,3 +383,7 @@ data class SettingsUiState(
     val bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default,
     val reduceMotion: Boolean = false
 )
+
+}
+
+}
