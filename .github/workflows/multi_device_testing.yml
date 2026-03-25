@@ -92,7 +92,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Run instrumentation tests
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v3
         with:
           api-level: ${{ matrix.config.api }}
           arch: ${{ matrix.config.arch }}
