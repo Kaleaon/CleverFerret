@@ -628,41 +628,15 @@ fun MediaAppNavHost(
         
         // Web Fiction with special tabbed view
         composable(MediaRoutes.WEB_FICTION) {
-            val viewModel: TransitionalWebFictionViewModel = hiltViewModel()
-            val state by viewModel.uiState.collectAsState()
-            
-            WebFictionScreen(
-                state = state,
-                onStoryClick = { story ->
-                    navController.navigate(MediaRoutes.mediaDetailRoute("webfiction", story.id))
-                },
-                onChapterClick = { chapter ->
-                    navController.navigate(MediaRoutes.readerRoute("webfiction", chapter.storyId))
-                },
-                onSourceClick = { source ->
-                    navController.navigate(MediaRoutes.webFictionBrowseRoute(source.id))
-                },
-                onRefresh = { viewModel.refresh() },
-                onAddByUrl = { /* Show add by URL dialog */ },
-                onBrowseSource = { source ->
-                    navController.navigate(MediaRoutes.webFictionBrowseRoute(source.id))
-                },
-                onBackClick = { navController.popBackStack() }
+            com.universalmedialibrary.ui.webfiction.WebFictionManagerScreen(
+                navController = navController
             )
         }
         
         // Radio screen
         composable(MediaRoutes.RADIO) {
-            val viewModel: TransitionalRadioViewModel = hiltViewModel()
-            val state by viewModel.uiState.collectAsState()
-            
-            RadioScreen(
-                state = state,
-                onStationClick = { station -> viewModel.playStation(station) },
-                onFavoriteToggle = { station -> viewModel.toggleFavorite(station) },
-                onCategoryClick = { category -> viewModel.selectCategory(category) },
-                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
-                onBackClick = { navController.popBackStack() }
+            com.universalmedialibrary.ui.radio.RadioScreen(
+                onBack = { navController.popBackStack() }
             )
         }
         
@@ -994,17 +968,11 @@ fun MediaAppNavHost(
         }
         
         composable(MediaRoutes.NEWS) {
-            val viewModel: TransitionalNewsViewModel = hiltViewModel()
-            val state by viewModel.uiState.collectAsState()
-            
-            NewsScreen(
-                state = state,
-                onArticleClick = { article ->
-                    navController.navigate(MediaRoutes.readerRoute("news", article.id))
-                },
-                onFeedSelect = { feed -> viewModel.selectFeed(feed) },
-                onRefresh = { viewModel.refresh() },
-                onBackClick = { navController.popBackStack() }
+            com.universalmedialibrary.ui.news.NewsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onOpenEpub = { path ->
+                    navController.navigate("epub_reader/${Uri.encode(path)}")
+                }
             )
         }
 
@@ -1679,26 +1647,8 @@ fun MediaAppNavHost(
         
         // Legacy browse/manager routes
         composable("webfiction_manager") {
-            val viewModel: TransitionalWebFictionViewModel = hiltViewModel()
-            val state by viewModel.uiState.collectAsState()
-            
-            WebFictionScreen(
-                state = state,
-                onStoryClick = { story ->
-                    navController.navigate(MediaRoutes.mediaDetailRoute("webfiction", story.id))
-                },
-                onChapterClick = { chapter ->
-                    navController.navigate(MediaRoutes.readerRoute("webfiction", chapter.storyId))
-                },
-                onSourceClick = { source ->
-                    navController.navigate(MediaRoutes.webFictionBrowseRoute(source.id))
-                },
-                onRefresh = { viewModel.refresh() },
-                onAddByUrl = { },
-                onBrowseSource = { source ->
-                    navController.navigate(MediaRoutes.webFictionBrowseRoute(source.id))
-                },
-                onBackClick = { navController.popBackStack() }
+            com.universalmedialibrary.ui.webfiction.WebFictionManagerScreen(
+                navController = navController
             )
         }
         
@@ -1875,16 +1825,8 @@ fun MediaAppNavHost(
         }
         
         composable("radio") {
-            val viewModel: TransitionalRadioViewModel = hiltViewModel()
-            val state by viewModel.uiState.collectAsState()
-            
-            RadioScreen(
-                state = state,
-                onStationClick = { station -> viewModel.playStation(station) },
-                onFavoriteToggle = { station -> viewModel.toggleFavorite(station) },
-                onCategoryClick = { category -> viewModel.selectCategory(category) },
-                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
-                onBackClick = { navController.popBackStack() }
+            com.universalmedialibrary.ui.radio.RadioScreen(
+                onBack = { navController.popBackStack() }
             )
         }
         
