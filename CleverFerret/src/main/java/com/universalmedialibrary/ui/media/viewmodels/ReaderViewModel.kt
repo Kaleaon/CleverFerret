@@ -17,6 +17,7 @@ import com.universalmedialibrary.services.reader.ReaderType
 import com.universalmedialibrary.services.reader.ComicReaderEngine
 import com.universalmedialibrary.services.reader.core.BookSource
 import com.universalmedialibrary.services.webfiction.WebFictionService
+import com.universalmedialibrary.services.epub.EpubChapter
 import com.universalmedialibrary.services.epub.EpubReaderService
 import com.universalmedialibrary.ui.media.player.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -175,7 +176,7 @@ class ReaderViewModel @Inject constructor(
                         val fallbackToc = readerType.service.extractToc(book.filePath)
                         val chapterList = epubState.chapters.ifEmpty {
                             fallbackToc.mapIndexed { index, item ->
-                                com.universalmedialibrary.services.epub.EpubChapter(
+                                EpubChapter(
                                     index = index,
                                     title = item.title,
                                     content = "",
@@ -200,7 +201,8 @@ class ReaderViewModel @Inject constructor(
                             )
                         }.ifEmpty { generateChaptersFromPageCount(10) }
 
-                        val initialContent = chapterContents.firstOrNull() ?: ReaderContent(text = "No EPUB content found.")
+                        val initialContent = chapterContents.firstOrNull()
+                            ?: ReaderContent(text = epubState.currentContent.ifBlank { "No EPUB content found." })
 
                         _uiState.update {
                             it.copy(
