@@ -34,7 +34,7 @@ class EPUBReaderViewModel @Inject constructor(
                         totalChapters = state.totalChapters,
                         error = state.error,
                         chapters = state.chapters.map { it.title },
-                        currentContent = epubReaderService.getCurrentChapterContent() ?: current.currentContent
+                        currentContent = state.currentContent.ifBlank { current.currentContent }
                     )
                 }
             }
@@ -73,7 +73,7 @@ class EPUBReaderViewModel @Inject constructor(
     }
 
     private fun updateContent() {
-        val content = epubReaderService.getCurrentChapterContent() ?: ""
+        val content = epubReaderService.readerState.value.currentContent
         _uiState.update { it.copy(currentContent = content) }
     }
 
