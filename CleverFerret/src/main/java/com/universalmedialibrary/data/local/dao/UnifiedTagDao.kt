@@ -176,13 +176,13 @@ interface UnifiedTagDao {
 
     // Get popular tags for a media type (via items)
     @Query("""
-        SELECT t.*, COUNT(DISTINCT it.itemId) as itemCount
+        SELECT t.*
         FROM unified_tags t
         INNER JOIN item_tags it ON t.tagId = it.tagId
         INNER JOIN media_items mi ON it.itemId = mi.itemId
         WHERE mi.mediaType = :mediaType
         GROUP BY t.tagId
-        ORDER BY itemCount DESC
+        ORDER BY COUNT(DISTINCT it.itemId) DESC
         LIMIT :limit
     """)
     suspend fun getPopularTagsForMediaType(mediaType: String, limit: Int = 10): List<UnifiedTag>
