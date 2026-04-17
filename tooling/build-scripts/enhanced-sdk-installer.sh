@@ -6,10 +6,15 @@
 
 set -e  # Exit on any error
 
+# Load canonical Android SDK version configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/android-sdk-versions.sh"
+
 # Configuration
 ANDROID_SDK_ROOT="${ANDROID_HOME:-/opt/android-sdk}"
-REQUIRED_BUILD_TOOLS="34.0.0"
-REQUIRED_PLATFORMS="android-34"
+REQUIRED_BUILD_TOOLS="$CF_BUILD_TOOLS_VERSION"
+REQUIRED_PLATFORMS="android-$CF_COMPILE_SDK"
 REQUIRED_CMAKE="3.22.1"
 
 # Color codes for output
@@ -156,18 +161,20 @@ install_sdk_components() {
     log_info "Installing required SDK components..."
     local SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
     
-    # List of components to install
-    local COMPONENTS=(
-        "platforms;$REQUIRED_PLATFORMS"
-        "build-tools;$REQUIRED_BUILD_TOOLS"
-        "platform-tools"
+    log_info "Installing core SDK packages with one sdkmanager command..."
+    "$SDKMANAGER" --install "platforms;$REQUIRED_PLATFORMS" "build-tools;$REQUIRED_BUILD_TOOLS" "platform-tools" >/dev/null 2>&1 || {
+        log_warning "Failed to install one or more core SDK packages"
+    }
+
+    # Additional components
+    local EXTRA_COMPONENTS=(
         "cmake;$REQUIRED_CMAKE"
         "ndk;26.1.10909125"  # Latest stable NDK
     )
-    
-    for component in "${COMPONENTS[@]}"; do
+
+    for component in "${EXTRA_COMPONENTS[@]}"; do
         log_info "Installing $component..."
-        "$SDKMANAGER" "$component" >/dev/null 2>&1 || {
+        "$SDKMANAGER" --install "$component" >/dev/null 2>&1 || {
             log_warning "Failed to install $component, continuing..."
         }
     done
