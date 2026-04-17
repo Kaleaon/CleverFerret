@@ -8,26 +8,14 @@ set -e
 echo "🚀 CleverFerret Build Environment Setup - Permanent Fix Edition"
 echo "=============================================================="
 
+# Load canonical Android SDK version configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/android-sdk-versions.sh"
+
 # Configuration with permanent fixes
-export BUILD_TOOLS_VERSION="33.0.2"
-export COMPILE_SDK_VERSION="34"
-
-# Auto-detect Android SDK location
-# Priority: 1) Pre-set ANDROID_HOME, 2) Workspace/container, 3) Standard Android Studio
-if [ -z "$ANDROID_HOME" ]; then
-    if [ -d "/workspace/android-sdk" ]; then
-        # Workspace/container environment
-        export ANDROID_HOME="/workspace/android-sdk"
-    elif [ -d "$HOME/Android/Sdk" ]; then
-        # Standard Android Studio location
-        export ANDROID_HOME="$HOME/Android/Sdk"
-    else
-        # Fallback to default path to let the build system provide a clear error
-        export ANDROID_HOME="$HOME/Android/Sdk"
-    fi
-fi
-
-export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export BUILD_TOOLS_VERSION="$CF_BUILD_TOOLS_VERSION"
+export COMPILE_SDK_VERSION="$CF_COMPILE_SDK"
 
 export JAVA_VERSION="17"
 export SETUP_TIMESTAMP="$(date +%Y%m%d%H%M%S)"
@@ -105,6 +93,50 @@ ensure_property() {
     fi
     printf "%s=%s\n" "$key" "$desired_value" >> "$file_path"
     log_info "Added $key=$desired_value to $file_path ($reason)"
+resolve_repo_root() {
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    cd "$script_dir/../.." && pwd
+}
+
+resolve_os_default_sdk() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "$HOME/Library/Android/sdk"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "${LOCALAPPDATA:-$HOME/AppData/Local}/Android/Sdk"
+    else
+        echo "$HOME/Android/Sdk"
+    fi
+}
+
+resolve_android_sdk_root() {
+    local repo_root os_default
+    repo_root="$(resolve_repo_root)"
+    os_default="$(resolve_os_default_sdk)"
+
+    if [ -n "$ANDROID_HOME" ]; then
+        echo "$ANDROID_HOME"
+    elif [ -n "$ANDROID_SDK_ROOT" ]; then
+        echo "$ANDROID_SDK_ROOT"
+    elif [ -d "$repo_root/android-sdk" ]; then
+        echo "$repo_root/android-sdk"
+    else
+        echo "$os_default"
+    fi
+}
+
+select_build_tools_version() {
+    local sdk_root="$1"
+    local preferred_version="$BUILD_TOOLS_VERSION"
+    local selected_version=""
+
+    if [ -d "$sdk_root/build-tools/$preferred_version" ]; then
+        selected_version="$preferred_version"
+    elif [ -d "$sdk_root/build-tools" ]; then
+        selected_version="$(ls -1 "$sdk_root/build-tools" 2>/dev/null | sort -V | tail -n1)"
+    fi
+
+    echo "${selected_version:-$preferred_version}"
 }
 
 # Detect operating system
@@ -194,14 +226,13 @@ install_android_sdk() {
     fi
     
     # Set up PATH
-    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+    SELECTED_BUILD_TOOLS_VERSION="$(select_build_tools_version "$ANDROID_HOME")"
+    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/$SELECTED_BUILD_TOOLS_VERSION:$PATH"
     
     # PERMANENT FIX: Install specific compatible versions
     log_info "Installing Android SDK components with permanent fixes..."
     
-    yes | sdkmanager --install "platforms;android-$COMPILE_SDK_VERSION" --sdk_root="$ANDROID_HOME"
-    yes | sdkmanager --install "build-tools;$BUILD_TOOLS_VERSION" --sdk_root="$ANDROID_HOME"
-    yes | sdkmanager --install "platform-tools" --sdk_root="$ANDROID_HOME"
+    yes | sdkmanager --install "platforms;android-$COMPILE_SDK_VERSION" "build-tools;$BUILD_TOOLS_VERSION" "platform-tools" --sdk_root="$ANDROID_HOME"
     
     # PERMANENT FIX: Ensure AAPT2 is executable
     if [ -f "$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/aapt2" ]; then
@@ -346,6 +377,10 @@ create_build_wrapper() {
 #!/bin/bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/tooling/build-scripts/android-sdk-versions.sh"
+
 echo "🔨 Building CleverFerret with Permanent Fixes"
 echo "============================================"
 
@@ -364,6 +399,58 @@ if [ -f "gradle.setup-generated.properties" ]; then
     done < "gradle.setup-generated.properties"
     echo "⚙️ Loaded setup overrides from gradle.setup-generated.properties"
 fi
+resolve_repo_root() {
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    cd "$script_dir/../.." && pwd
+}
+
+resolve_os_default_sdk() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "$HOME/Library/Android/sdk"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "${LOCALAPPDATA:-$HOME/AppData/Local}/Android/Sdk"
+    else
+        echo "$HOME/Android/Sdk"
+    fi
+}
+
+resolve_android_sdk_root() {
+    local repo_root os_default
+    repo_root="$(resolve_repo_root)"
+    os_default="$(resolve_os_default_sdk)"
+
+    if [ -n "$ANDROID_HOME" ]; then
+        echo "$ANDROID_HOME"
+    elif [ -n "$ANDROID_SDK_ROOT" ]; then
+        echo "$ANDROID_SDK_ROOT"
+    elif [ -d "$repo_root/android-sdk" ]; then
+        echo "$repo_root/android-sdk"
+    else
+        echo "$os_default"
+    fi
+}
+
+select_build_tools_version() {
+    local sdk_root="$1"
+    local preferred_version="33.0.2"
+    local selected_version=""
+
+    if [ -d "$sdk_root/build-tools/$preferred_version" ]; then
+        selected_version="$preferred_version"
+    elif [ -d "$sdk_root/build-tools" ]; then
+        selected_version="$(ls -1 "$sdk_root/build-tools" 2>/dev/null | sort -V | tail -n1)"
+    fi
+
+    echo "${selected_version:-$preferred_version}"
+}
+
+export ANDROID_HOME="$(resolve_android_sdk_root)"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+BUILD_TOOLS_VERSION="$(select_build_tools_version "$ANDROID_HOME")"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION:$PATH"
+echo "📍 Resolved Android SDK: $ANDROID_HOME"
+echo "🧰 Using build-tools: $BUILD_TOOLS_VERSION"
 
 # PERMANENT FIX: Use minimal dependencies for reliable build
 if [ -f "CleverFerret/build.gradle.kts.minimal" ]; then
@@ -371,6 +458,8 @@ if [ -f "CleverFerret/build.gradle.kts.minimal" ]; then
     cp CleverFerret/build.gradle.kts CleverFerret/build.gradle.kts.full 2>/dev/null || true
     cp CleverFerret/build.gradle.kts.minimal CleverFerret/build.gradle.kts
 fi
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION:$ANDROID_HOME/platform-tools:$PATH"
 
 # Clean build
 echo "🧹 Cleaning build environment..."
@@ -390,7 +479,8 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
     mkdir -p builds
     cp "$APK_PATH" "$SIGNED_APK"
     
-    "$ANDROID_HOME/build-tools/33.0.2/apksigner" sign \
+    "$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner" sign \
+    "$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION/apksigner" sign \
         --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android \
         "$SIGNED_APK"
     
@@ -400,12 +490,6 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
 else
     echo "❌ APK build failed"
     exit 1
-fi
-
-# Restore full dependencies
-if [ -f "CleverFerret/build.gradle.kts.full" ]; then
-    echo "🔄 Restoring full dependencies..."
-    cp CleverFerret/build.gradle.kts.full CleverFerret/build.gradle.kts
 fi
 
 echo "🎉 Build completed successfully!"
@@ -419,6 +503,10 @@ EOF
 main() {
     echo
     log_info "Starting CleverFerret build environment setup..."
+    export ANDROID_HOME="$(resolve_android_sdk_root)"
+    export ANDROID_SDK_ROOT="$ANDROID_HOME"
+    export SELECTED_BUILD_TOOLS_VERSION="$BUILD_TOOLS_VERSION"
+    log_info "Resolved Android SDK path: $ANDROID_HOME"
     echo
     
     detect_os
