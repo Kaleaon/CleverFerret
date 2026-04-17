@@ -8,13 +8,6 @@ echo "============================================"
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2:$ANDROID_HOME/platform-tools:$PATH"
 
-# PERMANENT FIX: Use minimal dependencies for reliable build
-if [ -f "CleverFerret/build.gradle.kts.minimal" ]; then
-    echo "📦 Using minimal dependencies for reliable build..."
-    cp CleverFerret/build.gradle.kts CleverFerret/build.gradle.kts.full 2>/dev/null || true
-    cp CleverFerret/build.gradle.kts.minimal CleverFerret/build.gradle.kts
-fi
-
 # Clean build
 echo "🧹 Cleaning build environment..."
 ./gradlew clean --no-daemon
@@ -43,12 +36,6 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
 else
     echo "❌ APK build failed"
     exit 1
-fi
-
-# Restore full dependencies
-if [ -f "CleverFerret/build.gradle.kts.full" ]; then
-    echo "🔄 Restoring full dependencies..."
-    cp CleverFerret/build.gradle.kts.full CleverFerret/build.gradle.kts
 fi
 
 echo "🎉 Build completed successfully!"
