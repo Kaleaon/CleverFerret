@@ -95,25 +95,13 @@ run_test "Build tools available" "[ -f '$ANDROID_HOME/build-tools/$CF_BUILD_TOOL
 log_info "3. Testing project structure..."
 run_test "Main module exists" "[ -d 'CleverFerret' ]"
 run_test "Build gradle exists" "[ -f 'CleverFerret/build.gradle.kts' ]"
-run_test "Minimal gradle exists" "[ -f 'CleverFerret/build.gradle.kts.minimal' ]"
 run_test "Android manifest exists" "[ -f 'CleverFerret/src/main/AndroidManifest.xml' ]"
 
 # AI-FRIENDLY: Test 4 - Dependency Resolution (lightweight test)
 log_info "4. Testing dependency resolution..."
-# Use minimal dependencies for faster testing
-if [ -f "CleverFerret/build.gradle.kts.minimal" ]; then
-    log_info "Using minimal dependencies for testing..."
-    cp CleverFerret/build.gradle.kts CleverFerret/build.gradle.kts.backup 2>/dev/null || true
-    cp CleverFerret/build.gradle.kts.minimal CleverFerret/build.gradle.kts
-fi
 
 run_test "Dependency resolution" "timeout 120s ./gradlew --no-daemon dependencies | head -10"
 run_test "Build tasks available" "./gradlew --no-daemon tasks | grep -q 'assembleDebug'"
-
-# Restore original build file
-if [ -f "CleverFerret/build.gradle.kts.backup" ]; then
-    mv CleverFerret/build.gradle.kts.backup CleverFerret/build.gradle.kts
-fi
 
 # AI-FRIENDLY: Test 5 - Signing Test
 log_info "5. Testing APK signing capability..."
@@ -153,7 +141,7 @@ if [ $TESTS_FAILED -eq 0 ]; then
     echo "All build system components are functioning properly."
     echo
     echo "📋 Next steps for AI:"
-    echo "1. Run full build: ./build_enhanced_permanent.sh"
+    echo "1. Run full build: ./tooling/build-scripts/build-cleverferret.sh"
     echo "2. Expected build time: 5-15 minutes"
     echo "3. Look for APK in builds/ directory"
     echo "4. APK should be ~17MB and properly signed"

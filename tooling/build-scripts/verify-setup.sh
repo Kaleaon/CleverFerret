@@ -109,8 +109,8 @@ run_test "gradle.properties has memory config" "grep -q \"Xmx6144m\" gradle.prop
 
 # AI-FRIENDLY: Test 6 - Build Scripts
 log_info "6. Checking build scripts..."
-run_test "Main build script exists" "[ -f \"build_enhanced_permanent.sh\" ]"
-run_test "Main build script executable" "[ -x \"build_enhanced_permanent.sh\" ]"
+run_test "Main build script exists" "[ -f \"tooling/build-scripts/build-cleverferret.sh\" ]"
+run_test "Main build script executable" "[ -x \"tooling/build-scripts/build-cleverferret.sh\" ]"
 run_test "Setup script exists" "[ -f \"tooling/build-scripts/setup-build-environment.sh\" ]"
 run_test "AI setup script exists" "[ -f \"tooling/build-scripts/ai-auto-setup.sh\" ]"
 
@@ -122,7 +122,6 @@ run_test "Debug keystore exists" "[ -f \"\$HOME/.android/debug.keystore\" ]"
 log_info "8. Checking project structure..."
 run_test "CleverFerret module exists" "[ -d \"CleverFerret\" ]"
 run_test "Main build.gradle.kts exists" "[ -f \"CleverFerret/build.gradle.kts\" ]"
-run_test "Minimal build.gradle.kts exists" "[ -f \"CleverFerret/build.gradle.kts.minimal\" ]"
 run_test "MainActivity.kt exists" "[ -f \"CleverFerret/src/main/java/com/universalmedialibrary/MainActivity.kt\" ]"
 
 # AI-FRIENDLY: Test 9 - System Resources  
@@ -161,7 +160,7 @@ if [ $TESTS_FAILED -eq 0 ]; then
     echo "Your CleverFerret build environment is properly configured."
     echo
     echo "📋 Next steps for AI:"
-    echo "1. Run: ./build_enhanced_permanent.sh"
+    echo "1. Run: ./tooling/build-scripts/build-cleverferret.sh"
     echo "2. Wait for build completion (5-15 minutes)"
     echo "3. Check builds/ directory for APK file"
     echo "4. Install APK on Android device for testing"

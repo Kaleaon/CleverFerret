@@ -356,7 +356,7 @@ make_scripts_executable() {
     
     # AI-FRIENDLY: List of scripts that need execute permissions
     local scripts=(
-        "build_enhanced_permanent.sh"
+        "tooling/build-scripts/build-cleverferret.sh"
         "tooling/build-scripts/setup-build-environment.sh"
         "tooling/build-scripts/ai-auto-setup.sh"
     )
@@ -429,7 +429,7 @@ main() {
         log_success "Ready to build enhanced CleverFerret APK!"
         echo
         echo "📋 Next Steps for AI:"
-        echo "1. Run: ./build_enhanced_permanent.sh"
+        echo "1. Run: ./tooling/build-scripts/build-cleverferret.sh"
         echo "2. Check: builds/ directory for APK"
         echo "3. Verify: APK installs on Android device"
         echo
