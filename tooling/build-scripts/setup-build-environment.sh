@@ -8,9 +8,14 @@ set -e
 echo "🚀 CleverFerret Build Environment Setup - Permanent Fix Edition"
 echo "=============================================================="
 
+# Load canonical Android SDK version configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/android-sdk-versions.sh"
+
 # Configuration with permanent fixes
-export BUILD_TOOLS_VERSION="33.0.2"
-export COMPILE_SDK_VERSION="34"
+export BUILD_TOOLS_VERSION="$CF_BUILD_TOOLS_VERSION"
+export COMPILE_SDK_VERSION="$CF_COMPILE_SDK"
 
 export JAVA_VERSION="17"
 
@@ -176,9 +181,7 @@ install_android_sdk() {
     # PERMANENT FIX: Install specific compatible versions
     log_info "Installing Android SDK components with permanent fixes..."
     
-    yes | sdkmanager --install "platforms;android-$COMPILE_SDK_VERSION" --sdk_root="$ANDROID_HOME"
-    yes | sdkmanager --install "build-tools;$BUILD_TOOLS_VERSION" --sdk_root="$ANDROID_HOME"
-    yes | sdkmanager --install "platform-tools" --sdk_root="$ANDROID_HOME"
+    yes | sdkmanager --install "platforms;android-$COMPILE_SDK_VERSION" "build-tools;$BUILD_TOOLS_VERSION" "platform-tools" --sdk_root="$ANDROID_HOME"
     
     # PERMANENT FIX: Ensure AAPT2 is executable
     if [ -f "$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/aapt2" ]; then
@@ -305,6 +308,10 @@ create_build_wrapper() {
 #!/bin/bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/tooling/build-scripts/android-sdk-versions.sh"
+
 echo "🔨 Building CleverFerret with Permanent Fixes"
 echo "============================================"
 
@@ -368,6 +375,8 @@ if [ -f "CleverFerret/build.gradle.kts.minimal" ]; then
     cp CleverFerret/build.gradle.kts CleverFerret/build.gradle.kts.full 2>/dev/null || true
     cp CleverFerret/build.gradle.kts.minimal CleverFerret/build.gradle.kts
 fi
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION:$ANDROID_HOME/platform-tools:$PATH"
 
 # Clean build
 echo "🧹 Cleaning build environment..."
@@ -388,6 +397,7 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
     cp "$APK_PATH" "$SIGNED_APK"
     
     "$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner" sign \
+    "$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION/apksigner" sign \
         --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android \
         "$SIGNED_APK"
     
@@ -397,12 +407,6 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
 else
     echo "❌ APK build failed"
     exit 1
-fi
-
-# Restore full dependencies
-if [ -f "CleverFerret/build.gradle.kts.full" ]; then
-    echo "🔄 Restoring full dependencies..."
-    cp CleverFerret/build.gradle.kts.full CleverFerret/build.gradle.kts
 fi
 
 echo "🎉 Build completed successfully!"

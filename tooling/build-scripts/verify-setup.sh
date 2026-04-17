@@ -18,6 +18,11 @@
 
 set -e
 
+# Load canonical Android SDK version configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/android-sdk-versions.sh"
+
 # AI-FRIENDLY: Color codes for clear output
 readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
@@ -149,6 +154,14 @@ run_test "AAPT2 working" "\"$RESOLVED_ANDROID_SDK_ROOT/build-tools/$RESOLVED_BUI
 log_info "4. Checking platform tools..."
 run_test "Platform 34 installed" "[ -d \"$RESOLVED_ANDROID_SDK_ROOT/platforms/android-34\" ]"
 run_test "Platform tools available" "[ -d \"$RESOLVED_ANDROID_SDK_ROOT/platform-tools\" ]"
+run_test "Build tools $CF_BUILD_TOOLS_VERSION installed" "[ -d \"/opt/android-sdk/build-tools/$CF_BUILD_TOOLS_VERSION\" ]"
+run_test "AAPT2 executable" "[ -x \"/opt/android-sdk/build-tools/$CF_BUILD_TOOLS_VERSION/aapt2\" ]"
+run_test "AAPT2 working" "/opt/android-sdk/build-tools/$CF_BUILD_TOOLS_VERSION/aapt2 version"
+
+# AI-FRIENDLY: Test 4 - Platform Tools
+log_info "4. Checking platform tools..."
+run_test "Platform $CF_COMPILE_SDK installed" "[ -d \"/opt/android-sdk/platforms/android-$CF_COMPILE_SDK\" ]"
+run_test "Platform tools available" "[ -d \"/opt/android-sdk/platform-tools\" ]"
 
 # AI-FRIENDLY: Test 5 - Configuration Files
 log_info "5. Checking configuration files..."
@@ -159,8 +172,8 @@ run_test "gradle.properties has memory config" "grep -q \"Xmx6144m\" gradle.prop
 
 # AI-FRIENDLY: Test 6 - Build Scripts
 log_info "6. Checking build scripts..."
-run_test "Main build script exists" "[ -f \"build_enhanced_permanent.sh\" ]"
-run_test "Main build script executable" "[ -x \"build_enhanced_permanent.sh\" ]"
+run_test "Main build script exists" "[ -f \"tooling/build-scripts/build-cleverferret.sh\" ]"
+run_test "Main build script executable" "[ -x \"tooling/build-scripts/build-cleverferret.sh\" ]"
 run_test "Setup script exists" "[ -f \"tooling/build-scripts/setup-build-environment.sh\" ]"
 run_test "AI setup script exists" "[ -f \"tooling/build-scripts/ai-auto-setup.sh\" ]"
 
@@ -172,7 +185,6 @@ run_test "Debug keystore exists" "[ -f \"\$HOME/.android/debug.keystore\" ]"
 log_info "8. Checking project structure..."
 run_test "CleverFerret module exists" "[ -d \"CleverFerret\" ]"
 run_test "Main build.gradle.kts exists" "[ -f \"CleverFerret/build.gradle.kts\" ]"
-run_test "Minimal build.gradle.kts exists" "[ -f \"CleverFerret/build.gradle.kts.minimal\" ]"
 run_test "MainActivity.kt exists" "[ -f \"CleverFerret/src/main/java/com/universalmedialibrary/MainActivity.kt\" ]"
 
 # AI-FRIENDLY: Test 9 - System Resources  
@@ -195,6 +207,7 @@ run_test "Disk space available" "df . | awk 'NR==2 {exit (\$4<2000000) ? 1 : 0}'
 log_info "10. Checking environment variables..."
 run_test "ANDROID_HOME in PATH" "echo \$PATH | grep -q \$ANDROID_HOME"
 run_test "Build tools in PATH" "echo \$PATH | grep -q \"build-tools/$RESOLVED_BUILD_TOOLS_VERSION\""
+run_test "Build tools in PATH" "echo \$PATH | grep -q \"build-tools/$CF_BUILD_TOOLS_VERSION\""
 
 echo
 echo "📊 VERIFICATION SUMMARY"
@@ -211,7 +224,7 @@ if [ $TESTS_FAILED -eq 0 ]; then
     echo "Your CleverFerret build environment is properly configured."
     echo
     echo "📋 Next steps for AI:"
-    echo "1. Run: ./build_enhanced_permanent.sh"
+    echo "1. Run: ./tooling/build-scripts/build-cleverferret.sh"
     echo "2. Wait for build completion (5-15 minutes)"
     echo "3. Check builds/ directory for APK file"
     echo "4. Install APK on Android device for testing"

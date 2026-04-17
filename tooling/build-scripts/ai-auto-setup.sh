@@ -24,6 +24,11 @@
 
 set -e  # Exit on any error for AI error handling
 
+# Load canonical Android SDK version configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/android-sdk-versions.sh"
+
 # AI-FRIENDLY: Color codes for clear output interpretation
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -52,6 +57,9 @@ log_error() {
 readonly REQUIRED_JAVA_VERSION="17"
 readonly BUILD_TOOLS_VERSION="33.0.2"
 readonly ANDROID_COMPILE_SDK="34"
+readonly ANDROID_SDK_PATH="/opt/android-sdk"
+readonly BUILD_TOOLS_VERSION="$CF_BUILD_TOOLS_VERSION"
+readonly ANDROID_COMPILE_SDK="$CF_COMPILE_SDK"
 readonly PROJECT_ROOT="$(pwd)"
 
 resolve_os_default_sdk() {
@@ -217,24 +225,9 @@ install_android_sdk() {
     # AI-FRIENDLY: Install required SDK components with progress logging
     log_info "Installing Android SDK components..."
     
-    # Install platforms
-    log_info "Installing Android platform $ANDROID_COMPILE_SDK..."
-    if ! yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-$ANDROID_COMPILE_SDK" --sdk_root="$ANDROID_HOME"; then
-        log_error "Failed to install Android platform"
-        exit 1
-    fi
-    
-    # Install build tools (CRITICAL: Version 33.0.2 for compatibility)
-    log_info "Installing build tools $BUILD_TOOLS_VERSION (compatible version)..."
-    if ! yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "build-tools;$BUILD_TOOLS_VERSION" --sdk_root="$ANDROID_HOME"; then
-        log_error "Failed to install build tools"
-        exit 1
-    fi
-    
-    # Install platform tools
-    log_info "Installing platform tools..."
-    if ! yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platform-tools" --sdk_root="$ANDROID_HOME"; then
-        log_error "Failed to install platform tools"
+    log_info "Installing SDK packages (platforms;android-$ANDROID_COMPILE_SDK, build-tools;$BUILD_TOOLS_VERSION, platform-tools)..."
+    if ! yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-$ANDROID_COMPILE_SDK" "build-tools;$BUILD_TOOLS_VERSION" "platform-tools" --sdk_root="$ANDROID_HOME"; then
+        log_error "Failed to install required SDK packages"
         exit 1
     fi
     
@@ -404,7 +397,7 @@ make_scripts_executable() {
     
     # AI-FRIENDLY: List of scripts that need execute permissions
     local scripts=(
-        "build_enhanced_permanent.sh"
+        "tooling/build-scripts/build-cleverferret.sh"
         "tooling/build-scripts/setup-build-environment.sh"
         "tooling/build-scripts/ai-auto-setup.sh"
     )
@@ -480,7 +473,7 @@ main() {
         log_success "Ready to build enhanced CleverFerret APK!"
         echo
         echo "📋 Next Steps for AI:"
-        echo "1. Run: ./build_enhanced_permanent.sh"
+        echo "1. Run: ./tooling/build-scripts/build-cleverferret.sh"
         echo "2. Check: builds/ directory for APK"
         echo "3. Verify: APK installs on Android device"
         echo
