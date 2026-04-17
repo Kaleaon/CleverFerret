@@ -46,6 +46,52 @@ log_error() {
 TESTS_PASSED=0
 TESTS_FAILED=0
 
+resolve_repo_root() {
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    cd "$script_dir/../.." && pwd
+}
+
+resolve_os_default_sdk() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "$HOME/Library/Android/sdk"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "${LOCALAPPDATA:-$HOME/AppData/Local}/Android/Sdk"
+    else
+        echo "$HOME/Android/Sdk"
+    fi
+}
+
+resolve_android_sdk_root() {
+    local repo_root os_default
+    repo_root="$(resolve_repo_root)"
+    os_default="$(resolve_os_default_sdk)"
+
+    if [ -n "$ANDROID_HOME" ]; then
+        echo "$ANDROID_HOME"
+    elif [ -n "$ANDROID_SDK_ROOT" ]; then
+        echo "$ANDROID_SDK_ROOT"
+    elif [ -d "$repo_root/android-sdk" ]; then
+        echo "$repo_root/android-sdk"
+    else
+        echo "$os_default"
+    fi
+}
+
+select_build_tools_version() {
+    local sdk_root="$1"
+    local preferred_version="33.0.2"
+    local selected_version=""
+
+    if [ -d "$sdk_root/build-tools/$preferred_version" ]; then
+        selected_version="$preferred_version"
+    elif [ -d "$sdk_root/build-tools" ]; then
+        selected_version="$(ls -1 "$sdk_root/build-tools" 2>/dev/null | sort -V | tail -n1)"
+    fi
+
+    echo "${selected_version:-$preferred_version}"
+}
+
 # AI-FRIENDLY: Test execution function
 run_test() {
     local test_name="$1"
@@ -73,6 +119,15 @@ echo "🔍 CleverFerret Build Environment Verification"
 echo "=============================================="
 echo
 
+RESOLVED_ANDROID_SDK_ROOT="$(resolve_android_sdk_root)"
+RESOLVED_BUILD_TOOLS_VERSION="$(select_build_tools_version "$RESOLVED_ANDROID_SDK_ROOT")"
+export ANDROID_HOME="$RESOLVED_ANDROID_SDK_ROOT"
+export ANDROID_SDK_ROOT="$RESOLVED_ANDROID_SDK_ROOT"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/$RESOLVED_BUILD_TOOLS_VERSION:$PATH"
+
+log_info "Resolved Android SDK root: $RESOLVED_ANDROID_SDK_ROOT"
+log_info "Resolved build-tools version: $RESOLVED_BUILD_TOOLS_VERSION"
+
 # AI-FRIENDLY: Test 1 - Java Installation
 log_info "1. Checking Java installation..."
 run_test "Java 17 installed" "java -version 2>&1 | grep -q '17'"
@@ -81,19 +136,19 @@ run_test "Java executable available" "command -v java"
 # AI-FRIENDLY: Test 2 - Android SDK
 log_info "2. Checking Android SDK..."
 run_test "ANDROID_HOME set" "[ -n \"\$ANDROID_HOME\" ]"
-run_test "Android SDK directory exists" "[ -d \"/opt/android-sdk\" ]"
-run_test "Command line tools available" "[ -f \"/opt/android-sdk/cmdline-tools/latest/bin/sdkmanager\" ]"
+run_test "Android SDK directory exists" "[ -d \"$RESOLVED_ANDROID_SDK_ROOT\" ]"
+run_test "Command line tools available" "[ -f \"$RESOLVED_ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager\" ]"
 
 # AI-FRIENDLY: Test 3 - Build Tools  
 log_info "3. Checking build tools..."
-run_test "Build tools 33.0.2 installed" "[ -d \"/opt/android-sdk/build-tools/33.0.2\" ]"
-run_test "AAPT2 executable" "[ -x \"/opt/android-sdk/build-tools/33.0.2/aapt2\" ]"
-run_test "AAPT2 working" "/opt/android-sdk/build-tools/33.0.2/aapt2 version"
+run_test "Build tools $RESOLVED_BUILD_TOOLS_VERSION installed" "[ -d \"$RESOLVED_ANDROID_SDK_ROOT/build-tools/$RESOLVED_BUILD_TOOLS_VERSION\" ]"
+run_test "AAPT2 executable" "[ -x \"$RESOLVED_ANDROID_SDK_ROOT/build-tools/$RESOLVED_BUILD_TOOLS_VERSION/aapt2\" ]"
+run_test "AAPT2 working" "\"$RESOLVED_ANDROID_SDK_ROOT/build-tools/$RESOLVED_BUILD_TOOLS_VERSION/aapt2\" version"
 
 # AI-FRIENDLY: Test 4 - Platform Tools
 log_info "4. Checking platform tools..."
-run_test "Platform 34 installed" "[ -d \"/opt/android-sdk/platforms/android-34\" ]"
-run_test "Platform tools available" "[ -d \"/opt/android-sdk/platform-tools\" ]"
+run_test "Platform 34 installed" "[ -d \"$RESOLVED_ANDROID_SDK_ROOT/platforms/android-34\" ]"
+run_test "Platform tools available" "[ -d \"$RESOLVED_ANDROID_SDK_ROOT/platform-tools\" ]"
 
 # AI-FRIENDLY: Test 5 - Configuration Files
 log_info "5. Checking configuration files..."
@@ -139,7 +194,7 @@ run_test "Disk space available" "df . | awk 'NR==2 {exit (\$4<2000000) ? 1 : 0}'
 # AI-FRIENDLY: Test 10 - Environment Variables
 log_info "10. Checking environment variables..."
 run_test "ANDROID_HOME in PATH" "echo \$PATH | grep -q \$ANDROID_HOME"
-run_test "Build tools in PATH" "echo \$PATH | grep -q \"build-tools/33.0.2\""
+run_test "Build tools in PATH" "echo \$PATH | grep -q \"build-tools/$RESOLVED_BUILD_TOOLS_VERSION\""
 
 echo
 echo "📊 VERIFICATION SUMMARY"
@@ -173,8 +228,8 @@ else
     echo "📋 Recommended fixes for AI:"
     echo "1. Re-run setup: ./tooling/build-scripts/ai-auto-setup.sh"
     echo "2. Check error messages above for specific issues"
-    echo "3. Ensure internet connection and sufficient disk space"
-    echo "4. Verify system permissions"
+    echo "3. Confirm SDK path is valid: $RESOLVED_ANDROID_SDK_ROOT"
+    echo "4. Ensure internet connection, sufficient disk space, and permissions"
     echo
     echo "❌ Verification failed"
     exit 1

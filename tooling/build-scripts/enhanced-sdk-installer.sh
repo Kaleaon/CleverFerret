@@ -7,7 +7,6 @@
 set -e  # Exit on any error
 
 # Configuration
-ANDROID_SDK_ROOT="${ANDROID_HOME:-/opt/android-sdk}"
 REQUIRED_BUILD_TOOLS="34.0.0"
 REQUIRED_PLATFORMS="android-34"
 REQUIRED_CMAKE="3.22.1"
@@ -24,6 +23,48 @@ log_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
 log_success() { echo -e "${GREEN}✅ $1${NC}"; }
 log_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
 log_error() { echo -e "${RED}❌ $1${NC}"; }
+
+resolve_repo_root() {
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    cd "$script_dir/../.." && pwd
+}
+
+resolve_os_default_sdk() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "$HOME/Library/Android/sdk"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "${LOCALAPPDATA:-$HOME/AppData/Local}/Android/Sdk"
+    else
+        echo "$HOME/Android/Sdk"
+    fi
+}
+
+resolve_android_sdk_root() {
+    local repo_root os_default
+    repo_root="$(resolve_repo_root)"
+    os_default="$(resolve_os_default_sdk)"
+
+    if [ -n "$ANDROID_HOME" ]; then
+        echo "$ANDROID_HOME"
+    elif [ -n "$ANDROID_SDK_ROOT" ]; then
+        echo "$ANDROID_SDK_ROOT"
+    elif [ -d "$repo_root/android-sdk" ]; then
+        echo "$repo_root/android-sdk"
+    else
+        echo "$os_default"
+    fi
+}
+
+select_build_tools_version() {
+    if [ -d "$ANDROID_SDK_ROOT/build-tools/$REQUIRED_BUILD_TOOLS" ]; then
+        SELECTED_BUILD_TOOLS="$REQUIRED_BUILD_TOOLS"
+    elif [ -d "$ANDROID_SDK_ROOT/build-tools" ]; then
+        SELECTED_BUILD_TOOLS="$(ls -1 "$ANDROID_SDK_ROOT/build-tools" 2>/dev/null | sort -V | tail -n1)"
+    fi
+
+    SELECTED_BUILD_TOOLS="${SELECTED_BUILD_TOOLS:-$REQUIRED_BUILD_TOOLS}"
+}
 
 # Platform detection
 detect_platform() {
@@ -199,17 +240,18 @@ verify_installation() {
 # Set up environment variables
 setup_environment() {
     log_info "Setting up environment variables..."
+    select_build_tools_version
     
     export ANDROID_HOME="$ANDROID_SDK_ROOT"
     export ANDROID_SDK_ROOT="$ANDROID_SDK_ROOT"
-    export PATH="$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+    export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/$SELECTED_BUILD_TOOLS:$PATH"
     
     # Create environment file for future use
     cat > /tmp/android_env.sh << EOF
 # Android SDK Environment Variables
 export ANDROID_HOME="$ANDROID_SDK_ROOT"
 export ANDROID_SDK_ROOT="$ANDROID_SDK_ROOT"
-export PATH="\$ANDROID_SDK_ROOT/platform-tools:\$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:\$PATH"
+export PATH="\$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:\$ANDROID_SDK_ROOT/platform-tools:\$ANDROID_SDK_ROOT/build-tools/$SELECTED_BUILD_TOOLS:\$PATH"
 EOF
     
     log_info "Environment variables set. Source /tmp/android_env.sh in your shell profile."
@@ -218,6 +260,8 @@ EOF
 
 # Main installation function
 main() {
+    ANDROID_SDK_ROOT="$(resolve_android_sdk_root)"
+
     log_info "🚀 Starting CleverFerret Enhanced SDK Installation"
     log_info "Platform: $(detect_platform)"
     log_info "SDK Root: $ANDROID_SDK_ROOT"

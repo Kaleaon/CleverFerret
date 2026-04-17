@@ -50,10 +50,47 @@ log_error() {
 
 # AI-FRIENDLY: Configuration constants that AI can easily understand
 readonly REQUIRED_JAVA_VERSION="17"
-readonly ANDROID_SDK_PATH="/opt/android-sdk"
 readonly BUILD_TOOLS_VERSION="33.0.2"
 readonly ANDROID_COMPILE_SDK="34"
 readonly PROJECT_ROOT="$(pwd)"
+
+resolve_os_default_sdk() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "$HOME/Library/Android/sdk"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "${LOCALAPPDATA:-$HOME/AppData/Local}/Android/Sdk"
+    else
+        echo "$HOME/Android/Sdk"
+    fi
+}
+
+resolve_android_sdk_root() {
+    local os_default
+    os_default="$(resolve_os_default_sdk)"
+
+    if [ -n "$ANDROID_HOME" ]; then
+        echo "$ANDROID_HOME"
+    elif [ -n "$ANDROID_SDK_ROOT" ]; then
+        echo "$ANDROID_SDK_ROOT"
+    elif [ -d "$PROJECT_ROOT/android-sdk" ]; then
+        echo "$PROJECT_ROOT/android-sdk"
+    else
+        echo "$os_default"
+    fi
+}
+
+select_build_tools_version() {
+    local sdk_root="$1"
+    local selected_version=""
+
+    if [ -d "$sdk_root/build-tools/$BUILD_TOOLS_VERSION" ]; then
+        selected_version="$BUILD_TOOLS_VERSION"
+    elif [ -d "$sdk_root/build-tools" ]; then
+        selected_version="$(ls -1 "$sdk_root/build-tools" 2>/dev/null | sort -V | tail -n1)"
+    fi
+
+    echo "${selected_version:-$BUILD_TOOLS_VERSION}"
+}
 
 # AI-FRIENDLY: Platform detection with clear logic
 detect_platform() {
@@ -123,18 +160,17 @@ install_java() {
 
 # AI-FRIENDLY: Android SDK installation with step-by-step logging
 install_android_sdk() {
-    log_info "Setting up Android SDK at $ANDROID_SDK_PATH..."
+    log_info "Setting up Android SDK at $RESOLVED_ANDROID_SDK_ROOT..."
     
     # AI-FRIENDLY: Check if SDK already exists
-    if [ -d "$ANDROID_SDK_PATH" ] && [ -f "$ANDROID_SDK_PATH/cmdline-tools/latest/bin/sdkmanager" ]; then
+    if [ -d "$RESOLVED_ANDROID_SDK_ROOT" ] && [ -f "$RESOLVED_ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
         log_success "Android SDK already installed"
     else
         log_info "Creating Android SDK directory..."
-        sudo mkdir -p "$ANDROID_SDK_PATH"
-        sudo chown -R $(whoami):$(whoami) "$ANDROID_SDK_PATH"
+        mkdir -p "$RESOLVED_ANDROID_SDK_ROOT"
         
         log_info "Downloading Android Command Line Tools..."
-        cd "$ANDROID_SDK_PATH"
+        cd "$RESOLVED_ANDROID_SDK_ROOT"
         
         # AI-FRIENDLY: Platform-specific download URLs
         case $PLATFORM in
@@ -173,9 +209,10 @@ install_android_sdk() {
     
     # AI-FRIENDLY: Set environment variables with clear logging
     log_info "Configuring environment variables..."
-    export ANDROID_HOME="$ANDROID_SDK_PATH"
-    export ANDROID_SDK_ROOT="$ANDROID_SDK_PATH"
-    export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION:$ANDROID_HOME/platform-tools"
+    export ANDROID_HOME="$RESOLVED_ANDROID_SDK_ROOT"
+    export ANDROID_SDK_ROOT="$RESOLVED_ANDROID_SDK_ROOT"
+    SELECTED_BUILD_TOOLS_VERSION="$(select_build_tools_version "$ANDROID_HOME")"
+    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/$SELECTED_BUILD_TOOLS_VERSION:$PATH"
     
     # AI-FRIENDLY: Install required SDK components with progress logging
     log_info "Installing Android SDK components..."
@@ -203,7 +240,8 @@ install_android_sdk() {
     
     # AI-FRIENDLY: Ensure AAPT2 is executable (critical for builds)
     log_info "Making build tools executable..."
-    chmod +x "$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION"/* 2>/dev/null || true
+    SELECTED_BUILD_TOOLS_VERSION="$(select_build_tools_version "$ANDROID_HOME")"
+    chmod +x "$ANDROID_HOME/build-tools/$SELECTED_BUILD_TOOLS_VERSION"/* 2>/dev/null || true
     
     log_success "Android SDK setup completed"
 }
@@ -390,10 +428,10 @@ create_environment_file() {
 # CleverFerret Environment Setup
 # Source this file to set up environment variables
 
-export ANDROID_HOME="$ANDROID_SDK_PATH"
-export ANDROID_SDK_ROOT="$ANDROID_SDK_PATH"
+export ANDROID_HOME="$RESOLVED_ANDROID_SDK_ROOT"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
 export JAVA_HOME=\${JAVA_HOME:-\$(readlink -f /usr/bin/java | sed "s:bin/java::")}
-export PATH="\$PATH:\$ANDROID_HOME/cmdline-tools/latest/bin:\$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION:\$ANDROID_HOME/platform-tools"
+export PATH="\$ANDROID_HOME/cmdline-tools/latest/bin:\$ANDROID_HOME/platform-tools:\$ANDROID_HOME/build-tools/$SELECTED_BUILD_TOOLS_VERSION:\$PATH"
 
 echo "✅ CleverFerret environment variables set"
 echo "ANDROID_HOME: \$ANDROID_HOME"
@@ -419,6 +457,9 @@ main() {
     
     # AI-FRIENDLY: Execute setup steps with error handling
     detect_platform
+    RESOLVED_ANDROID_SDK_ROOT="$(resolve_android_sdk_root)"
+    SELECTED_BUILD_TOOLS_VERSION="$BUILD_TOOLS_VERSION"
+    log_info "Resolved Android SDK path: $RESOLVED_ANDROID_SDK_ROOT"
     install_java
     install_android_sdk
     create_build_configuration
@@ -432,8 +473,8 @@ main() {
         echo "🎉 CleverFerret Setup Completed Successfully!"
         echo "============================================"
         log_success "Java 17: Available"
-        log_success "Android SDK: Installed at $ANDROID_SDK_PATH"
-        log_success "Build Tools: $BUILD_TOOLS_VERSION (Compatible)"
+        log_success "Android SDK: Installed at $RESOLVED_ANDROID_SDK_ROOT"
+        log_success "Build Tools: $SELECTED_BUILD_TOOLS_VERSION"
         log_success "Environment: Configured"
         log_success "Scripts: Executable"
         log_success "Ready to build enhanced CleverFerret APK!"
@@ -455,8 +496,9 @@ main() {
         echo "🔧 Troubleshooting:"
         echo "1. Ensure internet connection is available"
         echo "2. Check available disk space (need ~2GB)"
-        echo "3. Verify system permissions"
-        echo "4. Retry with: ./tooling/build-scripts/ai-auto-setup.sh"
+        echo "3. Verify SDK path: $RESOLVED_ANDROID_SDK_ROOT"
+        echo "4. Verify system permissions"
+        echo "5. Retry with: ./tooling/build-scripts/ai-auto-setup.sh"
         echo
         echo "❌ Setup failed"
         exit 1
