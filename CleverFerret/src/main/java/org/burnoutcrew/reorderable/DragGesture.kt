@@ -45,7 +45,7 @@ internal suspend fun AwaitPointerEventScope.awaitPointerSlopOrCancellation(
         return null // The pointer has already been lifted, so the gesture is canceled
     }
     var offset = Offset.Zero
-    val touchSlop = viewConfiguration.pointerSlop(pointerType)
+    val touchSlop = pointerSlop(pointerType)
 
     var pointer = pointerId
 
@@ -150,16 +150,10 @@ private fun PointerEvent.isPointerUp(pointerId: PointerId): Boolean =
 // pointer events with a very high precision (but I haven't encountered any that send
 // events with less than 1px precision)
 private val mouseSlop = 0.125.dp
-private val defaultTouchSlop = 18.dp // The default touch slop on Android devices
-private val mouseToTouchSlopRatio = mouseSlop / defaultTouchSlop
 
-// TODO(demin): consider this as part of ViewConfiguration class after we make *PointerSlop*
-//  functions public (see the comment at the top of the file).
-//  After it will be a public API, we should get rid of `touchSlop / 144` and return absolute
-//  value 0.125.dp.toPx(). It is not possible right now, because we can't access density.
-private fun ViewConfiguration.pointerSlop(pointerType: PointerType): Float {
+private fun AwaitPointerEventScope.pointerSlop(pointerType: PointerType): Float {
     return when (pointerType) {
-        PointerType.Mouse -> touchSlop * mouseToTouchSlopRatio
-        else -> touchSlop
+        PointerType.Mouse -> mouseSlop.toPx()
+        else -> viewConfiguration.touchSlop
     }
 }

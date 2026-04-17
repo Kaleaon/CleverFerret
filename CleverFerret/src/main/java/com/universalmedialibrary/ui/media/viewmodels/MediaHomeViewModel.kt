@@ -205,7 +205,7 @@ class MediaHomeViewModel @Inject constructor(
                         recentFanfiction = recentFanfiction,
                         libraryStats = stats,
                         collections = collections,
-                        lastOpenedCategory = lastOpenedCategory
+                        lastOpenedCategory = lastOpenedCategory,
                         quickAccessItems = buildQuickAccessItems(currentQuickAccessPrefs)
                     )
             }
