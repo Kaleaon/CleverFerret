@@ -21,6 +21,11 @@
 
 set -e
 
+# Load canonical Android SDK version configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/android-sdk-versions.sh"
+
 # AI-FRIENDLY: Color codes and logging
 readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
@@ -72,7 +77,7 @@ echo
 
 # AI-FRIENDLY: Set up environment
 export ANDROID_HOME=${ANDROID_HOME:-/opt/android-sdk}
-export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION
 
 # AI-FRIENDLY: Test 1 - Gradle Wrapper
 log_info "1. Testing Gradle wrapper..."
@@ -84,7 +89,7 @@ run_test "Gradle version check" "./gradlew --version | head -5"
 log_info "2. Testing build configuration..."
 run_test "Gradle properties valid" "./gradlew properties | grep -q 'org.gradle.jvmargs'"
 run_test "Android SDK detected" "./gradlew properties | grep -q 'android.sdkDirectory'"
-run_test "Build tools available" "[ -f '$ANDROID_HOME/build-tools/33.0.2/aapt2' ]"
+run_test "Build tools available" "[ -f '$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION/aapt2' ]"
 
 # AI-FRIENDLY: Test 3 - Project Structure
 log_info "3. Testing project structure..."
@@ -101,12 +106,12 @@ run_test "Build tasks available" "./gradlew --no-daemon tasks | grep -q 'assembl
 # AI-FRIENDLY: Test 5 - Signing Test
 log_info "5. Testing APK signing capability..."
 run_test "Debug keystore exists" "[ -f '$HOME/.android/debug.keystore' ]"
-run_test "APK signer available" "[ -f '$ANDROID_HOME/build-tools/33.0.2/apksigner' ]"
+run_test "APK signer available" "[ -f '$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION/apksigner' ]"
 
 # Create a dummy APK to test signing (if previous APK exists)
 if [ -f "builds/universal-media-library-v1.0-signed.apk" ]; then
     log_info "Testing signing with existing APK..."
-    run_test "APK signature verification" "$ANDROID_HOME/build-tools/33.0.2/apksigner verify builds/universal-media-library-v1.0-signed.apk"
+    run_test "APK signature verification" "$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION/apksigner verify builds/universal-media-library-v1.0-signed.apk"
 else
     log_warning "No existing APK found for signature testing"
 fi

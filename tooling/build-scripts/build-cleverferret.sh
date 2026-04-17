@@ -1,12 +1,17 @@
 #!/bin/bash
 set -e
 
+# Load canonical Android SDK version configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/android-sdk-versions.sh"
+
 echo "🔨 Building CleverFerret with Permanent Fixes"
 echo "============================================"
 
 # Set environment
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
-export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2:$ANDROID_HOME/platform-tools:$PATH"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION:$ANDROID_HOME/platform-tools:$PATH"
 
 # Clean build
 echo "🧹 Cleaning build environment..."
@@ -26,7 +31,7 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
     mkdir -p builds
     cp "$APK_PATH" "$SIGNED_APK"
     
-    "$ANDROID_HOME/build-tools/33.0.2/apksigner" sign \
+    "$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION/apksigner" sign \
         --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android \
         "$SIGNED_APK"
     
