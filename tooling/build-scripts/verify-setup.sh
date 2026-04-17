@@ -18,6 +18,11 @@
 
 set -e
 
+# Load canonical Android SDK version configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/android-sdk-versions.sh"
+
 # AI-FRIENDLY: Color codes for clear output
 readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
@@ -86,13 +91,13 @@ run_test "Command line tools available" "[ -f \"/opt/android-sdk/cmdline-tools/l
 
 # AI-FRIENDLY: Test 3 - Build Tools  
 log_info "3. Checking build tools..."
-run_test "Build tools 33.0.2 installed" "[ -d \"/opt/android-sdk/build-tools/33.0.2\" ]"
-run_test "AAPT2 executable" "[ -x \"/opt/android-sdk/build-tools/33.0.2/aapt2\" ]"
-run_test "AAPT2 working" "/opt/android-sdk/build-tools/33.0.2/aapt2 version"
+run_test "Build tools $CF_BUILD_TOOLS_VERSION installed" "[ -d \"/opt/android-sdk/build-tools/$CF_BUILD_TOOLS_VERSION\" ]"
+run_test "AAPT2 executable" "[ -x \"/opt/android-sdk/build-tools/$CF_BUILD_TOOLS_VERSION/aapt2\" ]"
+run_test "AAPT2 working" "/opt/android-sdk/build-tools/$CF_BUILD_TOOLS_VERSION/aapt2 version"
 
 # AI-FRIENDLY: Test 4 - Platform Tools
 log_info "4. Checking platform tools..."
-run_test "Platform 34 installed" "[ -d \"/opt/android-sdk/platforms/android-34\" ]"
+run_test "Platform $CF_COMPILE_SDK installed" "[ -d \"/opt/android-sdk/platforms/android-$CF_COMPILE_SDK\" ]"
 run_test "Platform tools available" "[ -d \"/opt/android-sdk/platform-tools\" ]"
 
 # AI-FRIENDLY: Test 5 - Configuration Files
@@ -139,7 +144,7 @@ run_test "Disk space available" "df . | awk 'NR==2 {exit (\$4<2000000) ? 1 : 0}'
 # AI-FRIENDLY: Test 10 - Environment Variables
 log_info "10. Checking environment variables..."
 run_test "ANDROID_HOME in PATH" "echo \$PATH | grep -q \$ANDROID_HOME"
-run_test "Build tools in PATH" "echo \$PATH | grep -q \"build-tools/33.0.2\""
+run_test "Build tools in PATH" "echo \$PATH | grep -q \"build-tools/$CF_BUILD_TOOLS_VERSION\""
 
 echo
 echo "📊 VERIFICATION SUMMARY"
