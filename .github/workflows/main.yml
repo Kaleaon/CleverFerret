@@ -56,20 +56,22 @@ jobs:
       run: |
         # Run compilation with reduced verbosity for readable error output
         # Using --warning-mode all to show warnings without excessive info
-        ./gradlew compileDebugKotlin --continue --stacktrace --warning-mode all 2>&1 | tee compile_output.txt
+        COMPILE_LOG="compile_output_${GITHUB_SHA::8}_${GITHUB_RUN_ATTEMPT}.txt"
+        echo "COMPILE_LOG=$COMPILE_LOG" >> "$GITHUB_ENV"
+        ./gradlew compileDebugKotlin --continue --stacktrace --warning-mode all 2>&1 | tee "$COMPILE_LOG"
         exit_code=${PIPESTATUS[0]}
         
         # If compilation failed, show the last 200 lines which usually contain the errors
         if [ $exit_code -ne 0 ]; then
           echo ""
           echo "::group::Compilation Errors (last 200 lines)"
-          tail -200 compile_output.txt
+          tail -200 "$COMPILE_LOG"
           echo "::endgroup::"
           
           # Also extract and display just the error lines
           echo ""
           echo "::group::Error Summary"
-          grep -E "^e: |error:|Error:|FAILURE:|BUILD FAILED" compile_output.txt || echo "No specific error pattern found - check full output above"
+          grep -E "^e: |error:|Error:|FAILURE:|BUILD FAILED" "$COMPILE_LOG" || echo "No specific error pattern found - check full output above"
           echo "::endgroup::"
         fi
         
@@ -83,19 +85,19 @@ jobs:
           echo "::error::Compilation failed. Check the 'Compilation Errors' section above for details."
           
           # Upload compile output as artifact for debugging if it exists
-          if [ -f compile_output.txt ]; then
+          if [ -n "${COMPILE_LOG:-}" ] && [ -f "$COMPILE_LOG" ]; then
             echo "Compilation log saved for debugging."
           fi
         else
           echo "::notice::Compilation succeeded!"
         fi
     
-    - name: Upload compilation log on failure
-      if: steps.compile.outcome == 'failure'
+    - name: Upload compilation log artifact
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: compile-error-log
-        path: compile_output.txt
+        name: compile-log-${{ github.sha }}-${{ github.run_attempt }}
+        path: ${{ env.COMPILE_LOG }}
         if-no-files-found: ignore
     
     - name: Run unit tests
@@ -200,23 +202,25 @@ jobs:
       run: |
         echo "Building debug APK with debug reporting enabled..."
         # Run build with reduced verbosity for readable error output
+        BUILD_LOG="build_output_${GITHUB_SHA::8}_${GITHUB_RUN_ATTEMPT}.txt"
+        echo "BUILD_LOG=$BUILD_LOG" >> "$GITHUB_ENV"
         ./gradlew assembleDebug --continue --stacktrace --warning-mode all \
           -PDEBUG_REPORTING_ENABLED=true \
           -PCRASH_REPORTING_ENABLED=true \
-          -PSHOW_DEBUG_MENU=true 2>&1 | tee build_output.txt
+          -PSHOW_DEBUG_MENU=true 2>&1 | tee "$BUILD_LOG"
         exit_code=${PIPESTATUS[0]}
         
         # If build failed, show the last 200 lines which usually contain the errors
         if [ $exit_code -ne 0 ]; then
           echo ""
           echo "::group::Build Errors (last 200 lines)"
-          tail -200 build_output.txt
+          tail -200 "$BUILD_LOG"
           echo "::endgroup::"
           
           # Also extract and display just the error lines
           echo ""
           echo "::group::Error Summary"
-          grep -E "^e: |error:|Error:|FAILURE:|BUILD FAILED" build_output.txt || echo "No specific error pattern found - check full output above"
+          grep -E "^e: |error:|Error:|FAILURE:|BUILD FAILED" "$BUILD_LOG" || echo "No specific error pattern found - check full output above"
           echo "::endgroup::"
         fi
         
@@ -238,12 +242,12 @@ jobs:
           echo "  - Feature flags"
         fi
     
-    - name: Upload build log on failure
-      if: steps.build-debug.outcome == 'failure'
+    - name: Upload build log artifact
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: build-error-log
-        path: build_output.txt
+        name: build-log-${{ github.sha }}-${{ github.run_attempt }}
+        path: ${{ env.BUILD_LOG }}
         if-no-files-found: ignore
       
     - name: Build release APK (unsigned)
