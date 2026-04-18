@@ -1,0 +1,7 @@
+{
+  "archived_at_utc": "2026-04-18T19:51:53Z",
+  "archived_by_commit": "879e71032190f0bd01147227494258fda222fe4d",
+  "source_fresh_log": "build-logs/compile_20260418T194747Z_879e7103.log",
+  "build_command": "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew :CleverFerret:compileDebugKotlin --continue --stacktrace --warning-mode all",
+  "notes": "Fresh log captured after branch recovery; historical committed logs archived to prevent stale debugging signals."
+}
