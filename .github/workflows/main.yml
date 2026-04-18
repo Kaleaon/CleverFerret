@@ -50,6 +50,15 @@ jobs:
           
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    - name: KSP gate (debug)
+      run: |
+        ./gradlew :CleverFerret:kspDebugKotlin --stacktrace --warning-mode all 2>&1 | tee ksp_output.txt
+
+        if grep -q "error.NonExistentClass" ksp_output.txt; then
+          echo "::error::KSP detected unresolved type error.NonExistentClass"
+          exit 1
+        fi
       
     - name: Compile project
       id: compile
