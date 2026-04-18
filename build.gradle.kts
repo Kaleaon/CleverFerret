@@ -1,3 +1,5 @@
+import org.gradle.api.JavaVersion
+
 /**
  * Universal Media Library - Root Build Configuration
  *
@@ -23,3 +25,15 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.kotlin.compose) apply false
 }
+
+val supportedGradleRuntimeJdks = 17..21
+val currentRuntimeJdk = JavaVersion.current().majorVersion.toIntOrNull()
+
+check(currentRuntimeJdk != null && currentRuntimeJdk in supportedGradleRuntimeJdks) {
+    """
+Unsupported Java runtime for this AGP/Kotlin toolchain: ${JavaVersion.current()}.
+Use JDK 17 through JDK 21 to run Gradle (current: ${System.getProperty("java.version")}).
+See docs/BUILD_TOOLCHAIN_VERSIONS.md for local/CI setup instructions.
+""".trimIndent()
+}
+
