@@ -1,3 +1,7 @@
+// Gradle runtime JDK policy:
+// - AGP 8.13.x + Kotlin 2.1.x should run on JDK 17-21.
+// - The wrapper scripts enforce this before Gradle starts, to fail fast with a clear message.
+
 // Ensure Android SDK is discoverable in CI/containers.
 // Fallback behavior:
 // 1) If ANDROID_HOME / ANDROID_SDK_ROOT is already set, do nothing.
