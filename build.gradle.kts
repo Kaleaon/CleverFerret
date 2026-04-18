@@ -37,3 +37,8 @@ See docs/BUILD_TOOLCHAIN_VERSIONS.md for local/CI setup instructions.
 """.trimIndent()
 }
 
+allprojects {
+    dependencyLocking {
+        lockAllConfigurations()
+    }
+}

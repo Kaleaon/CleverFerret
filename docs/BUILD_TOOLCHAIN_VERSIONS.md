@@ -61,3 +61,13 @@ export JAVA_HOME=/path/to/jdk-21
 
 Configure CI runners to use JDK 17 or JDK 21 before invoking `./gradlew` (for GitHub Actions, `actions/setup-java` with `java-version: '17'` or `'21'`).
 
+## Android SDK Discovery and `local.properties` Fallback
+
+Builds discover Android SDK locations in the following order:
+
+1. `ANDROID_HOME` or `ANDROID_SDK_ROOT` environment variables (preferred for CI).
+2. Existing root `local.properties` (if present).
+3. Bundled repository `android-sdk/` directory:
+   - When no SDK env vars are set **and** `local.properties` does not exist, `settings.gradle.kts` auto-generates a root `local.properties` with `sdk.dir=<absolute path to android-sdk>`.
+   - This file is intended as a local/CI fallback and is gitignored.
+4. If none of the above are available, AGP falls back to its standard SDK discovery behavior and the build may fail until SDK is configured.

@@ -3,9 +3,11 @@
 // - The wrapper scripts enforce this before Gradle starts, to fail fast with a clear message.
 
 // Ensure Android SDK is discoverable in CI/containers.
-// - If the environment already provides ANDROID_HOME / ANDROID_SDK_ROOT, do nothing.
-// - Otherwise, if this repo contains a bundled `android-sdk/` directory, generate a
-//   root `local.properties` pointing at it (file is gitignored).
+// Fallback behavior:
+// 1) If ANDROID_HOME / ANDROID_SDK_ROOT is already set, do nothing.
+// 2) If neither env var is set and root local.properties does not exist,
+//    use a bundled `android-sdk/` directory (if present) and generate local.properties.
+// 3) If neither is available, Gradle/AGP uses its default SDK discovery behavior.
 val androidHome = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 val localPropertiesFile = file("local.properties")
 if (androidHome.isNullOrBlank() && !localPropertiesFile.exists()) {
@@ -30,12 +32,6 @@ dependencyResolutionManagement {
         mavenCentral()
         // JitPack repository for GitHub-hosted libraries
         maven { url = uri("https://jitpack.io") }
-        // Maven repository for additional libraries
-        maven { url = uri("https://repo1.maven.org/maven2") }
-        // VideoLAN repository for VLC Android SDK
-        maven { url = uri("https://download.videolan.org/pub/android/maven") }
-        // Mobile FFmpeg repository
-        maven { url = uri("https://github.com/tanersener/mobile-ffmpeg/releases") }
     }
 }
 rootProject.name = "UniversalMediaLibrary"
