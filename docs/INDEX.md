@@ -16,6 +16,8 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [FEATURES](FEATURES.md) - Supported file formats and key features
 - [ROADMAP](ROADMAP.md) - Planned features and development priorities
 - [Build Toolchain Versions](BUILD_TOOLCHAIN_VERSIONS.md) - Canonical AGP/Kotlin/KSP/Gradle version sources and upgrade steps
+- [Post-Recovery State](POST_RECOVERY_STATE.md) - Branch source-of-truth and safe contribution workflow
+- [Branch Protection Guide](governance/BRANCH_PROTECTION.md) - Protection rules and CODEOWNERS governance
 
 ---
 
