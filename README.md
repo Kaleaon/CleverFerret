@@ -81,6 +81,27 @@ npm run build
 npm test
 ```
 
+
+## 🧪 Build and CI Artifacts
+
+Build diagnostics should be generated as immutable artifacts under `archive/development-artifacts/` (or CI artifact uploads), not as mutable root-level log files.
+
+Naming convention for generated local artifacts:
+
+- `clean-build-<commit-sha>-<utc-timestamp>.log`
+- `compile-log-<commit-sha>-historical.txt` (for archived legacy snapshots)
+
+Example:
+
+```bash
+COMMIT_SHA=$(git rev-parse --short HEAD)
+TS=$(date -u +%Y%m%dT%H%M%SZ)
+./gradlew clean :CleverFerret:assembleDebug --no-daemon --stacktrace \
+  | tee "archive/development-artifacts/clean-build-${COMMIT_SHA}-${TS}.log"
+```
+
+For pull requests, prefer attaching CI-produced logs/reports as workflow artifacts and linking those in review notes.
+
 ## 🚧 Status
 
 Active development. High-priority functionality (Playback, Reader, Library Management) is stable. Cloud Sync and AI features are in active development.
