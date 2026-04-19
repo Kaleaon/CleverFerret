@@ -29,6 +29,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.ui.components.UserFeedbackMessage
+import com.universalmedialibrary.ui.components.UserFeedbackSeverity
+import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
+import com.universalmedialibrary.ui.components.showUserFeedback
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -48,8 +52,28 @@ fun StorageBrowserScreen(
     viewModel: StorageBrowserViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.error) {
+        val error = uiState.error ?: return@LaunchedEffect
+        val result = snackbarHostState.showUserFeedback(
+            UserFeedbackMessage(
+                title = "Unable to open folder",
+                body = error,
+                severity = UserFeedbackSeverity.ERROR,
+                actionLabel = "Retry"
+            )
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            viewModel.refresh()
+        }
+        viewModel.clearError()
+    }
 
     Scaffold(
+        snackbarHost = {
+            UserFeedbackSnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                 title = {
@@ -146,12 +170,6 @@ fun StorageBrowserScreen(
                     ) {
                         CircularProgressIndicator()
                     }
-                }
-                uiState.error != null -> {
-                    ErrorView(
-                        message = uiState.error!!,
-                        onRetry = { viewModel.refresh() }
-                    )
                 }
                 uiState.files.isEmpty() -> {
                     EmptyFolderView()

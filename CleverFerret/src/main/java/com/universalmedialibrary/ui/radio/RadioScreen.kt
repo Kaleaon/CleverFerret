@@ -28,6 +28,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.RadioStation
 import com.universalmedialibrary.services.radio.NowPlayingInfo
+import com.universalmedialibrary.ui.components.UserFeedbackMessage
+import com.universalmedialibrary.ui.components.UserFeedbackSeverity
+import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
+import com.universalmedialibrary.ui.components.showUserFeedback
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -47,10 +51,30 @@ fun RadioScreen(
     val uiState by viewModel.uiState.collectAsState()
     val nowPlayingInfo by viewModel.nowPlayingInfo.collectAsState()
     val isIdentifying by viewModel.isIdentifying.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var selectedTab by remember { mutableIntStateOf(0) }
 
+    LaunchedEffect(uiState.errorTitle, uiState.errorDetail, uiState.canRetry) {
+        val title = uiState.errorTitle ?: return@LaunchedEffect
+        val detail = uiState.errorDetail ?: return@LaunchedEffect
+        val result = snackbarHostState.showUserFeedback(
+            UserFeedbackMessage(
+                title = title,
+                body = detail,
+                severity = UserFeedbackSeverity.ERROR,
+                actionLabel = if (uiState.canRetry) "Retry" else null
+            )
+        )
+        if (result == SnackbarResult.ActionPerformed && uiState.canRetry) {
+            viewModel.retryLastAction()
+        } else {
+            viewModel.clearError()
+        }
+    }
+
     Scaffold(
+        snackbarHost = { UserFeedbackSnackbarHost(hostState = snackbarHostState) },
         topBar = {
             MetallicTopAppBar(
                     title = {
@@ -243,20 +267,6 @@ fun RadioScreen(
                         viewModel.addCustomStation(name, url, description, genre)
                     }
                 )
-            }
-
-            // Error snackbar
-            uiState.error?.let { error ->
-                Snackbar(
-                    modifier = Modifier.padding(16.dp),
-                    action = {
-                        TextButton(onClick = { viewModel.clearError() }) {
-                            Text("Dismiss")
-                        }
-                    }
-                ) {
-                    Text(error)
-                }
             }
         }
 }

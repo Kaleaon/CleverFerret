@@ -2,12 +2,19 @@ package com.universalmedialibrary.ui.webfiction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.entity.FanfictionStoryEntity
+import com.universalmedialibrary.data.repository.WebFictionRepository
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
 import com.universalmedialibrary.services.ContentPinRequiredException
 import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
 import com.universalmedialibrary.services.webfiction.WebFictionService
+import com.universalmedialibrary.services.webfiction.WebFictionService.WebFictionRateLimitException
+import com.universalmedialibrary.services.webfiction.WebFictionService.WebFictionSiteChangedException
+import com.universalmedialibrary.services.webfiction.WebFictionService.UnsupportedWebFictionUrlException
+import com.universalmedialibrary.services.webfiction.WebFictionChapter
 import com.universalmedialibrary.services.webfiction.WebFictionStory
+import com.universalmedialibrary.services.webfiction.StoryStatus
 import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WebFictionManagerScreenViewModel @Inject constructor(
     private val webFictionService: WebFictionService,
+    private val webFictionRepository: WebFictionRepository,
     private val redditStoryManager: com.universalmedialibrary.services.webfiction.RedditStoryManager,
     private val parentalControlsSettings: ParentalControlsSettings
 ) : ViewModel() {
@@ -37,6 +45,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 initialValue = false
             )
     private var pendingPinAction: (() -> Unit)? = null
+    private var pendingRetryAction: (() -> Unit)? = null
 
     init {
         loadStories()
@@ -63,20 +72,23 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 
                 val result = redditStoryManager.downloadAndAddToLibrary(config)
                 if (!result.success) {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = result.errorMessage ?: "Failed to download Reddit series"
+                    publishError(
+                        message = result.errorMessage ?: "Failed to download Reddit series",
+                        retryAction = { downloadRedditSeriesAsEpub(seriesName, author, subreddit) }
                     )
+                    _uiState.value = _uiState.value.copy(isLoading = false)
                 } else {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        successMessage = "Downloaded ${result.chapters} chapters! Added to library."
-                    )
+                    publishSuccess("Downloaded ${result.chapters} chapters! Added to library.")
+                    _uiState.value = _uiState.value.copy(isLoading = false)
                     // Reload tracked stories
                     loadTrackedRedditStories()
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                publishError(
+                    message = e.message ?: "Unable to download Reddit series.",
+                    retryAction = { downloadRedditSeriesAsEpub(seriesName, author, subreddit) }
+                )
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -90,24 +102,25 @@ class WebFictionManagerScreenViewModel @Inject constructor(
             try {
                 val result = redditStoryManager.updateStory(storyId)
                 if (!result.success) {
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingUpdates = false,
-                        error = result.errorMessage
+                    publishError(
+                        message = result.errorMessage ?: "Unable to update this story right now.",
+                        retryAction = { updateRedditStory(storyId) }
                     )
+                    _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                 } else if (result.newChapters > 0) {
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingUpdates = false,
-                        successMessage = "Updated! Found ${result.newChapters} new chapters (total: ${result.totalChapters})"
-                    )
+                    publishSuccess("Updated! Found ${result.newChapters} new chapters (total: ${result.totalChapters})")
+                    _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                     loadTrackedRedditStories()
                 } else {
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingUpdates = false,
-                        successMessage = "Already up to date!"
-                    )
+                    publishSuccess("Already up to date!")
+                    _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isCheckingUpdates = false, error = e.message)
+                publishError(
+                    message = e.message ?: "Unable to update this story right now.",
+                    retryAction = { updateRedditStory(storyId) }
+                )
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -123,17 +136,21 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 val updatedCount = results.count { it.success && it.newChapters > 0 }
                 val totalNewChapters = results.filter { it.success }.sumOf { it.newChapters }
                 
-                _uiState.value = _uiState.value.copy(
-                    isCheckingUpdates = false,
-                    successMessage = if (updatedCount > 0) {
+                publishSuccess(
+                    if (updatedCount > 0) {
                         "Updated $updatedCount stories with $totalNewChapters new chapters!"
                     } else {
                         "All stories are up to date!"
                     }
                 )
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                 loadTrackedRedditStories()
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isCheckingUpdates = false, error = e.message)
+                publishError(
+                    message = e.message ?: "Unable to check all stories for updates.",
+                    retryAction = { updateAllRedditStories() }
+                )
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -155,25 +172,46 @@ class WebFictionManagerScreenViewModel @Inject constructor(
             var resolvedStory: WebFictionStory? = null
 
             try {
-                val story = webFictionService.extractStoryFromUrl(url, bypassPin)
-                if (story != null) {
-                    resolvedStory = story
-                    // Download all chapters
-                    val chapters = webFictionService.downloadAllChapters(story, bypassPin)
-                    val completeStory = story.copy(chapters = chapters)
+                val validated = webFictionService.parseAndValidateSourceUrl(url)
+                val story = webFictionService.extractStoryFromUrl(validated.normalizedUrl, bypassPin)
+                    ?: throw IllegalStateException("Failed to extract story from URL. The source page may have changed.")
+                resolvedStory = story
 
-                    // Add to local storage (in real app, save to database)
-                    val updatedStories = _uiState.value.stories + completeStory
-                    _uiState.value = _uiState.value.copy(
-                        stories = updatedStories,
-                        isLoading = false
+                val existing = webFictionRepository.getWebFictionBySourceUrl(validated.normalizedUrl)
+                val completeStory = if (existing != null) {
+                    val resumableStory = story.copy(
+                        id = existing.id,
+                        chapters = placeholderChapters(
+                            storyId = existing.id,
+                            count = existing.lastChapterDownloaded
+                        )
                     )
+                    val newChapters = webFictionService.checkForUpdates(resumableStory, bypassPin)
+                    val mergedChapters = resumableStory.chapters + newChapters
+                    val mergedStory = story.copy(id = existing.id, chapters = mergedChapters)
+                    webFictionRepository.updateWebFiction(mergedStory.toEntity(existing.dateAdded))
+                    _uiState.value = _uiState.value.copy(
+                        successMessage = if (newChapters.isEmpty()) {
+                            "\"${story.title}\" is already up to date."
+                        } else {
+                            "Resumed \"${story.title}\" and downloaded ${newChapters.size} new chapter(s)."
+                        }
+                    )
+                    mergedStory
                 } else {
+                    val chapters = webFictionService.downloadAllChapters(story, bypassPin)
+                    val freshStory = story.copy(chapters = chapters)
+                    webFictionRepository.insertWebFiction(freshStory.toEntity())
                     _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = "Failed to extract story from URL. Please check the URL and try again."
+                        successMessage = "Added \"${story.title}\" with ${chapters.size} chapter(s)."
                     )
+                    freshStory
                 }
+
+                val refreshedStories = _uiState.value.stories
+                    .filterNot { it.id == completeStory.id }
+                    .plus(completeStory)
+                _uiState.value = _uiState.value.copy(stories = refreshedStories, isLoading = false)
             } catch (e: Exception) {
                 val handled = handlePinException(
                     throwable = e,
@@ -189,14 +227,17 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapParentalControlsError(
-                    e,
-                    "Error adding story: ${e.message}"
-                )
+                val message = mapWebFictionError(e, "Error adding story: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error adding story: ${e.message}"
+                )
+                publishError(message = message, retryAction = { addStoryFromUrl(url, bypassPin) })
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -209,6 +250,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 val newChapters = webFictionService.checkForUpdates(story, bypassPin)
                 if (newChapters.isNotEmpty()) {
                     val updatedStory = story.copy(chapters = story.chapters + newChapters)
+                    webFictionRepository.updateWebFiction(updatedStory.toEntity())
                     val updatedStories = _uiState.value.stories.map {
                         if (it.id == story.id) updatedStory else it
                     }
@@ -237,14 +279,17 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapParentalControlsError(
-                    e,
-                    "Error checking for updates: ${e.message}"
-                )
+                val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isCheckingUpdates = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error checking for updates: ${e.message}"
+                )
+                publishError(message = message, retryAction = { checkForUpdates(story, bypassPin) })
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -263,6 +308,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     val newChapters = webFictionService.checkForUpdates(story, bypassPin)
                     if (newChapters.isNotEmpty()) {
                         val updatedStory = story.copy(chapters = story.chapters + newChapters)
+                        webFictionRepository.updateWebFiction(updatedStory.toEntity())
                         updatedStories.add(updatedStory)
                         updatesFound.add(updatedStory)
                     } else {
@@ -290,14 +336,17 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapParentalControlsError(
-                    e,
-                    "Error checking for updates: ${e.message}"
-                )
+                val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isCheckingUpdates = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error checking for updates: ${e.message}"
+                )
+                publishError(message = message, retryAction = { checkAllForUpdates(bypassPin) })
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -309,6 +358,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
             try {
                 val chapters = webFictionService.downloadAllChapters(story, bypassPin)
                 val updatedStory = story.copy(chapters = chapters)
+                webFictionRepository.updateWebFiction(updatedStory.toEntity())
                 val updatedStories = _uiState.value.stories.map {
                     if (it.id == story.id) updatedStory else it
                 }
@@ -332,14 +382,17 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapParentalControlsError(
-                    e,
-                    "Error downloading story: ${e.message}"
-                )
+                val message = mapWebFictionError(e, "Error downloading story: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error downloading story: ${e.message}"
+                )
+                publishError(message = message, retryAction = { downloadStory(story, bypassPin) })
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -356,6 +409,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     if (index != -1) {
                         val chapters = webFictionService.downloadAllChapters(storyWithUpdate, bypassPin)
                         updatedStories[index] = storyWithUpdate.copy(chapters = chapters)
+                        webFictionRepository.updateWebFiction(updatedStories[index].toEntity())
                     }
                 }
 
@@ -379,30 +433,54 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapParentalControlsError(
-                    e,
-                    "Error downloading updates: ${e.message}"
-                )
+                val message = mapWebFictionError(e, "Error downloading updates: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error downloading updates: ${e.message}"
+                )
+                publishError(message = message, retryAction = { downloadAllUpdates(bypassPin) })
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
 
     fun removeStory(story: WebFictionStory) {
-        val updatedStories = _uiState.value.stories.filter { it.id != story.id }
-        val updatedStoriesWithUpdates = _uiState.value.storiesWithUpdates.filter { it.id != story.id }
+        viewModelScope.launch {
+            webFictionRepository.getWebFictionById(story.id)?.let {
+                webFictionRepository.deleteWebFiction(it)
+            }
+            val updatedStories = _uiState.value.stories.filter { it.id != story.id }
+            val updatedStoriesWithUpdates = _uiState.value.storiesWithUpdates.filter { it.id != story.id }
 
-        _uiState.value = _uiState.value.copy(
-            stories = updatedStories,
-            storiesWithUpdates = updatedStoriesWithUpdates
-        )
+            _uiState.value = _uiState.value.copy(
+                stories = updatedStories,
+                storiesWithUpdates = updatedStoriesWithUpdates
+            )
+        }
     }
 
     fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
+        pendingRetryAction = null
+        _uiState.value = _uiState.value.copy(error = null, canRetry = false)
+    }
+
+    fun clearSuccessMessage() {
+        _uiState.value = _uiState.value.copy(successMessage = null)
+    }
+
+    fun retryLastAction() {
+        val action = pendingRetryAction ?: return
+        pendingRetryAction = null
+        _uiState.value = _uiState.value.copy(error = null, canRetry = false)
+        action.invoke()
+    }
+
+    fun validateSourceUrl(rawUrl: String): Result<String> = runCatching {
+        webFictionService.parseAndValidateSourceUrl(rawUrl).normalizedUrl
     }
 
     fun dismissPinChallenge() {
@@ -452,18 +530,29 @@ class WebFictionManagerScreenViewModel @Inject constructor(
         else -> fallback
     }
 
+    private fun mapWebFictionError(e: Exception, fallback: String): String {
+        val parentalControlsMessage = mapParentalControlsError(e, fallback)
+        if (parentalControlsMessage != fallback) return parentalControlsMessage
+
+        return when (e) {
+            is UnsupportedWebFictionUrlException -> "${e.message}\n\nTry:\n• Opening the story in your browser and copying the canonical chapter/works URL.\n• Removing tracking params after '?'."
+            is WebFictionRateLimitException -> "${e.message}\n\nTry:\n• Wait 5-15 minutes, then retry.\n• Run updates for fewer stories at once."
+            is WebFictionSiteChangedException -> "${e.message}\n\nTry:\n• Verify the story URL still loads in your browser.\n• Update the story with the latest canonical URL."
+            else -> fallback
+        }
+    }
+
     private fun loadStories() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
-                // In a real app, load from database
-                // For now, create some demo data
-                val demoStories = createDemoStories()
-                _uiState.value = _uiState.value.copy(
-                    stories = demoStories,
-                    isLoading = false
-                )
+                webFictionRepository.getAllWebFiction().collect { storedStories ->
+                    _uiState.value = _uiState.value.copy(
+                        stories = storedStories.map { it.toUiStory() },
+                        isLoading = false
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -471,6 +560,75 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    private fun FanfictionStoryEntity.toUiStory(): WebFictionStory = WebFictionStory(
+        id = id,
+        url = sourceUrl,
+        title = title,
+        author = author,
+        description = summary,
+        status = status.toStoryStatus(),
+        genre = null,
+        fandom = fandoms.firstOrNull(),
+        language = language,
+        wordCount = wordCount.toLong(),
+        chapterCount = chapterCount,
+        lastUpdated = updateDate,
+        rating = rating,
+        warnings = warnings,
+        tags = tags,
+        isCompleted = status == "COMPLETE" || status == "COMPLETED",
+        site = sourceSite,
+        totalChapters = chapterCount,
+        localPath = epubPath,
+        chapters = placeholderChapters(id, lastChapterDownloaded),
+        updatedAt = updateDate
+    )
+
+    private fun WebFictionStory.toEntity(existingDateAdded: Long = System.currentTimeMillis()): FanfictionStoryEntity =
+        FanfictionStoryEntity(
+            id = id,
+            sourceUrl = url,
+            sourceSite = site ?: "Unknown",
+            title = title,
+            author = author ?: "Unknown",
+            summary = description ?: "",
+            rating = rating,
+            status = when (status) {
+                StoryStatus.ONGOING -> "IN_PROGRESS"
+                StoryStatus.COMPLETED -> "COMPLETE"
+                StoryStatus.HIATUS -> "HIATUS"
+                StoryStatus.CANCELLED -> "ABANDONED"
+                StoryStatus.UNKNOWN -> "IN_PROGRESS"
+            },
+            wordCount = wordCount?.toInt() ?: 0,
+            chapterCount = totalChapters ?: chapterCount ?: chapters.size,
+            lastChapterDownloaded = chapters.size,
+            updateDate = updatedAt ?: lastUpdated,
+            lastCheckedDate = System.currentTimeMillis(),
+            dateAdded = existingDateAdded,
+            epubPath = localPath,
+            warnings = warnings,
+            fandoms = listOfNotNull(fandom),
+            tags = tags,
+            language = language ?: "English"
+    private fun publishError(message: String, retryAction: (() -> Unit)? = null) {
+        pendingRetryAction = retryAction
+        _uiState.value = _uiState.value.copy(
+            error = message,
+            successMessage = null,
+            canRetry = retryAction != null
+        )
+    }
+
+    private fun publishSuccess(message: String) {
+        pendingRetryAction = null
+        _uiState.value = _uiState.value.copy(
+            successMessage = message,
+            error = null,
+            canRetry = false
+        )
     }
 
     private fun createDemoStories(): List<WebFictionStory> {
@@ -527,6 +685,27 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 wordCount = 234000L
             )
         )
+
+    private fun placeholderChapters(storyId: String, count: Int): List<WebFictionChapter> =
+        (1..count).map { index ->
+            WebFictionChapter(
+                id = "$storyId-placeholder-$index",
+                storyId = storyId,
+                number = index,
+                title = "Chapter $index",
+                content = "",
+                publishDate = null,
+                wordCount = null,
+                notes = "Previously downloaded chapter metadata."
+            )
+        }
+
+    private fun String.toStoryStatus(): StoryStatus = when (uppercase()) {
+        "COMPLETE", "COMPLETED" -> StoryStatus.COMPLETED
+        "IN_PROGRESS", "ONGOING" -> StoryStatus.ONGOING
+        "HIATUS" -> StoryStatus.HIATUS
+        "ABANDONED", "CANCELLED" -> StoryStatus.CANCELLED
+        else -> StoryStatus.UNKNOWN
     }
 }
 
@@ -538,5 +717,6 @@ data class WebFictionUiState(
     val isCheckingUpdates: Boolean = false,
     val error: String? = null,
     val successMessage: String? = null,
+    val canRetry: Boolean = false,
     val pendingPinChallenge: PinChallenge? = null
 )
