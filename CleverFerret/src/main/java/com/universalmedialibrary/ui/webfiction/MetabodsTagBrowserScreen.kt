@@ -160,7 +160,10 @@ fun MetabodsTagBrowserScreen(
                     }
 
                     // Stories
-                    items(searchResult?.stories ?: emptyList()) { story ->
+                    items(
+                        items = searchResult?.stories ?: emptyList(),
+                        key = { story -> story.id }
+                    ) { story ->
                         StoryResultCard(
                             story = story,
                             onStoryClick = { viewModel.downloadStory(story) },
@@ -236,7 +239,10 @@ private fun SelectedTagsRow(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(selectedTags) { tagId ->
+                items(
+                    items = selectedTags,
+                    key = { tagId -> tagId }
+                ) { tagId ->
                     val tag = allTags.find { it.id == tagId }
                     if (tag != null) {
                         FilterChip(
@@ -523,7 +529,10 @@ private fun StoryResultCard(
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    items(story.tags.take(5)) { tag ->
+                    items(
+                        items = story.tags.take(5),
+                        key = { tag -> tag }
+                    ) { tag ->
                         AssistChip(
                             onClick = { },
                             label = { Text(tag, style = MaterialTheme.typography.labelSmall) }
