@@ -201,7 +201,7 @@ class OPDSDownloadService @Inject constructor(
                 }
                 
                 // Mark download complete
-                catalogDao.markDownloadComplete(downloadId, outputFile.absolutePath)
+                persistCompletedDownload(downloadId, outputFile.absolutePath)
                 updateActiveDownload(downloadId, title, 1f, DownloadStatus.COMPLETED)
                 
                 // Import to library
@@ -229,6 +229,11 @@ class OPDSDownloadService @Inject constructor(
                 }
             }
         }
+    }
+
+    internal suspend fun persistCompletedDownload(downloadId: Long, localPath: String) {
+        require(localPath.isNotBlank()) { "localPath must not be blank when marking a download complete" }
+        catalogDao.markDownloadCompleteAtomically(downloadId, localPath)
     }
     
     /**
