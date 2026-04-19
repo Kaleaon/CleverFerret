@@ -11,6 +11,7 @@ import com.universalmedialibrary.ui.media.screens.SearchCategory
 import com.universalmedialibrary.ui.media.screens.SearchResult
 import com.universalmedialibrary.ui.media.screens.SearchScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -63,17 +64,20 @@ class SearchViewModel @Inject constructor(
                 performSearch(query)
             }
         } else {
-            _uiState.update { it.copy(results = emptyList(), groupedResults = emptyMap()) }
+            _uiState.update { it.copy(results = emptyList(), groupedResults = emptyMap(), allResults = emptyList()) }
         }
     }
     
     fun search(query: String) {
         if (query.isBlank()) return
-        performSearch(query)
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            performSearch(query)
+        }
     }
     
     fun clearSearch() {
-        _uiState.update { it.copy(query = "", results = emptyList(), groupedResults = emptyMap()) }
+        _uiState.update { it.copy(query = "", results = emptyList(), groupedResults = emptyMap(), allResults = emptyList()) }
     }
     
     fun setCategory(category: SearchCategory?) {
@@ -81,7 +85,15 @@ class SearchViewModel @Inject constructor(
         
         // Re-filter results if we have any
         if (_uiState.value.query.isNotBlank()) {
-            filterResults(category)
+            applyClientSideFilters(category = category)
+        }
+    }
+
+    fun setMediaType(mediaType: MediaType?) {
+        _uiState.update { it.copy(selectedMediaType = mediaType) }
+
+        if (_uiState.value.query.isNotBlank()) {
+            applyClientSideFilters(mediaType = mediaType)
         }
     }
     
@@ -101,14 +113,15 @@ class SearchViewModel @Inject constructor(
         search(query)
     }
     
-    private fun performSearch(query: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isSearching = true) }
-            
-            try {
-                // Build search query with optional category filter
-                val selectedCategory = _uiState.value.selectedCategory
-                val mediaTypes = when (selectedCategory) {
+    private suspend fun performSearch(query: String) {
+        _uiState.update { it.copy(isSearching = true) }
+        
+        try {
+            val selectedCategory = _uiState.value.selectedCategory
+            val selectedMediaType = _uiState.value.selectedMediaType
+            val mediaTypes = when {
+                selectedMediaType != null -> selectedMediaType.toServiceMediaTypes()
+                else -> when (selectedCategory) {
                     SearchCategory.BOOKS -> listOf("BOOK")
                     SearchCategory.AUDIOBOOKS -> listOf("AUDIOBOOK")
                     SearchCategory.MUSIC -> listOf("MUSIC_TRACK", "MUSIC_ALBUM")
@@ -120,53 +133,57 @@ class SearchViewModel @Inject constructor(
                     SearchCategory.DOCUMENTS -> listOf("DOCUMENT", "PDF")
                     null -> emptyList() // Search all types
                 }
-                
-                val searchQuery = SearchQuery(
-                    textQuery = query,
-                    filters = SearchFilters(mediaTypes = mediaTypes),
-                    sortBy = SortBy.RELEVANCE
-                )
-                
-                val serviceResults = searchService.search(searchQuery)
-                
-                // Convert service results to UI results
-                val uiResults = serviceResults.map { result ->
-                    SearchResult(
-                        id = result.itemId.toString(),
-                        title = result.title,
-                        subtitle = result.subtitle ?: "",
-                        imageUrl = result.thumbnailUrl,
-                        category = mapMediaTypeToCategory(result.mediaType),
-                        source = "Local",
-                        mediaType = mapStringToMediaType(result.mediaType)
-                    )
-                }
-                
-                // Group results by category
-                val groupedResults = uiResults.groupBy { it.category }
-                
-                _uiState.update {
-                    it.copy(
-                        results = uiResults,
-                        groupedResults = groupedResults,
-                        isSearching = false
-                    )
-                }
-                
-                // Refresh recent searches
-                loadRecentSearches()
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                throw e // Re-throw cancellation
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        results = emptyList(),
-                        groupedResults = emptyMap(),
-                        isSearching = false
-                    )
-                }
-                _userMessages.tryEmit("Search failed. Please try again.")
             }
+
+            val searchQuery = SearchQuery(
+                textQuery = query,
+                filters = SearchFilters(mediaTypes = mediaTypes),
+                sortBy = SortBy.RELEVANCE
+            )
+            
+            val serviceResults = searchService.search(searchQuery)
+            
+            // Convert service results to UI results
+            val uiResults = serviceResults.map { result ->
+                SearchResult(
+                    id = result.itemId.toString(),
+                    title = result.title,
+                    subtitle = result.subtitle ?: "",
+                    imageUrl = result.thumbnailUrl,
+                    category = mapMediaTypeToCategory(result.mediaType),
+                    source = "Local",
+                    mediaType = mapStringToMediaType(result.mediaType)
+                )
+            }
+            
+            // Group results by category
+            val groupedResults = uiResults.groupBy { it.category }
+            
+            _uiState.update {
+                it.copy(
+                    allResults = uiResults,
+                    groupedResults = groupedResults,
+                    isSearching = false
+                )
+            }
+
+            applyClientSideFilters()
+            
+            // Refresh recent searches
+            loadRecentSearches()
+        } catch (e: CancellationException) {
+            _uiState.update { it.copy(isSearching = false) }
+            throw e
+        } catch (e: Exception) {
+            _uiState.update {
+                it.copy(
+                    results = emptyList(),
+                    groupedResults = emptyMap(),
+                    allResults = emptyList(),
+                    isSearching = false
+                )
+            }
+            _userMessages.tryEmit("Search failed. Please try again.")
         }
     }
     
@@ -198,13 +215,38 @@ class SearchViewModel @Inject constructor(
         }
     }
     
-    private fun filterResults(category: SearchCategory?) {
-        val allResults = _uiState.value.groupedResults.values.flatten()
-        val filtered = if (category != null) {
-            allResults.filter { it.category == category }
+    private fun applyClientSideFilters(
+        category: SearchCategory? = _uiState.value.selectedCategory,
+        mediaType: MediaType? = _uiState.value.selectedMediaType
+    ) {
+        val base = _uiState.value.allResults
+        val categoryFiltered = if (category != null) {
+            base.filter { it.category == category }
         } else {
-            allResults
+            base
+        }
+        val filtered = if (mediaType != null) {
+            categoryFiltered.filter { it.mediaType == mediaType }
+        } else {
+            categoryFiltered
         }
         _uiState.update { it.copy(results = filtered) }
+    }
+}
+
+private fun MediaType.toServiceMediaTypes(): List<String> {
+    return when (this) {
+        MediaType.BOOK -> listOf("BOOK", "EBOOK")
+        MediaType.AUDIOBOOK -> listOf("AUDIOBOOK")
+        MediaType.COMIC -> listOf("COMIC", "MANGA")
+        MediaType.MUSIC -> listOf("MUSIC", "MUSIC_TRACK", "MUSIC_ALBUM")
+        MediaType.PODCAST -> listOf("PODCAST", "PODCAST_EPISODE")
+        MediaType.MOVIE -> listOf("MOVIE", "VIDEO")
+        MediaType.TV_SHOW -> listOf("TV_SHOW", "TV_EPISODE")
+        MediaType.FANFICTION -> listOf("FANFICTION", "WEB_FICTION")
+        MediaType.DOCUMENT -> listOf("DOCUMENT", "PDF")
+        MediaType.RADIO -> listOf("RADIO")
+        MediaType.NEWS -> listOf("NEWS")
+        MediaType.UNKNOWN -> emptyList()
     }
 }
