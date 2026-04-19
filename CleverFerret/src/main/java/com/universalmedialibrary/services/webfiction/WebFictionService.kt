@@ -6,13 +6,15 @@ import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.ingestion.IngestionPipeline
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.net.SocketTimeoutException
+import java.net.URI
 import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -86,6 +88,15 @@ class WebFictionService @Inject constructor(
     private val ingestionPipeline: IngestionPipeline
 ) {
 
+    data class ValidatedWebFictionUrl(
+        val normalizedUrl: String,
+        val siteType: WebFictionSiteType
+    )
+
+    class UnsupportedWebFictionUrlException(message: String) : IllegalArgumentException(message)
+    class WebFictionRateLimitException(message: String) : IllegalStateException(message)
+    class WebFictionSiteChangedException(message: String) : IllegalStateException(message)
+
     private val royalRoadApi: RoyalRoadApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.royalroad.com/api/")
@@ -157,7 +168,9 @@ class WebFictionService @Inject constructor(
     ): WebFictionStory? {
         return withContext(Dispatchers.IO) {
             try {
-                val site = detectSite(url)
+                val validatedUrl = parseAndValidateSourceUrl(url)
+                val site = validatedUrl.siteType
+                val normalizedUrl = validatedUrl.normalizedUrl
                 ingestionPipeline.execute(
                     sourceId = "webfiction:${site.name.lowercase()}",
                     authenticate = {
@@ -166,20 +179,20 @@ class WebFictionService @Inject constructor(
                     },
                     fetchPage = { authedSite, _ ->
                         when (authedSite) {
-                            WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> extractFromAO3(url)
-                            WebFictionSiteType.FANFICTION_NET -> extractFromFFN(url)
-                            WebFictionSiteType.ROYAL_ROAD -> extractFromRoyalRoad(url)
-                            WebFictionSiteType.WEBNOVEL -> extractFromWebnovel(url)
-                            WebFictionSiteType.WATTPAD -> extractFromWattpad(url)
-                            WebFictionSiteType.SCRIBBLE_HUB -> extractFromScribbleHub(url)
-                            WebFictionSiteType.FIMFICTION -> extractFromFimFiction(url)
-                            WebFictionSiteType.METABODS -> extractFromMetabods(url)
-                            WebFictionSiteType.LITEROTICA -> extractFromLiterotica(url)
-                            WebFictionSiteType.NIFTY -> extractFromNifty(url)
-                            WebFictionSiteType.ADULT_FANFICTION -> extractFromAdultFanFiction(url)
-                            WebFictionSiteType.BDSM_LIBRARY -> extractFromBdsmlibrary(url)
-                            WebFictionSiteType.MCSTORIES -> extractFromMcstories(url)
-                            else -> extractGeneric(url)
+                            WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> extractFromAO3(normalizedUrl)
+                            WebFictionSiteType.FANFICTION_NET -> extractFromFFN(normalizedUrl)
+                            WebFictionSiteType.ROYAL_ROAD -> extractFromRoyalRoad(normalizedUrl)
+                            WebFictionSiteType.WEBNOVEL -> extractFromWebnovel(normalizedUrl)
+                            WebFictionSiteType.WATTPAD -> extractFromWattpad(normalizedUrl)
+                            WebFictionSiteType.SCRIBBLE_HUB -> extractFromScribbleHub(normalizedUrl)
+                            WebFictionSiteType.FIMFICTION -> extractFromFimFiction(normalizedUrl)
+                            WebFictionSiteType.METABODS -> extractFromMetabods(normalizedUrl)
+                            WebFictionSiteType.LITEROTICA -> extractFromLiterotica(normalizedUrl)
+                            WebFictionSiteType.NIFTY -> extractFromNifty(normalizedUrl)
+                            WebFictionSiteType.ADULT_FANFICTION -> extractFromAdultFanFiction(normalizedUrl)
+                            WebFictionSiteType.BDSM_LIBRARY -> extractFromBdsmlibrary(normalizedUrl)
+                            WebFictionSiteType.MCSTORIES -> extractFromMcstories(normalizedUrl)
+                            else -> extractGeneric(normalizedUrl)
                         }
                     },
                     parse = { it },
@@ -197,8 +210,14 @@ class WebFictionService @Inject constructor(
                 throw e
             } catch (e: DownloadBlockedException) {
                 throw e
+            } catch (e: UnsupportedWebFictionUrlException) {
+                throw e
+            } catch (e: WebFictionRateLimitException) {
+                throw e
+            } catch (e: WebFictionSiteChangedException) {
+                throw e
             } catch (e: Exception) {
-                null
+                throw mapSiteFailure(url, e)
             }
         }
     }
@@ -223,7 +242,7 @@ class WebFictionService @Inject constructor(
             } catch (e: DownloadBlockedException) {
                 throw e
             } catch (e: Exception) {
-                emptyList()
+                throw mapSiteFailure(story.url, e)
             }
         }
     }
@@ -260,7 +279,7 @@ class WebFictionService @Inject constructor(
             } catch (e: DownloadBlockedException) {
                 throw e
             } catch (e: Exception) {
-                emptyList()
+                throw mapSiteFailure(story.url, e)
             }
         }
     }
@@ -285,6 +304,52 @@ class WebFictionService @Inject constructor(
             "bdsmlibrary.com" in domain -> WebFictionSiteType.BDSM_LIBRARY
             "mcstories.com" in domain -> WebFictionSiteType.MCSTORIES
             else -> WebFictionSiteType.GENERIC
+        }
+    }
+
+    fun parseAndValidateSourceUrl(rawUrl: String): ValidatedWebFictionUrl {
+        val normalized = rawUrl.trim()
+        require(normalized.isNotBlank()) { "Enter a story URL to continue." }
+
+        val uri = try {
+            URI(normalized)
+        } catch (_: Exception) {
+            throw UnsupportedWebFictionUrlException("Invalid URL format. Include the full https:// address.")
+        }
+
+        if (uri.scheme.isNullOrBlank() || uri.host.isNullOrBlank()) {
+            throw UnsupportedWebFictionUrlException("Invalid URL format. Include the full https:// address.")
+        }
+        if (uri.scheme != "https" && uri.scheme != "http") {
+            throw UnsupportedWebFictionUrlException("Only http/https story URLs are supported.")
+        }
+
+        val cleanUrl = uri.normalize().toString()
+        val siteType = detectSite(cleanUrl)
+        if (siteType == WebFictionSiteType.GENERIC) {
+            throw UnsupportedWebFictionUrlException(
+                "Unsupported site. Use AO3, FanFiction.Net, Royal Road, WebNovel, Wattpad, Scribble Hub, FimFiction, or supported adult-source domains."
+            )
+        }
+
+        return ValidatedWebFictionUrl(
+            normalizedUrl = cleanUrl.substringBefore("#"),
+            siteType = siteType
+        )
+    }
+
+    private fun mapSiteFailure(url: String, e: Exception): Exception {
+        val message = e.message?.lowercase().orEmpty()
+        return when {
+            e is HttpStatusException && e.statusCode in setOf(429, 403, 503) ->
+                WebFictionRateLimitException("Rate-limited by source site for $url (HTTP ${e.statusCode}).")
+            e is SocketTimeoutException ->
+                WebFictionRateLimitException("Timed out while contacting source site for $url.")
+            "429" in message || "rate limit" in message || "too many requests" in message ->
+                WebFictionRateLimitException("Rate-limited by source site for $url.")
+            "selector" in message || "not found" in message || "element" in message ->
+                WebFictionSiteChangedException("Source page structure changed for $url.")
+            else -> e
         }
     }
 

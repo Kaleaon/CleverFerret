@@ -30,6 +30,11 @@ import java.util.zip.ZipFile
 import com.github.junrar.Archive
 import com.github.junrar.rarfile.FileHeader
 
+private data class ExtractedComic(
+    val imageFiles: List<File> = emptyList(),
+    val cleanupDir: File? = null
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ComicReaderScreen(
@@ -43,7 +48,7 @@ fun ComicReaderScreen(
     val uri = remember(uriString) { Uri.parse(uriString) }
     val extension = remember(fileName) { fileName.substringAfterLast('.', "").lowercase() }
 
-    var images by remember { mutableStateOf<List<File>>(emptyList()) }
+    var extractedComic by remember { mutableStateOf(ExtractedComic()) }
     var index by remember { mutableStateOf(0) }
     var currentBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var translationsJson by remember { mutableStateOf<String?>(null) }
@@ -54,23 +59,24 @@ fun ComicReaderScreen(
         onDispose {
             currentBitmap?.recycle()
             currentBitmap = null
+            extractedComic.cleanupDir?.deleteRecursively()
         }
     }
 
     LaunchedEffect(uri) {
-        images = try {
+        extractedComic = try {
             when (extension) {
                 "cbz" -> extractCbzImages(context, uri)
                 "cbr" -> extractCbrImages(context, uri)
-                else -> emptyList()
+                else -> ExtractedComic()
             }
         } catch (e: Exception) { 
             android.util.Log.w("ComicReader", "Failed to extract comic images", e)
-            emptyList() 
+            ExtractedComic()
         }
         index = 0
         currentBitmap?.recycle()
-        currentBitmap = loadBitmap(images.getOrNull(index))
+        currentBitmap = loadBitmap(extractedComic.imageFiles.getOrNull(index))
     }
 
     Scaffold(
@@ -100,23 +106,23 @@ fun ComicReaderScreen(
                         if (index > 0) {
                             index -= 1
                             currentBitmap?.recycle()
-                            currentBitmap = loadBitmap(images.getOrNull(index))
+                            currentBitmap = loadBitmap(extractedComic.imageFiles.getOrNull(index))
                         }
                     },
                     enabled = index > 0
                 ) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = "Prev page") }
 
-                Text("${index + 1} / ${images.size}")
+                Text("${index + 1} / ${extractedComic.imageFiles.size}")
 
                 IconButton(
                     onClick = {
-                        if (index < images.size - 1) {
+                        if (index < extractedComic.imageFiles.size - 1) {
                             index += 1
                             currentBitmap?.recycle()
-                            currentBitmap = loadBitmap(images.getOrNull(index))
+                            currentBitmap = loadBitmap(extractedComic.imageFiles.getOrNull(index))
                         }
                     },
-                    enabled = index < images.size - 1
+                    enabled = index < extractedComic.imageFiles.size - 1
                 ) { Icon(Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Next page") }
             }
 
@@ -161,7 +167,7 @@ fun ComicReaderScreen(
     }
 }
 
-private fun extractCbzImages(context: android.content.Context, uri: Uri): List<File> {
+private fun extractCbzImages(context: android.content.Context, uri: Uri): ExtractedComic {
     val tmp = copyToTempFile(context, uri, ".cbz")
     val outDir = File(context.cacheDir, "cbz_${tmp.nameWithoutExtension}").apply { mkdirs() }
     val outFiles = mutableListOf<File>()
@@ -173,10 +179,10 @@ private fun extractCbzImages(context: android.content.Context, uri: Uri): List<F
             outFiles.add(out)
         }
     }
-    return outFiles
+    return ExtractedComic(outFiles, outDir)
 }
 
-private fun extractCbrImages(context: android.content.Context, uri: Uri): List<File> {
+private fun extractCbrImages(context: android.content.Context, uri: Uri): ExtractedComic {
     val tmp = copyToTempFile(context, uri, ".cbr")
     val outDir = File(context.cacheDir, "cbr_${tmp.nameWithoutExtension}").apply { mkdirs() }
     val outFiles = mutableListOf<File>()
@@ -190,7 +196,7 @@ private fun extractCbrImages(context: android.content.Context, uri: Uri): List<F
                 outFiles.add(out)
             }
     }
-    return outFiles
+    return ExtractedComic(outFiles, outDir)
 }
 
 private fun copyToTempFile(context: android.content.Context, uri: Uri, suffix: String): File {

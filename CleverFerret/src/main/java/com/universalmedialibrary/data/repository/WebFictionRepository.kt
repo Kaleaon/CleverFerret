@@ -21,6 +21,9 @@ class WebFictionRepository @Inject constructor(
     
     suspend fun getWebFictionById(id: String): FanfictionStoryEntity? = 
         fanfictionDao.getStoryById(id)
+
+    suspend fun getWebFictionBySourceUrl(sourceUrl: String): FanfictionStoryEntity? =
+        fanfictionDao.getStoryBySourceUrl(sourceUrl)
     
     fun getRecentlyAddedWebFiction(limit: Int = 10): Flow<List<FanfictionStoryEntity>> = 
         fanfictionDao.getAllStories().map { it.take(limit) }
