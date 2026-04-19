@@ -34,6 +34,40 @@ enum class MediaType {
     UNKNOWN
 }
 
+fun String.toMediaTypeOrUnknown(): MediaType {
+    val normalized = trim().uppercase()
+    return when (normalized) {
+        "TV_EPISODE" -> MediaType.TV_SHOW
+        else -> MediaType.entries.firstOrNull { it.name == normalized } ?: MediaType.UNKNOWN
+    }
+}
+
+fun MediaType.isAudioType(): Boolean {
+    return when (this) {
+        MediaType.AUDIO,
+        MediaType.AUDIOBOOK,
+        MediaType.MUSIC,
+        MediaType.MUSIC_TRACK,
+        MediaType.MUSIC_ALBUM,
+        MediaType.PODCAST,
+        MediaType.PODCAST_EPISODE,
+        MediaType.PODCAST_SERIES,
+        MediaType.RADIO,
+        MediaType.MIDI -> true
+        else -> false
+    }
+}
+
+fun MediaType.isVideoType(): Boolean {
+    return when (this) {
+        MediaType.MOVIE,
+        MediaType.TV_SHOW,
+        MediaType.DOCUMENTARY,
+        MediaType.VIDEO -> true
+        else -> false
+    }
+}
+
 // Extension functions for MediaType
 fun MediaType.getDisplayName(): String {
     return when (this) {
