@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -130,9 +131,12 @@ enum class ViewMode {
     GRID
 }
 
-private enum class PendingFileOperation { COPY, MOVE }
-
 private enum class FileConflictChoice { REPLACE, KEEP_BOTH, SKIP }
+
+private data class FileConflictRequest(
+    val file: File,
+    val response: CompletableDeferred<FileConflictChoice>
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -161,11 +165,17 @@ fun EnhancedFileBrowser(
     var showCopyDialog by remember { mutableStateOf(false) }
     var showMoveDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
-    var pendingOperation by remember { mutableStateOf<PendingFileOperation?>(null) }
-    var conflictFile by remember { mutableStateOf<File?>(null) }
-    var conflictChoice by remember { mutableStateOf(FileConflictChoice.KEEP_BOTH) }
+    var conflictRequest by remember { mutableStateOf<FileConflictRequest?>(null) }
     var fileItems by remember { mutableStateOf<List<FileItem>>(emptyList()) }
     var loadingError by remember { mutableStateOf<String?>(null) }
+
+    suspend fun awaitConflictChoice(file: File): FileConflictChoice {
+        val response = CompletableDeferred<FileConflictChoice>()
+        withContext(Dispatchers.Main) {
+            conflictRequest = FileConflictRequest(file = file, response = response)
+        }
+        return response.await()
+    }
     
     val currentDirectory = remember(currentPath) {
         File(currentPath)
@@ -291,11 +301,9 @@ fun EnhancedFileBrowser(
             SelectionBar(
                 selectedCount = selectedFiles.size,
                 onCopy = { 
-                    pendingOperation = PendingFileOperation.COPY
                     showFileOpsSheet = true
                 },
                 onMove = { 
-                    pendingOperation = PendingFileOperation.MOVE
                     showFileOpsSheet = true
                 },
                 onDelete = { 
@@ -309,7 +317,6 @@ fun EnhancedFileBrowser(
             BottomSheetDialog(
                 onDismissRequest = {
                     showFileOpsSheet = false
-                    pendingOperation = null
                 },
                 title = "File operations"
             ) {
@@ -350,44 +357,43 @@ fun EnhancedFileBrowser(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            scope.launch(Dispatchers.IO) {
-                                selectedFiles.forEach { file ->
-                                    try {
-                                        val destFile = File(currentDirectory, file.name)
-                                        if (destFile.exists()) {
-                                            conflictFile = file
-                                            val target = when (conflictChoice) {
-                                                FileConflictChoice.REPLACE -> destFile
-                                                FileConflictChoice.KEEP_BOTH -> {
-                                                    var counter = 1
-                                                    var newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
-                                                    var newFile = File(currentDirectory, newName)
-                                                    while (newFile.exists()) {
-                                                        counter++
-                                                        newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
-                                                        newFile = File(currentDirectory, newName)
+                            val filesToProcess = selectedFiles.toList()
+                            scope.launch {
+                                val errors = withContext(Dispatchers.IO) {
+                                    val operationErrors = mutableListOf<String>()
+                                    filesToProcess.forEach { file ->
+                                        try {
+                                            val destFile = File(currentDirectory, file.name)
+                                            if (destFile.exists()) {
+                                                when (awaitConflictChoice(file)) {
+                                                    FileConflictChoice.REPLACE -> {
+                                                        file.copyTo(destFile, overwrite = true)
                                                     }
-                                                    newFile
+                                                    FileConflictChoice.KEEP_BOTH -> {
+                                                        val target = generateNonConflictingFile(currentDirectory, file)
+                                                        file.copyTo(target, overwrite = false)
+                                                    }
+                                                    FileConflictChoice.SKIP -> Unit
                                                 }
-                                                FileConflictChoice.SKIP -> null
+                                            } else {
+                                                file.copyTo(destFile, overwrite = false)
                                             }
-                                            if (target != null) {
-                                                file.copyTo(target, overwrite = conflictChoice == FileConflictChoice.REPLACE)
-                                            }
-                                        } else {
-                                            file.copyTo(destFile, overwrite = false)
+                                        } catch (e: Exception) {
+                                            operationErrors += "Failed to copy ${file.name}: ${e.message}"
+                                            android.util.Log.e("FileBrowser", "Failed to copy ${file.name}: ${e.message}")
                                         }
-                                    } catch (e: Exception) {
-                                        android.util.Log.e("FileBrowser", "Failed to copy ${file.name}: ${e.message}")
                                     }
+                                    operationErrors
                                 }
-                                withContext(Dispatchers.Main) {
-                                    selectedFiles = emptySet()
-                                    showCopyDialog = false
-                                    // Reload file list
-                                    fileItems = withContext(Dispatchers.IO) {
-                                        loadFileItems(currentDirectory, settings)
-                                    }
+                                selectedFiles = emptySet()
+                                showCopyDialog = false
+                                conflictRequest = null
+                                if (errors.isNotEmpty()) {
+                                    loadingError = "Some files failed to copy. Check logs for details."
+                                }
+                                // Reload file list
+                                fileItems = withContext(Dispatchers.IO) {
+                                    loadFileItems(currentDirectory, settings)
                                 }
                             }
                         }
@@ -421,42 +427,45 @@ fun EnhancedFileBrowser(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            scope.launch(Dispatchers.IO) {
-                                selectedFiles.forEach { file ->
-                                    try {
-                                        val destFile = File(currentDirectory, file.name)
-                                        if (destFile.exists()) {
-                                            conflictFile = file
-                                            val target = when (conflictChoice) {
-                                                FileConflictChoice.REPLACE -> destFile
-                                                FileConflictChoice.KEEP_BOTH -> {
-                                                    var counter = 1
-                                                    var newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
-                                                    var newFile = File(currentDirectory, newName)
-                                                    while (newFile.exists()) {
-                                                        counter++
-                                                        newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
-                                                        newFile = File(currentDirectory, newName)
+                            val filesToProcess = selectedFiles.toList()
+                            scope.launch {
+                                val errors = withContext(Dispatchers.IO) {
+                                    val operationErrors = mutableListOf<String>()
+                                    filesToProcess.forEach { file ->
+                                        try {
+                                            val destFile = File(currentDirectory, file.name)
+                                            val moved = if (destFile.exists()) {
+                                                when (awaitConflictChoice(file)) {
+                                                    FileConflictChoice.REPLACE -> moveFileSafely(file, destFile, overwrite = true)
+                                                    FileConflictChoice.KEEP_BOTH -> {
+                                                        val target = generateNonConflictingFile(currentDirectory, file)
+                                                        moveFileSafely(file, target, overwrite = false)
                                                     }
-                                                    newFile
+                                                    FileConflictChoice.SKIP -> true
                                                 }
-                                                FileConflictChoice.SKIP -> null
+                                            } else {
+                                                moveFileSafely(file, destFile, overwrite = false)
                                             }
-                                            if (target != null) file.renameTo(target)
-                                        } else {
-                                            file.renameTo(destFile)
+                                            if (!moved) {
+                                                operationErrors += "Failed to move ${file.name}"
+                                                android.util.Log.e("FileBrowser", "Failed to move ${file.name}")
+                                            }
+                                        } catch (e: Exception) {
+                                            operationErrors += "Failed to move ${file.name}: ${e.message}"
+                                            android.util.Log.e("FileBrowser", "Failed to move ${file.name}: ${e.message}")
                                         }
-                                    } catch (e: Exception) {
-                                        android.util.Log.e("FileBrowser", "Failed to move ${file.name}: ${e.message}")
                                     }
+                                    operationErrors
                                 }
-                                withContext(Dispatchers.Main) {
-                                    selectedFiles = emptySet()
-                                    showMoveDialog = false
-                                    // Reload file list
-                                    fileItems = withContext(Dispatchers.IO) {
-                                        loadFileItems(currentDirectory, settings)
-                                    }
+                                selectedFiles = emptySet()
+                                showMoveDialog = false
+                                conflictRequest = null
+                                if (errors.isNotEmpty()) {
+                                    loadingError = "Some files failed to move. Check logs for details."
+                                }
+                                // Reload file list
+                                fileItems = withContext(Dispatchers.IO) {
+                                    loadFileItems(currentDirectory, settings)
                                 }
                             }
                         }
@@ -472,27 +481,53 @@ fun EnhancedFileBrowser(
             )
         }
 
-        if (conflictFile != null) {
+        conflictRequest?.let { pendingConflict ->
             FormDialog(
-                onDismissRequest = { conflictFile = null },
+                onDismissRequest = {
+                    if (!pendingConflict.response.isCompleted) {
+                        pendingConflict.response.complete(FileConflictChoice.SKIP)
+                    }
+                    conflictRequest = null
+                },
                 title = { Text("File name conflict") },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("A file named ${conflictFile?.name} already exists.")
+                        Text("A file named ${pendingConflict.file.name} already exists.")
                         Text("Choose how to continue.")
                     }
                 },
                 confirmButton = {
-                    TextButton(onClick = { conflictChoice = FileConflictChoice.REPLACE; conflictFile = null }) {
+                    TextButton(
+                        onClick = {
+                            if (!pendingConflict.response.isCompleted) {
+                                pendingConflict.response.complete(FileConflictChoice.REPLACE)
+                            }
+                            conflictRequest = null
+                        }
+                    ) {
                         Text("Replace", color = MaterialTheme.colorScheme.error)
                     }
                 },
                 dismissButton = {
                     Row {
-                        TextButton(onClick = { conflictChoice = FileConflictChoice.KEEP_BOTH; conflictFile = null }) {
+                        TextButton(
+                            onClick = {
+                                if (!pendingConflict.response.isCompleted) {
+                                    pendingConflict.response.complete(FileConflictChoice.KEEP_BOTH)
+                                }
+                                conflictRequest = null
+                            }
+                        ) {
                             Text("Keep both")
                         }
-                        TextButton(onClick = { conflictChoice = FileConflictChoice.SKIP; conflictFile = null }) {
+                        TextButton(
+                            onClick = {
+                                if (!pendingConflict.response.isCompleted) {
+                                    pendingConflict.response.complete(FileConflictChoice.SKIP)
+                                }
+                                conflictRequest = null
+                            }
+                        ) {
                             Text("Skip")
                         }
                     }
@@ -1251,6 +1286,41 @@ private fun loadFileItems(directory: File, settings: FileBrowserSettings): List<
         throw SecurityException("Permission denied: ${e.message}", e)
     } catch (e: Exception) {
         throw Exception("Error loading files", e)
+    }
+}
+
+private fun generateNonConflictingFile(directory: File, sourceFile: File): File {
+    val baseName = sourceFile.nameWithoutExtension.ifBlank { sourceFile.name }
+    val suffix = sourceFile.extension.takeIf { it.isNotBlank() }?.let { ".$it" }.orEmpty()
+    var counter = 1
+    var candidate = File(directory, "${baseName}_$counter$suffix")
+    while (candidate.exists()) {
+        counter++
+        candidate = File(directory, "${baseName}_$counter$suffix")
+    }
+    return candidate
+}
+
+private fun moveFileSafely(source: File, destination: File, overwrite: Boolean): Boolean {
+    if (source.absolutePath == destination.absolutePath) {
+        return true
+    }
+
+    return try {
+        if (source.renameTo(destination)) {
+            true
+        } else {
+            source.copyTo(destination, overwrite = overwrite)
+            if (source.delete()) {
+                true
+            } else {
+                destination.delete()
+                false
+            }
+        }
+    } catch (e: Exception) {
+        android.util.Log.e("FileBrowser", "Failed to move ${source.name}: ${e.message}")
+        false
     }
 }
 

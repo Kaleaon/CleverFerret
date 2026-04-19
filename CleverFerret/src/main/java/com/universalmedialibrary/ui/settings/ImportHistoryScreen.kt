@@ -150,9 +150,16 @@ fun ImportHistoryScreen(
                                 }
                                 OutlinedButton(
                                     onClick = {
+                                        status = null
+                                        selectedImportDetails = null
                                         coroutineScope.launch {
-                                            selectedImportDetails = withContext(Dispatchers.IO) {
+                                            val details = withContext(Dispatchers.IO) {
                                                 storageService.readImportLog(context, log.fileName)
+                                            }
+                                            if (details != null) {
+                                                selectedImportDetails = details
+                                            } else {
+                                                status = "Import details are unavailable for this entry."
                                             }
                                         }
                                     }

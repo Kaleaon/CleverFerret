@@ -541,7 +541,9 @@ fun MediaAppNavHost(
             route = MediaRoutes.ROOM_CHAT,
             arguments = listOf(navArgument("roomName") { type = NavType.StringType })
         ) { backStackEntry ->
-            val roomName = Uri.decode(backStackEntry.arguments?.getString("roomName").orEmpty()).ifBlank { "Room Chat" }
+            val roomName = sanitizeRouteParamForDisplay(
+                Uri.decode(backStackEntry.arguments?.getString("roomName").orEmpty())
+            ).ifBlank { "Room Chat" }
             RoomChatScreen(
                 roomName = roomName,
                 onBackClick = { navController.popBackStack() }
