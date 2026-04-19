@@ -38,6 +38,21 @@ The following files were intentionally removed in commit `d396a435` ("Remove AI 
 - `EnhancedAIContentCacheService.kt`
 - `StreamingChatService.kt`
 
+
+## Failure Trace Mapping (Historical `error.NonExistentClass`)
+
+From `compile_log.txt`, KSP previously reported unresolved constructor parameter types for three now-removed services:
+
+- `AIBackupAutomationService(android.content.Context,error.NonExistentClass,error.NonExistentClass,error.NonExistentClass)`
+- `AIBookDiscussionService(android.content.Context,AIReadingProgressService,ReadingAnalyticsDao,error.NonExistentClass)`
+- `AIReadingAgentService(android.content.Context,AIReadingProgressService,AIBookDiscussionService,AILibraryBrowserService,error.NonExistentClass)`
+
+Resolution applied in current codebase:
+
+1. **Removed dependency path (refactor-by-removal)**: these services were intentionally deleted and are no longer part of `src/main/java` (instead of restoring missing classes).
+2. **DI cleanup**: active Hilt modules provide only surviving AI services/types; no `@Provides`/`@Binds` entries reference the removed services.
+3. **Regression guard**: CI includes an explicit KSP gate step so unresolved types surface immediately.
+
 ## Dependency Injection Notes
 
 - `ServicesModule` provides active AI services via currently existing types (`AIServiceManager`, `AIMetadataService`, `AIReadingProgressService`).

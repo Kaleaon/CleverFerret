@@ -23,6 +23,7 @@ import retrofit2.http.Query
 import kotlin.text.Charsets
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URI
 import java.net.URL
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -819,21 +820,32 @@ class PodcastService @Inject constructor(
         val explicit = channel.select("itunes|explicit").text().equals("yes", true)
 
         // Parse episodes
-        val items = channel.select("item").map { item ->
+        val parsedItems = channel.select("item").mapIndexed { index, item ->
+            val rawTitle = item.select("title").text().ifBlank { "Episode ${index + 1}" }
+            val normalizedTitle = rawTitle.trim().replace("\\s+".toRegex(), " ")
+            val link = item.select("link").text().ifBlank { null }
+            val enclosure = item.select("enclosure").first()
+            val enclosureUrl = enclosure?.attr("url").orEmpty()
+            val audioUrl = resolveUrl(feedUrl, enclosureUrl)?.takeIf { it.isNotBlank() }
+            val guid = item.select("guid").text().ifBlank {
+                link ?: audioUrl ?: "${feedUrl}#$index"
+            }
             RSSItem(
-                title = item.select("title").text(),
-                description = item.select("description").text(),
-                link = item.select("link").text(),
-                audioUrl = item.select("enclosure").attr("url"),
+                title = normalizedTitle,
+                description = item.select("description").text().trim(),
+                link = resolveUrl(feedUrl, link),
+                audioUrl = audioUrl,
                 duration = item.select("itunes|duration").text(),
-                fileSize = item.select("enclosure").attr("length").toLongOrNull(),
+                fileSize = enclosure?.attr("length")?.toLongOrNull(),
                 pubDate = item.select("pubDate").text(),
-                guid = item.select("guid").text().ifEmpty { item.select("link").text() },
+                guid = guid,
                 episodeNumber = item.select("itunes|episode").text().toIntOrNull(),
                 seasonNumber = item.select("itunes|season").text().toIntOrNull(),
                 imageUrl = item.select("itunes|image").attr("href")
             )
-        }.filter { !it.audioUrl.isNullOrEmpty() } // Only include items with audio
+        }
+
+        val items = normalizeEpisodeList(parsedItems, feedUrl)
 
         return RSSFeed(
             title = title,
@@ -846,6 +858,45 @@ class PodcastService @Inject constructor(
             explicit = explicit,
             items = items
         )
+    }
+
+    private fun normalizeEpisodeList(items: List<RSSItem>, feedUrl: String): List<RSSItem> {
+        return items
+            .mapIndexed { index, item ->
+                val normalizedTitle = item.title.ifBlank { "Episode ${index + 1}" }
+                    .replace("\\s+".toRegex(), " ")
+                    .trim()
+                val normalizedGuid = item.guid?.ifBlank { null }
+                    ?: item.audioUrl?.ifBlank { null }
+                    ?: item.link?.ifBlank { null }
+                    ?: "$feedUrl#$index"
+                val normalizedAudioUrl = item.audioUrl?.let { resolveUrl(feedUrl, it) }
+                item.copy(
+                    title = normalizedTitle,
+                    guid = normalizedGuid,
+                    audioUrl = normalizedAudioUrl
+                )
+            }
+            .filter { !it.audioUrl.isNullOrBlank() }
+            .distinctBy { it.guid?.trim()?.lowercase(Locale.US) ?: "" }
+            .sortedByDescending { parsePubDateToMillis(it.pubDate) }
+    }
+
+    private fun parsePubDateToMillis(pubDate: String?): Long {
+        if (pubDate.isNullOrBlank()) return 0L
+        return runCatching {
+            SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
+                .parse(pubDate)
+                ?.time
+                ?: 0L
+        }.getOrDefault(0L)
+    }
+
+    private fun resolveUrl(feedUrl: String, candidate: String?): String? {
+        if (candidate.isNullOrBlank()) return null
+        return runCatching {
+            URI(feedUrl).resolve(candidate.trim()).toString()
+        }.getOrDefault(candidate)
     }
 
     /**

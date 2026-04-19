@@ -76,6 +76,10 @@ class StorageBrowserViewModel @Inject constructor() : ViewModel() {
         navigateTo(_uiState.value.currentPath)
     }
 
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
+    }
+
     fun setViewMode(mode: ViewMode) {
         _uiState.value = _uiState.value.copy(viewMode = mode)
     }

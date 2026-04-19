@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URI
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,6 +35,12 @@ class FolderImportViewModel @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val libraryRepository: LibraryRepository
 ) : ViewModel() {
+    enum class FileAccessState {
+        IDLE,
+        PERMISSION_GRANTED,
+        PERMISSION_DENIED,
+        ACCESS_ERROR
+    }
     
     companion object {
         private const val TAG = "FolderImportViewModel"
@@ -63,6 +70,13 @@ class FolderImportViewModel @Inject constructor(
     val uiState: StateFlow<FolderImportUiState> = _uiState.asStateFlow()
 
     private val importLibraryCache = mutableMapOf<ScannedFileType, Library>()
+
+    private data class OpenEntryCandidate(
+        val uriString: String,
+        val name: String,
+        val size: Long,
+        val path: String = ""
+    )
     
     fun scanFolder(context: Context, folderUri: Uri) {
         viewModelScope.launch {
@@ -157,47 +171,43 @@ class FolderImportViewModel @Inject constructor(
     
     fun addFiles(context: Context, uris: List<Uri>) {
         viewModelScope.launch {
-            val files = mutableListOf<ScannedFile>()
-            
-            withContext(Dispatchers.IO) {
-                uris.forEach { uri ->
-                    try {
-                        val documentFile = DocumentFile.fromSingleUri(context, uri) ?: return@forEach
-                        val name = documentFile.name ?: return@forEach
-                        val extension = name.substringAfterLast(".", "").lowercase()
-                        val type = detectFileType(extension)
-                        val size = documentFile.length()
-                        
-                        files.add(ScannedFile(
-                            uri = uri.toString(),
+            val files = ingestEntries(
+                localCandidates = uris.mapNotNull { uri ->
+                    runCatching {
+                        val documentFile = DocumentFile.fromSingleUri(context, uri) ?: return@mapNotNull null
+                        val name = documentFile.name ?: return@mapNotNull null
+                        OpenEntryCandidate(
+                            uriString = uri.toString(),
                             name = name,
-                            extension = extension,
-                            size = size,
-                            sizeFormatted = formatFileSize(size),
-                            type = type,
-                            path = ""
-                        ))
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error adding file: $uri", e)
-                    }
+                            size = documentFile.length()
+                        )
+                    }.onFailure {
+                        Log.e(TAG, "Error creating local entry candidate for $uri", it)
+                    }.getOrNull()
                 }
+            )
+            mergeScannedFiles(files)
+        }
+    }
+
+    fun addUrl(url: String) {
+        viewModelScope.launch {
+            val trimmed = url.trim()
+            if (trimmed.isEmpty()) {
+                _uiState.update {
+                    it.copy(lastImportError = "Enter a URL to import.")
+                }
+                return@launch
             }
-            
-            val existingFiles = _uiState.value.scannedFiles
-            val allFiles = (existingFiles + files).distinctBy { it.uri }
-            
-            val bookCount = allFiles.count { it.type == ScannedFileType.BOOK }
-            val audioCount = allFiles.count { it.type in listOf(ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK, ScannedFileType.PODCAST) }
-            val videoCount = allFiles.count { it.type == ScannedFileType.VIDEO }
-            
-            _uiState.update { it.copy(
-                scannedFiles = allFiles,
-                filteredFiles = applyFilter(allFiles, it.filterType),
-                selectedFiles = it.selectedFiles + files.map { f -> f.uri },
-                bookCount = bookCount,
-                audioCount = audioCount,
-                videoCount = videoCount
-            )}
+
+            val files = ingestEntries(remoteUrls = listOf(trimmed))
+            if (files.isEmpty()) {
+                _uiState.update {
+                    it.copy(lastImportError = "URL is unsupported. Use direct links ending in a supported file extension.")
+                }
+                return@launch
+            }
+            mergeScannedFiles(files)
         }
     }
     
@@ -466,6 +476,10 @@ class FolderImportViewModel @Inject constructor(
     fun clearFiles() {
         _uiState.update { FolderImportUiState() }
     }
+
+    fun clearImportError() {
+        _uiState.update { it.copy(lastImportError = null) }
+    }
     
     suspend fun importFiles(context: Context) {
         val selectedFiles = _uiState.value.scannedFiles.filter { it.uri in _uiState.value.selectedFiles }
@@ -475,6 +489,7 @@ class FolderImportViewModel @Inject constructor(
         
         _uiState.update { it.copy(isImporting = true, importProgress = 0f) }
         
+        val failures = mutableListOf<String>()
         withContext(Dispatchers.IO) {
             selectedFiles.forEachIndexed { index, file ->
                 _uiState.update { it.copy(
@@ -536,6 +551,7 @@ class FolderImportViewModel @Inject constructor(
                     Log.d(TAG, "Imported: ${file.name} (${file.type})")
                 } catch (e: Exception) {
                     Log.e(TAG, "Error importing ${file.name}", e)
+                    failures.add(file.name)
                 }
             }
         }
@@ -543,7 +559,12 @@ class FolderImportViewModel @Inject constructor(
         _uiState.update { it.copy(
             isImporting = false,
             importProgress = 1f,
-            currentImportFile = null
+            currentImportFile = null,
+            lastImportError = if (failures.isNotEmpty()) {
+                "Failed to import ${failures.size} file(s): ${failures.take(3).joinToString()}${if (failures.size > 3) "…" else ""}"
+            } else {
+                null
+            }
         )}
     }
     
@@ -667,6 +688,85 @@ class FolderImportViewModel @Inject constructor(
             else -> String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0))
         }
     }
+
+    private suspend fun ingestEntries(
+        localCandidates: List<OpenEntryCandidate> = emptyList(),
+        remoteUrls: List<String> = emptyList()
+    ): List<ScannedFile> = withContext(Dispatchers.Default) {
+        val localFiles = localCandidates.mapNotNull { candidate ->
+            toScannedFile(candidate)
+        }
+        val remoteFiles = remoteUrls.mapNotNull { url ->
+            val candidate = toRemoteCandidate(url) ?: return@mapNotNull null
+            toScannedFile(candidate)
+        }
+        (localFiles + remoteFiles).distinctBy { it.uri }
+    }
+
+    private fun toRemoteCandidate(url: String): OpenEntryCandidate? {
+        return runCatching {
+            val uri = URI(url)
+            val scheme = uri.scheme?.lowercase()
+            if (scheme != "http" && scheme != "https") return null
+            val path = uri.path ?: return null
+            val name = path.substringAfterLast('/').substringBefore('?').ifBlank { return null }
+            OpenEntryCandidate(
+                uriString = url,
+                name = name,
+                size = 0L,
+                path = uri.host ?: ""
+            )
+        }.getOrNull()
+    }
+
+    private fun toScannedFile(candidate: OpenEntryCandidate): ScannedFile? {
+        val extension = candidate.name.substringAfterLast(".", "").lowercase()
+        if (extension.isBlank()) return null
+        val type = detectFileType(extension)
+        if (type == ScannedFileType.OTHER && extension !in DOCUMENT_EXTENSIONS) return null
+        return ScannedFile(
+            uri = candidate.uriString,
+            name = candidate.name,
+            extension = extension,
+            size = candidate.size,
+            sizeFormatted = if (candidate.size > 0L) formatFileSize(candidate.size) else "Remote",
+            type = type,
+            path = candidate.path
+        )
+    }
+
+    private fun mergeScannedFiles(files: List<ScannedFile>) {
+        if (files.isEmpty()) return
+        val existingFiles = _uiState.value.scannedFiles
+        val allFiles = (existingFiles + files).distinctBy { it.uri }
+
+        val bookCount = allFiles.count { it.type == ScannedFileType.BOOK }
+        val audioCount = allFiles.count { it.type in listOf(ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK, ScannedFileType.PODCAST) }
+        val videoCount = allFiles.count { it.type == ScannedFileType.VIDEO }
+
+        _uiState.update {
+            it.copy(
+                scannedFiles = allFiles,
+                filteredFiles = applyFilter(allFiles, it.filterType),
+                selectedFiles = it.selectedFiles + files.map { f -> f.uri },
+                bookCount = bookCount,
+                audioCount = audioCount,
+                videoCount = videoCount,
+                fileAccessState = FileAccessState.PERMISSION_GRANTED,
+                lastImportError = null
+            )
+        }
+    }
+
+    fun onFilePermissionResult(granted: Boolean, errorMessage: String? = null) {
+        _uiState.update {
+            when {
+                granted -> it.copy(fileAccessState = FileAccessState.PERMISSION_GRANTED, lastImportError = null)
+                errorMessage != null -> it.copy(fileAccessState = FileAccessState.ACCESS_ERROR, lastImportError = errorMessage)
+                else -> it.copy(fileAccessState = FileAccessState.PERMISSION_DENIED, lastImportError = "Storage permission is required to import local files.")
+            }
+        }
+    }
 }
 
 data class FolderImportUiState(
@@ -684,5 +784,7 @@ data class FolderImportUiState(
     val autoSortEnabled: Boolean = true,
     val bookCount: Int = 0,
     val audioCount: Int = 0,
-    val videoCount: Int = 0
+    val videoCount: Int = 0,
+    val fileAccessState: FolderImportViewModel.FileAccessState = FolderImportViewModel.FileAccessState.IDLE,
+    val lastImportError: String? = null
 )
