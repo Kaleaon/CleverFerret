@@ -124,6 +124,12 @@ class ComprehensiveUITest {
     }
 
     @Test
+    fun miniPlayerAccessibility_hasRequiredContentDescriptions() {
+        composeTestRule.onNodeWithContentDescription("Album art for", substring = true).assertExists()
+        composeTestRule.onNodeWithContentDescription("Play").assertExists().assertIsEnabled()
+    }
+
+    @Test
     fun aiEntertainmentAccess() {
         // Look for AI entertainment feature in navigation
         composeTestRule.onAllNodesWithContentDescription("AI").firstOrNull()?.performClick()
