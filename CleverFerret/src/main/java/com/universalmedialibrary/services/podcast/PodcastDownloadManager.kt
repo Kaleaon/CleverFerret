@@ -80,6 +80,9 @@ class PodcastDownloadManager @Inject constructor(
             IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
             androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
         )
+        scope.launch {
+            reconcileDownloadedEpisodesOnStartup()
+        }
     }
 
     /**
@@ -298,13 +301,7 @@ class PodcastDownloadManager @Inject constructor(
                     val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
                     val localUri = cursor.getString(uriIndex)
 
-                    // Update episode in database
-                    episodeDao.updateDownloadStatus(
-                        id = episodeId,
-                        downloaded = true,
-                        filePath = localUri,
-                        timestamp = System.currentTimeMillis()
-                    )
+                    persistEpisodeCompletion(episodeId, localUri)
                     cleanupStorageIfNeeded()
                 }
             } finally {
@@ -313,6 +310,39 @@ class PodcastDownloadManager @Inject constructor(
                 activeEpisodes.remove(episodeId)
                 downloadRequestMap.remove(downloadId)
             }
+        }
+    }
+
+    internal suspend fun persistEpisodeCompletion(episodeId: Long, localUri: String?) {
+        val resolvedFilePath = resolveLocalFilePath(localUri)
+        if (resolvedFilePath.isNullOrBlank()) {
+            _downloadProgress.value = _downloadProgress.value +
+                (episodeId to DownloadStatus.Failed("Download completed but file path was unavailable"))
+            return
+        }
+        episodeDao.markDownloadCompletedAtomically(
+            episodeId = episodeId,
+            filePath = resolvedFilePath,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    internal suspend fun reconcileDownloadedEpisodesOnStartup() {
+        episodeDao.getDownloadedEpisodesOnce().forEach { episode ->
+            val localPath = resolveLocalFilePath(episode.localFilePath)
+            val fileExists = !localPath.isNullOrBlank() && File(localPath).exists()
+            if (!fileExists) {
+                episodeDao.clearDownloadedState(episode.id)
+            }
+        }
+    }
+
+    private fun resolveLocalFilePath(localPathOrUri: String?): String? {
+        if (localPathOrUri.isNullOrBlank()) return null
+        return if (localPathOrUri.startsWith("file://")) {
+            Uri.parse(localPathOrUri).path
+        } else {
+            localPathOrUri
         }
     }
 

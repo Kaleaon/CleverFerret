@@ -8,7 +8,9 @@ import com.universalmedialibrary.data.migration.BackupRestorationManager
 import com.universalmedialibrary.data.migration.UpgradeStatus
 import com.universalmedialibrary.debug.DebugReportingService
 import com.universalmedialibrary.services.ambient.ThemedCollections
+import com.universalmedialibrary.utils.CrashReporter
 import com.universalmedialibrary.utils.CrashActivity
+import com.universalmedialibrary.utils.ErrorLogger
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +47,9 @@ class CleverFerretApplication : Application() {
     
     @Inject
     lateinit var debugReportingService: DebugReportingService
+    
+    @Inject
+    lateinit var crashReporter: CrashReporter
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -62,6 +67,7 @@ class CleverFerretApplication : Application() {
         
         // Initialize debug reporting (for debug builds)
         initializeDebugReporting()
+        ErrorLogger.initialize(crashReporter)
 
         // CRITICAL: Check for app upgrades and protect user data
         applicationScope.launch {

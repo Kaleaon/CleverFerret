@@ -142,7 +142,8 @@ fun OPDSCatalogBrowserScreen(
                             val error = result.exceptionOrNull()
                             ErrorView(
                                 message = error?.message ?: "Unknown error",
-                                onRetry = { viewModel.refreshFeed() }
+                                onRetry = { viewModel.refreshFeed() },
+                                onReportFeed = { viewModel.reportFeedIssue() }
                             )
                         }
                     }
@@ -473,7 +474,11 @@ private fun LoadingView() {
 }
 
 @Composable
-private fun ErrorView(message: String, onRetry: () -> Unit) {
+private fun ErrorView(
+    message: String,
+    onRetry: () -> Unit,
+    onReportFeed: () -> Unit
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -499,12 +504,24 @@ private fun ErrorView(message: String, onRetry: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(16.dp))
-            Button(onClick = onRetry) {
-                Text("Retry")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onRetry) {
+                    Text("Retry")
+                }
+                OutlinedButton(onClick = onReportFeed) {
+                    Text("Report feed")
+                }
             }
         }
     }
 }
+
+private data class OPDSFailureContext(
+    val catalogName: String? = null,
+    val requestedUrl: String? = null,
+    val searchQuery: String? = null,
+    val errorMessage: String
+)
 
 @Composable
 private fun AddCatalogDialog(
@@ -610,6 +627,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
 
     private val _userMessage = MutableStateFlow<String?>(null)
     val userMessage = _userMessage.asStateFlow()
+    private val _lastFailureContext = MutableStateFlow<OPDSFailureContext?>(null)
 
     init {
         viewModelScope.launch {
@@ -626,6 +644,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         _selectedCatalog.value = null
         _currentFeed.value = null
         _searchQuery.value = ""
+        _lastFailureContext.value = null
     }
 
     fun refreshFeed() {
@@ -633,7 +652,19 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null // Show loading
-            _currentFeed.value = opdsCatalogService.browseCatalog(catalog)
+            val result = opdsCatalogService.browseCatalog(catalog)
+            _currentFeed.value = result
+            if (result.isSuccess) {
+                _lastFailureContext.value = null
+            } else {
+                val errorMessage = result.exceptionOrNull()?.message ?: "Unknown OPDS failure"
+                _lastFailureContext.value = OPDSFailureContext(
+                    catalogName = catalog.name,
+                    requestedUrl = catalog.url,
+                    searchQuery = _searchQuery.value.takeIf { it.isNotBlank() },
+                    errorMessage = errorMessage
+                )
+            }
         }
     }
 
@@ -643,7 +674,20 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null
-            _currentFeed.value = opdsCatalogService.searchCatalog(catalog, query)
+            val searchUrl = catalog.searchUrl?.let { opdsCatalogService.buildSearchUrl(it, query) } ?: catalog.url
+            val result = opdsCatalogService.searchCatalog(catalog, query)
+            _currentFeed.value = result
+            if (result.isSuccess) {
+                _lastFailureContext.value = null
+            } else {
+                val errorMessage = result.exceptionOrNull()?.message ?: "Unknown OPDS failure"
+                _lastFailureContext.value = OPDSFailureContext(
+                    catalogName = catalog.name,
+                    requestedUrl = searchUrl,
+                    searchQuery = query,
+                    errorMessage = errorMessage
+                )
+            }
         }
     }
 
@@ -672,11 +716,36 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
             try {
                 val feed = opdsCatalogService.fetchUrl(url)
                 _currentFeed.value = Result.success(feed)
+                _lastFailureContext.value = null
             } catch (e: Exception) {
                 _currentFeed.value = Result.failure(e)
+                _lastFailureContext.value = OPDSFailureContext(
+                    catalogName = _selectedCatalog.value?.name,
+                    requestedUrl = url,
+                    searchQuery = _searchQuery.value.takeIf { it.isNotBlank() },
+                    errorMessage = e.message ?: "Failed to open feed link."
+                )
                 _userMessage.value = e.message ?: "Failed to open feed link."
             }
         }
+    }
+
+    fun reportFeedIssue() {
+        val context = _lastFailureContext.value
+        if (context == null) {
+            _userMessage.value = "No feed failure context available to report yet."
+            return
+        }
+
+        val diagnostic = buildString {
+            append("Report feed diagnostics\n")
+            append("catalog=").append(context.catalogName ?: "(unknown)").append('\n')
+            append("url=").append(context.requestedUrl ?: "(unknown)").append('\n')
+            append("query=").append(context.searchQuery ?: "(none)").append('\n')
+            append("error=").append(context.errorMessage)
+        }
+        android.util.Log.e("OPDSCatalogBrowser", diagnostic)
+        _userMessage.value = "Feed report captured for diagnostics."
     }
 
     fun clearUserMessage() {

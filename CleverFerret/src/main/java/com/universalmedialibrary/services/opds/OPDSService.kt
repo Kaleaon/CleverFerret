@@ -158,6 +158,10 @@ class OPDSCatalogService @Inject constructor(
         ).result
     }
 
+    fun buildSearchUrl(template: String, query: String): String {
+        return opdsClient.buildSearchUrl(template, query)
+    }
+
     fun getAllCatalogs(): Flow<List<OPDSCatalog>> {
         return catalogDao.getAllCatalogs()
     }

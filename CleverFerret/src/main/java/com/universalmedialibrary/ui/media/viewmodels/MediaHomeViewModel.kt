@@ -238,7 +238,7 @@ class MediaHomeViewModel @Inject constructor(
     
     private suspend fun loadRecentBooks(): List<MediaItem> {
         return try {
-            bookRepository.getRecentlyAddedBooks(20).first().map { book ->
+            bookRepository.getAllBooks().first().map { book ->
                 MediaItem(
                     id = book.id.toString(),
                     title = book.title,
@@ -258,7 +258,7 @@ class MediaHomeViewModel @Inject constructor(
     
     private suspend fun loadRecentMusic(): List<MediaItem> {
         return try {
-            musicRepository.albums.value.take(20).mapIndexed { index, album ->
+            musicRepository.albums.value.mapIndexed { index, album ->
                 MediaItem(
                     id = "album_$index",
                     title = album.name,
@@ -277,7 +277,7 @@ class MediaHomeViewModel @Inject constructor(
     
     private suspend fun loadRecentAudiobooks(): List<MediaItem> {
         return try {
-            audiobookRepository.getAllAudiobooks().first().take(20).map { audiobook ->
+            audiobookRepository.getAllAudiobooks().first().map { audiobook ->
                 MediaItem(
                     id = audiobook.id.toString(),
                     title = audiobook.title,
@@ -296,7 +296,7 @@ class MediaHomeViewModel @Inject constructor(
     
     private suspend fun loadRecentComics(): List<MediaItem> {
         return try {
-            comicRepository.getAllComics().first().take(20).map { comic ->
+            comicRepository.getAllComics().first().map { comic ->
                 MediaItem(
                     id = comic.id.toString(),
                     title = comic.title,
@@ -318,7 +318,7 @@ class MediaHomeViewModel @Inject constructor(
             val videos = (videoRepository.getMovies().first() + videoRepository.getTvShows().first() + videoRepository.getAllVideos().first())
                 .distinctBy { it.itemId }
                 .sortedByDescending { it.dateAdded }
-                .take(20)
+                
 
             videos.map { video ->
                 MediaItem(
@@ -343,7 +343,7 @@ class MediaHomeViewModel @Inject constructor(
 
     private suspend fun loadRecentPodcasts(): List<MediaItem> {
         return try {
-            podcastRepository.getNewEpisodes().first().take(20).map { episode ->
+            podcastRepository.getNewEpisodes().first().map { episode ->
                 val progress = if (episode.duration > 0) {
                     (episode.playPosition.toFloat() / episode.duration.toFloat()).coerceIn(0f, 1f)
                 } else 0f
@@ -368,7 +368,7 @@ class MediaHomeViewModel @Inject constructor(
 
     private suspend fun loadRecentFanfiction(): List<MediaItem> {
         return try {
-            webFictionRepository.getRecentlyAddedWebFiction(20).first().map { story ->
+            webFictionRepository.getAllWebFiction().first().map { story ->
                 val progress = if (story.chapterCount > 0) {
                     (story.lastChapterDownloaded.toFloat() / story.chapterCount.toFloat()).coerceIn(0f, 1f)
                 } else 0f
