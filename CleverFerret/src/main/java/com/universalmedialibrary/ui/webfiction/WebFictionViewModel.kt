@@ -45,6 +45,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 initialValue = false
             )
     private var pendingPinAction: (() -> Unit)? = null
+    private var pendingRetryAction: (() -> Unit)? = null
 
     init {
         loadStories()
@@ -71,20 +72,23 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 
                 val result = redditStoryManager.downloadAndAddToLibrary(config)
                 if (!result.success) {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = result.errorMessage ?: "Failed to download Reddit series"
+                    publishError(
+                        message = result.errorMessage ?: "Failed to download Reddit series",
+                        retryAction = { downloadRedditSeriesAsEpub(seriesName, author, subreddit) }
                     )
+                    _uiState.value = _uiState.value.copy(isLoading = false)
                 } else {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        successMessage = "Downloaded ${result.chapters} chapters! Added to library."
-                    )
+                    publishSuccess("Downloaded ${result.chapters} chapters! Added to library.")
+                    _uiState.value = _uiState.value.copy(isLoading = false)
                     // Reload tracked stories
                     loadTrackedRedditStories()
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                publishError(
+                    message = e.message ?: "Unable to download Reddit series.",
+                    retryAction = { downloadRedditSeriesAsEpub(seriesName, author, subreddit) }
+                )
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -98,24 +102,25 @@ class WebFictionManagerScreenViewModel @Inject constructor(
             try {
                 val result = redditStoryManager.updateStory(storyId)
                 if (!result.success) {
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingUpdates = false,
-                        error = result.errorMessage
+                    publishError(
+                        message = result.errorMessage ?: "Unable to update this story right now.",
+                        retryAction = { updateRedditStory(storyId) }
                     )
+                    _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                 } else if (result.newChapters > 0) {
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingUpdates = false,
-                        successMessage = "Updated! Found ${result.newChapters} new chapters (total: ${result.totalChapters})"
-                    )
+                    publishSuccess("Updated! Found ${result.newChapters} new chapters (total: ${result.totalChapters})")
+                    _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                     loadTrackedRedditStories()
                 } else {
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingUpdates = false,
-                        successMessage = "Already up to date!"
-                    )
+                    publishSuccess("Already up to date!")
+                    _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isCheckingUpdates = false, error = e.message)
+                publishError(
+                    message = e.message ?: "Unable to update this story right now.",
+                    retryAction = { updateRedditStory(storyId) }
+                )
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -131,17 +136,21 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 val updatedCount = results.count { it.success && it.newChapters > 0 }
                 val totalNewChapters = results.filter { it.success }.sumOf { it.newChapters }
                 
-                _uiState.value = _uiState.value.copy(
-                    isCheckingUpdates = false,
-                    successMessage = if (updatedCount > 0) {
+                publishSuccess(
+                    if (updatedCount > 0) {
                         "Updated $updatedCount stories with $totalNewChapters new chapters!"
                     } else {
                         "All stories are up to date!"
                     }
                 )
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                 loadTrackedRedditStories()
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isCheckingUpdates = false, error = e.message)
+                publishError(
+                    message = e.message ?: "Unable to check all stories for updates.",
+                    retryAction = { updateAllRedditStories() }
+                )
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -223,6 +232,12 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error adding story: ${e.message}"
+                )
+                publishError(message = message, retryAction = { addStoryFromUrl(url, bypassPin) })
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -269,6 +284,12 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isCheckingUpdates = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error checking for updates: ${e.message}"
+                )
+                publishError(message = message, retryAction = { checkForUpdates(story, bypassPin) })
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -320,6 +341,12 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isCheckingUpdates = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error checking for updates: ${e.message}"
+                )
+                publishError(message = message, retryAction = { checkAllForUpdates(bypassPin) })
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -360,6 +387,12 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error downloading story: ${e.message}"
+                )
+                publishError(message = message, retryAction = { downloadStory(story, bypassPin) })
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -405,6 +438,12 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = message
                 )
+                val message = mapParentalControlsError(
+                    e,
+                    "Error downloading updates: ${e.message}"
+                )
+                publishError(message = message, retryAction = { downloadAllUpdates(bypassPin) })
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -425,7 +464,19 @@ class WebFictionManagerScreenViewModel @Inject constructor(
     }
 
     fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
+        pendingRetryAction = null
+        _uiState.value = _uiState.value.copy(error = null, canRetry = false)
+    }
+
+    fun clearSuccessMessage() {
+        _uiState.value = _uiState.value.copy(successMessage = null)
+    }
+
+    fun retryLastAction() {
+        val action = pendingRetryAction ?: return
+        pendingRetryAction = null
+        _uiState.value = _uiState.value.copy(error = null, canRetry = false)
+        action.invoke()
     }
 
     fun validateSourceUrl(rawUrl: String): Result<String> = runCatching {
@@ -562,6 +613,77 @@ class WebFictionManagerScreenViewModel @Inject constructor(
             fandoms = listOfNotNull(fandom),
             tags = tags,
             language = language ?: "English"
+    private fun publishError(message: String, retryAction: (() -> Unit)? = null) {
+        pendingRetryAction = retryAction
+        _uiState.value = _uiState.value.copy(
+            error = message,
+            successMessage = null,
+            canRetry = retryAction != null
+        )
+    }
+
+    private fun publishSuccess(message: String) {
+        pendingRetryAction = null
+        _uiState.value = _uiState.value.copy(
+            successMessage = message,
+            error = null,
+            canRetry = false
+        )
+    }
+
+    private fun createDemoStories(): List<WebFictionStory> {
+        return listOf(
+            WebFictionStory(
+                id = "demo_1",
+                title = "The Digital Awakening",
+                author = "TechWizard42",
+                description = "In a world where AI has become sentient, a young programmer must navigate the complex relationship between humans and artificial intelligence.",
+                url = "https://archiveofourown.org/works/demo1",
+                site = "Archive of Our Own",
+                status = com.universalmedialibrary.services.webfiction.StoryStatus.ONGOING,
+                genre = "Sci-Fi",
+                fandom = "Original",
+                language = "en",
+                chapterCount = 25,
+                lastUpdated = System.currentTimeMillis(),
+                rating = "T",
+                tags = listOf("AI", "Sci-Fi", "Technology", "Romance"),
+                wordCount = 125000L
+            ),
+            WebFictionStory(
+                id = "demo_2",
+                title = "Royal Road Chronicles",
+                author = "FantasyMaster",
+                description = "A comprehensive LitRPG adventure following a player's journey through a virtual world that becomes all too real.",
+                url = "https://www.royalroad.com/fiction/demo2",
+                site = "Royal Road",
+                status = com.universalmedialibrary.services.webfiction.StoryStatus.COMPLETED,
+                genre = "LitRPG",
+                fandom = "Original",
+                language = "en",
+                chapterCount = 156,
+                lastUpdated = System.currentTimeMillis(),
+                rating = "M",
+                tags = listOf("LitRPG", "Adventure", "Virtual Reality", "Action"),
+                wordCount = 890000L
+            ),
+            WebFictionStory(
+                id = "demo_3",
+                title = "Fanfiction Adventures",
+                author = "StoryLover123",
+                description = "A collection of interconnected stories exploring different universes and characters in creative ways.",
+                url = "https://www.fanfiction.net/s/demo3",
+                site = "FanFiction.net",
+                status = com.universalmedialibrary.services.webfiction.StoryStatus.HIATUS,
+                genre = "Crossover",
+                fandom = "Multi-fandom",
+                language = "en",
+                chapterCount = 42,
+                lastUpdated = System.currentTimeMillis(),
+                rating = "T",
+                tags = listOf("Crossover", "Adventure", "Friendship", "Drama"),
+                wordCount = 234000L
+            )
         )
 
     private fun placeholderChapters(storyId: String, count: Int): List<WebFictionChapter> =
@@ -595,5 +717,6 @@ data class WebFictionUiState(
     val isCheckingUpdates: Boolean = false,
     val error: String? = null,
     val successMessage: String? = null,
+    val canRetry: Boolean = false,
     val pendingPinChallenge: PinChallenge? = null
 )

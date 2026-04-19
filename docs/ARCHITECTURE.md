@@ -74,3 +74,28 @@ The UI is built entirely with Jetpack Compose.
 4. If it's a document (DOCX), it asks `ParserFactory` for a parser.
 5. `UnifiedReaderService` returns a `ReaderType` sealed class instance.
 6. The UI (`EnhancedEReaderScreen` or generic `ReaderScreen`) renders the content based on the `ReaderType`.
+
+## UI Error Boundary Conventions (Frontend)
+
+To keep failures isolated and recoverable in Compose navigation flows, we use `UiErrorBoundary` wrappers around high-risk UI regions.
+
+### Placement rules
+
+1. **App root boundary**
+   - Wrap the top-level app surface (`MediaAppRoot` / navigation root) so a rendering failure can fall back to a recovery card instead of crashing the whole tree.
+2. **Routed page boundaries**
+   - Wrap route-level composables in `MediaAppNavHost`, prioritizing screens that aggregate multiple async/view-model sources.
+3. **Reader and player boundaries (high-risk)**
+   - Always wrap reader and player destinations (`reader/*`, `player/audio/*`, `player/video/*`) because they rely on complex decoding/rendering stacks.
+
+### Fallback requirements
+
+Every boundary fallback should expose recovery actions:
+- **Go Home**: navigate to `MediaRoutes.HOME`.
+- **Reload Section**: reset and re-compose the failed section.
+- **Report Issue**: log/report the captured throwable through centralized logging.
+
+### Logging policy
+
+- Boundary exceptions must be captured with centralized logging (`AppLogger`) rather than `console`-style output.
+- The boundary name should be included in log messages so reports can be correlated to route/feature scope.
