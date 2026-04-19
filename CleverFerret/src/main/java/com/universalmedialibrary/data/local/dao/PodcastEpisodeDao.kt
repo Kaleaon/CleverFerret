@@ -23,6 +23,9 @@ interface PodcastEpisodeDao {
     @Query("SELECT * FROM podcast_episodes WHERE downloaded = 1 ORDER BY downloadedAt DESC")
     fun getDownloadedEpisodes(): Flow<List<PodcastEpisodeEntity>>
 
+    @Query("SELECT * FROM podcast_episodes WHERE downloaded = 1 ORDER BY downloadedAt DESC")
+    suspend fun getDownloadedEpisodesOnce(): List<PodcastEpisodeEntity>
+
     @Query("SELECT * FROM podcast_episodes WHERE isNew = 1 ORDER BY publishDate DESC")
     fun getNewEpisodes(): Flow<List<PodcastEpisodeEntity>>
 
@@ -81,6 +84,12 @@ interface PodcastEpisodeDao {
     @Query("UPDATE podcast_episodes SET downloaded = :downloaded, localFilePath = :filePath, downloadedAt = :timestamp WHERE id = :id")
     suspend fun updateDownloadStatus(id: Long, downloaded: Boolean, filePath: String?, timestamp: Long?)
 
+    @Query("UPDATE podcast_episodes SET downloaded = 1, localFilePath = :filePath, downloadedAt = :timestamp WHERE id = :id")
+    suspend fun setDownloadedWithFilePath(id: Long, filePath: String, timestamp: Long)
+
+    @Query("UPDATE podcast_episodes SET downloaded = 0, localFilePath = NULL, downloadedAt = NULL WHERE id = :id")
+    suspend fun clearDownloadedState(id: Long)
+
     @Query("UPDATE podcast_episodes SET downloadProgress = :progress WHERE id = :id")
     suspend fun updateDownloadProgress(id: Long, progress: Float)
 
@@ -132,5 +141,10 @@ interface PodcastEpisodeDao {
     suspend fun markAsUnplayed(episodeId: Long) {
         updatePlayedStatus(episodeId, false, null)
         updatePlayPosition(episodeId, 0)
+    }
+
+    @Transaction
+    suspend fun markDownloadCompletedAtomically(episodeId: Long, filePath: String, timestamp: Long = System.currentTimeMillis()) {
+        setDownloadedWithFilePath(episodeId, filePath, timestamp)
     }
 }

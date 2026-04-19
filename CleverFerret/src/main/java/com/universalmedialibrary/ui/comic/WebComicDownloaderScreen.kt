@@ -140,7 +140,10 @@ private fun ComicVineSearchTab(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(results) { series ->
+                items(
+                    items = results,
+                    key = { series -> series.id }
+                ) { series ->
                     ComicSeriesCard(series)
                 }
             }

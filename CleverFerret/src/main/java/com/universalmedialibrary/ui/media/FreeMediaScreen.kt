@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -193,7 +193,10 @@ private fun MediaList(
         contentPadding = PaddingValues(bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(items, key = { it.id }) { item ->
+        itemsIndexed(
+            items = items,
+            key = { index, item -> freeMediaItemKey(item = item, index = index) }
+        ) { _, item ->
             MediaCard(
                 item = item,
                 onDownload = onDownload,
@@ -210,6 +213,8 @@ private fun MediaCard(
     onDownload: (FreeMediaDownloadOption) -> Unit,
     onOpenLink: (String) -> Unit
 ) {
+    val uiModel = item.toUiModel()
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -218,7 +223,7 @@ private fun MediaCard(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AsyncImage(
-                model = item.thumbnailUrl,
+                model = uiModel.thumbnailUrl,
                 contentDescription = "${item.title} thumbnail",
                 modifier = Modifier
                     .size(width = 120.dp, height = 90.dp)
@@ -246,13 +251,16 @@ private fun MediaCard(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
-                item.year?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = uiModel.yearLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = uiModel.durationLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
 
@@ -305,6 +313,46 @@ private fun MediaCard(
                 }
             }
         }
+    }
+}
+
+internal fun freeMediaItemKey(item: FreeMediaItem, index: Int): String {
+    val normalizedId = item.id.trim()
+    if (normalizedId.isNotEmpty()) {
+        return "${item.type.name}:$normalizedId"
+    }
+
+    val fallbackTitle = item.title.ifBlank { "untitled" }
+    val fallbackYear = item.year?.takeIf { it.isNotBlank() } ?: "unknown-year"
+    return "${item.type.name}:$fallbackTitle:$fallbackYear:$index"
+}
+
+internal data class FreeMediaItemUiModel(
+    val thumbnailUrl: String?,
+    val yearLabel: String,
+    val durationLabel: String
+)
+
+internal fun FreeMediaItem.toUiModel(): FreeMediaItemUiModel {
+    return FreeMediaItemUiModel(
+        thumbnailUrl = thumbnailUrl?.takeIf { it.isNotBlank() },
+        yearLabel = year?.takeIf { it.isNotBlank() } ?: "Year unknown",
+        durationLabel = runtimeSeconds
+            ?.takeIf { it > 0 }
+            ?.let(::formatRuntimeLabel)
+            ?: "Duration unknown"
+    )
+}
+
+private fun formatRuntimeLabel(seconds: Long): String {
+    val totalMinutes = seconds / 60
+    val hours = totalMinutes / 60
+    val minutes = totalMinutes % 60
+
+    return when {
+        hours > 0 -> "Duration: ${hours}h ${minutes}m"
+        totalMinutes > 0 -> "Duration: ${totalMinutes}m"
+        else -> "Duration: <1m"
     }
 }
 

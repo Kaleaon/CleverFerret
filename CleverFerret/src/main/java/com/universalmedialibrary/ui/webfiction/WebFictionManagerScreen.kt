@@ -344,7 +344,10 @@ fun WebFictionManagerScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(uiState.stories) { story ->
+                        items(
+                            items = uiState.stories,
+                            key = { story -> story.id }
+                        ) { story ->
                             WebFictionStoryCard(
                                 story = story,
                                 hasUpdates = story.id in uiState.storiesWithUpdates.map { it.id },
@@ -734,7 +737,10 @@ fun SupportedSitesDialog(
                 modifier = Modifier.height(400.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC }) { siteType ->
+                items(
+                    items = WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC },
+                    key = { siteType -> siteType.name }
+                ) { siteType ->
                     val enabled = adultSitesEnabled || !siteType.isAdultSite()
                     Card(
                         modifier = Modifier
