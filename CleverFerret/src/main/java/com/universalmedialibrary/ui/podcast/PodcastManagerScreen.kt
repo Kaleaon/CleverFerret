@@ -167,7 +167,11 @@ fun PodcastManagerScreen(
                             viewModel.downloadEpisode(episode)
                         },
                         onRetryClick = { episode ->
-                            viewModel.retryDownload(episode)
+                            if (episode.recoveryActionLabel != null) {
+                                viewModel.recoverMissingDownload(episode)
+                            } else {
+                                viewModel.retryDownload(episode)
+                            }
                         },
                         onPlayClick = { episode ->
                             navController.navigate("podcast_player/${episode.id}")
@@ -557,7 +561,15 @@ fun EpisodeCard(
                         )
                     }
                 }
-                else -> if (!episode.isDownloaded) {
+                else -> if (episode.recoveryActionLabel != null) {
+                    IconButton(onClick = onRetryClick) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = episode.recoveryActionLabel,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                } else if (!episode.isDownloaded) {
                     IconButton(onClick = onDownloadClick) {
                         Icon(
                             Icons.Default.Download,
