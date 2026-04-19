@@ -473,7 +473,10 @@ private fun StoryChaptersSection(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(4.dp)
         ) {
-            items(chapters.take(25)) { chapter ->
+            items(
+                items = chapters.take(25),
+                key = { chapter -> chapter.id }
+            ) { chapter ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)

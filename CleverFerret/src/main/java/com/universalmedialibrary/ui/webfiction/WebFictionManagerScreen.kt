@@ -34,6 +34,10 @@ import com.universalmedialibrary.services.webfiction.WebFictionSiteType
 import com.universalmedialibrary.services.webfiction.isAdultSite
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.services.webfiction.StoryStatus
+import com.universalmedialibrary.ui.components.UserFeedbackMessage
+import com.universalmedialibrary.ui.components.UserFeedbackSeverity
+import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
+import com.universalmedialibrary.ui.components.showUserFeedback
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
@@ -47,12 +51,47 @@ fun WebFictionManagerScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
     var showAddDialog by remember { mutableStateOf(false) }
     var showRedditDialog by remember { mutableStateOf(false) }
     var showSiteInfoDialog by remember { mutableStateOf(false) }
     var selectedSite by remember { mutableStateOf<WebFictionSite?>(null) }
 
+    LaunchedEffect(uiState.error, uiState.canRetry) {
+        val error = uiState.error ?: return@LaunchedEffect
+        val result = snackbarHostState.showUserFeedback(
+            UserFeedbackMessage(
+                title = "Web fiction action failed",
+                body = error,
+                severity = UserFeedbackSeverity.ERROR,
+                actionLabel = if (uiState.canRetry) "Retry" else null
+            )
+        )
+        if (result == SnackbarResult.ActionPerformed && uiState.canRetry) {
+            viewModel.retryLastAction()
+        } else {
+            viewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(uiState.successMessage) {
+        val success = uiState.successMessage ?: return@LaunchedEffect
+        snackbarHostState.showUserFeedback(
+            UserFeedbackMessage(
+                title = "Completed",
+                body = success,
+                severity = UserFeedbackSeverity.SUCCESS,
+                withDismissAction = false,
+                duration = SnackbarDuration.Short
+            )
+        )
+        viewModel.clearSuccessMessage()
+    }
+
     Scaffold(
+        snackbarHost = {
+            UserFeedbackSnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                     title = {
@@ -170,14 +209,53 @@ fun WebFictionManagerScreen(
                                 tint = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = error,
-                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.weight(1f)
-                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = error.lineSequence().firstOrNull() ?: error,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                                if ("Try:" in error) {
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = error.substringAfter("Try:", missingDelimiterValue = "")
+                                            .trim()
+                                            .prependIndent("Try:\n"),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+                                }
+                            }
                             IconButton(onClick = { viewModel.clearError() }) {
                                 Icon(Icons.Default.Close, contentDescription = "Dismiss")
                             }
+                        }
+                    }
+                }
+
+                uiState.successMessage?.let { success ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Success",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = success,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                     }
                 }
@@ -266,7 +344,10 @@ fun WebFictionManagerScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(uiState.stories) { story ->
+                        items(
+                            items = uiState.stories,
+                            key = { story -> story.id }
+                        ) { story ->
                             WebFictionStoryCard(
                                 story = story,
                                 hasUpdates = story.id in uiState.storiesWithUpdates.map { it.id },
@@ -300,6 +381,7 @@ fun WebFictionManagerScreen(
         if (showAddDialog) {
             AddWebFictionDialog(
                 onDismiss = { showAddDialog = false },
+                validateUrl = viewModel::validateSourceUrl,
                 onAdd = { url ->
                     viewModel.addStoryFromUrl(url)
                     showAddDialog = false
@@ -557,10 +639,14 @@ fun AddRedditSeriesDialog(
 @Composable
 fun AddWebFictionDialog(
     onDismiss: () -> Unit,
+    validateUrl: (String) -> Result<String>,
     onAdd: (String) -> Unit
 ) {
     var url by remember { mutableStateOf("") }
-    var isValidUrl by remember { mutableStateOf(true) }
+    var validationError by remember { mutableStateOf<String?>(null) }
+    val normalizedUrl = remember(url, validationError) {
+        if (validationError == null && url.isNotBlank()) validateUrl(url).getOrNull() else null
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -582,19 +668,32 @@ fun AddWebFictionDialog(
                     value = url,
                     onValueChange = {
                         url = it
-                        isValidUrl = it.isBlank() || it.startsWith("http")
+                        validationError = if (it.isBlank()) {
+                            null
+                        } else {
+                            validateUrl(it).exceptionOrNull()?.message
+                        }
                     },
                     label = { Text("Story URL") },
                     placeholder = { Text("https://archiveofourown.org/works/12345") },
                     modifier = Modifier.fillMaxWidth(),
-                    isError = !isValidUrl,
-                    supportingText = if (!isValidUrl) {
-                        { Text("Please enter a valid URL") }
+                    isError = validationError != null,
+                    supportingText = if (validationError != null) {
+                        { Text(validationError ?: "") }
                     } else null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
+
+                normalizedUrl?.let {
+                    Text(
+                        text = "Canonical URL: $it",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
                 Text(
                     text = "Supported sites: AO3, FFN, Royal Road, WebNovel, Wattpad, and more",
@@ -605,8 +704,8 @@ fun AddWebFictionDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onAdd(url) },
-                enabled = url.isNotBlank() && isValidUrl
+                onClick = { onAdd(normalizedUrl ?: url) },
+                enabled = url.isNotBlank() && validationError == null
             ) {
                 Text("Add Story")
             }
@@ -638,7 +737,10 @@ fun SupportedSitesDialog(
                 modifier = Modifier.height(400.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC }) { siteType ->
+                items(
+                    items = WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC },
+                    key = { siteType -> siteType.name }
+                ) { siteType ->
                     val enabled = adultSitesEnabled || !siteType.isAdultSite()
                     Card(
                         modifier = Modifier

@@ -45,6 +45,7 @@ fun OPDSCatalogBrowserScreen(
     val feedResult by viewModel.currentFeed.collectAsState()
     val downloads by viewModel.activeDownloads.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val transientMessage by viewModel.userMessage.collectAsState()
     
     var showAddCatalogDialog by remember { mutableStateOf(false) }
     var showSearchDialog by remember { mutableStateOf(false) }
@@ -141,7 +142,8 @@ fun OPDSCatalogBrowserScreen(
                             val error = result.exceptionOrNull()
                             ErrorView(
                                 message = error?.message ?: "Unknown error",
-                                onRetry = { viewModel.refreshFeed() }
+                                onRetry = { viewModel.refreshFeed() },
+                                onReportFeed = { viewModel.reportFeedIssue() }
                             )
                         }
                     }
@@ -153,6 +155,16 @@ fun OPDSCatalogBrowserScreen(
                 }
             }
         }
+    }
+
+    transientMessage?.let { message ->
+        LaunchedEffect(message) {
+            kotlinx.coroutines.delay(3500)
+            viewModel.clearUserMessage()
+        }
+        Snackbar(
+            modifier = Modifier.padding(16.dp)
+        ) { Text(message) }
     }
 
     // Add catalog dialog
@@ -421,6 +433,9 @@ private fun PublicationCard(
                     Text(
                         text = entry.acquisitionLinks.joinToString(" • ") {
                             when {
+                                it.type?.contains("epub", ignoreCase = true) == true -> "EPUB"
+                                it.type?.contains("pdf", ignoreCase = true) == true -> "PDF"
+                                it.type?.contains("mobi", ignoreCase = true) == true -> "MOBI"
                                 it.href.contains("epub", ignoreCase = true) -> "EPUB"
                                 it.href.contains("pdf", ignoreCase = true) -> "PDF"
                                 it.href.contains("mobi", ignoreCase = true) -> "MOBI"
@@ -434,9 +449,10 @@ private fun PublicationCard(
                 }
             }
             
+            val isDownloadable = entry.acquisitionLinks.isNotEmpty()
             Icon(
-                Icons.Default.Download,
-                contentDescription = "Download",
+                imageVector = if (isDownloadable) Icons.Default.Download else Icons.Default.ChevronRight,
+                contentDescription = if (isDownloadable) "Download" else "Open subsection",
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -458,7 +474,11 @@ private fun LoadingView() {
 }
 
 @Composable
-private fun ErrorView(message: String, onRetry: () -> Unit) {
+private fun ErrorView(
+    message: String,
+    onRetry: () -> Unit,
+    onReportFeed: () -> Unit
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -484,12 +504,24 @@ private fun ErrorView(message: String, onRetry: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(16.dp))
-            Button(onClick = onRetry) {
-                Text("Retry")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onRetry) {
+                    Text("Retry")
+                }
+                OutlinedButton(onClick = onReportFeed) {
+                    Text("Report feed")
+                }
             }
         }
     }
 }
+
+private data class OPDSFailureContext(
+    val catalogName: String? = null,
+    val requestedUrl: String? = null,
+    val searchQuery: String? = null,
+    val errorMessage: String
+)
 
 @Composable
 private fun AddCatalogDialog(
@@ -589,8 +621,13 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    val activeDownloads = MutableStateFlow<List<Any>>(emptyList())
+    val activeDownloads = downloadService.activeDownloads
+        .map { it.values.toList() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _userMessage = MutableStateFlow<String?>(null)
+    val userMessage = _userMessage.asStateFlow()
+    private val _lastFailureContext = MutableStateFlow<OPDSFailureContext?>(null)
 
     init {
         viewModelScope.launch {
@@ -607,6 +644,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         _selectedCatalog.value = null
         _currentFeed.value = null
         _searchQuery.value = ""
+        _lastFailureContext.value = null
     }
 
     fun refreshFeed() {
@@ -614,7 +652,19 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null // Show loading
-            _currentFeed.value = opdsCatalogService.browseCatalog(catalog)
+            val result = opdsCatalogService.browseCatalog(catalog)
+            _currentFeed.value = result
+            if (result.isSuccess) {
+                _lastFailureContext.value = null
+            } else {
+                val errorMessage = result.exceptionOrNull()?.message ?: "Unknown OPDS failure"
+                _lastFailureContext.value = OPDSFailureContext(
+                    catalogName = catalog.name,
+                    requestedUrl = catalog.url,
+                    searchQuery = _searchQuery.value.takeIf { it.isNotBlank() },
+                    errorMessage = errorMessage
+                )
+            }
         }
     }
 
@@ -624,13 +674,39 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null
-            _currentFeed.value = opdsCatalogService.searchCatalog(catalog, query)
+            val searchUrl = catalog.searchUrl?.let { opdsCatalogService.buildSearchUrl(it, query) } ?: catalog.url
+            val result = opdsCatalogService.searchCatalog(catalog, query)
+            _currentFeed.value = result
+            if (result.isSuccess) {
+                _lastFailureContext.value = null
+            } else {
+                val errorMessage = result.exceptionOrNull()?.message ?: "Unknown OPDS failure"
+                _lastFailureContext.value = OPDSFailureContext(
+                    catalogName = catalog.name,
+                    requestedUrl = searchUrl,
+                    searchQuery = query,
+                    errorMessage = errorMessage
+                )
+            }
         }
     }
 
     fun downloadPublication(catalogId: Long, entry: OPDSEntry) {
         viewModelScope.launch {
-            downloadService.queueDownload(catalogId, entry)
+            when {
+                entry.acquisitionLinks.isNotEmpty() -> {
+                    val downloadId = downloadService.queueDownload(catalogId, entry)
+                    if (downloadId == null) {
+                        _userMessage.value = "No supported acquisition link found for '${entry.title}'."
+                    }
+                }
+                entry.navigationLinks.isNotEmpty() -> {
+                    navigateToUrl(entry.navigationLinks.first().href)
+                }
+                else -> {
+                    _userMessage.value = "Entry '${entry.title}' has no downloadable acquisition or subsection link."
+                }
+            }
         }
     }
 
@@ -640,10 +716,40 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
             try {
                 val feed = opdsCatalogService.fetchUrl(url)
                 _currentFeed.value = Result.success(feed)
+                _lastFailureContext.value = null
             } catch (e: Exception) {
                 _currentFeed.value = Result.failure(e)
+                _lastFailureContext.value = OPDSFailureContext(
+                    catalogName = _selectedCatalog.value?.name,
+                    requestedUrl = url,
+                    searchQuery = _searchQuery.value.takeIf { it.isNotBlank() },
+                    errorMessage = e.message ?: "Failed to open feed link."
+                )
+                _userMessage.value = e.message ?: "Failed to open feed link."
             }
         }
+    }
+
+    fun reportFeedIssue() {
+        val context = _lastFailureContext.value
+        if (context == null) {
+            _userMessage.value = "No feed failure context available to report yet."
+            return
+        }
+
+        val diagnostic = buildString {
+            append("Report feed diagnostics\n")
+            append("catalog=").append(context.catalogName ?: "(unknown)").append('\n')
+            append("url=").append(context.requestedUrl ?: "(unknown)").append('\n')
+            append("query=").append(context.searchQuery ?: "(none)").append('\n')
+            append("error=").append(context.errorMessage)
+        }
+        android.util.Log.e("OPDSCatalogBrowser", diagnostic)
+        _userMessage.value = "Feed report captured for diagnostics."
+    }
+
+    fun clearUserMessage() {
+        _userMessage.value = null
     }
 
     fun addCustomCatalog(name: String, url: String) {

@@ -14,6 +14,9 @@ import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.net.URI
+import java.net.URISyntaxException
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,11 +30,14 @@ class PodcastViewModel @Inject constructor(
     val uiState: StateFlow<PodcastUiState> = _uiState.asStateFlow()
     private val _pendingPinChallenge = MutableStateFlow<PinChallenge?>(null)
     val pendingPinChallenge: StateFlow<PinChallenge?> = _pendingPinChallenge.asStateFlow()
+    private val _userMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val userMessages: SharedFlow<String> = _userMessages.asSharedFlow()
     private var pendingPinAction: (() -> Unit)? = null
 
     init {
         loadPodcasts()
         loadEpisodes()
+        observeDownloadStatuses()
     }
 
     fun searchPodcasts(query: String) {
@@ -45,7 +51,7 @@ class PodcastViewModel @Inject constructor(
             try {
                 val results = repository.searchPodcastsOnline(query)
                 _uiState.value = _uiState.value.copy(
-                    searchResults = results,
+                    searchResults = results.filter { it.feedUrl.isValidFeedUrl() },
                     isSearching = false,
                     error = null
                 )
@@ -58,16 +64,20 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
-    fun subscribeFromSearchResult(searchResult: PodcastSearchResult) {
+    fun subscribeFromSearchResult(
+        searchResult: PodcastSearchResult,
+        onComplete: (Boolean) -> Unit = {}
+    ) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
             // Validate feedUrl before attempting to subscribe
-            if (searchResult.feedUrl.isBlank()) {
+            if (!searchResult.feedUrl.isValidFeedUrl()) {
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = "Cannot subscribe: Feed URL is missing for this podcast"
+                    isLoading = false
                 )
+                _userMessages.tryEmit("Cannot subscribe: this result is missing a valid feed URL.")
+                onComplete(false)
                 return@launch
             }
 
@@ -78,6 +88,8 @@ class PodcastViewModel @Inject constructor(
                             isLoading = false,
                             error = null
                         )
+                        _userMessages.tryEmit("Subscribed to ${searchResult.title}")
+                        onComplete(true)
                         // Podcasts will be reloaded automatically via Flow
                     }
                     is PodcastOperationResult.Error -> {
@@ -85,6 +97,8 @@ class PodcastViewModel @Inject constructor(
                             isLoading = false,
                             error = result.message
                         )
+                        _userMessages.tryEmit(result.message)
+                        onComplete(false)
                     }
                 }
             } catch (e: kotlinx.coroutines.CancellationException) {
@@ -94,6 +108,8 @@ class PodcastViewModel @Inject constructor(
                     isLoading = false,
                     error = "Subscription failed: ${e.message}"
                 )
+                _userMessages.tryEmit("Subscription failed: ${e.message}")
+                onComplete(false)
             }
         }
     }
@@ -235,6 +251,20 @@ class PodcastViewModel @Inject constructor(
         downloadManager.cancelDownload(episode.id)
     }
 
+    fun retryDownload(episode: PodcastEpisode) {
+        val podcastTitle = _uiState.value.podcasts.find { it.id == episode.podcastId }?.title ?: "Unknown Podcast"
+        downloadManager.retryDownload(
+            episodeId = episode.id,
+            audioUrl = episode.audioUrl,
+            episodeTitle = episode.title,
+            podcastTitle = podcastTitle
+        )
+    }
+
+    fun recoverMissingDownload(episode: PodcastEpisode) {
+        retryDownload(episode.copy(downloaded = false, localFilePath = null))
+    }
+
     val downloadProgress = downloadManager.downloadProgress
 
     fun deleteDownloadedEpisode(episode: PodcastEpisode) {
@@ -303,16 +333,99 @@ class PodcastViewModel @Inject constructor(
 
     private fun loadEpisodes() {
         viewModelScope.launch {
-            repository.getDownloadedEpisodes()
-                .catch { e ->
-                    // Log error but don't show to user
+            combine(
+                repository.getSubscribedPodcasts(),
+                repository.getDownloadedEpisodes()
+            ) { podcasts, downloadedEpisodes ->
+                val subscribedIds = podcasts.map { it.id }
+                podcasts to downloadedEpisodes to subscribedIds
+            }
+                .flatMapLatest { (pair, subscribedIds) ->
+                    val podcasts = pair.first
+                    val downloadedEpisodes = pair.second
+                    if (subscribedIds.isEmpty()) {
+                        flowOf(Triple(podcasts, emptyList(), downloadedEpisodes))
+                    } else {
+                        combine(
+                            subscribedIds.map { repository.getEpisodesByPodcast(it) }
+                        ) { episodeLists ->
+                            Triple(podcasts, episodeLists.flatMap { it.toList() }, downloadedEpisodes)
+                        }
+                    }
                 }
-                .collect { episodes ->
+                .catch {
+                    _uiState.value = _uiState.value.copy(error = "Failed to load episodes: ${it.message}")
+                }
+                .collect { (podcasts, allEpisodes, downloadedEpisodes) ->
                     _uiState.value = _uiState.value.copy(
-                        downloadedEpisodes = episodes
+                        podcasts = podcasts,
+                        allEpisodes = enrichEpisodesWithPlaybackState(allEpisodes),
+                        downloadedEpisodes = enrichEpisodesWithPlaybackState(downloadedEpisodes)
                     )
                 }
         }
+    }
+
+    private fun observeDownloadStatuses() {
+        viewModelScope.launch {
+            downloadManager.downloadProgress.collect {
+                _uiState.value = _uiState.value.copy(
+                    allEpisodes = enrichEpisodesWithPlaybackState(_uiState.value.allEpisodes),
+                    downloadedEpisodes = enrichEpisodesWithPlaybackState(_uiState.value.downloadedEpisodes)
+                )
+            }
+        }
+    }
+
+    private fun enrichEpisodesWithPlaybackState(episodes: List<PodcastEpisode>): List<PodcastEpisode> {
+        val statuses = downloadManager.downloadProgress.value
+        return episodes.map { episode ->
+            val status = statuses[episode.id]
+            val localFileExists = episode.localFilePath?.let { localPath ->
+                runCatching {
+                    val resolvedPath = if (localPath.startsWith("file://")) {
+                        android.net.Uri.parse(localPath).path
+                    } else {
+                        localPath
+                    }
+                    !resolvedPath.isNullOrBlank() && File(resolvedPath).exists()
+                }.getOrDefault(false)
+            } ?: false
+
+            val playbackReady = when {
+                localFileExists -> true
+                episode.audioUrl.isNotBlank() && episode.downloaded.not() -> true
+                else -> false
+            }
+
+            val failureReason = when {
+                status is com.universalmedialibrary.services.podcast.DownloadStatus.Failed -> status.reason
+                episode.audioUrl.isBlank() -> "Missing audio URL"
+                episode.downloaded && !localFileExists -> "Downloaded file not found. Re-download to recover."
+                else -> null
+            }
+            val recoveryActionLabel = if (episode.downloaded && !localFileExists) "Re-download" else null
+
+            episode.copy(
+                playbackReady = playbackReady,
+                playbackFailureReason = failureReason,
+                recoveryActionLabel = recoveryActionLabel
+            )
+        }
+    }
+}
+
+private fun String.isValidFeedUrl(): Boolean {
+    val trimmed = trim()
+    if (trimmed.isEmpty()) return false
+    return try {
+        val uri = URI(trimmed)
+        val scheme = uri.scheme?.lowercase()
+        (scheme == "http" || scheme == "https") && !uri.host.isNullOrBlank()
+    } catch (_: URISyntaxException) {
+        false
+    } catch (_: IllegalArgumentException) {
+        false
     }
 }
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Malformed Numeric Entity Feed</title>
+  <entry>
+    <title>Entry with &#oops</title>
+    <summary>Contains orphan numeric marker and invalid named entity &notterminated in text</summary>
+    <link rel="http://opds-spec.org/acquisition" href="https://example.com/book.epub?x=1&y=2" type="application/epub+zip" />
+  </entry>
+</feed>

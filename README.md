@@ -36,14 +36,47 @@ CleverFerret is a comprehensive media library application for Android, designed 
 *   **Async:** Coroutines & Flow
 *   **Media Engine:** ExoPlayer (Media3)
 
-## 📂 Project Structure
+## 📂 Project Structure (Verified April 18, 2026)
 
-*   `CleverFerret/`: Main Android application source code.
-*   `tooling/`: Build and development automation scripts.
-*   `docs/`: Product and engineering documentation.
-*   `infra/`: CI/CD, container, and deployment definitions.
-*   `archive/`: Historical non-runtime artifacts.
-*   `android-sdk/`: Local Android SDK dependencies (legacy environment support).
+`settings.gradle.kts` currently includes only one active Gradle module: `:CleverFerret`.
+
+### Module status (source of truth)
+
+| Path | Status | Notes |
+|------|--------|-------|
+| `CleverFerret/` | ✅ Canonical runtime app module | The only module included in `settings.gradle.kts` and the primary Android app path. |
+| `CleverFerretV2/` | 🧪 Incubation / not built by default | Present in repo, but **not** currently included in `settings.gradle.kts`. |
+| `archive/` | 🗃️ Archived | Historical artifacts and intentionally non-runtime content. |
+
+### Top-level folder map and ownership
+
+> Default owner is currently `@Kaleaon` until team aliases are formalized.
+
+| Top-level folder | Classification | Ownership | Purpose |
+|------------------|----------------|-----------|---------|
+| `CleverFerret/` | Canonical app path | `@Kaleaon` | Main Android application source code and resources. |
+| `CleverFerretV2/` | Active but non-canonical (incubation) | `@Kaleaon` | V2 architecture experiments and migration target work. |
+| `docs/` | Active support | `@Kaleaon` | Product, engineering, governance, and recovery docs. |
+| `tooling/` | Active support | `@Kaleaon` | Build and local developer automation scripts. |
+| `infra/` | Active support | `@Kaleaon` | CI/CD and deployment definitions. |
+| `archive/` | Archived | `@Kaleaon` | Historical non-runtime artifacts. |
+| `android-sdk/` | Legacy/support | `@Kaleaon` | Local bundled Android SDK for legacy/containerized setups. |
+| `buildSrc/` | Build logic | `@Kaleaon` | Shared Gradle build logic and conventions. |
+| `gradle/` | Build tooling | `@Kaleaon` | Gradle wrapper and shared build configuration files. |
+| `.github/` | Governance/automation | `@Kaleaon` | Workflows, issue templates, and CODEOWNERS policy. |
+
+## 🧱 Contribution Guardrails (File Size & Complexity)
+
+To prevent regression into oversized/high-friction files, apply these guardrails in PR reviews:
+
+- **Hard threshold:** avoid growing any Kotlin file beyond **800 LOC**.
+- **Refactor threshold:** when touching files already above **500 LOC**, extract at least one cohesive unit (UI section, navigation segment, or service helper) instead of adding more inline logic.
+- **Navigation graphs:** split route registration by feature domain (e.g., settings/library/player) once a nav file exceeds **600 LOC**.
+- **Compose screens:** keep screen orchestration in the main file, but move reusable section composables/cards/dialogs to sibling files in the same package.
+- **Service classes:** isolate scanning/classification/import logic into dedicated collaborators when a service exceeds **700 LOC**.
+- **PR hygiene:** for any PR that touches a file over **500 LOC**, include a short “decomposition note” in the PR description describing what was extracted and why.
+
+These are contribution-time guardrails (not strict compile-time limits) and should be enforced during code review.
 
 ## 📝 Documentation
 
@@ -54,6 +87,9 @@ CleverFerret is a comprehensive media library application for Android, designed 
 *   **[🗺️ Roadmap](docs/ROADMAP.md)**: Planned features and known issues
 *   **[🏗️ Architecture](docs/ARCHITECTURE.md)**: System architecture and design patterns
 *   **[🔒 Security Practices](docs/security/SECURITY_PRACTICES.md)**: Security guidelines and best practices
+*   **[🛟 Post-Recovery State](docs/POST_RECOVERY_STATE.md)**: Branch source-of-truth and safe contribution workflow
+*   **[🧱 Branch Protection Guide](docs/governance/BRANCH_PROTECTION.md)**: Rules to prevent accidental main overwrite
+*   **[🧩 Merge Conflict Workflow](docs/MERGE_CONFLICT_RESOLUTION_WORKFLOW.md)**: Protected mode, allowlisted automation, and manual Gradle/config resolution
 
 ### Key Documentation
 *   **[Supported Formats](docs/FEATURES.md)**: File format support details
@@ -61,7 +97,6 @@ CleverFerret is a comprehensive media library application for Android, designed 
 *   **[Implementation Guides](docs/implementation/)**: Parser integration and technical guides
 *   **[Planning & TODO](docs/planning/)**: Development roadmap and task lists
 *   **[Historical Archives](docs/archive/)**: Completed work and research notes
-
 
 ## 🧭 Frontend Workspace Status
 
@@ -80,6 +115,27 @@ npm run dev
 npm run build
 npm test
 ```
+
+
+## 🧪 Build and CI Artifacts
+
+Build diagnostics should be generated as immutable artifacts under `archive/development-artifacts/` (or CI artifact uploads), not as mutable root-level log files.
+
+Naming convention for generated local artifacts:
+
+- `clean-build-<commit-sha>-<utc-timestamp>.log`
+- `compile-log-<commit-sha>-historical.txt` (for archived legacy snapshots)
+
+Example:
+
+```bash
+COMMIT_SHA=$(git rev-parse --short HEAD)
+TS=$(date -u +%Y%m%dT%H%M%SZ)
+./gradlew clean :CleverFerret:assembleDebug --no-daemon --stacktrace \
+  | tee "archive/development-artifacts/clean-build-${COMMIT_SHA}-${TS}.log"
+```
+
+For pull requests, prefer attaching CI-produced logs/reports as workflow artifacts and linking those in review notes.
 
 ## 🚧 Status
 

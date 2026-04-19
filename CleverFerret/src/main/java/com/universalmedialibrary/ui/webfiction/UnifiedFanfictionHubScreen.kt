@@ -358,13 +358,13 @@ fun FanfictionLibraryTab(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LibraryStoryCard(
+internal fun LibraryStoryCard(
     story: FanfictionStoryEntity,
     onClick: () -> Unit,
     onUpdateClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    var showMenu by remember { mutableStateOf(false) }
+    var showMenu by rememberSaveable(story.id) { mutableStateOf(false) }
     
     Card(
         onClick = onClick,
@@ -551,7 +551,10 @@ private fun UnifiedContent(
                         )
                     }
                     
-                    items(result.stories) { story ->
+                    items(
+                        items = result.stories,
+                        key = { story -> story.id }
+                    ) { story ->
                         StoryCard(
                             story = story,
                             onDownload = { 
@@ -612,7 +615,10 @@ private fun SiteSelectorCard(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(WebFictionSiteType.entries.toTypedArray()) { siteType ->
+                items(
+                    items = WebFictionSiteType.entries.toTypedArray(),
+                    key = { siteType -> siteType.name }
+                ) { siteType ->
                     val isAdult = siteType.isAdultSite()
                     val isEnabled = !isAdult || adultSitesEnabled
                     

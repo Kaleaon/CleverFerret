@@ -189,7 +189,7 @@ class MetadataExtractor @Inject constructor(
     }
 
     private fun extractTextFromEPUB(file: File): String {
-        // For actual EPUB extraction, use EPUBReaderService
+        // For actual EPUB extraction, use EpubReaderService
         // This is a simplified version for compilation
         return file.nameWithoutExtension
     }

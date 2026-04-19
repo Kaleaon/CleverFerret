@@ -1,0 +1,49 @@
+name: Accessibility Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  accessibility:
+    name: Lint + Accessibility Regression Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 11076708
+
+      - name: Install required Android SDK packages
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;34.0.0" "platform-tools"
+
+      - name: Run Android lint (accessibility coverage)
+        run: ./gradlew :CleverFerret:lintDebug -Plint.abortOnError=true --stacktrace
+
+      - name: Enforce no accessibility lint issues
+        run: python3 scripts/ci/check_accessibility_lint.py CleverFerret/build/reports/lint-results-debug.xml
+
+      - name: Run contrast + navigation contract tests
+        run: |
+          ./gradlew :CleverFerret:testDebugUnitTest \
+            --tests com.universalmedialibrary.ui.media.theme.MediaAccessibilityContrastTest \
+            --tests com.universalmedialibrary.ui.media.navigation.MediaNavDestinationsContractTest

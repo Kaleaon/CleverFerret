@@ -158,6 +158,10 @@ class OPDSCatalogService @Inject constructor(
         ).result
     }
 
+    fun buildSearchUrl(template: String, query: String): String {
+        return opdsClient.buildSearchUrl(template, query)
+    }
+
     fun getAllCatalogs(): Flow<List<OPDSCatalog>> {
         return catalogDao.getAllCatalogs()
     }
@@ -193,11 +197,13 @@ data class OPDSEntry(
     val updated: String? = null,
     val language: String? = null,
     val coverUrl: String? = null,
-    val acquisitionLinks: List<OPDSLink> = emptyList()
+    val acquisitionLinks: List<OPDSLink> = emptyList(),
+    val navigationLinks: List<OPDSLink> = emptyList()
 )
 
 data class OPDSLink(
     val href: String,
     val title: String? = null,
-    val rel: List<String> = emptyList()
+    val rel: List<String> = emptyList(),
+    val type: String? = null
 )

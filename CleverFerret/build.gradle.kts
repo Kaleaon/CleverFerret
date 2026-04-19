@@ -10,6 +10,8 @@ import java.util.Base64
 import java.util.Properties
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     id("com.android.application")
@@ -19,6 +21,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.mikepenz.aboutlibraries.plugin") version "13.2.1"
+    jacoco
 }
 
 configurations.all {
@@ -113,7 +116,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 57
+        versionCode = 62
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -244,6 +247,8 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
 
     // Hilt dependency injection
     implementation(libs.hilt.android)
@@ -381,6 +386,7 @@ dependencies {
     testImplementation(libs.arch.core.testing)
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.androidx.test.ext.junit.ktx)
+    testImplementation(libs.androidx.paging.common)
     testImplementation(libs.google.truth)
     testImplementation(libs.mockk)
     testImplementation(libs.mockk.android)
@@ -402,3 +408,68 @@ apply(from = "publish.gradle")
 
 // Version helper tasks for CI (printVersionCode, incrementVersionCode, etc.)
 apply(from = "version.gradle")
+
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+afterEvaluate {
+    tasks.register<JacocoReport>("jacocoDebugReport") {
+        dependsOn("testDebugUnitTest")
+
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+        }
+
+        val excludes = listOf(
+            "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+            "**/*Test*.*", "android/**/*.*", "**/*_Factory.*", "**/*_Hilt*.*",
+            "**/*_Impl*.*", "**/*Companion*.*"
+        )
+
+        classDirectories.setFrom(
+            files(
+                fileTree("$buildDir/tmp/kotlin-classes/debug") { exclude(excludes) },
+                fileTree("$buildDir/intermediates/javac/debug/classes") { exclude(excludes) }
+            )
+        )
+        sourceDirectories.setFrom(files("src/main/java"))
+        executionData.setFrom(
+            fileTree(buildDir) {
+                include(
+                    "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec",
+                    "jacoco/testDebugUnitTest.exec",
+                    "**/*.ec"
+                )
+            }
+        )
+    }
+
+    tasks.register<JacocoCoverageVerification>("jacocoCriticalCoverageVerification") {
+        dependsOn("jacocoDebugReport")
+
+        val reportTask = tasks.named("jacocoDebugReport", JacocoReport::class.java).get()
+        classDirectories.setFrom(reportTask.classDirectories)
+        sourceDirectories.setFrom(reportTask.sourceDirectories)
+        executionData.setFrom(reportTask.executionData)
+
+        violationRules {
+            rule {
+                element = "PACKAGE"
+                includes = listOf(
+                    "com.universalmedialibrary.data.repository",
+                    "com.universalmedialibrary.services",
+                    "com.universalmedialibrary.ui.fanfiction",
+                    "com.universalmedialibrary.data.local"
+                )
+                limit {
+                    counter = "LINE"
+                    value = "COVEREDRATIO"
+                    minimum = "0.30".toBigDecimal()
+                }
+            }
+        }
+    }
+}

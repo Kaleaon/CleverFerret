@@ -19,12 +19,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
+
+data class LibraryMediaTypeOption(
+    val routeType: String,
+    val label: String,
+    val mediaType: MediaType
+)
 
 /**
  * Clean Media-Centric Library Screen
@@ -49,6 +57,9 @@ import com.universalmedialibrary.ui.media.theme.*
 @Composable
 fun MediaLibraryScreen(
     state: LibraryScreenState,
+    mediaTypeOptions: List<LibraryMediaTypeOption>,
+    currentMediaTypeRoute: String,
+    onMediaTypeSelected: (String) -> Unit,
     onItemClick: (MediaItem) -> Unit,
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
@@ -80,6 +91,12 @@ fun MediaLibraryScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            MediaTypeChipsRow(
+                mediaTypeOptions = mediaTypeOptions,
+                currentMediaTypeRoute = currentMediaTypeRoute,
+                onMediaTypeSelected = onMediaTypeSelected
+            )
+
             // Quick filters row
             QuickFiltersRow(
                 currentFilter = state.currentFilter,
@@ -162,6 +179,40 @@ fun MediaLibraryScreen(
                     showFilterSheet = false
                 },
                 onDismiss = { showFilterSheet = false }
+            )
+        }
+    }
+}
+
+@Composable
+private fun MediaTypeChipsRow(
+    mediaTypeOptions: List<LibraryMediaTypeOption>,
+    currentMediaTypeRoute: String,
+    onMediaTypeSelected: (String) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = MediaSpacing.SM),
+        contentPadding = PaddingValues(horizontal = MediaSpacing.ScreenHorizontal),
+        horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+    ) {
+        items(mediaTypeOptions) { option ->
+            val selected = currentMediaTypeRoute == option.routeType
+            FilterChip(
+                selected = selected,
+                onClick = { onMediaTypeSelected(option.routeType) },
+                label = { Text(option.label) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = option.mediaType.icon,
+                        contentDescription = option.label,
+                        modifier = Modifier.size(16.dp)
+                    )
+                },
+                modifier = Modifier.semantics {
+                    contentDescription = "Library type ${option.label}"
+                }
             )
         }
     }

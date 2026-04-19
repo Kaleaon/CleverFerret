@@ -1,0 +1,26 @@
+# Default owner for all paths.
+* @Kaleaon
+
+# Runtime application module (canonical app path)
+/CleverFerret/ @Kaleaon
+
+# Incubation / migration area
+/CleverFerretV2/ @Kaleaon
+
+# Build and release logic
+/build.gradle.kts @Kaleaon
+/settings.gradle.kts @Kaleaon
+/gradle.properties @Kaleaon
+/gradle/ @Kaleaon
+/buildSrc/ @Kaleaon
+/tooling/ @Kaleaon
+/infra/ @Kaleaon
+/release/ @Kaleaon
+
+# Governance and automation
+/.github/ @Kaleaon
+/docs/governance/ @Kaleaon
+/docs/POST_RECOVERY_STATE.md @Kaleaon
+
+# Archives
+/archive/ @Kaleaon
