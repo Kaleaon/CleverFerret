@@ -208,7 +208,8 @@ class ReaderViewModel @Inject constructor(
                             it.copy(
                                 totalPages = chapters.size.coerceAtLeast(1),
                                 currentContent = initialContent,
-                                chapters = chapters
+                                chapters = chapters,
+                                degradedParseWarning = null
                             )
                         }
                     }
@@ -221,7 +222,8 @@ class ReaderViewModel @Inject constructor(
                                     text = "PDF loaded: ${readerType.metadata.title}",
                                     htmlContent = null
                                 ),
-                                chapters = generateChaptersFromPageCount(pageCount)
+                                chapters = generateChaptersFromPageCount(pageCount),
+                                degradedParseWarning = null
                             )
                         }
                     }
@@ -260,7 +262,10 @@ class ReaderViewModel @Inject constructor(
                             it.copy(
                                 totalPages = estimatedPages,
                                 currentContent = textPages.firstOrNull() ?: ReaderContent(text = content),
-                                chapters = chapterList
+                                chapters = chapterList,
+                                degradedParseWarning = readerType.warnings.firstOrNull {
+                                    it.isNotBlank() && readerType.parserConfidence < 0.75f
+                                }
                             )
                         }
                     }

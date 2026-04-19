@@ -70,6 +70,8 @@ class UnifiedReaderServiceIntegrationTest {
                 // Then
                 // This verification fails if the code doesn't call ParserFactory (which is the bug)
                 verify(atLeast = 1) { ParserFactory.getParserForFileName(any()) }
+                assertTrue(result is ReaderType.Text)
+                assertEquals("mobi-family-parser", (result as ReaderType.Text).parserId)
             } finally {
                 tempFile.delete()
             }

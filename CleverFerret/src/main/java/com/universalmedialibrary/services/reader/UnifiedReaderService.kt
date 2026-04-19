@@ -153,7 +153,8 @@ class UnifiedReaderService @Inject constructor(
                                     filePath = filePath,
                                     content = payload.content,
                                     chapterTitles = payload.chapterTitles,
-                                    progressUnitCount = payload.progressUnitCount
+                                    progressUnitCount = payload.progressUnitCount,
+                                    parserId = parserResult.parserId
                                 )
                             }
                             is RenderResult.Failure -> {
@@ -414,7 +415,10 @@ sealed class ReaderType {
         val filePath: String,
         val content: String,
         val chapterTitles: List<String> = emptyList(),
-        val progressUnitCount: Int = 0
+        val progressUnitCount: Int = 0,
+        val parserId: String? = null,
+        val parserConfidence: Float = 1.0f,
+        val warnings: List<String> = emptyList()
     ) : ReaderType()
     
     data class Error(

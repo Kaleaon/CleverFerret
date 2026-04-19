@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Internet Archive Books</title>
+    <entry>
+        <id>ia-1</id>
+        <title>Alpha & Omega &#oops</title>
+        <author><name>Archive User</name></author>
+        <summary>Messy & malformed content</summary>
+        <link rel="http://opds-spec.org/acquisition" href="https://archive.org/download/book.epub?foo=1&bar=2" type="application/epub+zip"/>
+    </entry>
+</feed>
