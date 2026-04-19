@@ -132,6 +132,7 @@ enum class ViewMode {
 }
 
 private enum class FileConflictChoice { REPLACE, KEEP_BOTH, SKIP }
+private enum class MoveResult { SUCCESS, SKIPPED, NO_OP, PARTIAL_COPY_LEFT_SOURCE, FAILED }
 
 private data class FileConflictRequest(
     val file: File,
@@ -171,7 +172,7 @@ fun EnhancedFileBrowser(
 
     suspend fun awaitConflictChoice(file: File): FileConflictChoice {
         val response = CompletableDeferred<FileConflictChoice>()
-        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Main.immediate) {
             conflictRequest = FileConflictRequest(file = file, response = response)
         }
         return response.await()
@@ -434,21 +435,29 @@ fun EnhancedFileBrowser(
                                     filesToProcess.forEach { file ->
                                         try {
                                             val destFile = File(currentDirectory, file.name)
-                                            val moved = if (destFile.exists()) {
+                                            val moveResult = if (destFile.exists()) {
                                                 when (awaitConflictChoice(file)) {
                                                     FileConflictChoice.REPLACE -> moveFileSafely(file, destFile, overwrite = true)
                                                     FileConflictChoice.KEEP_BOTH -> {
                                                         val target = generateNonConflictingFile(currentDirectory, file)
                                                         moveFileSafely(file, target, overwrite = false)
                                                     }
-                                                    FileConflictChoice.SKIP -> true
+                                                    FileConflictChoice.SKIP -> MoveResult.SKIPPED
                                                 }
                                             } else {
                                                 moveFileSafely(file, destFile, overwrite = false)
                                             }
-                                            if (!moved) {
-                                                operationErrors += "Failed to move ${file.name}"
-                                                android.util.Log.e("FileBrowser", "Failed to move ${file.name}")
+                                            if (moveResult == MoveResult.PARTIAL_COPY_LEFT_SOURCE || moveResult == MoveResult.FAILED) {
+                                                val errorMessage = when (moveResult) {
+                                                    MoveResult.PARTIAL_COPY_LEFT_SOURCE ->
+                                                        "Copied ${file.name}, but couldn't remove the source file."
+                                                    MoveResult.FAILED -> "Failed to move ${file.name}"
+                                                    MoveResult.SUCCESS, MoveResult.SKIPPED, MoveResult.NO_OP -> ""
+                                                }
+                                                if (errorMessage.isNotEmpty()) {
+                                                    operationErrors += errorMessage
+                                                    android.util.Log.e("FileBrowser", errorMessage)
+                                                }
                                             }
                                         } catch (e: Exception) {
                                             operationErrors += "Failed to move ${file.name}: ${e.message}"
@@ -1290,8 +1299,9 @@ private fun loadFileItems(directory: File, settings: FileBrowserSettings): List<
 }
 
 private fun generateNonConflictingFile(directory: File, sourceFile: File): File {
-    val baseName = sourceFile.nameWithoutExtension.ifBlank { sourceFile.name }
-    val suffix = sourceFile.extension.takeIf { it.isNotBlank() }?.let { ".$it" }.orEmpty()
+    val extension = sourceFile.extension
+    val baseName = if (extension.isBlank()) sourceFile.name else sourceFile.nameWithoutExtension
+    val suffix = if (extension.isBlank()) "" else ".$extension"
     var counter = 1
     var candidate = File(directory, "${baseName}_$counter$suffix")
     while (candidate.exists()) {
@@ -1301,26 +1311,28 @@ private fun generateNonConflictingFile(directory: File, sourceFile: File): File 
     return candidate
 }
 
-private fun moveFileSafely(source: File, destination: File, overwrite: Boolean): Boolean {
-    if (source.absolutePath == destination.absolutePath) {
-        return true
+private fun moveFileSafely(source: File, destination: File, overwrite: Boolean): MoveResult {
+    val isSameFile = runCatching { source.canonicalPath == destination.canonicalPath }
+        .getOrElse { source.absolutePath == destination.absolutePath }
+    if (isSameFile) {
+        return MoveResult.NO_OP
     }
 
     return try {
         if (source.renameTo(destination)) {
-            true
+            MoveResult.SUCCESS
         } else {
             source.copyTo(destination, overwrite = overwrite)
             if (source.delete()) {
-                true
+                MoveResult.SUCCESS
             } else {
-                destination.delete()
-                false
+                android.util.Log.w("FileBrowser", "Copied ${source.name}, but failed to delete source file.")
+                MoveResult.PARTIAL_COPY_LEFT_SOURCE
             }
         }
     } catch (e: Exception) {
         android.util.Log.e("FileBrowser", "Failed to move ${source.name}: ${e.message}")
-        false
+        MoveResult.FAILED
     }
 }
 
