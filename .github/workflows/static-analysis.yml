@@ -46,6 +46,9 @@ jobs:
           echo "Installed SDK packages:"
           $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --list_installed
 
+      - name: Check for raw console calls in app code
+        run: ./scripts/check-no-raw-console.sh
+
       - name: Run Android Lint
         run: ./gradlew lintDebug -Plint.abortOnError=true --no-daemon --stacktrace
 
