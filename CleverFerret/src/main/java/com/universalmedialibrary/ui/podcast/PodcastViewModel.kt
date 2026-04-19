@@ -261,6 +261,10 @@ class PodcastViewModel @Inject constructor(
         )
     }
 
+    fun recoverMissingDownload(episode: PodcastEpisode) {
+        retryDownload(episode.copy(downloaded = false, localFilePath = null))
+    }
+
     val downloadProgress = downloadManager.downloadProgress
 
     fun deleteDownloadedEpisode(episode: PodcastEpisode) {
@@ -397,13 +401,15 @@ class PodcastViewModel @Inject constructor(
             val failureReason = when {
                 status is com.universalmedialibrary.services.podcast.DownloadStatus.Failed -> status.reason
                 episode.audioUrl.isBlank() -> "Missing audio URL"
-                episode.downloaded && !localFileExists -> "Downloaded file not found"
+                episode.downloaded && !localFileExists -> "Downloaded file not found. Re-download to recover."
                 else -> null
             }
+            val recoveryActionLabel = if (episode.downloaded && !localFileExists) "Re-download" else null
 
             episode.copy(
                 playbackReady = playbackReady,
-                playbackFailureReason = failureReason
+                playbackFailureReason = failureReason,
+                recoveryActionLabel = recoveryActionLabel
             )
         }
     }
