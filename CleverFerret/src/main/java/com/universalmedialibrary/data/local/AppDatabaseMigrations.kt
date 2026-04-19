@@ -1282,4 +1282,16 @@ object AppDatabaseMigrations {
             """.trimIndent())
         }
     }
+
+    /**
+     * Migration from version 43 to 44
+     * Adds checksum persistence for downloaded podcast files.
+     */
+    val MIGRATION_43_44 = object : Migration(43, 44) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                "ALTER TABLE podcast_episodes ADD COLUMN localFileChecksum TEXT"
+            )
+        }
+    }
 }
