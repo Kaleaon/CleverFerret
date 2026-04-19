@@ -34,6 +34,10 @@ import com.universalmedialibrary.services.webfiction.WebFictionSiteType
 import com.universalmedialibrary.services.webfiction.isAdultSite
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.services.webfiction.StoryStatus
+import com.universalmedialibrary.ui.components.UserFeedbackMessage
+import com.universalmedialibrary.ui.components.UserFeedbackSeverity
+import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
+import com.universalmedialibrary.ui.components.showUserFeedback
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
@@ -47,12 +51,47 @@ fun WebFictionManagerScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
     var showAddDialog by remember { mutableStateOf(false) }
     var showRedditDialog by remember { mutableStateOf(false) }
     var showSiteInfoDialog by remember { mutableStateOf(false) }
     var selectedSite by remember { mutableStateOf<WebFictionSite?>(null) }
 
+    LaunchedEffect(uiState.error, uiState.canRetry) {
+        val error = uiState.error ?: return@LaunchedEffect
+        val result = snackbarHostState.showUserFeedback(
+            UserFeedbackMessage(
+                title = "Web fiction action failed",
+                body = error,
+                severity = UserFeedbackSeverity.ERROR,
+                actionLabel = if (uiState.canRetry) "Retry" else null
+            )
+        )
+        if (result == SnackbarResult.ActionPerformed && uiState.canRetry) {
+            viewModel.retryLastAction()
+        } else {
+            viewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(uiState.successMessage) {
+        val success = uiState.successMessage ?: return@LaunchedEffect
+        snackbarHostState.showUserFeedback(
+            UserFeedbackMessage(
+                title = "Completed",
+                body = success,
+                severity = UserFeedbackSeverity.SUCCESS,
+                withDismissAction = false,
+                duration = SnackbarDuration.Short
+            )
+        )
+        viewModel.clearSuccessMessage()
+    }
+
     Scaffold(
+        snackbarHost = {
+            UserFeedbackSnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                     title = {
@@ -145,38 +184,6 @@ fun WebFictionManagerScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                            }
-                        }
-                    }
-                }
-
-                // Error message
-                uiState.error?.let { error ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Error,
-                                contentDescription = "Media image",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = error,
-                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.weight(1f)
-                            )
-                            IconButton(onClick = { viewModel.clearError() }) {
-                                Icon(Icons.Default.Close, contentDescription = "Dismiss")
                             }
                         }
                     }
