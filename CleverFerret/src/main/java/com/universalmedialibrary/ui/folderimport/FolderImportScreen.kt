@@ -41,6 +41,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
+import java.net.URI
 
 /**
  * Enhanced folder import screen with:
@@ -62,19 +63,29 @@ fun FolderImportScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showUrlDialog by remember { mutableStateOf(false) }
+    var importUrlText by remember { mutableStateOf("") }
     
     // Folder picker launcher
     val folderPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
-        uri?.let { 
-            // Take persistable permission
-            context.contentResolver.takePersistableUriPermission(
-                it,
-                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            )
-            viewModel.scanFolder(context, it) 
+        uri?.let {
+            runCatching {
+                // Take persistable permission
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+                viewModel.onFilePermissionResult(granted = true)
+                viewModel.scanFolder(context, it)
+            }.onFailure { error ->
+                viewModel.onFilePermissionResult(
+                    granted = false,
+                    errorMessage = "Unable to access selected folder. Please grant file access and try again."
+                )
+            }
         }
     }
     
@@ -83,7 +94,10 @@ fun FolderImportScreen(
         contract = ActivityResultContracts.OpenMultipleDocuments()
     ) { uris ->
         if (uris.isNotEmpty()) {
+            viewModel.onFilePermissionResult(granted = true)
             viewModel.addFiles(context, uris)
+        } else {
+            viewModel.onFilePermissionResult(granted = false)
         }
     }
 
@@ -321,9 +335,29 @@ fun FolderImportScreen(
                                 ))
                             }
                         )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        ImportOptionCard(
+                            icon = Icons.Default.Link,
+                            title = "Open URL",
+                            description = "Import from a direct http(s) media URL",
+                            onClick = { showUrlDialog = true }
+                        )
                         
                         Spacer(modifier = Modifier.height(32.dp))
                         
+                        if (uiState.lastImportError != null) {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            AssistChip(
+                                onClick = { viewModel.clearImportError() },
+                                label = { Text(uiState.lastImportError!!) },
+                                leadingIcon = {
+                                    Icon(Icons.Default.ErrorOutline, contentDescription = null)
+                                }
+                            )
+                        }
+
                         // Supported formats info
                         SupportedFormatsCard()
                     }
@@ -440,7 +474,69 @@ fun FolderImportScreen(
                 }
             }
         }
+
+        if (showUrlDialog) {
+            UrlImportDialog(
+                url = importUrlText,
+                onUrlChange = { importUrlText = it },
+                onDismiss = {
+                    showUrlDialog = false
+                    importUrlText = ""
+                },
+                onImport = {
+                    viewModel.addUrl(importUrlText)
+                    showUrlDialog = false
+                    importUrlText = ""
+                }
+            )
+        }
     }
+}
+
+@Composable
+private fun UrlImportDialog(
+    url: String,
+    onUrlChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onImport: () -> Unit
+) {
+    val isValidUrl = remember(url) {
+        runCatching {
+            val parsed = URI(url.trim())
+            val scheme = parsed.scheme?.lowercase()
+            (scheme == "http" || scheme == "https") && !parsed.path.isNullOrBlank()
+        }.getOrDefault(false)
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Import from URL") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = url,
+                    onValueChange = onUrlChange,
+                    label = { Text("Media URL") },
+                    singleLine = true,
+                    isError = url.isNotBlank() && !isValidUrl
+                )
+                Text(
+                    text = "Direct links only (http/https) ending in supported extensions, e.g. .mp3, .epub, .pdf, .mp4.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onImport,
+                enabled = isValidUrl
+            ) { Text("Import") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }
 
 @Composable
@@ -550,6 +646,13 @@ private fun SupportedFormatsCard() {
                 icon = Icons.Default.VideoLibrary,
                 label = "Video",
                 formats = "MP4, MKV, AVI, MOV, WEBM"
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Unsupported files are skipped during scan. If import fails, verify the file is readable and you granted storage access.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

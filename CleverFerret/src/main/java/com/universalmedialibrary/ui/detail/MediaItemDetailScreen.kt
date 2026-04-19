@@ -23,9 +23,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.universalmedialibrary.data.local.entity.UnifiedTag
 import java.text.DecimalFormat
 import kotlin.math.log10
@@ -76,6 +78,19 @@ fun MediaItemDetailScreen(
                             )
                         } else {
                             Icon(Icons.Default.CloudDownload, contentDescription = "Fetch Metadata")
+                        }
+                    }
+                    IconButton(
+                        onClick = { viewModel.regenerateThumbnail() },
+                        enabled = uiState.thumbnailTask?.status != BackgroundTaskStatus.RUNNING
+                    ) {
+                        if (uiState.thumbnailTask?.status == BackgroundTaskStatus.RUNNING) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(Icons.Default.Refresh, contentDescription = "Regenerate Thumbnail")
                         }
                     }
                     IconButton(
@@ -181,6 +196,20 @@ fun MediaItemDetailScreen(
                             ErrorMessage(message = error, onDismiss = { viewModel.clearMetadataFetchStatus() })
                         }
 
+                        uiState.metadataRefreshTask?.let { task ->
+                            BackgroundTaskCard(
+                                task = task,
+                                onDismiss = { viewModel.clearBackgroundTask(BackgroundTaskType.METADATA) }
+                            )
+                        }
+
+                        uiState.thumbnailTask?.let { task ->
+                            BackgroundTaskCard(
+                                task = task,
+                                onDismiss = { viewModel.clearBackgroundTask(BackgroundTaskType.THUMBNAIL) }
+                            )
+                        }
+
                         // Tag suggestion error
                         uiState.tagSuggestionError?.let { error ->
                             ErrorMessage(message = error, onDismiss = { viewModel.dismissTagSuggestions() })
@@ -189,7 +218,8 @@ fun MediaItemDetailScreen(
                         // Cover/Thumbnail Section
                         CoverSection(
                             coverPath = uiState.metadata?.coverImagePath,
-                            mediaType = uiState.mediaItem?.mediaType ?: "UNKNOWN"
+                            mediaType = uiState.mediaItem?.mediaType ?: "UNKNOWN",
+                            cacheVersion = uiState.imageCacheVersion
                         )
 
                         // Title and Basic Info
@@ -357,8 +387,10 @@ fun TagSuggestionDialog(
 @Composable
 private fun CoverSection(
     coverPath: String?,
-    mediaType: String
+    mediaType: String,
+    cacheVersion: Long
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -371,8 +403,12 @@ private fun CoverSection(
         ) {
             if (coverPath != null) {
                 AsyncImage(
-                    
-                    model = coverPath,
+                    model = ImageRequest.Builder(context)
+                        .data(coverPath)
+                        .memoryCacheKey("$coverPath#$cacheVersion")
+                        .diskCacheKey("$coverPath#$cacheVersion")
+                        .setParameter("cache_buster", cacheVersion)
+                        .build(),
                     contentDescription = "Cover",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -405,6 +441,47 @@ private fun CoverSection(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun BackgroundTaskCard(
+    task: BackgroundTaskState,
+    onDismiss: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = when (task.status) {
+                BackgroundTaskStatus.FAILED -> MaterialTheme.colorScheme.errorContainer
+                BackgroundTaskStatus.SUCCESS -> MaterialTheme.colorScheme.primaryContainer
+                else -> MaterialTheme.colorScheme.surfaceVariant
+            }
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(task.label, fontWeight = FontWeight.SemiBold)
+                TextButton(onClick = onDismiss) {
+                    Text("Dismiss")
+                }
+            }
+            LinearProgressIndicator(
+                progress = task.progress,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                task.message ?: task.status.name.lowercase().replaceFirstChar { it.uppercase() },
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

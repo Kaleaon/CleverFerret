@@ -12,7 +12,7 @@ Last refreshed: 2026-04-18 (UTC)
 
 1. **Gradle/Kotlin toolchain bootstrap fails before module compilation**
    - **Observed in fresh run:** `java.lang.IllegalArgumentException: 25.0.1`
-   - **Failure point:** Gradle Kotlin script compilation startup
+   - **Failure point:** Gradle Kotlin DSL bootstrap while compiling the settings script (`ScriptEvaluatingSettingsProcessor.applySettingsScript` -> `KotlinCompilerKt.compileKotlinScriptModuleTo`), before project/task graph setup
    - **Impact:** Build exits before reaching `:CleverFerret:kspDebugKotlin`, so downstream compiler diagnostics are currently blocked.
    - **Next action:** align runtime Java version format expected by current Gradle/Kotlin stack (or pin supported JDK for local/CI builders).
 
@@ -25,3 +25,10 @@ The following historical failures were **not reproducible in the fresh clean run
 - `Execution failed for task ':CleverFerret:kspDebugKotlin'`
 
 These remain in archived logs for reference and should be re-validated only after toolchain bootstrap is fixed.
+
+## Verification notes
+
+- 2026-04-18T20:12:20Z — Re-checked `archive/development-artifacts/clean-build-879e7103-20260418T195556Z.log`; crash reproduces in Kotlin DSL bootstrap with `java.lang.IllegalArgumentException: 25.0.1` before `:CleverFerret` configuration.
+- 2026-04-18T20:12:20Z — Added wrapper-level JDK gate (17..21), Gradle toolchain discovery constraints, and repo default `.java-version` (`21`) so unsupported runtimes now fail fast with an explicit message instead of Kotlin startup stacktrace.
+- 2026-04-18T20:12:20Z — Reproducibility status: bootstrap crash is reproducible with unsupported runtime JDK; expected to be replaced by deterministic preflight failure after this fix.
+

@@ -117,8 +117,8 @@ fun EnhancedPDFReaderScreen(
         if (uiState.isLoaded) {
             val renderWidth = (screenWidthPx * scale).toInt().coerceAtLeast(100)
             val renderHeight = (screenHeightPx * scale * 1.5f).toInt().coerceAtLeast(100)
-            // In a real implementation, this would call the PDF engine to render
-            // currentPageBitmap = viewModel.renderCurrentPage(renderWidth, renderHeight)
+            currentPageBitmap?.recycle()
+            currentPageBitmap = viewModel.renderCurrentPage(renderWidth, renderHeight)
         }
     }
     

@@ -45,6 +45,7 @@ fun OPDSCatalogBrowserScreen(
     val feedResult by viewModel.currentFeed.collectAsState()
     val downloads by viewModel.activeDownloads.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val transientMessage by viewModel.userMessage.collectAsState()
     
     var showAddCatalogDialog by remember { mutableStateOf(false) }
     var showSearchDialog by remember { mutableStateOf(false) }
@@ -153,6 +154,16 @@ fun OPDSCatalogBrowserScreen(
                 }
             }
         }
+    }
+
+    transientMessage?.let { message ->
+        LaunchedEffect(message) {
+            kotlinx.coroutines.delay(3500)
+            viewModel.clearUserMessage()
+        }
+        Snackbar(
+            modifier = Modifier.padding(16.dp)
+        ) { Text(message) }
     }
 
     // Add catalog dialog
@@ -421,6 +432,9 @@ private fun PublicationCard(
                     Text(
                         text = entry.acquisitionLinks.joinToString(" • ") {
                             when {
+                                it.type?.contains("epub", ignoreCase = true) == true -> "EPUB"
+                                it.type?.contains("pdf", ignoreCase = true) == true -> "PDF"
+                                it.type?.contains("mobi", ignoreCase = true) == true -> "MOBI"
                                 it.href.contains("epub", ignoreCase = true) -> "EPUB"
                                 it.href.contains("pdf", ignoreCase = true) -> "PDF"
                                 it.href.contains("mobi", ignoreCase = true) -> "MOBI"
@@ -434,9 +448,10 @@ private fun PublicationCard(
                 }
             }
             
+            val isDownloadable = entry.acquisitionLinks.isNotEmpty()
             Icon(
-                Icons.Default.Download,
-                contentDescription = "Download",
+                imageVector = if (isDownloadable) Icons.Default.Download else Icons.Default.ChevronRight,
+                contentDescription = if (isDownloadable) "Download" else "Open subsection",
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -589,8 +604,12 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    val activeDownloads = MutableStateFlow<List<Any>>(emptyList())
+    val activeDownloads = downloadService.activeDownloads
+        .map { it.values.toList() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _userMessage = MutableStateFlow<String?>(null)
+    val userMessage = _userMessage.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -630,7 +649,20 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
 
     fun downloadPublication(catalogId: Long, entry: OPDSEntry) {
         viewModelScope.launch {
-            downloadService.queueDownload(catalogId, entry)
+            when {
+                entry.acquisitionLinks.isNotEmpty() -> {
+                    val downloadId = downloadService.queueDownload(catalogId, entry)
+                    if (downloadId == null) {
+                        _userMessage.value = "No supported acquisition link found for '${entry.title}'."
+                    }
+                }
+                entry.navigationLinks.isNotEmpty() -> {
+                    navigateToUrl(entry.navigationLinks.first().href)
+                }
+                else -> {
+                    _userMessage.value = "Entry '${entry.title}' has no downloadable acquisition or subsection link."
+                }
+            }
         }
     }
 
@@ -642,8 +674,13 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
                 _currentFeed.value = Result.success(feed)
             } catch (e: Exception) {
                 _currentFeed.value = Result.failure(e)
+                _userMessage.value = e.message ?: "Failed to open feed link."
             }
         }
+    }
+
+    fun clearUserMessage() {
+        _userMessage.value = null
     }
 
     fun addCustomCatalog(name: String, url: String) {
