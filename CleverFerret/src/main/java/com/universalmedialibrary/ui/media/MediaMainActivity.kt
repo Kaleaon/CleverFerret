@@ -31,6 +31,7 @@ import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.media.components.MediaMiniPlayer
 import com.universalmedialibrary.ui.media.navigation.*
 import com.universalmedialibrary.ui.main.MainViewModel
+import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.media.theme.MediaColors
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
@@ -79,10 +80,14 @@ private fun MediaAppRoot(
         // Bridge media-centric design tokens to the app-wide theme palette.
         MediaColors.SyncWithMaterialTheme()
 
-        MediaMainScreen(
-            playbackStateManager = playbackStateManager,
-            mainViewModel = mainViewModel
-        )
+        UiErrorBoundary(
+            boundaryName = "AppRoot"
+        ) {
+            MediaMainScreen(
+                playbackStateManager = playbackStateManager,
+                mainViewModel = mainViewModel
+            )
+        }
     }
 }
 
@@ -189,15 +194,30 @@ fun MediaMainScreen(
                 }
             }
         ) { paddingValues ->
-            MediaAppNavHost(
-                navController = navController,
-                onShowSnackbar = { message ->
-                    scope.launch {
-                        snackbarHostState.showSnackbar(message)
+            UiErrorBoundary(
+                boundaryName = "NavigationRoot-Mobile",
+                onGoHome = {
+                    navController.navigate(MediaRoutes.HOME) {
+                        popUpTo(MediaRoutes.HOME) { inclusive = false }
+                        launchSingleTop = true
                     }
                 },
-                modifier = Modifier.padding(paddingValues)
-            )
+                onReportIssue = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Issue reported for NavigationRoot-Mobile")
+                    }
+                },
+            ) {
+                MediaAppNavHost(
+                    navController = navController,
+                    onShowSnackbar = { message ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(message)
+                        }
+                    },
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
         }
     } else {
         // TABLET/DESKTOP LAYOUT: Sidebar navigation
@@ -240,15 +260,30 @@ fun MediaMainScreen(
                     }
                 }
             ) { paddingValues ->
-                MediaAppNavHost(
-                    navController = navController,
-                    onShowSnackbar = { message ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(message)
+                UiErrorBoundary(
+                    boundaryName = "NavigationRoot-Desktop",
+                    onGoHome = {
+                        navController.navigate(MediaRoutes.HOME) {
+                            popUpTo(MediaRoutes.HOME) { inclusive = false }
+                            launchSingleTop = true
                         }
                     },
-                    modifier = Modifier.padding(paddingValues)
-                )
+                    onReportIssue = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Issue reported for NavigationRoot-Desktop")
+                        }
+                    },
+                ) {
+                    MediaAppNavHost(
+                        navController = navController,
+                        onShowSnackbar = { message ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        },
+                        modifier = Modifier.padding(paddingValues)
+                    )
+                }
             }
         }
     }
