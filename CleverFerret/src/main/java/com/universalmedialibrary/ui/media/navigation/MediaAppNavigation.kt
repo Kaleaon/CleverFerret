@@ -3,15 +3,24 @@ package com.universalmedialibrary.ui.media.navigation
 import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
@@ -134,6 +143,7 @@ object MediaRoutes {
     
     // Debug (only in debug builds)
     const val DEBUG_MENU = "debug"
+    const val NOT_FOUND = "not-found?path={path}"
     
     // Helper functions for navigation
     fun libraryRoute(mediaType: String) = "library/$mediaType"
@@ -143,6 +153,7 @@ object MediaRoutes {
     fun videoPlayerRoute(videoId: String) = "player/video/$videoId"
     fun collectionDetailRoute(collectionId: String) = "collection/$collectionId"
     fun webFictionBrowseRoute(source: String) = "discover/webfiction/${Uri.encode(source)}"
+    fun notFoundRoute(path: String) = "not-found?path=${Uri.encode(path)}"
 }
 
 private fun sanitizeRouteParamForDisplay(input: String, maxLen: Int = 60): String {
@@ -151,6 +162,183 @@ private fun sanitizeRouteParamForDisplay(input: String, maxLen: Int = 60): Strin
         .replace(Regex("[\\p{Cc}\\p{Cf}]"), "")
         .take(maxLen)
         .trim()
+}
+
+private val knownStaticRoutes = setOf(
+    MediaRoutes.HOME,
+    MediaRoutes.SEARCH,
+    MediaRoutes.ACTIVITY,
+    MediaRoutes.SETTINGS,
+    MediaRoutes.BOOKS,
+    MediaRoutes.AUDIOBOOKS,
+    MediaRoutes.MUSIC,
+    MediaRoutes.PODCASTS,
+    MediaRoutes.COMICS,
+    MediaRoutes.MOVIES,
+    MediaRoutes.TV_SHOWS,
+    MediaRoutes.WEB_FICTION,
+    MediaRoutes.RADIO,
+    MediaRoutes.DOCUMENTS,
+    MediaRoutes.DISCOVER,
+    MediaRoutes.OPDS_BROWSER,
+    MediaRoutes.PODCAST_DISCOVER,
+    MediaRoutes.COLLECTIONS,
+    MediaRoutes.TAGS,
+    MediaRoutes.TAG_MANAGER,
+    MediaRoutes.TAG_EXPLORER,
+    MediaRoutes.SMART_COLLECTIONS,
+    MediaRoutes.UNIVERSAL_SEARCH,
+    MediaRoutes.AMBIENT_SOUNDS,
+    MediaRoutes.NEWS,
+    MediaRoutes.VISUALIZER,
+    MediaRoutes.SYNC,
+    MediaRoutes.IMPORT_EXPORT,
+    MediaRoutes.FOLDER_IMPORT,
+    MediaRoutes.LANDSEEK,
+    MediaRoutes.ENHANCED_FILE_BROWSER,
+    MediaRoutes.SETTINGS_API,
+    MediaRoutes.SETTINGS_APPEARANCE,
+    MediaRoutes.SETTINGS_PLAYBACK,
+    MediaRoutes.SETTINGS_READER,
+    MediaRoutes.SETTINGS_STORAGE,
+    MediaRoutes.SETTINGS_SECURITY,
+    MediaRoutes.SETTINGS_ABOUT,
+    MediaRoutes.SETTINGS_MEDIA_SERVERS,
+    MediaRoutes.FILE_BROWSER,
+    MediaRoutes.ONBOARDING,
+    MediaRoutes.DEBUG_MENU
+)
+
+private val knownParameterizedPrefixes = listOf(
+    "library/",
+    "detail/",
+    "reader/",
+    "player/",
+    "discover/webfiction/",
+    "collection/",
+    "tag/",
+    "smart_collection/",
+    "enhanced_search",
+    "not-found"
+)
+
+internal fun resolveRouteOrFallback(route: String): String {
+    if (route in knownStaticRoutes) return route
+    if (knownParameterizedPrefixes.any { route.startsWith(it) }) return route
+    return MediaRoutes.notFoundRoute(route)
+}
+
+@Composable
+private fun NotFoundRouteScreen(
+    requestedPath: String,
+    onNavigateHome: () -> Unit,
+    onNavigateSearch: () -> Unit,
+    onNavigateLibrary: () -> Unit,
+    onBack: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        val wideLayout = maxWidth >= 720.dp
+
+        if (wideLayout) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                NotFoundCardContent(
+                    modifier = Modifier.widthIn(max = 800.dp),
+                    focusRequester = focusRequester,
+                    requestedPath = requestedPath,
+                    onNavigateHome = onNavigateHome,
+                    onNavigateSearch = onNavigateSearch,
+                    onNavigateLibrary = onNavigateLibrary,
+                    onBack = onBack
+                )
+            }
+        } else {
+            NotFoundCardContent(
+                modifier = Modifier.fillMaxSize(),
+                focusRequester = focusRequester,
+                requestedPath = requestedPath,
+                onNavigateHome = onNavigateHome,
+                onNavigateSearch = onNavigateSearch,
+                onNavigateLibrary = onNavigateLibrary,
+                onBack = onBack
+            )
+        }
+    }
+}
+
+@Composable
+private fun NotFoundCardContent(
+    modifier: Modifier,
+    focusRequester: FocusRequester,
+    requestedPath: String,
+    onNavigateHome: () -> Unit,
+    onNavigateSearch: () -> Unit,
+    onNavigateLibrary: () -> Unit,
+    onBack: () -> Unit
+) {
+    Card(modifier = modifier) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = "CleverFerret",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                modifier = Modifier.semantics { heading() },
+                text = "We couldn't find that page",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = "The route \"$requestedPath\" doesn't exist or is no longer available. " +
+                    "Use one of the recovery actions below.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Button(
+                    modifier = Modifier.focusRequester(focusRequester),
+                    onClick = onNavigateHome
+                ) {
+                    Icon(Icons.Default.Home, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Go Home")
+                }
+                OutlinedButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Back")
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedButton(onClick = onNavigateSearch) {
+                    Icon(Icons.Default.Search, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Search")
+                }
+                OutlinedButton(onClick = onNavigateLibrary) {
+                    Icon(Icons.Default.MenuBook, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Library")
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -242,6 +430,28 @@ fun MediaAppNavHost(
                     viewModel.clearLastOpenedCategory()
                     navController.navigate(MediaRoutes.PODCASTS)
                 }
+            )
+        }
+
+        composable(
+            route = MediaRoutes.NOT_FOUND,
+            arguments = listOf(
+                navArgument("path") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = ""
+                }
+            )
+        ) { backStackEntry ->
+            val rawPath = backStackEntry.arguments?.getString("path").orEmpty()
+            val requestedPath = sanitizeRouteParamForDisplay(Uri.decode(rawPath)).ifBlank { "unknown" }
+
+            NotFoundRouteScreen(
+                requestedPath = requestedPath,
+                onNavigateHome = { navController.navigate(MediaRoutes.HOME) },
+                onNavigateSearch = { navController.navigate(MediaRoutes.SEARCH) },
+                onNavigateLibrary = { navController.navigate(MediaRoutes.BOOKS) },
+                onBack = { navController.popBackStack() }
             )
         }
 
