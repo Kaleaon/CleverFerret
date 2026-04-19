@@ -51,7 +51,7 @@ class UnifiedReaderServiceIntegrationTest {
     }
 
     @Test
-    fun `openPublication with mobi file should use ParserFactory`() {
+    fun `openPublication with mobi file should use parser registry and parser factory`() {
         runBlocking {
             // Given
             val tempFile = File.createTempFile("test", ".mobi")
@@ -60,7 +60,8 @@ class UnifiedReaderServiceIntegrationTest {
             // Mock ParserFactory to return a mock parser
             val mockParser = mockk<DocumentParser>()
             coEvery { mockParser.parse(any<String>()) } returns ParsedDocument("Parsed Content from Mock", DocumentMetadata(), null)
-            every { ParserFactory.getParser(any()) } returns mockParser
+            every { ParserFactory.getParserForFileName(any()) } returns mockParser
+            every { ParserFactory.getSupportedExtensions() } returns listOf("mobi")
 
             try {
                 // When
@@ -68,7 +69,7 @@ class UnifiedReaderServiceIntegrationTest {
 
                 // Then
                 // This verification fails if the code doesn't call ParserFactory (which is the bug)
-                verify(exactly = 1) { ParserFactory.getParser(any()) }
+                verify(atLeast = 1) { ParserFactory.getParserForFileName(any()) }
             } finally {
                 tempFile.delete()
             }

@@ -1340,8 +1340,8 @@ data class ReaderSettings(
     val marginHorizontal: Float = 16f,
     val marginVertical: Float = 24f,
     val textAlign: ReaderTextAlign = ReaderTextAlign.JUSTIFIED,
-    val themePreset: ReaderThemePreset = ReaderThemePreset.DARK,
-    val theme: ReaderTheme = ReaderThemePreset.DARK.toTheme(),
+    val themePreset: ReaderThemePreset = ReaderThemePreset.PAPER,
+    val theme: ReaderTheme = ReaderThemePreset.PAPER.toTheme(),
     val readingMode: ReadingMode = ReadingMode.PAGINATED,
     val pageAnimation: PageAnimation = PageAnimation.SLIDE,
     val showPageNumber: Boolean = true,
@@ -1388,33 +1388,28 @@ enum class PageAnimation(val displayName: String) {
 }
 
 enum class ReaderThemePreset {
-    WHITE, SEPIA, DARK, AMOLED, NIGHT;
+    PAPER, SEPIA, NIGHT, HIGH_CONTRAST;
     
     fun toTheme(): ReaderTheme = when (this) {
-        WHITE -> ReaderTheme(
-            backgroundColor = Color.White,
-            textColor = Color.Black,
-            linkColor = Color(0xFF1976D2)
+        PAPER -> ReaderTheme(
+            backgroundColor = Color(0xFFFAF5E6),
+            textColor = Color(0xFF1E1E1E),
+            linkColor = Color(0xFF1C5D99)
         )
         SEPIA -> ReaderTheme(
             backgroundColor = Color(0xFFF4ECD8),
             textColor = Color(0xFF5B4636),
             linkColor = Color(0xFF8B5A2B)
         )
-        DARK -> ReaderTheme(
-            backgroundColor = Color(0xFF1F1F1F),
-            textColor = Color(0xFFE0E0E0),
-            linkColor = Color(0xFF66B2FF)
-        )
-        AMOLED -> ReaderTheme(
-            backgroundColor = Color.Black,
-            textColor = Color(0xFFCCCCCC),
-            linkColor = Color(0xFF66B2FF)
-        )
         NIGHT -> ReaderTheme(
-            backgroundColor = Color(0xFF1A0A0A),
-            textColor = Color(0xFFFFCCCC),
-            linkColor = Color(0xFFFF9999)
+            backgroundColor = Color(0xFF121212),
+            textColor = Color(0xFFE8E8E8),
+            linkColor = Color(0xFF8AB4F8)
+        )
+        HIGH_CONTRAST -> ReaderTheme(
+            backgroundColor = Color.Black,
+            textColor = Color.White,
+            linkColor = Color(0xFFFFFF00)
         )
     }
 }

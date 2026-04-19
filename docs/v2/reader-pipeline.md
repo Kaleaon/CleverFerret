@@ -7,7 +7,8 @@
 1. MIME + extension detection
 2. Signature sniffing
 3. Candidate parser ranking
-4. Fallback parser with structured error reporting
+4. Renderer adapter normalization (parser payload -> reader payload)
+5. Fallback parser with structured error reporting
 
 The registry contract is defined by:
 
@@ -54,7 +55,9 @@ sequenceDiagram
       Registry->>Adapters: parse(request)
       alt parse success
         Adapters-->>Registry: ParserResult.Success
-        Registry-->>Caller: ParserResult.Success
+        Registry->>Adapters: render(request, parserResult)
+        Adapters-->>Registry: RenderResult.Success
+        Registry-->>Caller: Reader payload for UI layer
       else parse failure
         Adapters-->>Registry: ParserResult.Failure
       end
@@ -92,3 +95,13 @@ All failures are normalized as `RoutingError` and include:
 - Candidate score is always computed as `mime+extension score + signature score`.
 - Sort order is stable and deterministic: higher score first, then lexical `parserId`.
 - Fallback adapter is always attempted last.
+
+## Readiness criteria
+
+A format can only be marked **Ready** when all of the following are true:
+
+1. **Routing coverage:** extension, MIME, and signature paths are covered by automated tests.
+2. **Parser + renderer wiring:** successful parse is followed by renderer payload normalization.
+3. **User-facing reachability:** `UnifiedReaderService` output is consumed by reader UI state.
+4. **Reading continuity:** bookmark toggles and progress persistence continue working for routed output.
+5. **Failure behavior:** unsupported/failed formats emit structured `RoutingError` fallback diagnostics.

@@ -238,12 +238,29 @@ class ReaderViewModel @Inject constructor(
                         } else {
                             paginateText(content).map { page -> ReaderContent(text = page) }
                         }
-                        val estimatedPages = textPages.size.coerceAtLeast(1)
+                        val estimatedPages = if (readerType.progressUnitCount > 0) {
+                            readerType.progressUnitCount
+                        } else {
+                            textPages.size
+                        }.coerceAtLeast(1)
+                        val chapterList = if (readerType.chapterTitles.isNotEmpty()) {
+                            readerType.chapterTitles.mapIndexed { index, title ->
+                                ChapterInfo(
+                                    id = "chapter_$index",
+                                    title = title.ifBlank { "Chapter ${index + 1}" },
+                                    startPage = (index + 1).coerceAtMost(estimatedPages),
+                                    endPage = (index + 1).coerceAtMost(estimatedPages),
+                                    progress = 0f
+                                )
+                            }
+                        } else {
+                            generateChaptersFromPageCount(estimatedPages)
+                        }
                         _uiState.update {
                             it.copy(
                                 totalPages = estimatedPages,
                                 currentContent = textPages.firstOrNull() ?: ReaderContent(text = content),
-                                chapters = generateChaptersFromPageCount(estimatedPages)
+                                chapters = chapterList
                             )
                         }
                     }

@@ -19,7 +19,7 @@ Use this document as the single V2 planning source for capability readiness, own
 | Widgets (media/reading/stats) | Ready | V2.0 | `feature/widgets` | Widget unit tests + instrumentation snapshot/smoke tests | None |
 | DOC/RTF/ODT/CHM/FB2 support | Partial | V2.1 | `feature/reader`, `core/data` | Parser unit tests + document fixture regression tests + import integration tests | Apache POI / Apache Tika runtime dependencies |
 | Chromecast validation hardening | Partial | V2.1 | `core/media`, `feature/audio` | Cast session integration tests + cross-device manual QA checklist | Google Cast SDK + test device/network |
-| MOBI/AZW/AZW3 integration | Partial | V2.1 | `feature/reader` | Parser unit tests + UnifiedReaderService integration tests + rendering smoke tests | None |
+| MOBI/AZW/AZW3 integration | Partial | V2.1 | `feature/reader` | Parser unit tests + routing tests (extension/MIME/signature) + UnifiedReaderService integration tests + renderer smoke tests + bookmark/progress continuity tests | None |
 | DJVU support completion | Partial | V2.2 | `feature/reader` | Validation + decoding unit tests + rendering integration tests | DJVU decoding/rendering library |
 | OPDS wiring (catalog + download backend) | Partial | V2.1 | `feature/opds`, `core/network` | API client unit tests + contract tests + end-to-end catalog flow tests | OPDS endpoint availability |
 | Cloud sync providers (Google Drive/Dropbox/progress sync) | Stub | V2.2 | `feature/sync`, `core/network`, `core/auth` | OAuth integration tests + sync conflict tests + end-to-end sync tests | Google Drive API credentials, Dropbox API app/keys |
@@ -31,3 +31,7 @@ Use this document as the single V2 planning source for capability readiness, own
 
 - **Required:** Every PR that changes any capability status, scope, target release, ownership, dependencies, or validation requirements in V2 **must update this matrix in the same PR**.
 - PR reviewers should reject V2 status-changing changes if `CleverFerretV2/docs/v2/feature-matrix.md` is not updated accordingly.
+
+## Readiness criteria reference (reader formats)
+
+- “Ready” is allowed only when deterministic routing, parser+renderer wiring, user-facing reader reachability, and bookmark/progress continuity are all validated by automated tests.

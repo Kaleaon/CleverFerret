@@ -10,6 +10,15 @@ import com.universalmedialibrary.services.epub.ReadiumAudiobookService
 import com.universalmedialibrary.services.epub.ReadiumEpubService
 import com.universalmedialibrary.services.epub.ReadiumPdfService
 import com.universalmedialibrary.services.comic.GeminiComicService
+import com.universalmedialibrary.services.reader.registry.DocumentRenderPayload
+import com.universalmedialibrary.services.reader.registry.FallbackParserAdapter
+import com.universalmedialibrary.services.reader.registry.ParserFactoryAdapter
+import com.universalmedialibrary.services.reader.registry.ParserResult
+import com.universalmedialibrary.services.reader.registry.PublicationEngineRegistry
+import com.universalmedialibrary.services.reader.registry.PublicationRequest
+import com.universalmedialibrary.services.reader.registry.ReaderEngineAdapters
+import com.universalmedialibrary.services.reader.registry.RenderResult
+import com.universalmedialibrary.services.reader.registry.SignatureSniffingDetector
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -119,15 +128,42 @@ class UnifiedReaderService @Inject constructor(
 
             // 2. Document Parsers via ParserFactory
             if (ParserFactory.isSupported(file.name)) {
-                try {
-                    val parser = ParserFactory.getParser(filePath)
-                    val parsedDoc = parser.parse(filePath)
-                    return@withContext ReaderType.Text(
-                        filePath = filePath,
-                        content = parsedDoc.content
-                    )
-                } catch (e: Exception) {
-                    return@withContext ReaderType.Error("Failed to parse with ParserFactory: ${e.message}")
+                val parserAdapters = listOf(
+                    ReaderEngineAdapters.parserFactoryMobiAdapter(),
+                    ReaderEngineAdapters.parserFactoryDjvuAdapter(),
+                    parserFactoryDocumentAdapter(),
+                    FallbackParserAdapter()
+                )
+                val registry = PublicationEngineRegistry(
+                    detector = SignatureSniffingDetector(),
+                    adapters = parserAdapters
+                )
+                val request = PublicationRequest(path = filePath)
+                when (val parserResult = registry.route(request)) {
+                    is ParserResult.Success -> {
+                        val adapter = parserAdapters.firstOrNull { it.id == parserResult.parserId }
+                            ?: return@withContext ReaderType.Error("Parser adapter not found: ${parserResult.parserId}")
+                        when (val renderResult = adapter.render(request, parserResult)) {
+                            is RenderResult.Success -> {
+                                val payload = renderResult.payload as? DocumentRenderPayload
+                                if (payload == null) {
+                                    return@withContext ReaderType.Error("Unsupported renderer payload from ${renderResult.rendererId}")
+                                }
+                                return@withContext ReaderType.Text(
+                                    filePath = filePath,
+                                    content = payload.content,
+                                    chapterTitles = payload.chapterTitles,
+                                    progressUnitCount = payload.progressUnitCount
+                                )
+                            }
+                            is RenderResult.Failure -> {
+                                return@withContext ReaderType.Error("Failed to render parsed document: ${renderResult.error.message}")
+                            }
+                        }
+                    }
+                    is ParserResult.Failure -> {
+                        return@withContext ReaderType.Error("Failed to parse with parser registry: ${parserResult.error.message}")
+                    }
                 }
             } else {
                 // 3. Fallback / Other Formats
@@ -218,6 +254,19 @@ class UnifiedReaderService @Inject constructor(
             Log.e(TAG, "Error opening publication: ${e.message}", e)
             ReaderType.Error("Failed to open file: ${e.message}")
         }
+    }
+
+    private fun parserFactoryDocumentAdapter(): ParserFactoryAdapter {
+        return ParserFactoryAdapter(
+            id = "document-parser",
+            descriptor = com.universalmedialibrary.services.reader.registry.EngineDescriptor(
+                displayName = "Document Parser",
+                extensions = ParserFactory.getSupportedExtensions().toSet(),
+                mimeTypes = emptySet(),
+                readiness = com.universalmedialibrary.services.reader.registry.ReadinessFlag.READY,
+                firstClass = true
+            )
+        )
     }
 
     /**
@@ -363,7 +412,9 @@ sealed class ReaderType {
     
     data class Text(
         val filePath: String,
-        val content: String
+        val content: String,
+        val chapterTitles: List<String> = emptyList(),
+        val progressUnitCount: Int = 0
     ) : ReaderType()
     
     data class Error(

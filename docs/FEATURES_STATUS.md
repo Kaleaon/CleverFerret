@@ -1,6 +1,6 @@
 # CleverFerret - Feature Status Documentation
 
-**Last Updated:** December 31, 2024  
+**Last Updated:** April 19, 2026  
 **Version:** 1.6.5 (Build 32)
 
 This document provides a comprehensive overview of all features in CleverFerret, indicating which are enabled, disabled, experimental, or planned.
@@ -80,7 +80,7 @@ This document provides a comprehensive overview of all features in CleverFerret,
 - **FB2**: FictionBook (basic text extraction)
 
 ### 🔄 In Progress
-- **MOBI/AZW/AZW3**: Kindle formats (parser implemented, needs integration)
+- **MOBI/AZW/AZW3**: Kindle formats (registry-routed parser + renderer adapter integrated to reader UI; final rendering QA ongoing)
 - **DJVU**: Basic file validation implemented, needs full rendering
 
 ### ❌ Planned but Not Implemented
@@ -358,7 +358,7 @@ All widgets are exported and enabled in AndroidManifest.xml.
 - ⚠️ Chromecast streaming
 
 ### Not Yet Tested
-- ❌ MOBI/AZW/AZW3 parsing (not integrated)
+- 🔄 MOBI/AZW/AZW3 advanced rendering polish (core parser routing is integrated)
 - ❌ Cloud sync (not implemented)
 - ❌ AI features (not connected)
 - ❌ Multi-room audio (not implemented)
