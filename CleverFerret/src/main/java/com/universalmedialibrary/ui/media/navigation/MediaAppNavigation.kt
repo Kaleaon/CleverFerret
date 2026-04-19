@@ -509,6 +509,7 @@ fun MediaAppNavHost(
                 onRecentSearchClick = { viewModel.useRecentSearch(it) },
                 onClearRecentSearches = { viewModel.clearRecentSearches() },
                 onCategoryFilterChange = { viewModel.setCategory(it) },
+                onMediaTypeFilterChange = { viewModel.setMediaType(it) },
                 onVoiceSearch = { /* Implement voice search */ },
                 onBackClick = { navController.popBackStack() }
             )
