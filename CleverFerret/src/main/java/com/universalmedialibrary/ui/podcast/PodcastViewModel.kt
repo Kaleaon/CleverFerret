@@ -14,6 +14,7 @@ import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,6 +33,7 @@ class PodcastViewModel @Inject constructor(
     init {
         loadPodcasts()
         loadEpisodes()
+        observeDownloadStatuses()
     }
 
     fun searchPodcasts(query: String) {
@@ -235,6 +237,16 @@ class PodcastViewModel @Inject constructor(
         downloadManager.cancelDownload(episode.id)
     }
 
+    fun retryDownload(episode: PodcastEpisode) {
+        val podcastTitle = _uiState.value.podcasts.find { it.id == episode.podcastId }?.title ?: "Unknown Podcast"
+        downloadManager.retryDownload(
+            episodeId = episode.id,
+            audioUrl = episode.audioUrl,
+            episodeTitle = episode.title,
+            podcastTitle = podcastTitle
+        )
+    }
+
     val downloadProgress = downloadManager.downloadProgress
 
     fun deleteDownloadedEpisode(episode: PodcastEpisode) {
@@ -303,15 +315,82 @@ class PodcastViewModel @Inject constructor(
 
     private fun loadEpisodes() {
         viewModelScope.launch {
-            repository.getDownloadedEpisodes()
-                .catch { e ->
-                    // Log error but don't show to user
+            combine(
+                repository.getSubscribedPodcasts(),
+                repository.getDownloadedEpisodes()
+            ) { podcasts, downloadedEpisodes ->
+                val subscribedIds = podcasts.map { it.id }
+                podcasts to downloadedEpisodes to subscribedIds
+            }
+                .flatMapLatest { (pair, subscribedIds) ->
+                    val podcasts = pair.first
+                    val downloadedEpisodes = pair.second
+                    if (subscribedIds.isEmpty()) {
+                        flowOf(Triple(podcasts, emptyList(), downloadedEpisodes))
+                    } else {
+                        combine(
+                            subscribedIds.map { repository.getEpisodesByPodcast(it) }
+                        ) { episodeLists ->
+                            Triple(podcasts, episodeLists.flatMap { it.toList() }, downloadedEpisodes)
+                        }
+                    }
                 }
-                .collect { episodes ->
+                .catch {
+                    _uiState.value = _uiState.value.copy(error = "Failed to load episodes: ${it.message}")
+                }
+                .collect { (podcasts, allEpisodes, downloadedEpisodes) ->
                     _uiState.value = _uiState.value.copy(
-                        downloadedEpisodes = episodes
+                        podcasts = podcasts,
+                        allEpisodes = enrichEpisodesWithPlaybackState(allEpisodes),
+                        downloadedEpisodes = enrichEpisodesWithPlaybackState(downloadedEpisodes)
                     )
                 }
+        }
+    }
+
+    private fun observeDownloadStatuses() {
+        viewModelScope.launch {
+            downloadManager.downloadProgress.collect {
+                _uiState.value = _uiState.value.copy(
+                    allEpisodes = enrichEpisodesWithPlaybackState(_uiState.value.allEpisodes),
+                    downloadedEpisodes = enrichEpisodesWithPlaybackState(_uiState.value.downloadedEpisodes)
+                )
+            }
+        }
+    }
+
+    private fun enrichEpisodesWithPlaybackState(episodes: List<PodcastEpisode>): List<PodcastEpisode> {
+        val statuses = downloadManager.downloadProgress.value
+        return episodes.map { episode ->
+            val status = statuses[episode.id]
+            val localFileExists = episode.localFilePath?.let { localPath ->
+                runCatching {
+                    val resolvedPath = if (localPath.startsWith("file://")) {
+                        android.net.Uri.parse(localPath).path
+                    } else {
+                        localPath
+                    }
+                    !resolvedPath.isNullOrBlank() && File(resolvedPath).exists()
+                }.getOrDefault(false)
+            } ?: false
+
+            val playbackReady = when {
+                localFileExists -> true
+                episode.audioUrl.isNotBlank() && episode.downloaded.not() -> true
+                else -> false
+            }
+
+            val failureReason = when {
+                status is com.universalmedialibrary.services.podcast.DownloadStatus.Failed -> status.reason
+                episode.audioUrl.isBlank() -> "Missing audio URL"
+                episode.downloaded && !localFileExists -> "Downloaded file not found"
+                else -> null
+            }
+
+            episode.copy(
+                playbackReady = playbackReady,
+                playbackFailureReason = failureReason
+            )
         }
     }
 }
