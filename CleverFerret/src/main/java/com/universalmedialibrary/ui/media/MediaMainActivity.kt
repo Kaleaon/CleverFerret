@@ -181,7 +181,7 @@ fun MediaMainScreen(
                         // Bottom Navigation (always visible on mobile)
                         MediaBottomNavigation(
                             currentRoute = currentRouteForNavigation,
-                            onNavigate = { route -> navController.navigate(route) },
+                            onNavigate = { route -> navController.navigate(resolveRouteOrFallback(route)) },
                             bottomBarPreferences = bottomBarPreferences,
                             gearPosition = gearPosition
                         )
@@ -206,7 +206,7 @@ fun MediaMainScreen(
             
             MediaSidebar(
                 currentRoute = currentRouteForNavigation,
-                onNavigate = { route -> navController.navigate(route) },
+                onNavigate = { route -> navController.navigate(resolveRouteOrFallback(route)) },
                 isExpanded = sidebarExpanded,
                 onToggleExpanded = { sidebarExpanded = !sidebarExpanded }
             )
@@ -272,4 +272,3 @@ data class MiniPlayerState(
     val isPlaying: Boolean,
     val playerType: String
 )
-
