@@ -8,9 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.junrar.Archive
 import com.universalmedialibrary.data.local.dao.ComicPanelDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.ComicPanelData
 import com.universalmedialibrary.data.local.entity.ComicReadingSession
 import com.universalmedialibrary.data.local.entity.ComicTranslation
+import com.universalmedialibrary.data.repository.ReadingProgressRepository
 import com.universalmedialibrary.services.ai.GeminiTTSService
 import com.universalmedialibrary.services.comic.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,7 +44,9 @@ class ComicReaderViewModel @Inject constructor(
     private val geminiComicService: GeminiComicService,
     private val comicDataService: ComicDataService,
     private val geminiTTSService: GeminiTTSService,
-    private val comicPanelDao: ComicPanelDao
+    private val comicPanelDao: ComicPanelDao,
+    private val readingProgressRepository: ReadingProgressRepository,
+    private val mediaItemDao: MediaItemDao
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(ComicReaderUiState())
@@ -50,6 +54,7 @@ class ComicReaderViewModel @Inject constructor(
     
     private var comicPages = mutableListOf<String>()
     private var currentComicId = 0L
+    private var currentItemId: Long? = null
     private val tempDirectories = mutableSetOf<File>()
     
     /**
@@ -61,6 +66,12 @@ class ComicReaderViewModel @Inject constructor(
             
             try {
                 currentComicId = comicId
+                currentItemId = try {
+                    mediaItemDao.getMediaItemByFilePath(comicPath)?.itemId
+                        ?: mediaItemDao.getItemByPath(comicPath)?.itemId
+                } catch (_: Exception) {
+                    null
+                }
                 
                 // Initialize Gemini services
                 if (!geminiApiKey.isNullOrBlank()) {
@@ -529,6 +540,15 @@ class ComicReaderViewModel @Inject constructor(
     private fun updateReadingProgress(page: Int, panel: Int) {
         viewModelScope.launch {
             comicPanelDao.updateReadingProgress(currentComicId, page, panel)
+            val itemId = currentItemId ?: return@launch
+            val total = _uiState.value.totalPages.coerceAtLeast(1)
+            readingProgressRepository.updateProgress(
+                itemId = itemId,
+                currentPage = page + 1,
+                percentage = ((page + 1).toFloat() / total.toFloat()) * 100f,
+                currentChapter = page + 1,
+                currentPosition = panel.toLong()
+            )
         }
     }
     
