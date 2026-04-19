@@ -247,6 +247,8 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
 
     // Hilt dependency injection
     implementation(libs.hilt.android)
@@ -384,6 +386,7 @@ dependencies {
     testImplementation(libs.arch.core.testing)
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.androidx.test.ext.junit.ktx)
+    testImplementation(libs.androidx.paging.common)
     testImplementation(libs.google.truth)
     testImplementation(libs.mockk)
     testImplementation(libs.mockk.android)
