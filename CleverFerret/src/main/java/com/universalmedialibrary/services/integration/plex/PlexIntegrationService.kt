@@ -31,19 +31,42 @@ class PlexIntegrationService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val plexAuthService: com.universalmedialibrary.services.plex.PlexAuthService
 ) {
+    enum class SyncConflictPolicy {
+        SERVER_WINS,
+        LOCAL_WINS,
+        NEWER_WINS
+    }
 
     private val _plexState = MutableStateFlow(PlexIntegrationState())
     val plexState: StateFlow<PlexIntegrationState> = _plexState.asStateFlow()
 
     private val connectedServers = mutableMapOf<String, PlexServerConnection>()
     private val plexApis = mutableMapOf<String, PlexApi>()
+    private val librarySnapshots = mutableMapOf<String, Map<String, Long>>()
+
+    init {
+        updateAuthState()
+    }
 
     /**
      * Request a PIN for Plex authentication
      * Delegates to PlexAuthService which handles the full PIN flow
      */
     suspend fun requestPIN(): Result<com.universalmedialibrary.services.plex.PlexPinAuthData> = withContext(Dispatchers.IO) {
-        return@withContext plexAuthService.startPinAuth()
+        val result = plexAuthService.startPinAuth()
+        result.onSuccess { pin ->
+            _plexState.value = _plexState.value.copy(
+                authStatus = "Awaiting user confirmation at plex.tv/link",
+                pendingPinCode = pin.pinCode,
+                pendingPinId = pin.pinId
+            )
+        }.onFailure { error ->
+            _plexState.value = _plexState.value.copy(
+                authStatus = "Authentication failed",
+                error = error.message ?: "Failed to request Plex PIN"
+            )
+        }
+        return@withContext result
     }
 
     /**
@@ -51,14 +74,34 @@ class PlexIntegrationService @Inject constructor(
      * Should be called after requestPIN() to wait for user authentication
      */
     suspend fun pollForAuth(pinId: String): Result<com.universalmedialibrary.services.plex.PlexAuthResult> = withContext(Dispatchers.IO) {
-        return@withContext plexAuthService.pollForAuth(pinId)
+        val result = plexAuthService.pollForAuth(pinId)
+        result.onSuccess {
+            updateAuthState(status = "Authenticated as ${it.username}")
+        }.onFailure { error ->
+            _plexState.value = _plexState.value.copy(
+                authStatus = "Authentication failed",
+                error = error.message ?: "PIN authentication failed"
+            )
+        }
+        return@withContext result
     }
 
     /**
      * Discover available Plex servers for the authenticated user
      */
     suspend fun discoverServers(): Result<List<com.universalmedialibrary.services.plex.PlexDiscoveredServer>> = withContext(Dispatchers.IO) {
-        return@withContext plexAuthService.discoverServers()
+        val result = plexAuthService.discoverServers()
+        result.onSuccess { servers ->
+            _plexState.value = _plexState.value.copy(
+                discoveredServers = servers.map { it.name },
+                authStatus = "Discovered ${servers.size} Plex server(s)"
+            )
+        }.onFailure { error ->
+            _plexState.value = _plexState.value.copy(
+                error = error.message ?: "Could not discover Plex servers"
+            )
+        }
+        return@withContext result
     }
 
     /**
@@ -81,6 +124,7 @@ class PlexIntegrationService @Inject constructor(
     suspend fun signOut() {
         plexAuthService.signOut()
         disconnectAllServers()
+        updateAuthState(status = "Signed out")
     }
 
     /**
@@ -98,6 +142,7 @@ class PlexIntegrationService @Inject constructor(
     suspend fun disconnectAllServers() {
         connectedServers.clear()
         plexApis.clear()
+        librarySnapshots.clear()
         updateConnectionStatus()
     }
 
@@ -184,7 +229,8 @@ class PlexIntegrationService @Inject constructor(
 
             _plexState.value = _plexState.value.copy(
                 isConnecting = false,
-                lastConnectionResult = "Successfully connected to $serverName"
+                lastConnectionResult = "Successfully connected to $serverName",
+                syncStatus = "Connected to $serverName. Ready to sync."
             )
 
             PlexConnectionResult.Success("Successfully connected to $serverName", null)
@@ -371,12 +417,23 @@ class PlexIntegrationService @Inject constructor(
     /**
      * Sync all connected Plex libraries
      */
-    suspend fun syncAllLibraries(): PlexSyncResult = withContext(Dispatchers.IO) {
+    suspend fun syncAllLibraries(
+        conflictPolicy: SyncConflictPolicy = _plexState.value.syncConflictPolicy
+    ): PlexSyncResult = withContext(Dispatchers.IO) {
         try {
-            _plexState.value = _plexState.value.copy(isSyncing = true)
+            _plexState.value = _plexState.value.copy(
+                isSyncing = true,
+                syncStatus = "Sync in progress...",
+                syncConflictPolicy = conflictPolicy,
+                error = null
+            )
 
             var totalProcessed = 0
             val syncResults = mutableListOf<String>()
+            var appliedUpdates = 0
+            var skippedUpdates = 0
+            var conflictsDetected = 0
+            val startedAt = System.currentTimeMillis()
 
             for ((serverName, connection) in connectedServers) {
                 val api = plexApis[serverName]
@@ -385,7 +442,45 @@ class PlexIntegrationService @Inject constructor(
                         try {
                             val libraryItems = api.getLibraryItems(library.key)
                             totalProcessed += libraryItems.media.size
-                            syncResults.add("$serverName:${library.title} - ${libraryItems.media.size} items")
+                            val snapshotKey = "$serverName:${library.key}"
+                            val previousSnapshot = librarySnapshots[snapshotKey].orEmpty()
+                            var libraryApplied = 0
+                            var librarySkipped = 0
+                            var libraryConflicts = 0
+
+                            for (item in libraryItems.media) {
+                                val previousUpdatedAt = previousSnapshot[item.ratingKey]
+                                if (previousUpdatedAt == null) {
+                                    libraryApplied++
+                                    continue
+                                }
+
+                                if (previousUpdatedAt == item.updatedAt) {
+                                    continue
+                                }
+
+                                libraryConflicts++
+                                val applyRemote = when (conflictPolicy) {
+                                    SyncConflictPolicy.SERVER_WINS -> true
+                                    SyncConflictPolicy.LOCAL_WINS -> false
+                                    SyncConflictPolicy.NEWER_WINS -> item.updatedAt >= previousUpdatedAt
+                                }
+
+                                if (applyRemote) libraryApplied++ else librarySkipped++
+                            }
+
+                            appliedUpdates += libraryApplied
+                            skippedUpdates += librarySkipped
+                            conflictsDetected += libraryConflicts
+
+                            librarySnapshots[snapshotKey] = libraryItems.media.associate { item ->
+                                item.ratingKey to item.updatedAt
+                            }
+
+                            syncResults.add(
+                                "$serverName:${library.title} - ${libraryItems.media.size} items " +
+                                    "(applied=$libraryApplied, skipped=$librarySkipped, conflicts=$libraryConflicts)"
+                            )
                         } catch (e: Exception) {
                             syncResults.add("$serverName:${library.title} - ERROR: ${e.message}")
                         }
@@ -393,16 +488,30 @@ class PlexIntegrationService @Inject constructor(
                 }
             }
 
-            _plexState.value = _plexState.value.copy(
-                isSyncing = false,
-                lastSyncTime = System.currentTimeMillis()
+            val completedAt = System.currentTimeMillis()
+            val diagnostics = PlexSyncDiagnostics(
+                policy = conflictPolicy,
+                conflictsDetected = conflictsDetected,
+                updatesApplied = appliedUpdates,
+                updatesSkipped = skippedUpdates,
+                startedAt = startedAt,
+                completedAt = completedAt,
+                details = syncResults
             )
 
-            PlexSyncResult(true, totalProcessed, syncResults)
+            _plexState.value = _plexState.value.copy(
+                isSyncing = false,
+                lastSyncTime = completedAt,
+                syncStatus = "Last sync processed $totalProcessed items (${conflictPolicy.name})",
+                lastSyncDiagnostics = diagnostics
+            )
+
+            PlexSyncResult(true, totalProcessed, syncResults, diagnostics)
 
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
                 isSyncing = false,
+                syncStatus = "Sync failed",
                 error = "Sync failed: ${e.message}"
             )
             PlexSyncResult(false, 0, listOf("ERROR: ${e.message}"))
@@ -497,6 +606,33 @@ class PlexIntegrationService @Inject constructor(
         )
     }
 
+    fun setSyncConflictPolicy(policy: SyncConflictPolicy) {
+        _plexState.value = _plexState.value.copy(
+            syncConflictPolicy = policy,
+            syncStatus = "Conflict policy set to ${policy.name}"
+        )
+    }
+
+    fun clearError() {
+        _plexState.value = _plexState.value.copy(error = null)
+    }
+
+    private fun updateAuthState(status: String? = null) {
+        val storedUsername = plexAuthService.getStoredUsername()
+        val hasToken = !plexAuthService.getStoredToken().isNullOrBlank()
+        _plexState.value = _plexState.value.copy(
+            isAuthenticated = hasToken,
+            authenticatedUsername = storedUsername,
+            authStatus = status ?: if (hasToken) {
+                "Signed in${storedUsername?.let { " as $it" } ?: ""}"
+            } else {
+                "Not authenticated"
+            },
+            pendingPinCode = null,
+            pendingPinId = null
+        )
+    }
+
     private fun createOkHttpClient(token: String): okhttp3.OkHttpClient {
         return okhttp3.OkHttpClient.Builder()
             .addInterceptor { chain ->
@@ -527,6 +663,15 @@ data class PlexIntegrationState(
     val duplicatesFound: Int = 0,
     val collectionsCreated: Int = 0,
     val lastSyncTime: Long = 0L,
+    val isAuthenticated: Boolean = false,
+    val authenticatedUsername: String? = null,
+    val authStatus: String = "Not authenticated",
+    val pendingPinCode: String? = null,
+    val pendingPinId: String? = null,
+    val discoveredServers: List<String> = emptyList(),
+    val syncStatus: String = "Idle",
+    val syncConflictPolicy: PlexIntegrationService.SyncConflictPolicy = PlexIntegrationService.SyncConflictPolicy.NEWER_WINS,
+    val lastSyncDiagnostics: PlexSyncDiagnostics? = null,
     val lastConnectionResult: String = "",
     val lastEnhancementResult: String = "",
     val error: String? = null
@@ -597,5 +742,16 @@ data class PlexLibraryAnalytics(
 data class PlexSyncResult(
     val successful: Boolean,
     val itemsProcessed: Int,
-    val details: List<String> = emptyList()
+    val details: List<String> = emptyList(),
+    val diagnostics: PlexSyncDiagnostics? = null
+)
+
+data class PlexSyncDiagnostics(
+    val policy: PlexIntegrationService.SyncConflictPolicy,
+    val conflictsDetected: Int,
+    val updatesApplied: Int,
+    val updatesSkipped: Int,
+    val startedAt: Long,
+    val completedAt: Long,
+    val details: List<String>
 )

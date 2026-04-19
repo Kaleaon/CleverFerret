@@ -67,180 +67,22 @@ fun SettingsScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Appearance Section
                 item {
-                    MetallicText(
-                        text = "Appearance",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(vertical = 8.dp)
+                    AppearanceSettingsSection(
+                        uiState = uiState,
+                        navController = navController,
+                        onOpenThemePicker = { showThemePicker = true },
+                        onDarkModeChanged = viewModel::setDarkMode,
+                        onReduceMotionChanged = viewModel::setReduceMotion
                     )
                 }
 
                 item {
-                    MetallicCard {
-                        Column {
-                            // Theme selector
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "Theme",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(
-                                        text = uiState.selectedTheme.name.replace("_", " "),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    MetallicButton(
-                                        text = "Gallery",
-                                        onClick = { navController.navigate("theme_showcase") }
-                                    )
-                                    MetallicButton(
-                                        text = "Change",
-                                        onClick = { showThemePicker = true }
-                                    )
-                                }
-                            }
-
-                            MetallicDivider()
-
-                            // Dark mode toggle
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "Dark Mode",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(
-                                        text = "Use dark theme for better reading",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-
-                                Switch(
-                                    checked = uiState.darkMode,
-                                    onCheckedChange = { viewModel.setDarkMode(it) }
-                                )
-                            }
-
-                            MetallicDivider()
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "Reduce Motion",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(
-                                        text = "Turn off auto-scrolling and animated transitions",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-
-                                Switch(
-                                    checked = uiState.reduceMotion,
-                                    onCheckedChange = { viewModel.setReduceMotion(it) }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Podcasts Section
-                item {
-                    MetallicText(
-                        text = "Podcasts",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    PodcastSettingsSection(
+                        uiState = uiState,
+                        onAutoDownloadChanged = viewModel::setAutoDownload,
+                        onWifiOnlyChanged = viewModel::setWifiOnlyDownloads
                     )
-                }
-
-                item {
-                    MetallicCard {
-                        Column {
-                            // Auto-download
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "Auto-Download Episodes",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(
-                                        text = "Automatically download new episodes",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-
-                                Switch(
-                                    checked = uiState.autoDownloadPodcasts,
-                                    onCheckedChange = { viewModel.setAutoDownload(it) }
-                                )
-                            }
-
-                            MetallicDivider()
-
-                            // WiFi only
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "WiFi Only Downloads",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(
-                                        text = "Download only on WiFi to save data",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-
-                                Switch(
-                                    checked = uiState.wifiOnlyDownloads,
-                                    onCheckedChange = { viewModel.setWifiOnlyDownloads(it) }
-                                )
-                            }
-                        }
-                    }
                 }
 
                 // Notifications Section

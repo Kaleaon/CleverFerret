@@ -140,6 +140,20 @@ location of your Java installation."
     fi
 fi
 
+# Validate supported Gradle runtime JDK range (AGP 8.13.x + Kotlin 2.1.x).
+# Fails fast with a clear message before Kotlin DSL bootstrap.
+JAVA_VERSION_OUTPUT=$("$JAVACMD" -version 2>&1 | head -n 1)
+JAVA_VERSION_MAJOR=$(printf '%s
+' "$JAVA_VERSION_OUTPUT" | awk -F '[".]' '/version/ {print $2}')
+if [ -z "$JAVA_VERSION_MAJOR" ]; then
+    die "ERROR: Unable to determine Java major version from: $JAVA_VERSION_OUTPUT"
+fi
+if [ "$JAVA_VERSION_MAJOR" -lt 17 ] || [ "$JAVA_VERSION_MAJOR" -gt 21 ]; then
+    die "ERROR: Unsupported Java runtime detected ($JAVA_VERSION_OUTPUT).
+This build requires JDK 17 through JDK 21 for the current AGP/Kotlin toolchain.
+Set JAVA_HOME to a supported JDK and retry (see docs/BUILD_TOOLCHAIN_VERSIONS.md)."
+fi
+
 # Increase the maximum file descriptors if we can.
 if ! "$cygwin" && ! "$darwin" && ! "$nonstop" ; then
     case $MAX_FD in #(

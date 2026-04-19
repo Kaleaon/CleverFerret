@@ -8,6 +8,7 @@
   - `WebFictionManagerScreen.tsx` - lines 70, 76, 81
   - `RadioScreen.tsx` - multiple alerts
   - `RadioDiscoveryScreen.tsx` - multiple alerts
+- **Developer guidance:** See `docs/development/NOTIFICATION_PATTERNS.md` for Snackbar vs Dialog usage rules in recoverable vs destructive flows.
 - **Add Error Boundaries** to catch React errors gracefully
 - **Replace console.error** with proper error logging service
 - **Improve 404 page** - Currently just a div, needs proper navigation help

@@ -65,6 +65,19 @@ CleverFerret is a comprehensive media library application for Android, designed 
 | `gradle/` | Build tooling | `@Kaleaon` | Gradle wrapper and shared build configuration files. |
 | `.github/` | Governance/automation | `@Kaleaon` | Workflows, issue templates, and CODEOWNERS policy. |
 
+## 🧱 Contribution Guardrails (File Size & Complexity)
+
+To prevent regression into oversized/high-friction files, apply these guardrails in PR reviews:
+
+- **Hard threshold:** avoid growing any Kotlin file beyond **800 LOC**.
+- **Refactor threshold:** when touching files already above **500 LOC**, extract at least one cohesive unit (UI section, navigation segment, or service helper) instead of adding more inline logic.
+- **Navigation graphs:** split route registration by feature domain (e.g., settings/library/player) once a nav file exceeds **600 LOC**.
+- **Compose screens:** keep screen orchestration in the main file, but move reusable section composables/cards/dialogs to sibling files in the same package.
+- **Service classes:** isolate scanning/classification/import logic into dedicated collaborators when a service exceeds **700 LOC**.
+- **PR hygiene:** for any PR that touches a file over **500 LOC**, include a short “decomposition note” in the PR description describing what was extracted and why.
+
+These are contribution-time guardrails (not strict compile-time limits) and should be enforced during code review.
+
 ## 📝 Documentation
 
 ### Quick Links
