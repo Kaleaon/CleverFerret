@@ -9,6 +9,7 @@ import okhttp3.Response
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.InputStream
+import java.io.IOException
 import java.io.StringReader
 import java.net.URLEncoder
 import javax.inject.Inject
@@ -30,24 +31,32 @@ class OPDSClient @Inject constructor(
 ) {
 
     suspend fun fetchFeed(url: String): OPDSFeed = withContext(Dispatchers.IO) {
-        val request = Request.Builder()
-            .url(url)
-            .header("User-Agent", USER_AGENT)
-            .build()
+        try {
+            val request = Request.Builder()
+                .url(url)
+                .header("User-Agent", USER_AGENT)
+                .build()
 
-        okHttpClient.newCall(request).execute().use { response ->
-            ensureSuccess(response)
-            response.body?.byteStream()?.use { stream ->
-                parseFeed(stream, url)
-            } ?: throw IllegalStateException("Empty OPDS response body")
+            okHttpClient.newCall(request).execute().use { response ->
+                ensureSuccess(response)
+                response.body?.byteStream()?.use { stream ->
+                    parseFeed(stream, url)
+                } ?: throw IllegalStateException("Empty OPDS response body")
+            }
+        } catch (e: IOException) {
+            throw IllegalStateException("Unable to reach OPDS server. Check network connectivity and try again.", e)
         }
     }
 
     private fun ensureSuccess(response: Response) {
         if (!response.isSuccessful) {
-            throw IllegalStateException(
-                "OPDS request failed: HTTP ${response.code} ${response.message}"
-            )
+            val reason = when (response.code) {
+                401 -> "Authentication required (HTTP 401)."
+                403 -> "Access forbidden (HTTP 403). Check OPDS credentials/permissions."
+                404 -> "Catalog/feed not found (HTTP 404)."
+                else -> "OPDS request failed: HTTP ${response.code} ${response.message}"
+            }
+            throw IllegalStateException(reason)
         }
     }
 
@@ -66,6 +75,7 @@ class OPDSClient @Inject constructor(
         val baseUrl = requestUrl.toHttpUrlOrNull()
         var eventType = parser.eventType
 
+        var sawFeedRoot = false
         var feedTitle = ""
         val feedLinks = mutableListOf<OPDSLink>()
         val entries = mutableListOf<OPDSEntry>()
@@ -78,7 +88,7 @@ class OPDSClient @Inject constructor(
                 XmlPullParser.START_TAG -> {
                     when (parser.name) {
                         "feed" -> {
-                            // no-op
+                            sawFeedRoot = true
                         }
                         "title" -> {
                             val text = parser.nextTextOrEmpty()
@@ -122,12 +132,17 @@ class OPDSClient @Inject constructor(
                             val link = OPDSLink(
                                 href = resolvedHref,
                                 title = titleAttr,
-                                rel = relList
+                                rel = relList,
+                                type = typeAttr
                             )
 
                             if (currentEntry != null) {
                                 if (relList.any { it.contains("acquisition") }) {
                                     currentEntry.acquisitionLinks.add(link)
+                                } else if (relList.any { it.contains("subsection") || it.contains("collection") } ||
+                                    typeAttr?.contains("application/atom+xml", ignoreCase = true) == true
+                                ) {
+                                    currentEntry.navigationLinks.add(link)
                                 }
                                 if (relList.any { it.contains("image") } ||
                                     typeAttr?.startsWith("image") == true
@@ -153,6 +168,13 @@ class OPDSClient @Inject constructor(
             }
 
             eventType = parser.next()
+        }
+
+        if (!sawFeedRoot) {
+            throw IllegalStateException("Malformed OPDS feed: missing <feed> root element.")
+        }
+        if (feedTitle.isBlank() && entries.isEmpty() && feedLinks.isEmpty()) {
+            throw IllegalStateException("Malformed OPDS feed: no title, entries, or navigation links were found.")
         }
 
         return OPDSFeed(
@@ -213,7 +235,8 @@ class OPDSClient @Inject constructor(
         var language: String? = null,
         var coverUrl: String? = null,
         val authors: MutableList<String> = mutableListOf(),
-        val acquisitionLinks: MutableList<OPDSLink> = mutableListOf()
+        val acquisitionLinks: MutableList<OPDSLink> = mutableListOf(),
+        val navigationLinks: MutableList<OPDSLink> = mutableListOf()
     ) {
         fun build(): OPDSEntry {
             return OPDSEntry(
@@ -224,7 +247,8 @@ class OPDSClient @Inject constructor(
                 updated = updated?.takeIf { it.isNotBlank() },
                 language = language?.takeIf { it.isNotBlank() },
                 coverUrl = coverUrl?.takeIf { it.isNotBlank() },
-                acquisitionLinks = acquisitionLinks.toList()
+                acquisitionLinks = acquisitionLinks.toList(),
+                navigationLinks = navigationLinks.toList()
             )
         }
     }
