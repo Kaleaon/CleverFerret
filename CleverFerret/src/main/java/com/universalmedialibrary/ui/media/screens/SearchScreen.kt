@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.components.TagChip
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
 
@@ -58,6 +59,7 @@ fun MediaSearchScreen(
     onRecentSearchClick: (String) -> Unit,
     onClearRecentSearches: () -> Unit,
     onCategoryFilterChange: (SearchCategory?) -> Unit,
+    onMediaTypeFilterChange: (MediaType?) -> Unit,
     onVoiceSearch: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -96,6 +98,16 @@ fun MediaSearchScreen(
             CategoryFilterRow(
                 selectedCategory = state.selectedCategory,
                 onCategoryChange = onCategoryFilterChange
+            )
+            MediaTypeFilterRow(
+                selectedMediaType = state.selectedMediaType,
+                onMediaTypeChange = onMediaTypeFilterChange
+            )
+            ActiveFilterTags(
+                selectedCategory = state.selectedCategory,
+                selectedMediaType = state.selectedMediaType,
+                onCategoryClear = { onCategoryFilterChange(null) },
+                onMediaTypeClear = { onMediaTypeFilterChange(null) }
             )
             
             when {
@@ -282,6 +294,113 @@ private fun CategoryFilterRow(
                     selectedLeadingIconColor = category.color,
                     containerColor = MediaColors.BackgroundElevated
                 )
+            )
+        }
+    }
+}
+
+@Composable
+private fun MediaTypeFilterRow(
+    selectedMediaType: MediaType?,
+    onMediaTypeChange: (MediaType?) -> Unit
+) {
+    val availableTypes = remember {
+        listOf(
+            MediaType.BOOK,
+            MediaType.AUDIOBOOK,
+            MediaType.COMIC,
+            MediaType.MUSIC,
+            MediaType.PODCAST,
+            MediaType.MOVIE,
+            MediaType.TV_SHOW,
+            MediaType.DOCUMENT,
+            MediaType.FANFICTION
+        )
+    }
+    val actionColor = MaterialTheme.colorScheme.primary
+    val borderColor = MaterialTheme.colorScheme.outline
+
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = MediaSpacing.MD, vertical = MediaSpacing.XS),
+        horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+    ) {
+        item {
+            FilterChip(
+                selected = selectedMediaType == null,
+                onClick = { onMediaTypeChange(null) },
+                label = { Text("Any media type") },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = actionColor.copy(alpha = 0.16f),
+                    selectedLabelColor = actionColor,
+                    selectedLeadingIconColor = actionColor,
+                    containerColor = MediaColors.BackgroundElevated
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = selectedMediaType == null,
+                    borderColor = borderColor,
+                    selectedBorderColor = actionColor
+                )
+            )
+        }
+        items(availableTypes) { mediaType ->
+            FilterChip(
+                selected = selectedMediaType == mediaType,
+                onClick = { onMediaTypeChange(mediaType) },
+                label = { Text(mediaType.name.replace('_', ' ')) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = mediaType.icon,
+                        contentDescription = "Media image",
+                        modifier = Modifier.size(18.dp)
+                    )
+                },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = actionColor.copy(alpha = 0.16f),
+                    selectedLabelColor = actionColor,
+                    selectedLeadingIconColor = actionColor,
+                    containerColor = MediaColors.BackgroundElevated
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = selectedMediaType == mediaType,
+                    borderColor = borderColor,
+                    selectedBorderColor = actionColor
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActiveFilterTags(
+    selectedCategory: SearchCategory?,
+    selectedMediaType: MediaType?,
+    onCategoryClear: () -> Unit,
+    onMediaTypeClear: () -> Unit
+) {
+    if (selectedCategory == null && selectedMediaType == null) return
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.MD, vertical = MediaSpacing.XS),
+        horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+    ) {
+        selectedCategory?.let {
+            TagChip(
+                label = "Category: ${it.displayName}",
+                color = MaterialTheme.colorScheme.primaryContainer,
+                onTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                onRemove = onCategoryClear
+            )
+        }
+        selectedMediaType?.let {
+            TagChip(
+                label = "Type: ${it.name.replace('_', ' ')}",
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                onTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                onRemove = onMediaTypeClear
             )
         }
     }
@@ -679,10 +798,12 @@ private fun NoResultsState(query: String) {
 
 data class SearchScreenState(
     val query: String = "",
+    val allResults: List<SearchResult> = emptyList(),
     val results: List<SearchResult> = emptyList(),
     val groupedResults: Map<SearchCategory, List<SearchResult>> = emptyMap(),
     val recentSearches: List<String> = emptyList(),
     val selectedCategory: SearchCategory? = null,
+    val selectedMediaType: MediaType? = null,
     val isSearching: Boolean = false
 )
 
