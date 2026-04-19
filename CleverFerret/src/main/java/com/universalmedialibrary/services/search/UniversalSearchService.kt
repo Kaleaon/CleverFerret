@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import com.universalmedialibrary.core.logging.AppLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -67,7 +68,15 @@ class UniversalSearchService @Inject constructor(
                     results.addAll(engineResults)
                 } catch (e: Exception) {
                     // Log error but continue with other engines
-                    println("Search failed for $mediaType: ${e.message}")
+                    AppLogger.warn(
+                        tag = "UniversalSearchService",
+                        message = "Search engine execution failed",
+                        throwable = e,
+                        context = mapOf(
+                            "mediaType" to mediaType,
+                            "query" to searchRequest.query
+                        )
+                    )
                 }
             }
         }
