@@ -164,7 +164,10 @@ private fun SiteSelectionScreen(
             }
         }
 
-        items(WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC }) { siteType ->
+        items(
+            items = WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC },
+            key = { siteType -> siteType.name }
+        ) { siteType ->
             val enabled = adultSitesEnabled || !siteType.isAdultSite()
             SiteCard(
                 siteType = siteType,
@@ -433,7 +436,10 @@ private fun SelectedTagsRow(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(selectedTags) { tagId ->
+                items(
+                    items = selectedTags,
+                    key = { tagId -> tagId }
+                ) { tagId ->
                     val tag = allTags.find { it.id == tagId }
                     if (tag != null) {
                         FilterChip(

@@ -24,6 +24,7 @@ import kotlin.text.Charsets
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
+import java.net.URISyntaxException
 import java.net.URL
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -392,7 +393,7 @@ class PodcastService @Inject constructor(
                     try { resolvedApiKeys["spotify_token"]?.let { allResults.addAll(searchSpotifyPodcasts(query, it)) } } catch (_: Exception) {}
                     try { resolvedApiKeys["taddy"]?.let { allResults.addAll(searchTaddyPodcasts(query, it)) } } catch (_: Exception) {}
                     try { allResults.addAll(searchGPodderPodcasts(query)) } catch (_: Exception) {}
-                    allResults
+                    allResults.filter { hasValidFeedUrl(it.feedUrl) }
                 },
                 parse = { it },
                 deduplicate = { results -> deduplicatePodcastResults(results) },
@@ -492,7 +493,8 @@ class PodcastService @Inject constructor(
     ): List<PodcastSearchResult> {
         val api = credentials?.let { buildPodcastIndexApi(it) } ?: podcastIndexApi
         val response = api.searchPodcasts(query)
-        return response.feeds.map { feed ->
+        return response.feeds.mapNotNull { feed ->
+            val feedUrl = firstValidFeedUrl(feed.url, feed.originalUrl) ?: return@mapNotNull null
             val newestEpisodeDate = feed.newestItemPubdate?.let { it * 1000 }
             val funding = feed.funding.orEmpty().mapNotNull { fundingItem ->
                 val url = fundingItem.url?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
@@ -525,7 +527,7 @@ class PodcastService @Inject constructor(
                 title = feed.title,
                 author = feed.author.ifEmpty { feed.ownerName },
                 description = feed.description,
-                feedUrl = feed.url,
+                feedUrl = feedUrl,
                 imageUrl = feed.image.ifEmpty { feed.artwork },
                 episodeCount = feed.episodeCount,
                 category = feed.categories.values.firstOrNull(),
@@ -541,13 +543,14 @@ class PodcastService @Inject constructor(
 
     private suspend fun searchiTunesPodcasts(query: String): List<PodcastSearchResult> {
         val response = applePodcastsApi.searchPodcasts(query)
-        return response.results.map { podcast ->
+        return response.results.mapNotNull { podcast ->
+            val feedUrl = podcast.feedUrl.toValidFeedUrlOrNull() ?: return@mapNotNull null
             PodcastSearchResult(
                 id = "itunes_${podcast.trackId}",
                 title = podcast.trackName,
                 author = podcast.artistName,
                 description = podcast.collectionName ?: "",
-                feedUrl = podcast.feedUrl,
+                feedUrl = feedUrl,
                 imageUrl = podcast.artworkUrl600
                     ?: podcast.artworkUrl100
                     ?: podcast.artworkUrl60
@@ -578,13 +581,14 @@ class PodcastService @Inject constructor(
             .create(ListenNotesApi::class.java)
 
         val response = apiWithAuth.searchPodcasts(query)
-        return response.results.map { podcast ->
+        return response.results.mapNotNull { podcast ->
+            val feedUrl = podcast.rss.toValidFeedUrlOrNull() ?: return@mapNotNull null
             PodcastSearchResult(
                 id = "ln_${podcast.id}",
                 title = podcast.title,
                 author = podcast.publisher,
                 description = podcast.description,
-                feedUrl = podcast.rss,
+                feedUrl = feedUrl,
                 imageUrl = podcast.image,
                 episodeCount = podcast.total_episodes,
                 category = podcast.genres.firstOrNull()?.name,
@@ -595,32 +599,20 @@ class PodcastService @Inject constructor(
     }
 
     private suspend fun searchSpotifyPodcasts(query: String, token: String): List<PodcastSearchResult> {
-        val response = spotifyApi.searchPodcasts(query, authorization = "Bearer $token")
-        return response.shows.items.map { show ->
-            PodcastSearchResult(
-                id = "spotify_${show.id}",
-                title = show.name,
-                author = show.publisher,
-                description = show.description,
-                feedUrl = "", // Spotify doesn't provide RSS feeds
-                imageUrl = show.images.firstOrNull()?.url,
-                episodeCount = show.total_episodes,
-                category = null,
-                lastEpisodeDate = null,
-                source = "spotify"
-            )
-        }
+        spotifyApi.searchPodcasts(query, authorization = "Bearer $token")
+        return emptyList() // Spotify doesn't expose RSS feeds for direct subscription.
     }
 
     private suspend fun searchTaddyPodcasts(query: String, apiKey: String): List<PodcastSearchResult> {
         val response = taddyApi.searchPodcasts(query, apiKey = apiKey)
-        return response.results.map { podcast ->
+        return response.results.mapNotNull { podcast ->
+            val feedUrl = podcast.feedUrl.toValidFeedUrlOrNull() ?: return@mapNotNull null
             PodcastSearchResult(
                 id = "taddy_${podcast.uuid}",
                 title = podcast.name,
                 author = podcast.author,
                 description = podcast.description,
-                feedUrl = podcast.feedUrl,
+                feedUrl = feedUrl,
                 imageUrl = podcast.imageUrl,
                 episodeCount = podcast.episodeCount,
                 category = podcast.categories.firstOrNull(),
@@ -633,7 +625,7 @@ class PodcastService @Inject constructor(
     private suspend fun searchGPodderPodcasts(query: String): List<PodcastSearchResult> {
         val response = gPodderApi.searchPodcasts(query)
         return response.mapNotNull { podcast ->
-            val feedUrl = podcast.url?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val feedUrl = podcast.url.toValidFeedUrlOrNull() ?: return@mapNotNull null
             val descriptionBuilder = StringBuilder()
             if (!podcast.description.isNullOrBlank()) {
                 descriptionBuilder.append(podcast.description.trim())
@@ -662,7 +654,7 @@ class PodcastService @Inject constructor(
 
     private fun deduplicatePodcastResults(results: List<PodcastSearchResult>): List<PodcastSearchResult> {
         // Group by feed URL first (most accurate)
-        val byFeedUrl = results.groupBy { it.feedUrl.lowercase() }
+        val byFeedUrl = results.groupBy { it.feedUrl.trim().lowercase() }
         val deduplicated = mutableListOf<PodcastSearchResult>()
 
         byFeedUrl.forEach { (feedUrl, podcasts) ->
@@ -683,6 +675,24 @@ class PodcastService @Inject constructor(
 
         // Additional deduplication by title similarity for remaining items
         return deduplicated.distinctBy { it.title.lowercase().trim() }
+    }
+
+    private fun hasValidFeedUrl(feedUrl: String?): Boolean = feedUrl.toValidFeedUrlOrNull() != null
+
+    private fun firstValidFeedUrl(vararg candidates: String?): String? =
+        candidates.firstNotNullOfOrNull { it.toValidFeedUrlOrNull() }
+
+    private fun String?.toValidFeedUrlOrNull(): String? {
+        val trimmed = this?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        return try {
+            val uri = URI(trimmed)
+            val scheme = uri.scheme?.lowercase(Locale.US)
+            if ((scheme == "http" || scheme == "https") && !uri.host.isNullOrBlank()) trimmed else null
+        } catch (_: URISyntaxException) {
+            null
+        } catch (_: IllegalArgumentException) {
+            null
+        }
     }
 
     /**

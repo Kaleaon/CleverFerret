@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Internet Archive Books</title>
+  <entry>
+    <title>Alpha & Omega</title>
+    <summary>Read this at https://archive.org/details/sample?foo=1&bar=2 and enjoy</summary>
+    <link rel="http://opds-spec.org/acquisition" href="https://archive.org/download/sample.epub?foo=1&bar=2" type="application/epub+zip" />
+  </entry>
+</feed>

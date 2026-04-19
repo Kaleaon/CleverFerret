@@ -20,6 +20,13 @@ class MediaRouteFallbackTest {
     }
 
     @Test
+    fun resolveRouteOrFallback_keepsSeeAllRoute() {
+        val route = MediaRoutes.seeAllRoute("books")
+        val resolved = resolveRouteOrFallback(route)
+        assertEquals(route, resolved)
+    }
+
+    @Test
     fun resolveRouteOrFallback_mapsUnknownRouteToNotFound() {
         val unknownRoute = "totally/unknown/route"
         val resolved = resolveRouteOrFallback(unknownRoute)

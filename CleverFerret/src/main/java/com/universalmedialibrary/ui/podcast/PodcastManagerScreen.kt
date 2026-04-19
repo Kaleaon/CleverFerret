@@ -29,7 +29,7 @@ import com.universalmedialibrary.services.podcast.DownloadStatus
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.MetallicFAB
 import com.universalmedialibrary.ui.theme.MetallicTopAppBar
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -45,6 +45,13 @@ fun PodcastManagerScreen(
     var showSearchDialog by remember { mutableStateOf(false) }
     var showAddFeedDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel) {
+        viewModel.userMessages.collectLatest { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -80,7 +87,10 @@ fun PodcastManagerScreen(
                     Icon(Icons.Default.Add, contentDescription = "Add Podcast")
                 }
             )
-        }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -167,7 +177,11 @@ fun PodcastManagerScreen(
                             viewModel.downloadEpisode(episode)
                         },
                         onRetryClick = { episode ->
-                            viewModel.retryDownload(episode)
+                            if (episode.recoveryActionLabel != null) {
+                                viewModel.recoverMissingDownload(episode)
+                            } else {
+                                viewModel.retryDownload(episode)
+                            }
                         },
                         onPlayClick = { episode ->
                             navController.navigate("podcast_player/${episode.id}")
@@ -195,8 +209,11 @@ fun PodcastManagerScreen(
                 viewModel.searchPodcasts(query)
             },
             onSubscribe = { podcast ->
-                viewModel.subscribeFromSearchResult(podcast)
-                showSearchDialog = false
+                viewModel.subscribeFromSearchResult(podcast) { subscribed ->
+                    if (subscribed) {
+                        showSearchDialog = false
+                    }
+                }
             }
         )
     }
@@ -557,7 +574,15 @@ fun EpisodeCard(
                         )
                     }
                 }
-                else -> if (!episode.isDownloaded) {
+                else -> if (episode.recoveryActionLabel != null) {
+                    IconButton(onClick = onRetryClick) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = episode.recoveryActionLabel,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                } else if (!episode.isDownloaded) {
                     IconButton(onClick = onDownloadClick) {
                         Icon(
                             Icons.Default.Download,

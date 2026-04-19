@@ -116,6 +116,15 @@ object MediaNavDestinations {
         route = MediaRoutes.DISCOVER,
         section = NavSection.DISCOVER
     )
+
+    val library = MediaNavDestination(
+        id = "library",
+        label = "Library",
+        icon = Icons.Outlined.VideoLibrary,
+        selectedIcon = Icons.Filled.VideoLibrary,
+        route = MediaRoutes.LIBRARY_ROOT,
+        section = NavSection.LIBRARY
+    )
     
     // Library Section
     val books = MediaNavDestination(
@@ -349,6 +358,7 @@ object MediaNavDestinations {
     val allDestinations = listOf(
         home,
         search,
+        library,
         books, audiobooks, comics, movies, tvShows, music, podcasts, radio, documents,
         discover, webFiction, opds, freeAudiobooks, hivefy, ambient, visualizer, landseek,
         downloads, storage, sync, importExport,
@@ -361,16 +371,9 @@ object MediaNavDestinations {
     // On phones the bar is horizontally scrollable, so we can expose all major segments.
     val primaryDestinations = listOf(
         home,
+        library,
         discover,
         search,
-        books,
-        music,
-        podcasts,
-        radio,
-        audiobooks,
-        comics,
-        movies,
-        tvShows,
         webFiction,
         opds,
         ambient,
@@ -1093,15 +1096,15 @@ private fun applyBottomBarPreferencesToMediaDestinations(
     fun mapLegacyPreferenceIdToMediaRoute(id: String): String? = when (id) {
         "home" -> MediaRoutes.HOME
         "enhanced_search" -> MediaRoutes.SEARCH
-        "library_details/1" -> MediaRoutes.BOOKS
-        "library_details/2" -> MediaRoutes.AUDIOBOOKS
-        "library_details/3" -> MediaRoutes.COMICS
-        "library_details/4" -> MediaRoutes.MOVIES
-        "library_details/5" -> MediaRoutes.TV_SHOWS
-        "library_details/7" -> MediaRoutes.DOCUMENTS
-        "music" -> MediaRoutes.MUSIC
-        "podcasts" -> MediaRoutes.PODCASTS
-        "radio" -> MediaRoutes.RADIO
+        "library_details/1" -> MediaRoutes.LIBRARY_ROOT
+        "library_details/2" -> MediaRoutes.LIBRARY_ROOT
+        "library_details/3" -> MediaRoutes.LIBRARY_ROOT
+        "library_details/4" -> MediaRoutes.LIBRARY_ROOT
+        "library_details/5" -> MediaRoutes.LIBRARY_ROOT
+        "library_details/7" -> MediaRoutes.LIBRARY_ROOT
+        "music" -> MediaRoutes.LIBRARY_ROOT
+        "podcasts" -> MediaRoutes.LIBRARY_ROOT
+        "radio" -> MediaRoutes.LIBRARY_ROOT
         "visualizer" -> MediaRoutes.VISUALIZER
         "ambient" -> MediaRoutes.AMBIENT_SOUNDS
         "webfiction_manager" -> MediaRoutes.WEB_FICTION

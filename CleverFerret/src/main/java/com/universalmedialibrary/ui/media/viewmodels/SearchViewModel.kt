@@ -31,6 +31,9 @@ class SearchViewModel @Inject constructor(
     
     private val _uiState = MutableStateFlow(SearchScreenState())
     val uiState: StateFlow<SearchScreenState> = _uiState.asStateFlow()
+
+    private val _userMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val userMessages: SharedFlow<String> = _userMessages.asSharedFlow()
     
     private var searchJob: Job? = null
     
@@ -162,6 +165,7 @@ class SearchViewModel @Inject constructor(
                         isSearching = false
                     )
                 }
+                _userMessages.tryEmit("Search failed. Please try again.")
             }
         }
     }

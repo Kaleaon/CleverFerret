@@ -44,6 +44,18 @@ import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.EPUBReaderScreen
 import java.io.File
 
+private val libraryTypeOptions = listOf(
+    LibraryMediaTypeOption("book", "Books", MediaType.BOOK),
+    LibraryMediaTypeOption("audiobook", "Audiobooks", MediaType.AUDIOBOOK),
+    LibraryMediaTypeOption("comic", "Comics", MediaType.COMIC),
+    LibraryMediaTypeOption("music", "Music", MediaType.MUSIC),
+    LibraryMediaTypeOption("podcast", "Podcasts", MediaType.PODCAST),
+    LibraryMediaTypeOption("movie", "Movies", MediaType.MOVIE),
+    LibraryMediaTypeOption("tv_show", "TV Shows", MediaType.TV_SHOW),
+    LibraryMediaTypeOption("document", "Documents", MediaType.DOCUMENT),
+    LibraryMediaTypeOption("webfiction", "Web Fiction", MediaType.FANFICTION)
+)
+
 /**
  * Main Navigation Routes for Clean media-centric CleverFerret
  */
@@ -55,6 +67,7 @@ object MediaRoutes {
     const val SETTINGS = "settings"
     
     // Library routes
+    const val LIBRARY_ROOT = "library"
     const val LIBRARY = "library/{mediaType}"
     const val BOOKS = "library/book"
     const val AUDIOBOOKS = "library/audiobook"
@@ -85,6 +98,7 @@ object MediaRoutes {
     const val OPDS_BROWSER = "opds"
     const val PODCAST_DISCOVER = "discover/podcasts"
     const val WEB_FICTION_BROWSE = "discover/webfiction/{source}"
+    const val SEE_ALL = "home/see-all/{section}"
     
     // Collections & Organization
     const val COLLECTIONS = "collections"
@@ -154,6 +168,7 @@ object MediaRoutes {
     fun videoPlayerRoute(videoId: String) = "player/video/$videoId"
     fun collectionDetailRoute(collectionId: String) = "collection/$collectionId"
     fun webFictionBrowseRoute(source: String) = "discover/webfiction/${Uri.encode(source)}"
+    fun seeAllRoute(section: String) = "home/see-all/${Uri.encode(section)}"
     fun notFoundRoute(path: String) = "not-found?path=${Uri.encode(path)}"
 }
 
@@ -170,6 +185,7 @@ private val knownStaticRoutes = setOf(
     MediaRoutes.SEARCH,
     MediaRoutes.ACTIVITY,
     MediaRoutes.SETTINGS,
+    MediaRoutes.LIBRARY_ROOT,
     MediaRoutes.BOOKS,
     MediaRoutes.AUDIOBOOKS,
     MediaRoutes.MUSIC,
@@ -216,6 +232,7 @@ private val knownParameterizedPrefixes = listOf(
     "reader/",
     "player/",
     "discover/webfiction/",
+    "home/see-all/",
     "collection/",
     "tag/",
     "smart_collection/",
@@ -451,7 +468,7 @@ fun MediaAppNavHost(
                 requestedPath = requestedPath,
                 onNavigateHome = { navController.navigate(MediaRoutes.HOME) },
                 onNavigateSearch = { navController.navigate(MediaRoutes.SEARCH) },
-                onNavigateLibrary = { navController.navigate(MediaRoutes.BOOKS) },
+                onNavigateLibrary = { navController.navigate(MediaRoutes.LIBRARY_ROOT) },
                 onBack = { navController.popBackStack() }
             )
         }
@@ -502,7 +519,15 @@ fun MediaAppNavHost(
         // =====================================================================
         // LIBRARY SCREENS
         // =====================================================================
-        
+
+        composable(MediaRoutes.LIBRARY_ROOT) {
+            LaunchedEffect(Unit) {
+                navController.navigate(MediaRoutes.BOOKS) {
+                    launchSingleTop = true
+                }
+            }
+        }
+
         composable(
             route = MediaRoutes.LIBRARY,
             arguments = listOf(navArgument("mediaType") { type = NavType.StringType })
@@ -517,6 +542,13 @@ fun MediaAppNavHost(
             ) {
                 MediaLibraryScreen(
                     state = state,
+                    mediaTypeOptions = libraryTypeOptions,
+                    currentMediaTypeRoute = mediaType,
+                    onMediaTypeSelected = { selectedType ->
+                        navController.navigate(MediaRoutes.libraryRoute(selectedType)) {
+                            launchSingleTop = true
+                        }
+                    },
                     onItemClick = { item ->
                         navController.navigate(MediaRoutes.mediaDetailRoute(mediaType, item.id))
                     },
@@ -1841,6 +1873,13 @@ fun MediaAppNavHost(
             ) {
                 MediaLibraryScreen(
                     state = state,
+                    mediaTypeOptions = libraryTypeOptions,
+                    currentMediaTypeRoute = mediaType,
+                    onMediaTypeSelected = { selectedType ->
+                        navController.navigate(MediaRoutes.libraryRoute(selectedType)) {
+                            launchSingleTop = true
+                        }
+                    },
                     onItemClick = { item ->
                         navController.navigate(MediaRoutes.mediaDetailRoute(mediaType, item.id))
                     },
