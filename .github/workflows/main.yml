@@ -105,6 +105,11 @@ jobs:
       run: ./gradlew testDebugUnitTest --continue
       continue-on-error: true
       id: unit-tests
+
+    - name: Enforce critical-package coverage gates
+      if: steps.compile.outcome == 'success' && steps.unit-tests.outcome == 'success'
+      run: ./gradlew :CleverFerret:jacocoCriticalCoverageVerification --stacktrace
+      id: coverage-gates
       
     - name: Run lint checks
       if: steps.compile.outcome == 'success'
@@ -117,6 +122,9 @@ jobs:
         if [ "${{ steps.unit-tests.outcome }}" == "failure" ]; then
           echo "::error::Unit tests failed. Check test reports for details."
         fi
+        if [ "${{ steps.coverage-gates.outcome }}" == "failure" ]; then
+          echo "::error::Coverage gates failed for critical packages."
+        fi
         if [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
           echo "::error::Lint checks failed. New lint issues must be fixed or explicitly suppressed."
         fi
@@ -124,7 +132,7 @@ jobs:
     - name: Fail workflow if compilation or tests failed
       if: always()
       run: |
-        if [ "${{ steps.compile.outcome }}" == "failure" ] || [ "${{ steps.unit-tests.outcome }}" == "failure" ] || [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
+        if [ "${{ steps.compile.outcome }}" == "failure" ] || [ "${{ steps.unit-tests.outcome }}" == "failure" ] || [ "${{ steps.coverage-gates.outcome }}" == "failure" ] || [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
           echo "Workflow failed due to compilation, test, or lint failures"
           exit 1
         fi
