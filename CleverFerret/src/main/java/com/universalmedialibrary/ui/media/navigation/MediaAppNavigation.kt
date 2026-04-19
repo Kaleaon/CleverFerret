@@ -3,15 +3,24 @@ package com.universalmedialibrary.ui.media.navigation
 import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
@@ -24,6 +33,13 @@ import com.universalmedialibrary.ui.media.screens.*
 import com.universalmedialibrary.ui.media.viewmodels.*
 import com.universalmedialibrary.debug.ui.DebugMenuScreen
 import import kotlinx.coroutines.launch
+import com.universalmedialibrary.ui.components.NavigationItems
+import com.universalmedialibrary.ui.components.UiErrorBoundary
+import com.universalmedialibrary.ui.main.MainViewModel
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.ui.theme.toCleverFerretTheme
+import kotlinx.coroutines.launch
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.EPUBReaderScreen
 import java.io.File
@@ -128,6 +144,7 @@ object MediaRoutes {
     
     // Debug (only in debug builds)
     const val DEBUG_MENU = "debug"
+    const val NOT_FOUND = "not-found?path={path}"
     
     // Helper functions for navigation
     fun libraryRoute(mediaType: String) = "library/$mediaType"
@@ -137,6 +154,7 @@ object MediaRoutes {
     fun videoPlayerRoute(videoId: String) = "player/video/$videoId"
     fun collectionDetailRoute(collectionId: String) = "collection/$collectionId"
     fun webFictionBrowseRoute(source: String) = "discover/webfiction/${Uri.encode(source)}"
+    fun notFoundRoute(path: String) = "not-found?path=${Uri.encode(path)}"
 }
 
 private fun sanitizeRouteParamForDisplay(input: String, maxLen: Int = 60): String {
@@ -145,6 +163,183 @@ private fun sanitizeRouteParamForDisplay(input: String, maxLen: Int = 60): Strin
         .replace(Regex("[\\p{Cc}\\p{Cf}]"), "")
         .take(maxLen)
         .trim()
+}
+
+private val knownStaticRoutes = setOf(
+    MediaRoutes.HOME,
+    MediaRoutes.SEARCH,
+    MediaRoutes.ACTIVITY,
+    MediaRoutes.SETTINGS,
+    MediaRoutes.BOOKS,
+    MediaRoutes.AUDIOBOOKS,
+    MediaRoutes.MUSIC,
+    MediaRoutes.PODCASTS,
+    MediaRoutes.COMICS,
+    MediaRoutes.MOVIES,
+    MediaRoutes.TV_SHOWS,
+    MediaRoutes.WEB_FICTION,
+    MediaRoutes.RADIO,
+    MediaRoutes.DOCUMENTS,
+    MediaRoutes.DISCOVER,
+    MediaRoutes.OPDS_BROWSER,
+    MediaRoutes.PODCAST_DISCOVER,
+    MediaRoutes.COLLECTIONS,
+    MediaRoutes.TAGS,
+    MediaRoutes.TAG_MANAGER,
+    MediaRoutes.TAG_EXPLORER,
+    MediaRoutes.SMART_COLLECTIONS,
+    MediaRoutes.UNIVERSAL_SEARCH,
+    MediaRoutes.AMBIENT_SOUNDS,
+    MediaRoutes.NEWS,
+    MediaRoutes.VISUALIZER,
+    MediaRoutes.SYNC,
+    MediaRoutes.IMPORT_EXPORT,
+    MediaRoutes.FOLDER_IMPORT,
+    MediaRoutes.LANDSEEK,
+    MediaRoutes.ENHANCED_FILE_BROWSER,
+    MediaRoutes.SETTINGS_API,
+    MediaRoutes.SETTINGS_APPEARANCE,
+    MediaRoutes.SETTINGS_PLAYBACK,
+    MediaRoutes.SETTINGS_READER,
+    MediaRoutes.SETTINGS_STORAGE,
+    MediaRoutes.SETTINGS_SECURITY,
+    MediaRoutes.SETTINGS_ABOUT,
+    MediaRoutes.SETTINGS_MEDIA_SERVERS,
+    MediaRoutes.FILE_BROWSER,
+    MediaRoutes.ONBOARDING,
+    MediaRoutes.DEBUG_MENU
+)
+
+private val knownParameterizedPrefixes = listOf(
+    "library/",
+    "detail/",
+    "reader/",
+    "player/",
+    "discover/webfiction/",
+    "collection/",
+    "tag/",
+    "smart_collection/",
+    "enhanced_search",
+    "not-found"
+)
+
+internal fun resolveRouteOrFallback(route: String): String {
+    if (route in knownStaticRoutes) return route
+    if (knownParameterizedPrefixes.any { route.startsWith(it) }) return route
+    return MediaRoutes.notFoundRoute(route)
+}
+
+@Composable
+private fun NotFoundRouteScreen(
+    requestedPath: String,
+    onNavigateHome: () -> Unit,
+    onNavigateSearch: () -> Unit,
+    onNavigateLibrary: () -> Unit,
+    onBack: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        val wideLayout = maxWidth >= 720.dp
+
+        if (wideLayout) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                NotFoundCardContent(
+                    modifier = Modifier.widthIn(max = 800.dp),
+                    focusRequester = focusRequester,
+                    requestedPath = requestedPath,
+                    onNavigateHome = onNavigateHome,
+                    onNavigateSearch = onNavigateSearch,
+                    onNavigateLibrary = onNavigateLibrary,
+                    onBack = onBack
+                )
+            }
+        } else {
+            NotFoundCardContent(
+                modifier = Modifier.fillMaxSize(),
+                focusRequester = focusRequester,
+                requestedPath = requestedPath,
+                onNavigateHome = onNavigateHome,
+                onNavigateSearch = onNavigateSearch,
+                onNavigateLibrary = onNavigateLibrary,
+                onBack = onBack
+            )
+        }
+    }
+}
+
+@Composable
+private fun NotFoundCardContent(
+    modifier: Modifier,
+    focusRequester: FocusRequester,
+    requestedPath: String,
+    onNavigateHome: () -> Unit,
+    onNavigateSearch: () -> Unit,
+    onNavigateLibrary: () -> Unit,
+    onBack: () -> Unit
+) {
+    Card(modifier = modifier) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = "CleverFerret",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                modifier = Modifier.semantics { heading() },
+                text = "We couldn't find that page",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = "The route \"$requestedPath\" doesn't exist or is no longer available. " +
+                    "Use one of the recovery actions below.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Button(
+                    modifier = Modifier.focusRequester(focusRequester),
+                    onClick = onNavigateHome
+                ) {
+                    Icon(Icons.Default.Home, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Go Home")
+                }
+                OutlinedButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Back")
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedButton(onClick = onNavigateSearch) {
+                    Icon(Icons.Default.Search, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Search")
+                }
+                OutlinedButton(onClick = onNavigateLibrary) {
+                    Icon(Icons.Default.MenuBook, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Library")
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -239,11 +434,38 @@ fun MediaAppNavHost(
             )
         }
 
-        composable(MediaRoutes.DISCOVER) {
-            MediaDiscoverScreen(
-                onNavigate = navController::navigate,
-                onBackClick = { navController.popBackStack() }
+        composable(
+            route = MediaRoutes.NOT_FOUND,
+            arguments = listOf(
+                navArgument("path") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = ""
+                }
             )
+        ) { backStackEntry ->
+            val rawPath = backStackEntry.arguments?.getString("path").orEmpty()
+            val requestedPath = sanitizeRouteParamForDisplay(Uri.decode(rawPath)).ifBlank { "unknown" }
+
+            NotFoundRouteScreen(
+                requestedPath = requestedPath,
+                onNavigateHome = { navController.navigate(MediaRoutes.HOME) },
+                onNavigateSearch = { navController.navigate(MediaRoutes.SEARCH) },
+                onNavigateLibrary = { navController.navigate(MediaRoutes.BOOKS) },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(MediaRoutes.DISCOVER) {
+            UiErrorBoundary(
+                boundaryName = "Route:${MediaRoutes.DISCOVER}",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaDiscoverScreen(
+                    onNavigate = navController::navigate,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
         }
         
         // Alias route: podcast screen "Discover" action
@@ -289,18 +511,23 @@ fun MediaAppNavHost(
             val viewModel: MediaLibraryViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
-            MediaLibraryScreen(
-                state = state,
-                onItemClick = { item ->
-                    navController.navigate(MediaRoutes.mediaDetailRoute(mediaType, item.id))
-                },
-                onBackClick = { navController.popBackStack() },
-                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
-                onFilterChange = { viewModel.setFilter(it) },
-                onSortChange = { viewModel.setSort(it) },
-                onViewModeChange = { viewModel.setViewMode(it) },
-                onRefresh = { viewModel.refresh() }
-            )
+            UiErrorBoundary(
+                boundaryName = "Route:${MediaRoutes.LIBRARY}",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaLibraryScreen(
+                    state = state,
+                    onItemClick = { item ->
+                        navController.navigate(MediaRoutes.mediaDetailRoute(mediaType, item.id))
+                    },
+                    onBackClick = { navController.popBackStack() },
+                    onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
+                    onFilterChange = { viewModel.setFilter(it) },
+                    onSortChange = { viewModel.setSort(it) },
+                    onViewModeChange = { viewModel.setViewMode(it) },
+                    onRefresh = { viewModel.refresh() }
+                )
+            }
         }
         
         // Music library with special tabbed view
@@ -450,18 +677,23 @@ fun MediaAppNavHost(
                 }
             }
             
-            MediaReaderScreen(
-                state = state,
-                onPageChange = { viewModel.goToPage(it) },
-                onChapterChange = { viewModel.goToChapter(it) },
-                onBookmarkToggle = { viewModel.toggleBookmark() },
-                onTocOpen = { /* Handled by sheet in screen */ },
-                onSettingsOpen = { /* Handled by sheet in screen */ },
-                onSearch = { /* Show search dialog */ },
-                onClose = { navController.popBackStack() },
-                onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
-                onTtsToggle = { viewModel.toggleTts() }
-            )
+            UiErrorBoundary(
+                boundaryName = "ReaderBoundary",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaReaderScreen(
+                    state = state,
+                    onPageChange = { viewModel.goToPage(it) },
+                    onChapterChange = { viewModel.goToChapter(it) },
+                    onBookmarkToggle = { viewModel.toggleBookmark() },
+                    onTocOpen = { /* Handled by sheet in screen */ },
+                    onSettingsOpen = { /* Handled by sheet in screen */ },
+                    onSearch = { /* Show search dialog */ },
+                    onClose = { navController.popBackStack() },
+                    onTextSelect = { text, start, end -> viewModel.selectText(text, start, end) },
+                    onTtsToggle = { viewModel.toggleTts() }
+                )
+            }
         }
         
         composable(
@@ -471,23 +703,28 @@ fun MediaAppNavHost(
             val viewModel: AudioPlayerViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
-            MediaAudioPlayerScreen(
-                state = state,
-                onPlayPause = { viewModel.playPause() },
-                onSeek = { viewModel.seek(it) },
-                onSkipPrevious = { viewModel.skipPrevious() },
-                onSkipNext = { viewModel.skipNext() },
-                onRewind = { viewModel.rewind() },
-                onFastForward = { viewModel.fastForward() },
-                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
-                onShuffleToggle = { viewModel.toggleShuffle() },
-                onRepeatToggle = { viewModel.toggleRepeat() },
-                onSleepTimer = { /* Show sleep timer dialog */ },
-                onQueueOpen = { /* Handled by sheet in screen */ },
-                onChaptersOpen = { /* Handled by sheet in screen */ },
-                onCastClick = { /* Start casting */ },
-                onClose = { navController.popBackStack() }
-            )
+            UiErrorBoundary(
+                boundaryName = "AudioPlayerBoundary",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaAudioPlayerScreen(
+                    state = state,
+                    onPlayPause = { viewModel.playPause() },
+                    onSeek = { viewModel.seek(it) },
+                    onSkipPrevious = { viewModel.skipPrevious() },
+                    onSkipNext = { viewModel.skipNext() },
+                    onRewind = { viewModel.rewind() },
+                    onFastForward = { viewModel.fastForward() },
+                    onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                    onShuffleToggle = { viewModel.toggleShuffle() },
+                    onRepeatToggle = { viewModel.toggleRepeat() },
+                    onSleepTimer = { /* Show sleep timer dialog */ },
+                    onQueueOpen = { /* Handled by sheet in screen */ },
+                    onChaptersOpen = { /* Handled by sheet in screen */ },
+                    onCastClick = { /* Start casting */ },
+                    onClose = { navController.popBackStack() }
+                )
+            }
         }
         
         composable(
@@ -497,21 +734,26 @@ fun MediaAppNavHost(
             val viewModel: VideoPlayerViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
-            MediaVideoPlayerScreen(
-                state = state,
-                onPlayPause = { viewModel.playPause() },
-                onSeek = { viewModel.seek(it) },
-                onSeekRelative = { viewModel.seekRelative(it) },
-                onSkipPrevious = { viewModel.skipPrevious() },
-                onSkipNext = { viewModel.skipNext() },
-                onSkipIntro = { viewModel.skipIntro() },
-                onSubtitleChange = { viewModel.setSubtitle(it) },
-                onAudioTrackChange = { viewModel.setAudioTrack(it) },
-                onQualityChange = { viewModel.setQuality(it) },
-                onCastClick = { /* Start casting */ },
-                onPipClick = { /* Enter PiP */ },
-                onClose = { navController.popBackStack() }
-            )
+            UiErrorBoundary(
+                boundaryName = "VideoPlayerBoundary",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaVideoPlayerScreen(
+                    state = state,
+                    onPlayPause = { viewModel.playPause() },
+                    onSeek = { viewModel.seek(it) },
+                    onSeekRelative = { viewModel.seekRelative(it) },
+                    onSkipPrevious = { viewModel.skipPrevious() },
+                    onSkipNext = { viewModel.skipNext() },
+                    onSkipIntro = { viewModel.skipIntro() },
+                    onSubtitleChange = { viewModel.setSubtitle(it) },
+                    onAudioTrackChange = { viewModel.setAudioTrack(it) },
+                    onQualityChange = { viewModel.setQuality(it) },
+                    onCastClick = { /* Start casting */ },
+                    onPipClick = { /* Enter PiP */ },
+                    onClose = { navController.popBackStack() }
+                )
+            }
         }
         
         // =====================================================================
@@ -543,58 +785,12 @@ fun MediaAppNavHost(
             )
         }
 
-        // Malformed/legacy route tolerance: if invoked without a source param, don't crash.
+        // Legacy compatibility: canonicalize old route without a source segment.
+        // Keeps existing deep links/callsites functional while consolidating browse state.
         composable("discover/webfiction") {
-            val title = stringResource(R.string.webfiction_browse_title_generic)
-            val snackbarMessage = stringResource(
-                R.string.webfiction_browse_not_implemented,
-                stringResource(R.string.webfiction_browse_source_unknown)
-            )
-
-            LaunchedEffect(snackbarMessage) {
-                onShowSnackbar(snackbarMessage)
-            }
-
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text(text = title) },
-                        navigationIcon = {
-                            IconButton(onClick = { navController.popBackStack() }) {
-                                Icon(
-                                    Icons.Default.ArrowBack,
-                                    contentDescription = stringResource(R.string.navigation_back)
-                                )
-                            }
-                        }
-                    )
-                }
-            ) { padding ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(
-                        text = stringResource(R.string.webfiction_browse_coming_soon),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.webfiction_browse_add_by_url_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Button(onClick = { navController.popBackStack() }) {
-                            Text(stringResource(R.string.navigation_back))
-                        }
-                        OutlinedButton(onClick = { navController.navigate(MediaRoutes.WEB_FICTION) }) {
-                            Text(stringResource(R.string.webfiction_browse_go_to_web_fiction))
-                        }
-                    }
+            LaunchedEffect(Unit) {
+                navController.navigate(MediaRoutes.webFictionBrowseRoute(source = "")) {
+                    popUpTo("discover/webfiction") { inclusive = true }
                 }
             }
         }
@@ -954,90 +1150,110 @@ fun MediaAppNavHost(
             val viewModel: VideoPlayerViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
-            MediaVideoPlayerScreen(
-                state = state,
-                onPlayPause = { viewModel.playPause() },
-                onSeek = { viewModel.seek(it) },
-                onSeekRelative = { viewModel.seekRelative(it) },
-                onSkipPrevious = { viewModel.skipPrevious() },
-                onSkipNext = { viewModel.skipNext() },
-                onSkipIntro = { viewModel.skipIntro() },
-                onSubtitleChange = { viewModel.setSubtitle(it) },
-                onAudioTrackChange = { viewModel.setAudioTrack(it) },
-                onQualityChange = { viewModel.setQuality(it) },
-                onCastClick = { /* Start casting */ },
-                onPipClick = { /* Enter PiP */ },
-                onClose = { navController.popBackStack() }
-            )
+            UiErrorBoundary(
+                boundaryName = "VideoPlayerBoundary",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaVideoPlayerScreen(
+                    state = state,
+                    onPlayPause = { viewModel.playPause() },
+                    onSeek = { viewModel.seek(it) },
+                    onSeekRelative = { viewModel.seekRelative(it) },
+                    onSkipPrevious = { viewModel.skipPrevious() },
+                    onSkipNext = { viewModel.skipNext() },
+                    onSkipIntro = { viewModel.skipIntro() },
+                    onSubtitleChange = { viewModel.setSubtitle(it) },
+                    onAudioTrackChange = { viewModel.setAudioTrack(it) },
+                    onQualityChange = { viewModel.setQuality(it) },
+                    onCastClick = { /* Start casting */ },
+                    onPipClick = { /* Enter PiP */ },
+                    onClose = { navController.popBackStack() }
+                )
+            }
         }
         
         composable("music_player") {
             val viewModel: AudioPlayerViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
-            MediaAudioPlayerScreen(
-                state = state,
-                onPlayPause = { viewModel.playPause() },
-                onSeek = { viewModel.seek(it) },
-                onSkipPrevious = { viewModel.skipPrevious() },
-                onSkipNext = { viewModel.skipNext() },
-                onRewind = { viewModel.rewind() },
-                onFastForward = { viewModel.fastForward() },
-                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
-                onShuffleToggle = { viewModel.toggleShuffle() },
-                onRepeatToggle = { viewModel.toggleRepeat() },
-                onSleepTimer = { /* Show sleep timer dialog */ },
-                onQueueOpen = { /* Handled by sheet in screen */ },
-                onChaptersOpen = { /* Handled by sheet in screen */ },
-                onCastClick = { /* Start casting */ },
-                onClose = { navController.popBackStack() }
-            )
+            UiErrorBoundary(
+                boundaryName = "AudioPlayerBoundary",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaAudioPlayerScreen(
+                    state = state,
+                    onPlayPause = { viewModel.playPause() },
+                    onSeek = { viewModel.seek(it) },
+                    onSkipPrevious = { viewModel.skipPrevious() },
+                    onSkipNext = { viewModel.skipNext() },
+                    onRewind = { viewModel.rewind() },
+                    onFastForward = { viewModel.fastForward() },
+                    onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                    onShuffleToggle = { viewModel.toggleShuffle() },
+                    onRepeatToggle = { viewModel.toggleRepeat() },
+                    onSleepTimer = { /* Show sleep timer dialog */ },
+                    onQueueOpen = { /* Handled by sheet in screen */ },
+                    onChaptersOpen = { /* Handled by sheet in screen */ },
+                    onCastClick = { /* Start casting */ },
+                    onClose = { navController.popBackStack() }
+                )
+            }
         }
         
         composable("podcast_player/{episodeId}") { backStackEntry ->
             val viewModel: AudioPlayerViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
-            MediaAudioPlayerScreen(
-                state = state,
-                onPlayPause = { viewModel.playPause() },
-                onSeek = { viewModel.seek(it) },
-                onSkipPrevious = { viewModel.skipPrevious() },
-                onSkipNext = { viewModel.skipNext() },
-                onRewind = { viewModel.rewind() },
-                onFastForward = { viewModel.fastForward() },
-                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
-                onShuffleToggle = { viewModel.toggleShuffle() },
-                onRepeatToggle = { viewModel.toggleRepeat() },
-                onSleepTimer = { /* Show sleep timer dialog */ },
-                onQueueOpen = { /* Handled by sheet in screen */ },
-                onChaptersOpen = { /* Handled by sheet in screen */ },
-                onCastClick = { /* Start casting */ },
-                onClose = { navController.popBackStack() }
-            )
+            UiErrorBoundary(
+                boundaryName = "AudioPlayerBoundary",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaAudioPlayerScreen(
+                    state = state,
+                    onPlayPause = { viewModel.playPause() },
+                    onSeek = { viewModel.seek(it) },
+                    onSkipPrevious = { viewModel.skipPrevious() },
+                    onSkipNext = { viewModel.skipNext() },
+                    onRewind = { viewModel.rewind() },
+                    onFastForward = { viewModel.fastForward() },
+                    onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                    onShuffleToggle = { viewModel.toggleShuffle() },
+                    onRepeatToggle = { viewModel.toggleRepeat() },
+                    onSleepTimer = { /* Show sleep timer dialog */ },
+                    onQueueOpen = { /* Handled by sheet in screen */ },
+                    onChaptersOpen = { /* Handled by sheet in screen */ },
+                    onCastClick = { /* Start casting */ },
+                    onClose = { navController.popBackStack() }
+                )
+            }
         }
         
         composable("audio_player/{path}") { backStackEntry ->
             val viewModel: AudioPlayerViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
-            MediaAudioPlayerScreen(
-                state = state,
-                onPlayPause = { viewModel.playPause() },
-                onSeek = { viewModel.seek(it) },
-                onSkipPrevious = { viewModel.skipPrevious() },
-                onSkipNext = { viewModel.skipNext() },
-                onRewind = { viewModel.rewind() },
-                onFastForward = { viewModel.fastForward() },
-                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
-                onShuffleToggle = { viewModel.toggleShuffle() },
-                onRepeatToggle = { viewModel.toggleRepeat() },
-                onSleepTimer = { /* Show sleep timer dialog */ },
-                onQueueOpen = { /* Handled by sheet in screen */ },
-                onChaptersOpen = { /* Handled by sheet in screen */ },
-                onCastClick = { /* Start casting */ },
-                onClose = { navController.popBackStack() }
-            )
+            UiErrorBoundary(
+                boundaryName = "AudioPlayerBoundary",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaAudioPlayerScreen(
+                    state = state,
+                    onPlayPause = { viewModel.playPause() },
+                    onSeek = { viewModel.seek(it) },
+                    onSkipPrevious = { viewModel.skipPrevious() },
+                    onSkipNext = { viewModel.skipNext() },
+                    onRewind = { viewModel.rewind() },
+                    onFastForward = { viewModel.fastForward() },
+                    onSpeedChange = { viewModel.setPlaybackSpeed(it) },
+                    onShuffleToggle = { viewModel.toggleShuffle() },
+                    onRepeatToggle = { viewModel.toggleRepeat() },
+                    onSleepTimer = { /* Show sleep timer dialog */ },
+                    onQueueOpen = { /* Handled by sheet in screen */ },
+                    onChaptersOpen = { /* Handled by sheet in screen */ },
+                    onCastClick = { /* Start casting */ },
+                    onClose = { navController.popBackStack() }
+                )
+            }
         }
         
         // Legacy detail routes
@@ -1619,18 +1835,23 @@ fun MediaAppNavHost(
             val viewModel: MediaLibraryViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
             
-            MediaLibraryScreen(
-                state = state,
-                onItemClick = { item ->
-                    navController.navigate(MediaRoutes.mediaDetailRoute(mediaType, item.id))
-                },
-                onBackClick = { navController.popBackStack() },
-                onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
-                onFilterChange = { viewModel.setFilter(it) },
-                onSortChange = { viewModel.setSort(it) },
-                onViewModeChange = { viewModel.setViewMode(it) },
-                onRefresh = { viewModel.refresh() }
-            )
+            UiErrorBoundary(
+                boundaryName = "Route:${MediaRoutes.LIBRARY}",
+                onGoHome = { navController.navigate(MediaRoutes.HOME) },
+            ) {
+                MediaLibraryScreen(
+                    state = state,
+                    onItemClick = { item ->
+                        navController.navigate(MediaRoutes.mediaDetailRoute(mediaType, item.id))
+                    },
+                    onBackClick = { navController.popBackStack() },
+                    onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
+                    onFilterChange = { viewModel.setFilter(it) },
+                    onSortChange = { viewModel.setSort(it) },
+                    onViewModeChange = { viewModel.setViewMode(it) },
+                    onRefresh = { viewModel.refresh() }
+                )
+            }
         }
         
         // Legacy detail route

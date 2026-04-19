@@ -31,13 +31,20 @@ jobs:
       uses: android-actions/setup-android@v3
       with:
         cmdline-tools-version: 11076708
-        
+
+    - name: Normalize Android SDK environment variables
+      run: |
+        SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+        echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
+        echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
+        echo "Using Android SDK at: $SDK_PATH"
+
     - name: Install required Android SDK packages
       run: |
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;33.0.2" "platform-tools"
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;33.0.2" "platform-tools"
         echo "Installed SDK packages:"
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
       uses: actions/cache@v5
       with:
@@ -50,6 +57,15 @@ jobs:
           
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    - name: KSP gate (debug)
+      run: |
+        ./gradlew :CleverFerret:kspDebugKotlin --stacktrace --warning-mode all 2>&1 | tee ksp_output.txt
+
+        if grep -q "error.NonExistentClass" ksp_output.txt; then
+          echo "::error::KSP detected unresolved type error.NonExistentClass"
+          exit 1
+        fi
       
     - name: Compile project
       id: compile
@@ -105,6 +121,11 @@ jobs:
       run: ./gradlew testDebugUnitTest --continue
       continue-on-error: true
       id: unit-tests
+
+    - name: Enforce critical-package coverage gates
+      if: steps.compile.outcome == 'success' && steps.unit-tests.outcome == 'success'
+      run: ./gradlew :CleverFerret:jacocoCriticalCoverageVerification --stacktrace
+      id: coverage-gates
       
     - name: Run lint checks
       if: steps.compile.outcome == 'success'
@@ -117,6 +138,9 @@ jobs:
         if [ "${{ steps.unit-tests.outcome }}" == "failure" ]; then
           echo "::error::Unit tests failed. Check test reports for details."
         fi
+        if [ "${{ steps.coverage-gates.outcome }}" == "failure" ]; then
+          echo "::error::Coverage gates failed for critical packages."
+        fi
         if [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
           echo "::error::Lint checks failed. New lint issues must be fixed or explicitly suppressed."
         fi
@@ -124,7 +148,7 @@ jobs:
     - name: Fail workflow if compilation or tests failed
       if: always()
       run: |
-        if [ "${{ steps.compile.outcome }}" == "failure" ] || [ "${{ steps.unit-tests.outcome }}" == "failure" ] || [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
+        if [ "${{ steps.compile.outcome }}" == "failure" ] || [ "${{ steps.unit-tests.outcome }}" == "failure" ] || [ "${{ steps.coverage-gates.outcome }}" == "failure" ] || [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
           echo "Workflow failed due to compilation, test, or lint failures"
           exit 1
         fi
@@ -166,13 +190,20 @@ jobs:
       uses: android-actions/setup-android@v3
       with:
         cmdline-tools-version: 11076708
-        
+
+    - name: Normalize Android SDK environment variables
+      run: |
+        SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+        echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
+        echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
+        echo "Using Android SDK at: $SDK_PATH"
+
     - name: Install required Android SDK packages
       run: |
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;33.0.2" "platform-tools"
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;33.0.2" "platform-tools"
         echo "Installed SDK packages:"
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
       uses: actions/cache@v5
       with:
@@ -274,7 +305,7 @@ jobs:
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             "$KEY_ALIAS"
             
-          $ANDROID_HOME/build-tools/33.0.2/zipalign -v 4 \
+          $ANDROID_SDK_ROOT/build-tools/33.0.2/zipalign -v 4 \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
             
@@ -341,6 +372,66 @@ jobs:
       with:
         name: release-apk
         path: CleverFerret/build/outputs/apk/release/CleverFerret-v${{ steps.version.outputs.version-name }}-release*.apk
+
+
+  clean-checkout-matrix:
+    name: Clean checkout matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [standard, refresh-deps]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v5
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        cmdline-tools-version: 11076708
+
+    - name: Normalize Android SDK environment variables
+      run: |
+        SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+        echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
+        echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
+        echo "Using Android SDK at: $SDK_PATH"
+
+    - name: Install required Android SDK packages
+      run: |
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;33.0.2" "platform-tools"
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Clean checkout dependency resolution
+      run: |
+        if [ "${{ matrix.scenario }}" = "refresh-deps" ]; then
+          ./gradlew --no-daemon --refresh-dependencies :CleverFerret:dependencies
+        else
+          ./gradlew --no-daemon :CleverFerret:dependencies
+        fi
+
+    - name: Compile from clean checkout
+      run: ./gradlew --no-daemon :CleverFerret:compileDebugKotlin
 
 
 

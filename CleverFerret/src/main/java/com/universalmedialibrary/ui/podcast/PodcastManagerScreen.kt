@@ -25,6 +25,7 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import com.universalmedialibrary.services.podcast.PodcastSearchResult
+import com.universalmedialibrary.services.podcast.DownloadStatus
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.MetallicFAB
 import com.universalmedialibrary.ui.theme.MetallicTopAppBar
@@ -39,6 +40,7 @@ fun PodcastManagerScreen(
     viewModel: PodcastViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val downloadStatuses by viewModel.downloadProgress.collectAsState()
     val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
     var showSearchDialog by remember { mutableStateOf(false) }
     var showAddFeedDialog by remember { mutableStateOf(false) }
@@ -157,11 +159,15 @@ fun PodcastManagerScreen(
                     )
                     1 -> PodcastEpisodesTab(
                         episodes = uiState.allEpisodes,
+                        downloadStatuses = downloadStatuses,
                         onEpisodeClick = { episode ->
                             navController.navigate("podcast_player/${episode.id}")
                         },
                         onDownloadClick = { episode ->
                             viewModel.downloadEpisode(episode)
+                        },
+                        onRetryClick = { episode ->
+                            viewModel.retryDownload(episode)
                         },
                         onPlayClick = { episode ->
                             navController.navigate("podcast_player/${episode.id}")
@@ -270,8 +276,10 @@ fun PodcastSubscriptionsTab(
 @Composable
 fun PodcastEpisodesTab(
     episodes: List<PodcastEpisode>,
+    downloadStatuses: Map<Long, DownloadStatus>,
     onEpisodeClick: (PodcastEpisode) -> Unit,
     onDownloadClick: (PodcastEpisode) -> Unit,
+    onRetryClick: (PodcastEpisode) -> Unit,
     onPlayClick: (PodcastEpisode) -> Unit
 ) {
     LazyColumn(
@@ -282,8 +290,10 @@ fun PodcastEpisodesTab(
         items(episodes) { episode ->
             EpisodeCard(
                 episode = episode,
+                downloadStatus = downloadStatuses[episode.id],
                 onClick = { onEpisodeClick(episode) },
                 onDownloadClick = { onDownloadClick(episode) },
+                onRetryClick = { onRetryClick(episode) },
                 onPlayClick = { onPlayClick(episode) }
             )
         }
@@ -418,8 +428,10 @@ fun PodcastCard(
 @Composable
 fun EpisodeCard(
     episode: PodcastEpisode,
+    downloadStatus: DownloadStatus?,
     onClick: () -> Unit,
     onDownloadClick: () -> Unit,
+    onRetryClick: () -> Unit,
     onPlayClick: () -> Unit
 ) {
     Card(
@@ -490,15 +502,68 @@ fun EpisodeCard(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                val readinessText = if (episode.playbackReady) "Playback ready" else "Not ready"
+                val readinessColor = if (episode.playbackReady) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.error
+                }
+                Text(
+                    text = readinessText,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = readinessColor
+                )
+                episode.playbackFailureReason?.let { reason ->
+                    Text(
+                        text = reason,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
 
-            // Download button
-            if (!episode.isDownloaded) {
-                IconButton(onClick = onDownloadClick) {
-                    Icon(
-                        Icons.Default.Download,
-                        contentDescription = "Download"
+            when (downloadStatus) {
+                is DownloadStatus.Downloading -> {
+                    CircularProgressIndicator(
+                        progress = { downloadStatus.progress },
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
                     )
+                }
+                is DownloadStatus.Queued -> {
+                    Text(
+                        text = "Q${downloadStatus.position}",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+                is DownloadStatus.Retrying -> {
+                    Text(
+                        text = "Retry ${downloadStatus.attempt}/${downloadStatus.maxRetries}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                is DownloadStatus.Failed -> {
+                    IconButton(onClick = onRetryClick) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = "Retry download",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                else -> if (!episode.isDownloaded) {
+                    IconButton(onClick = onDownloadClick) {
+                        Icon(
+                            Icons.Default.Download,
+                            contentDescription = "Download"
+                        )
+                    }
                 }
             }
         }
