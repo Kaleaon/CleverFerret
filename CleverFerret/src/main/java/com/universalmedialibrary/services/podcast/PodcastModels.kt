@@ -49,6 +49,7 @@ data class PodcastEpisode(
     val localFilePath: String? = null,
     val playbackReady: Boolean = false,
     val playbackFailureReason: String? = null,
+    val recoveryActionLabel: String? = null,
     val played: Boolean = false,
     val playPosition: Long = 0L,
     val favorite: Boolean = false,

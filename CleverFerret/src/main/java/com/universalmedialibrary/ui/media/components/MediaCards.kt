@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -182,10 +183,12 @@ fun MediaPosterCard(
             // Cover image
             if (item.imageUrl != null) {
                 AsyncImage(
-                    model = item.imageUrl,
+                    model = MediaImageModels.resolve(item.imageUrl),
                     contentDescription = item.title,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    placeholder = painterResource(MediaImageModels.PlaceholderRes),
+                    error = painterResource(MediaImageModels.ErrorRes)
                 )
             } else {
                 // Placeholder
@@ -341,10 +344,12 @@ fun MediaSquareCard(
         ) {
             if (item.imageUrl != null) {
                 AsyncImage(
-                    model = item.imageUrl,
+                    model = MediaImageModels.resolve(item.imageUrl),
                     contentDescription = item.title,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    placeholder = painterResource(MediaImageModels.PlaceholderRes),
+                    error = painterResource(MediaImageModels.ErrorRes)
                 )
             } else {
                 Box(
@@ -466,10 +471,12 @@ fun MediaWideCard(
         // Backdrop image
         if (item.backdropUrl != null || item.imageUrl != null) {
             AsyncImage(
-                model = item.backdropUrl ?: item.imageUrl,
+                model = MediaImageModels.resolve(item.backdropUrl ?: item.imageUrl),
                 contentDescription = item.title,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(MediaImageModels.PlaceholderRes),
+                error = painterResource(MediaImageModels.ErrorRes)
             )
         }
         
@@ -585,10 +592,12 @@ fun MediaHeroCard(
         // Backdrop
         if (item.backdropUrl != null || item.imageUrl != null) {
             AsyncImage(
-                model = item.backdropUrl ?: item.imageUrl,
+                model = MediaImageModels.resolve(item.backdropUrl ?: item.imageUrl),
                 contentDescription = item.title,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(MediaImageModels.PlaceholderRes),
+                error = painterResource(MediaImageModels.ErrorRes)
             )
         } else {
             Box(
@@ -817,10 +826,12 @@ fun MediaListItem(
                 ) {
                     if (item.imageUrl != null) {
                         AsyncImage(
-                            model = item.imageUrl,
+                            model = MediaImageModels.resolve(item.imageUrl),
                             contentDescription = item.title,
                             modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(MediaImageModels.PlaceholderRes),
+                            error = painterResource(MediaImageModels.ErrorRes)
                         )
                     } else {
                         Icon(
