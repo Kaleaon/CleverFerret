@@ -98,6 +98,7 @@ object MediaRoutes {
     const val OPDS_BROWSER = "opds"
     const val PODCAST_DISCOVER = "discover/podcasts"
     const val WEB_FICTION_BROWSE = "discover/webfiction/{source}"
+    const val SEE_ALL = "home/see-all/{section}"
     
     // Collections & Organization
     const val COLLECTIONS = "collections"
@@ -167,6 +168,7 @@ object MediaRoutes {
     fun videoPlayerRoute(videoId: String) = "player/video/$videoId"
     fun collectionDetailRoute(collectionId: String) = "collection/$collectionId"
     fun webFictionBrowseRoute(source: String) = "discover/webfiction/${Uri.encode(source)}"
+    fun seeAllRoute(section: String) = "home/see-all/${Uri.encode(section)}"
     fun notFoundRoute(path: String) = "not-found?path=${Uri.encode(path)}"
 }
 
@@ -230,6 +232,7 @@ private val knownParameterizedPrefixes = listOf(
     "reader/",
     "player/",
     "discover/webfiction/",
+    "home/see-all/",
     "collection/",
     "tag/",
     "smart_collection/",

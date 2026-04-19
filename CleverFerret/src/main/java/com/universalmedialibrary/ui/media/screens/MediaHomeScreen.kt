@@ -47,6 +47,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.testTag
 import coil.compose.AsyncImage
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.*
@@ -55,6 +56,11 @@ import com.universalmedialibrary.ui.media.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+
+internal const val MEDIA_HOME_TOP_BAR_TAG = "media_home_top_bar"
+internal const val MEDIA_HOME_TOP_BAR_NAV_TAG = "media_home_top_bar_nav_icon"
+internal const val MEDIA_HOME_TOP_BAR_SEARCH_TAG = "media_home_top_bar_search"
+internal const val MEDIA_HOME_TOP_BAR_NOTIFICATIONS_TAG = "media_home_top_bar_notifications"
 
 /**
  * Clean Media-Centric Home/Dashboard Screen
@@ -78,6 +84,7 @@ fun MediaHomeScreen(
     onPlayClick: (MediaItem) -> Unit,
     onSeeAllClick: (String) -> Unit,
     onQuickAccessCategoryClick: (String) -> Unit,
+    onNavigationClick: () -> Unit = {},
     onSearchClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onAddLocalFilesClick: () -> Unit = {},
@@ -148,6 +155,7 @@ fun MediaHomeScreen(
     Scaffold(
         topBar = {
             StickyContentLibraryHeader(
+                onNavigationClick = onNavigationClick,
                 onSearchClick = onSearchClick,
                 onNotificationClick = onNotificationClick
             )
@@ -1063,122 +1071,87 @@ private fun QuickAccessCard(
     }
 }
 
-// =============================================================================
-// CONTENT LIBRARY HEADER (Matching mockup)
-// =============================================================================
-
-@Composable
-private fun ContentLibraryHeader(
-    onSearchClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.background.copy(alpha = 0.8f),
-        tonalElevation = 0.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(horizontal = MediaSpacing.LG, vertical = MediaSpacing.LG),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // "Content Library" branding matching mockup
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
-            ) {
-                Text(
-                    text = "Content ",
-                    style = MediaTypography.TitleMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Library",
-                    style = MediaTypography.TitleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            
-            // Search button - circular style matching mockup
-            Surface(
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.05f),
-                onClick = onSearchClick
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.size(MediaSizes.IconMD)
-                    )
-                }
-            }
-        }
-    }
-}
-
-// =============================================================================
-// STICKY CONTENT LIBRARY HEADER (Fixed at top)
-// =============================================================================
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun StickyContentLibraryHeader(
+internal fun StickyContentLibraryHeader(
+    onNavigationClick: () -> Unit = {},
     onSearchClick: () -> Unit,
     onNotificationClick: () -> Unit
 ) {
-    TopAppBar(
+    BoxWithConstraints {
+        val expandedWidth = maxWidth >= 840.dp
+        val horizontalPadding = if (expandedWidth) 16.dp else 4.dp
+        val searchEndPadding = if (expandedWidth) 12.dp else 4.dp
+
+        CenterAlignedTopAppBar(
+            modifier = Modifier.testTag(MEDIA_HOME_TOP_BAR_TAG),
         title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
-                Text(
-                    text = "Content ",
-                    style = MediaTypography.TitleMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Library",
-                    style = MediaTypography.TitleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        },
-        actions = {
-            // Notifications button
-            IconButton(onClick = onNotificationClick) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-            }
-            // Search button
-            IconButton(onClick = onSearchClick) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = MaterialTheme.colorScheme.onBackground
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = searchEndPadding)
+                        .testTag(MEDIA_HOME_TOP_BAR_SEARCH_TAG),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
+                    onClick = onSearchClick
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 40.dp)
+                            .padding(horizontal = MediaSpacing.MD, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(MediaSizes.IconSM)
+                        )
+                        Text(
+                            text = stringResource(id = R.string.search_hint),
+                            style = MediaTypography.BodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            },
+            navigationIcon = {
+                IconButton(
+                    onClick = onNavigationClick,
+                    modifier = Modifier
+                        .padding(start = horizontalPadding)
+                        .testTag(MEDIA_HOME_TOP_BAR_NAV_TAG)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Navigation menu",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            actions = {
+                IconButton(
+                    onClick = onNotificationClick,
+                    modifier = Modifier.testTag(MEDIA_HOME_TOP_BAR_NOTIFICATIONS_TAG)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifications",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
+            windowInsets = WindowInsets.statusBars,
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.onBackground
+            ),
+            titleHorizontalAlignment = Alignment.CenterHorizontally
         )
-    )
+    }
 }
 
 // =============================================================================
