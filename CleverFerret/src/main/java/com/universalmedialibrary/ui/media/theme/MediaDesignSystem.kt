@@ -280,11 +280,13 @@ private fun findAlphaForMinContrast(
     return 1f
 }
 
-private fun contrastRatio(foreground: Color, background: Color): Float {
+internal fun calculateContrastRatio(foreground: Color, background: Color): Float {
     val lighter = maxOf(foreground.luminance(), background.luminance())
     val darker = minOf(foreground.luminance(), background.luminance())
     return (lighter + 0.05f) / (darker + 0.05f)
 }
+
+private fun contrastRatio(foreground: Color, background: Color): Float = calculateContrastRatio(foreground, background)
 
 // =============================================================================
 // TYPOGRAPHY
@@ -422,6 +424,7 @@ object MediaTypography {
  */
 object MediaSpacing {
     // Base unit = 4dp
+    val None = 0.dp
     val XXS = 2.dp
     val XS = 4.dp
     val SM = 8.dp
@@ -483,6 +486,9 @@ object MediaSizes {
     val IconLG = 32.dp
     val IconXL = 48.dp
     val IconHuge = 64.dp
+    val IconAvatarCollapsed = 32.dp
+    val IconAvatarExpanded = 40.dp
+    val IndicatorDot = 5.dp
     
     // Buttons
     val ButtonHeightSmall = 32.dp
@@ -510,6 +516,10 @@ object MediaSizes {
     
     // Mini player
     val MiniPlayerHeight = 72.dp
+    val BottomNavFadeWidth = 18.dp
+    val BottomNavMinItemWidth = 80.dp
+    val SidebarSelectionIndicatorWidth = 3.dp
+    val SidebarSelectionIndicatorHeight = 24.dp
 }
 
 /**

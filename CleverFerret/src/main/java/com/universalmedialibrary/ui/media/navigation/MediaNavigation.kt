@@ -28,7 +28,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
@@ -550,7 +549,7 @@ private fun SidebarUserProfile(
         // Avatar
         Box(
             modifier = Modifier
-                .size(if (isExpanded) 40.dp else 32.dp)
+                .size(if (isExpanded) MediaSizes.IconAvatarExpanded else MediaSizes.IconAvatarCollapsed)
                 .clip(CircleShape)
                 .background(MediaColors.BackgroundSurface),
             contentAlignment = Alignment.Center
@@ -568,7 +567,7 @@ private fun SidebarUserProfile(
                     imageVector = Icons.Default.Person,
                     contentDescription = "Media image",
                     tint = MediaColors.TextSecondary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(MediaSizes.IconSM)
                 )
             }
         }
@@ -683,8 +682,8 @@ private fun SidebarNavItem(
             if (isSelected && isExpanded) {
                 Box(
                     modifier = Modifier
-                        .width(3.dp)
-                        .height(24.dp)
+                        .width(MediaSizes.SidebarSelectionIndicatorWidth)
+                        .height(MediaSizes.SidebarSelectionIndicatorHeight)
                         .background(
                             MediaColors.AccentPrimary,
                             RoundedCornerShape(MediaCorners.Full)
@@ -794,7 +793,7 @@ private fun QuickActionButton(
 ) {
     IconButton(
         onClick = onClick,
-        modifier = Modifier.size(40.dp)
+        modifier = Modifier.size(MediaSizes.IconAvatarExpanded)
     ) {
         Icon(
             imageVector = icon,
@@ -849,8 +848,8 @@ fun MediaBottomNavigation(
         val gearSlotSize = MediaSizes.BottomBarHeight
         val gearSize = gearSlotSize - (gearOuterPadding * 2)
         val scrollContentPadding = when (gearPosition) {
-            BottomGearPosition.LEFT -> PaddingValues(start = gearSlotSize, end = 0.dp)
-            BottomGearPosition.RIGHT -> PaddingValues(start = 0.dp, end = gearSlotSize)
+            BottomGearPosition.LEFT -> PaddingValues(start = gearSlotSize, end = MediaSpacing.None)
+            BottomGearPosition.RIGHT -> PaddingValues(start = MediaSpacing.None, end = gearSlotSize)
         }
 
         Box(
@@ -883,7 +882,7 @@ fun MediaBottomNavigation(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(18.dp)
+                        .width(MediaSizes.BottomNavFadeWidth)
                         .align(Alignment.CenterStart)
                         .background(
                             Brush.horizontalGradient(
@@ -896,7 +895,7 @@ fun MediaBottomNavigation(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(18.dp)
+                        .width(MediaSizes.BottomNavFadeWidth)
                         .align(Alignment.CenterEnd)
                         .background(
                             Brush.horizontalGradient(
@@ -931,7 +930,7 @@ fun MediaBottomNavigation(
                     shape = RoundedCornerShape(MediaCorners.XS),
                     color = cs.surfaceVariant,
                     tonalElevation = MediaElevation.SM,
-                    shadowElevation = 0.dp,
+                    shadowElevation = MediaElevation.None,
                     onClick = { onNavigate(MediaRoutes.SETTINGS) }
                 ) {
                     Box(
@@ -979,7 +978,7 @@ private fun BottomNavItem(
     
     Column(
         modifier = Modifier
-            .widthIn(min = 80.dp)
+            .widthIn(min = MediaSizes.BottomNavMinItemWidth)
             .clickable(enabled = enabled, onClick = onClick)
             .alpha(if (enabled) 1f else 0.55f)
             .padding(horizontal = MediaSpacing.MD, vertical = MediaSpacing.SM),
@@ -988,7 +987,7 @@ private fun BottomNavItem(
         // Selection indicator dot
         Box(
             modifier = Modifier
-                .size(5.dp)
+                .size(MediaSizes.IndicatorDot)
                 .clip(CircleShape)
                 .background(if (isSelected) cs.primary else Color.Transparent)
         )
