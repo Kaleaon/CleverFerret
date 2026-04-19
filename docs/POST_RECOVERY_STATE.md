@@ -24,6 +24,13 @@ If this policy changes, update this document and the branch protection rules in 
    - Never merge unreviewed hotfix commits directly to `main`.
 4. **Tag release points from protected branch**
    - Create release tags only from commits already merged to protected `main`.
+5. **Run widget background-update CI gate before review**
+   - Execute `./scripts/ci/validate_android14_widget_background_updates.py`.
+   - **Pass criteria:** each widget provider XML sets `android:updatePeriodMillis`;
+     value is either `0` or `>= 1800000`; widgets using `0` explicitly declare
+     `android:resizeMode`.
+   - **Fail criteria:** missing/non-integer `updatePeriodMillis`, values between
+     `1` and `1799999`, or missing `resizeMode` for event-driven (`0`) widgets.
 
 ## 3) Hard safety rules
 

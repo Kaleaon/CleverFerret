@@ -188,3 +188,64 @@ auto-uploaded".
 
 Each PR should be < 500 LOC changed where possible, per the repo's
 contribution guardrails (`README.md` §Contribution Guardrails).
+
+---
+
+## 6. Process decomposition updates for issues #123 / #129 / #134 / #136
+
+### 6.1 Issue #134 — widget location correction
+
+For V2 widget feature code, place the primary implementation at:
+
+- `CleverFerretV2/feature/widgets/src/main/java/com/cleverferret/v2/feature/widgets/widget/MediaLibraryWidget.kt`
+
+This path is canonical for this review cycle and should be used in follow-up
+widget PRs to avoid path churn.
+
+### 6.2 Issues #137 / #138 — split former PR #129 into reviewable units
+
+The prior unified changeset should be decomposed into three concern-focused PRs:
+
+1. **PR-129A: DB migration only**
+   - Room/SQL migration artifacts
+   - Schema version bumps and migration tests
+   - No domain mapping or rendering/asset pipeline edits
+2. **PR-129B: Domain logic only**
+   - Use-cases, repositories, mapping layers, and validation logic
+   - No schema rewrites, no artwork/background processing changes
+3. **PR-129C: Artwork pipeline only**
+   - Artwork fetch/transform/cache plumbing
+   - Rendering integration and fallback behavior
+   - No unrelated domain rules or migration payloads
+
+Each PR must include a short decomposition note in the PR body describing why
+those boundaries were preserved.
+
+### 6.3 Issue #135 — scope PR #123 to Plex authentication + dedicated tests
+
+For PR #123 (Plex work), include only:
+
+- Plex auth flow behavior (PIN/device-link/token exchange)
+- token persistence / invalidation logic directly tied to auth
+- dedicated auth tests (unit/integration) that verify success, expiry, and
+  failed-auth scenarios
+
+Explicitly exclude from this PR:
+
+- library sync expansion
+- media metadata ingestion
+- non-auth UI polish
+- unrelated networking refactors
+
+### 6.4 Issue #136 — CI validation gate for Android 14 widget background updates
+
+A dedicated CI check now validates widget provider XML constraints:
+
+- every widget provider must define `android:updatePeriodMillis`
+- values must be either `0` (event-driven) or `>= 1800000` ms (30 minutes)
+- any widget with `updatePeriodMillis=0` must define `android:resizeMode`
+
+Validation is enforced via:
+
+- `scripts/ci/validate_android14_widget_background_updates.py`
+- `.github/workflows/static-analysis.yml` (`Validate Android 14 widget background-update constraints` step)
