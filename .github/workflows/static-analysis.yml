@@ -49,6 +49,9 @@ jobs:
       - name: Check for raw console calls in app code
         run: ./scripts/check-no-raw-console.sh
 
+      - name: Validate Android 14 widget background-update constraints
+        run: ./scripts/ci/validate_android14_widget_background_updates.py
+
       - name: Run Android Lint
         run: ./gradlew lintDebug -Plint.abortOnError=true --no-daemon --stacktrace
 
