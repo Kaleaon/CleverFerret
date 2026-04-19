@@ -41,6 +41,7 @@ import com.universalmedialibrary.services.importer.ImportOperationLog
 import com.universalmedialibrary.services.importer.ImportOperationStatus
 import com.universalmedialibrary.services.importer.ImportTransactionLog
 import com.universalmedialibrary.services.importer.UndoSummary
+import com.universalmedialibrary.services.storage.StorageImportClassifier
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
@@ -61,6 +62,8 @@ class StorageAccessService @Inject constructor(
     private val fileNameSanitizer: FileNameSanitizer,
     private val filebotDataService: FilebotDataService
 ) {
+    private val importClassifier = StorageImportClassifier()
+
     private val importLogJson = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
@@ -75,10 +78,10 @@ class StorageAccessService @Inject constructor(
         const val PREF_PERSISTED_URIS = "persisted_uris"
 
         // Supported file extensions
-        val BOOK_EXTENSIONS = setOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx")
-        val AUDIO_EXTENSIONS = setOf("mp3", "m4a", "m4b", "aac", "ogg", "opus", "flac", "wav", "wma")
-        val VIDEO_EXTENSIONS = setOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "mpg", "mpeg")
-        val COMIC_EXTENSIONS = setOf("cbz", "cbr", "cb7", "cbt")
+        val BOOK_EXTENSIONS = StorageImportClassifier.BOOK_EXTENSIONS
+        val AUDIO_EXTENSIONS = StorageImportClassifier.AUDIO_EXTENSIONS
+        val VIDEO_EXTENSIONS = StorageImportClassifier.VIDEO_EXTENSIONS
+        val COMIC_EXTENSIONS = StorageImportClassifier.COMIC_EXTENSIONS
     }
 
     /**
@@ -991,26 +994,11 @@ class StorageAccessService @Inject constructor(
     }
 
     private fun determineMediaType(fileName: String): MediaType? {
-        val extension = fileName.substringAfterLast('.', "").lowercase()
-        return when {
-            extension in BOOK_EXTENSIONS -> MediaType.BOOK
-            extension in AUDIO_EXTENSIONS -> MediaType.MUSIC
-            extension in VIDEO_EXTENSIONS -> MediaType.MOVIE
-            extension in COMIC_EXTENSIONS -> MediaType.COMIC
-            else -> null
-        }
+        return importClassifier.determineMediaType(fileName)
     }
 
     private fun determineMediaTypeName(fileName: String): String {
-        val ext = fileName.substringAfterLast('.', "").lowercase()
-        return when {
-            ext in BOOK_EXTENSIONS -> "BOOK"
-            ext in AUDIO_EXTENSIONS -> "MUSIC"
-            ext in VIDEO_EXTENSIONS -> "MOVIE"
-            ext in COMIC_EXTENSIONS -> "COMIC"
-            ext.isNotBlank() -> "DOCUMENT"
-            else -> "OTHER"
-        }
+        return importClassifier.determineMediaTypeName(fileName)
     }
 
     private data class DerivedMetadata(
