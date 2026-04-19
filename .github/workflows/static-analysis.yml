@@ -32,12 +32,19 @@ jobs:
         with:
           cmdline-tools-version: 11076708
 
+      - name: Normalize Android SDK environment variables
+        run: |
+          SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
+          echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
+          echo "Using Android SDK at: $SDK_PATH"
+
       - name: Install required Android SDK packages
         run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;34.0.0" "platform-tools"
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;34.0.0" "platform-tools"
           echo "Installed SDK packages:"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --list_installed
 
       - name: Check for raw console calls in app code
         run: ./scripts/check-no-raw-console.sh
@@ -77,4 +84,3 @@ jobs:
 
       - name: Codacy Analysis CLI
         uses: codacy/codacy-analysis-cli-action@v4.4.7
-
