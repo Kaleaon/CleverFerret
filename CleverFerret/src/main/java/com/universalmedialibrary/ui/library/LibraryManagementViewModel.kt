@@ -5,17 +5,24 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.repository.LibraryRepository
+import com.universalmedialibrary.data.repository.MetadataFetchRepository
+import com.universalmedialibrary.data.repository.MetadataFetchResult
 import com.universalmedialibrary.services.CalibreExportService
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.services.CalibreImportService
+import com.universalmedialibrary.services.thumbnails.ThumbnailService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.net.Uri
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -27,11 +34,18 @@ class LibraryManagementViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val libraryRepository: LibraryRepository,
     private val calibreExportService: CalibreExportService,
-    private val mediaItemDao: MediaItemDao
+    private val mediaItemDao: MediaItemDao,
+    private val metadataDao: MetadataDao,
+    private val metadataFetchRepository: MetadataFetchRepository,
+    private val thumbnailService: ThumbnailService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LibraryManagementUiState>(LibraryManagementUiState.Success)
     val uiState: StateFlow<LibraryManagementUiState> = _uiState.asStateFlow()
+    private val _bulkMetadataTask = MutableStateFlow<LibraryBackgroundTaskState?>(null)
+    val bulkMetadataTask: StateFlow<LibraryBackgroundTaskState?> = _bulkMetadataTask.asStateFlow()
+    private val _bulkThumbnailTask = MutableStateFlow<LibraryBackgroundTaskState?>(null)
+    val bulkThumbnailTask: StateFlow<LibraryBackgroundTaskState?> = _bulkThumbnailTask.asStateFlow()
 
     val libraries: StateFlow<List<Library>> = libraryRepository.getAllActiveLibraries()
         .catch { throwable ->
@@ -244,6 +258,141 @@ class LibraryManagementViewModel @Inject constructor(
             _uiState.value = LibraryManagementUiState.Success
         }
     }
+
+    fun refreshAllMetadata() {
+        viewModelScope.launch {
+            val items = mediaItemDao.getAllMediaItems()
+            if (items.isEmpty()) {
+                _bulkMetadataTask.value = LibraryBackgroundTaskState.success(
+                    label = "Bulk metadata refresh",
+                    message = "No media items found"
+                )
+                return@launch
+            }
+            _bulkMetadataTask.value = LibraryBackgroundTaskState.queued("Bulk metadata refresh")
+            var completed = 0
+            var successCount = 0
+            var errorCount = 0
+            _bulkMetadataTask.value = LibraryBackgroundTaskState.running("Bulk metadata refresh", 0f, "Starting...")
+
+            items.forEach { item ->
+                when (val result = metadataFetchRepository.fetchMetadataForItem(item.itemId)) {
+                    is MetadataFetchResult.Success -> successCount++
+                    is MetadataFetchResult.Error -> errorCount++
+                }
+                completed++
+                _bulkMetadataTask.value = LibraryBackgroundTaskState.running(
+                    label = "Bulk metadata refresh",
+                    progress = completed.toFloat() / items.size.coerceAtLeast(1),
+                    message = "Processed $completed/${items.size} • Success: $successCount • Failed: $errorCount"
+                )
+            }
+
+            _bulkMetadataTask.value = if (errorCount > 0) {
+                LibraryBackgroundTaskState.failed(
+                    label = "Bulk metadata refresh",
+                    message = "Completed with $errorCount failures ($successCount succeeded)"
+                )
+            } else {
+                LibraryBackgroundTaskState.success(
+                    label = "Bulk metadata refresh",
+                    message = "Updated metadata for $successCount items"
+                )
+            }
+        }
+    }
+
+    fun regenerateAllThumbnails() {
+        viewModelScope.launch {
+            val items = mediaItemDao.getAllMediaItems()
+            if (items.isEmpty()) {
+                _bulkThumbnailTask.value = LibraryBackgroundTaskState.success(
+                    label = "Bulk thumbnail regeneration",
+                    message = "No media items found"
+                )
+                return@launch
+            }
+            _bulkThumbnailTask.value = LibraryBackgroundTaskState.queued("Bulk thumbnail regeneration")
+            var completed = 0
+            var successCount = 0
+            var errorCount = 0
+            _bulkThumbnailTask.value = LibraryBackgroundTaskState.running("Bulk thumbnail regeneration", 0f, "Starting...")
+
+            items.forEach { item ->
+                val result = runCatching {
+                    val existingMetadata = metadataDao.getMetadataCommonByItemId(item.itemId)
+                    val oldCoverPath = existingMetadata?.coverImagePath
+                    val oldThumbnailPath = item.thumbnailPath
+                    val sourceUri = when {
+                        item.filePath.startsWith("content://") || item.filePath.startsWith("file://") -> Uri.parse(item.filePath)
+                        else -> Uri.fromFile(File(item.filePath))
+                    }
+                    val file = when (item.fileExtension.lowercase()) {
+                        "epub" -> thumbnailService.extractCoverFromEpub(sourceUri)
+                        "cbz" -> thumbnailService.extractCoverFromCbz(sourceUri)
+                        else -> null
+                    } ?: thumbnailService.generatePlaceholder(item.fileName.substringBeforeLast('.'))
+
+                    val now = System.currentTimeMillis()
+                    val thumbnailPath = file.absolutePath
+
+                    mediaItemDao.updateMediaItem(
+                        item.copy(
+                            hasThumbnail = true,
+                            thumbnailPath = thumbnailPath,
+                            lastScanned = now
+                        )
+                    )
+                    val metadata = (existingMetadata ?: MetadataCommon(
+                        itemId = item.itemId,
+                        title = item.fileName.substringBeforeLast('.')
+                    )).copy(
+                        coverImagePath = thumbnailPath,
+                        lastUpdated = now
+                    )
+                    metadataDao.insertMetadataCommon(metadata)
+                    cleanupStaleCacheFile(oldCoverPath, thumbnailPath)
+                    cleanupStaleCacheFile(oldThumbnailPath, thumbnailPath)
+                }
+                if (result.isSuccess) successCount++ else errorCount++
+
+                completed++
+                _bulkThumbnailTask.value = LibraryBackgroundTaskState.running(
+                    label = "Bulk thumbnail regeneration",
+                    progress = completed.toFloat() / items.size.coerceAtLeast(1),
+                    message = "Processed $completed/${items.size} • Success: $successCount • Failed: $errorCount"
+                )
+            }
+
+            _bulkThumbnailTask.value = if (errorCount > 0) {
+                LibraryBackgroundTaskState.failed(
+                    label = "Bulk thumbnail regeneration",
+                    message = "Completed with $errorCount failures ($successCount succeeded)"
+                )
+            } else {
+                LibraryBackgroundTaskState.success(
+                    label = "Bulk thumbnail regeneration",
+                    message = "Regenerated thumbnails for $successCount items"
+                )
+            }
+        }
+    }
+
+    fun clearBulkTask(taskType: LibraryBackgroundTaskType) {
+        when (taskType) {
+            LibraryBackgroundTaskType.METADATA -> _bulkMetadataTask.value = null
+            LibraryBackgroundTaskType.THUMBNAIL -> _bulkThumbnailTask.value = null
+        }
+    }
+
+    private fun cleanupStaleCacheFile(oldPath: String?, newPath: String?) {
+        if (oldPath.isNullOrBlank() || oldPath == newPath) return
+        runCatching {
+            if (!oldPath.startsWith("http://") && !oldPath.startsWith("https://")) {
+                File(oldPath).takeIf { it.exists() }?.delete()
+            }
+        }
+    }
 }
 
 /**
@@ -253,4 +402,30 @@ sealed class LibraryManagementUiState {
     object Success : LibraryManagementUiState()
     object Loading : LibraryManagementUiState()
     data class Error(val message: String) : LibraryManagementUiState()
+}
+
+enum class LibraryBackgroundTaskStatus {
+    QUEUED,
+    RUNNING,
+    FAILED,
+    SUCCESS
+}
+
+enum class LibraryBackgroundTaskType {
+    METADATA,
+    THUMBNAIL
+}
+
+data class LibraryBackgroundTaskState(
+    val label: String,
+    val status: LibraryBackgroundTaskStatus,
+    val progress: Float,
+    val message: String? = null
+) {
+    companion object {
+        fun queued(label: String) = LibraryBackgroundTaskState(label, LibraryBackgroundTaskStatus.QUEUED, 0f)
+        fun running(label: String, progress: Float, message: String? = null) = LibraryBackgroundTaskState(label, LibraryBackgroundTaskStatus.RUNNING, progress, message)
+        fun failed(label: String, message: String) = LibraryBackgroundTaskState(label, LibraryBackgroundTaskStatus.FAILED, 1f, message)
+        fun success(label: String, message: String) = LibraryBackgroundTaskState(label, LibraryBackgroundTaskStatus.SUCCESS, 1f, message)
+    }
 }

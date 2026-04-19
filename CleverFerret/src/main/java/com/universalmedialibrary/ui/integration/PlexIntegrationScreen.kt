@@ -14,7 +14,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.universalmedialibrary.services.integration.plex.PlexConnectionResult
+import com.universalmedialibrary.services.integration.plex.PlexIntegrationService
+import com.universalmedialibrary.services.integration.plex.PlexSyncDiagnostics
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,11 +79,27 @@ fun MediaIntegrationScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                AuthSection(
+                    isAuthenticated = plexState.isAuthenticated,
+                    authenticatedUsername = plexState.authenticatedUsername,
+                    authStatus = plexState.authStatus,
+                    pendingPinCode = plexState.pendingPinCode,
+                    discoveredServers = plexState.discoveredServers,
+                    onStartPinAuth = viewModel::startPinAuth,
+                    onDiscoverServers = viewModel::discoverServers,
+                    onConnectDiscoveredServers = viewModel::connectDiscoveredServers,
+                    onSignOut = viewModel::signOut
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // Server Management
                 if (plexState.connectedServers.isNotEmpty()) {
                     ServerManagementSection(
                         connectedServers = plexState.connectedServers,
                         onSyncLibraries = { viewModel.syncAllLibraries() },
+                        selectedConflictPolicy = plexState.syncConflictPolicy,
+                        onSyncConflictPolicyChanged = viewModel::setSyncConflictPolicy,
                         onEnhanceMetadata = { serverName -> viewModel.enhanceLibraryMetadata(serverName) },
                         onFindDuplicates = { serverName -> viewModel.findDuplicateContent(serverName) },
                         onCreateCollections = { serverName -> viewModel.createSmartCollections(serverName) },
@@ -120,6 +140,15 @@ fun MediaIntegrationScreen(
                         title = "Collections Created",
                         message = "${plexState.collectionsCreated} smart collections created",
                         isError = false
+                    )
+                }
+
+                if (plexState.lastSyncDiagnostics != null || plexState.lastSyncTime > 0) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SyncDiagnosticsCard(
+                        status = plexState.syncStatus,
+                        lastSyncTime = plexState.lastSyncTime,
+                        diagnostics = plexState.lastSyncDiagnostics
                     )
                 }
             }
@@ -209,6 +238,8 @@ private fun ConnectionStatusCard(
 private fun ServerManagementSection(
     connectedServers: List<String>,
     onSyncLibraries: () -> Unit,
+    selectedConflictPolicy: PlexIntegrationService.SyncConflictPolicy,
+    onSyncConflictPolicyChanged: (PlexIntegrationService.SyncConflictPolicy) -> Unit,
     onEnhanceMetadata: (String) -> Unit,
     onFindDuplicates: (String) -> Unit,
     onCreateCollections: (String) -> Unit,
@@ -253,6 +284,36 @@ private fun ServerManagementSection(
                 }
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Conflict policy",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                PlexIntegrationService.SyncConflictPolicy.entries.forEachIndexed { index, policy ->
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index = index,
+                            count = PlexIntegrationService.SyncConflictPolicy.entries.size
+                        ),
+                        selected = selectedConflictPolicy == policy,
+                        onClick = { onSyncConflictPolicyChanged(policy) },
+                        label = {
+                            Text(
+                                text = when (policy) {
+                                    PlexIntegrationService.SyncConflictPolicy.SERVER_WINS -> "Server"
+                                    PlexIntegrationService.SyncConflictPolicy.LOCAL_WINS -> "Local"
+                                    PlexIntegrationService.SyncConflictPolicy.NEWER_WINS -> "Newer"
+                                }
+                            )
+                        }
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Per-Server Actions
@@ -273,6 +334,128 @@ private fun ServerManagementSection(
             }
         }
     }
+}
+
+@Composable
+private fun AuthSection(
+    isAuthenticated: Boolean,
+    authenticatedUsername: String?,
+    authStatus: String,
+    pendingPinCode: String?,
+    discoveredServers: List<String>,
+    onStartPinAuth: () -> Unit,
+    onDiscoverServers: () -> Unit,
+    onConnectDiscoveredServers: () -> Unit,
+    onSignOut: () -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Plex Account",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = if (isAuthenticated) {
+                    "Signed in as ${authenticatedUsername ?: "Plex user"}"
+                } else {
+                    "Not signed in"
+                },
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = authStatus,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (!pendingPinCode.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "PIN: $pendingPinCode (enter at plex.tv/link)",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            if (discoveredServers.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Discovered: ${discoveredServers.joinToString()}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (isAuthenticated) {
+                    OutlinedButton(onClick = onDiscoverServers) {
+                        Icon(Icons.Default.Search, contentDescription = "Discover")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Discover")
+                    }
+                    OutlinedButton(onClick = onConnectDiscoveredServers) {
+                        Icon(Icons.Default.Link, contentDescription = "Connect")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Connect")
+                    }
+                    TextButton(onClick = onSignOut) {
+                        Text("Sign out")
+                    }
+                } else {
+                    Button(onClick = onStartPinAuth) {
+                        Icon(Icons.Default.Login, contentDescription = "Sign in")
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Sign in with Plex PIN")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SyncDiagnosticsCard(
+    status: String,
+    lastSyncTime: Long,
+    diagnostics: PlexSyncDiagnostics?
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(
+                text = "Sync Diagnostics",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = status,
+                style = MaterialTheme.typography.bodySmall
+            )
+            if (lastSyncTime > 0) {
+                Text(
+                    text = "Last sync: ${formatTimestamp(lastSyncTime)}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            diagnostics?.let { info ->
+                Text("Policy: ${info.policy.name}", style = MaterialTheme.typography.bodySmall)
+                Text("Conflicts: ${info.conflictsDetected}", style = MaterialTheme.typography.bodySmall)
+                Text("Applied updates: ${info.updatesApplied}", style = MaterialTheme.typography.bodySmall)
+                Text("Skipped updates: ${info.updatesSkipped}", style = MaterialTheme.typography.bodySmall)
+                info.details.take(3).forEach { detail ->
+                    Text("• $detail", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+    }
+}
+
+private fun formatTimestamp(timestamp: Long): String {
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    return formatter.format(Date(timestamp))
 }
 
 @Composable
