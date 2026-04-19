@@ -1059,58 +1059,12 @@ fun MediaAppNavHost(
             )
         }
 
-        // Malformed/legacy route tolerance: if invoked without a source param, don't crash.
+        // Legacy compatibility: canonicalize old route without a source segment.
+        // Keeps existing deep links/callsites functional while consolidating browse state.
         composable("discover/webfiction") {
-            val title = stringResource(R.string.webfiction_browse_title_generic)
-            val snackbarMessage = stringResource(
-                R.string.webfiction_browse_not_implemented,
-                stringResource(R.string.webfiction_browse_source_unknown)
-            )
-
-            LaunchedEffect(snackbarMessage) {
-                onShowSnackbar(snackbarMessage)
-            }
-
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text(text = title) },
-                        navigationIcon = {
-                            IconButton(onClick = { navController.popBackStack() }) {
-                                Icon(
-                                    Icons.Default.ArrowBack,
-                                    contentDescription = stringResource(R.string.navigation_back)
-                                )
-                            }
-                        }
-                    )
-                }
-            ) { padding ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(
-                        text = stringResource(R.string.webfiction_browse_coming_soon),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.webfiction_browse_add_by_url_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Button(onClick = { navController.popBackStack() }) {
-                            Text(stringResource(R.string.navigation_back))
-                        }
-                        OutlinedButton(onClick = { navController.navigate(MediaRoutes.WEB_FICTION) }) {
-                            Text(stringResource(R.string.webfiction_browse_go_to_web_fiction))
-                        }
-                    }
+            LaunchedEffect(Unit) {
+                navController.navigate(MediaRoutes.webFictionBrowseRoute(source = "")) {
+                    popUpTo("discover/webfiction") { inclusive = true }
                 }
             }
         }
