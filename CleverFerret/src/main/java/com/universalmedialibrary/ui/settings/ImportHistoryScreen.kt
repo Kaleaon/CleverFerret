@@ -16,8 +16,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,6 +59,7 @@ fun ImportHistoryScreen(
     var reloadToken by remember { mutableStateOf(0) }
     var isUndoing by remember { mutableStateOf(false) }
     var undoingImportId by remember { mutableStateOf<String?>(null) }
+    var selectedImportDetails by remember { mutableStateOf<com.universalmedialibrary.services.importer.ImportTransactionLog?>(null) }
     val df = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
 
     val logs by produceState(initialValue = emptyList(), key1 = reloadToken) {
@@ -144,12 +148,45 @@ fun ImportHistoryScreen(
                                     )
                                     Text(if (undoingImportId == log.importId) "  Undoing…" else "  Undo")
                                 }
+                                OutlinedButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            selectedImportDetails = withContext(Dispatchers.IO) {
+                                                storageService.readImportLog(context, log.fileName)
+                                            }
+                                        }
+                                    }
+                                ) {
+                                    Text("View details")
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    selectedImportDetails?.let { details ->
+        AlertDialog(
+            onDismissRequest = { selectedImportDetails = null },
+            title = { Text("Import details") },
+            text = {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(details.operations.take(20)) { operation ->
+                        Text(
+                            "${operation.status.name}: ${operation.sourceUri} → ${operation.destUri}",
+                            style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { selectedImportDetails = null }) {
+                    Text("Close")
+                }
+            }
+        )
     }
 }
 
@@ -158,4 +195,3 @@ fun ImportHistoryScreen(
 interface ImportHistoryEntryPoint {
     fun storageService(): StorageAccessService
 }
-

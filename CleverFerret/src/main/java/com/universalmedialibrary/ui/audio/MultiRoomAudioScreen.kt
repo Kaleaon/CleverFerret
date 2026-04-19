@@ -22,6 +22,7 @@ import com.universalmedialibrary.data.local.entity.AudioSyncServer
 @Composable
 fun MultiRoomAudioScreen(
     onBack: () -> Unit,
+    onOpenRoomChat: (String) -> Unit = {},
     viewModel: MultiRoomAudioViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -99,7 +100,8 @@ fun MultiRoomAudioScreen(
                             AudioGroupCard(
                                 group = group,
                                 onVolumeChange = { viewModel.setGroupVolume(group, it) },
-                                onDelete = { viewModel.deleteGroup(group) }
+                                onDelete = { viewModel.deleteGroup(group) },
+                                onOpenChat = { onOpenRoomChat(group.groupName) }
                             )
                         }
                     }
@@ -161,7 +163,8 @@ fun MultiRoomAudioScreen(
 fun AudioGroupCard(
     group: AudioSyncGroup,
     onVolumeChange: (Int) -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onOpenChat: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -179,6 +182,9 @@ fun AudioGroupCard(
                 )
                 IconButton(onClick = onDelete) {
                     Icon(Icons.Default.Delete, "Delete Group")
+                }
+                IconButton(onClick = onOpenChat) {
+                    Icon(Icons.Default.Chat, "Open Room Chat")
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))

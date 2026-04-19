@@ -130,6 +130,10 @@ enum class ViewMode {
     GRID
 }
 
+private enum class PendingFileOperation { COPY, MOVE }
+
+private enum class FileConflictChoice { REPLACE, KEEP_BOTH, SKIP }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnhancedFileBrowser(
@@ -153,9 +157,13 @@ fun EnhancedFileBrowser(
     var showSettings by remember { mutableStateOf(false) }
     var showFavoriteFolders by remember { mutableStateOf(false) }
     var favoriteFolders by remember { mutableStateOf<List<String>>(emptyList()) }
+    var showFileOpsSheet by remember { mutableStateOf(false) }
     var showCopyDialog by remember { mutableStateOf(false) }
     var showMoveDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var pendingOperation by remember { mutableStateOf<PendingFileOperation?>(null) }
+    var conflictFile by remember { mutableStateOf<File?>(null) }
+    var conflictChoice by remember { mutableStateOf(FileConflictChoice.KEEP_BOTH) }
     var fileItems by remember { mutableStateOf<List<FileItem>>(emptyList()) }
     var loadingError by remember { mutableStateOf<String?>(null) }
     
@@ -283,10 +291,12 @@ fun EnhancedFileBrowser(
             SelectionBar(
                 selectedCount = selectedFiles.size,
                 onCopy = { 
-                    showCopyDialog = true
+                    pendingOperation = PendingFileOperation.COPY
+                    showFileOpsSheet = true
                 },
                 onMove = { 
-                    showMoveDialog = true
+                    pendingOperation = PendingFileOperation.MOVE
+                    showFileOpsSheet = true
                 },
                 onDelete = { 
                     showDeleteConfirmation = true
@@ -295,9 +305,36 @@ fun EnhancedFileBrowser(
             )
         }
         
+        if (showFileOpsSheet) {
+            BottomSheetDialog(
+                onDismissRequest = {
+                    showFileOpsSheet = false
+                    pendingOperation = null
+                },
+                title = "File operations"
+            ) {
+                ListItem(
+                    headlineContent = { Text("Copy ${selectedFiles.size} file(s)") },
+                    leadingContent = { Icon(Icons.Default.ContentCopy, contentDescription = null) },
+                    modifier = Modifier.clickable {
+                        showCopyDialog = true
+                        showFileOpsSheet = false
+                    }
+                )
+                ListItem(
+                    headlineContent = { Text("Move ${selectedFiles.size} file(s)") },
+                    leadingContent = { Icon(Icons.Default.DriveFileMove, contentDescription = null) },
+                    modifier = Modifier.clickable {
+                        showMoveDialog = true
+                        showFileOpsSheet = false
+                    }
+                )
+            }
+        }
+
         // Copy dialog
         if (showCopyDialog) {
-            AlertDialog(
+            FormDialog(
                 onDismissRequest = { showCopyDialog = false },
                 title = { Text("Copy ${selectedFiles.size} file(s)") },
                 text = { 
@@ -318,16 +355,25 @@ fun EnhancedFileBrowser(
                                     try {
                                         val destFile = File(currentDirectory, file.name)
                                         if (destFile.exists()) {
-                                            // Add number suffix if file exists
-                                            var counter = 1
-                                            var newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
-                                            var newFile = File(currentDirectory, newName)
-                                            while (newFile.exists()) {
-                                                counter++
-                                                newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
-                                                newFile = File(currentDirectory, newName)
+                                            conflictFile = file
+                                            val target = when (conflictChoice) {
+                                                FileConflictChoice.REPLACE -> destFile
+                                                FileConflictChoice.KEEP_BOTH -> {
+                                                    var counter = 1
+                                                    var newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
+                                                    var newFile = File(currentDirectory, newName)
+                                                    while (newFile.exists()) {
+                                                        counter++
+                                                        newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
+                                                        newFile = File(currentDirectory, newName)
+                                                    }
+                                                    newFile
+                                                }
+                                                FileConflictChoice.SKIP -> null
                                             }
-                                            file.copyTo(newFile, overwrite = false)
+                                            if (target != null) {
+                                                file.copyTo(target, overwrite = conflictChoice == FileConflictChoice.REPLACE)
+                                            }
                                         } else {
                                             file.copyTo(destFile, overwrite = false)
                                         }
@@ -359,7 +405,7 @@ fun EnhancedFileBrowser(
         
         // Move dialog
         if (showMoveDialog) {
-            AlertDialog(
+            FormDialog(
                 onDismissRequest = { showMoveDialog = false },
                 title = { Text("Move ${selectedFiles.size} file(s)") },
                 text = { 
@@ -380,16 +426,23 @@ fun EnhancedFileBrowser(
                                     try {
                                         val destFile = File(currentDirectory, file.name)
                                         if (destFile.exists()) {
-                                            // Add number suffix if file exists
-                                            var counter = 1
-                                            var newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
-                                            var newFile = File(currentDirectory, newName)
-                                            while (newFile.exists()) {
-                                                counter++
-                                                newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
-                                                newFile = File(currentDirectory, newName)
+                                            conflictFile = file
+                                            val target = when (conflictChoice) {
+                                                FileConflictChoice.REPLACE -> destFile
+                                                FileConflictChoice.KEEP_BOTH -> {
+                                                    var counter = 1
+                                                    var newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
+                                                    var newFile = File(currentDirectory, newName)
+                                                    while (newFile.exists()) {
+                                                        counter++
+                                                        newName = "${file.nameWithoutExtension}_$counter.${file.extension}"
+                                                        newFile = File(currentDirectory, newName)
+                                                    }
+                                                    newFile
+                                                }
+                                                FileConflictChoice.SKIP -> null
                                             }
-                                            file.renameTo(newFile)
+                                            if (target != null) file.renameTo(target)
                                         } else {
                                             file.renameTo(destFile)
                                         }
@@ -414,6 +467,34 @@ fun EnhancedFileBrowser(
                 dismissButton = {
                     TextButton(onClick = { showMoveDialog = false }) {
                         Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        if (conflictFile != null) {
+            FormDialog(
+                onDismissRequest = { conflictFile = null },
+                title = { Text("File name conflict") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("A file named ${conflictFile?.name} already exists.")
+                        Text("Choose how to continue.")
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { conflictChoice = FileConflictChoice.REPLACE; conflictFile = null }) {
+                        Text("Replace", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    Row {
+                        TextButton(onClick = { conflictChoice = FileConflictChoice.KEEP_BOTH; conflictFile = null }) {
+                            Text("Keep both")
+                        }
+                        TextButton(onClick = { conflictChoice = FileConflictChoice.SKIP; conflictFile = null }) {
+                            Text("Skip")
+                        }
                     }
                 }
             )
@@ -1081,6 +1162,46 @@ private fun FavoriteFoldersDialog(
         confirmButton = {
             TextButton(onClick = onDismiss) { Text("Close") }
         }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BottomSheetDialog(
+    onDismissRequest: () -> Unit,
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismissRequest) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            content()
+        }
+    }
+}
+
+@Composable
+private fun FormDialog(
+    onDismissRequest: () -> Unit,
+    title: @Composable () -> Unit,
+    text: @Composable () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    dismissButton: @Composable (() -> Unit)? = null
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = title,
+        text = text,
+        confirmButton = confirmButton,
+        dismissButton = dismissButton
     )
 }
 
