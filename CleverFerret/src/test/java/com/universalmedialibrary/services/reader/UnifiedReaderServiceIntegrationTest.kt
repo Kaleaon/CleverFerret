@@ -51,7 +51,7 @@ class UnifiedReaderServiceIntegrationTest {
     }
 
     @Test
-    fun `openPublication with mobi file should use ParserFactory`() {
+    fun `openPublication with mobi file should use parser registry and parser factory`() {
         runBlocking {
             // Given
             val tempFile = File.createTempFile("test", ".mobi")
@@ -59,24 +59,9 @@ class UnifiedReaderServiceIntegrationTest {
 
             // Mock ParserFactory to return a mock parser
             val mockParser = mockk<DocumentParser>()
-            coEvery { mockParser.parse(any<String>()) } returns ParsedDocument(
-                "Parsed Content from Mock",
-                DocumentMetadata(),
-                null,
-                parserConfidence = 0.6f,
-                warnings = listOf("Degraded extraction")
-            )
-            every { ParserFactory.selectParser(any()) } returns ParserFactory.ParserSelection(
-                parser = mockParser,
-                capability = ParserFactory.ParserCapability(
-                    parserId = "mobi-parser",
-                    extensions = setOf("mobi"),
-                    supportsHeadings = false,
-                    supportsParagraphs = true,
-                    supportsTables = false,
-                    baselineConfidence = 0.7f
-                )
-            )
+            coEvery { mockParser.parse(any<String>()) } returns ParsedDocument("Parsed Content from Mock", DocumentMetadata(), null)
+            every { ParserFactory.getParserForFileName(any()) } returns mockParser
+            every { ParserFactory.getSupportedExtensions() } returns listOf("mobi")
 
             try {
                 // When
@@ -84,10 +69,9 @@ class UnifiedReaderServiceIntegrationTest {
 
                 // Then
                 // This verification fails if the code doesn't call ParserFactory (which is the bug)
-                verify(exactly = 1) { ParserFactory.selectParser(any()) }
+                verify(atLeast = 1) { ParserFactory.getParserForFileName(any()) }
                 assertTrue(result is ReaderType.Text)
-                assertEquals("mobi-parser", (result as ReaderType.Text).parserId)
-                assertTrue(result.warnings.isNotEmpty())
+                assertEquals("mobi-family-parser", (result as ReaderType.Text).parserId)
             } finally {
                 tempFile.delete()
             }

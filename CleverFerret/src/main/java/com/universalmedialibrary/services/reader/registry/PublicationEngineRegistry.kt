@@ -84,6 +84,13 @@ sealed class RenderResult {
     data class Failure(val rendererId: String, val error: RoutingError) : RenderResult()
 }
 
+data class DocumentRenderPayload(
+    val content: String,
+    val chapterTitles: List<String> = emptyList(),
+    val progressUnitCount: Int = 0,
+    val metadata: Map<String, String> = emptyMap()
+)
+
 sealed class SessionResult {
     data class Opened(val sessionId: String, val engineId: String) : SessionResult()
     data class Failed(val error: RoutingError) : SessionResult()
@@ -364,7 +371,36 @@ class ParserFactoryAdapter(
     }
 
     override suspend fun render(request: PublicationRequest, parserResult: ParserResult): RenderResult {
-        return RenderResult.Success(id, parserResult)
+        val parsed = (parserResult as? ParserResult.Success)?.payload
+        val document = parsed as? com.universalmedialibrary.parsers.ParsedDocument
+            ?: return RenderResult.Failure(
+                rendererId = id,
+                error = RoutingError(
+                    stage = RoutingStage.RANKING,
+                    code = "RENDER_UNSUPPORTED_PAYLOAD",
+                    message = "Parser payload is not renderable for $id"
+                )
+            )
+
+        val chapters = document.structure?.chapters?.map { it.title }?.filter { it.isNotBlank() }.orEmpty()
+        val progressUnits = when {
+            document.metadata.pageCount != null && document.metadata.pageCount > 0 -> document.metadata.pageCount
+            chapters.isNotEmpty() -> chapters.size
+            else -> document.content.split("\\s+".toRegex()).count { it.isNotBlank() }.coerceAtLeast(1) / 250
+        }.coerceAtLeast(1)
+
+        return RenderResult.Success(
+            rendererId = id,
+            payload = DocumentRenderPayload(
+                content = document.content,
+                chapterTitles = chapters,
+                progressUnitCount = progressUnits,
+                metadata = mapOf(
+                    "format" to (document.metadata.format ?: "unknown"),
+                    "title" to (document.metadata.title ?: "")
+                )
+            )
+        )
     }
 
     override suspend fun open(request: PublicationRequest): SessionResult {
