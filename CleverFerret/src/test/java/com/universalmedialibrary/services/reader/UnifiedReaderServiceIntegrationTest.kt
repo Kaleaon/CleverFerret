@@ -59,8 +59,24 @@ class UnifiedReaderServiceIntegrationTest {
 
             // Mock ParserFactory to return a mock parser
             val mockParser = mockk<DocumentParser>()
-            coEvery { mockParser.parse(any<String>()) } returns ParsedDocument("Parsed Content from Mock", DocumentMetadata(), null)
-            every { ParserFactory.getParser(any()) } returns mockParser
+            coEvery { mockParser.parse(any<String>()) } returns ParsedDocument(
+                "Parsed Content from Mock",
+                DocumentMetadata(),
+                null,
+                parserConfidence = 0.6f,
+                warnings = listOf("Degraded extraction")
+            )
+            every { ParserFactory.selectParser(any()) } returns ParserFactory.ParserSelection(
+                parser = mockParser,
+                capability = ParserFactory.ParserCapability(
+                    parserId = "mobi-parser",
+                    extensions = setOf("mobi"),
+                    supportsHeadings = false,
+                    supportsParagraphs = true,
+                    supportsTables = false,
+                    baselineConfidence = 0.7f
+                )
+            )
 
             try {
                 // When
@@ -68,7 +84,10 @@ class UnifiedReaderServiceIntegrationTest {
 
                 // Then
                 // This verification fails if the code doesn't call ParserFactory (which is the bug)
-                verify(exactly = 1) { ParserFactory.getParser(any()) }
+                verify(exactly = 1) { ParserFactory.selectParser(any()) }
+                assertTrue(result is ReaderType.Text)
+                assertEquals("mobi-parser", (result as ReaderType.Text).parserId)
+                assertTrue(result.warnings.isNotEmpty())
             } finally {
                 tempFile.delete()
             }

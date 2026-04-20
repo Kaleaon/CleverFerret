@@ -52,6 +52,9 @@ jobs:
       - name: Validate Android 14 widget background-update constraints
         run: ./scripts/ci/validate_android14_widget_background_updates.py
 
+      - name: Check docs local links
+        run: ./scripts/ci/check_doc_links.py
+
       - name: Run Android Lint
         run: ./gradlew lintDebug -Plint.abortOnError=true --no-daemon --stacktrace
 
