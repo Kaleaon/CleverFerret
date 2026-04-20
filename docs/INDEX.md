@@ -179,6 +179,14 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ---
 
+## 🏛️ Status Governance
+
+- `CleverFerretV2/docs/v2/feature-matrix.md` is the canonical active planning status source.
+- Any PR that changes capability status/target/ownership must update the matrix and every impacted summary document in the same PR (for example: `docs/FEATURES_STATUS.md`, `docs/ROADMAP.md`, `docs/REPOSITORY_STATUS_REPORT.md`, and parser summaries).
+- Status terms in planning/status docs must use the shared taxonomy verbatim: `Ready`, `Partial`, `Stub`, `Planned`, `Archived`.
+
+---
+
 ## 📝 Contributing to Documentation
 
 When adding new documentation:
