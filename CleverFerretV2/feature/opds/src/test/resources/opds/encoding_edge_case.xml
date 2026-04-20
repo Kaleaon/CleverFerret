@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Encoded Feed</title>
+    <entry>
+        <id>enc-1</id>
+        <title>Fran&#231;ais &amp; Espa&#241;ol</title>
+        <author><name>Ni&#241;o</name></author>
+        <link rel="http://opds-spec.org/acquisition" href="https://example.org/book.epub" type="application/epub+zip"/>
+    </entry>
+</feed>
