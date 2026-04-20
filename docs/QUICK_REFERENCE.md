@@ -162,6 +162,7 @@ Before committing:
 - [ ] Network requests use HTTPS
 - [ ] Sensitive data properly encrypted
 - [ ] Permissions properly requested
+- [ ] Link validity checked for `docs/**/*.md` (no missing local links)
 
 See [SECURITY_PRACTICES.md](security/SECURITY_PRACTICES.md) for details.
 

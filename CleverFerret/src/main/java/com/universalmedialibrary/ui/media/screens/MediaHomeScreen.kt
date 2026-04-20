@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.testTag
 import coil.compose.AsyncImage
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.*
+import com.universalmedialibrary.ui.media.navigation.HomeSectionRouteContract
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
 import kotlinx.coroutines.delay
@@ -318,7 +319,7 @@ fun MediaHomeScreen(
                             MediaCarouselRow(
                                 title = "Recently Added Comics",
                                 items = state.recentComics,
-                                onSeeAllClick = { onSeeAllClick(MediaRoutes.COMICS) }
+                                onSeeAllClick = { onSeeAllClick(HomeSectionRouteContract.COMICS.seeAllRoute()) }
                             ) { item ->
                                 MediaPosterCard(
                                     item = item,
@@ -413,7 +414,7 @@ fun MediaHomeScreen(
                             MediaCarouselRow(
                                 title = "Recently Added Comics",
                                 items = state.recentComics,
-                                onSeeAllClick = { onSeeAllClick(MediaRoutes.COMICS) }
+                                onSeeAllClick = { onSeeAllClick(HomeSectionRouteContract.COMICS.seeAllRoute()) }
                             ) { item ->
                                 MediaPosterCard(
                                     item = item,
@@ -437,7 +438,7 @@ fun MediaHomeScreen(
                             MediaCarouselRow(
                                 title = "Web Fiction Updates",
                                 items = state.recentFanfiction,
-                                onSeeAllClick = { onSeeAllClick(MediaRoutes.WEB_FICTION) }
+                                onSeeAllClick = { onSeeAllClick(HomeSectionRouteContract.WEB_FICTION.seeAllRoute()) }
                             ) { item ->
                                 MediaPosterCard(
                                     item = item,
