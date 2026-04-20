@@ -1,13 +1,23 @@
-# CleverFerret V2 Feature Matrix
+# CleverFerret V2 Feature Matrix (Canonical Active Planning Source)
 
-This matrix is seeded from:
-- `docs/FEATURES_STATUS.md`
-- `docs/FEATURES.md`
-- `docs/REPOSITORY_STATUS_REPORT.md`
+**Canonical status source for active planning:** This file is the authoritative source of capability readiness, release targeting, ownership, and validation requirements for active work.
 
-Use this document as the single V2 planning source for capability readiness, ownership, release targeting, and required validation.
+**Last verified date:** 2026-04-19  
+**Verifier:** GPT-5.3-Codex
 
-| Capability | Current status (Ready / Partial / Stub / Planned) | V2 target release | Owner module | Test coverage required | External dependency/API key needed |
+## Status taxonomy (verbatim)
+
+Use this taxonomy exactly (spelling/case) in all status and planning documents:
+
+- `Ready` — Implemented and validated for the listed target release.
+- `Partial` — Implemented in part; additional integration, validation, or hardening is still required.
+- `Stub` — Placeholder or scaffold exists, but production implementation is not complete.
+- `Planned` — Not implemented yet; explicitly scheduled for future work.
+- `Archived` — Not active; retained for historical reference only.
+
+## Active capability matrix
+
+| Capability | Current status | V2 target release | Owner module | Test coverage required | External dependency/API key needed |
 |---|---|---|---|---|---|
 | EPUB reading | Ready | V2.0 | `feature/reader` | Unit + integration + reader UI smoke tests | None |
 | PDF reading | Ready | V2.0 | `feature/reader` | Unit + integration + rendering regression tests | None |
