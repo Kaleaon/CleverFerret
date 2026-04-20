@@ -88,13 +88,16 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ---
 
-## 📋 Planning & Roadmap
+## 📋 Planning Workstreams
 
-- [TODO](planning/TODO.md) - Detailed task list and roadmap
-- [Kotlin Conversion TODO](planning/KOTLIN_CONVERSION_TODO.md) - Pure Kotlin conversion plan
-- [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - PWA and app improvements list
+### Active Android (current)
+- [Android Active Backlog](planning/ANDROID_ACTIVE_BACKLOG.md) - Canonical active backlog for app-module and V2 scope
+- [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Prioritized Android issue triage and sequencing
+- [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Currently reproducible build/toolchain issues
+- [ROADMAP](ROADMAP.md) - Forward-looking product direction
 
----
+### Archived PWA / Historical planning
+- [Archived Improvements Needed](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md) - Former PWA-focused improvement plan (archived)
 
 ## 🔍 Analysis & Research
 

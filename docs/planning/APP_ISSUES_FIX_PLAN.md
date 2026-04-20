@@ -1,3 +1,5 @@
+# Scope: ACTIVE_ANDROID
+
 # CleverFerret — App Issues Review & Fix Plan
 
 **Date:** 2026-04-19
