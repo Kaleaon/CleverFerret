@@ -6,8 +6,8 @@ This file is the single source of truth for TODO items discovered in review docu
 
 ### TDR-001 — Notifications action from app navigation
 - **Source doc and line context:**
-  - `docs/reviews/ui_design_review.md` (lines 215-219, TODO examples block)
-  - `docs/reviews/recommendations.md` (lines 86-91, Identified TODOs list)
+  - [`docs/reviews/ui_design_review.md` — “7. TODO Comments Indicating Incomplete Features”](../reviews/ui_design_review.md#7-todo-comments-indicating-incomplete-features)
+  - [`docs/reviews/recommendations.md` — “3. Complete or Remove TODO Features”](../reviews/recommendations.md#3-complete-or-remove-todo-features)
 - **Affected module/path:** `CleverFerret/src/main/java/com/universalmedialibrary/ui/media/navigation/MediaAppNavigation.kt`
 - **Priority:** P1
 - **Owner:** `@unassigned`
@@ -15,8 +15,8 @@ This file is the single source of truth for TODO items discovered in review docu
 
 ### TDR-002 — Search category-filtered results navigation
 - **Source doc and line context:**
-  - `docs/reviews/ui_design_review.md` (lines 215-219, TODO examples block)
-  - `docs/reviews/recommendations.md` (lines 86-91, Identified TODOs list)
+  - [`docs/reviews/ui_design_review.md` — “7. TODO Comments Indicating Incomplete Features”](../reviews/ui_design_review.md#7-todo-comments-indicating-incomplete-features)
+  - [`docs/reviews/recommendations.md` — “3. Complete or Remove TODO Features”](../reviews/recommendations.md#3-complete-or-remove-todo-features)
 - **Affected module/path:** `CleverFerret/src/main/java/com/universalmedialibrary/ui/media/screens/SearchScreen.kt`
 - **Priority:** P1
 - **Owner:** `@unassigned`
@@ -24,8 +24,8 @@ This file is the single source of truth for TODO items discovered in review docu
 
 ### TDR-003 — Document import details action
 - **Source doc and line context:**
-  - `docs/reviews/ui_design_review.md` (lines 215-219, TODO examples block)
-  - `docs/reviews/recommendations.md` (lines 86-91, Identified TODOs list)
+  - [`docs/reviews/ui_design_review.md` — “7. TODO Comments Indicating Incomplete Features”](../reviews/ui_design_review.md#7-todo-comments-indicating-incomplete-features)
+  - [`docs/reviews/recommendations.md` — “3. Complete or Remove TODO Features”](../reviews/recommendations.md#3-complete-or-remove-todo-features)
 - **Affected module/path:** `CleverFerret/src/main/java/com/universalmedialibrary/ui/document/DocumentImportScreen.kt`
 - **Priority:** P2
 - **Owner:** `@unassigned`
@@ -33,8 +33,8 @@ This file is the single source of truth for TODO items discovered in review docu
 
 ### TDR-004 — Rooms screen chat navigation
 - **Source doc and line context:**
-  - `docs/reviews/ui_design_review.md` (lines 215-219, TODO examples block)
-  - `docs/reviews/recommendations.md` (lines 86-91, Identified TODOs list)
+  - [`docs/reviews/ui_design_review.md` — “7. TODO Comments Indicating Incomplete Features”](../reviews/ui_design_review.md#7-todo-comments-indicating-incomplete-features)
+  - [`docs/reviews/recommendations.md` — “3. Complete or Remove TODO Features”](../reviews/recommendations.md#3-complete-or-remove-todo-features)
 - **Affected module/path:** `CleverFerret/src/main/java/com/universalmedialibrary/ui/rooms/RoomsScreen.kt`
 - **Priority:** P2
 - **Owner:** `@unassigned`
@@ -42,8 +42,8 @@ This file is the single source of truth for TODO items discovered in review docu
 
 ### TDR-005 — Enhanced file browser copy flow
 - **Source doc and line context:**
-  - `docs/reviews/ui_design_review.md` (line 219, copy/move TODO mention)
-  - `docs/reviews/recommendations.md` (line 91, copy/move TODO mention)
+  - [`docs/reviews/ui_design_review.md` — “7. TODO Comments Indicating Incomplete Features”](../reviews/ui_design_review.md#7-todo-comments-indicating-incomplete-features)
+  - [`docs/reviews/recommendations.md` — “3. Complete or Remove TODO Features”](../reviews/recommendations.md#3-complete-or-remove-todo-features)
 - **Affected module/path:** `CleverFerret/src/main/java/com/universalmedialibrary/ui/filebrowser/EnhancedFileBrowser.kt`
 - **Priority:** P1
 - **Owner:** `@unassigned`
@@ -51,8 +51,8 @@ This file is the single source of truth for TODO items discovered in review docu
 
 ### TDR-006 — Enhanced file browser move flow
 - **Source doc and line context:**
-  - `docs/reviews/ui_design_review.md` (line 219, copy/move TODO mention)
-  - `docs/reviews/recommendations.md` (line 91, copy/move TODO mention)
+  - [`docs/reviews/ui_design_review.md` — “7. TODO Comments Indicating Incomplete Features”](../reviews/ui_design_review.md#7-todo-comments-indicating-incomplete-features)
+  - [`docs/reviews/recommendations.md` — “3. Complete or Remove TODO Features”](../reviews/recommendations.md#3-complete-or-remove-todo-features)
 - **Affected module/path:** `CleverFerret/src/main/java/com/universalmedialibrary/ui/filebrowser/EnhancedFileBrowser.kt`
 - **Priority:** P1
 - **Owner:** `@unassigned`
