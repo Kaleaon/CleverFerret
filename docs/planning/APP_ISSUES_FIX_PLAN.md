@@ -1,3 +1,5 @@
+# Scope: ACTIVE_ANDROID
+
 # CleverFerret — App Issues Review & Fix Plan
 
 **Date:** 2026-04-19
@@ -54,6 +56,17 @@ review. This plan is a proposal — no source code has been changed yet.
 
 ## 3. Prioritized Fix Plan
 
+### UI acceptance requirement (applies to all UI backlog items)
+
+All UI backlog items in this plan must include explicit acceptance criteria
+referencing:
+
+- `DesignTokensV1`
+- `KthemeThemeAdapterV1`
+- `AccessibilityAcceptanceV1`
+
+Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
+
 ### Priority P0 — Crashes & data-loss (ship first)
 
 1. **#483 National Screening Room crash**
@@ -91,6 +104,10 @@ review. This plan is a proposal — no source code has been changed yet.
    - Fix covers: verify `imageUrl` is an absolute URI that Coil can resolve
      (`file://`, `content://`, or `https://`). Add an `error` and
      `placeholder` to every `AsyncImage`.
+   - **UI Acceptance Criteria (Mandatory):** `DesignTokensV1`,
+     `KthemeThemeAdapterV1`, `AccessibilityAcceptanceV1`; semantic color roles
+     only; 4dp spacing scale; dynamic type up to 200%; focus order/TalkBack
+     labels.
 
 5. **#479 "click one, mark all" in downloads**
    - Grep for all `LazyColumn`/`LazyVerticalGrid`/`HorizontalPager` usages in
@@ -98,6 +115,10 @@ review. This plan is a proposal — no source code has been changed yet.
    - Every `items(...)` block must pass `key = { it.id }` (stable, unique).
    - For Compose state per row, use `rememberSaveable(key = it.id)` not
      `remember { mutableStateOf(...) }` bound to list position.
+   - **UI Acceptance Criteria (Mandatory):** `DesignTokensV1`,
+     `KthemeThemeAdapterV1`, `AccessibilityAcceptanceV1`; semantic color roles
+     only; 4dp spacing scale; dynamic type up to 200%; focus order/TalkBack
+     labels.
 
 6. **#478 "standalone coroutine cancelled" toast**
    - Find the global `CoroutineExceptionHandler` (likely in
@@ -105,6 +126,10 @@ review. This plan is a proposal — no source code has been changed yet.
      `CancellationException` before forwarding to the bug reporter / toast.
    - Confirm `SearchViewModel.performSearch` is not the source; it already
      re-throws correctly (line 155).
+   - **UI Acceptance Criteria (Mandatory):** `DesignTokensV1`,
+     `KthemeThemeAdapterV1`, `AccessibilityAcceptanceV1`; semantic color roles
+     only; 4dp spacing scale; dynamic type up to 200%; focus order/TalkBack
+     labels.
 
 7. **#477 podcast subscribe popup**
    - Trace `PodcastSearchResult.feedUrl` population from the iTunes/Podcast
@@ -112,6 +137,10 @@ review. This plan is a proposal — no source code has been changed yet.
      instead of surfacing as a subscribable item.
    - When validation *does* fail, downgrade the message from a modal warning
      to an inline snackbar.
+   - **UI Acceptance Criteria (Mandatory):** `DesignTokensV1`,
+     `KthemeThemeAdapterV1`, `AccessibilityAcceptanceV1`; semantic color roles
+     only; 4dp spacing scale; dynamic type up to 200%; focus order/TalkBack
+     labels.
 
 ### Priority P2 — OPDS reliability
 
@@ -132,16 +161,24 @@ review. This plan is a proposal — no source code has been changed yet.
      search bar as the centered title composable.
    - Align the navigation icon (hamburger) at the leading slot with
      `NavigationIcon` + consistent 8dp start padding.
+   - **UI Acceptance Criteria (Mandatory):** `DesignTokensV1`,
+     `KthemeThemeAdapterV1`, `AccessibilityAcceptanceV1`; semantic color roles
+     only; 4dp spacing scale; dynamic type up to 200%; focus order/TalkBack
+     labels.
 
 ### Priority P4 — Architecture / UX consolidation (#485)
 
 10. **Unify "libraries"**
-    - Document the current surfaces: Home, My Library, per-type (Books/Music/
-      etc.) — clarify which are destinations vs. filters.
-    - Replace the per-type top-level destinations with a single **Library**
-      screen that hosts category chips (Books · Audiobooks · Music · ...).
-    - Phase-one change only touches navigation graph + bottom bar; no data
-      layer changes.
+   - Document the current surfaces: Home, My Library, per-type (Books/Music/
+     etc.) — clarify which are destinations vs. filters.
+   - Replace the per-type top-level destinations with a single **Library**
+     screen that hosts category chips (Books · Audiobooks · Music · ...).
+   - Phase-one change only touches navigation graph + bottom bar; no data
+     layer changes.
+   - **UI Acceptance Criteria (Mandatory):** `DesignTokensV1`,
+     `KthemeThemeAdapterV1`, `AccessibilityAcceptanceV1`; semantic color roles
+     only; 4dp spacing scale; dynamic type up to 200%; focus order/TalkBack
+     labels.
 
 ### Priority P5 — Process / meta
 
