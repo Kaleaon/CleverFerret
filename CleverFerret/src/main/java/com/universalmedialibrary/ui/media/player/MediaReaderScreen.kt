@@ -110,7 +110,8 @@ fun MediaReaderScreen(
             theme = state.theme,
             typography = state.typography,
             isComic = state.isComic,
-            currentPage = state.currentPage
+            currentPage = state.currentPage,
+            degradedWarning = state.degradedParseWarning
         )
         
         // Animated top bar
@@ -217,7 +218,8 @@ private fun ReaderContent(
     theme: ReaderTheme,
     typography: ReaderTypography,
     isComic: Boolean,
-    currentPage: Int
+    currentPage: Int,
+    degradedWarning: String?
 ) {
     if (isComic) {
         // Comic/manga page view
@@ -240,6 +242,23 @@ private fun ReaderContent(
                     .padding(horizontal = typography.marginHorizontal.dp),
                 contentPadding = PaddingValues(vertical = typography.marginVertical.dp)
             ) {
+                if (!degradedWarning.isNullOrBlank()) {
+                    item {
+                        Surface(
+                            shape = RoundedCornerShape(999.dp),
+                            color = MediaColors.Warning.copy(alpha = 0.2f),
+                            tonalElevation = 0.dp,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        ) {
+                            Text(
+                                text = "⚠ $degradedWarning",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MediaColors.Warning,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
+                    }
+                }
                 item {
                     Text(
                         text = content.text,
@@ -253,7 +272,8 @@ private fun ReaderContent(
                             TextAlignment.CENTER -> TextAlign.Center
                             TextAlignment.RIGHT -> TextAlign.End
                             TextAlignment.JUSTIFY -> TextAlign.Justify
-                        }
+                        },
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
@@ -923,7 +943,8 @@ data class ReaderState(
     val bookmarks: List<BookmarkInfo> = emptyList(),
     val isCurrentPageBookmarked: Boolean = false,
     val isTtsActive: Boolean = false,
-    val isComic: Boolean = false
+    val isComic: Boolean = false,
+    val degradedParseWarning: String? = null
 )
 
 data class ReaderContent(

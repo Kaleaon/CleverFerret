@@ -1,3 +1,5 @@
+# Scope: ARCHIVED_PWA
+
 # CleverFerret PWA - Improvements Needed
 
 ## 🔴 Critical Issues

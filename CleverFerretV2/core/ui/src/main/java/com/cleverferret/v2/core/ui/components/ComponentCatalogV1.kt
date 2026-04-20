@@ -1,35 +1,56 @@
 package com.cleverferret.v2.core.ui.components
 
-import java.util.List
+object ComponentCatalogV1 {
+    enum class Category {
+        CARDS,
+        PLAYERS,
+        READER_CONTROLS,
+        CHIPS,
+        DIALOGS,
+    }
 
-enum class Category {
-    CARDS,
-    PLAYERS,
-    READER_CONTROLS,
-    CHIPS,
-    DIALOGS,
-    },
-    public record ComponentSpec(String name, Category category) {},
-    public static final List<ComponentSpec> REQUIRED_COMPONENTS = List.of(,
-    new ComponentSpec("MediaCard", Category.CARDS),
-    new ComponentSpec("CollectionCard", Category.CARDS),
-    new ComponentSpec("StatCard", Category.CARDS),
-    new ComponentSpec("ActionCard", Category.CARDS),
-    new ComponentSpec("MiniPlayerBar", Category.PLAYERS),
-    new ComponentSpec("NowPlayingPanel", Category.PLAYERS),
-    new ComponentSpec("QueueSheet", Category.PLAYERS),
-    new ComponentSpec("TransportControls", Category.PLAYERS),
-    new ComponentSpec("ReaderTopBar", Category.READER_CONTROLS),
-    new ComponentSpec("ReaderBottomBar", Category.READER_CONTROLS),
-    new ComponentSpec("ReaderProgressScrubber", Category.READER_CONTROLS),
-    new ComponentSpec("ReaderDisplaySettingsSheet", Category.READER_CONTROLS),
-    new ComponentSpec("FilterChip", Category.CHIPS),
-    new ComponentSpec("SelectableChip", Category.CHIPS),
-    new ComponentSpec("TagChip", Category.CHIPS),
-    new ComponentSpec("StatusChip", Category.CHIPS),
-    new ComponentSpec("ConfirmationDialog", Category.DIALOGS),
-    new ComponentSpec("FormDialog", Category.DIALOGS),
-    new ComponentSpec("ErrorDialog", Category.DIALOGS),
-    new ComponentSpec("BottomSheetDialog", Category.DIALOGS),
-    );
+    enum class SampleState {
+        DEFAULT,
+        LOADING,
+        EMPTY,
+        ERROR,
+    }
+
+    data class ComponentSpec(
+        val name: String,
+        val category: Category,
+        val requiredStates: Set<SampleState> = SampleState.entries.toSet(),
+    )
+
+    val REQUIRED_COMPONENTS = listOf(
+        ComponentSpec("MediaCard", Category.CARDS),
+        ComponentSpec("CollectionCard", Category.CARDS),
+        ComponentSpec("StatCard", Category.CARDS),
+        ComponentSpec("ActionCard", Category.CARDS),
+        ComponentSpec("MiniPlayerBar", Category.PLAYERS),
+        ComponentSpec("NowPlayingPanel", Category.PLAYERS),
+        ComponentSpec("QueueSheet", Category.PLAYERS),
+        ComponentSpec("TransportControls", Category.PLAYERS),
+        ComponentSpec("ReaderTopBar", Category.READER_CONTROLS),
+        ComponentSpec("ReaderBottomBar", Category.READER_CONTROLS),
+        ComponentSpec("ReaderProgressScrubber", Category.READER_CONTROLS),
+        ComponentSpec("ReaderDisplaySettingsSheet", Category.READER_CONTROLS),
+        ComponentSpec("FilterChip", Category.CHIPS),
+        ComponentSpec("SelectableChip", Category.CHIPS),
+        ComponentSpec("TagChip", Category.CHIPS),
+        ComponentSpec("StatusChip", Category.CHIPS),
+        ComponentSpec("ConfirmationDialog", Category.DIALOGS),
+        ComponentSpec("FormDialog", Category.DIALOGS),
+        ComponentSpec("ErrorDialog", Category.DIALOGS),
+        ComponentSpec("BottomSheetDialog", Category.DIALOGS),
+    )
+
+    fun conformanceGaps(catalogStates: Map<String, Set<SampleState>>): Map<String, Set<SampleState>> =
+        REQUIRED_COMPONENTS
+            .mapNotNull { spec ->
+                val states = catalogStates[spec.name].orEmpty()
+                val missing = spec.requiredStates - states
+                if (missing.isEmpty()) null else spec.name to missing
+            }
+            .toMap()
 }

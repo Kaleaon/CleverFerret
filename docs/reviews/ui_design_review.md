@@ -211,16 +211,13 @@ LinearProgressIndicator(
 **Severity:** MEDIUM  
 **Location:** Various files
 
-**Examples:**
-- `MediaAppNavigation.kt`: `onNotificationClick = { /* TODO: Show notifications */ }`
-- `SearchScreen.kt`: `// TODO: Navigate to category-filtered results screen`
-- `DocumentImportScreen.kt`: `onViewImport = { /* TODO: Show import details */ }`
-- `RoomsScreen.kt`: `// TODO: Navigate to room chat`
-- `EnhancedFileBrowser.kt`: `// TODO: Implement copy functionality`, `// TODO: Implement move functionality`
+Canonical TODO tracking has been deduplicated into the planning register:
+- [TODO Register (master)](../planning/TODO_REGISTER.md)
+- [Open TODO entries](../planning/TODO_REGISTER.md#open-items)
 
 **Impact:** Incomplete user experience; buttons/actions that don't work.
 
-**Recommendation:** Either implement these features or remove the UI elements until they're ready.
+**Recommendation:** Resolve items via TDR-001 through TDR-006 in the register, then close each entry with PR linkage.
 
 ---
 
@@ -321,7 +318,7 @@ Surface(
 ### Medium Priority Improvements
 
 1. **Replace hardcoded dimensions with design tokens**
-2. **Implement or remove TODO features**
+2. **Implement or remove TODO features** (tracked in [TODO Register](../planning/TODO_REGISTER.md#open-items))
 3. **Adjust floating button positioning**
 
 ### Low Priority Enhancements
