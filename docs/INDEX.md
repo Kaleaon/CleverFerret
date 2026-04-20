@@ -18,6 +18,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [Build Toolchain Versions](BUILD_TOOLCHAIN_VERSIONS.md) - Canonical AGP/Kotlin/KSP/Gradle version sources and upgrade steps
 - [Post-Recovery State](POST_RECOVERY_STATE.md) - Branch source-of-truth and safe contribution workflow
 - [Branch Protection Guide](governance/BRANCH_PROTECTION.md) - Protection rules and CODEOWNERS governance
+- [Documentation Lifecycle Policy](governance/DOC_LIFECYCLE_POLICY.md) - Canonical/derived docs, ownership, archive triggers, and SLA
 
 ---
 

@@ -125,6 +125,7 @@ CleverFerret/
 | [planning/ANDROID_ACTIVE_BACKLOG](planning/ANDROID_ACTIVE_BACKLOG.md) | Active Android backlog |
 | [ROADMAP](ROADMAP.md) | Product direction |
 | [ARCHITECTURE](ARCHITECTURE.md) | System design |
+| [DOC_LIFECYCLE_POLICY](governance/DOC_LIFECYCLE_POLICY.md) | Doc lifecycle, owners, SLA, archive policy |
 
 ---
 
@@ -219,6 +220,7 @@ adb logcat -c
 2. Run tests: `./gradlew test`
 3. Update documentation if needed
 4. Check security best practices
+5. If status changed, update canonical + index + quick reference
 
 ### Documentation
 - Update feature status if adding features
