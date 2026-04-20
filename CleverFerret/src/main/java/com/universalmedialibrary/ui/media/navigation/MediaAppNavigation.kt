@@ -565,6 +565,24 @@ fun MediaAppNavHost(
         }
 
         composable(
+            route = MediaRoutes.SEE_ALL,
+            arguments = listOf(navArgument("section") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val encodedSection = backStackEntry.arguments?.getString("section").orEmpty()
+            val sectionContract = HomeSectionRouteContract.fromSection(encodedSection)
+            val targetRoute = sectionContract?.let { MediaRoutes.libraryRoute(it.mediaTypeRoute) }
+                ?: MediaRoutes.notFoundRoute("home/see-all/${Uri.encode(encodedSection)}")
+
+            LaunchedEffect(targetRoute) {
+                navController.navigate(targetRoute) {
+                    popUpTo(backStackEntry.destination.route ?: MediaRoutes.HOME) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
+
+
+        composable(
             route = MediaRoutes.LIBRARY,
             arguments = listOf(navArgument("mediaType") { type = NavType.StringType })
         ) { backStackEntry ->
