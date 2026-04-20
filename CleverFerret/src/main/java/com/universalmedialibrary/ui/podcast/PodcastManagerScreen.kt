@@ -26,6 +26,7 @@ import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import com.universalmedialibrary.services.podcast.PodcastSearchResult
 import com.universalmedialibrary.services.podcast.DownloadStatus
+import com.universalmedialibrary.ui.components.ConfirmationDialog
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.MetallicFAB
 import com.universalmedialibrary.ui.theme.MetallicTopAppBar
@@ -44,6 +45,8 @@ fun PodcastManagerScreen(
     val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
     var showSearchDialog by remember { mutableStateOf(false) }
     var showAddFeedDialog by remember { mutableStateOf(false) }
+    var pendingDeleteEpisode by remember { mutableStateOf<PodcastEpisode?>(null) }
+    var pendingUnsubscribePodcast by remember { mutableStateOf<Podcast?>(null) }
     var selectedTab by remember { mutableIntStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -164,7 +167,7 @@ fun PodcastManagerScreen(
                             navController.navigate("podcast_detail/${podcast.id}")
                         },
                         onUnsubscribe = { podcast ->
-                            viewModel.unsubscribeFromPodcast(podcast)
+                            pendingUnsubscribePodcast = podcast
                         }
                     )
                     1 -> PodcastEpisodesTab(
@@ -193,7 +196,7 @@ fun PodcastManagerScreen(
                             navController.navigate("podcast_player/${episode.id}")
                         },
                         onDeleteClick = { episode ->
-                            viewModel.deleteDownloadedEpisode(episode)
+                            pendingDeleteEpisode = episode
                         }
                     )
                 }
@@ -235,6 +238,36 @@ fun PodcastManagerScreen(
             onDismiss = { viewModel.dismissPinChallenge() },
             onAccessGranted = { viewModel.onPinUnlockGranted() },
             verifyPin = viewModel::verifyPin
+        )
+    }
+
+    pendingDeleteEpisode?.let { episode ->
+        ConfirmationDialog(
+            title = "Remove downloaded episode?",
+            message = "This will remove the local file and reset download metadata for \"${episode.title}\".",
+            confirmLabel = "Delete",
+            dismissLabel = "Cancel",
+            warningTint = MaterialTheme.colorScheme.tertiary,
+            onConfirm = {
+                viewModel.deleteDownloadedEpisode(episode)
+                pendingDeleteEpisode = null
+            },
+            onDismiss = { pendingDeleteEpisode = null }
+        )
+    }
+
+    pendingUnsubscribePodcast?.let { podcast ->
+        ConfirmationDialog(
+            title = "Unsubscribe from podcast?",
+            message = "This removes \"${podcast.title}\" from subscriptions.",
+            confirmLabel = "Unsubscribe",
+            dismissLabel = "Cancel",
+            warningTint = MaterialTheme.colorScheme.tertiary,
+            onConfirm = {
+                viewModel.unsubscribeFromPodcast(podcast)
+                pendingUnsubscribePodcast = null
+            },
+            onDismiss = { pendingUnsubscribePodcast = null }
         )
     }
 }
@@ -534,10 +567,15 @@ fun EpisodeCard(
                     color = readinessColor
                 )
                 episode.playbackFailureReason?.let { reason ->
+                    val warningColor = if (episode.recoveryActionLabel != null) {
+                        MaterialTheme.colorScheme.tertiary
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    }
                     Text(
                         text = reason,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
+                        color = warningColor,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -575,12 +613,13 @@ fun EpisodeCard(
                     }
                 }
                 else -> if (episode.recoveryActionLabel != null) {
-                    IconButton(onClick = onRetryClick) {
+                    Button(onClick = onRetryClick) {
                         Icon(
                             Icons.Default.Refresh,
-                            contentDescription = episode.recoveryActionLabel,
-                            tint = MaterialTheme.colorScheme.error
+                            contentDescription = episode.recoveryActionLabel
                         )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(episode.recoveryActionLabel)
                     }
                 } else if (!episode.isDownloaded) {
                     IconButton(onClick = onDownloadClick) {

@@ -90,9 +90,12 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ## 📋 Planning & Roadmap
 
-- [TODO](planning/TODO.md) - Detailed task list and roadmap
-- [Kotlin Conversion TODO](planning/KOTLIN_CONVERSION_TODO.md) - Pure Kotlin conversion plan
-- [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - PWA and app improvements list
+- [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Current prioritized build and stability tasks
+- [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Active issue remediation plan
+- [Parser Implementation Summary](implementation/PARSER_IMPLEMENTATION_SUMMARY.md) - Current parser implementation status
+- [Parser Integration Guide](implementation/PARSER_INTEGRATION_GUIDE.md) - Active parser integration roadmap
+- [Roadmap](ROADMAP.md) - Product roadmap and milestone sequencing
+- [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - App improvement opportunities
 
 ---
 
@@ -149,9 +152,8 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ## 📱 Related Projects
 
-### PWA Demo
-- [PWA Demo Theming Guide](../pwa-demo/THEMING_GUIDE.md) - PWA theming documentation
-- [PWA Demo Code Review Summary](../pwa-demo/CODE_REVIEW_SUMMARY.md) - PWA code review
+### Frontend Archive (Inactive)
+- [Archived Frontend README](../archive/frontend/README.md) - Historical frontend workspace notes (inactive)
 
 ---
 
@@ -159,14 +161,14 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ### By Status
 - **Active Features**: See [FEATURES_STATUS](FEATURES_STATUS.md)
-- **In Development**: See [ROADMAP](ROADMAP.md) and [planning/TODO](planning/TODO.md)
+- **In Development**: See [ROADMAP](ROADMAP.md), [ACTIVE_BUILD_BACKLOG](planning/ACTIVE_BUILD_BACKLOG.md), and [APP_ISSUES_FIX_PLAN](planning/APP_ISSUES_FIX_PLAN.md)
 - **Completed**: See [archive/completed/](archive/completed/)
 - **Research**: See [archive/](archive/)
 
 ### By Category
 - **User Documentation**: README, FEATURES, FEATURES_STATUS
 - **Developer Documentation**: ARCHITECTURE, implementation guides
-- **Planning**: ROADMAP, TODO, planning documents
+- **Planning**: ROADMAP, active backlog/fix plans, and planning documents
 - **Historical**: archive/ directory
 
 ---

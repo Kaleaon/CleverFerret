@@ -31,7 +31,7 @@ Use this taxonomy exactly (spelling/case) in all status and planning documents:
 | Chromecast validation hardening | Partial | V2.1 | `core/media`, `feature/audio` | Cast session integration tests + cross-device manual QA checklist | Google Cast SDK + test device/network |
 | MOBI/AZW/AZW3 integration | Partial | V2.1 | `feature/reader` | Parser unit tests + UnifiedReaderService integration tests + rendering smoke tests | None |
 | DJVU support completion | Partial | V2.2 | `feature/reader` | Validation + decoding unit tests + rendering integration tests | DJVU decoding/rendering library |
-| OPDS wiring (catalog + download backend) | Partial | V2.1 | `feature/opds`, `core/network` | API client unit tests + contract tests + end-to-end catalog flow tests | OPDS endpoint availability |
+| OPDS wiring (catalog + download backend) | Ready | V2.1 | `feature/opds`, `core/network` | API client unit tests + contract tests + end-to-end catalog flow tests | OPDS endpoint availability |
 | Cloud sync providers (Google Drive/Dropbox/progress sync) | Stub | V2.2 | `feature/sync`, `core/network`, `core/auth` | OAuth integration tests + sync conflict tests + end-to-end sync tests | Google Drive API credentials, Dropbox API app/keys |
 | Advanced AI features (insights/mind maps/recommendations) | Planned | V2.3 | `feature/metadata`, `core/network` | Prompt/service unit tests + response contract tests + UX acceptance tests | OpenAI or Gemini API key (or local Ollama runtime) |
 | Plex auth/sync hardening | Partial | V2.2 | `feature/plex`, `core/auth`, `core/network` | Auth flow integration tests + sync resilience tests + API contract tests | Plex developer registration/token |
