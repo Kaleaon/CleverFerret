@@ -56,6 +56,12 @@ review. This plan is a proposal — no source code has been changed yet.
 
 ## 3. Prioritized Fix Plan
 
+### 3.0 Build/Toolchain Gate
+
+- **Gate reference:** `docs/planning/ACTIVE_BUILD_BACKLOG.md`
+- **Current blocker:** Active issue #1 (`Gradle/Kotlin toolchain bootstrap fails before module compilation` with `java.lang.IllegalArgumentException: 25.0.1`).
+- **Policy:** Any task requiring app compilation, instrumentation, or regression testing is tagged with `blocked_by` until the toolchain gate is cleared.
+- **Unblock condition:** Fresh clean build must pass bootstrap/configuration and reach module task execution before feature validation is considered reliable.
 ### UI acceptance requirement (applies to all UI backlog items)
 
 All UI backlog items in this plan must include explicit acceptance criteria
@@ -70,6 +76,7 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
 ### Priority P0 — Crashes & data-loss (ship first)
 
 1. **#483 National Screening Room crash**
+   - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
    - Add crash breadcrumbs to `FreeMediaViewModel.loadMedia` catch block and
      surface the full stack trace via `AppLogger` before rethrowing.
    - Audit the screen that renders `FreeMediaItem` (likely
@@ -79,6 +86,7 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
      the whole list down.
 
 2. **#482 download "not found" crash**
+   - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
    - Fix the inconsistency source: when a podcast/book download completes,
      the DB `downloaded=true` must be written in the same transaction as the
      `localFilePath` update. Audit `services/podcast/DownloadManager` and
@@ -89,6 +97,7 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
      **"Re-download"** affordance instead.
 
 3. **#481 "no viewer" for music**
+   - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
    - `ui/open/MediaOpenScreen.kt:48` — add `"MUSIC"` (and `"MUSIC_ALBUM"`) to
      the `isAudioByType` set, and switch the check from a hand-rolled string
      set to `MediaType.valueOf(...)` with a proper audio predicate on the
@@ -97,6 +106,7 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
 ### Priority P1 — UX-breaking bugs
 
 4. **#480 "can't browse past 20 books"**
+   - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
    - Introduce a proper "See all" destination per section, backed by a Paging 3
      `PagingSource` from the existing Room DAOs.
    - Remove the `.take(20)` literals in `MediaHomeViewModel` — keep them only
@@ -110,6 +120,7 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
      labels.
 
 5. **#479 "click one, mark all" in downloads**
+   - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
    - Grep for all `LazyColumn`/`LazyVerticalGrid`/`HorizontalPager` usages in
      `ui/**/download*.kt` and `ui/reddit/*`, `ui/webfiction/*`.
    - Every `items(...)` block must pass `key = { it.id }` (stable, unique).
@@ -121,6 +132,7 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
      labels.
 
 6. **#478 "standalone coroutine cancelled" toast**
+   - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
    - Find the global `CoroutineExceptionHandler` (likely in
      `CleverFerretApplication.kt` or a Hilt module) and filter out
      `CancellationException` before forwarding to the bug reporter / toast.
@@ -132,6 +144,7 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
      labels.
 
 7. **#477 podcast subscribe popup**
+   - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
    - Trace `PodcastSearchResult.feedUrl` population from the iTunes/Podcast
      Index search path. When upstream has no feed URL, skip the result
      instead of surfacing as a subscribable item.
@@ -145,6 +158,7 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
 ### Priority P2 — OPDS reliability
 
 8. **#487 / #486 OPDS errors**
+   - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
    - Harden `OPDSClient.sanitizeXmlEntities` with additional fixtures
      (captured real Internet Archive feeds).
    - Surface a **"Report feed"** affordance alongside the user-facing error
@@ -155,6 +169,7 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
 ### Priority P3 — UI polish (#476)
 
 9. **Top app bar**
+   - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
    - Remove the "Clever Ferret Media Library" brand text from the sticky
      header (`StickyContentLibraryHeader`).
    - Convert the current row layout into a `CenterAlignedTopAppBar` with the
@@ -169,6 +184,13 @@ Use: `docs/planning/UI_ACCEPTANCE_TEMPLATE.md`.
 ### Priority P4 — Architecture / UX consolidation (#485)
 
 10. **Unify "libraries"**
+    - `blocked_by: docs/planning/ACTIVE_BUILD_BACKLOG.md#active-issues-still-reproducible (Issue 1: Gradle/Kotlin toolchain bootstrap)`
+    - Document the current surfaces: Home, My Library, per-type (Books/Music/
+      etc.) — clarify which are destinations vs. filters.
+    - Replace the per-type top-level destinations with a single **Library**
+      screen that hosts category chips (Books · Audiobooks · Music · ...).
+    - Phase-one change only touches navigation graph + bottom bar; no data
+      layer changes.
    - Document the current surfaces: Home, My Library, per-type (Books/Music/
      etc.) — clarify which are destinations vs. filters.
    - Replace the per-type top-level destinations with a single **Library**
@@ -225,6 +247,16 @@ auto-uploaded".
 
 Each PR should be < 500 LOC changed where possible, per the repo's
 contribution guardrails (`README.md` §Contribution Guardrails).
+
+---
+
+## 5.1 Execution order matrix (enforced)
+
+| Phase | Order | Work class | Included plan items | Entry criteria | Exit criteria |
+|---|---:|---|---|---|---|
+| A | 1 | **Toolchain unblockers first** | Build gate + backlog issue(s) in `ACTIVE_BUILD_BACKLOG.md` | Active build/toolchain blocker exists | Fresh clean build passes bootstrap/configuration and can execute module tasks |
+| B | 2 | **P0 crash/data integrity fixes second** | #483, #482, #481 | Phase A exit criteria met | P0 fixes merged with passing validation on unblocked toolchain |
+| C | 3 | **Feature expansions after stabilization** | P1+ items (#480, #479, #478, #477, #487/#486, #476, #485) | P0 fixes stabilized (no new crash/data-integrity regressions in validation cycle) | Feature work complete and validated against stabilized baseline |
 
 ---
 
