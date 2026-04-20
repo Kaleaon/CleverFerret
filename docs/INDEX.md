@@ -88,8 +88,13 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ---
 
-## 📋 Planning & Roadmap
+## 📋 Planning Workstreams
 
+### Active Android (current)
+- [Android Active Backlog](planning/ANDROID_ACTIVE_BACKLOG.md) - Canonical active backlog for app-module and V2 scope
+- [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Prioritized Android issue triage and sequencing
+- [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Currently reproducible build/toolchain issues
+- [ROADMAP](ROADMAP.md) - Forward-looking product direction
 - [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Current prioritized build and stability tasks
 - [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Active issue remediation plan
 - [Parser Implementation Summary](implementation/PARSER_IMPLEMENTATION_SUMMARY.md) - Current parser implementation status
@@ -97,7 +102,8 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [Roadmap](ROADMAP.md) - Product roadmap and milestone sequencing
 - [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - App improvement opportunities
 
----
+### Archived PWA / Historical planning
+- [Archived Improvements Needed](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md) - Former PWA-focused improvement plan (archived)
 
 ## 🔍 Analysis & Research
 
