@@ -59,7 +59,7 @@ fun MediaSearchScreen(
     onRecentSearchClick: (String) -> Unit,
     onClearRecentSearches: () -> Unit,
     onCategoryFilterChange: (SearchCategory?) -> Unit,
-    onMediaTypeFilterChange: (MediaType?) -> Unit,
+    onCategoryNavigate: (SearchCategory) -> Unit = {},
     onVoiceSearch: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -134,6 +134,7 @@ fun MediaSearchScreen(
                         groupedResults = state.groupedResults,
                         onResultClick = onResultClick,
                         onCategoryFilterChange = onCategoryFilterChange,
+                        onCategoryNavigate = onCategoryNavigate,
                         showGrouped = state.selectedCategory == null
                     )
                 }
@@ -483,6 +484,7 @@ private fun SearchResultsList(
     groupedResults: Map<SearchCategory, List<SearchResult>>,
     onResultClick: (SearchResult) -> Unit,
     onCategoryFilterChange: (SearchCategory?) -> Unit,
+    onCategoryNavigate: (SearchCategory) -> Unit,
     showGrouped: Boolean
 ) {
     if (showGrouped && groupedResults.isNotEmpty()) {
@@ -510,8 +512,8 @@ private fun SearchResultsList(
                     item {
                         TextButton(
                             onClick = { 
-                                // Filter results to show only this category
                                 onCategoryFilterChange(category)
+                                onCategoryNavigate(category)
                             },
                             modifier = Modifier.padding(
                                 horizontal = MediaSpacing.MD,

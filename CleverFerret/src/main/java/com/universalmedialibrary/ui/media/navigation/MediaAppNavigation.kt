@@ -64,6 +64,7 @@ object MediaRoutes {
     const val HOME = "home"
     const val SEARCH = "search"
     const val ACTIVITY = "activity"
+    const val ROOM_CHAT = "room-chat/{roomName}"
     const val SETTINGS = "settings"
     
     // Library routes
@@ -170,6 +171,7 @@ object MediaRoutes {
     fun webFictionBrowseRoute(source: String) = "discover/webfiction/${Uri.encode(source)}"
     fun seeAllRoute(section: String) = "home/see-all/${Uri.encode(section)}"
     fun notFoundRoute(path: String) = "not-found?path=${Uri.encode(path)}"
+    fun roomChatRoute(roomName: String) = "room-chat/${Uri.encode(roomName)}"
 }
 
 private fun sanitizeRouteParamForDisplay(input: String, maxLen: Int = 60): String {
@@ -237,7 +239,8 @@ private val knownParameterizedPrefixes = listOf(
     "tag/",
     "smart_collection/",
     "enhanced_search",
-    "not-found"
+    "not-found",
+    "room-chat/"
 )
 
 internal fun resolveRouteOrFallback(route: String): String {
@@ -509,8 +512,40 @@ fun MediaAppNavHost(
                 onRecentSearchClick = { viewModel.useRecentSearch(it) },
                 onClearRecentSearches = { viewModel.clearRecentSearches() },
                 onCategoryFilterChange = { viewModel.setCategory(it) },
-                onMediaTypeFilterChange = { viewModel.setMediaType(it) },
+                onCategoryNavigate = { category ->
+                    val libraryRoute = when (category) {
+                        SearchCategory.BOOKS -> MediaRoutes.BOOKS
+                        SearchCategory.AUDIOBOOKS -> MediaRoutes.AUDIOBOOKS
+                        SearchCategory.COMICS -> MediaRoutes.COMICS
+                        SearchCategory.MUSIC -> MediaRoutes.MUSIC
+                        SearchCategory.PODCASTS -> MediaRoutes.PODCASTS
+                        SearchCategory.MOVIES -> MediaRoutes.MOVIES
+                        SearchCategory.TV_SHOWS -> MediaRoutes.TV_SHOWS
+                        SearchCategory.WEB_FICTION -> MediaRoutes.WEB_FICTION
+                        SearchCategory.DOCUMENTS -> MediaRoutes.DOCUMENTS
+                    }
+                    navController.navigate(libraryRoute)
+                },
                 onVoiceSearch = { /* Implement voice search */ },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(MediaRoutes.ACTIVITY) {
+            ActivityFeedScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = MediaRoutes.ROOM_CHAT,
+            arguments = listOf(navArgument("roomName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val roomName = sanitizeRouteParamForDisplay(
+                Uri.decode(backStackEntry.arguments?.getString("roomName").orEmpty())
+            ).ifBlank { "Room Chat" }
+            RoomChatScreen(
+                roomName = roomName,
                 onBackClick = { navController.popBackStack() }
             )
         }

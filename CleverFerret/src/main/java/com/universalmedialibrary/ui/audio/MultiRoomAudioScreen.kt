@@ -58,6 +58,7 @@ import com.universalmedialibrary.data.local.entity.AudioSyncGroup
 @Composable
 fun MultiRoomAudioScreen(
     onBack: () -> Unit,
+    onOpenRoomChat: (String) -> Unit = {},
     viewModel: MultiRoomAudioViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -171,10 +172,34 @@ fun MultiRoomAudioScreen(
 }
 
 @Composable
-fun AudioGroupCard(group: AudioSyncGroup, onVolumeChange: (Int) -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+fun AudioGroupCard(
+    group: AudioSyncGroup,
+    onVolumeChange: (Int) -> Unit,
+    onDelete: () -> Unit,
+    onOpenChat: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = group.groupName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = group.groupName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, "Delete Group")
+                }
+                IconButton(onClick = onOpenChat) {
+                    Icon(Icons.Default.Chat, "Open Room Chat")
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.AutoMirrored.Filled.VolumeUp, null)
                 Slider(value = group.volume / 100f, onValueChange = { onVolumeChange((it * 100).toInt()) }, modifier = Modifier.weight(1f))
