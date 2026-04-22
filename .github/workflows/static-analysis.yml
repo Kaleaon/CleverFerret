@@ -54,6 +54,8 @@ jobs:
 
       - name: Validate markdown links and canonical status docs
         run: python3 scripts/ci/validate_docs_consistency.py
+      - name: Check docs local links
+        run: ./scripts/ci/check_doc_links.py
 
       - name: Run Android Lint
         run: ./gradlew lintDebug -Plint.abortOnError=true --no-daemon --stacktrace
