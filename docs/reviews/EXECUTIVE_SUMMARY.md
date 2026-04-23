@@ -111,7 +111,7 @@ None remaining - all high-priority issues addressed.
 ### Medium Priority
 
 1. **Hardcoded Dimensions** - Replace `.dp` values with design system tokens
-2. **TODO Comments** - Implement or remove incomplete features
+2. **TODO Comments** - Implement or remove incomplete features (see [TODO Register](../planning/TODO_REGISTER.md#open-items))
 3. **Mini Player Tap Areas** - Refine clickable regions
 
 ### Low Priority
@@ -193,7 +193,7 @@ fun testAccessibilityContentDescriptions() {
 ### Phase 1: Code Quality (1-2 weeks)
 - Replace hardcoded dimensions
 - Add accessibility tests to CI/CD
-- Complete or remove TODO features
+- Complete or remove TODO features (see [TODO Register](../planning/TODO_REGISTER.md#open-items))
 
 ### Phase 2: Polish (1-2 weeks)
 - Refine mini player interactions
@@ -262,7 +262,7 @@ fun testAccessibilityContentDescriptions() {
 
 1. Replace hardcoded dimensions
 2. Add accessibility tests
-3. Complete high-priority TODO features
+3. Complete high-priority TODO features (TDR-001 to TDR-006 in [TODO Register](../planning/TODO_REGISTER.md#open-items))
 
 ### Long-term (Next Quarter)
 

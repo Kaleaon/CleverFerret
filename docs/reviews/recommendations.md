@@ -88,38 +88,11 @@ object MediaSizes {
 
 ### 3. Complete or Remove TODO Features
 
-**Identified TODOs:**
-- `MediaAppNavigation.kt`: Notifications functionality
-- `SearchScreen.kt`: Category-filtered results
-- `DocumentImportScreen.kt`: Import details view
-- `RoomsScreen.kt`: Room chat navigation
-- `EnhancedFileBrowser.kt`: Copy/move functionality
+Canonical TODO tracking now lives in the master register:
+- [TODO Register (master)](../planning/TODO_REGISTER.md)
+- [Open TODO entries](../planning/TODO_REGISTER.md#open-items)
 
-**Recommendation:**
-1. **Prioritize:** Determine which features are essential for MVP
-2. **Implement:** Build out high-priority TODOs
-3. **Remove:** Delete UI elements for low-priority incomplete features
-4. **Document:** Add clear roadmap for future features
-
-**Example - Remove incomplete button:**
-```kotlin
-// Instead of:
-Button(onClick = { /* TODO: Implement */ }) {
-    Text("Copy File")
-}
-
-// Either implement or remove:
-// Option 1: Remove
-// (Delete the button entirely)
-
-// Option 2: Disable with tooltip
-Button(
-    onClick = { },
-    enabled = false
-) {
-    Text("Copy File (Coming Soon)")
-}
-```
+Use the register entries (TDR-001 through TDR-006) for priority, owner assignment, module scope, and definition-of-done.
 
 **Estimated Effort:** Varies by feature (1-10 days each)
 
@@ -596,7 +569,7 @@ val encryptedPrefs = EncryptedSharedPreferences.create(
 - Refine mini player interactions
 
 ### Sprint 2 (1-2 weeks)
-- Complete or remove TODO features
+- Complete or remove TODO features (tracked in [TODO Register](../planning/TODO_REGISTER.md#open-items))
 - Color contrast audit
 - Navigation icon standardization
 

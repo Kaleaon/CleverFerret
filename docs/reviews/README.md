@@ -89,7 +89,7 @@ Git diff file containing all code changes.
 ### Short-term (Next Sprint)
 - Replace hardcoded dimensions
 - Add accessibility tests
-- Complete TODO features
+- Complete TODO features (tracked in [TODO Register](../planning/TODO_REGISTER.md#open-items))
 
 ### Long-term (Next Quarter)
 - Color contrast audit

@@ -188,7 +188,7 @@ import com.universalmedialibrary.data.Tag
         DismissedSuggestion::class
 
     ],
-    version = 43,
+    version = 44,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -329,7 +329,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_36_37,
                         AppDatabaseMigrations.MIGRATION_37_38,
                         AppDatabaseMigrations.MIGRATION_38_39,
-                        AppDatabaseMigrations.MIGRATION_42_43
+                        AppDatabaseMigrations.MIGRATION_42_43,
+                        AppDatabaseMigrations.MIGRATION_43_44
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

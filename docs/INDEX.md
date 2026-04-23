@@ -18,6 +18,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [Build Toolchain Versions](BUILD_TOOLCHAIN_VERSIONS.md) - Canonical AGP/Kotlin/KSP/Gradle version sources and upgrade steps
 - [Post-Recovery State](POST_RECOVERY_STATE.md) - Branch source-of-truth and safe contribution workflow
 - [Branch Protection Guide](governance/BRANCH_PROTECTION.md) - Protection rules and CODEOWNERS governance
+- [Documentation Lifecycle Policy](governance/DOC_LIFECYCLE_POLICY.md) - Canonical/derived docs, ownership, archive triggers, and SLA
 
 ---
 
@@ -88,13 +89,22 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ---
 
-## 📋 Planning & Roadmap
+## 📋 Planning Workstreams
 
-- [TODO](planning/TODO.md) - Detailed task list and roadmap
-- [Kotlin Conversion TODO](planning/KOTLIN_CONVERSION_TODO.md) - Pure Kotlin conversion plan
-- [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - PWA and app improvements list
+### Active Android (current)
+- [Android Active Backlog](planning/ANDROID_ACTIVE_BACKLOG.md) - Canonical active backlog for app-module and V2 scope
+- [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Prioritized Android issue triage and sequencing
+- [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Currently reproducible build/toolchain issues
+- [ROADMAP](ROADMAP.md) - Forward-looking product direction
+- [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Current prioritized build and stability tasks
+- [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Active issue remediation plan
+- [Parser Implementation Summary](implementation/PARSER_IMPLEMENTATION_SUMMARY.md) - Current parser implementation status
+- [Parser Integration Guide](implementation/PARSER_INTEGRATION_GUIDE.md) - Active parser integration roadmap
+- [Roadmap](ROADMAP.md) - Product roadmap and milestone sequencing
+- [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - App improvement opportunities
 
----
+### Archived PWA / Historical planning
+- [Archived Improvements Needed](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md) - Former PWA-focused improvement plan (archived)
 
 ## 🔍 Analysis & Research References
 
@@ -157,9 +167,8 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ## 📱 Related Projects
 
-### PWA Demo
-- [PWA Demo Theming Guide](../pwa-demo/THEMING_GUIDE.md) - PWA theming documentation
-- [PWA Demo Code Review Summary](../pwa-demo/CODE_REVIEW_SUMMARY.md) - PWA code review
+### Frontend Archive (Inactive)
+- [Archived Frontend README](../archive/frontend/README.md) - Historical frontend workspace notes (inactive)
 
 ---
 
@@ -167,14 +176,14 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ### By Status
 - **Active Features**: See [FEATURES_STATUS](FEATURES_STATUS.md)
-- **In Development**: See [ROADMAP](ROADMAP.md) and [planning/TODO](planning/TODO.md)
+- **In Development**: See [ROADMAP](ROADMAP.md), [ACTIVE_BUILD_BACKLOG](planning/ACTIVE_BUILD_BACKLOG.md), and [APP_ISSUES_FIX_PLAN](planning/APP_ISSUES_FIX_PLAN.md)
 - **Completed**: See [archive/completed/](archive/completed/)
 - **Historical References**: See [archive/](archive/) and [reviews/](reviews/)
 
 ### By Category
 - **User Documentation**: README, FEATURES, FEATURES_STATUS
 - **Developer Documentation**: ARCHITECTURE, implementation guides
-- **Planning**: ROADMAP, TODO, planning documents
+- **Planning**: ROADMAP, active backlog/fix plans, and planning documents
 - **Historical**: archive/ directory
 
 ---
@@ -184,6 +193,14 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - **Repository**: https://github.com/Kaleaon/CleverFerret
 - **Issues**: Track bugs and feature requests on GitHub
 - **Pull Requests**: Contribute improvements
+
+---
+
+## 🏛️ Status Governance
+
+- `CleverFerretV2/docs/v2/feature-matrix.md` is the canonical active planning status source.
+- Any PR that changes capability status/target/ownership must update the matrix and every impacted summary document in the same PR (for example: `docs/FEATURES_STATUS.md`, `docs/ROADMAP.md`, `docs/REPOSITORY_STATUS_REPORT.md`, and parser summaries).
+- Status terms in planning/status docs must use the shared taxonomy verbatim: `Ready`, `Partial`, `Stub`, `Planned`, `Archived`.
 
 ---
 

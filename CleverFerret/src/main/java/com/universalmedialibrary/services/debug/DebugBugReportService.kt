@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import com.universalmedialibrary.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -80,6 +81,7 @@ class DebugBugReportService @Inject constructor(
      */
     fun logError(tag: String, message: String, throwable: Throwable? = null) {
         if (!isAvailable()) return
+        if (throwable is CancellationException) return
         
         synchronized(recentErrors) {
             recentErrors.add(
