@@ -57,6 +57,8 @@ review. This plan is a proposal — no source code has been changed yet.
 ### Priority P0 — Crashes & data-loss (ship first)
 
 1. **#483 National Screening Room crash**
+   - **Owner module(s):** `feature/free-media`, `core/logging`
+   - **Path hint(s):** `CleverFerret/` (`ui/media/**`, `services/media/**`). Avoid `CleverFerretV2/` unless explicitly porting.
    - Add crash breadcrumbs to `FreeMediaViewModel.loadMedia` catch block and
      surface the full stack trace via `AppLogger` before rethrowing.
    - Audit the screen that renders `FreeMediaItem` (likely
@@ -66,6 +68,8 @@ review. This plan is a proposal — no source code has been changed yet.
      the whole list down.
 
 2. **#482 download "not found" crash**
+   - **Owner module(s):** `feature/podcast`, `core/downloads`, `core/storage`
+   - **Path hint(s):** `CleverFerret/` (`services/podcast/**`, `services/opds/**`, `ui/podcast/**`).
    - Fix the inconsistency source: when a podcast/book download completes,
      the DB `downloaded=true` must be written in the same transaction as the
      `localFilePath` update. Audit `services/podcast/DownloadManager` and
@@ -76,6 +80,8 @@ review. This plan is a proposal — no source code has been changed yet.
      **"Re-download"** affordance instead.
 
 3. **#481 "no viewer" for music**
+   - **Owner module(s):** `feature/media-open`, `core/media-types`
+   - **Path hint(s):** `CleverFerret/` (`ui/open/MediaOpenScreen.kt`, media type model).
    - `ui/open/MediaOpenScreen.kt:48` — add `"MUSIC"` (and `"MUSIC_ALBUM"`) to
      the `isAudioByType` set, and switch the check from a hand-rolled string
      set to `MediaType.valueOf(...)` with a proper audio predicate on the
@@ -84,6 +90,8 @@ review. This plan is a proposal — no source code has been changed yet.
 ### Priority P1 — UX-breaking bugs
 
 4. **#480 "can't browse past 20 books"**
+   - **Owner module(s):** `feature/library`, `core/paging`, `core/images`
+   - **Path hint(s):** `CleverFerret/` (`ui/media/**`, Room DAO + Paging integration).
    - Introduce a proper "See all" destination per section, backed by a Paging 3
      `PagingSource` from the existing Room DAOs.
    - Remove the `.take(20)` literals in `MediaHomeViewModel` — keep them only
@@ -93,6 +101,8 @@ review. This plan is a proposal — no source code has been changed yet.
      `placeholder` to every `AsyncImage`.
 
 5. **#479 "click one, mark all" in downloads**
+   - **Owner module(s):** `feature/downloads`, `core/ui-compose`
+   - **Path hint(s):** `CleverFerret/` (`ui/**/download*.kt`, `ui/webfiction/**`, `ui/reddit/**`).
    - Grep for all `LazyColumn`/`LazyVerticalGrid`/`HorizontalPager` usages in
      `ui/**/download*.kt` and `ui/reddit/*`, `ui/webfiction/*`.
    - Every `items(...)` block must pass `key = { it.id }` (stable, unique).
@@ -100,6 +110,8 @@ review. This plan is a proposal — no source code has been changed yet.
      `remember { mutableStateOf(...) }` bound to list position.
 
 6. **#478 "standalone coroutine cancelled" toast**
+   - **Owner module(s):** `core/concurrency`, `core/error-reporting`, `feature/search`
+   - **Path hint(s):** `CleverFerret/` (`CleverFerretApplication.kt`, Hilt modules, `ui/media/viewmodels/SearchViewModel.kt`).
    - Find the global `CoroutineExceptionHandler` (likely in
      `CleverFerretApplication.kt` or a Hilt module) and filter out
      `CancellationException` before forwarding to the bug reporter / toast.
@@ -107,6 +119,8 @@ review. This plan is a proposal — no source code has been changed yet.
      re-throws correctly (line 155).
 
 7. **#477 podcast subscribe popup**
+   - **Owner module(s):** `feature/podcast`, `core/network-mappers`, `core/ui-feedback`
+   - **Path hint(s):** `CleverFerret/` (`ui/podcast/**`, podcast search mapper path).
    - Trace `PodcastSearchResult.feedUrl` population from the iTunes/Podcast
      Index search path. When upstream has no feed URL, skip the result
      instead of surfacing as a subscribable item.
@@ -116,6 +130,8 @@ review. This plan is a proposal — no source code has been changed yet.
 ### Priority P2 — OPDS reliability
 
 8. **#487 / #486 OPDS errors**
+   - **Owner module(s):** `feature/opds`, `core/network`, `core/xml`
+   - **Path hint(s):** `CleverFerret/` (`services/opds/OPDSClient.kt`, OPDS service + fixtures). Avoid `CleverFerretV2/feature/*` paths unless issue is explicitly V2.
    - Harden `OPDSClient.sanitizeXmlEntities` with additional fixtures
      (captured real Internet Archive feeds).
    - Surface a **"Report feed"** affordance alongside the user-facing error
@@ -126,6 +142,8 @@ review. This plan is a proposal — no source code has been changed yet.
 ### Priority P3 — UI polish (#476)
 
 9. **Top app bar**
+   - **Owner module(s):** `feature/library-ui`, `core/ui-compose`
+   - **Path hint(s):** `CleverFerret/` (`ui/media/screens/MediaHomeScreen.kt`, header composables).
    - Remove the "Clever Ferret Media Library" brand text from the sticky
      header (`StickyContentLibraryHeader`).
    - Convert the current row layout into a `CenterAlignedTopAppBar` with the
@@ -136,6 +154,8 @@ review. This plan is a proposal — no source code has been changed yet.
 ### Priority P4 — Architecture / UX consolidation (#485)
 
 10. **Unify "libraries"**
+    - **Owner module(s):** `feature/navigation`, `feature/library`, `core/design-system`
+    - **Path hint(s):** `CleverFerret/` navigation graph + bottom bar. If V2 parity work is needed, track separately under `CleverFerretV2/`.
     - Document the current surfaces: Home, My Library, per-type (Books/Music/
       etc.) — clarify which are destinations vs. filters.
     - Replace the per-type top-level destinations with a single **Library**
@@ -146,6 +166,10 @@ review. This plan is a proposal — no source code has been changed yet.
 ### Priority P5 — Process / meta
 
 11. **PR hygiene** (issues 134–138)
+    - **Owner module(s):** `core/ci`, `feature/widgets`, `feature/plex-auth`, `core/data-migrations`
+    - **Path hint(s):** Mixed scope:
+      - `CleverFerretV2/feature/widgets/**` for widget path correction (#134),
+      - `CleverFerret/` for PR decomposition/scope and CI checks unless the issue explicitly targets V2.
     - Land the widget file move called out in #134.
     - Split PR #129 along DB migration / domain / artwork pipeline seams
       (issues 137 & 138).
@@ -192,6 +216,12 @@ contribution guardrails (`README.md` §Contribution Guardrails).
 ---
 
 ## 6. Process decomposition updates for issues #123 / #129 / #134 / #136
+
+### Planning review requirement (required for all feature tasks)
+
+- Reviewers must reject feature tasks that do not declare:
+  1. `Owner module(s)` (for example: `feature/opds`, `core/network`, `core/auth`), and
+  2. explicit path-level hint(s) indicating whether work belongs under `CleverFerret/` or `CleverFerretV2/`.
 
 ### 6.1 Issue #134 — widget location correction
 

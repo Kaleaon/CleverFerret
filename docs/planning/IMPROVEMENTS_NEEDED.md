@@ -1,8 +1,17 @@
 # CleverFerret PWA - Improvements Needed
 
+## Planning metadata requirement
+
+- Every planned feature task must include:
+  - **Owner module(s):** e.g., `feature/opds`, `core/network`, `core/auth`
+  - **Path hint(s):** explicitly call out `CleverFerret/` vs `CleverFerretV2/`
+- **Reviewer rule:** reject feature tasks that omit module mapping.
+
 ## 🔴 Critical Issues
 
 ### 1. Error Handling & User Feedback
+- **Owner module(s):** `core/ui-feedback`, `core/logging`, `core/error-boundary`
+- **Path hint(s):** `CleverFerret/` (current PWA/React surfaces)
 - **Replace `alert()` calls** with proper Material-UI Snackbars/Dialogs
   - `StorageBrowserScreen.tsx` - line 66
   - `WebFictionManagerScreen.tsx` - lines 70, 76, 81
@@ -14,6 +23,8 @@
 - **Improve 404 page** - Currently just a div, needs proper navigation help
 
 ### 2. Incomplete Core Features
+- **Owner module(s):** `feature/readers`, `feature/file-open`, `core/media-metadata`
+- **Path hint(s):** `CleverFerret/` for current app implementation; only assign to `CleverFerretV2/` when the issue is explicitly a V2 port.
 
 #### Readers (Critical for app functionality)
 - **EPUB Reader** (`EReaderScreen.tsx`) - Currently placeholder, needs epub.js integration
@@ -30,6 +41,8 @@
 - **Metadata refresh** - Not implemented (LibraryManagementScreen.tsx line 139)
 
 ### 3. Missing Service Implementations
+- **Owner module(s):** `feature/webfiction`, `feature/opds`, `feature/plex`, `feature/podcasts`
+- **Path hint(s):** primarily `CleverFerret/`; module-specific V2 tasks must be labeled as `CleverFerretV2/...`.
 
 #### Web Fiction
 - **Story URL parsing** - Not implemented (WebFictionManagerScreen.tsx)
@@ -51,6 +64,8 @@
 ## 🟡 Important Improvements
 
 ### 4. UI/UX Enhancements
+- **Owner module(s):** `feature/library-ui`, `core/design-system`
+- **Path hint(s):** `CleverFerret/` UI components unless a V2-only UI ticket is filed.
 
 #### Placeholder Images
 - Replace all `/placeholder-*.png` references with:
@@ -71,6 +86,8 @@
 - Better offline error messages
 
 ### 5. Code Quality
+- **Owner module(s):** `core/quality`, `core/logging`, `core/types`
+- **Path hint(s):** repository-wide; specify concrete root (`CleverFerret/` or `CleverFerretV2/`) per ticket.
 
 #### Remove Debug Code
 - Clean up `console.log` statements (keep only in development)
@@ -90,6 +107,8 @@
 - Type service responses
 
 ### 6. Performance
+- **Owner module(s):** `core/performance`, `core/caching`, `feature/search`
+- **Path hint(s):** `CleverFerret/` unless profiling report references V2 runtime.
 
 #### Lazy Loading
 - Implement code splitting for:
@@ -111,6 +130,8 @@
 ## 🟢 Nice-to-Have Features
 
 ### 7. Enhanced Functionality
+- **Owner module(s):** `feature/search`, `feature/collections`, `feature/stats`
+- **Path hint(s):** assign explicitly to `CleverFerret/` or `CleverFerretV2/` at ticket creation.
 
 #### Search
 - Implement full-text search
@@ -129,6 +150,8 @@
 - Implement heatmaps and charts
 
 ### 8. Integration Improvements
+- **Owner module(s):** `core/filesystem`, `core/sync`
+- **Path hint(s):** legacy integration work in `CleverFerret/`; V2 integrations must be scoped to `CleverFerretV2/`.
 
 #### File System
 - Implement File System Access API
@@ -141,6 +164,8 @@
 - Add backup/restore
 
 ### 9. Accessibility
+- **Owner module(s):** `core/accessibility`, `core/ui-compose`
+- **Path hint(s):** identify target app root before implementation (`CleverFerret/` vs `CleverFerretV2/`).
 
 #### Screen Readers
 - Add proper ARIA labels
