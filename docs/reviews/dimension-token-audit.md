@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/CODE_REVIEW.md
+---
+
 # Hardcoded Dimension Audit (Media UI)
 
 Date: 2026-04-18

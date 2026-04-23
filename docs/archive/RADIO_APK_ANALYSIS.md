@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/INDEX.md
+---
+
 # Radio APK Analysis
 
 Analysis of `FMRadio.apk` extracted from the workspace.
