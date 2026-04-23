@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/INDEX.md
+---
+
 # CleverFerret - TODO and Stub Code Completion Summary
 
 ## Overview

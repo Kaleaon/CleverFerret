@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/INDEX.md
+---
+
 # PR Review & Fix Summary
 
 ## Critical Flaws Addressed

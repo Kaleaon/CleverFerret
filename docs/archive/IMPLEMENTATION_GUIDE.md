@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/INDEX.md
+---
+
 # Implementation Guide for Advanced Features
 
 This guide provides step-by-step instructions for integrating the new advanced features into CleverFerret.

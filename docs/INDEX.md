@@ -106,14 +106,14 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 ### Archived PWA / Historical planning
 - [Archived Improvements Needed](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md) - Former PWA-focused improvement plan (archived)
 
-## 🔍 Analysis & Research
+## 🔍 Analysis & Research References
 
-- [Calibre Droid Analysis](archive/CALIBRE_DROID_ANALYSIS.md) - Analysis of Calibre integration
-- [Radio APK Analysis](archive/RADIO_APK_ANALYSIS.md) - FM Radio APK analysis
+- [Calibre Droid Analysis](archive/CALIBRE_DROID_ANALYSIS.md) - Historical reference for Calibre integration analysis
+- [Radio APK Analysis](archive/RADIO_APK_ANALYSIS.md) - Historical reference for FM Radio APK analysis
 
 ---
 
-## 📦 Completed Work (Archive)
+## 📦 Completed Work References (Archive)
 
 ### Bug Fixes & Reviews
 - [Comprehensive Bugfix Report](archive/completed/COMPREHENSIVE_BUGFIX_REPORT.md) - Major bug fixes
@@ -133,15 +133,23 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [PWA Enhancement Summary](archive/completed/PWA_ENHANCEMENT_SUMMARY.md) - Progressive Web App improvements
 
 ### Historical Archives
-- [Advanced Features](archive/ADVANCED_FEATURES.md) - Deep dive into complex capabilities
-- [Audio Improvements Summary](archive/AUDIO_IMPROVEMENTS_SUMMARY.md) - Audio feature improvements
-- [Bugfix Summary](archive/BUGFIX_SUMMARY.md) - Historical bug fixes
-- [Debugging Analysis](archive/DEBUGGING_ANALYSIS.md) - Debugging notes and findings
-- [Design Improvements Summary](archive/DESIGN_IMPROVEMENTS_SUMMARY.md) - UI/UX improvements
-- [Fixes Summary](archive/FIXES_SUMMARY.md) - General fixes
-- [Implementation Guide](archive/IMPLEMENTATION_GUIDE.md) - Historical implementation notes
-- [Implementation Summary](archive/IMPLEMENTATION_SUMMARY.md) - Historical implementation summary
-- [Memory Leak Fixes Changelog](archive/MEMORY_LEAK_FIXES_CHANGELOG.md) - Memory leak resolutions
+- [Advanced Features](archive/ADVANCED_FEATURES.md) - Historical reference on complex capabilities
+- [Audio Improvements Summary](archive/AUDIO_IMPROVEMENTS_SUMMARY.md) - Historical reference on audio feature work
+- [Bugfix Summary](archive/BUGFIX_SUMMARY.md) - Historical bug-fix reference
+- [Debugging Analysis](archive/DEBUGGING_ANALYSIS.md) - Historical debugging notes and findings
+- [Design Improvements Summary](archive/DESIGN_IMPROVEMENTS_SUMMARY.md) - Historical UI/UX reference
+- [Fixes Summary](archive/FIXES_SUMMARY.md) - Historical general-fixes reference
+- [Implementation Guide](archive/IMPLEMENTATION_GUIDE.md) - Historical implementation reference
+- [Implementation Summary](archive/IMPLEMENTATION_SUMMARY.md) - Historical implementation reference
+- [Memory Leak Fixes Changelog](archive/MEMORY_LEAK_FIXES_CHANGELOG.md) - Historical memory-leak fix reference
+
+### Review Package (Historical References)
+- [Review Package README](reviews/README.md) - Historical review package index
+- [Executive Summary](reviews/EXECUTIVE_SUMMARY.md) - Historical review summary
+- [UI Design Review](reviews/ui_design_review.md) - Historical UI audit reference
+- [Fixes Applied](reviews/fixes_applied.md) - Historical record of applied review fixes
+- [Recommendations](reviews/recommendations.md) - Historical recommendation set
+- [Dimension Token Audit](reviews/dimension-token-audit.md) - Historical design token audit
 
 ---
 
@@ -170,7 +178,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - **Active Features**: See [FEATURES_STATUS](FEATURES_STATUS.md)
 - **In Development**: See [ROADMAP](ROADMAP.md), [ACTIVE_BUILD_BACKLOG](planning/ACTIVE_BUILD_BACKLOG.md), and [APP_ISSUES_FIX_PLAN](planning/APP_ISSUES_FIX_PLAN.md)
 - **Completed**: See [archive/completed/](archive/completed/)
-- **Research**: See [archive/](archive/)
+- **Historical References**: See [archive/](archive/) and [reviews/](reviews/)
 
 ### By Category
 - **User Documentation**: README, FEATURES, FEATURES_STATUS

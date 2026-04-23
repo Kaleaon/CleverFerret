@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/INDEX.md
+---
+
 # Memory Leak Fixes - Comprehensive Changelog
 
 ## Overview

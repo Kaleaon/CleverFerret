@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/INDEX.md
+---
+
 # Advanced Features Added to CleverFerret
 
 This document describes the advanced features integrated from Legado, Anx-reader, FDWaveformView, and Snapcast repositories.
