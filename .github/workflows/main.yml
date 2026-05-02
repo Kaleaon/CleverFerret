@@ -74,7 +74,7 @@ jobs:
         # Using --warning-mode all to show warnings without excessive info
         COMPILE_LOG="compile_output_${GITHUB_SHA::8}_${GITHUB_RUN_ATTEMPT}.txt"
         echo "COMPILE_LOG=$COMPILE_LOG" >> "$GITHUB_ENV"
-        ./gradlew compileDebugKotlin --continue --stacktrace --warning-mode all 2>&1 | tee "$COMPILE_LOG"
+        ./gradlew compileDebugKotlin --stacktrace --warning-mode all 2>&1 | tee "$COMPILE_LOG"
         exit_code=${PIPESTATUS[0]}
         
         # If compilation failed, show the last 200 lines which usually contain the errors
@@ -92,7 +92,6 @@ jobs:
         fi
         
         exit $exit_code
-      continue-on-error: true
       
     - name: Report compilation results
       if: always()
