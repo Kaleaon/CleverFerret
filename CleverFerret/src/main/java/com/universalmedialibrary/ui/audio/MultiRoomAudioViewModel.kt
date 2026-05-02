@@ -127,6 +127,10 @@ class MultiRoomAudioViewModel @Inject constructor(
         viewModelScope.launch { multiRoomAudioService.setGroupVolume(group.groupId, volume) }
     }
 
+    fun deleteGroup(group: AudioSyncGroup) {
+        viewModelScope.launch { multiRoomAudioService.deleteGroup(group) }
+    }
+
     fun reportSyncTelemetry(client: AudioSyncClient, driftMs: Double, jitterMs: Double) {
         syncEngine.reportOffset(client.clientId, driftMs, jitterMs, System.currentTimeMillis())
     }

@@ -312,7 +312,7 @@ fun PodcastSubscriptionsTab(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(podcasts) { podcast ->
+            items(podcasts, key = { it.id }) { podcast ->
                 PodcastCard(
                     podcast = podcast,
                     onClick = { onPodcastClick(podcast) },
@@ -337,7 +337,7 @@ fun PodcastEpisodesTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(episodes) { episode ->
+        items(episodes, key = { it.id }) { episode ->
             EpisodeCard(
                 episode = episode,
                 downloadStatus = downloadStatuses[episode.id],
@@ -361,7 +361,7 @@ fun PodcastDownloadsTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(downloads) { episode ->
+        items(downloads, key = { it.id }) { episode ->
             DownloadedEpisodeCard(
                 episode = episode,
                 onClick = { onEpisodeClick(episode) },
@@ -726,7 +726,7 @@ fun PodcastSearchDialog(
                     modifier = Modifier.height(300.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(searchResults) { result ->
+                    items(searchResults, key = { "${it.source}:${it.id}" }) { result ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
