@@ -191,6 +191,7 @@ class MediaHomeViewModel @Inject constructor(
                 
                 _uiState.update {
                     val lastOpenedCategory = it.lastOpenedCategory
+                    val showOnboardingTips = it.showOnboardingTips
                     MediaHomeState(
                         isLoading = false,
                         error = null,
@@ -206,6 +207,8 @@ class MediaHomeViewModel @Inject constructor(
                         libraryStats = stats,
                         collections = collections,
                         lastOpenedCategory = lastOpenedCategory,
+                        hasConfiguredContentSource = hasConfiguredContentSource,
+                        showOnboardingTips = showOnboardingTips,
                         quickAccessItems = buildQuickAccessItems(currentQuickAccessPrefs)
                     )
                 }
@@ -229,6 +232,9 @@ class MediaHomeViewModel @Inject constructor(
                         recentFanfiction = it.recentFanfiction,
                         libraryStats = it.libraryStats,
                         collections = it.collections,
+                        lastOpenedCategory = it.lastOpenedCategory,
+                        hasConfiguredContentSource = it.hasConfiguredContentSource,
+                        showOnboardingTips = it.showOnboardingTips,
                         quickAccessItems = it.quickAccessItems
                     )
                 }
