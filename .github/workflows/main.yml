@@ -117,8 +117,7 @@ jobs:
     
     - name: Run unit tests
       if: steps.compile.outcome == 'success'
-      run: ./gradlew testDebugUnitTest --continue
-      continue-on-error: true
+      run: ./gradlew testDebugUnitTest
       id: unit-tests
 
     - name: Enforce critical-package coverage gates
@@ -234,7 +233,7 @@ jobs:
         # Run build with reduced verbosity for readable error output
         BUILD_LOG="build_output_${GITHUB_SHA::8}_${GITHUB_RUN_ATTEMPT}.txt"
         echo "BUILD_LOG=$BUILD_LOG" >> "$GITHUB_ENV"
-        ./gradlew assembleDebug --continue --stacktrace --warning-mode all \
+        ./gradlew assembleDebug --stacktrace --warning-mode all \
           -PDEBUG_REPORTING_ENABLED=true \
           -PCRASH_REPORTING_ENABLED=true \
           -PSHOW_DEBUG_MENU=true 2>&1 | tee "$BUILD_LOG"
@@ -255,8 +254,7 @@ jobs:
         fi
         
         exit $exit_code
-      continue-on-error: true
-      
+
     - name: Report build status
       if: always()
       run: |
@@ -282,8 +280,7 @@ jobs:
       
     - name: Build release APK (unsigned)
       if: steps.build-debug.outcome == 'success'
-      run: ./gradlew assembleRelease --continue
-      continue-on-error: true
+      run: ./gradlew assembleRelease
       
     - name: Sign release APK
       id: sign_apk
