@@ -205,10 +205,10 @@ class MediaHomeViewModel @Inject constructor(
                         recentFanfiction = recentFanfiction,
                         libraryStats = stats,
                         collections = collections,
-                        lastOpenedCategory = lastOpenedCategory
+                        lastOpenedCategory = lastOpenedCategory,
                         quickAccessItems = buildQuickAccessItems(currentQuickAccessPrefs)
                     )
-            }
+                }
             } catch (e: Exception) {
                 // Improved error handling with logging and error state
                 android.util.Log.e("MediaHomeViewModel", "Error loading home data", e)
