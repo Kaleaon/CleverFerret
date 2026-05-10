@@ -541,30 +541,8 @@ class AdvancedMusicPlayerService @Inject constructor(
         exoPlayerService.setSkipSilence(enabled)
     }
 
-    private fun createTrackInfo(mediaItem: LocalMediaItem, queuePosition: Int = 0): TrackInfo {
-        return TrackInfo(
-            id = mediaItem.itemId.toString(),
-            title = mediaItem.fileName.substringBeforeLast('.'),
-            artist = extractArtistFromMetadata(mediaItem),
-            album = extractAlbumFromMetadata(mediaItem),
-            duration = 0L, // Duration will be updated when media is loaded
-            filePath = mediaItem.filePath,
-            albumArtUrl = null, // Will be enhanced later
-            queuePosition = queuePosition
-        )
-    }
 
-    private fun extractArtistFromMetadata(mediaItem: LocalMediaItem): String? {
-        // Extract artist from metadata or filename
-        // This is a simplified version - would use actual metadata extraction
-        return "Unknown Artist"
-    }
 
-    private fun extractAlbumFromMetadata(mediaItem: LocalMediaItem): String? {
-        // Extract album from metadata or filename
-        // This is a simplified version - would use actual metadata extraction
-        return "Unknown Album"
-    }
 
     private fun playCurrentTrack() {
         val queue = _queue.value
@@ -966,45 +944,8 @@ class AdvancedMusicPlayerService @Inject constructor(
     fun getAudioProfileService(): AudioProfileService = audioProfileService
 }
 
-/**
- * Enhanced playback state for advanced music player
- */
-data class AdvancedPlaybackState(
-    val isPlaying: Boolean = false,
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val currentPositionMs: Long = 0L,
-    val isShuffling: Boolean = false,
-    val repeatMode: Int = 0  // 0 = off, 1 = one, 2 = all
-) {
-    val hasError: Boolean get() = error != null
-    val canPlay: Boolean get() = !isLoading && !hasError
-}
 
-/**
- * Track information for music player
- */
-data class TrackInfo(
-    val id: String,
-    val title: String,
-    val artist: String?,
-    val album: String?,
-    val duration: Long,
-    val filePath: String,
-    val albumArtUrl: String?,
-    val queuePosition: Int = 0,
-    val replayGainTrack: Float? = null, // Track gain in dB
-    val replayGainAlbum: Float? = null  // Album gain in dB
-)
 
-data class AudioEffectsSnapshot(
-    val eqPreset: EqualizerPreset,
-    val bassBoostStrength: Int,
-    val reverbEnabled: Boolean,
-    val reverbPreset: ReverbPreset,
-    val replayGainEnabled: Boolean,
-    val replayGainPreamp: Int
-)
 
 private const val AUDIO_EFFECTS_PREFS = "audio_effects_settings"
 private const val KEY_EQ_PRESET = "eq_preset"
@@ -1014,12 +955,3 @@ private const val KEY_REVERB_PRESET = "reverb_preset"
 private const val KEY_REPLAY_GAIN_ENABLED = "replay_gain_enabled"
 private const val KEY_REPLAY_GAIN_PREAMP = "replay_gain_preamp"
 
-/**
- * Playlist modes for music playback
- */
-enum class PlaylistMode {
-    NORMAL,      // Play through queue once
-    REPEAT_ALL,  // Repeat entire queue
-    REPEAT_ONE,  // Repeat current track
-    SHUFFLE      // Random playback order
-}

@@ -609,36 +609,7 @@ class StorageAccessService @Inject constructor(
         }
     }
 
-    fun listImportLogs(context: Context): List<ImportLogInfo> {
-        return try {
-            val dir = File(context.filesDir, "import_logs")
-            if (!dir.exists()) return emptyList()
-            dir.listFiles { f -> f.isFile && f.name.endsWith(".json") }?.sortedByDescending { it.lastModified() }?.mapNotNull { file ->
-                runCatching {
-                    val parsed = importLogJson.decodeFromString<ImportTransactionLog>(file.readText())
-                    ImportLogInfo(
-                        fileName = file.name,
-                        importId = parsed.importId,
-                        startedAt = parsed.startedAt,
-                        finishedAt = parsed.finishedAt,
-                        moveFiles = parsed.moveFiles,
-                        operationCount = parsed.operations.size,
-                        failedCount = parsed.operations.count { it.status == ImportOperationStatus.FAILED }
-                    )
-                }.getOrNull()
-            } ?: emptyList()
-        } catch (_: Exception) {
-            emptyList()
-        }
-    }
 
-    fun readImportLog(context: Context, fileName: String): ImportTransactionLog? {
-        return runCatching {
-            val file = File(File(context.filesDir, "import_logs"), fileName)
-            if (!file.exists()) return null
-            importLogJson.decodeFromString<ImportTransactionLog>(file.readText())
-        }.getOrNull()
-    }
 
     suspend fun undoImport(
         context: Context,
@@ -713,67 +684,10 @@ class StorageAccessService @Inject constructor(
         )
     }
 
-    private fun writeImportLog(context: Context, log: ImportTransactionLog) {
-        runCatching {
-            val dir = File(context.filesDir, "import_logs")
-            if (!dir.exists()) dir.mkdirs()
-            val file = File(dir, "import_${log.importId}.json")
-            file.writeText(importLogJson.encodeToString(log))
-        }
-    }
 
-    private fun getOrCreateChildDir(context: Context, parent: DocumentFile, name: String): DocumentFile {
-        parent.listFiles().firstOrNull { it.isDirectory && it.name == name }?.let { return it }
-        return parent.createDirectory(name) ?: parent
-    }
 
-    private fun getOrCreateNestedDirs(context: Context, root: DocumentFile, pathSegments: List<String>): DocumentFile {
-        var current = root
-        for (segment in pathSegments) {
-            val cleaned = fileNameSanitizer.sanitizePath(segment).ifBlank { "Unknown" }
-            current = getOrCreateChildDir(context, current, cleaned)
-        }
-        return current
-    }
 
-    private fun moveDocumentFile(context: Context, src: DocumentFile, dstDir: DocumentFile): Boolean {
-        return try {
-            // Try DocumentsContract move if possible
-            val srcDoc = src.uri
-            val dstParent = dstDir.uri
-            try {
-                val parentUri: Uri? = src.parentFile?.uri
-                val moved = if (parentUri != null) {
-                    DocumentsContract.moveDocument(context.contentResolver, srcDoc, parentUri, dstParent)
-                } else {
-                    null
-                }
-                moved != null
-            } catch (_: Throwable) {
-                // Fallback to copy + delete
-                val mime = src.type ?: "application/octet-stream"
-                val base = src.name ?: "file"
-                val target = createUniqueFile(dstDir, mime, base)
-                val copied = copyStream(context, src.uri, target.uri)
-                if (copied) src.delete() else false
-            }
-        } catch (e: Exception) {
-            ErrorLogger.logWarning("StorageAccessService", "Error moving document file", e)
-            false
-        }
-    }
 
-    private fun copyDocumentFile(context: Context, src: DocumentFile, dstDir: DocumentFile, desiredName: String): DocumentFile? {
-        return try {
-            val mime = src.type ?: "application/octet-stream"
-            val target = createUniqueFile(dstDir, mime, desiredName)
-            val copied = copyStream(context, src.uri, target.uri)
-            if (copied) target else null
-        } catch (e: Exception) {
-            ErrorLogger.logWarning("StorageAccessService", "Error copying document file", e)
-            null
-        }
-    }
 
     private sealed class CopyResult {
         data class Copied(val file: DocumentFile) : CopyResult()
@@ -781,74 +695,8 @@ class StorageAccessService @Inject constructor(
         data class Failed(val reason: String) : CopyResult()
     }
 
-    private fun copyDocumentFileWithStrategy(
-        context: Context,
-        src: DocumentFile,
-        dstDir: DocumentFile,
-        desiredName: String,
-        strategy: ImportConflictStrategy
-    ): CopyResult {
-        return try {
-            val mime = src.type ?: "application/octet-stream"
-            val existing = dstDir.findFile(desiredName)
 
-            when (strategy) {
-                ImportConflictStrategy.SKIP -> {
-                    if (existing != null) return CopyResult.Skipped("Destination exists")
-                    val target = dstDir.createFile(mime, desiredName) ?: return CopyResult.Failed("Create failed")
-                    if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
-                }
-                ImportConflictStrategy.REPLACE -> {
-                    existing?.delete()
-                    val target = dstDir.createFile(mime, desiredName) ?: return CopyResult.Failed("Create failed")
-                    if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
-                }
-                ImportConflictStrategy.RENAME -> {
-                    val target = createUniqueFile(dstDir, mime, desiredName)
-                    if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
-                }
-                ImportConflictStrategy.QUARANTINE -> {
-                    // Caller routes to quarantine directory; we just ensure no clobber.
-                    val target = createUniqueFile(dstDir, mime, desiredName)
-                    if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
-                }
-            }
-        } catch (e: Exception) {
-            ErrorLogger.logWarning("StorageAccessService", "Error copying document file (strategy=$strategy)", e)
-            CopyResult.Failed(e.message ?: "Copy failed")
-        }
-    }
 
-    private fun createUniqueFile(dstDir: DocumentFile, mime: String, baseName: String): DocumentFile {
-        var name = baseName
-        var idx = 1
-        while (dstDir.findFile(name) != null) {
-            val ext = name.substringAfterLast('.', "")
-            val stem = if (ext.isNotEmpty()) name.removeSuffix(".$ext") else name
-            name = if (ext.isNotEmpty()) "$stem ($idx).$ext" else "$stem ($idx)"
-            idx++
-        }
-        return dstDir.createFile(mime, name) ?: dstDir
-    }
-
-    private fun copyStream(context: Context, src: Uri, dst: Uri): Boolean {
-        return try {
-            context.contentResolver.openInputStream(src).use { input ->
-                context.contentResolver.openOutputStream(dst, "w").use { output ->
-                    if (input == null || output == null) return false
-                    val buf = ByteArray(8192)
-                    var n: Int
-                    while (true) {
-                        n = input.read(buf)
-                        if (n <= 0) break
-                        output.write(buf, 0, n)
-                    }
-                    output.flush()
-                }
-            }
-            true
-        } catch (e: Exception) { false }
-    }
 
     /**
      * Scan a directory using SAF
@@ -993,13 +841,7 @@ class StorageAccessService @Inject constructor(
         return library
     }
 
-    private fun determineMediaType(fileName: String): MediaType? {
-        return importClassifier.determineMediaType(fileName)
-    }
 
-    private fun determineMediaTypeName(fileName: String): String {
-        return importClassifier.determineMediaTypeName(fileName)
-    }
 
     private data class DerivedMetadata(
         val title: String,
@@ -1010,163 +852,11 @@ class StorageAccessService @Inject constructor(
         val durationMs: Long? = null
     )
 
-    private fun deriveMetadataFromName(fileName: String): DerivedMetadata {
-        val base = fileName.substringBeforeLast('.').trim()
-        val cleanedByFilebot = filebotDataService.stripFilebotNoise(base)
-        val normalized = cleanedByFilebot
-            .replace("—", "-")
-            .replace("–", "-")
-            .replace("_", " ")
-            .replace(Regex("\\s+"), " ")
-            .trim()
-        val cleaned = normalized
-            .replace(Regex("\\s*\\[[^\\]]*]\\s*"), " ")
-            .replace(Regex("\\s*\\([^)]*\\)\\s*"), " ")
-            .replace(Regex("\\s+"), " ")
-            .trim()
 
-        // "Title by Author"
-        Regex("^(.*)\\s+by\\s+(.+)$", RegexOption.IGNORE_CASE).find(cleaned)?.let { m ->
-            val title = m.groupValues.getOrNull(1)?.trim().orEmpty()
-            val author = m.groupValues.getOrNull(2)?.trim().orEmpty()
-            if (title.isNotBlank() && author.isNotBlank()) {
-                return DerivedMetadata(title = title, authorOrArtist = author)
-            }
-        }
 
-        // Split on common separators
-        val parts = cleaned.split(" - ").map { it.trim() }.filter { it.isNotBlank() }
-        if (parts.size < 2) return DerivedMetadata(title = cleaned.ifBlank { base })
 
-        val left = parts.first()
-        val right = parts.drop(1).joinToString(" - ")
 
-        val leftAuthorScore = scoreAsAuthor(left)
-        val rightAuthorScore = scoreAsAuthor(right)
-        val leftTitleScore = scoreAsTitle(left)
-        val rightTitleScore = scoreAsTitle(right)
 
-        val authorIsLeft = when {
-            leftAuthorScore != rightAuthorScore -> leftAuthorScore > rightAuthorScore
-            leftTitleScore != rightTitleScore -> leftTitleScore < rightTitleScore
-            else -> true // default: "Author - Title"
-        }
-
-        return if (authorIsLeft) {
-            DerivedMetadata(title = right, authorOrArtist = left)
-        } else {
-            DerivedMetadata(title = left, authorOrArtist = right)
-        }
-    }
-
-    private fun scoreAsAuthor(value: String): Int {
-        var score = 0
-        val v = value.trim()
-        if (v.contains(",")) score += 2 // "Last, First"
-        if (v.startsWith("by ", ignoreCase = true)) score += 2
-        val words = v.split(" ").filter { it.isNotBlank() }
-        if (words.size in 2..4 && words.all { it.firstOrNull()?.isUpperCase() == true }) score += 1
-        if (v.any { it.isDigit() }) score -= 1
-        if (Regex("\\b(vol|volume|book|chapter|part)\\b", RegexOption.IGNORE_CASE).containsMatchIn(v)) score -= 1
-        return score
-    }
-
-    private fun scoreAsTitle(value: String): Int {
-        var score = 0
-        val v = value.trim()
-        val words = v.split(" ").filter { it.isNotBlank() }
-        if (words.size >= 5) score += 1
-        if (v.contains(":")) score += 1
-        if (v.any { it.isDigit() }) score += 1
-        if (Regex("\\b(vol|volume|book|chapter|part)\\b", RegexOption.IGNORE_CASE).containsMatchIn(v)) score += 1
-        return score
-    }
-
-    private fun deriveMetadataForAudio(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
-        val retriever = MediaMetadataRetriever()
-        return try {
-            retriever.setDataSource(context, uri)
-            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-                ?.takeIf { it.isNotBlank() }
-                ?: fallbackName.substringBeforeLast('.')
-            val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-                ?.takeIf { it.isNotBlank() }
-            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-                ?.takeIf { it.isNotBlank() }
-            val track = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)
-                ?.split("/", "-", "\\")?.firstOrNull()?.trim()?.toIntOrNull()
-            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
-            DerivedMetadata(title = title, authorOrArtist = artist, album = album, trackNumber = track, durationMs = duration)
-        } catch (_: Exception) {
-            deriveMetadataFromName(fallbackName)
-        } finally {
-            runCatching { retriever.release() }
-        }
-    }
-
-    private fun deriveMetadataForBook(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
-        val lower = fallbackName.lowercase()
-        return when {
-            lower.endsWith(".epub") -> deriveMetadataForEpub(context, uri, fallbackName)
-            lower.endsWith(".pdf") -> deriveMetadataForPdf(context, uri, fallbackName)
-            else -> deriveMetadataFromName(fallbackName)
-        }
-    }
-
-    private fun deriveMetadataForEpub(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
-        // Parse META-INF/container.xml -> OPF -> dc:title + dc:creator + calibre series
-        return try {
-            val entries = mutableMapOf<String, ByteArray>()
-            context.contentResolver.openInputStream(uri).use { input ->
-                if (input == null) return@use
-                ZipInputStream(input).use { zis ->
-                    while (true) {
-                        val entry = zis.nextEntry ?: break
-                        if (entry.isDirectory) continue
-                        val name = entry.name
-                        if (name.equals("META-INF/container.xml", ignoreCase = true) ||
-                            name.endsWith(".opf", ignoreCase = true)
-                        ) {
-                            val baos = ByteArrayOutputStream()
-                            val buf = ByteArray(8192)
-                            var n: Int
-                            while (zis.read(buf).also { n = it } > 0) {
-                                baos.write(buf, 0, n)
-                            }
-                            entries[name] = baos.toByteArray()
-                        }
-                    }
-                }
-            }
-
-            val containerBytes = entries.entries.firstOrNull { it.key.equals("META-INF/container.xml", ignoreCase = true) }?.value
-            val opfPath = containerBytes?.let { parseEpubOpfPath(it) }
-
-            val opfBytes = when {
-                opfPath != null -> entries[opfPath]
-                else -> entries.entries.firstOrNull { it.key.endsWith(".opf", ignoreCase = true) }?.value
-            }
-
-            if (opfBytes != null) {
-                val parsed = parseOpfMetadata(opfBytes)
-                val title = parsed.title?.takeIf { it.isNotBlank() } ?: fallbackName.substringBeforeLast('.')
-                val author = parsed.creator?.takeIf { it.isNotBlank() }
-                val series = parsed.series?.takeIf { it.isNotBlank() }
-
-                // If OPF is missing/odd, fall back to filename heuristics.
-                val fallback = deriveMetadataFromName(fallbackName)
-                return DerivedMetadata(
-                    title = title.ifBlank { fallback.title },
-                    authorOrArtist = author ?: fallback.authorOrArtist,
-                    series = series ?: fallback.series
-                )
-            }
-
-            deriveMetadataFromName(fallbackName)
-        } catch (_: Exception) {
-            deriveMetadataFromName(fallbackName)
-        }
-    }
 
     private data class OpfParsed(
         val title: String? = null,
@@ -1174,167 +864,11 @@ class StorageAccessService @Inject constructor(
         val series: String? = null
     )
 
-    private fun parseEpubOpfPath(containerXml: ByteArray): String? {
-        return try {
-            val parser = Xml.newPullParser()
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-            parser.setInput(containerXml.inputStream(), null)
-            var event = parser.eventType
-            while (event != XmlPullParser.END_DOCUMENT) {
-                if (event == XmlPullParser.START_TAG && parser.name.equals("rootfile", ignoreCase = true)) {
-                    val fullPath = parser.getAttributeValue(null, "full-path")
-                    if (!fullPath.isNullOrBlank()) return fullPath
-                }
-                event = parser.next()
-            }
-            null
-        } catch (_: Exception) {
-            null
-        }
-    }
 
-    private fun parseOpfMetadata(opfXml: ByteArray): OpfParsed {
-        var title: String? = null
-        var creator: String? = null
-        var series: String? = null
-        return try {
-            val parser = Xml.newPullParser()
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-            parser.setInput(opfXml.inputStream(), null)
-            var event = parser.eventType
-            var currentTag: String? = null
-            while (event != XmlPullParser.END_DOCUMENT) {
-                when (event) {
-                    XmlPullParser.START_TAG -> {
-                        currentTag = parser.name
-                        // calibre series is often stored as <meta name="calibre:series" content="X"/>
-                        if (parser.name.equals("meta", ignoreCase = true)) {
-                            val nameAttr = parser.getAttributeValue(null, "name")
-                            if (nameAttr.equals("calibre:series", ignoreCase = true)) {
-                                series = parser.getAttributeValue(null, "content")
-                            }
-                        }
-                    }
-                    XmlPullParser.TEXT -> {
-                        val text = parser.text?.trim().orEmpty()
-                        if (text.isNotBlank() && currentTag != null) {
-                            val tag = currentTag!!.lowercase()
-                            if (title.isNullOrBlank() && tag.endsWith("title")) title = text
-                            if (creator.isNullOrBlank() && (tag.endsWith("creator") || tag.endsWith("author"))) creator = text
-                        }
-                    }
-                    XmlPullParser.END_TAG -> currentTag = null
-                }
-                event = parser.next()
-            }
-            OpfParsed(title = title, creator = creator, series = series)
-        } catch (_: Exception) {
-            OpfParsed()
-        }
-    }
 
-    private fun deriveMetadataForPdf(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
-        // Best-effort: PDFs often store /Title(...) and /Author(...) in the info dictionary.
-        // This is not guaranteed (may be compressed/encoded), but it's a useful heuristic.
-        return try {
-            val maxBytes = 512 * 1024 // 512KB
-            val buf = ByteArray(8192)
-            val baos = ByteArrayOutputStream()
-            context.contentResolver.openInputStream(uri).use { input ->
-                if (input == null) return@use
-                var remaining = maxBytes
-                while (remaining > 0) {
-                    val toRead = minOf(buf.size, remaining)
-                    val n = input.read(buf, 0, toRead)
-                    if (n <= 0) break
-                    baos.write(buf, 0, n)
-                    remaining -= n
-                }
-            }
-            val text = baos.toByteArray().toString(Charsets.ISO_8859_1)
-            val title = extractPdfInfoField(text, "Title")
-            val author = extractPdfInfoField(text, "Author")
-            val fallback = deriveMetadataFromName(fallbackName)
-            DerivedMetadata(
-                title = title?.ifBlank { null } ?: fallback.title,
-                authorOrArtist = author?.ifBlank { null } ?: fallback.authorOrArtist
-            )
-        } catch (_: Exception) {
-            deriveMetadataFromName(fallbackName)
-        }
-    }
 
-    private fun extractPdfInfoField(pdfText: String, key: String): String? {
-        // Matches: /Title (value) or /Title(value)
-        val regex = Regex("/$key\\s*\\(([^)]*)\\)")
-        val raw = regex.find(pdfText)?.groupValues?.getOrNull(1) ?: return null
-        return raw
-            .replace("\\\\", "\\")
-            .replace("\\(", "(")
-            .replace("\\)", ")")
-            .trim()
-            .takeIf { it.isNotBlank() }
-    }
 
-    private fun deriveMetadataForComicArchive(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
-        // Prefer shared utility which supports CBZ and CBR.
-        val info = runCatching { ComicArchiveUtils.extractComicInfo(context, uri, fallbackName) }.getOrNull()
-        if (info != null) {
-            val title = info.title?.takeIf { it.isNotBlank() } ?: fallbackName.substringBeforeLast('.')
-            return DerivedMetadata(
-                title = title,
-                authorOrArtist = info.writer,
-                series = info.series
-            )
-        }
-        // Fallback: CBZ stream scan (kept for resilience)
-        return try {
-            context.contentResolver.openInputStream(uri).use { input ->
-                if (input == null) return@use null
-                ZipInputStream(input).use { zis ->
-                    var entry = zis.nextEntry
-                    while (entry != null) {
-                        if (!entry.isDirectory && entry.name.endsWith("ComicInfo.xml", ignoreCase = true)) {
-                            val parsed = ComicInfoParser.parse(zis)
-                            val title = parsed.title?.takeIf { it.isNotBlank() } ?: fallbackName.substringBeforeLast('.')
-                            return DerivedMetadata(
-                                title = title,
-                                authorOrArtist = parsed.writer,
-                                series = parsed.series,
-                            )
-                        }
-                        entry = zis.nextEntry
-                    }
-                    null
-                }
-            } ?: deriveMetadataFromName(fallbackName)
-        } catch (_: Exception) {
-            deriveMetadataFromName(fallbackName)
-        }
-    }
 
-    private fun deleteEmptyDirectories(
-        dir: DocumentFile,
-        isRoot: Boolean,
-        progressCallback: (String) -> Unit
-    ): Int {
-        if (!dir.isDirectory) return 0
-        var deleted = 0
-        dir.listFiles().forEach { child ->
-            if (child.isDirectory) {
-                deleted += deleteEmptyDirectories(child, isRoot = false, progressCallback = progressCallback)
-            }
-        }
-        val nowEmpty = dir.listFiles().isEmpty()
-        if (nowEmpty && !isRoot) {
-            val name = dir.name ?: "folder"
-            if (dir.delete()) {
-                deleted += 1
-                progressCallback("Removed empty folder: $name")
-            }
-        }
-        return deleted
-    }
 
     private suspend fun importRecursively(
         context: Context,
@@ -1636,206 +1170,17 @@ class StorageAccessService @Inject constructor(
         }
     }
 
-    private fun buildPlanRecursively(
-        context: Context,
-        input: DocumentFile,
-        out: MutableList<ImportPlanItem>,
-        progressCallback: (String) -> Unit,
-        options: ImportSortOptions
-    ) {
-        if (!input.isDirectory) return
-        input.listFiles().forEach { child ->
-            if (child.isDirectory) {
-                buildPlanRecursively(context, child, out, progressCallback, options)
-                return@forEach
-            }
-            if (!child.isFile) return@forEach
-            val srcName = child.name ?: return@forEach
-            val mediaType = determineMediaTypeName(srcName)
 
-            val (derived, metadataSource, confidenceBase) = when (mediaType) {
-                "MUSIC" -> Triple(deriveMetadataForAudio(context, child.uri, srcName), "AUDIO_TAGS", 0.9f)
-                "BOOK" -> {
-                    val byExt = if (srcName.lowercase().endsWith(".epub")) "EPUB_OPF" else if (srcName.lowercase().endsWith(".pdf")) "PDF_INFO" else "FILENAME"
-                    val d = deriveMetadataForBook(context, child.uri, srcName)
-                    val conf = when (byExt) {
-                        "EPUB_OPF" -> if (d.authorOrArtist != null || d.title.isNotBlank()) 0.85f else 0.55f
-                        "PDF_INFO" -> if (d.authorOrArtist != null) 0.75f else 0.55f
-                        else -> 0.55f
-                    }
-                    Triple(d, byExt, conf)
-                }
-                "COMIC" -> {
-                    val lower = srcName.lowercase()
-                    val hasComicInfo = lower.endsWith(".cbz") || lower.endsWith(".cbr")
-                    val d = if (hasComicInfo) deriveMetadataForComicArchive(context, child.uri, srcName) else deriveMetadataFromName(srcName)
-                    Triple(d, if (hasComicInfo) "COMICINFO" else "FILENAME", if (hasComicInfo) 0.8f else 0.55f)
-                }
-                else -> Triple(deriveMetadataFromName(srcName), "FILENAME", 0.55f)
-            }
-
-            val reasons = mutableListOf<String>()
-            var confidence = confidenceBase
-
-            if (derived.title.replace(" ", "").length >= 18 && !derived.title.contains(" ")) {
-                reasons += "Title has no spaces (may need manual spacing)"
-                confidence = minOf(confidence, 0.5f)
-            }
-            if ((mediaType == "BOOK" || mediaType == "COMIC") && derived.authorOrArtist.isNullOrBlank()) {
-                reasons += "Missing author/creator"
-                confidence = minOf(confidence, 0.55f)
-            }
-            if (metadataSource == "FILENAME") {
-                reasons += "Derived from filename"
-                confidence = minOf(confidence, 0.55f)
-            }
-
-            val ext = srcName.substringAfterLast('.', "").lowercase()
-            val safeTitle = fileNameSanitizer.sanitizeFileNamePermissive(derived.title).ifBlank { "Unknown" }
-            val safeAuthor = derived.authorOrArtist?.let { fileNameSanitizer.sanitizeFileNamePermissive(it).ifBlank { "Unknown" } }
-            val safeAlbum = derived.album?.let { fileNameSanitizer.sanitizeFileNamePermissive(it).ifBlank { "Unknown" } }
-            val safeSeries = derived.series?.let { fileNameSanitizer.sanitizeFileNamePermissive(it).ifBlank { "Unknown" } }
-
-            val (destSegments, outputFileName) = when (mediaType) {
-                "BOOK" -> {
-                    val segments = when (options.profile) {
-                        ImportSortProfile.BOOKS_FLAT -> listOf("Books")
-                        ImportSortProfile.BOOKS_AUTHOR_TITLE -> listOf("Books", safeAuthor ?: "Unknown Author")
-                        else -> buildList {
-                            add("Books")
-                            add(safeAuthor ?: "Unknown Author")
-                            safeSeries?.let { add(it) }
-                        }
-                    }
-                    val name = "${safeTitle}.${ext.ifBlank { "bin" }}"
-                    segments to name
-                }
-                "MUSIC" -> {
-                    val segments = listOf("Music", safeAuthor ?: "Unknown Artist", safeAlbum ?: "Unknown Album")
-                    val prefix = derived.trackNumber?.let { tn -> tn.coerceAtLeast(0).toString().padStart(2, '0') + " - " } ?: ""
-                    val name = "${prefix}${safeTitle}.${ext.ifBlank { "bin" }}"
-                    segments to name
-                }
-                "MOVIE" -> listOf("Movies", safeTitle) to srcName
-                "COMIC" -> {
-                    val segments = when (options.profile) {
-                        ImportSortProfile.COMICS_ALWAYS_SERIES_FOLDER -> listOf("Comics", safeSeries ?: "Unknown Series")
-                        ImportSortProfile.COMICS_SINGLETONS_TO_ROOT -> listOf("Comics", safeSeries ?: "Unknown Series") // singleton adjustment happens post-pass
-                        else -> listOf("Comics", safeSeries ?: "Unknown Series")
-                    }
-                    segments to srcName
-                }
-                "DOCUMENT" -> listOf("Documents", ext.ifBlank { "unknown" }.uppercase(Locale.ROOT)) to srcName
-                else -> listOf("Other") to srcName
-            }
-
-            out += ImportPlanItem(
-                sourceUri = child.uri.toString(),
-                sourceDisplayName = srcName,
-                mediaType = mediaType,
-                title = derived.title,
-                authorOrArtist = derived.authorOrArtist,
-                album = derived.album,
-                series = derived.series,
-                trackNumber = derived.trackNumber,
-                durationMs = derived.durationMs,
-                metadataSource = metadataSource,
-                confidence = confidence,
-                reasons = reasons,
-                destSegments = destSegments,
-                outputFileName = outputFileName,
-                fileSize = child.length()
-            )
-        }
-    }
-
-    private fun computeSha256(context: Context, uri: Uri): String? {
-        return try {
-            val digest = MessageDigest.getInstance("SHA-256")
-            context.contentResolver.openInputStream(uri).use { input ->
-                if (input == null) return null
-                val buf = ByteArray(1024 * 64)
-                while (true) {
-                    val n = input.read(buf)
-                    if (n <= 0) break
-                    digest.update(buf, 0, n)
-                }
-            }
-            digest.digest().joinToString("") { "%02x".format(it) }
-        } catch (_: Exception) {
-            null
-        }
-    }
 }
 
 @Serializable
-data class ImportSortOptions(
-    val moveFiles: Boolean = false
-    ,
-    val removeEmptyFolders: Boolean = true
-    ,
-    val conflictStrategy: ImportConflictStrategy = ImportConflictStrategy.RENAME
-    ,
-    val preventDuplicates: Boolean = true
-    ,
-    val duplicateStrategy: ImportConflictStrategy = ImportConflictStrategy.SKIP
-    ,
-    val storeContentHash: Boolean = true
-    ,
-    val profile: ImportSortProfile = ImportSortProfile.DEFAULT
-)
 
 @Serializable
-data class ImportSortSummary(
-    val imported: Int = 0,
-    val skipped: Int = 0,
-    val errors: Int = 0,
-    val deletedFolders: Int = 0
-)
 
 @Serializable
-data class ImportPlan(
-    val inputTreeUri: String,
-    val outputTreeUri: String,
-    val items: List<ImportPlanItem>
-)
 
 @Serializable
-data class ImportPlanItem(
-    val sourceUri: String,
-    val sourceDisplayName: String,
-    val mediaType: String,
-    val title: String,
-    val authorOrArtist: String? = null,
-    val album: String? = null,
-    val series: String? = null,
-    val trackNumber: Int? = null,
-    val durationMs: Long? = null,
-    val metadataSource: String? = null,
-    val confidence: Float = 0.5f,
-    val reasons: List<String> = emptyList(),
-    val destSegments: List<String>,
-    val outputFileName: String,
-    val conflictStrategy: ImportConflictStrategy? = null,
-    val fileSize: Long? = null
-) {
-    val isQuestionable: Boolean
-        get() = confidence < 0.7f || reasons.isNotEmpty()
-}
 
 @Serializable
-enum class ImportConflictStrategy {
-    SKIP,
-    RENAME,
-    REPLACE,
-    QUARANTINE
-}
 
 @Serializable
-enum class ImportSortProfile {
-    DEFAULT,
-    COMICS_SINGLETONS_TO_ROOT,
-    COMICS_ALWAYS_SERIES_FOLDER,
-    BOOKS_FLAT,
-    BOOKS_AUTHOR_TITLE
-}
