@@ -452,33 +452,6 @@ class CloudSyncService @Inject constructor(
     /**
      * Identify conflicts between local and remote changes
      */
-    private fun identifyConflicts(
-        localItems: List<SyncItem>,
-        remoteItems: List<SyncItem>
-    ): List<CloudSyncConflict> {
-        val conflicts = mutableListOf<CloudSyncConflict>()
-
-        val remoteMap = remoteItems.associateBy { it.id }
-
-        localItems.forEach { local ->
-            val remote = remoteMap[local.id]
-            if (remote != null && remote.timestamp != local.timestamp) {
-                // Conflict detected
-                conflicts.add(
-                    CloudSyncConflict(
-                        itemId = local.id,
-                        itemType = local.type,
-                        localData = local.data,
-                        remoteData = remote.data,
-                        localTimestamp = local.timestamp,
-                        remoteTimestamp = remote.timestamp
-                    )
-                )
-            }
-        }
-
-        return conflicts
-    }
 
     /**
      * Resolve conflicts automatically using last-write-wins
@@ -554,28 +527,7 @@ class CloudSyncService @Inject constructor(
         }
     }
 
-    private fun mergeReadingPosition(conflict: CloudSyncConflict): SyncItem? {
-        // Use the furthest reading position
-        val localProgress = (conflict.localData as Map<*, *>)["progress"] as? Float ?: 0f
-        val remoteProgress = (conflict.remoteData as Map<*, *>)["progress"] as? Float ?: 0f
 
-        return if (remoteProgress > localProgress) {
-            SyncItem(
-                id = conflict.itemId,
-                type = conflict.itemType,
-                data = conflict.remoteData as Map<String, Any>,
-                timestamp = conflict.remoteTimestamp,
-                deviceId = ""
-            )
-        } else {
-            null // Keep local
-        }
-    }
-
-    private fun mergeAnnotation(conflict: CloudSyncConflict): SyncItem? {
-        // Annotations are merged by keeping both
-        return null // Manual resolution needed
-    }
 
     private fun mergeSettings(conflict: CloudSyncConflict): SyncItem? {
         // Merge settings by combining non-conflicting values
@@ -687,114 +639,11 @@ class CloudSyncService @Inject constructor(
         return newDeviceId
     }
 
-    private fun encryptData(item: SyncItem): SyncItem {
-        try {
-            // Serialize data to JSON
-            val jsonData = serializeToJson(item.data)
 
-            // Encrypt using AES-GCM
-            val cipher = getCipher()
-            val secretKey = getOrCreateSecretKey()
-            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKey)
 
-            val iv = cipher.iv
-            val encrypted = cipher.doFinal(jsonData.toByteArray())
-            val combined = iv + encrypted
-            val encryptedString = android.util.Base64.encodeToString(combined, android.util.Base64.DEFAULT)
 
-            // Return item with encrypted data
-            return item.copy(
-                data = mapOf("encrypted" to encryptedString)
-            )
-        } catch (e: Exception) {
-            // Fallback to unencrypted if encryption fails
-            return item
-        }
-    }
 
-    private fun decryptData(item: SyncItem): SyncItem {
-        try {
-            val encryptedString = item.data["encrypted"] as? String ?: return item
 
-            // Decrypt using AES-GCM
-            val cipher = getCipher()
-            val secretKey = getOrCreateSecretKey()
-
-            val decoded = android.util.Base64.decode(encryptedString, android.util.Base64.DEFAULT)
-            val iv = decoded.copyOfRange(0, 12)
-            val ciphertext = decoded.copyOfRange(12, decoded.size)
-
-            val gcmSpec = javax.crypto.spec.GCMParameterSpec(128, iv)
-            cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKey, gcmSpec)
-
-            val decrypted = cipher.doFinal(ciphertext)
-            val jsonData = String(decrypted)
-
-            // Deserialize JSON back to map
-            val originalData = deserializeFromJson(jsonData)
-
-            return item.copy(data = originalData)
-        } catch (e: Exception) {
-            // Return original if decryption fails
-            return item
-        }
-    }
-
-    private fun getOrCreateSecretKey(): javax.crypto.SecretKey {
-        val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")
-        keyStore.load(null)
-
-        val alias = "cleverferret_sync_key"
-
-        if (!keyStore.containsAlias(alias)) {
-            val keyGenerator = javax.crypto.KeyGenerator.getInstance(
-                android.security.keystore.KeyProperties.KEY_ALGORITHM_AES,
-                "AndroidKeyStore"
-            )
-
-            val keyGenParameterSpec = android.security.keystore.KeyGenParameterSpec.Builder(
-                alias,
-                android.security.keystore.KeyProperties.PURPOSE_ENCRYPT or
-                android.security.keystore.KeyProperties.PURPOSE_DECRYPT
-            )
-                .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE)
-                .build()
-
-            keyGenerator.init(keyGenParameterSpec)
-            return keyGenerator.generateKey()
-        }
-
-        return keyStore.getKey(alias, null) as javax.crypto.SecretKey
-    }
-
-    private fun getCipher(): javax.crypto.Cipher {
-        return javax.crypto.Cipher.getInstance(
-            android.security.keystore.KeyProperties.KEY_ALGORITHM_AES + "/" +
-            android.security.keystore.KeyProperties.BLOCK_MODE_GCM + "/" +
-            android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE
-        )
-    }
-
-    private fun serializeToJson(data: Map<String, Any>): String {
-        // Simple JSON serialization
-        return data.entries.joinToString(",", "{", "}") { (key, value) ->
-            "\"$key\":\"$value\""
-        }
-    }
-
-    private fun deserializeFromJson(json: String): Map<String, Any> {
-        // Simple JSON deserialization
-        val entries = json.removeSurrounding("{", "}")
-            .split(",")
-            .mapNotNull {
-                val parts = it.split(":")
-                if (parts.size == 2) {
-                    parts[0].removeSurrounding("\"") to parts[1].removeSurrounding("\"")
-                } else null
-            }
-        return entries.toMap()
-    }
 
     private val prefs by lazy {
         context.getSharedPreferences("cloud_sync_prefs", Context.MODE_PRIVATE)
