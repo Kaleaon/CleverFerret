@@ -117,7 +117,6 @@ private fun PaletteCard(
                 style = MaterialTheme.typography.titleSmall.copy(
                     brush = palette.tokens.metal.brush(),
                     fontWeight = FontWeight.Black,
-                    color = palette.scheme.onBackground,
                 ),
                 modifier = Modifier.weight(1f),
             )

@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -113,7 +114,7 @@ fun CFMetalButton(
     Box(
         modifier
             .clip(CircleShape)
-            .background(if (enabled) tokens.metal.brush() else Brush.linearGradient(listOf(cs.onSurface.copy(alpha = 0.12f), cs.onSurface.copy(alpha = 0.12f))))
+            .background(if (enabled) tokens.metal.brush() else SolidColor(cs.onSurface.copy(alpha = 0.12f)))
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
