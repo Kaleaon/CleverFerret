@@ -9,7 +9,9 @@ package com.universalmedialibrary.ui.modern.writer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
@@ -122,6 +124,7 @@ private fun FormatBar(onFormat: (FormatAction) -> Unit) {
         Modifier
             .fillMaxWidth()
             .border(1.dp, cs.outline.copy(alpha = 0.3f), RoundedCornerShape(0.dp))
+            .horizontalScroll(rememberScrollState())
             .padding(horizontal = CFSpacing.sm, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -138,7 +141,6 @@ private fun FormatBar(onFormat: (FormatAction) -> Unit) {
         FormatBtn(Icons.Default.FormatListNumbered,             "Numbered list") { onFormat(FormatAction.OrderedList) }
         FormatBtn(Icons.Default.Link,                            "Link")        { onFormat(FormatAction.Link) }
         FormatBtn(Icons.Default.Image,                           "Image")       { onFormat(FormatAction.Image) }
-        Spacer(Modifier.weight(1f))
         FormatBtn(Icons.Default.Undo, "Undo") { onFormat(FormatAction.Undo) }
         FormatBtn(Icons.Default.Redo, "Redo") { onFormat(FormatAction.Redo) }
     }

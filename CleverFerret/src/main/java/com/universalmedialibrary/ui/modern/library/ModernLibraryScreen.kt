@@ -373,6 +373,8 @@ private fun MediaKind.displayName(): String = when (this) {
     MediaKind.Movie -> "Movies"; MediaKind.Tv -> "TV"
     MediaKind.Music -> "Music"; MediaKind.Radio -> "Radio"
     MediaKind.WebFiction -> "Web Fiction"
+    MediaKind.Manga -> "Manga"; MediaKind.Video -> "Video"
+    MediaKind.Fanfiction -> "Fanfiction"
 }
 
 private fun Int.formatCount(): String =

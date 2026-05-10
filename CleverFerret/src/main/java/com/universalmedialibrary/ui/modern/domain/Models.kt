@@ -4,7 +4,7 @@ package com.universalmedialibrary.ui.modern.domain
 
 import androidx.compose.ui.graphics.Color
 
-enum class MediaKind { Book, Audiobook, Podcast, Comic, Movie, Tv, Music, Radio, WebFiction }
+enum class MediaKind { Book, Audiobook, Podcast, Comic, Movie, Tv, Music, Radio, WebFiction, Manga, Video, Fanfiction }
 
 data class MediaItem(
     val id: String,
@@ -54,5 +54,6 @@ object SampleData {
         MediaKind.Book to 412, MediaKind.Audiobook to 47, MediaKind.Podcast to 18,
         MediaKind.Comic to 84, MediaKind.Movie to 132, MediaKind.Tv to 24,
         MediaKind.Music to 2841, MediaKind.Radio to 12, MediaKind.WebFiction to 8,
+        MediaKind.Manga to 36, MediaKind.Video to 67, MediaKind.Fanfiction to 15,
     )
 }

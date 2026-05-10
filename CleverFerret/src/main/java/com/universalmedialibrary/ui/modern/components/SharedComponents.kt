@@ -78,6 +78,7 @@ fun MiniPlayer(
     item: MediaItem,
     onTap: () -> Unit,
     onPlayPause: () -> Unit,
+    onPrevious: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
@@ -101,7 +102,7 @@ fun MiniPlayer(
                     color = cs.onSurfaceVariant,
                 )
             }
-            IconButton(onClick = {}) { Icon(Icons.Default.SkipPrevious, contentDescription = null) }
+            IconButton(onClick = onPrevious) { Icon(Icons.Default.SkipPrevious, contentDescription = null) }
             FilledIconButton(
                 onClick = onPlayPause,
                 colors = IconButtonDefaults.filledIconButtonColors(containerColor = cs.primary),

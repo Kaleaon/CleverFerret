@@ -79,14 +79,37 @@ fun ModernAuthenticationScreen(
                     CFMetalButton(
                         text = if (state.isAuthenticating) "Opening browser..." else "Sign in with ${state.providerName}",
                         onClick = onLaunchOAuth,
+                        enabled = !state.isAuthenticating,
                         leadingIcon = Icons.Default.Login,
                     )
                 }
                 AuthMethod.MagicLink -> {
-                    Spacer(Modifier.height(CFSpacing.lg))
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(cs.surface)
+                            .border(1.dp, cs.outline.copy(alpha = 0.3f), RoundedCornerShape(14.dp))
+                            .padding(CFSpacing.md),
+                        verticalArrangement = Arrangement.spacedBy(CFSpacing.sm),
+                    ) {
+                        val emailField = state.fields.firstOrNull { it.key == "email" }
+                            ?: AuthFieldDef(key = "email", label = "Email address", placeholder = "you@example.com")
+                        OutlinedTextField(
+                            value = state.values["email"] ?: "",
+                            onValueChange = { onChangeField("email", it) },
+                            label = { Text(emailField.label) },
+                            placeholder = { Text(emailField.placeholder) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    state.errorMessage?.let { Text(it, color = cs.error, style = MaterialTheme.typography.bodySmall) }
+                    Spacer(Modifier.height(CFSpacing.sm))
                     CFMetalButton(
-                        text = "Email me a magic link",
+                        text = if (state.isAuthenticating) "Sending..." else "Email me a magic link",
                         onClick = onSubmit,
+                        enabled = !state.isAuthenticating,
                         leadingIcon = Icons.Default.Email,
                     )
                 }
@@ -116,6 +139,7 @@ fun ModernAuthenticationScreen(
                     CFMetalButton(
                         text = if (state.isAuthenticating) "Signing in..." else "Sign in",
                         onClick = onSubmit,
+                        enabled = !state.isAuthenticating,
                         leadingIcon = Icons.Default.Login,
                     )
                 }

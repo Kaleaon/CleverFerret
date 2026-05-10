@@ -9,8 +9,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -66,7 +68,7 @@ fun ModernTagExplorerScreen(
         },
         containerColor = cs.background,
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
+        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
             OutlinedTextField(
                 value = state.query,
                 onValueChange = onQueryChange,
@@ -110,7 +112,7 @@ fun ModernTagExplorerScreen(
                 )
                 FlowRow(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .padding(horizontal = CFSpacing.lg, vertical = CFSpacing.xs),
                     horizontalArrangement = Arrangement.spacedBy(CFSpacing.xs),
                     verticalArrangement = Arrangement.spacedBy(CFSpacing.xs),

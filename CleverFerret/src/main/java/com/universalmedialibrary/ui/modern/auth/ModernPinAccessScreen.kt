@@ -97,12 +97,12 @@ fun ModernPinAccessScreen(
                 modifier = Modifier.heightIn(max = 360.dp),
                 userScrollEnabled = false,
             ) {
-                (1..9).forEach { d -> item { NumKey(d.toString()) { onDigit(d) } } }
+                (1..9).forEach { d -> item { NumKey(d.toString()) { if (state.pinLength < state.maxLength) onDigit(d) } } }
                 item {
                     if (state.biometricAvailable) IconKey(Icons.Default.Fingerprint, contentDescription = "Use biometric", onClick = onBiometric)
                     else Spacer(Modifier.size(72.dp))
                 }
-                item { NumKey("0") { onDigit(0) } }
+                item { NumKey("0") { if (state.pinLength < state.maxLength) onDigit(0) } }
                 item { IconKey(Icons.AutoMirrored.Filled.Backspace, contentDescription = "Backspace", onClick = onBackspace) }
             }
 

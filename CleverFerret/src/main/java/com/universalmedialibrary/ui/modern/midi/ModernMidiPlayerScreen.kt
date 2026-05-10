@@ -108,8 +108,8 @@ fun ModernMidiPlayerScreen(
                                 Icon(if (state.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = null, tint = cs.onPrimary)
                             }
                         }
-                        Stepper(label = "BPM", value = state.tempoBpm.toString(), onMinus = { onTempoChange(state.tempoBpm - 5) }, onPlus = { onTempoChange(state.tempoBpm + 5) })
-                        Stepper(label = "Key", value = "${if (state.keyOffset >= 0) "+" else ""}${state.keyOffset}", onMinus = { onKeyChange(state.keyOffset - 1) }, onPlus = { onKeyChange(state.keyOffset + 1) })
+                        Stepper(label = "BPM", value = state.tempoBpm.toString(), onMinus = { onTempoChange((state.tempoBpm - 5).coerceAtLeast(1)) }, onPlus = { onTempoChange(state.tempoBpm + 5) })
+                        Stepper(label = "Key", value = "${if (state.keyOffset >= 0) "+" else ""}${state.keyOffset}", onMinus = { onKeyChange((state.keyOffset - 1).coerceAtLeast(-12)) }, onPlus = { onKeyChange((state.keyOffset + 1).coerceAtMost(12)) })
                     }
                 }
             }

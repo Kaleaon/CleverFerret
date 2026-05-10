@@ -54,7 +54,7 @@ fun ModernThemePickerScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "Active: ${state.palettes.first { it.tokens.id == state.activeId }.tokens.displayName}",
+                    "Active: ${state.palettes.firstOrNull { it.tokens.id == state.activeId }?.tokens?.displayName ?: state.activeId}",
                     style = MaterialTheme.typography.labelMedium,
                     color = cs.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
@@ -117,6 +117,7 @@ private fun PaletteCard(
                 style = MaterialTheme.typography.titleSmall.copy(
                     brush = palette.tokens.metal.brush(),
                     fontWeight = FontWeight.Black,
+                    color = palette.scheme.onBackground,
                 ),
                 modifier = Modifier.weight(1f),
             )

@@ -199,6 +199,8 @@ private fun MediaKind.titleCase(): String = when (this) {
     MediaKind.Movie -> "Movies"; MediaKind.Tv -> "TV"
     MediaKind.Music -> "Music"; MediaKind.Radio -> "Radio"
     MediaKind.WebFiction -> "Web fiction"
+    MediaKind.Manga -> "Manga"; MediaKind.Video -> "Video"
+    MediaKind.Fanfiction -> "Fanfiction"
 }
 
 private fun MediaKind.icon() = when (this) {
@@ -211,4 +213,7 @@ private fun MediaKind.icon() = when (this) {
     MediaKind.Music       -> Icons.Default.MusicNote
     MediaKind.Radio       -> Icons.Default.Radio
     MediaKind.WebFiction  -> Icons.Default.Article
+    MediaKind.Manga       -> Icons.Default.CollectionsBookmark
+    MediaKind.Video       -> Icons.Default.VideoLibrary
+    MediaKind.Fanfiction  -> Icons.Default.Create
 }

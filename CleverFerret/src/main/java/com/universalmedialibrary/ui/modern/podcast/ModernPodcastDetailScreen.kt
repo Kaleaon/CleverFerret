@@ -56,6 +56,11 @@ fun ModernPodcastDetailScreen(
 ) {
     val cs = MaterialTheme.colorScheme
     val tokens = LocalCFTokens.current
+    val filteredEpisodes = when (state.activeFilter) {
+        PodcastEpisodeFilter.All        -> state.episodes
+        PodcastEpisodeFilter.Unplayed   -> state.episodes.filter { it.progress == 0f }
+        PodcastEpisodeFilter.Downloaded -> state.episodes.filter { it.downloaded }
+    }
 
     Scaffold(
         topBar = {
@@ -120,7 +125,7 @@ fun ModernPodcastDetailScreen(
             }
 
             item {
-                CFSectionHeader("Episodes", "${state.episodes.size}", modifier = Modifier.padding(horizontal = CFSpacing.lg))
+                CFSectionHeader("Episodes", "${filteredEpisodes.size}", modifier = Modifier.padding(horizontal = CFSpacing.lg))
                 Spacer(Modifier.height(CFSpacing.sm))
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = CFSpacing.lg),
@@ -134,7 +139,7 @@ fun ModernPodcastDetailScreen(
                 }
             }
 
-            items(state.episodes) { ep ->
+            items(filteredEpisodes) { ep ->
                 Row(
                     Modifier
                         .fillMaxWidth()

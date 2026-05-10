@@ -77,6 +77,7 @@ fun ModernAudioPackImportScreen(
                     CFMetalButton(
                         text = if (state.isImporting) "Importing..." else "Import",
                         onClick = onConfirmImport,
+                        enabled = !state.isImporting,
                         leadingIcon = Icons.Default.Check,
                     )
                 }
