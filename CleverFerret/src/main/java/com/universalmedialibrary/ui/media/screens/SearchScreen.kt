@@ -501,7 +501,7 @@ private fun SearchResultsList(
                     )
                 }
                 
-                items(categoryResults.take(5)) { result ->
+                items(categoryResults.take(5), key = { "${it.category.name}:${it.id}" }) { result ->
                     SearchResultItem(
                         result = result,
                         onClick = { onResultClick(result) }
@@ -542,7 +542,7 @@ private fun SearchResultsList(
             contentPadding = PaddingValues(bottom = MediaSpacing.XL),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(results) { result ->
+            items(results, key = { "${it.category.name}:${it.id}" }) { result ->
                 SearchResultItem(
                     result = result,
                     onClick = { onResultClick(result) }

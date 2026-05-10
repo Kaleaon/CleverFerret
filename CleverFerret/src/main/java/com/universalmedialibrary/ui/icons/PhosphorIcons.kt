@@ -1,7 +1,5 @@
 package com.universalmedialibrary.ui.icons
 
-import androidx.compose.material.icons.materialIcon
-import androidx.compose.material.icons.materialPath
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**

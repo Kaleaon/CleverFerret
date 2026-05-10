@@ -191,6 +191,7 @@ class MediaHomeViewModel @Inject constructor(
                 
                 _uiState.update {
                     val lastOpenedCategory = it.lastOpenedCategory
+                    val showOnboardingTips = it.showOnboardingTips
                     MediaHomeState(
                         isLoading = false,
                         error = null,
@@ -205,10 +206,12 @@ class MediaHomeViewModel @Inject constructor(
                         recentFanfiction = recentFanfiction,
                         libraryStats = stats,
                         collections = collections,
-                        lastOpenedCategory = lastOpenedCategory
+                        lastOpenedCategory = lastOpenedCategory,
+                        hasConfiguredContentSource = hasConfiguredContentSource,
+                        showOnboardingTips = showOnboardingTips,
                         quickAccessItems = buildQuickAccessItems(currentQuickAccessPrefs)
                     )
-            }
+                }
             } catch (e: Exception) {
                 // Improved error handling with logging and error state
                 android.util.Log.e("MediaHomeViewModel", "Error loading home data", e)
@@ -229,6 +232,9 @@ class MediaHomeViewModel @Inject constructor(
                         recentFanfiction = it.recentFanfiction,
                         libraryStats = it.libraryStats,
                         collections = it.collections,
+                        lastOpenedCategory = it.lastOpenedCategory,
+                        hasConfiguredContentSource = it.hasConfiguredContentSource,
+                        showOnboardingTips = it.showOnboardingTips,
                         quickAccessItems = it.quickAccessItems
                     )
                 }
