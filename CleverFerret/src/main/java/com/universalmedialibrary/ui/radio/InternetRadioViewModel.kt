@@ -10,15 +10,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class InternetRadioStation(
-    val id: String,
-    val name: String,
-    val url: String,
-    val genre: String,
-    val bitrate: String,
-    val country: String = "",
-    val logoUrl: String? = null
-)
 
 @HiltViewModel
 class InternetRadioViewModel @Inject constructor(
