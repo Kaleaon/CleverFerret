@@ -1769,73 +1769,13 @@ class StorageAccessService @Inject constructor(
 }
 
 @Serializable
-data class ImportSortOptions(
-    val moveFiles: Boolean = false
-    ,
-    val removeEmptyFolders: Boolean = true
-    ,
-    val conflictStrategy: ImportConflictStrategy = ImportConflictStrategy.RENAME
-    ,
-    val preventDuplicates: Boolean = true
-    ,
-    val duplicateStrategy: ImportConflictStrategy = ImportConflictStrategy.SKIP
-    ,
-    val storeContentHash: Boolean = true
-    ,
-    val profile: ImportSortProfile = ImportSortProfile.DEFAULT
-)
 
 @Serializable
-data class ImportSortSummary(
-    val imported: Int = 0,
-    val skipped: Int = 0,
-    val errors: Int = 0,
-    val deletedFolders: Int = 0
-)
 
 @Serializable
-data class ImportPlan(
-    val inputTreeUri: String,
-    val outputTreeUri: String,
-    val items: List<ImportPlanItem>
-)
 
 @Serializable
-data class ImportPlanItem(
-    val sourceUri: String,
-    val sourceDisplayName: String,
-    val mediaType: String,
-    val title: String,
-    val authorOrArtist: String? = null,
-    val album: String? = null,
-    val series: String? = null,
-    val trackNumber: Int? = null,
-    val durationMs: Long? = null,
-    val metadataSource: String? = null,
-    val confidence: Float = 0.5f,
-    val reasons: List<String> = emptyList(),
-    val destSegments: List<String>,
-    val outputFileName: String,
-    val conflictStrategy: ImportConflictStrategy? = null,
-    val fileSize: Long? = null
-) {
-    val isQuestionable: Boolean
-        get() = confidence < 0.7f || reasons.isNotEmpty()
-}
 
 @Serializable
-enum class ImportConflictStrategy {
-    SKIP,
-    RENAME,
-    REPLACE,
-    QUARANTINE
-}
 
 @Serializable
-enum class ImportSortProfile {
-    DEFAULT,
-    COMICS_SINGLETONS_TO_ROOT,
-    COMICS_ALWAYS_SERIES_FOLDER,
-    BOOKS_FLAT,
-    BOOKS_AUTHOR_TITLE
-}

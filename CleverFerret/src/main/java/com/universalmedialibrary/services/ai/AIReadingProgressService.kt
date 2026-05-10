@@ -653,155 +653,15 @@ class AIReadingProgressService @Inject constructor(
 // ==================== Data Classes ====================
 
 @Serializable
-data class CurrentReadingInfo(
-    val bookId: Long,
-    val title: String,
-    val author: String?,
-    val currentPage: Int,
-    val totalPages: Int,
-    val currentChapter: Int,
-    val progressPercent: Float,
-    val lastReadDate: Long,
-    val lastReadFormatted: String,
-    val totalReadingTimeMinutes: Int,
-    val sessionCount: Int,
-    val estimatedMinutesRemaining: Int?,
-    val genres: List<String>,
-    val summary: String?,
-    val coverPath: String?,
-    val startedDate: Long?,
-    val startedDateFormatted: String?,
-    val readingSpeed: Float?,
-    val isNearingCompletion: Boolean,
-    val isJustStarted: Boolean
-)
 
 @Serializable
-data class DetailedBookProgress(
-    val bookId: Long,
-    val title: String,
-    val author: String?,
-    val currentPage: Int,
-    val totalPages: Int,
-    val currentChapter: Int,
-    val totalChapters: Int?,
-    val progressPercent: Float,
-    val pagesRead: Int,
-    val pagesRemaining: Int,
-    
-    // Time tracking
-    val totalReadingTimeMinutes: Int,
-    val averageSessionMinutes: Int,
-    val estimatedMinutesRemaining: Int?,
-    
-    // Session info
-    val sessionCount: Int,
-    val lastSessionDate: Long?,
-    val firstSessionDate: Long?,
-    
-    // Reading pattern analysis
-    val readingPattern: String,
-    val preferredReadingTime: String?,
-    val readingStreak: Int,
-    
-    // Book info
-    val genres: List<String>,
-    val summary: String?,
-    val year: Int?,
-    val rating: Float?,
-    
-    // Status
-    val isCompleted: Boolean,
-    val completedDate: Long?,
-    val startedDate: Long?,
-    val isNearingCompletion: Boolean,
-    val isJustStarted: Boolean,
-    val isAbandoned: Boolean
-)
 
 @Serializable
-data class ReadingHistorySummary(
-    val periodDays: Int,
-    val totalReadingTimeMinutes: Int = 0,
-    val totalPagesRead: Int = 0,
-    val booksCompleted: Int = 0,
-    val booksInProgress: Int = 0,
-    val totalSessions: Int = 0,
-    val daysWithReading: Int = 0,
-    val averageMinutesPerDay: Int = 0,
-    val averageMinutesPerSession: Int = 0,
-    val recentlyCompletedBooks: List<CompletedBookInfo> = emptyList(),
-    val readingHeatmap: Map<String, Int> = emptyMap()
-)
 
 @Serializable
-data class CompletedBookInfo(
-    val bookId: Long,
-    val title: String,
-    val author: String?,
-    val completedDate: Long,
-    val completedDateFormatted: String,
-    val totalReadingTimeMinutes: Int
-)
 
 @Serializable
-data class BookDiscussionContext(
-    val bookId: Long,
-    val title: String,
-    val author: String?,
-    
-    // Summaries for AI
-    val progressSummary: String,
-    val patternSummary: String,
-    
-    // Progress data
-    val currentPage: Int,
-    val totalPages: Int,
-    val currentChapter: Int,
-    val progressPercent: Float,
-    
-    // Book info
-    val genres: List<String>,
-    val bookSummary: String?,
-    val year: Int?,
-    
-    // AI insights
-    val existingSummary: String?,
-    val keyThemes: List<String>,
-    val characterAnalysis: String?,
-    
-    // Discussion helpers
-    val suggestedTopics: List<String>,
-    
-    // Reading journey
-    val daysReading: Int,
-    val isNearingEnd: Boolean,
-    val hasJustStarted: Boolean,
-    val lastReadDescription: String,
-    val startedDescription: String?
-)
 
 @Serializable
-data class ReadingPositionContext(
-    val bookId: Long,
-    val title: String,
-    val currentPage: Int,
-    val totalPages: Int,
-    val currentChapter: Int,
-    val progressPercent: Float,
-    val phase: ReadingPhase,
-    val phaseDescription: String,
-    val spoilerWarning: String,
-    val safeToDiscuss: String,
-    val doNotSpoil: String?
-)
 
 @Serializable
-enum class ReadingPhase {
-    BEGINNING,
-    EARLY,
-    RISING_ACTION,
-    MIDDLE,
-    CLIMAX,
-    FINALE
-}

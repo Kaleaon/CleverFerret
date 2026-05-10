@@ -36,38 +36,9 @@ import javax.inject.Singleton
 
 // Podcast, PodcastEpisode, PodcastSearchResult models are defined in PodcastModels.kt
 
-data class ChapterMark(
-    val title: String,
-    val startTime: Long, // in seconds
-    val url: String? = null
-)
 
 // RSS/XML parsing models
-data class RSSFeed(
-    val title: String,
-    val description: String,
-    val link: String,
-    val imageUrl: String?,
-    val language: String?,
-    val author: String?,
-    val category: String?,
-    val explicit: Boolean,
-    val items: List<RSSItem>
-)
 
-data class RSSItem(
-    val title: String,
-    val description: String,
-    val link: String?,
-    val audioUrl: String?,
-    val duration: String?,
-    val fileSize: Long?,
-    val pubDate: String?,
-    val guid: String?,
-    val episodeNumber: Int?,
-    val seasonNumber: Int?,
-    val imageUrl: String?
-)
 
 // Comprehensive Podcast APIs - covering all major services
 interface PodcastIndexApi {
@@ -130,11 +101,6 @@ interface GPodderApi {
 }
 
 // PodcastIndex.org API responses
-data class PodcastSearchResponse(
-    val status: String,
-    val feeds: List<PodcastSearchFeed>,
-    val count: Int
-)
 
     data class PodcastSearchFeed(
         val id: Long,
@@ -179,117 +145,21 @@ data class PodcastSearchResponse(
         val fee: Boolean? = null
     )
 
-data class EpisodeSearchResponse(
-    val status: String,
-    val items: List<PodcastSearchEpisode>,
-    val count: Int
-)
 
-data class PodcastSearchEpisode(
-    val id: Long,
-    val title: String,
-    val link: String,
-    val description: String,
-    val guid: String,
-    val datePublished: Long,
-    val enclosureUrl: String,
-    val enclosureType: String,
-    val enclosureLength: Long,
-    val duration: Int,
-    val explicit: Int,
-    val episode: Int?,
-    val season: Int?,
-    val image: String,
-    val feedImage: String
-)
 
 // Listen Notes API responses
-data class ListenNotesResponse(
-    val results: List<ListenNotesPodcast>,
-    val count: Int,
-    val total: Int,
-    val next_offset: Int?
-)
 
-data class ListenNotesPodcast(
-    val id: String,
-    val title: String,
-    val publisher: String,
-    val description: String,
-    val image: String,
-    val website: String?,
-    val rss: String,
-    val total_episodes: Int,
-    val explicit_content: Boolean,
-    val language: String,
-    val genres: List<ListenNotesGenre>
-)
 
-data class ListenNotesGenre(
-    val id: Int,
-    val name: String
-)
 
 // Spotify API responses
-data class SpotifySearchResponse(
-    val shows: SpotifyShowsPage
-)
 
-data class SpotifyShowsPage(
-    val items: List<SpotifyPodcast>,
-    val limit: Int,
-    val offset: Int,
-    val total: Int
-)
 
-data class SpotifyPodcast(
-    val id: String,
-    val name: String,
-    val publisher: String,
-    val description: String,
-    val images: List<SpotifyImage>,
-    val external_urls: SpotifyExternalUrls,
-    val total_episodes: Int,
-    val explicit: Boolean,
-    val languages: List<String>
-)
 
-data class SpotifyImage(
-    val url: String,
-    val height: Int?,
-    val width: Int?
-)
 
-data class SpotifyExternalUrls(
-    val spotify: String
-)
 
 // Taddy API responses
-data class TaddySearchResponse(
-    val results: List<TaddyPodcast>,
-    val count: Int
-)
 
-data class TaddyPodcast(
-    val uuid: String,
-    val name: String,
-    val author: String,
-    val description: String,
-    val imageUrl: String,
-    val feedUrl: String,
-    val episodeCount: Int,
-    val categories: List<String>
-)
 
-data class GPodderSearchResult(
-    val title: String?,
-    val url: String?,
-    val description: String?,
-    val website: String?,
-    val subscribers: Int?,
-    @SerializedName("subscribers_last_week")
-    val subscribersLastWeek: Int?
-)
 
 private data class PodcastIndexCredentials(
     val apiKey: String,
