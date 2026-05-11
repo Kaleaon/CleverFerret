@@ -68,6 +68,7 @@ okhttp = "5.2.1"
  truth = "1.4.4"
  mockk = "1.14.6"
  robolectric = "4.14.1"
+ turbine = "1.1.0"
     
     # Document Parsing Libraries
     apache-poi = "5.5.0"
@@ -236,6 +237,7 @@ androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core",
  mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
  mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
  robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
     
     # Document Parsing Libraries
     apache-poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "apache-poi" }

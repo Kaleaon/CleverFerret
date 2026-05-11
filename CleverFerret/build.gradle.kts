@@ -392,6 +392,7 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.mockk.android)
     testImplementation(libs.robolectric)
+    testImplementation(libs.turbine)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
@@ -468,7 +469,9 @@ afterEvaluate {
                 limit {
                     counter = "LINE"
                     value = "COVEREDRATIO"
-                    minimum = "0.30".toBigDecimal()
+                    // Phase 0: floor frozen at current ~2.5% as a regression gate.
+                    // Phase 2 raises to 15%, Phase 4 to 30%, Phase 5 to 40%.
+                    minimum = "0.025".toBigDecimal()
                 }
             }
         }

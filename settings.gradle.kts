@@ -36,3 +36,9 @@ dependencyResolutionManagement {
 }
 rootProject.name = "UniversalMediaLibrary"
 include(":CleverFerret")
+
+// Phase 0 step 8: empty placeholder benchmark module so :benchmark-macro:assemble
+// succeeds before any real macro-benchmark wiring lands. See
+// docs/planning/PREMIERE_ROADMAP.md and benchmark-macro/build.gradle.kts.
+include(":benchmark-macro")
+
