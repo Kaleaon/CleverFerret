@@ -90,9 +90,12 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ## 📋 Planning & Roadmap
 
+- [Feature Implementation Plan](planning/FEATURE_IMPLEMENTATION_PLAN.md) - Concrete implementation strategy for every missing feature, with Ktheme UI design
 - [TODO](planning/TODO.md) - Detailed task list and roadmap
 - [Kotlin Conversion TODO](planning/KOTLIN_CONVERSION_TODO.md) - Pure Kotlin conversion plan
 - [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - PWA and app improvements list
+- [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Currently reproducible build issues
+- [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Open issue triage and PR sequencing
 
 ---
 
