@@ -74,7 +74,7 @@ jobs:
         # Using --warning-mode all to show warnings without excessive info
         COMPILE_LOG="compile_output_${GITHUB_SHA::8}_${GITHUB_RUN_ATTEMPT}.txt"
         echo "COMPILE_LOG=$COMPILE_LOG" >> "$GITHUB_ENV"
-        ./gradlew compileDebugKotlin --continue --stacktrace --warning-mode all 2>&1 | tee "$COMPILE_LOG"
+        ./gradlew compileDebugKotlin --stacktrace --warning-mode all 2>&1 | tee "$COMPILE_LOG"
         exit_code=${PIPESTATUS[0]}
         
         # If compilation failed, show the last 200 lines which usually contain the errors
@@ -92,7 +92,6 @@ jobs:
         fi
         
         exit $exit_code
-      continue-on-error: true
       
     - name: Report compilation results
       if: always()
@@ -118,8 +117,7 @@ jobs:
     
     - name: Run unit tests
       if: steps.compile.outcome == 'success'
-      run: ./gradlew testDebugUnitTest --continue
-      continue-on-error: true
+      run: ./gradlew testDebugUnitTest
       id: unit-tests
 
     - name: Enforce critical-package coverage gates
@@ -235,7 +233,7 @@ jobs:
         # Run build with reduced verbosity for readable error output
         BUILD_LOG="build_output_${GITHUB_SHA::8}_${GITHUB_RUN_ATTEMPT}.txt"
         echo "BUILD_LOG=$BUILD_LOG" >> "$GITHUB_ENV"
-        ./gradlew assembleDebug --continue --stacktrace --warning-mode all \
+        ./gradlew assembleDebug --stacktrace --warning-mode all \
           -PDEBUG_REPORTING_ENABLED=true \
           -PCRASH_REPORTING_ENABLED=true \
           -PSHOW_DEBUG_MENU=true 2>&1 | tee "$BUILD_LOG"
@@ -256,8 +254,7 @@ jobs:
         fi
         
         exit $exit_code
-      continue-on-error: true
-      
+
     - name: Report build status
       if: always()
       run: |
@@ -283,8 +280,7 @@ jobs:
       
     - name: Build release APK (unsigned)
       if: steps.build-debug.outcome == 'success'
-      run: ./gradlew assembleRelease --continue
-      continue-on-error: true
+      run: ./gradlew assembleRelease
       
     - name: Sign release APK
       id: sign_apk

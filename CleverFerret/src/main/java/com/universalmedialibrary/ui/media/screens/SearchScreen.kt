@@ -197,6 +197,79 @@ private fun ActiveFilterTags(
 // SEARCH RESULTS
 // =============================================================================
 
+@Composable
+private fun SearchResultsList(
+    results: List<SearchResult>,
+    groupedResults: Map<SearchCategory, List<SearchResult>>,
+    onResultClick: (SearchResult) -> Unit,
+    onCategoryFilterChange: (SearchCategory?) -> Unit,
+    onCategoryNavigate: (SearchCategory) -> Unit,
+    showGrouped: Boolean
+) {
+    if (showGrouped && groupedResults.isNotEmpty()) {
+        // Grouped by category
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = MediaSpacing.XL),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            groupedResults.forEach { (category, categoryResults) ->
+                item {
+                    ResultCategoryHeader(
+                        category = category,
+                        count = categoryResults.size
+                    )
+                }
+                
+                items(categoryResults.take(5), key = { "${it.category.name}:${it.id}" }) { result ->
+                    SearchResultItem(
+                        result = result,
+                        onClick = { onResultClick(result) }
+                    )
+                }
+                
+                if (categoryResults.size > 5) {
+                    item {
+                        TextButton(
+                            onClick = { 
+                                onCategoryFilterChange(category)
+                                onCategoryNavigate(category)
+                            },
+                            modifier = Modifier.padding(
+                                horizontal = MediaSpacing.MD,
+                                vertical = MediaSpacing.SM
+                            )
+                        ) {
+                            Text(
+                                text = "See all ${categoryResults.size} ${category.displayName.lowercase()}",
+                                color = MediaColors.AccentPrimary
+                            )
+                        }
+                    }
+                }
+                
+                item {
+                    HorizontalDivider(
+                        color = MediaColors.Border,
+                        modifier = Modifier.padding(vertical = MediaSpacing.SM)
+                    )
+                }
+            }
+        }
+    } else {
+        // Flat list
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = MediaSpacing.XL),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(results, key = { "${it.category.name}:${it.id}" }) { result ->
+                SearchResultItem(
+                    result = result,
+                    onClick = { onResultClick(result) }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun ResultCategoryHeader(

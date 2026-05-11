@@ -272,6 +272,56 @@ fun PodcastManagerScreen(
     }
 }
 
+@Composable
+fun PodcastSubscriptionsTab(
+    podcasts: List<Podcast>,
+    onPodcastClick: (Podcast) -> Unit,
+    onUnsubscribe: (Podcast) -> Unit
+) {
+    if (podcasts.isEmpty()) {
+        // Empty state
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                Icons.Default.Podcasts,
+                contentDescription = "Media image",
+                modifier = Modifier.size(80.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "No Podcast Subscriptions",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = "Search for podcasts or add RSS feeds to get started",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(podcasts, key = { it.id }) { podcast ->
+                PodcastCard(
+                    podcast = podcast,
+                    onClick = { onPodcastClick(podcast) },
+                    onUnsubscribe = { onUnsubscribe(podcast) }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun PodcastEpisodesTab(
@@ -287,7 +337,7 @@ fun PodcastEpisodesTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(episodes) { episode ->
+        items(episodes, key = { it.id }) { episode ->
             EpisodeCard(
                 episode = episode,
                 downloadStatus = downloadStatuses[episode.id],
@@ -311,7 +361,7 @@ fun PodcastDownloadsTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(downloads) { episode ->
+        items(downloads, key = { it.id }) { episode ->
             DownloadedEpisodeCard(
                 episode = episode,
                 onClick = { onEpisodeClick(episode) },
@@ -322,6 +372,29 @@ fun PodcastDownloadsTab(
 }
 
 
+                LazyColumn(
+                    modifier = Modifier.height(300.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(searchResults, key = { "${it.source}:${it.id}" }) { result ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSubscribe(result) }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                AsyncImage(
+                    
+                                    model = result.imageUrl,
+                                    contentDescription = "Media image",
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(MaterialTheme.shapes.small),
+                                    contentScale = ContentScale.Crop
+                                )
 
 
 

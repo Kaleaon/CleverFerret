@@ -101,7 +101,7 @@ Full codebase review of the CleverFerret Universal Media Library Android app.
 - All ViewModels with business logic
 - Database migrations
 
-**Transitional ViewModels in `SupportingViewModels.kt`**: Three `@Deprecated` transitional ViewModels (`TransitionalRadioViewModel`, `TransitionalWebFictionViewModel`, `TransitionalNewsViewModel`) are still referenced in `MediaAppNavigation.kt`. These should be replaced with their canonical counterparts.
+**Transitional ViewModels in `SupportingViewModels.kt`**: _Resolved (2026-05)._ `SupportingViewModels.kt` now contains 7 production `@HiltViewModel` classes (`OPDSViewModel`, `AmbientViewModel`, `CollectionsViewModel`, `CollectionDetailViewModel`, `MediaSyncViewModel`, `ImportExportViewModel`, `MediaDetailViewModel`). The three `Transitional*` stubs were removed in trunk. See `docs/architecture/decisions/0002-trunk-hygiene-baseline-ci-gate.md`.
 
 ### Medium Priority
 

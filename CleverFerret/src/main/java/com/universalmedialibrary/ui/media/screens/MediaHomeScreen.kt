@@ -508,10 +508,8 @@ fun MediaHomeScreen(
                 item {
                     Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
                     QuickAccessGrid(
-                        lastOpenedCategory = state.lastOpenedCategory,
-                        onCategoryClick = onQuickAccessCategoryClick
                         items = state.quickAccessItems,
-                        onCategoryClick = onSeeAllClick,
+                        onCategoryClick = onQuickAccessCategoryClick,
                         onPreferencesChange = onQuickAccessPreferencesChange
                     )
                 }
@@ -559,6 +557,211 @@ private const val HERO_CAROUSEL_IDLE_RESUME_DELAY_MS = 1800L
 // QUICK ACCESS GRID
 // =============================================================================
 
+@Composable
+private fun QuickAccessGrid(
+    items: List<QuickAccessItem>,
+    onCategoryClick: (String) -> Unit,
+    onPreferencesChange: (order: List<String>, favorites: Set<String>) -> Unit
+) {
+    var reorderMode by remember { mutableStateOf(false) }
+    var editableItems by remember(items) { mutableStateOf(items) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Explore Your Library",
+                style = MediaTypography.TitleMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            if (reorderMode) {
+                TextButton(
+                    onClick = {
+                        reorderMode = false
+                        onPreferencesChange(
+                            editableItems.map { it.id },
+                            editableItems.filter { it.isFavorite }.mapTo(mutableSetOf()) { it.id }
+                        )
+                    }
+                ) {
+                    Text("Done")
+                }
+            }
+        }
+
+        if (reorderMode) {
+            Text(
+                text = "Long-press enabled reorder mode: use arrows to reorder and star to pin favorites.",
+                style = MediaTypography.BodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(MediaSpacing.SM))
+        }
+
+        Spacer(modifier = Modifier.height(MediaSpacing.MD))
+
+        QuickAccessFlowGrid(
+            items = editableItems,
+            reorderMode = reorderMode,
+            onCategoryClick = onCategoryClick,
+            onEnableReorder = { reorderMode = true },
+            onMoveItem = { fromIndex, toIndex ->
+                if (fromIndex in editableItems.indices && toIndex in editableItems.indices) {
+                    editableItems = editableItems.toMutableList().apply {
+                        add(toIndex, removeAt(fromIndex))
+                    }
+                }
+            },
+            onToggleFavorite = { id ->
+                editableItems = editableItems.map { item ->
+                    if (item.id == id) item.copy(isFavorite = !item.isFavorite) else item
+                }
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun QuickAccessFlowGrid(
+    items: List<QuickAccessItem>,
+    lastOpenedCategory: String?,
+    onCategoryClick: (String) -> Unit
+    reorderMode: Boolean,
+    onCategoryClick: (String) -> Unit,
+    onEnableReorder: () -> Unit,
+    onMoveItem: (fromIndex: Int, toIndex: Int) -> Unit,
+    onToggleFavorite: (String) -> Unit
+) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val columns = if (maxWidth < 360.dp) 2 else 3
+        val spacing = MediaSpacing.MD
+        val cardWidth = (maxWidth - spacing * (columns - 1)) / columns
+
+        FlowRow(
+            maxItemsInEachRow = columns,
+            horizontalArrangement = Arrangement.spacedBy(spacing),
+            verticalArrangement = Arrangement.spacedBy(spacing),
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics { isTraversalGroup = true }
+        ) {
+            items.forEachIndexed { index, item ->
+                QuickAccessCard(
+                    item = item,
+                    isHighlighted = item.id == lastOpenedCategory,
+                    reorderMode = reorderMode,
+                    canMoveUp = index > 0,
+                    canMoveDown = index < items.lastIndex,
+                    onClick = { onCategoryClick(item.id) },
+                    onLongClick = onEnableReorder,
+                    onMoveUp = { onMoveItem(index, index - 1) },
+                    onMoveDown = { onMoveItem(index, index + 1) },
+                    onToggleFavorite = { onToggleFavorite(item.id) },
+                    modifier = Modifier.width(cardWidth)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun QuickAccessCard(
+    item: QuickAccessItem,
+    isHighlighted: Boolean,
+    reorderMode: Boolean,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val cardContentDescription = stringResource(
+        id = R.string.cd_open_category,
+        item.label
+    )
+    val quickAccessAlphas = MediaColors.quickAccessCardAlphas()
+
+    Surface(
+        modifier = modifier
+            .aspectRatio(1f)
+            .combinedClickable(
+                onClick = { if (!reorderMode) onClick() },
+                onLongClick = onLongClick
+            ),
+        shape = RoundedCornerShape(MediaCorners.Card),
+        color = if (isHighlighted) {
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        border = if (isHighlighted) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+        } else {
+            null
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(MediaSpacing.SM),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (reorderMode) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onMoveUp, enabled = canMoveUp) {
+                        Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Move up")
+                    }
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            imageVector = if (item.isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
+                            contentDescription = if (item.isFavorite) "Unpin favorite" else "Pin favorite",
+                            tint = if (item.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    IconButton(onClick = onMoveDown, enabled = canMoveDown) {
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Move down")
+                    }
+                }
+            } else if (item.isFavorite) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Favorite",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.End)
+                )
+            }
+
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = quickAccessAlphas.chip),
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = item.icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(MediaSpacing.SM)
+                        .fillMaxSize(),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
 
 
 
@@ -586,6 +789,70 @@ private const val HERO_CAROUSEL_IDLE_RESUME_DELAY_MS = 1800L
 // DATA MODELS
 // =============================================================================
 
+/**
+ * State holder for the home screen
+ */
+data class MediaHomeState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val featuredItems: List<MediaItem> = emptyList(),
+    val continueItems: List<MediaItem> = emptyList(),
+    val recentBooks: List<MediaItem> = emptyList(),
+    val recentAudiobooks: List<MediaItem> = emptyList(),
+    val recentComics: List<MediaItem> = emptyList(),
+    val recentMusic: List<MediaItem> = emptyList(),
+    val recentPodcasts: List<MediaItem> = emptyList(),
+    val recentVideos: List<MediaItem> = emptyList(),
+    val recentFanfiction: List<MediaItem> = emptyList(),
+    val collections: List<HomeCollection> = emptyList(),
+    val libraryStats: HomeLibraryStats = HomeLibraryStats(),
+    val lastOpenedCategory: String? = null,
+    val hasConfiguredContentSource: Boolean = false,
+    val showOnboardingTips: Boolean = false,
+    val quickAccessItems: List<QuickAccessItem> = defaultQuickAccessItems
+)
+
+data class HomeLibraryStats(
+    val totalBooks: Int = 0,
+    val totalAudiobooks: Int = 0,
+    val totalComics: Int = 0,
+    val totalMusic: Int = 0,
+    val totalPodcasts: Int = 0,
+    val totalVideos: Int = 0,
+    val totalFanfiction: Int = 0
+)
+
+data class HomeCollection(
+    val id: String,
+    val name: String,
+    val itemCount: Int,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val color: Color
+)
+
+data class QuickAccessItem(
+    val id: String,
+    val label: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val color: Color,
+    val isFavorite: Boolean = false
+)
+
+val defaultQuickAccessItems = listOf(
+    QuickAccessItem(MediaRoutes.BOOKS, "Books", Icons.Default.MenuBook, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.AUDIOBOOKS, "Audiobooks", Icons.Default.Headphones, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.COMICS, "Comics", Icons.Default.AutoStories, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.MUSIC, "Music", Icons.Default.MusicNote, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.PODCASTS, "Podcasts", Icons.Default.Podcasts, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.RADIO, "Radio", Icons.Default.Radio, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.MOVIES, "Movies", Icons.Default.Movie, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.TV_SHOWS, "TV Shows", Icons.Default.Tv, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.WEB_FICTION, "Web Fiction", Icons.Default.Language, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.DOCUMENTS, "Documents", Icons.Default.Description, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.OPDS_BROWSER, "OPDS", Icons.Default.CloudDownload, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.AMBIENT_SOUNDS, "Ambient", Icons.Default.Spa, MediaColors.AccentPrimary),
+    QuickAccessItem(MediaRoutes.COLLECTIONS, "Collections", Icons.Default.Collections, MediaColors.AccentPrimary)
+)
 
 // =============================================================================
 // ERROR STATE
