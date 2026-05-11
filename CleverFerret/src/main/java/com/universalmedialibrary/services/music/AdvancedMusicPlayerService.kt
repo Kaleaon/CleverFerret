@@ -1,8 +1,6 @@
 package com.universalmedialibrary.services.music
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -14,11 +12,14 @@ import com.universalmedialibrary.services.media.MediaController
 import com.universalmedialibrary.services.media.MediaServiceType
 import com.universalmedialibrary.services.artwork.ArtworkLoader
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlin.math.roundToInt
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,12 +43,11 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val artworkLoader: ArtworkLoader,
     private val audioEffectsService: AudioEffectsService,
     private val replayGainService: ReplayGainService,
-    private val lastFmScrobbler: LastFmScrobblerService,
     private val audioProfileService: AudioProfileService,
-    private val mediaRepository: com.universalmedialibrary.data.repository.MediaRepository
+    private val mediaRepository: com.universalmedialibrary.data.repository.MediaRepository,
+    private val audioEffectsController: AudioEffectsController,
+    private val scrobbleManager: LastFmScrobbleManager,
 ) : MediaCommandAPI {
-
-    private val audioPrefs = context.getSharedPreferences(AUDIO_EFFECTS_PREFS, Context.MODE_PRIVATE)
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
     val playbackState: StateFlow<AdvancedPlaybackState> = _playbackState.asStateFlow()
@@ -64,29 +64,11 @@ class AdvancedMusicPlayerService @Inject constructor(
     private var currentQueueIndex = 0
     private var originalQueue: List<TrackInfo> = emptyList()
 
-    @Volatile
-    private var currentEqPreset: EqualizerPreset = EqualizerPreset.FLAT
-    @Volatile
-    private var currentBassBoostStrength: Int = 0
-    @Volatile
-    private var currentReverbEnabled: Boolean = false
-    @Volatile
-    private var currentReverbPreset: ReverbPreset = ReverbPreset.SMALL_ROOM
-    
-    // Last.fm scrobbling
-    private val scrobblerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var scrobbleJob: Job? = null
-    private var trackStartTime: Long = 0
-    private var hasScrobbled: Boolean = false
-    
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     init {
-        loadAudioEffectPreferences()
-        // Initialize Last.fm scrobbler
-        scrobblerScope.launch {
-            lastFmScrobbler.initialize()
-        }
-        
-        // Initialize audio profile service
+        audioEffectsController.loadPreferences()
+        scrobbleManager.initialize()
         audioProfileService.initialize()
     }
 
@@ -279,7 +261,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         val mediaIdLong = mediaId.toLongOrNull() ?: return
         
         // Fetch MediaItem from repository and add to queue
-        scrobblerScope.launch {
+        serviceScope.launch {
             try {
                 val mediaItem = mediaRepository.getMediaItemById(mediaIdLong)
                 if (mediaItem != null) {
@@ -551,7 +533,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         if (currentTrack != null) {
             _currentTrack.value = currentTrack
             applyReplayGain(currentTrack)
-            startScrobbling(currentTrack)
+            scrobbleManager.startScrobbling(currentTrack)
             exoPlayerService.seekToMediaItem(currentQueueIndex)
             if (!_playbackState.value.isPlaying) {
                 play()
@@ -654,7 +636,8 @@ class AdvancedMusicPlayerService @Inject constructor(
         _currentTrack.value = null
         updatePlaybackState(isPlaying = false)
         // Cancel coroutine scope to prevent memory leaks
-        scrobblerScope.cancel()
+        scrobbleManager.release()
+        serviceScope.cancel()
     }
 
     // ===== PLAYBACK MODES =====
@@ -739,54 +722,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         val audioSessionId = exoPlayerService.getAudioSessionId()
         if (audioSessionId != 0) {
             audioEffectsService.initialize(audioSessionId)
-            applyStoredAudioEffects()
-        }
-    }
-
-    private fun loadAudioEffectPreferences() {
-        val eqOrdinal = audioPrefs.getInt(KEY_EQ_PRESET, EqualizerPreset.FLAT.ordinal)
-        currentEqPreset = EqualizerPreset.values().getOrElse(eqOrdinal) { EqualizerPreset.FLAT }
-
-        currentBassBoostStrength = audioPrefs.getInt(KEY_BASS_BOOST, 0).coerceIn(0, 1000)
-        currentReverbEnabled = audioPrefs.getBoolean(KEY_REVERB_ENABLED, false)
-
-        val reverbOrdinal = audioPrefs.getInt(KEY_REVERB_PRESET, ReverbPreset.SMALL_ROOM.ordinal)
-        currentReverbPreset = ReverbPreset.values().getOrElse(reverbOrdinal) { ReverbPreset.SMALL_ROOM }
-
-        val replayGainEnabled = audioPrefs.getBoolean(KEY_REPLAY_GAIN_ENABLED, true)
-        val replayGainPreamp = audioPrefs.getInt(KEY_REPLAY_GAIN_PREAMP, 0)
-
-        replayGainService.setEnabled(replayGainEnabled)
-        replayGainService.setPreampGain(replayGainPreamp.toFloat())
-    }
-
-    private fun persistAudioEffects(block: SharedPreferences.Editor.() -> Unit) {
-        audioPrefs.edit().apply {
-            block()
-            apply()
-        }
-    }
-
-    private fun applyStoredAudioEffects() {
-        try {
-            audioEffectsService.applyEqualizerPreset(currentEqPreset)
-        } catch (ignored: Exception) {
-            Log.w("AdvancedMusicPlayer", "Equalizer not available on this device")
-        }
-
-        try {
-            audioEffectsService.setBassBoost(
-                currentBassBoostStrength.coerceIn(0, 1000),
-                enabled = currentBassBoostStrength > 0
-            )
-        } catch (ignored: Exception) {
-            Log.w("AdvancedMusicPlayer", "Bass boost not available on this device")
-        }
-
-        try {
-            audioEffectsService.setReverb(currentReverbPreset, currentReverbEnabled)
-        } catch (ignored: Exception) {
-            Log.w("AdvancedMusicPlayer", "Reverb not available on this device")
+            audioEffectsController.applyStored()
         }
     }
 
@@ -794,164 +730,50 @@ class AdvancedMusicPlayerService @Inject constructor(
      * Set equalizer preset
      */
     override fun setEqualizerPreset(presetId: Int) {
-        try {
-            // Map presetId to EqualizerPreset enum
-            val preset = when (presetId) {
-                0 -> EqualizerPreset.FLAT
-                1 -> EqualizerPreset.BASS_BOOST
-                2 -> EqualizerPreset.TREBLE_BOOST
-                3 -> EqualizerPreset.VOCAL
-                4 -> EqualizerPreset.DEEP
-                5 -> EqualizerPreset.ELECTRONIC
-                6 -> EqualizerPreset.ROCK
-                7 -> EqualizerPreset.JAZZ
-                else -> EqualizerPreset.FLAT
-            }
-            currentEqPreset = preset
-            audioEffectsService.applyEqualizerPreset(preset)
-            persistAudioEffects {
-                putInt(KEY_EQ_PRESET, preset.ordinal)
-            }
-        } catch (e: Exception) {
-            // Audio effects not available on this device
-        }
+        audioEffectsController.setEqualizerPreset(presetId)
     }
 
     /**
      * Enable/disable reverb effect
      */
     override fun enableReverb(enabled: Boolean) {
-        try {
-            currentReverbEnabled = enabled
-            audioEffectsService.setReverb(currentReverbPreset, enabled)
-            persistAudioEffects {
-                putBoolean(KEY_REVERB_ENABLED, enabled)
-            }
-        } catch (e: Exception) {
-            // Audio effects not available on this device
-        }
+        audioEffectsController.enableReverb(enabled)
     }
 
     fun setReverbPreset(preset: ReverbPreset) {
-        currentReverbPreset = preset
-        try {
-            audioEffectsService.setReverb(currentReverbPreset, currentReverbEnabled)
-            persistAudioEffects {
-                putInt(KEY_REVERB_PRESET, preset.ordinal)
-            }
-        } catch (e: Exception) {
-            // Audio effects not available on this device
-        }
+        audioEffectsController.setReverbPreset(preset)
     }
 
     /**
      * Set bass boost strength (0-1000)
      */
     override fun setBassBoost(strength: Int) {
-        try {
-            currentBassBoostStrength = strength.coerceIn(0, 1000)
-            audioEffectsService.setBassBoost(currentBassBoostStrength, enabled = currentBassBoostStrength > 0)
-            persistAudioEffects {
-                putInt(KEY_BASS_BOOST, currentBassBoostStrength)
-            }
-        } catch (e: Exception) {
-            // Audio effects not available on this device
-        }
+        audioEffectsController.setBassBoost(strength)
     }
-    
+
     fun setReplayGainEnabled(enabled: Boolean) {
-        replayGainService.setEnabled(enabled)
-        currentTrack.value?.let { applyReplayGain(it) }
-        persistAudioEffects {
-            putBoolean(KEY_REPLAY_GAIN_ENABLED, enabled)
-        }
+        audioEffectsController.setReplayGainEnabled(enabled, currentTrack.value, ::applyReplayGain)
     }
 
     fun setReplayGainPreamp(preampDb: Int) {
-        replayGainService.setPreampGain(preampDb.toFloat())
-        currentTrack.value?.let { applyReplayGain(it) }
-        persistAudioEffects {
-            putInt(KEY_REPLAY_GAIN_PREAMP, preampDb)
-        }
+        audioEffectsController.setReplayGainPreamp(preampDb, currentTrack.value, ::applyReplayGain)
     }
 
-    fun getAudioEffectsSnapshot(): AudioEffectsSnapshot {
-        val replayGainSettings = replayGainService.getSettings()
-        return AudioEffectsSnapshot(
-            eqPreset = currentEqPreset,
-            bassBoostStrength = currentBassBoostStrength,
-            reverbEnabled = currentReverbEnabled,
-            reverbPreset = currentReverbPreset,
-            replayGainEnabled = replayGainSettings.enabled,
-            replayGainPreamp = replayGainSettings.preampGain.roundToInt()
-        )
-    }
+    fun getAudioEffectsSnapshot(): AudioEffectsSnapshot = audioEffectsController.snapshot()
 
     /**
      * Get ExoPlayerService instance for visualizer attachment
      */
     fun getExoPlayerService(): ExoPlayerService = exoPlayerService
     
-    // ===== LAST.FM SCROBBLING =====
-    
-    /**
-     * Start Last.fm scrobbling for current track
-     */
-    private fun startScrobbling(track: TrackInfo) {
-        // Cancel any existing scrobble job
-        scrobbleJob?.cancel()
-        hasScrobbled = false
-        trackStartTime = System.currentTimeMillis()
-        
-        // Update "Now Playing" on Last.fm
-        scrobblerScope.launch {
-            lastFmScrobbler.updateNowPlaying(
-                artist = track.artist ?: "Unknown Artist",
-                track = track.title,
-                album = track.album,
-                duration = track.duration
-            )
-        }
-        
-        // Schedule scrobble for 50% of track or 4 minutes (whichever comes first)
-        val scrobbleDelay = minOf(
-            track.duration / 2, // 50% of track
-            4 * 60 * 1000 // 4 minutes
-        )
-        
-        scrobbleJob = scrobblerScope.launch {
-            delay(scrobbleDelay)
-            if (!hasScrobbled) {
-                lastFmScrobbler.scrobble(
-                    artist = track.artist ?: "Unknown Artist",
-                    track = track.title,
-                    album = track.album,
-                    duration = track.duration
-                )
-                hasScrobbled = true
-            }
-        }
-    }
-    
     /**
      * Get Last.fm scrobbler service
      */
-    fun getLastFmScrobbler(): LastFmScrobblerService = lastFmScrobbler
+    fun getLastFmScrobbler(): LastFmScrobblerService = scrobbleManager.underlying()
     
     /**
      * Get audio profile service
      */
     fun getAudioProfileService(): AudioProfileService = audioProfileService
 }
-
-
-
-
-private const val AUDIO_EFFECTS_PREFS = "audio_effects_settings"
-private const val KEY_EQ_PRESET = "eq_preset"
-private const val KEY_BASS_BOOST = "bass_boost_strength"
-private const val KEY_REVERB_ENABLED = "reverb_enabled"
-private const val KEY_REVERB_PRESET = "reverb_preset"
-private const val KEY_REPLAY_GAIN_ENABLED = "replay_gain_enabled"
-private const val KEY_REPLAY_GAIN_PREAMP = "replay_gain_preamp"
 
