@@ -1,5 +1,10 @@
 package com.universalmedialibrary.services.webfiction
 
+import org.jsoup.HttpStatusException
+import java.net.SocketTimeoutException
+import java.net.URI
+import java.net.URL
+
 internal fun detectSite(url: String): WebFictionSiteType {
     val domain = URL(url).host.lowercase()
     return when {
@@ -23,32 +28,32 @@ internal fun detectSite(url: String): WebFictionSiteType {
     }
 }
 
-fun parseAndValidateSourceUrl(rawUrl: String): ValidatedWebFictionUrl {
+fun parseAndValidateSourceUrl(rawUrl: String): WebFictionService.ValidatedWebFictionUrl {
     val normalized = rawUrl.trim()
     require(normalized.isNotBlank()) { "Enter a story URL to continue." }
 
     val uri = try {
         URI(normalized)
     } catch (_: Exception) {
-        throw UnsupportedWebFictionUrlException("Invalid URL format. Include the full https:// address.")
+        throw WebFictionService.UnsupportedWebFictionUrlException("Invalid URL format. Include the full https:// address.")
     }
 
     if (uri.scheme.isNullOrBlank() || uri.host.isNullOrBlank()) {
-        throw UnsupportedWebFictionUrlException("Invalid URL format. Include the full https:// address.")
+        throw WebFictionService.UnsupportedWebFictionUrlException("Invalid URL format. Include the full https:// address.")
     }
     if (uri.scheme != "https" && uri.scheme != "http") {
-        throw UnsupportedWebFictionUrlException("Only http/https story URLs are supported.")
+        throw WebFictionService.UnsupportedWebFictionUrlException("Only http/https story URLs are supported.")
     }
 
     val cleanUrl = uri.normalize().toString()
     val siteType = detectSite(cleanUrl)
     if (siteType == WebFictionSiteType.GENERIC) {
-        throw UnsupportedWebFictionUrlException(
+        throw WebFictionService.UnsupportedWebFictionUrlException(
             "Unsupported site. Use AO3, FanFiction.Net, Royal Road, WebNovel, Wattpad, Scribble Hub, FimFiction, or supported adult-source domains."
         )
     }
 
-    return ValidatedWebFictionUrl(
+    return WebFictionService.ValidatedWebFictionUrl(
         normalizedUrl = cleanUrl.substringBefore("#"),
         siteType = siteType
     )
@@ -58,13 +63,13 @@ internal fun mapSiteFailure(url: String, e: Exception): Exception {
     val message = e.message?.lowercase().orEmpty()
     return when {
         e is HttpStatusException && e.statusCode in setOf(429, 403, 503) ->
-            WebFictionRateLimitException("Rate-limited by source site for $url (HTTP ${e.statusCode}).")
+            WebFictionService.WebFictionRateLimitException("Rate-limited by source site for $url (HTTP ${e.statusCode}).")
         e is SocketTimeoutException ->
-            WebFictionRateLimitException("Timed out while contacting source site for $url.")
+            WebFictionService.WebFictionRateLimitException("Timed out while contacting source site for $url.")
         "429" in message || "rate limit" in message || "too many requests" in message ->
-            WebFictionRateLimitException("Rate-limited by source site for $url.")
+            WebFictionService.WebFictionRateLimitException("Rate-limited by source site for $url.")
         "selector" in message || "not found" in message || "element" in message ->
-            WebFictionSiteChangedException("Source page structure changed for $url.")
+            WebFictionService.WebFictionSiteChangedException("Source page structure changed for $url.")
         else -> e
     }
 }
@@ -130,4 +135,3 @@ internal fun extractScribbleHubId(url: String): String {
 internal fun extractFimFictionId(url: String): String {
     return Regex("story/(\\d+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
 }
-
