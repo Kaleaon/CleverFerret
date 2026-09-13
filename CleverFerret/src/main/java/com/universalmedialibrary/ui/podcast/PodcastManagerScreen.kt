@@ -370,34 +370,6 @@ fun PodcastDownloadsTab(
         }
     }
 }
-
-
-                LazyColumn(
-                    modifier = Modifier.height(300.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(searchResults, key = { "${it.source}:${it.id}" }) { result ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onSubscribe(result) }
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                AsyncImage(
-                    
-                                    model = result.imageUrl,
-                                    contentDescription = "Media image",
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(MaterialTheme.shapes.small),
-                                    contentScale = ContentScale.Crop
-                                )
-
-
-
 @Composable
 fun AddPodcastFeedDialog(
     onDismiss: () -> Unit,

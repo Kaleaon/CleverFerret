@@ -79,7 +79,8 @@ internal fun HeroCarousel(
     items: List<MediaItem>,
     pagerState: PagerState,
     onItemClick: (MediaItem) -> Unit,
-    onPlayClick: (MediaItem) -> Unit
+    onPlayClick: (MediaItem) -> Unit,
+    autoAdvanceEnabled: Boolean = true
 ) {
     var lastPagerInteractionTimestamp by remember(pagerState) { mutableLongStateOf(0L) }
 
@@ -91,7 +92,7 @@ internal fun HeroCarousel(
     }
 
     LaunchedEffect(pagerState, items.size) {
-        if (items.size <= 1) return@LaunchedEffect
+        if (items.size <= 1 || !autoAdvanceEnabled) return@LaunchedEffect
 
         while (true) {
             delay(HERO_CAROUSEL_AUTO_ADVANCE_INTERVAL_MS)

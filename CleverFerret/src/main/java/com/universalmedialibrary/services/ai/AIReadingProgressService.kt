@@ -649,19 +649,4 @@ class AIReadingProgressService @Inject constructor(
         }
     }
 }
-
 // ==================== Data Classes ====================
-
-@Serializable
-
-@Serializable
-
-@Serializable
-
-@Serializable
-
-@Serializable
-
-@Serializable
-
-@Serializable

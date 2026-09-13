@@ -50,23 +50,21 @@ fun NavGraphBuilder.debugMenuRoutes(
             )
         }
     }
-    }
 }
 
 // Extension to get route name from MediaType
 private val MediaType.routeName: String
     get() = when (this) {
-    MediaType.BOOK -> "book"
-    MediaType.AUDIOBOOK -> "audiobook"
-    MediaType.MUSIC -> "music"
-    MediaType.PODCAST -> "podcast"
-    MediaType.COMIC -> "comic"
-    MediaType.MOVIE -> "movie"
-    MediaType.TV_SHOW -> "tv_show"
-    MediaType.FANFICTION -> "webfiction"
-    MediaType.DOCUMENT -> "document"
-    MediaType.RADIO -> "radio"
-    MediaType.NEWS -> "news"
-    MediaType.UNKNOWN -> "unknown"
+        MediaType.BOOK -> "book"
+        MediaType.AUDIOBOOK -> "audiobook"
+        MediaType.MUSIC -> "music"
+        MediaType.PODCAST -> "podcast"
+        MediaType.COMIC -> "comic"
+        MediaType.MOVIE -> "movie"
+        MediaType.TV_SHOW -> "tv_show"
+        MediaType.FANFICTION -> "webfiction"
+        MediaType.DOCUMENT -> "document"
+        MediaType.RADIO -> "radio"
+        MediaType.NEWS -> "news"
+        MediaType.UNKNOWN -> "unknown"
     }
-}

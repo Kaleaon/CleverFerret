@@ -1,82 +1,99 @@
 package com.universalmedialibrary.ui.media.screens
 
-import android.provider.Settings
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
-import androidx.compose.foundation.lazy.*
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.pager.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Podcasts
+import androidx.compose.material.icons.filled.Radio
+import androidx.compose.material.icons.filled.Spa
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material3.BorderStroke
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.testTag
-import coil.compose.AsyncImage
 import com.universalmedialibrary.R
-import com.universalmedialibrary.ui.media.components.*
+import com.universalmedialibrary.ui.media.components.MediaItem
 import com.universalmedialibrary.ui.media.navigation.HomeSectionRouteContract
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
-import com.universalmedialibrary.ui.media.theme.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
+import com.universalmedialibrary.ui.media.theme.MediaColors
+import com.universalmedialibrary.ui.media.theme.MediaCorners
+import com.universalmedialibrary.ui.media.theme.MediaSizes
+import com.universalmedialibrary.ui.media.theme.MediaSpacing
+import com.universalmedialibrary.ui.media.theme.MediaTypography
+import com.universalmedialibrary.ui.media.theme.isReducedMotionEnabled
 
-internal const val MEDIA_HOME_TOP_BAR_TAG = "media_home_top_bar"
-internal const val MEDIA_HOME_TOP_BAR_NAV_TAG = "media_home_top_bar_nav_icon"
-internal const val MEDIA_HOME_TOP_BAR_SEARCH_TAG = "media_home_top_bar_search"
-internal const val MEDIA_HOME_TOP_BAR_NOTIFICATIONS_TAG = "media_home_top_bar_notifications"
-
-/**
- * Clean Media-Centric Home/Dashboard Screen
- * 
- * A beautiful, feature-rich home screen inspired by premium media apps:
- * - Hero carousel for featured content
- * - Continue reading/watching/listening section
- * - Recently added content rows
- * - Curated collections
- * - Quick access to all media types
- * - Personalized recommendations
- * - Welcome screen for new users with empty library
- */
-
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaHomeScreen(
     state: MediaHomeState,
@@ -97,62 +114,69 @@ fun MediaHomeScreen(
     reduceMotionEnabled: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val reducedMotionEnabled = isReducedMotionEnabled()
+    val shouldReduceMotion = reduceMotionEnabled || isReducedMotionEnabled()
     val scrollState = rememberLazyListState()
     val showFloatingTopBar by remember {
         derivedStateOf { scrollState.firstVisibleItemIndex > 0 }
     }
-    val heroCarouselPagerState = rememberPagerState(pageCount = { state.featuredItems.size })
-    val isHeroCarouselBeingDragged by heroCarouselPagerState.interactionSource.collectIsDraggedAsState()
-    val isPullToRefreshEnabled by remember(scrollState, state.error, state.isLoading, isHeroCarouselBeingDragged) {
-        derivedStateOf {
-            scrollState.firstVisibleItemIndex == 0 &&
-                scrollState.firstVisibleItemScrollOffset == 0 &&
-                state.error == null &&
-                !state.isLoading &&
-                !isHeroCarouselBeingDragged
-        }
-    }
-    
-    val context = LocalContext.current
-    val platformAnimationsDisabled = remember(context) {
-        Settings.Global.getFloat(
-            context.contentResolver,
-            Settings.Global.ANIMATOR_DURATION_SCALE,
-            1f
-        ) == 0f
-    }
-    val shouldReduceMotion = reduceMotionEnabled || platformAnimationsDisabled
-
-    // Check if library is empty
+    val heroCarouselPagerState = rememberPagerState(
+        pageCount = { state.featuredItems.size.coerceAtLeast(1) }
+    )
     val isLibraryEmpty = remember(state) {
         state.featuredItems.isEmpty() &&
-        state.continueItems.isEmpty() &&
-        state.recentBooks.isEmpty() &&
-        state.recentMusic.isEmpty() &&
-        state.recentPodcasts.isEmpty() &&
-        state.recentVideos.isEmpty() &&
-        state.recentAudiobooks.isEmpty() &&
-        state.recentComics.isEmpty() &&
-        state.recentFanfiction.isEmpty() &&
-        state.libraryStats.totalBooks == 0 &&
-        state.libraryStats.totalMusic == 0 &&
-        state.libraryStats.totalAudiobooks == 0 &&
-        state.libraryStats.totalVideos == 0
+            state.continueItems.isEmpty() &&
+            state.recentBooks.isEmpty() &&
+            state.recentMusic.isEmpty() &&
+            state.recentPodcasts.isEmpty() &&
+            state.recentVideos.isEmpty() &&
+            state.recentAudiobooks.isEmpty() &&
+            state.recentComics.isEmpty() &&
+            state.recentFanfiction.isEmpty() &&
+            state.collections.isEmpty() &&
+            state.libraryStats.totalBooks == 0 &&
+            state.libraryStats.totalMusic == 0 &&
+            state.libraryStats.totalAudiobooks == 0 &&
+            state.libraryStats.totalVideos == 0 &&
+            state.libraryStats.totalComics == 0 &&
+            state.libraryStats.totalPodcasts == 0 &&
+            state.libraryStats.totalFanfiction == 0
     }
-    
-    // Auto-scroll hero carousel (disabled when reduced motion is enabled)
-    LaunchedEffect(state.featuredItems, shouldReduceMotion) {
-        if (state.featuredItems.isNotEmpty() && !shouldReduceMotion) {
-            while (true) {
-                delay(6000)
-                val nextPage = (heroCarouselPagerState.currentPage + 1) % state.featuredItems.size
-                heroCarouselPagerState.animateScrollToPage(nextPage)
+    val recentlyAddedItems = remember(state) {
+        (
+            state.recentBooks.take(2) +
+                state.recentMusic.take(1) +
+                state.recentVideos.take(2) +
+                state.recentComics.take(1) +
+                state.recentPodcasts.take(1) +
+                state.recentAudiobooks.take(1)
+            ).take(6)
+    }
+    val emptySections = remember(state) {
+        buildList {
+            if (state.libraryStats.totalBooks == 0 && state.recentBooks.isEmpty()) {
+                add(EmptySectionHint("Books", MediaRoutes.BOOKS, Icons.Default.MenuBook))
+            }
+            if (state.libraryStats.totalMusic == 0 && state.recentMusic.isEmpty()) {
+                add(EmptySectionHint("Music", MediaRoutes.MUSIC, Icons.Default.MusicNote))
+            }
+            if (state.libraryStats.totalPodcasts == 0 && state.recentPodcasts.isEmpty()) {
+                add(EmptySectionHint("Podcasts", MediaRoutes.PODCASTS, Icons.Default.Podcasts))
+            }
+            if (state.libraryStats.totalAudiobooks == 0 && state.recentAudiobooks.isEmpty()) {
+                add(EmptySectionHint("Audiobooks", MediaRoutes.AUDIOBOOKS, Icons.Default.Headphones))
+            }
+            if (state.libraryStats.totalVideos == 0 && state.recentVideos.isEmpty()) {
+                add(EmptySectionHint("Videos", MediaRoutes.MOVIES, Icons.Default.Movie))
+            }
+            if (state.libraryStats.totalComics == 0 && state.recentComics.isEmpty()) {
+                add(EmptySectionHint("Comics", MediaRoutes.COMICS, Icons.Default.AutoStories))
+            }
+            if (state.libraryStats.totalFanfiction == 0 && state.recentFanfiction.isEmpty()) {
+                add(EmptySectionHint("Web Fiction", MediaRoutes.WEB_FICTION, Icons.Default.Language))
             }
         }
     }
-    
-    // Scaffold with sticky top header
+
     Scaffold(
         topBar = {
             StickyContentLibraryHeader(
@@ -163,403 +187,264 @@ fun MediaHomeScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Handle error, loading, and content states
-        if (state.error != null) {
-            ErrorStateContent(
-                error = state.error,
-                onRetry = onRetry,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        } else if (state.isLoading) {
-            LoadingStateContent(
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh,
-                isEnabled = isPullToRefreshEnabled,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // Welcome section (Get Started) for empty library - now always at top after sticky header
-                if (isLibraryEmpty) {
-                    item(key = "welcome-section") {
-                        AnimatedSectionContainer(
-                            sectionKey = "welcome-section",
-                            sectionIndex = 0,
-                            reducedMotionEnabled = reducedMotionEnabled
-                        ) {
-                            WelcomeSection(
-                                onSearchClick = onSearchClick,
-                                onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) },
-                                onAddLocalFilesClick = onAddLocalFilesClick,
-                                onSubscribePodcastsClick = onSubscribePodcastsClick
-                            )
-                        }
-                if (isLibraryEmpty && state.showOnboardingTips) {
-                    item {
-                        WelcomeSection(
-                            onSearchClick = onSearchClick,
-                            onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) },
-                            onAddLocalFilesClick = onAddLocalFilesClick,
-                            onSubscribePodcastsClick = onSubscribePodcastsClick,
-                            canDismiss = state.hasConfiguredContentSource,
-                            onDismiss = onDismissWelcomeTips
-                        )
-                    }
-                }
-
-                // Hero Carousel
-                if (state.featuredItems.isNotEmpty()) {
-                    item(key = "hero-carousel") {
-                        AnimatedSectionContainer(
-                            sectionKey = "hero-carousel",
-                            sectionIndex = 1,
-                            reducedMotionEnabled = reducedMotionEnabled
-                        ) {
-                            HeroCarousel(
-                                items = state.featuredItems,
-                                pagerState = heroCarouselPagerState,
-                                onItemClick = onItemClick,
-                                onPlayClick = onPlayClick
-                            )
-                        }
-                    }
-
-                    // Hero Carousel
-                    if (state.featuredItems.isNotEmpty()) {
-                        item {
-                            HeroCarousel(
-                                items = state.featuredItems,
-                                pagerState = heroCarouselPagerState,
-                                onItemClick = onItemClick,
-                                onPlayClick = onPlayClick
-                            )
-                // Quick Stats Row - always show if library has content OR show minimal version for empty
-                item(key = "quick-stats") {
-                    if (!isLibraryEmpty) {
-                        AnimatedSectionContainer(
-                            sectionKey = "quick-stats",
-                            sectionIndex = 2,
-                            reducedMotionEnabled = reducedMotionEnabled
-                        ) {
-                            QuickStatsRow(stats = state.libraryStats)
-                        }
-                    }
-
-                    // Quick Stats Row - always show if library has content OR show minimal version for empty
-                    item {
-                        if (!isLibraryEmpty) {
-                            QuickStatsRow(stats = state.libraryStats)
-                // Continue Section (Reading, Watching, Listening) - matching mockup "Continue Watching"
-                if (state.continueItems.isNotEmpty()) {
-                    item(key = "continue-section") {
-                        AnimatedSectionContainer(
-                            sectionKey = "continue-section",
-                            sectionIndex = 3,
-                            reducedMotionEnabled = reducedMotionEnabled
-                        ) {
-                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                            ContinueWatchingRow(
-                                title = "Continue Watching",
-                                items = state.continueItems,
-                                onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) },
-                                onItemClick = onItemClick
-                            )
-                        }
-                    }
-
-                    // Continue Section (Reading, Watching, Listening) - matching mockup "Continue Watching"
-                    if (state.continueItems.isNotEmpty()) {
-                        item {
-                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                            ContinueWatchingRow(
-                                title = "Continue Watching",
-                                items = state.continueItems,
-                                onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) },
-                                onItemClick = onItemClick
-                            )
-                        }
-                    }
-
-                    // Recently Added - Combined Grid Section (matching mockup)
-                    item {
-                        val recentlyAddedItems = remember(state) {
-                            (state.recentBooks.take(2) +
-                             state.recentMusic.take(1) +
-                             state.recentVideos.take(2) +
-                             state.recentComics.take(1) +
-                             state.recentPodcasts.take(1) +
-                             state.recentAudiobooks.take(1))
-                                .take(6) // Show max 6 items in grid
-                        }
-
-                        if (recentlyAddedItems.isNotEmpty()) {
-                            Column {
-                                Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                                RecentlyAddedGridSection(
-                                    title = "Recently Added",
-                                    items = recentlyAddedItems,
-                                    onItemClick = onItemClick
-                                )
-                            }
-                        }
-                    }
-
-                    // Comics
-                    if (state.recentComics.isNotEmpty()) {
-                        item {
-                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                            MediaCarouselRow(
-                                title = "Recently Added Comics",
-                                items = state.recentComics,
-                                onSeeAllClick = { onSeeAllClick(HomeSectionRouteContract.COMICS.seeAllRoute()) }
-                            ) { item ->
-                                MediaPosterCard(
-                                    item = item,
-                                    onClick = { onItemClick(item) },
-                                    width = MediaSizes.CardMedium
-                                )
-                            }
-                        }
-                    }
-
-                    // Web Fiction
-                    if (state.recentFanfiction.isNotEmpty()) {
-                        item {
-                // Recently Added - Combined Grid Section (matching mockup)
-                item(key = "recently-added") {
-                    val recentlyAddedItems = remember(state) {
-                        (state.recentBooks.take(2) +
-                         state.recentMusic.take(1) +
-                         state.recentVideos.take(2) +
-                         state.recentComics.take(1) +
-                         state.recentPodcasts.take(1) +
-                         state.recentAudiobooks.take(1))
-                            .take(6) // Show max 6 items in grid
-                    }
-                    
-                    if (recentlyAddedItems.isNotEmpty()) {
-                        AnimatedSectionContainer(
-                            sectionKey = "recently-added",
-                            sectionIndex = 4,
-                            reducedMotionEnabled = reducedMotionEnabled
-                        ) {
-                            Column {
-                                Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                                RecentlyAddedGridSection(
-                                    title = "Recently Added",
-                                    items = recentlyAddedItems,
-                                    onItemClick = onItemClick
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Partial empty-state guidance for mixed libraries
-                if (!isLibraryEmpty) {
-                    item {
-                        val emptySections = remember(state) {
-                            buildList {
-                                if (state.libraryStats.totalBooks == 0 && state.recentBooks.isEmpty()) {
-                                    add(EmptySectionHint("Books", MediaRoutes.BOOKS, Icons.Default.MenuBook))
-                                }
-                                if (state.libraryStats.totalMusic == 0 && state.recentMusic.isEmpty()) {
-                                    add(EmptySectionHint("Music", MediaRoutes.MUSIC, Icons.Default.MusicNote))
-                                }
-                                if (state.libraryStats.totalPodcasts == 0 && state.recentPodcasts.isEmpty()) {
-                                    add(EmptySectionHint("Podcasts", MediaRoutes.PODCASTS, Icons.Default.Podcasts))
-                                }
-                                if (state.libraryStats.totalAudiobooks == 0 && state.recentAudiobooks.isEmpty()) {
-                                    add(EmptySectionHint("Audiobooks", MediaRoutes.AUDIOBOOKS, Icons.Default.Headphones))
-                                }
-                                if (state.libraryStats.totalVideos == 0 && state.recentVideos.isEmpty()) {
-                                    add(EmptySectionHint("Videos", MediaRoutes.MOVIES, Icons.Default.Movie))
-                                }
-                                if (state.libraryStats.totalComics == 0 && state.recentComics.isEmpty()) {
-                                    add(EmptySectionHint("Comics", MediaRoutes.COMICS, Icons.Default.AutoStories))
-                                }
-                                if (state.libraryStats.totalFanfiction == 0 && state.recentFanfiction.isEmpty()) {
-                                    add(EmptySectionHint("Web Fiction", MediaRoutes.WEB_FICTION, Icons.Default.Public))
-                                }
-                            }
-                        }
-
-                        if (emptySections.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                            EmptySectionGuidanceRow(
-                                emptySections = emptySections,
-                                onSectionClick = onSeeAllClick
-                            )
-                        }
-                    }
-                }
-                
-                // Comics
-                if (state.recentComics.isNotEmpty()) {
-                    item(key = "recent-comics") {
-                        AnimatedSectionContainer(
-                            sectionKey = "recent-comics",
-                            sectionIndex = 5,
-                            reducedMotionEnabled = reducedMotionEnabled
-                        ) {
-                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                            MediaCarouselRow(
-                                title = "Recently Added Comics",
-                                items = state.recentComics,
-                                onSeeAllClick = { onSeeAllClick(HomeSectionRouteContract.COMICS.seeAllRoute()) }
-                            ) { item ->
-                                MediaPosterCard(
-                                    item = item,
-                                    onClick = { onItemClick(item) },
-                                    width = MediaSizes.CardMedium
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                // Web Fiction
-                if (state.recentFanfiction.isNotEmpty()) {
-                    item(key = "recent-fanfiction") {
-                        AnimatedSectionContainer(
-                            sectionKey = "recent-fanfiction",
-                            sectionIndex = 6,
-                            reducedMotionEnabled = reducedMotionEnabled
-                        ) {
-                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                            MediaCarouselRow(
-                                title = "Web Fiction Updates",
-                                items = state.recentFanfiction,
-                                onSeeAllClick = { onSeeAllClick(HomeSectionRouteContract.WEB_FICTION.seeAllRoute()) }
-                            ) { item ->
-                                MediaPosterCard(
-                                    item = item,
-                                    onClick = { onItemClick(item) },
-                                    width = MediaSizes.CardMedium
-                                )
-                            }
-                        }
-                    }
-
-                    // Collections
-                    if (state.collections.isNotEmpty()) {
-                        item {
-                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                            CollectionsSection(
-                                collections = state.collections,
-                                onCollectionClick = { onSeeAllClick(MediaRoutes.collectionDetailRoute(it.id)) }
-                            )
-                        }
-                    }
-
-                    // Quick Access Grid - ALWAYS show this
-                    item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        QuickAccessGrid(
-                            onCategoryClick = onSeeAllClick
-                        )
-                    }
-
-                    // Bottom padding
-                    item {
-                        Spacer(modifier = Modifier.height(MediaSpacing.Huge))
-                    }
-                        }
-                    }
-                }
-                
-                // Collections
-                if (state.collections.isNotEmpty()) {
-                    item(key = "collections") {
-                        AnimatedSectionContainer(
-                            sectionKey = "collections",
-                            sectionIndex = 7,
-                            reducedMotionEnabled = reducedMotionEnabled
-                        ) {
-                            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                            CollectionsSection(
-                                collections = state.collections,
-                                onCollectionClick = { onSeeAllClick(MediaRoutes.collectionDetailRoute(it.id)) }
-                            )
-                        }
-                    }
-                }
-                
-                // Quick Access Grid - ALWAYS show this
-                item(key = "quick-access") {
-                    AnimatedSectionContainer(
-                        sectionKey = "quick-access",
-                        sectionIndex = 8,
-                        reducedMotionEnabled = reducedMotionEnabled
-                    ) {
-                        Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                        QuickAccessGrid(
-                            onCategoryClick = onSeeAllClick
-                        )
-                    }
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-                    QuickAccessGrid(
-                        items = state.quickAccessItems,
-                        onCategoryClick = onQuickAccessCategoryClick,
-                        onPreferencesChange = onQuickAccessPreferencesChange
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            when {
+                state.error != null -> {
+                    ErrorStateContent(
+                        error = state.error,
+                        onRetry = onRetry,
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                
-                // Bottom padding
-                item {
-                    Spacer(modifier = Modifier.height(MediaSpacing.Huge))
+
+                state.isLoading -> {
+                    LoadingStateContent(modifier = Modifier.fillMaxSize())
+                }
+
+                else -> {
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = onRefresh,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LazyColumn(
+                            state = scrollState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = MediaSpacing.Huge)
+                        ) {
+                            if (isLibraryEmpty || state.showOnboardingTips) {
+                                item(key = "welcome") {
+                                    WelcomeSection(
+                                        onSearchClick = onSearchClick,
+                                        onBrowseClick = { onSeeAllClick(MediaRoutes.OPDS_BROWSER) },
+                                        onAddLocalFilesClick = onAddLocalFilesClick,
+                                        onSubscribePodcastsClick = onSubscribePodcastsClick,
+                                        canDismiss = state.showOnboardingTips && state.hasConfiguredContentSource,
+                                        onDismiss = onDismissWelcomeTips
+                                    )
+                                }
+                            }
+
+                            if (state.featuredItems.isNotEmpty()) {
+                                item(key = "hero-carousel") {
+                                    HeroCarousel(
+                                        items = state.featuredItems,
+                                        pagerState = heroCarouselPagerState,
+                                        onItemClick = onItemClick,
+                                        onPlayClick = onPlayClick,
+                                        autoAdvanceEnabled = !shouldReduceMotion
+                                    )
+                                }
+                            }
+
+                            if (!isLibraryEmpty) {
+                                item(key = "quick-stats") {
+                                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                    QuickStatsRow(stats = state.libraryStats)
+                                }
+                            }
+
+                            if (state.continueItems.isNotEmpty()) {
+                                item(key = "continue-section") {
+                                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                    ContinueWatchingRow(
+                                        title = "Continue",
+                                        items = state.continueItems,
+                                        onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) },
+                                        onItemClick = onItemClick
+                                    )
+                                }
+                            }
+
+                            if (recentlyAddedItems.isNotEmpty()) {
+                                item(key = "recently-added") {
+                                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                    RecentlyAddedGridSection(
+                                        title = "Recently Added",
+                                        items = recentlyAddedItems,
+                                        onItemClick = onItemClick
+                                    )
+                                }
+                            }
+
+                            if (!isLibraryEmpty && emptySections.isNotEmpty()) {
+                                item(key = "empty-guidance") {
+                                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                    EmptySectionGuidanceRow(
+                                        emptySections = emptySections,
+                                        onSectionClick = onSeeAllClick
+                                    )
+                                }
+                            }
+
+                            if (state.recentComics.isNotEmpty()) {
+                                item(key = "recent-comics") {
+                                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                    MediaCarouselRow(
+                                        title = "Recently Added Comics",
+                                        items = state.recentComics,
+                                        onSeeAllClick = { onSeeAllClick(HomeSectionRouteContract.COMICS.seeAllRoute()) }
+                                    ) { item ->
+                                        MediaPosterCard(
+                                            item = item,
+                                            onClick = { onItemClick(item) },
+                                            width = MediaSizes.CardMedium
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (state.recentFanfiction.isNotEmpty()) {
+                                item(key = "recent-fanfiction") {
+                                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                    MediaCarouselRow(
+                                        title = "Web Fiction Updates",
+                                        items = state.recentFanfiction,
+                                        onSeeAllClick = { onSeeAllClick(HomeSectionRouteContract.WEB_FICTION.seeAllRoute()) }
+                                    ) { item ->
+                                        MediaPosterCard(
+                                            item = item,
+                                            onClick = { onItemClick(item) },
+                                            width = MediaSizes.CardMedium
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (state.collections.isNotEmpty()) {
+                                item(key = "collections") {
+                                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                    CollectionsSection(
+                                        collections = state.collections,
+                                        onCollectionClick = { onSeeAllClick(MediaRoutes.collectionDetailRoute(it.id)) }
+                                    )
+                                }
+                            }
+
+                            item(key = "quick-access") {
+                                Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                                QuickAccessGrid(
+                                    items = state.quickAccessItems,
+                                    lastOpenedCategory = state.lastOpenedCategory,
+                                    onCategoryClick = onQuickAccessCategoryClick,
+                                    onPreferencesChange = onQuickAccessPreferencesChange
+                                )
+                            }
+                        }
+                    }
                 }
             }
-        }
-        
-        // Floating Top Bar (fades in on scroll) - kept for visual feedback
-        AnimatedVisibility(
-            visible = showFloatingTopBar,
-            enter = fadeIn() + slideInVertically(),
-            exit = fadeOut() + slideOutVertically(),
-            modifier = Modifier.align(Alignment.TopCenter)
-        ) {
-            PlexTopBar(
-                onSearchClick = onSearchClick,
-                onNotificationClick = onNotificationClick
-            )
+
+            AnimatedVisibility(
+                visible = showFloatingTopBar,
+                enter = fadeIn() + slideInVertically(),
+                exit = fadeOut() + slideOutVertically(),
+                modifier = Modifier.align(Alignment.TopCenter)
+            ) {
+                PlexTopBar(
+                    onSearchClick = onSearchClick,
+                    onNotificationClick = onNotificationClick
+                )
+            }
         }
     }
-    } // End Scaffold
 }
 
+@Composable
+private fun ErrorStateContent(
+    error: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .padding(MediaSpacing.ScreenHorizontal)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
+    ) {
+        Text(
+            text = "We couldn’t load your library",
+            style = MediaTypography.TitleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = error,
+            style = MediaTypography.BodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(onClick = onRetry) {
+            Text("Try again")
+        }
+    }
+}
 
-private const val HERO_CAROUSEL_AUTO_ADVANCE_INTERVAL_MS = 6000L
-private const val HERO_CAROUSEL_IDLE_RESUME_DELAY_MS = 1800L
+@Composable
+private fun LoadingStateContent(
+    modifier: Modifier = Modifier
+) {
+    val shimmerBrush = rememberShimmerBrush()
 
-// =============================================================================
-// QUICK STATS ROW
-// =============================================================================
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(bottom = MediaSpacing.Huge)
+    ) {
+        item { HeroSkeletonRow(brush = shimmerBrush) }
+        item { QuickStatsSkeletonRow(brush = shimmerBrush) }
+        item {
+            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+            QuickAccessSkeletonGrid(brush = shimmerBrush)
+        }
+    }
+}
 
+@Composable
+private fun rememberShimmerBrush(): Brush {
+    val transition = rememberInfiniteTransition(label = "home_loading_shimmer")
+    val translateX by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "home_loading_shimmer_translate"
+    )
 
+    return Brush.linearGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+        ),
+        start = Offset(translateX - 500f, 0f),
+        end = Offset(translateX, 0f)
+    )
+}
 
-// =============================================================================
-// COLLECTIONS SECTION
-// =============================================================================
-
-
-
-// =============================================================================
-// QUICK ACCESS GRID
-// =============================================================================
+@Composable
+private fun HeroSkeletonRow(brush: Brush) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(MediaSizes.HeroHeight)
+                .background(brush)
+        )
+    }
+}
 
 @Composable
 private fun QuickAccessGrid(
     items: List<QuickAccessItem>,
+    lastOpenedCategory: String?,
     onCategoryClick: (String) -> Unit,
     onPreferencesChange: (order: List<String>, favorites: Set<String>) -> Unit
 ) {
@@ -581,24 +466,24 @@ private fun QuickAccessGrid(
                 style = MediaTypography.TitleMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            if (reorderMode) {
-                TextButton(
-                    onClick = {
-                        reorderMode = false
+            TextButton(
+                onClick = {
+                    if (reorderMode) {
                         onPreferencesChange(
                             editableItems.map { it.id },
                             editableItems.filter { it.isFavorite }.mapTo(mutableSetOf()) { it.id }
                         )
                     }
-                ) {
-                    Text("Done")
+                    reorderMode = !reorderMode
                 }
+            ) {
+                Text(if (reorderMode) "Done" else "Customize")
             }
         }
 
         if (reorderMode) {
             Text(
-                text = "Long-press enabled reorder mode: use arrows to reorder and star to pin favorites.",
+                text = "Use the arrow buttons to reorder shortcuts and the star to pin favorites.",
                 style = MediaTypography.BodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -609,6 +494,7 @@ private fun QuickAccessGrid(
 
         QuickAccessFlowGrid(
             items = editableItems,
+            lastOpenedCategory = lastOpenedCategory,
             reorderMode = reorderMode,
             onCategoryClick = onCategoryClick,
             onEnableReorder = { reorderMode = true },
@@ -633,7 +519,6 @@ private fun QuickAccessGrid(
 private fun QuickAccessFlowGrid(
     items: List<QuickAccessItem>,
     lastOpenedCategory: String?,
-    onCategoryClick: (String) -> Unit
     reorderMode: Boolean,
     onCategoryClick: (String) -> Unit,
     onEnableReorder: () -> Unit,
@@ -672,7 +557,6 @@ private fun QuickAccessFlowGrid(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun QuickAccessCard(
     item: QuickAccessItem,
@@ -687,16 +571,18 @@ private fun QuickAccessCard(
     onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val cardContentDescription = stringResource(
-        id = R.string.cd_open_category,
-        item.label
-    )
+    val cardContentDescription = stringResource(R.string.cd_open_category, item.label)
     val quickAccessAlphas = MediaColors.quickAccessCardAlphas()
 
     Surface(
         modifier = modifier
             .aspectRatio(1f)
+            .semantics {
+                role = Role.Button
+                contentDescription = cardContentDescription
+            }
             .combinedClickable(
+                role = Role.Button,
                 onClick = { if (!reorderMode) onClick() },
                 onLongClick = onLongClick
             ),
@@ -732,7 +618,11 @@ private fun QuickAccessCard(
                         Icon(
                             imageVector = if (item.isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
                             contentDescription = if (item.isFavorite) "Unpin favorite" else "Pin favorite",
-                            tint = if (item.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = if (item.isFavorite) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
                         )
                     }
                     IconButton(onClick = onMoveDown, enabled = canMoveDown) {
@@ -763,186 +653,14 @@ private fun QuickAccessCard(
                 )
             }
 
+            Spacer(modifier = Modifier.height(MediaSpacing.SM))
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-
-// =============================================================================
-// CONTINUE WATCHING ROW (Matching mockup with metallic borders)
-// =============================================================================
-
-
-
-
-// =============================================================================
-// RECENTLY ADDED GRID SECTION (Matching mockup)
-// =============================================================================
-
-
-
-// =============================================================================
-// TOP BAR (Legacy - kept for floating top bar on scroll)
-// =============================================================================
-
-
-// =============================================================================
-// DATA MODELS
-// =============================================================================
-
-/**
- * State holder for the home screen
- */
-data class MediaHomeState(
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val featuredItems: List<MediaItem> = emptyList(),
-    val continueItems: List<MediaItem> = emptyList(),
-    val recentBooks: List<MediaItem> = emptyList(),
-    val recentAudiobooks: List<MediaItem> = emptyList(),
-    val recentComics: List<MediaItem> = emptyList(),
-    val recentMusic: List<MediaItem> = emptyList(),
-    val recentPodcasts: List<MediaItem> = emptyList(),
-    val recentVideos: List<MediaItem> = emptyList(),
-    val recentFanfiction: List<MediaItem> = emptyList(),
-    val collections: List<HomeCollection> = emptyList(),
-    val libraryStats: HomeLibraryStats = HomeLibraryStats(),
-    val lastOpenedCategory: String? = null,
-    val hasConfiguredContentSource: Boolean = false,
-    val showOnboardingTips: Boolean = false,
-    val quickAccessItems: List<QuickAccessItem> = defaultQuickAccessItems
-)
-
-data class HomeLibraryStats(
-    val totalBooks: Int = 0,
-    val totalAudiobooks: Int = 0,
-    val totalComics: Int = 0,
-    val totalMusic: Int = 0,
-    val totalPodcasts: Int = 0,
-    val totalVideos: Int = 0,
-    val totalFanfiction: Int = 0
-)
-
-data class HomeCollection(
-    val id: String,
-    val name: String,
-    val itemCount: Int,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val color: Color
-)
-
-data class QuickAccessItem(
-    val id: String,
-    val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val color: Color,
-    val isFavorite: Boolean = false
-)
-
-val defaultQuickAccessItems = listOf(
-    QuickAccessItem(MediaRoutes.BOOKS, "Books", Icons.Default.MenuBook, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.AUDIOBOOKS, "Audiobooks", Icons.Default.Headphones, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.COMICS, "Comics", Icons.Default.AutoStories, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.MUSIC, "Music", Icons.Default.MusicNote, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.PODCASTS, "Podcasts", Icons.Default.Podcasts, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.RADIO, "Radio", Icons.Default.Radio, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.MOVIES, "Movies", Icons.Default.Movie, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.TV_SHOWS, "TV Shows", Icons.Default.Tv, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.WEB_FICTION, "Web Fiction", Icons.Default.Language, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.DOCUMENTS, "Documents", Icons.Default.Description, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.OPDS_BROWSER, "OPDS", Icons.Default.CloudDownload, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.AMBIENT_SOUNDS, "Ambient", Icons.Default.Spa, MediaColors.AccentPrimary),
-    QuickAccessItem(MediaRoutes.COLLECTIONS, "Collections", Icons.Default.Collections, MediaColors.AccentPrimary)
-)
-
-// =============================================================================
-// ERROR STATE
-// =============================================================================
-
-
-// =============================================================================
-// LOADING STATE
-// =============================================================================
-
-@Composable
-private fun LoadingStateContent(
-    modifier: Modifier = Modifier
-) {
-    val shimmerBrush = rememberShimmerBrush()
-
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(bottom = MediaSpacing.Huge)
-    ) {
-        item {
-            HeroSkeletonRow(brush = shimmerBrush)
-        }
-
-        item {
-            QuickStatsSkeletonRow(brush = shimmerBrush)
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
-            QuickAccessSkeletonGrid(brush = shimmerBrush)
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(MediaSpacing.Huge))
+            Text(
+                text = item.label,
+                style = MediaTypography.LabelLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
-
-@Composable
-private fun rememberShimmerBrush(): Brush {
-    val transition = rememberInfiniteTransition(label = "home_loading_shimmer")
-    val translateX by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "home_loading_shimmer_translate"
-    )
-
-    return Brush.linearGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-            MaterialTheme.colorScheme.surfaceVariant,
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-        ),
-        start = Offset(translateX - 500f, 0f),
-        end = Offset(translateX, 0f)
-    )
-}
-
-@Composable
-private fun HeroSkeletonRow(brush: Brush) {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(MediaSizes.HeroHeight)
-                .background(brush)
-        )
-
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = MediaSpacing.LG),
-            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
-        ) {
-            repeat(3) { index ->
-                Box(
-                    modifier = Modifier
-                        .size(if (index == 0) 24.dp else 8.dp, 4.dp)
-                        .clip(RoundedCornerShape(MediaCorners.Full))
-                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f))
-                )
-            }
-        }
-    }
-}
-
-

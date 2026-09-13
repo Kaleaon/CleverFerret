@@ -613,6 +613,8 @@ class WebFictionManagerScreenViewModel @Inject constructor(
             fandoms = listOfNotNull(fandom),
             tags = tags,
             language = language ?: "English"
+        )
+
     private fun publishError(message: String, retryAction: (() -> Unit)? = null) {
         pendingRetryAction = retryAction
         _uiState.value = _uiState.value.copy(
@@ -631,60 +633,59 @@ class WebFictionManagerScreenViewModel @Inject constructor(
         )
     }
 
-    private fun createDemoStories(): List<WebFictionStory> {
-        return listOf(
-            WebFictionStory(
-                id = "demo_1",
-                title = "The Digital Awakening",
-                author = "TechWizard42",
-                description = "In a world where AI has become sentient, a young programmer must navigate the complex relationship between humans and artificial intelligence.",
-                url = "https://archiveofourown.org/works/demo1",
-                site = "Archive of Our Own",
-                status = com.universalmedialibrary.services.webfiction.StoryStatus.ONGOING,
-                genre = "Sci-Fi",
-                fandom = "Original",
-                language = "en",
-                chapterCount = 25,
-                lastUpdated = System.currentTimeMillis(),
-                rating = "T",
-                tags = listOf("AI", "Sci-Fi", "Technology", "Romance"),
-                wordCount = 125000L
-            ),
-            WebFictionStory(
-                id = "demo_2",
-                title = "Royal Road Chronicles",
-                author = "FantasyMaster",
-                description = "A comprehensive LitRPG adventure following a player's journey through a virtual world that becomes all too real.",
-                url = "https://www.royalroad.com/fiction/demo2",
-                site = "Royal Road",
-                status = com.universalmedialibrary.services.webfiction.StoryStatus.COMPLETED,
-                genre = "LitRPG",
-                fandom = "Original",
-                language = "en",
-                chapterCount = 156,
-                lastUpdated = System.currentTimeMillis(),
-                rating = "M",
-                tags = listOf("LitRPG", "Adventure", "Virtual Reality", "Action"),
-                wordCount = 890000L
-            ),
-            WebFictionStory(
-                id = "demo_3",
-                title = "Fanfiction Adventures",
-                author = "StoryLover123",
-                description = "A collection of interconnected stories exploring different universes and characters in creative ways.",
-                url = "https://www.fanfiction.net/s/demo3",
-                site = "FanFiction.net",
-                status = com.universalmedialibrary.services.webfiction.StoryStatus.HIATUS,
-                genre = "Crossover",
-                fandom = "Multi-fandom",
-                language = "en",
-                chapterCount = 42,
-                lastUpdated = System.currentTimeMillis(),
-                rating = "T",
-                tags = listOf("Crossover", "Adventure", "Friendship", "Drama"),
-                wordCount = 234000L
-            )
+    private fun createDemoStories(): List<WebFictionStory> = listOf(
+        WebFictionStory(
+            id = "demo_1",
+            title = "The Digital Awakening",
+            author = "TechWizard42",
+            description = "In a world where AI has become sentient, a young programmer must navigate the complex relationship between humans and artificial intelligence.",
+            url = "https://archiveofourown.org/works/demo1",
+            site = "Archive of Our Own",
+            status = StoryStatus.ONGOING,
+            genre = "Sci-Fi",
+            fandom = "Original",
+            language = "en",
+            chapterCount = 25,
+            lastUpdated = System.currentTimeMillis(),
+            rating = "T",
+            tags = listOf("AI", "Sci-Fi", "Technology", "Romance"),
+            wordCount = 125000L
+        ),
+        WebFictionStory(
+            id = "demo_2",
+            title = "Royal Road Chronicles",
+            author = "FantasyMaster",
+            description = "A comprehensive LitRPG adventure following a player's journey through a virtual world that becomes all too real.",
+            url = "https://www.royalroad.com/fiction/demo2",
+            site = "Royal Road",
+            status = StoryStatus.COMPLETED,
+            genre = "LitRPG",
+            fandom = "Original",
+            language = "en",
+            chapterCount = 156,
+            lastUpdated = System.currentTimeMillis(),
+            rating = "M",
+            tags = listOf("LitRPG", "Adventure", "Virtual Reality", "Action"),
+            wordCount = 890000L
+        ),
+        WebFictionStory(
+            id = "demo_3",
+            title = "Fanfiction Adventures",
+            author = "StoryLover123",
+            description = "A collection of interconnected stories exploring different universes and characters in creative ways.",
+            url = "https://www.fanfiction.net/s/demo3",
+            site = "FanFiction.net",
+            status = StoryStatus.HIATUS,
+            genre = "Crossover",
+            fandom = "Multi-fandom",
+            language = "en",
+            chapterCount = 42,
+            lastUpdated = System.currentTimeMillis(),
+            rating = "T",
+            tags = listOf("Crossover", "Adventure", "Friendship", "Drama"),
+            wordCount = 234000L
         )
+    )
 
     private fun placeholderChapters(storyId: String, count: Int): List<WebFictionChapter> =
         (1..count).map { index ->
@@ -700,13 +701,14 @@ class WebFictionManagerScreenViewModel @Inject constructor(
             )
         }
 
-    private fun String.toStoryStatus(): StoryStatus = when (uppercase()) {
-        "COMPLETE", "COMPLETED" -> StoryStatus.COMPLETED
-        "IN_PROGRESS", "ONGOING" -> StoryStatus.ONGOING
-        "HIATUS" -> StoryStatus.HIATUS
-        "ABANDONED", "CANCELLED" -> StoryStatus.CANCELLED
-        else -> StoryStatus.UNKNOWN
-    }
+    private fun String.toStoryStatus(): StoryStatus =
+        when (uppercase()) {
+            "COMPLETE", "COMPLETED" -> StoryStatus.COMPLETED
+            "IN_PROGRESS", "ONGOING" -> StoryStatus.ONGOING
+            "HIATUS" -> StoryStatus.HIATUS
+            "ABANDONED", "CANCELLED" -> StoryStatus.CANCELLED
+            else -> StoryStatus.UNKNOWN
+        }
 }
 
 data class WebFictionUiState(
