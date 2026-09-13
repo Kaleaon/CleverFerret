@@ -69,19 +69,7 @@ fun UiErrorBoundary(
         return
     }
 
-    key(reloadKey) {
-        try {
-            content()
-        } catch (throwable: Throwable) {
-            if (throwable is CancellationException) throw throwable
-            AppLogger.error(
-                tag = "UiErrorBoundary",
-                message = "Boundary caught UI exception (boundary=$boundaryName)",
-                throwable = throwable,
-            )
-            capturedError = throwable
-        }
-    }
+    key(reloadKey) { content() }
 }
 
 @Composable

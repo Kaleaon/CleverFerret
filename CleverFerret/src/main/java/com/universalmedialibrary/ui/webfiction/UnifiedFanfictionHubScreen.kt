@@ -231,7 +231,7 @@ fun UnifiedFanfictionHubScreen(
 
 
 @Composable
-private fun EmptyResultsCard() {
+internal fun EmptyResultsCard() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -311,7 +311,7 @@ private fun QuickDownloadDialog(
 
 
 @Composable
-private fun DownloadInfoRow(label: String, value: String) {
+internal fun DownloadInfoRow(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -331,7 +331,7 @@ private fun DownloadInfoRow(label: String, value: String) {
 }
 
 @Composable
-private fun SupportedSiteRow(name: String, domain: String, status: String) {
+internal fun SupportedSiteRow(name: String, domain: String, status: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -359,7 +359,7 @@ private fun SupportedSiteRow(name: String, domain: String, status: String) {
     }
 }
 
-private fun formatNumber(number: Int): String {
+internal fun formatNumber(number: Int): String {
     val locale = Locale.getDefault()
     return when {
         number >= 1_000_000 -> String.format(locale, "%.1fM", number / 1_000_000.0)

@@ -415,7 +415,7 @@ fun WebFictionManagerScreen(
 
 
 // Helper functions for WebFictionSiteType
-private fun getSiteDisplayName(siteType: WebFictionSiteType): String {
+internal fun getSiteDisplayName(siteType: WebFictionSiteType): String {
     return when (siteType) {
         WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> "Archive of Our Own"
         WebFictionSiteType.FANFICTION_NET -> "FanFiction.Net"
@@ -437,7 +437,7 @@ private fun getSiteDisplayName(siteType: WebFictionSiteType): String {
     }
 }
 
-private fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
+internal fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
     return when (siteType) {
         WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> "archiveofourown.org"
         WebFictionSiteType.FANFICTION_NET -> "fanfiction.net"
@@ -459,7 +459,7 @@ private fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
     }
 }
 
-private fun createWebFictionSiteFromType(siteType: WebFictionSiteType): WebFictionSite {
+internal fun createWebFictionSiteFromType(siteType: WebFictionSiteType): WebFictionSite {
     return WebFictionSite(
         id = siteType.name.lowercase(),
         name = getSiteDisplayName(siteType),
