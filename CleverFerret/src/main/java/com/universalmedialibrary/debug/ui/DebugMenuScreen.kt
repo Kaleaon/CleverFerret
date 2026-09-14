@@ -230,7 +230,7 @@ fun DebugMenuScreen(
 
 
 @Composable
-private fun MetricItem(
+internal fun MetricItem(
     icon: ImageVector,
     label: String,
     value: String,
@@ -315,7 +315,7 @@ private fun NotificationsTab(
 
 
 @Composable
-private fun EmptyState(
+internal fun EmptyState(
     icon: ImageVector,
     message: String,
     color: Color
@@ -363,6 +363,6 @@ private enum class DebugTab(val title: String, val icon: ImageVector) {
     TOOLS("Tools", Icons.Default.Build)
 }
 
-private fun formatTimestamp(timestamp: Long): String {
+internal fun formatTimestamp(timestamp: Long): String {
     return SimpleDateFormat("MMM dd, HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
 }

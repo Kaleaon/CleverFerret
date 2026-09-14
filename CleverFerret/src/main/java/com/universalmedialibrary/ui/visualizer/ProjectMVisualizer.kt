@@ -21,7 +21,7 @@ import kotlin.math.*
 /**
  * Vibrant color palettes for visualizer effects
  */
-private object VisualizerColors {
+internal object VisualizerColors {
     // Neon Cyber palette - electric and punchy
     val neonCyan = Color(0xFF00FFFF)
     val neonMagenta = Color(0xFFFF00FF)

@@ -628,18 +628,4 @@ class StorageAccessService @Inject constructor(
             ErrorLogger.logError("StorageAccessService", "Error releasing URI permission", e)
         }
     }
-
-
 }
-
-@Serializable
-
-@Serializable
-
-@Serializable
-
-@Serializable
-
-@Serializable
-
-@Serializable
