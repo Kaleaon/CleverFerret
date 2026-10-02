@@ -238,7 +238,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = message
                 )
-
             }
         }
     }
@@ -290,7 +289,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isCheckingUpdates = false,
                     error = message
                 )
-
             }
         }
     }
@@ -347,7 +345,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isCheckingUpdates = false,
                     error = message
                 )
-
             }
         }
     }
@@ -393,7 +390,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = message
                 )
-
             }
         }
     }
@@ -444,7 +440,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = message
                 )
-
             }
         }
     }
