@@ -37,6 +37,7 @@ fun LazyListScope.navigationSection(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     navController: androidx.navigation.NavController,
+    availableBottomItems: List<NavigationItem> = com.universalmedialibrary.ui.components.NavigationItems.items,
 ) {
       // Navigation Section
       item {

@@ -294,7 +294,7 @@ fun MediaFileSystemBrowser(
 
 
 @Composable
-private fun BreadcrumbChip(
+internal fun BreadcrumbChip(
     text: String,
     isLast: Boolean,
     onClick: () -> Unit
