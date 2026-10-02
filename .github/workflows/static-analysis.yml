@@ -7,6 +7,10 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   code-quality:
     name: Code Quality & Linting
@@ -56,6 +60,19 @@ jobs:
         run: python3 scripts/ci/validate_docs_consistency.py
       - name: Check docs local links
         run: ./scripts/ci/check_doc_links.py
+
+      - name: Run Detekt Static Analysis
+        run: ./gradlew detekt --no-daemon --stacktrace
+
+      - name: Upload Detekt Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: detekt-reports
+          path: |
+            CleverFerret/build/reports/detekt/detekt.html
+            CleverFerret/build/reports/detekt/detekt.xml
+            CleverFerret/build/reports/detekt/detekt.sarif
 
       - name: Run Android Lint
         run: ./gradlew lintDebug -Plint.abortOnError=true --no-daemon --stacktrace

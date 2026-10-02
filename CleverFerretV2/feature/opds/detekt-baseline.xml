@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LoopWithTooManyJumpStatements:OpdsFeedParser.kt$OpdsFeedParser$for</ID>
+    <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$401</ID>
+    <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$403</ID>
+    <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$404</ID>
+    <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$408</ID>
+    <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$503</ID>
+    <ID>MaxLineLength:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$?:</ID>
+    <ID>MaxLineLength:OpdsEndToEndFlowTest.kt$OpdsEndToEndFlowTest.InMemoryLifecycleStore$records[downloadId] = records.getValue(downloadId).copy(status = DownloadLifecycleStatusV1.IMPORTED, localFileUri = localFileUri, failureReason = null)</ID>
+    <ID>MaxLineLength:OpdsUiErrorMapper.kt$OpdsUiErrorMapper$is AppError.TransportFailure -&gt; if (error.timeout) OpdsUiErrorMessage.NetworkTimeout() else OpdsUiErrorMessage.Generic(error.message, true)</ID>
+    <ID>ReturnCount:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$fun browseDownloadAndImport(catalogUrl: String, entryId: String): IntegrationResult&lt;OpdsFlowResultV1&gt;</ID>
+    <ID>SwallowedException:OpdsFeedParser.kt$OpdsFeedParser$error: Exception</ID>
+    <ID>ThrowsCount:OpdsFeedParser.kt$OpdsFeedParser$fun parse(catalogUrl: String, rawXml: String): OpdsFeedV1</ID>
+    <ID>TooGenericExceptionCaught:DefaultOpdsFeatureApi.kt$DefaultOpdsFeatureApi$error: Exception</ID>
+    <ID>TooGenericExceptionCaught:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$error: Exception</ID>
+    <ID>TooGenericExceptionCaught:OpdsFeedParser.kt$OpdsFeedParser$error: Exception</ID>
+  </CurrentIssues>
+</SmellBaseline>
