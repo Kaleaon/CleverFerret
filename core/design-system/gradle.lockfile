@@ -93,7 +93,6 @@ org.jetbrains.kotlin:kotlin-scripting-common:2.1.0=kotlinBuildToolsApiClasspath
 org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:2.1.0=kotlinBuildToolsApiClasspath
 org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:2.1.0=kotlinBuildToolsApiClasspath
 org.jetbrains.kotlin:kotlin-scripting-jvm:2.1.0=kotlinBuildToolsApiClasspath
-org.jetbrains.kotlin:kotlin-stdlib-common:2.1.0=debugRuntimeClasspath
 org.jetbrains.kotlin:kotlin-stdlib:2.1.0=debugCompileClasspath,debugRuntimeClasspath,kotlinBuildToolsApiClasspath,kotlinCompilerClasspath
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1=debugCompileClasspath,debugRuntimeClasspath
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1=debugCompileClasspath,debugRuntimeClasspath
