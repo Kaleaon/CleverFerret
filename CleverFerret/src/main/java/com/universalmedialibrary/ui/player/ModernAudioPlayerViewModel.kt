@@ -332,11 +332,11 @@ class ModernAudioPlayerViewModel @Inject constructor(
         )
     }
 
-    private fun extractCoverFromUri(uri: Uri): String? {
+    private suspend fun extractCoverFromUri(uri: Uri): String? = withContext(Dispatchers.IO) {
         val retriever = MediaMetadataRetriever()
-        return try {
+        try {
             retriever.setDataSource(context, uri)
-            val picture = retriever.embeddedPicture ?: return null
+            val picture = retriever.embeddedPicture ?: return@withContext null
             saveCoverToCache(picture, uri)
         } catch (_: Exception) {
             null
@@ -347,8 +347,8 @@ class ModernAudioPlayerViewModel @Inject constructor(
         }
     }
 
-    private fun saveCoverToCache(bytes: ByteArray, uri: Uri): String? {
-        return try {
+    private suspend fun saveCoverToCache(bytes: ByteArray, uri: Uri): String? = withContext(Dispatchers.IO) {
+        try {
             val fileName = "modern_cover_${uri.hashCode()}_${System.currentTimeMillis()}.jpg"
             val file = File(context.cacheDir, fileName)
             FileOutputStream(file).use { it.write(bytes) }

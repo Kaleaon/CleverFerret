@@ -16,10 +16,12 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import java.io.File
 import java.io.FileOutputStream
@@ -288,9 +290,9 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         val coverArtUri: String?
     )
 
-    private fun extractFileMetadata(context: Context, filePath: String): ExtractedMeta {
+    private suspend fun extractFileMetadata(context: Context, filePath: String): ExtractedMeta = withContext(Dispatchers.IO) {
         val retriever = MediaMetadataRetriever()
-        return try {
+        try {
             retriever.setDataSource(filePath)
             val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
                 ?: File(filePath).nameWithoutExtension
@@ -307,8 +309,8 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    private fun saveCoverToCache(context: Context, bytes: ByteArray): String? {
-        return try {
+    private suspend fun saveCoverToCache(context: Context, bytes: ByteArray): String? = withContext(Dispatchers.IO) {
+        try {
             val file = File(context.cacheDir, "cover_${System.currentTimeMillis()}.jpg")
             FileOutputStream(file).use { it.write(bytes) }
             Uri.fromFile(file).toString()
