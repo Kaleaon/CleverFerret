@@ -25,6 +25,13 @@ plugins {
     jacoco
 }
 
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(files("${rootProject.rootDir}/config/detekt/detekt.yml"))
+    baseline = file("detekt-baseline.xml")
+}
+
 configurations.all {
     resolutionStrategy {
         force("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
