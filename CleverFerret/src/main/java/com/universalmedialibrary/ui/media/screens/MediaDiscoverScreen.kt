@@ -80,7 +80,7 @@ fun MediaDiscoverScreen(
             }
 
             item {
-                SectionHeader(title = "Free & Online", icon = Icons.Outlined.Public)
+                DiscoverSectionHeader(title = "Free & Online", icon = Icons.Outlined.Public)
             }
 
             item {
@@ -134,7 +134,7 @@ fun MediaDiscoverScreen(
             }
 
             item {
-                SectionHeader(title = "Tools", icon = Icons.Outlined.Build)
+                DiscoverSectionHeader(title = "Tools", icon = Icons.Outlined.Build)
             }
 
             item {
@@ -185,7 +185,7 @@ fun MediaDiscoverScreen(
 }
 
 @Composable
-private fun SectionHeader(
+private fun DiscoverSectionHeader(
     title: String,
     icon: ImageVector
 ) {

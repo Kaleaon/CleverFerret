@@ -65,7 +65,7 @@ enum class ReadStatus {
 
 
 @Composable
-private fun GridBookItem(
+internal fun GridBookItem(
     book: BookItem,
     isSelected: Boolean,
     isSelectionMode: Boolean,
@@ -207,7 +207,7 @@ private fun GridBookItem(
 
 
 @Composable
-private fun FilterSheet(
+internal fun FilterSheet(
     filterOptions: FilterOptions,
     onFilterChange: (FilterOptions) -> Unit,
     onDismiss: () -> Unit
@@ -321,21 +321,21 @@ private fun FilterSheet(
     }
 }
 
-private fun formatReadStatus(status: ReadStatus): String = when (status) {
+internal fun formatReadStatus(status: ReadStatus): String = when (status) {
     ReadStatus.UNREAD -> "Unread"
     ReadStatus.READING -> "Reading"
     ReadStatus.FINISHED -> "Finished"
     ReadStatus.DNF -> "DNF"
 }
 
-private fun getReadStatusColor(status: ReadStatus): Color = when (status) {
+internal fun getReadStatusColor(status: ReadStatus): Color = when (status) {
     ReadStatus.UNREAD -> Color(0xFF9E9E9E)
     ReadStatus.READING -> Color(0xFF2196F3)
     ReadStatus.FINISHED -> Color(0xFF4CAF50)
     ReadStatus.DNF -> Color(0xFFFF5722)
 }
 
-private fun formatSortOption(option: SortOption): String = when (option) {
+internal fun formatSortOption(option: SortOption): String = when (option) {
     SortOption.TITLE_ASC -> "Title (A-Z)"
     SortOption.TITLE_DESC -> "Title (Z-A)"
     SortOption.AUTHOR_ASC -> "Author (A-Z)"
@@ -350,7 +350,7 @@ private fun formatSortOption(option: SortOption): String = when (option) {
     SortOption.FILE_SIZE -> "File Size"
 }
 
-private fun isFilterActive(options: FilterOptions): Boolean {
+internal fun isFilterActive(options: FilterOptions): Boolean {
     return options.readStatus.isNotEmpty() ||
            options.genres.isNotEmpty() ||
            options.tags.isNotEmpty() ||
@@ -363,7 +363,7 @@ private fun isFilterActive(options: FilterOptions): Boolean {
  * Get comparator for sorting books
  * Extracted to help with type inference
  */
-private fun getBookComparator(sortOption: SortOption): Comparator<BookItem> {
+internal fun getBookComparator(sortOption: SortOption): Comparator<BookItem> {
     return when (sortOption) {
         SortOption.TITLE_ASC -> compareBy { it.title }
         SortOption.TITLE_DESC -> compareByDescending { it.title }

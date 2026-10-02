@@ -1,5 +1,9 @@
 package com.universalmedialibrary.ui.media.screens
 
+import androidx.compose.foundation.BorderStroke
+import com.universalmedialibrary.ui.media.components.MediaCarouselRow
+import com.universalmedialibrary.ui.media.components.MediaPosterCard
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -52,7 +56,6 @@ import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.Tv
-import androidx.compose.material3.BorderStroke
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -355,35 +358,7 @@ fun MediaHomeScreen(
     }
 }
 
-@Composable
-private fun ErrorStateContent(
-    error: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .padding(MediaSpacing.ScreenHorizontal)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
-    ) {
-        Text(
-            text = "We couldn’t load your library",
-            style = MediaTypography.TitleLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = error,
-            style = MediaTypography.BodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Button(onClick = onRetry) {
-            Text("Try again")
-        }
-    }
-}
+
 
 @Composable
 private fun LoadingStateContent(

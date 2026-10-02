@@ -265,7 +265,7 @@ private fun GallerySelectionBottomBar(
 
 
 @Composable
-private fun SmartCollectionChip(
+internal fun SmartCollectionChip(
     collection: SmartGalleryCollection,
     onClick: () -> Unit
 ) {
@@ -338,7 +338,7 @@ private fun GalleryMediaContent(
 
 
 @Composable
-private fun InfoRow(label: String, value: String) {
+internal fun InfoRow(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -424,7 +424,7 @@ private fun PermissionRequestContent() {
 }
 
 // Extension functions
-private fun GallerySortOrder.toDisplayName(): String = when (this) {
+internal fun GallerySortOrder.toDisplayName(): String = when (this) {
     GallerySortOrder.DATE_TAKEN_DESC -> "Date Taken (Newest)"
     GallerySortOrder.DATE_TAKEN_ASC -> "Date Taken (Oldest)"
     GallerySortOrder.DATE_ADDED_DESC -> "Date Added (Newest)"

@@ -357,6 +357,8 @@ data class StorageUsage(
     val totalBytes: Long,
     val usedBytes: Long
 ) {
+    val used: Long get() = usedBytes
+    val limit: Long get() = totalBytes
     val usagePercentage: Float
         get() = if (totalBytes > 0) (usedBytes.toFloat() / totalBytes.toFloat()) * 100f else 0f
 }
