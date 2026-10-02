@@ -45,7 +45,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.viewer.common.VideoSettings
 import com.universalmedialibrary.ui.player.components.TopControlsBar
 import com.universalmedialibrary.ui.player.components.BottomControlsBar

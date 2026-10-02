@@ -34,7 +34,6 @@ import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.media.theme.MediaColors
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -70,7 +69,7 @@ private fun MediaAppRoot(
     playbackStateManager: PlaybackStateManager
 ) {
     val mainViewModel: MainViewModel = hiltViewModel()
-    val palette by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
+    val palette by mainViewModel.selectedTheme.collectAsState(CleverFerretTheme.NAVY_GOLD)
     val darkMode by mainViewModel.darkMode.collectAsState(true)
 
     CleverFerretTheme(
