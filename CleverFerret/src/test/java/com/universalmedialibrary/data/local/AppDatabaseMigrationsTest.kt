@@ -56,4 +56,16 @@ class AppDatabaseMigrationsTest {
         assertThat(executedSql.any { it.contains("index_staged_metadata_candidates_itemId") }).isTrue()
         assertThat(executedSql.any { it.contains("ALTER TABLE `metadata_common` ADD COLUMN `isVerified`") }).isTrue()
     }
+
+    @Test
+    fun `migration 45_46 creates media_fts table and triggers`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_45_46.migrate(database)
+
+        assertThat(executedSql.any { it.contains("CREATE VIRTUAL TABLE IF NOT EXISTS `media_fts`") }).isTrue()
+        assertThat(executedSql.any { it.contains("media_items_ai") }).isTrue()
+    }
 }

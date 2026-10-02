@@ -42,6 +42,7 @@ class EnhancedSearchService @Inject constructor(
     private val metadataDao = database.metadataDao()
     private val searchHistoryDao = database.searchHistoryDao()
     private val tagDao = database.unifiedTagDao()
+    private val mediaFtsDao = database.mediaFtsDao()
 
     private val json = Json {
         encodeDefaults = false
@@ -53,76 +54,149 @@ class EnhancedSearchService @Inject constructor(
      */
     suspend fun search(query: SearchQuery): List<SearchResult> {
         val results = mutableListOf<SearchResult>()
+        val ftsQuery = formatFtsQuery(query.textQuery)
 
-        // Search media items
-        val mediaItems = if (query.textQuery.isNotEmpty()) {
-            mediaItemDao.searchMediaItems(query.textQuery, limit = query.limit)
-        } else {
-            mediaItemDao.getAllMediaItems().take(query.limit)
-        }
+        if (ftsQuery.isNotEmpty()) {
+            val ftsResults = mediaFtsDao.searchFts(ftsQuery, limit = query.limit * 2)
+            val localItemIds = ftsResults.filter { it.itemSource == "LOCAL" }.map { it.itemId }
 
-        val requiredTags = query.filters.tags
-            .map { it.trim().lowercase(Locale.getDefault()) }
-            .filter { it.isNotEmpty() }
-            .toSet()
-
-        val tagsByItem: Map<Long, List<String>> = if (requiredTags.isNotEmpty()) {
-            mediaItems.associate { item ->
-                val tags = tagDao.getTagsForItemSync(item.itemId)
-                    .map { it.name.lowercase(Locale.getDefault()) }
-                item.itemId to tags
+            val localMediaItems = if (localItemIds.isNotEmpty()) {
+                localItemIds.mapNotNull { mediaItemDao.getMediaItemById(it) }
+            } else {
+                emptyList()
             }
-        } else {
-            emptyMap()
-        }
 
-        val metadataByItem: Map<Long, MetadataCommon> = if (mediaItems.isNotEmpty()) {
-            metadataDao.getMetadataCommonBatch(mediaItems.map { it.itemId })
-                .associateBy { it.itemId }
-        } else {
-            emptyMap()
-        }
+            val requiredTags = query.filters.tags
+                .map { it.trim().lowercase(Locale.getDefault()) }
+                .filter { it.isNotEmpty() }
+                .toSet()
 
-        // Apply filters
-        val filtered = mediaItems.filter { item ->
-            val metadata = metadataByItem[item.itemId]
-            matchesFilters(item, metadata, query.filters, requiredTags, tagsByItem)
-        }
-
-        // Sort by relevance or specified sort
-        val sorted = when (query.sortBy) {
-            SortBy.RELEVANCE -> filtered.sortedByDescending { calculateRelevance(it, query.textQuery) }
-            SortBy.TITLE -> filtered.sortedBy { it.fileName }
-            SortBy.DATE_ADDED -> filtered.sortedByDescending { it.dateAdded }
-            SortBy.DATE_MODIFIED -> filtered.sortedByDescending { it.dateAdded } // Using dateAdded as fallback
-            SortBy.FILE_SIZE -> filtered.sortedByDescending { it.fileSize }
-            SortBy.RATING -> filtered.sortedByDescending {
-                metadataByItem[it.itemId]?.let { metadata ->
-                    metadata.rating ?: metadata.communityRating ?: metadata.userRating ?: 0f
-                } ?: 0f
+            val tagsByItem: Map<Long, List<String>> = if (requiredTags.isNotEmpty() && localMediaItems.isNotEmpty()) {
+                localMediaItems.associate { item ->
+                    val tags = tagDao.getTagsForItemSync(item.itemId)
+                        .map { it.name.lowercase(Locale.getDefault()) }
+                    item.itemId to tags
+                }
+            } else {
+                emptyMap()
             }
+
+            val metadataByItem: Map<Long, MetadataCommon> = if (localMediaItems.isNotEmpty()) {
+                metadataDao.getMetadataCommonBatch(localMediaItems.map { it.itemId })
+                    .associateBy { it.itemId }
+            } else {
+                emptyMap()
+            }
+
+            // Apply filters to local items
+            val filteredLocal = localMediaItems.filter { item ->
+                val metadata = metadataByItem[item.itemId]
+                matchesFilters(item, metadata, query.filters, requiredTags, tagsByItem)
+            }
+
+            // Convert local items
+            val localResults = filteredLocal.map { item ->
+                val metadata = metadataByItem[item.itemId]
+                val ftsItem = ftsResults.find { it.itemSource == "LOCAL" && it.itemId == item.itemId }
+                val score = calculateRelevance(item, query.textQuery)
+                SearchResult(
+                    itemId = item.itemId,
+                    title = metadata?.title ?: item.fileName,
+                    subtitle = ftsItem?.creator ?: extractSubtitle(item),
+                    mediaType = item.mediaType,
+                    thumbnailUrl = metadata?.coverImagePath,
+                    relevanceScore = score,
+                    highlights = findHighlights(item, query.textQuery)
+                )
+            }
+            results.addAll(localResults)
+
+            // Convert Plex synced items
+            val plexResults = ftsResults.filter { it.itemSource == "PLEX" }.mapNotNull { ftsItem ->
+                if (query.filters.mediaTypes.isNotEmpty() && ftsItem.mediaType != null && ftsItem.mediaType !in query.filters.mediaTypes) {
+                    return@mapNotNull null
+                }
+                SearchResult(
+                    itemId = 1_000_000_000L + ftsItem.itemId,
+                    title = ftsItem.title ?: "Synced Item",
+                    subtitle = ftsItem.creator ?: ftsItem.summary ?: "Plex Sync",
+                    mediaType = ftsItem.mediaType ?: "MOVIE",
+                    thumbnailUrl = null,
+                    relevanceScore = 50f,
+                    highlights = emptyList()
+                )
+            }
+            results.addAll(plexResults)
+
+        } else {
+            // Search media items fallback for empty text query
+            val mediaItems = mediaItemDao.getAllMediaItems().take(query.limit)
+
+            val requiredTags = query.filters.tags
+                .map { it.trim().lowercase(Locale.getDefault()) }
+                .filter { it.isNotEmpty() }
+                .toSet()
+
+            val tagsByItem: Map<Long, List<String>> = if (requiredTags.isNotEmpty()) {
+                mediaItems.associate { item ->
+                    val tags = tagDao.getTagsForItemSync(item.itemId)
+                        .map { it.name.lowercase(Locale.getDefault()) }
+                    item.itemId to tags
+                }
+            } else {
+                emptyMap()
+            }
+
+            val metadataByItem: Map<Long, MetadataCommon> = if (mediaItems.isNotEmpty()) {
+                metadataDao.getMetadataCommonBatch(mediaItems.map { it.itemId })
+                    .associateBy { it.itemId }
+            } else {
+                emptyMap()
+            }
+
+            // Apply filters
+            val filtered = mediaItems.filter { item ->
+                val metadata = metadataByItem[item.itemId]
+                matchesFilters(item, metadata, query.filters, requiredTags, tagsByItem)
+            }
+
+            results.addAll(filtered.map { item ->
+                val metadata = metadataByItem[item.itemId]
+                SearchResult(
+                    itemId = item.itemId,
+                    title = metadata?.title ?: item.fileName,
+                    subtitle = extractSubtitle(item),
+                    mediaType = item.mediaType,
+                    thumbnailUrl = metadata?.coverImagePath,
+                    relevanceScore = calculateRelevance(item, query.textQuery),
+                    highlights = findHighlights(item, query.textQuery)
+                )
+            })
         }
 
-        // Convert to search results with highlights
-        results.addAll(sorted.map { item ->
-            val metadata = metadataByItem[item.itemId]
-            SearchResult(
-                itemId = item.itemId,
-                title = item.fileName,
-                subtitle = extractSubtitle(item),
-                mediaType = item.mediaType,
-                thumbnailUrl = metadata?.coverImagePath,
-                relevanceScore = calculateRelevance(item, query.textQuery),
-                highlights = findHighlights(item, query.textQuery)
-            )
-        })
+        val sortedResults = when (query.sortBy) {
+            SortBy.RELEVANCE -> results.sortedByDescending { it.relevanceScore }
+            SortBy.TITLE -> results.sortedBy { it.title }
+            SortBy.DATE_ADDED -> results
+            SortBy.DATE_MODIFIED -> results
+            SortBy.FILE_SIZE -> results
+            SortBy.RATING -> results
+        }.take(query.limit)
 
         // Save search to history
         if (query.textQuery.isNotEmpty()) {
-            saveSearchHistory(query, results.size)
+            saveSearchHistory(query, sortedResults.size)
         }
 
-        return results
+        return sortedResults
+    }
+
+    private fun formatFtsQuery(userQuery: String): String {
+        val sanitized = userQuery.replace(Regex("[^a-zA-Z0-9\\s]"), " ").trim()
+        if (sanitized.isEmpty()) return ""
+        val tokens = sanitized.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        if (tokens.isEmpty()) return ""
+        return tokens.joinToString(" ") { "$it*" }
     }
 
     /**
