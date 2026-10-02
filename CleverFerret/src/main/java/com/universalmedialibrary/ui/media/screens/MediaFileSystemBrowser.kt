@@ -466,7 +466,7 @@ private fun EmptyDirectoryState(filter: FileTypeFilter) {
 // HELPER FUNCTIONS
 // =============================================================================
 
-private fun formatSize(bytes: Long): String {
+internal fun formatSize(bytes: Long): String {
     return when {
         bytes >= 1_000_000_000 -> "%.1f GB".format(bytes / 1_000_000_000.0)
         bytes >= 1_000_000 -> "%.1f MB".format(bytes / 1_000_000.0)

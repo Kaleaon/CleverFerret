@@ -89,8 +89,9 @@ object ServicesModule {
     @Provides
     @Singleton
     fun provideBookSourceService(
-        bookSourceDao: BookSourceDao
-    ): BookSourceService = BookSourceService(bookSourceDao)
+        bookSourceDao: BookSourceDao,
+        okHttpClient: okhttp3.OkHttpClient
+    ): BookSourceService = BookSourceService(bookSourceDao, okHttpClient)
 
     @Provides
     @Singleton
