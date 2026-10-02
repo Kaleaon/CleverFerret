@@ -63,7 +63,7 @@ class LyricsService @Inject constructor(
         }
         null
     }
-    
+
     /**
      * Get lyrics for a track
      * Priority: 1) .lrc file, 2) cache, 3) fetch from AI
@@ -89,10 +89,10 @@ class LyricsService @Inject constructor(
                     confidence = 1.0f,
                     fetchedAt = System.currentTimeMillis()
                 )
-                
+
                 // Cache the lyrics
                 lyricsCache.cacheLyrics(track.id, lyrics)
-                
+
                 return@withContext LyricsResult(
                     success = true,
                     lyrics = lyrics,
@@ -102,7 +102,7 @@ class LyricsService @Inject constructor(
                 )
             }
         }
-        
+
         // Check cache second (unless forcing refresh)
         if (!forceRefresh) {
             val cached = lyricsCache.getLyrics(track.id)
@@ -134,12 +134,12 @@ class LyricsService @Inject constructor(
         try {
             val prompt = """
                 Provide the complete lyrics for this song:
-                
+
                 Title: ${track.title}
                 Artist: ${track.artist}
                 Album: ${track.album}
                 Year: ${track.year}
-                
+
                 Return ONLY valid JSON in this exact format:
                 {
                     "lyrics": [
@@ -152,7 +152,7 @@ class LyricsService @Inject constructor(
                     "is_instrumental": false,
                     "confidence": 0.95
                 }
-                
+
                 Guidelines:
                 - Provide COMPLETE lyrics (all verses, chorus, bridge)
                 - Include approximate timestamps in milliseconds if possible
@@ -161,7 +161,7 @@ class LyricsService @Inject constructor(
                 - Language code (en, es, fr, etc.)
                 - Confidence score (0.0-1.0)
                 - Return ONLY JSON, no markdown, no extra text
-                
+
                 If you cannot find accurate lyrics, return:
                 {
                     "lyrics": [],
@@ -220,15 +220,15 @@ class LyricsService @Inject constructor(
 
             if (lyricsArrayMatch != null) {
                 val lyricsContent = lyricsArrayMatch.groupValues[1]
-                
+
                 // Extract individual line objects
                 val linePattern = "\\{([^}]+)\\}".toRegex()
                 linePattern.findAll(lyricsContent).forEach { match ->
                     val lineJson = match.value
-                    
+
                     val time = extractJsonValue(lineJson, "time")?.toLongOrNull() ?: 0L
                     val line = extractJsonValue(lineJson, "line") ?: ""
-                    
+
                     if (line.isNotBlank()) {
                         lyricsLines.add(LyricLine(time = time, text = line))
                     }
@@ -292,14 +292,14 @@ data class Lyrics(
 ) {
     fun getCurrentLine(positionMs: Long): LyricLine? {
         if (!hasTimestamps || lines.isEmpty()) return null
-        
+
         // Find the line that should be displayed at this position
         return lines.lastOrNull { it.time <= positionMs }
     }
-    
+
     fun getNextLine(positionMs: Long): LyricLine? {
         if (!hasTimestamps || lines.isEmpty()) return null
-        
+
         return lines.firstOrNull { it.time > positionMs }
     }
 }

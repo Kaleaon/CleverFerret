@@ -14,12 +14,12 @@ import javax.inject.Singleton
 
 /**
  * NetworkModule - Dependency injection for network-related services
- * 
+ *
  * Provides network clients and services for:
  * - Jellyfin media server integration
  * - WebDAV network storage access
  * - General network storage operations
- * 
+ *
  * All services use the shared [OkHttpClient] from [AppModule] for
  * consistent timeout configuration and connection pooling.
  */

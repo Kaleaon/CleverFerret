@@ -268,10 +268,10 @@ class UniversalVideoPlayerViewModel @Inject constructor(
             val context = _playerState.value.exoPlayerView?.context
                 ?: (_playerState.value.vlcVideoLayout as? View)?.context
                 ?: return
-            
+
             // Stop current player
             releasePlayer()
-            
+
             // Try alternate player
             initializePlayer(context, uri)
         }

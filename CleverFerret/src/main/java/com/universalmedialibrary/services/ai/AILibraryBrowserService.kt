@@ -26,7 +26,7 @@ class AILibraryBrowserService @Inject constructor(
     private val metadataDao: MetadataDao,
     private val readingProgressDao: ReadingProgressDao
 ) {
-    
+
     /**
      * Browse the library with optional filters
      */
@@ -51,7 +51,7 @@ class AILibraryBrowserService @Inject constructor(
                     mediaItemDao.getRecentItems(limit, offset)
                 }
             }
-            
+
             items.mapNotNull { item ->
                 convertToLibraryBrowseItem(item)
             }
@@ -59,7 +59,7 @@ class AILibraryBrowserService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Get detailed information about a specific library item
      */
@@ -69,7 +69,7 @@ class AILibraryBrowserService @Inject constructor(
             val metadata = metadataDao.getCommonMetadataByItemId(itemId)
             val genres = metadataDao.getGenresForItem(itemId)
             val people = metadataDao.getPeopleForItem(itemId)
-            
+
             val progress = when (item.mediaType) {
                 "BOOK", "COMIC" -> {
                     readingProgressDao.getProgressByItemIdSnapshot(itemId)?.let {
@@ -78,7 +78,7 @@ class AILibraryBrowserService @Inject constructor(
                 }
                 else -> null
             }
-            
+
             LibraryItemDetails(
                 id = item.itemId,
                 title = metadata?.title ?: item.fileName,
@@ -100,7 +100,7 @@ class AILibraryBrowserService @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Get reading progress for books
      */
@@ -111,11 +111,11 @@ class AILibraryBrowserService @Inject constructor(
             } else {
                 readingProgressDao.getAllProgressSnapshot()
             }
-            
+
             progressList.mapNotNull { progress ->
                 val item = mediaItemDao.getMediaItemById(progress.itemId)
                 val metadata = metadataDao.getCommonMetadataByItemId(progress.itemId)
-                
+
                 if (item != null) {
                     ReadingProgressInfo(
                         bookId = item.itemId,
@@ -131,7 +131,7 @@ class AILibraryBrowserService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Get library statistics
      */
@@ -141,10 +141,10 @@ class AILibraryBrowserService @Inject constructor(
             val movieCount = mediaItemDao.getCountByType("MOVIE")
             val musicCount = mediaItemDao.getCountByType("MUSIC")
             val comicCount = mediaItemDao.getCountByType("COMIC")
-            
+
             val recentItems = mediaItemDao.getRecentItems(5, 0)
             val inProgressBooks = readingProgressDao.getInProgressCount()
-            
+
             LibraryStats(
                 totalBooks = bookCount,
                 totalMovies = movieCount,
@@ -160,7 +160,7 @@ class AILibraryBrowserService @Inject constructor(
             LibraryStats()
         }
     }
-    
+
     /**
      * Get content recommendations based on user's library
      */
@@ -170,30 +170,30 @@ class AILibraryBrowserService @Inject constructor(
     ): List<RecommendationItem> = withContext(Dispatchers.IO) {
         try {
             val recommendations = mutableListOf<RecommendationItem>()
-            
+
             // Get user's library data for analysis
             val allItems = mediaItemDao.getRecentItems(100, 0)
             val genreCounts = mutableMapOf<String, Int>()
             val authorCounts = mutableMapOf<String, Int>()
-            
+
             for (item in allItems) {
                 if (mediaType != null && item.mediaType != mediaType) continue
-                
+
                 val genres = metadataDao.getGenresForItem(item.itemId)
                 genres.forEach { genre ->
                     genreCounts[genre.name] = (genreCounts[genre.name] ?: 0) + 1
                 }
-                
+
                 val people = metadataDao.getPeopleForItem(item.itemId)
                 people.filter { it.role == "AUTHOR" || it.role == "ARTIST" }.forEach { person ->
                     authorCounts[person.name] = (authorCounts[person.name] ?: 0) + 1
                 }
             }
-            
+
             // Get top genres and authors
             val topGenres = genreCounts.entries.sortedByDescending { it.value }.take(3).map { it.key }
             val topAuthors = authorCounts.entries.sortedByDescending { it.value }.take(3).map { it.key }
-            
+
             // Find items in the library that match top preferences but haven't been read/watched
             if (basedOn == "favorites" || basedOn == "genre") {
                 for (genre in topGenres) {
@@ -213,7 +213,7 @@ class AILibraryBrowserService @Inject constructor(
                     }
                 }
             }
-            
+
             // Recommend unread items from favorite authors
             if (basedOn == "favorites" || basedOn == "recent") {
                 for (author in topAuthors) {
@@ -234,7 +234,7 @@ class AILibraryBrowserService @Inject constructor(
                     }
                 }
             }
-            
+
             // If not enough recommendations, suggest highly rated items
             if (recommendations.size < 5) {
                 val ratedItems = mediaItemDao.getHighlyRated(mediaType, 5 - recommendations.size, 0)
@@ -251,13 +251,13 @@ class AILibraryBrowserService @Inject constructor(
                     }
                 }
             }
-            
+
             recommendations.distinctBy { it.title }.take(10)
         } catch (e: Exception) {
             emptyList()
         }
     }
-    
+
     /**
      * Get items by author/artist
      */
@@ -269,7 +269,7 @@ class AILibraryBrowserService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Get items by genre
      */
@@ -281,7 +281,7 @@ class AILibraryBrowserService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Get recently added items
      */
@@ -293,7 +293,7 @@ class AILibraryBrowserService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Get all unique authors in the library
      */
@@ -304,7 +304,7 @@ class AILibraryBrowserService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Get all unique genres in the library
      */
@@ -315,7 +315,7 @@ class AILibraryBrowserService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Get series information
      */
@@ -323,7 +323,7 @@ class AILibraryBrowserService @Inject constructor(
         try {
             val series = metadataDao.getSeriesByName(seriesName) ?: return@withContext null
             val items = mediaItemDao.getBySeries(series.seriesId, 100, 0)
-            
+
             SeriesInfo(
                 name = series.name,
                 itemCount = items.size,
@@ -343,13 +343,13 @@ class AILibraryBrowserService @Inject constructor(
             null
         }
     }
-    
+
     private suspend fun convertToLibraryBrowseItem(item: MediaItem): LibraryBrowseItem? {
         return try {
             val metadata = metadataDao.getCommonMetadataByItemId(item.itemId)
             val people = metadataDao.getPeopleForItem(item.itemId)
             val hasProgress = readingProgressDao.getProgressByItemIdSnapshot(item.itemId) != null
-            
+
             LibraryBrowseItem(
                 id = item.itemId,
                 title = metadata?.title ?: item.fileName.substringBeforeLast('.'),

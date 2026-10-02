@@ -82,7 +82,7 @@ internal fun MetallicBorderCard(
             primaryColor.copy(alpha = 0.7f)
         )
     )
-    
+
     Column(
         modifier = Modifier
             .width(140.dp)
@@ -104,7 +104,7 @@ internal fun MetallicBorderCard(
                         shape = RoundedCornerShape(10.dp)
                     )
             )
-            
+
             // Inner card with image
             Box(
                 modifier = Modifier
@@ -116,7 +116,7 @@ internal fun MetallicBorderCard(
                 // Cover image
                 if (item.imageUrl != null) {
                     AsyncImage(
-                    
+
                         model = item.imageUrl,
                         contentDescription = item.title,
                         modifier = Modifier.fillMaxSize(),
@@ -138,7 +138,7 @@ internal fun MetallicBorderCard(
                         )
                     }
                 }
-                
+
                 // Progress bar at bottom
                 if (hasProgress) {
                     Box(
@@ -158,9 +158,9 @@ internal fun MetallicBorderCard(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         // Title
         Text(
             text = item.title,
@@ -170,7 +170,7 @@ internal fun MetallicBorderCard(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         // Subtitle (remaining time or metadata)
         val subtitleText = remember(item) { item.remainingLabel() }
         if (subtitleText.isNotEmpty()) {

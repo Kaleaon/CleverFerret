@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 /**
  * Universal Search Service for CleverFerret
- * 
+ *
  * Provides unified search across all media types with advanced filtering,
  * search history, and intelligent result ranking.
  */
@@ -22,10 +22,10 @@ class UniversalSearchService @Inject constructor(
     private val documentSearchEngine: DocumentSearchEngine,
     private val searchHistoryManager: SearchHistoryManager
 ) {
-    
+
     private val _searchResults = MutableStateFlow<List<UniversalSearchResult>>(emptyList())
     val searchResults: Flow<List<UniversalSearchResult>> = _searchResults.asStateFlow()
-    
+
     // Map media types to their respective search engines
     // Multiple media type aliases can map to the same engine
     private val searchEngines = mapOf(
@@ -56,9 +56,9 @@ class UniversalSearchService @Inject constructor(
     suspend fun search(searchRequest: SearchRequest): Flow<List<UniversalSearchResult>> {
         // Record search in history
         searchHistoryManager.recordSearch(searchRequest)
-        
+
         val results = mutableListOf<UniversalSearchResult>()
-        
+
         // Search across each requested media type
         searchRequest.mediaTypes.forEach { mediaType ->
             val engine = searchEngines[mediaType]
@@ -80,14 +80,14 @@ class UniversalSearchService @Inject constructor(
                 }
             }
         }
-        
+
         // Sort and rank results
         val sortedResults = results.sortedWith(compareByDescending<UniversalSearchResult> { it.score }
             .thenBy { it.title.lowercase() })
-        
+
         // Apply limit
         val limitedResults = sortedResults.take(searchRequest.limit)
-        
+
         _searchResults.value = limitedResults
         return MutableStateFlow(limitedResults).asStateFlow()
     }
@@ -118,7 +118,7 @@ class UniversalSearchService @Inject constructor(
      */
     suspend fun getSearchSuggestions(query: String): List<String> {
         if (query.length < 2) return emptyList()
-        
+
         val history = searchHistoryManager.getSearchHistory().first()
         return history
             .map { it.query }

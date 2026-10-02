@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 /**
  * Service for browsing and downloading stories from Metabods.com by tags
- * 
+ *
  * Metabods.com features:
  * - Tag-based categorization
  * - Download buttons on stories (we respect these)
@@ -72,7 +72,7 @@ class MetabodsTagService @Inject constructor(
             val tagName = element.text().trim()
             val tagHref = element.attr("href")
             val tagId = extractTagId(tagHref, tagName)
-            
+
             // Try to extract count if available
             val countText = element.select(".count, .tag-count").text()
             val count = Regex("\\d+").find(countText)?.value?.toIntOrNull() ?: 0
@@ -110,7 +110,7 @@ class MetabodsTagService @Inject constructor(
             WebFictionTag("age-regression", "age-regression", "Age Regression", TagCategory.TRANSFORMATION, 0),
             WebFictionTag("gender-transformation", "gender-transformation", "Gender Transformation", TagCategory.TRANSFORMATION, 0),
             WebFictionTag("reality-alteration", "reality-alteration", "Reality Alteration", TagCategory.TRANSFORMATION, 0),
-            
+
             // Genres
             WebFictionTag("sci-fi", "sci-fi", "Science Fiction", TagCategory.GENRE, 0),
             WebFictionTag("fantasy", "fantasy", "Fantasy", TagCategory.GENRE, 0),
@@ -119,7 +119,7 @@ class MetabodsTagService @Inject constructor(
             WebFictionTag("horror", "horror", "Horror", TagCategory.GENRE, 0),
             WebFictionTag("comedy", "comedy", "Comedy", TagCategory.GENRE, 0),
             WebFictionTag("drama", "drama", "Drama", TagCategory.GENRE, 0),
-            
+
             // Themes
             WebFictionTag("romance", "romance", "Romance", TagCategory.THEME, 0),
             WebFictionTag("action", "action", "Action", TagCategory.THEME, 0),
@@ -127,7 +127,7 @@ class MetabodsTagService @Inject constructor(
             WebFictionTag("erotic", "erotic", "Erotic", TagCategory.THEME, 0),
             WebFictionTag("mind-control", "mind-control", "Mind Control", TagCategory.THEME, 0),
             WebFictionTag("power-fantasy", "power-fantasy", "Power Fantasy", TagCategory.THEME, 0),
-            
+
             // Ratings
             WebFictionTag("mature", "mature", "Mature", TagCategory.RATING, 0),
             WebFictionTag("explicit", "explicit", "Explicit", TagCategory.RATING, 0),
@@ -141,20 +141,20 @@ class MetabodsTagService @Inject constructor(
     private fun categorizeTag(tagName: String): TagCategory {
         val lowerTag = tagName.lowercase()
         return when {
-            lowerTag.contains("growth") || lowerTag.contains("transformation") || 
-            lowerTag.contains("macro") || lowerTag.contains("micro") || 
+            lowerTag.contains("growth") || lowerTag.contains("transformation") ||
+            lowerTag.contains("macro") || lowerTag.contains("micro") ||
             lowerTag.contains("size") || lowerTag.contains("age") ||
             lowerTag.contains("gender") -> TagCategory.TRANSFORMATION
-            
-            lowerTag.contains("sci-fi") || lowerTag.contains("fantasy") || 
+
+            lowerTag.contains("sci-fi") || lowerTag.contains("fantasy") ||
             lowerTag.contains("superhero") || lowerTag.contains("horror") -> TagCategory.GENRE
-            
-            lowerTag.contains("romance") || lowerTag.contains("erotic") || 
+
+            lowerTag.contains("romance") || lowerTag.contains("erotic") ||
             lowerTag.contains("action") || lowerTag.contains("adventure") -> TagCategory.THEME
-            
-            lowerTag.contains("mature") || lowerTag.contains("explicit") || 
+
+            lowerTag.contains("mature") || lowerTag.contains("explicit") ||
             lowerTag.contains("adult") || lowerTag.contains("nsfw") -> TagCategory.RATING
-            
+
             else -> TagCategory.GENERAL
         }
     }
@@ -206,12 +206,12 @@ class MetabodsTagService @Inject constructor(
      */
     private fun buildSearchUrl(criteria: StorySearchCriteria): String {
         val url = StringBuilder(BROWSE_URL)
-        
+
         if (criteria.tags.isNotEmpty()) {
             // Build tag query
             val tagParam = criteria.tags.joinToString(",")
             url.append("?tags=$tagParam")
-            
+
             // Tag match mode
             if (criteria.tagMatchMode == TagMatchMode.ALL) {
                 url.append("&match=all")
@@ -219,31 +219,31 @@ class MetabodsTagService @Inject constructor(
         } else {
             url.append("?")
         }
-        
+
         // Exclude tags
         if (criteria.excludeTags.isNotEmpty()) {
             val excludeParam = criteria.excludeTags.joinToString(",")
             url.append("&exclude=$excludeParam")
         }
-        
+
         // Word count filters
         criteria.minWordCount?.let { url.append("&min_words=$it") }
         criteria.maxWordCount?.let { url.append("&max_words=$it") }
-        
+
         // Status filter
         criteria.status?.let { url.append("&status=${it.name.lowercase()}") }
-        
+
         // Rating filter
         criteria.rating?.let { url.append("&rating=$it") }
-        
+
         // Sort
         url.append("&sort=${criteria.sortBy.name.lowercase()}")
         url.append("&order=${criteria.sortOrder.name.lowercase()}")
-        
+
         // Pagination
         url.append("&limit=${criteria.limit}")
         url.append("&offset=${criteria.offset}")
-        
+
         return url.toString()
     }
 
@@ -252,7 +252,7 @@ class MetabodsTagService @Inject constructor(
      */
     private suspend fun extractStoriesFromBrowse(doc: Document): List<WebFictionStory> {
         val stories = mutableListOf<WebFictionStory>()
-        
+
         // Try multiple selectors for story listings
         val storyElements = doc.select(
             "div.story-card, " +
@@ -284,38 +284,38 @@ class MetabodsTagService @Inject constructor(
         val linkElement = element.select("a.story-link, a.title-link, h3 a, h2 a").firstOrNull()
         val relativeUrl = linkElement?.attr("href") ?: return null
         val url = if (relativeUrl.startsWith("http")) relativeUrl else "$BASE_URL$relativeUrl"
-        
+
         // Extract story ID
         val storyId = Regex("story/(\\d+)|stories/(\\d+)").find(url)?.groupValues?.get(1)
             ?: url.hashCode().toString()
-        
+
         // Extract title
         val title = linkElement.text().ifEmpty {
             element.select("h2, h3, .story-title, .title").text()
         }
-        
+
         if (title.isEmpty()) return null
-        
+
         // Extract author
         val author = element.select(".author, .story-author, a.author-link").text()
-        
+
         // Extract description
         val description = element.select(".description, .story-description, .summary").text()
-        
+
         // Extract tags
         val tags = element.select("a.tag, span.tag, .story-tags a").map { it.text() }
-        
+
         // Extract metadata
         val wordCountText = element.select(".word-count, .words").text()
         val wordCount = Regex("([0-9,]+)").find(wordCountText)?.value?.replace(",", "")?.toLongOrNull()
-        
+
         val chapterText = element.select(".chapters, .chapter-count").text()
         val chapterCount = Regex("(\\d+)").find(chapterText)?.value?.toIntOrNull()
-        
+
         // Extract rating if available
         val rating = element.select(".rating, .content-rating").text()
             .ifEmpty { if (tags.any { it.lowercase().contains("explicit") }) "Explicit" else "Mature" }
-        
+
         return WebFictionStory(
             id = storyId,
             url = url,
@@ -343,7 +343,7 @@ class MetabodsTagService @Inject constructor(
         val countText = doc.select(
             ".result-count, .total-stories, .story-count"
         ).text()
-        
+
         val count = Regex("(\\d+)").find(countText)?.value?.toIntOrNull()
         return count ?: currentCount
     }
@@ -387,13 +387,13 @@ class MetabodsTagService @Inject constructor(
             try {
                 // First check if there's a direct download available
                 val downloadUrl = getDirectDownloadUrl(storyUrl).getOrNull()
-                
+
                 if (downloadUrl != null) {
                     // Use the site's download mechanism
                     // This would download the file directly (EPUB, PDF, etc.)
                     // For now, we'll still use our scraper but note the availability
                 }
-                
+
                 // Fall back to our standard extraction
                 val story = webFictionService.extractStoryFromUrl(storyUrl, bypassPin)
                 if (story != null) {
@@ -434,7 +434,7 @@ class MetabodsTagService @Inject constructor(
                         stories = stories,
                         totalCount = totalCount,
                         hasMore = stories.size >= criteria.limit,
-                        nextOffset = if (stories.size >= criteria.limit) 
+                        nextOffset = if (stories.size >= criteria.limit)
                             criteria.offset + criteria.limit else null
                     )
                 )

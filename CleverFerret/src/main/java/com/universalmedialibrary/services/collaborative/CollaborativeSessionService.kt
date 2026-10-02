@@ -104,10 +104,10 @@ class CollaborativeSessionService @Inject constructor(
      */
     fun generateQRCode(session: CollaborativeSession, size: Int = 512): Bitmap {
         val qrData = session.qrCodeData ?: throw IllegalStateException("Session has no QR code data")
-        
+
         val writer = QRCodeWriter()
         val bitMatrix = writer.encode(qrData, BarcodeFormat.QR_CODE, size, size)
-        
+
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565)
         for (x in 0 until size) {
             for (y in 0 until size) {
@@ -165,7 +165,7 @@ class CollaborativeSessionService @Inject constructor(
     ): SessionQueueItem {
         val session = sessionDao.getSession(sessionId).first()
             ?: throw IllegalArgumentException("Session not found")
-        
+
         val client = sessionDao.getClient(clientId).first()
             ?: throw IllegalArgumentException("Client not found")
 
@@ -193,7 +193,7 @@ class CollaborativeSessionService @Inject constructor(
         )
 
         val itemId = sessionDao.insertQueueItem(item)
-        
+
         // Update client stats
         sessionDao.updateClient(client.copy(contributedTracks = client.contributedTracks + 1))
 

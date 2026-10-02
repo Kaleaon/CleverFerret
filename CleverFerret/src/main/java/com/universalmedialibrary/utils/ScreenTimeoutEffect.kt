@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Composable effect that manages screen timeout based on reader settings.
- * 
+ *
  * This effect integrates with ScreenTimeoutManager to:
  * - Enable/disable screen timeout based on keepScreenOn setting
  * - Configure timeout duration
  * - Clean up when the composable is disposed
- * 
+ *
  * Usage in a reader screen:
  * ```
  * ReaderScreenTimeoutEffect(
@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.Flow
  *     timeoutMinutes = readerSettings.screenTimeoutMinutes
  * )
  * ```
- * 
+ *
  * @param enabled Whether to keep the screen on
  * @param timeoutMinutes Duration in minutes before screen turns off (0 = system default)
  * @param screenTimeoutManager Optional ScreenTimeoutManager instance. If null, will attempt to get from MainActivity.
@@ -35,7 +35,7 @@ fun ReaderScreenTimeoutEffect(
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
-    
+
     DisposableEffect(enabled, timeoutMinutes) {
         val manager = screenTimeoutManager ?: run {
             // Fallback: try to get from MainActivity if not provided
@@ -49,7 +49,7 @@ fun ReaderScreenTimeoutEffect(
                 null
             }
         }
-        
+
         manager?.let {
             it.setEnabled(enabled)
             if (enabled) {
@@ -57,7 +57,7 @@ fun ReaderScreenTimeoutEffect(
                 it.setKeepScreenOn(true)
             }
         }
-        
+
         onDispose {
             manager?.setKeepScreenOn(false)
         }
@@ -66,10 +66,10 @@ fun ReaderScreenTimeoutEffect(
 
 /**
  * Observes reader settings and applies screen timeout configuration.
- * 
+ *
  * This is a higher-level effect that observes a Flow of reader settings
  * and automatically updates screen timeout when settings change.
- * 
+ *
  * Usage:
  * ```
  * ObserveReaderSettings(
@@ -78,7 +78,7 @@ fun ReaderScreenTimeoutEffect(
  *     // Settings changed
  * }
  * ```
- * 
+ *
  * @param settingsFlow Flow of settings to observe
  * @param onSettingsChange Callback invoked when settings change
  */

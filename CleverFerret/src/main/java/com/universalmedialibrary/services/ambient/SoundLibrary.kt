@@ -9,7 +9,7 @@ import com.universalmedialibrary.data.local.entity.AmbientCategory
  * without modifying core service code
  */
 object SoundLibrary {
-    
+
     /**
      * Sound collection with metadata
      */
@@ -21,13 +21,13 @@ object SoundLibrary {
         val sounds: List<AmbientSound>,
         val enabled: Boolean = true
     )
-    
+
     /**
      * Registry of all available sound collections
      * Add new collections here to make them available to users
      */
     private val collections = mutableMapOf<String, SoundCollection>()
-    
+
     init {
         // Register Moodist as the default modern collection
         registerCollection(
@@ -43,7 +43,7 @@ object SoundLibrary {
 
         FreeAmbientCollections.registerAll()
     }
-    
+
     /**
      * Register a new sound collection
      * Call this to add sci-fi, medieval, or other themed collections
@@ -51,31 +51,31 @@ object SoundLibrary {
     fun registerCollection(collection: SoundCollection) {
         collections[collection.id] = collection
     }
-    
+
     /**
      * Get all registered collections
      */
     fun getAllCollections(): List<SoundCollection> = collections.values.toList()
-    
+
     /**
      * Get enabled collections only
      */
     fun getEnabledCollections(): List<SoundCollection> {
         return collections.values.filter { it.enabled }
     }
-    
+
     /**
      * Get collection by ID
      */
     fun getCollection(id: String): SoundCollection? = collections[id]
-    
+
     /**
      * Get all sounds from all enabled collections
      */
     fun getAllSounds(): List<AmbientSound> {
         return getEnabledCollections().flatMap { it.sounds }
     }
-    
+
     /**
      * Get sounds by theme
      */
@@ -84,21 +84,21 @@ object SoundLibrary {
             .filter { it.theme == theme && it.enabled }
             .flatMap { it.sounds }
     }
-    
+
     /**
      * Get sounds by category across all enabled collections
      */
     fun getSoundsByCategory(category: AmbientCategory): List<AmbientSound> {
         return getAllSounds().filter { it.category == category }
     }
-    
+
     /**
      * Get available themes
      */
     fun getAvailableThemes(): List<String> {
         return collections.values.map { it.theme }.distinct().sorted()
     }
-    
+
     /**
      * Enable/disable a collection
      */
@@ -107,7 +107,7 @@ object SoundLibrary {
             collections[id] = collection.copy(enabled = enabled)
         }
     }
-    
+
     /**
      * Get statistics
      */
@@ -123,7 +123,7 @@ object SoundLibrary {
                 .mapValues { it.value.size }
         )
     }
-    
+
     data class LibraryStats(
         val totalCollections: Int,
         val enabledCollections: Int,
@@ -135,13 +135,13 @@ object SoundLibrary {
 
 /**
  * Example: How to add a new themed sound collection
- * 
+ *
  * See ThemedSoundCollections.kt for complete examples of:
  * - SciFiSounds (8 sounds)
  * - MedievalSounds (10 sounds)
  * - FantasySounds (6 sounds)
  * - HorrorSounds (4 sounds)
- * 
+ *
  * Usage:
  * ```kotlin
  * SoundLibrary.registerCollection(

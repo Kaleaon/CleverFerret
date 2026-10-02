@@ -16,7 +16,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 
 /**
  * Last.fm Scrobbler Service
- * 
+ *
  * Scrobbles tracks to Last.fm for music tracking and recommendations.
  * Features:
  * - "Now Playing" notifications
@@ -28,15 +28,15 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 class LastFmScrobblerService @Inject constructor(
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     private val TAG = "LastFmScrobbler"
     private val API_ROOT = "https://ws.audioscrobbler.com/2.0/"
-    
+
     private val _state = MutableStateFlow(ScrobblerState())
     val state: StateFlow<ScrobblerState> = _state.asStateFlow()
-    
+
     private val offlineQueue = mutableListOf<ScrobbleData>()
-    
+
     /**
      * Initialize Last.fm session
      * @return true if session is valid/created
@@ -45,7 +45,7 @@ class LastFmScrobblerService @Inject constructor(
         try {
             val apiKey = apiKeyRepository.getLastFmApiKey()
             val sessionKey = apiKeyRepository.getLastFmSessionKey()
-            
+
             if (apiKey.isNullOrBlank()) {
                 _state.value = _state.value.copy(
                     isEnabled = false,
@@ -53,14 +53,14 @@ class LastFmScrobblerService @Inject constructor(
                 )
                 return@withContext false
             }
-            
+
             _state.value = _state.value.copy(
                 isEnabled = true,
                 hasSessionKey = !sessionKey.isNullOrBlank(),
                 apiKey = apiKey,
                 sessionKey = sessionKey
             )
-            
+
             true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to initialize Last.fm", e)
@@ -71,7 +71,7 @@ class LastFmScrobblerService @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Update "Now Playing" status on Last.fm
      */
@@ -85,7 +85,7 @@ class LastFmScrobblerService @Inject constructor(
             Log.d(TAG, "Last.fm not enabled or no session key")
             return@withContext false
         }
-        
+
         try {
             val params = mutableMapOf(
                 "method" to "track.updateNowPlaying",
@@ -94,17 +94,17 @@ class LastFmScrobblerService @Inject constructor(
                 "api_key" to _state.value.apiKey,
                 "sk" to _state.value.sessionKey!!
             )
-            
+
             album?.let { params["album"] = it }
             duration?.let { params["duration"] = (it / 1000).toString() }
-            
+
             val response = makeApiCall(params)
-            
+
             _state.value = _state.value.copy(
                 nowPlaying = NowPlayingInfo(artist, track, album),
                 lastScrobbleTime = System.currentTimeMillis()
             )
-            
+
             true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update now playing", e)
@@ -112,7 +112,7 @@ class LastFmScrobblerService @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Scrobble a track to Last.fm
      * Should be called when track has been played for 50% of duration or 4 minutes
@@ -129,7 +129,7 @@ class LastFmScrobblerService @Inject constructor(
             offlineQueue.add(ScrobbleData(artist, track, timestamp, album, duration))
             return@withContext false
         }
-        
+
         try {
             val params = mutableMapOf(
                 "method" to "track.scrobble",
@@ -139,22 +139,22 @@ class LastFmScrobblerService @Inject constructor(
                 "api_key" to _state.value.apiKey,
                 "sk" to _state.value.sessionKey!!
             )
-            
+
             album?.let { params["album"] = it }
             duration?.let { params["duration"] = (it / 1000).toString() }
-            
+
             val response = makeApiCall(params)
-            
+
             _state.value = _state.value.copy(
                 scrobbleCount = _state.value.scrobbleCount + 1,
                 lastScrobbleTime = System.currentTimeMillis()
             )
-            
+
             // Try to flush offline queue
             if (offlineQueue.isNotEmpty()) {
                 flushOfflineQueue()
             }
-            
+
             true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to scrobble track", e)
@@ -164,7 +164,7 @@ class LastFmScrobblerService @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Attempt to flush offline scrobble queue
      */
@@ -187,7 +187,7 @@ class LastFmScrobblerService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get authentication URL for user to authorize the app
      */
@@ -195,49 +195,49 @@ class LastFmScrobblerService @Inject constructor(
         val apiKey = _state.value.apiKey
         return "https://www.last.fm/api/auth/?api_key=$apiKey&cb=cleverferret://lastfm/callback"
     }
-    
+
     /**
      * Make authenticated API call to Last.fm
      */
     @OptIn(ExperimentalEncodingApi::class)
     private suspend fun makeApiCall(params: Map<String, String>): String {
         val secret = apiKeyRepository.getLastFmSecret() ?: throw Exception("Last.fm secret not configured")
-        
+
         // Generate API signature
         val signature = generateSignature(params, secret)
         val finalParams = params.toMutableMap()
         finalParams["api_sig"] = signature
         finalParams["format"] = "json"
-        
+
         // Build POST body
         val postData = finalParams.map { "${it.key}=${URLEncoder.encode(it.value, "UTF-8")}" }
             .joinToString("&")
-        
+
         // Make HTTP POST request (simplified - would use OkHttp or similar in production)
         val url = java.net.URL(API_ROOT)
         val connection = url.openConnection() as java.net.HttpURLConnection
-        
+
         try {
             connection.requestMethod = "POST"
             connection.doOutput = true
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-            
+
             connection.outputStream.use { os ->
                 os.write(postData.toByteArray())
             }
-            
+
             val response = connection.inputStream.bufferedReader().use { it.readText() }
-            
+
             if (connection.responseCode != 200) {
                 throw Exception("Last.fm API error: ${connection.responseCode}")
             }
-            
+
             return response
         } finally {
             connection.disconnect()
         }
     }
-    
+
     /**
      * Generate API signature for Last.fm authentication
      */
@@ -245,53 +245,53 @@ class LastFmScrobblerService @Inject constructor(
         // Sort parameters alphabetically and concatenate
         val sorted = params.toSortedMap()
         val concatenated = sorted.map { "${it.key}${it.value}" }.joinToString("") + secret
-        
+
         // MD5 hash
         val md = MessageDigest.getInstance("MD5")
         val digest = md.digest(concatenated.toByteArray())
         return digest.joinToString("") { "%02x".format(it) }
     }
-    
+
     /**
      * Enable/disable scrobbling
      */
     fun setEnabled(enabled: Boolean) {
         _state.value = _state.value.copy(isEnabled = enabled)
     }
-    
+
     /**
      * Check if scrobbling is enabled
      */
     fun isScrobblingEnabled(): Boolean = _state.value.isEnabled
-    
+
     /**
      * Enable/disable scrobbling
      */
     fun setScrobblingEnabled(enabled: Boolean) {
         _state.value = _state.value.copy(isEnabled = enabled)
     }
-    
+
     /**
      * Check if Now Playing is enabled
      */
     fun isNowPlayingEnabled(): Boolean = true // Always enabled when scrobbling is on
-    
+
     /**
      * Enable/disable Now Playing
      */
     fun setNowPlayingEnabled(enabled: Boolean) {
         // No-op for now - Now Playing tied to scrobbling state
     }
-    
+
     /**
      * Retry failed scrobbles from offline queue
      */
     suspend fun retryFailedScrobbles() {
         if (offlineQueue.isEmpty()) return
-        
+
         val toRetry = offlineQueue.toList()
         offlineQueue.clear()
-        
+
         toRetry.forEach { scrobbleData ->
             scrobble(
                 artist = scrobbleData.artist,
@@ -302,7 +302,7 @@ class LastFmScrobblerService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Get offline queue size
      */

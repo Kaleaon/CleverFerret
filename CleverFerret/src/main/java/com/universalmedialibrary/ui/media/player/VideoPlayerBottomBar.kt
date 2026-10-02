@@ -60,7 +60,7 @@ internal fun VideoPlayerBottomBar(
                 color = Color.White.copy(alpha = 0.3f),
                 trackColor = Color.White.copy(alpha = 0.1f)
             )
-            
+
             // Playback progress
             Slider(
                 value = currentPosition.toFloat(),
@@ -73,7 +73,7 @@ internal fun VideoPlayerBottomBar(
                     inactiveTrackColor = Color.Transparent
                 )
             )
-            
+
             // Chapter markers
             chapters.forEach { chapter ->
                 val position = chapter.startPosition.toFloat() / duration
@@ -92,9 +92,9 @@ internal fun VideoPlayerBottomBar(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.XS))
-        
+
         // Time and controls
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -107,7 +107,7 @@ internal fun VideoPlayerBottomBar(
                 style = MediaTypography.LabelMedium,
                 color = Color.White
             )
-            
+
             // Controls
             Row(horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)) {
                 // Episodes (for TV shows)
@@ -122,33 +122,33 @@ internal fun VideoPlayerBottomBar(
                         Text("Episodes")
                     }
                 }
-                
+
                 // Subtitles
                 if (hasSubtitles) {
                     TextButton(onClick = onSubtitles) {
                         Icon(
-                            imageVector = if (currentSubtitle != null) 
-                                Icons.Filled.Subtitles 
-                            else 
+                            imageVector = if (currentSubtitle != null)
+                                Icons.Filled.Subtitles
+                            else
                                 Icons.Outlined.Subtitles,
                             contentDescription = "Media image",
                             modifier = Modifier.size(20.dp),
-                            tint = if (currentSubtitle != null) 
-                                MediaColors.AccentPrimary 
-                            else 
+                            tint = if (currentSubtitle != null)
+                                MediaColors.AccentPrimary
+                            else
                                 Color.White
                         )
                         Spacer(modifier = Modifier.width(MediaSpacing.XS))
                         Text(
                             text = currentSubtitle?.language ?: "Subtitles",
-                            color = if (currentSubtitle != null) 
-                                MediaColors.AccentPrimary 
-                            else 
+                            color = if (currentSubtitle != null)
+                                MediaColors.AccentPrimary
+                            else
                                 Color.White
                         )
                     }
                 }
-                
+
                 // Quality
                 TextButton(onClick = onQuality) {
                     Icon(

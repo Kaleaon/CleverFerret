@@ -271,7 +271,7 @@ private fun HivefyPlaylistRow(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     AsyncImage(
-                    
+
                         model = playlist.artworkUrl,
                         contentDescription = "Media image",
                         modifier = Modifier
@@ -329,7 +329,7 @@ private fun HivefyAlbumRow(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     AsyncImage(
-                    
+
                         model = album.artworkUrl,
                         contentDescription = "Media image",
                         modifier = Modifier

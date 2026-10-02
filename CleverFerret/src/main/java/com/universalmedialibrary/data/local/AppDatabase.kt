@@ -248,16 +248,16 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Tag DAO
     abstract fun tagDao(): TagDao
-    
+
     // Unified Tag DAO
     abstract fun unifiedTagDao(): UnifiedTagDao
-    
+
     // Comic Panel DAO
     abstract fun comicPanelDao(): ComicPanelDao
-    
+
     // OPDS Catalog DAO
     abstract fun opdsCatalogDao(): OPDSCatalogDao
-    
+
     // Comic Translation Cache DAO
     abstract fun comicTranslationCacheDao(): ComicTranslationCacheDao
 
@@ -272,7 +272,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Search History DAO
     abstract fun searchHistoryDao(): SearchHistoryDao
-    
+
     // Ambient Sound DAO
     abstract fun ambientSoundDao(): AmbientSoundDao
     abstract fun audioWaveformDao(): AudioWaveformDao
@@ -281,7 +281,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun audioSyncGroupDao(): AudioSyncGroupDao
     abstract fun audioStreamDao(): AudioStreamDao
     abstract fun syncStatisticsDao(): SyncStatisticsDao
-    
+
     // Audio Pack DAO
     abstract fun audioPackDao(): AudioPackDao
 

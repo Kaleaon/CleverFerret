@@ -44,7 +44,7 @@ internal fun SubtitlesSheet(
             color = MediaColors.TextPrimary,
             modifier = Modifier.padding(bottom = MediaSpacing.MD)
         )
-        
+
         // Off option
         Row(
             modifier = Modifier
@@ -67,9 +67,9 @@ internal fun SubtitlesSheet(
                 )
             }
         }
-        
+
         HorizontalDivider(color = MediaColors.Border)
-        
+
         tracks.forEach { track ->
             Row(
                 modifier = Modifier
@@ -83,9 +83,9 @@ internal fun SubtitlesSheet(
                     Text(
                         text = track.language,
                         style = MediaTypography.BodyMedium,
-                        color = if (currentTrack?.id == track.id) 
-                            MediaColors.AccentPrimary 
-                        else 
+                        color = if (currentTrack?.id == track.id)
+                            MediaColors.AccentPrimary
+                        else
                             MediaColors.TextPrimary
                     )
                     track.label?.let {

@@ -28,14 +28,14 @@ import javax.inject.Singleton
 
 /**
  * AI Reading Progress Service
- * 
+ *
  * Provides comprehensive reading progress data for AI agents to:
  * - See what books the user is currently reading
  * - Understand how far they are in each book
  * - Access reading history and patterns
  * - Get context for book discussions
  * - Track reading sessions and habits
- * 
+ *
  * This service enables meaningful conversations about the user's reading journey.
  */
 @Singleton
@@ -47,18 +47,18 @@ class AIReadingProgressService @Inject constructor(
     private val metadataDao: MetadataDao,
     private val readingAnalyticsService: ReadingAnalyticsService
 ) {
-    private val json = Json { 
-        prettyPrint = true 
+    private val json = Json {
+        prettyPrint = true
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
-    
+
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     private val fullDateFormat = SimpleDateFormat("MMMM d, yyyy", Locale.getDefault())
-    
+
     // ==================== Current Reading Status ====================
-    
+
     /**
      * Get the book(s) the user is currently reading
      * Returns detailed information about active reading sessions
@@ -66,17 +66,17 @@ class AIReadingProgressService @Inject constructor(
     suspend fun getCurrentlyReading(limit: Int = 5): List<CurrentReadingInfo> = withContext(Dispatchers.IO) {
         try {
             val inProgressItems = readingProgressDao.getRecentlyRead(limit).first()
-            
+
             inProgressItems.mapNotNull { progress ->
                 val mediaItem = mediaItemDao.getMediaItemById(progress.itemId) ?: return@mapNotNull null
                 val metadata = metadataDao.getCommonMetadataByItemId(progress.itemId)
                 val people = metadataDao.getPeopleForItem(progress.itemId)
                 val genres = metadataDao.getGenresForItem(progress.itemId)
-                
+
                 val totalPages = estimateTotalPages(progress)
                 val remainingPages = (totalPages - progress.currentPage).coerceAtLeast(0)
                 val estimatedTimeRemaining = estimateTimeRemaining(progress, remainingPages)
-                
+
                 CurrentReadingInfo(
                     bookId = progress.itemId,
                     title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
@@ -104,7 +104,7 @@ class AIReadingProgressService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Get the primary book the user is currently focused on
      * (The most recently read book that isn't completed)
@@ -112,7 +112,7 @@ class AIReadingProgressService @Inject constructor(
     suspend fun getPrimaryCurrentBook(): CurrentReadingInfo? = withContext(Dispatchers.IO) {
         getCurrentlyReading(1).firstOrNull()
     }
-    
+
     /**
      * Get detailed progress for a specific book
      */
@@ -123,17 +123,17 @@ class AIReadingProgressService @Inject constructor(
             val metadata = metadataDao.getCommonMetadataByItemId(bookId)
             val people = metadataDao.getPeopleForItem(bookId)
             val genres = metadataDao.getGenresForItem(bookId)
-            
+
             val totalPages = estimateTotalPages(progress)
             val sessions = readingAnalyticsDao.getSessionsByItemId(bookId).first()
             val totalReadingTime = readingAnalyticsDao.getTotalReadingTime(bookId) ?: 0L
-            
+
             // Calculate reading patterns
             val readingPattern = analyzeReadingPattern(sessions)
             val averageSessionLength = if (sessions.isNotEmpty()) {
                 sessions.sumOf { it.durationSeconds } / sessions.size
             } else 0L
-            
+
             DetailedBookProgress(
                 bookId = bookId,
                 title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
@@ -145,28 +145,28 @@ class AIReadingProgressService @Inject constructor(
                 progressPercent = progress.percentage,
                 pagesRead = progress.pagesRead,
                 pagesRemaining = (totalPages - progress.currentPage).coerceAtLeast(0),
-                
+
                 // Time tracking
                 totalReadingTimeMinutes = TimeUnit.SECONDS.toMinutes(totalReadingTime).toInt(),
                 averageSessionMinutes = TimeUnit.SECONDS.toMinutes(averageSessionLength).toInt(),
                 estimatedMinutesRemaining = estimateTimeRemaining(progress, totalPages - progress.currentPage),
-                
+
                 // Session info
                 sessionCount = sessions.size,
                 lastSessionDate = sessions.firstOrNull()?.startTime,
                 firstSessionDate = sessions.lastOrNull()?.startTime,
-                
+
                 // Reading pattern analysis
                 readingPattern = readingPattern,
                 preferredReadingTime = detectPreferredReadingTime(sessions),
                 readingStreak = calculateReadingStreak(bookId),
-                
+
                 // Book info
                 genres = genres.map { it.name },
                 summary = metadata?.summary ?: metadata?.plot,
                 year = metadata?.year,
                 rating = metadata?.rating?.toFloat(),
-                
+
                 // Status flags
                 isCompleted = progress.isCompleted,
                 completedDate = progress.completedDate,
@@ -179,9 +179,9 @@ class AIReadingProgressService @Inject constructor(
             null
         }
     }
-    
+
     // ==================== Reading History & Patterns ====================
-    
+
     /**
      * Get the user's reading history summary
      */
@@ -192,10 +192,10 @@ class AIReadingProgressService @Inject constructor(
                 else if (days <= 31) TimePeriod.MONTHLY
                 else TimePeriod.YEARLY
             )
-            
+
             val completedBooks = readingProgressDao.getCompleted().first()
             val inProgressBooks = readingProgressDao.getInProgressItems().first()
-            
+
             // Get recently completed books
             val recentlyCompleted = completedBooks
                 .filter { it.completedDate != null && it.completedDate > System.currentTimeMillis() - TimeUnit.DAYS.toMillis(days.toLong()) }
@@ -212,7 +212,7 @@ class AIReadingProgressService @Inject constructor(
                         totalReadingTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(progress.totalReadingTime).toInt()
                     )
                 }
-            
+
             ReadingHistorySummary(
                 periodDays = days,
                 totalReadingTimeMinutes = TimeUnit.SECONDS.toMinutes(stats.totalReadingTimeSeconds).toInt(),
@@ -230,18 +230,18 @@ class AIReadingProgressService @Inject constructor(
             ReadingHistorySummary(periodDays = days)
         }
     }
-    
+
     /**
      * Get books the user has completed
      */
     suspend fun getCompletedBooks(limit: Int = 20): List<CompletedBookInfo> = withContext(Dispatchers.IO) {
         try {
             val completedProgress = readingProgressDao.getCompleted().first().take(limit)
-            
+
             completedProgress.mapNotNull { progress ->
                 val metadata = metadataDao.getCommonMetadataByItemId(progress.itemId)
                 val people = metadataDao.getPeopleForItem(progress.itemId)
-                
+
                 CompletedBookInfo(
                     bookId = progress.itemId,
                     title = metadata?.title ?: "Unknown",
@@ -255,9 +255,9 @@ class AIReadingProgressService @Inject constructor(
             emptyList()
         }
     }
-    
+
     // ==================== Reading Context for AI Discussions ====================
-    
+
     /**
      * Get rich context about a book for AI to use in discussions
      * This is the primary method for AI to understand what the user is reading
@@ -268,45 +268,45 @@ class AIReadingProgressService @Inject constructor(
             val mediaItem = mediaItemDao.getMediaItemById(bookId) ?: return@withContext null
             val metadata = metadataDao.getCommonMetadataByItemId(bookId)
             val insights = readingAnalyticsDao.getInsightsByItemId(bookId).first()
-            
+
             // Build context strings for AI
             val progressContext = buildProgressContext(progress)
             val readingPatternContext = buildPatternContext(progress)
             val topicSuggestions = generateDiscussionTopics(progress, insights)
-            
+
             BookDiscussionContext(
                 bookId = bookId,
                 title = progress.title,
                 author = progress.author,
-                
+
                 // Progress summary for AI
                 progressSummary = progressContext,
                 patternSummary = readingPatternContext,
-                
+
                 // Detailed data
                 currentPage = progress.currentPage,
                 totalPages = progress.totalPages,
                 currentChapter = progress.currentChapter,
                 progressPercent = progress.progressPercent,
-                
+
                 // Book information
                 genres = progress.genres,
                 bookSummary = metadata?.summary ?: metadata?.plot,
                 year = progress.year,
-                
+
                 // AI-generated insights if available
                 existingSummary = insights.find { it.insightType.name == "SUMMARY" }?.summary,
                 keyThemes = insights.find { it.insightType.name == "THEMES" }?.keyThemes ?: emptyList(),
                 characterAnalysis = insights.find { it.insightType.name == "CHARACTER_ANALYSIS" }?.characterAnalysis,
-                
+
                 // Suggested discussion topics
                 suggestedTopics = topicSuggestions,
-                
+
                 // Reading journey info
                 daysReading = calculateDaysReading(progress.firstSessionDate, progress.lastSessionDate),
                 isNearingEnd = progress.isNearingCompletion,
                 hasJustStarted = progress.isJustStarted,
-                
+
                 // Timing context
                 lastReadDescription = formatLastRead(progress.lastSessionDate ?: 0L),
                 startedDescription = progress.startedDate?.let { "Started on ${fullDateFormat.format(Date(it))}" }
@@ -315,7 +315,7 @@ class AIReadingProgressService @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Get a formatted summary of all current reading for AI context
      * This can be injected into system prompts
@@ -326,28 +326,28 @@ class AIReadingProgressService @Inject constructor(
             if (currentBooks.isEmpty()) {
                 return@withContext "The user is not currently reading any books."
             }
-            
+
             val summary = StringBuilder()
             summary.appendLine("=== User's Current Reading ===")
-            
+
             currentBooks.forEachIndexed { index, book ->
                 summary.appendLine()
                 summary.appendLine("${index + 1}. \"${book.title}\"${book.author?.let { " by $it" } ?: ""}")
                 summary.appendLine("   Progress: ${book.progressPercent.toInt()}% (page ${book.currentPage}/${book.totalPages})")
                 summary.appendLine("   ${book.lastReadFormatted}")
                 summary.appendLine("   Reading time: ${formatDuration(book.totalReadingTimeMinutes)}")
-                
+
                 if (book.isNearingCompletion) {
                     summary.appendLine("   📖 Nearing completion!")
                 } else if (book.isJustStarted) {
                     summary.appendLine("   🆕 Just started reading")
                 }
-                
+
                 book.estimatedMinutesRemaining?.let {
                     summary.appendLine("   Estimated time remaining: ${formatDuration(it)}")
                 }
             }
-            
+
             // Add recent reading stats
             val history = getReadingHistory(7)
             if (history.totalReadingTimeMinutes > 0) {
@@ -360,13 +360,13 @@ class AIReadingProgressService @Inject constructor(
                     summary.appendLine("Books completed: ${history.booksCompleted}")
                 }
             }
-            
+
             summary.toString()
         } catch (e: Exception) {
             "Unable to retrieve reading information."
         }
     }
-    
+
     /**
      * Get context specifically about where the user is in a book
      * (For AI to reference when discussing plot points)
@@ -376,7 +376,7 @@ class AIReadingProgressService @Inject constructor(
             val progress = readingProgressDao.getProgressByItemIdSnapshot(bookId) ?: return@withContext null
             val metadata = metadataDao.getCommonMetadataByItemId(bookId)
             val totalPages = estimateTotalPages(progress)
-            
+
             // Determine reading phase
             val phase = when {
                 progress.percentage >= 90f -> ReadingPhase.FINALE
@@ -386,7 +386,7 @@ class AIReadingProgressService @Inject constructor(
                 progress.percentage >= 10f -> ReadingPhase.EARLY
                 else -> ReadingPhase.BEGINNING
             }
-            
+
             ReadingPositionContext(
                 bookId = bookId,
                 title = metadata?.title ?: "Unknown",
@@ -404,9 +404,9 @@ class AIReadingProgressService @Inject constructor(
             null
         }
     }
-    
+
     // ==================== Helper Methods ====================
-    
+
     private fun estimateTotalPages(progress: ReadingProgress): Int {
         return if (progress.percentage > 1.0f) { // Use threshold to avoid inaccurate estimates
             (progress.currentPage / (progress.percentage / 100f)).toInt()
@@ -414,27 +414,27 @@ class AIReadingProgressService @Inject constructor(
             progress.currentPage.coerceAtLeast(1)
         }
     }
-    
+
     private fun estimateTotalChapters(metadata: MetadataCommon?): Int? {
         // This would ideally come from book metadata
         return null
     }
-    
+
     private fun estimateTimeRemaining(progress: ReadingProgress, pagesRemaining: Int): Int? {
         if (progress.readingSpeed == null || progress.readingSpeed <= 0) return null
         // readingSpeed is pages per minute
         return (pagesRemaining / progress.readingSpeed).toInt()
     }
-    
+
     private fun formatLastRead(timestamp: Long): String {
         if (timestamp == 0L) return "Not yet read"
-        
+
         val now = System.currentTimeMillis()
         val diffMs = now - timestamp
         val diffMinutes = TimeUnit.MILLISECONDS.toMinutes(diffMs)
         val diffHours = TimeUnit.MILLISECONDS.toHours(diffMs)
         val diffDays = TimeUnit.MILLISECONDS.toDays(diffMs)
-        
+
         return when {
             diffMinutes < 5 -> "Just now"
             diffMinutes < 60 -> "$diffMinutes minutes ago"
@@ -445,7 +445,7 @@ class AIReadingProgressService @Inject constructor(
             else -> fullDateFormat.format(Date(timestamp))
         }
     }
-    
+
     private fun formatDuration(minutes: Int): String {
         return when {
             minutes < 60 -> "$minutes min"
@@ -453,10 +453,10 @@ class AIReadingProgressService @Inject constructor(
             else -> "${minutes / 60} hrs ${minutes % 60} min"
         }
     }
-    
+
     private fun analyzeReadingPattern(sessions: List<ReadingSessionLog>): String {
         if (sessions.isEmpty()) return "No reading pattern established yet"
-        
+
         val recentSessions = sessions.take(10)
         val avgDuration = recentSessions.map { it.durationSeconds }.average()
         val frequency = if (recentSessions.size >= 2) {
@@ -465,7 +465,7 @@ class AIReadingProgressService @Inject constructor(
             val daySpan = TimeUnit.MILLISECONDS.toDays(lastSession - firstSession).coerceAtLeast(1)
             recentSessions.size.toFloat() / daySpan
         } else 0f
-        
+
         return when {
             frequency >= 1.5f && avgDuration >= 1800 -> "Dedicated reader - reads frequently and for extended periods"
             frequency >= 1f && avgDuration >= 900 -> "Regular reader - reads most days"
@@ -474,18 +474,18 @@ class AIReadingProgressService @Inject constructor(
             else -> "Light reader - occasional short sessions"
         }
     }
-    
+
     private fun detectPreferredReadingTime(sessions: List<ReadingSessionLog>): String? {
         if (sessions.size < 3) return null
-        
+
         val hourCounts = sessions.groupBy { session ->
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = session.startTime
             calendar.get(Calendar.HOUR_OF_DAY)
         }.mapValues { it.value.size }
-        
+
         val peakHour = hourCounts.maxByOrNull { it.value }?.key ?: return null
-        
+
         return when (peakHour) {
             in 5..8 -> "Early morning"
             in 9..11 -> "Late morning"
@@ -496,19 +496,19 @@ class AIReadingProgressService @Inject constructor(
             else -> "Late night"
         }
     }
-    
+
     private suspend fun calculateReadingStreak(bookId: Long): Int {
         // Calculate consecutive days of reading
         val sessions = readingAnalyticsDao.getSessionsByItemId(bookId).first()
         if (sessions.isEmpty()) return 0
-        
+
         val readingDays = sessions.map { session ->
             dateFormat.format(Date(session.startTime))
         }.distinct().sorted().reversed()
-        
+
         var streak = 0
         var expectedDate = dateFormat.format(Date())
-        
+
         for (date in readingDays) {
             if (date == expectedDate) {
                 streak++
@@ -520,20 +520,20 @@ class AIReadingProgressService @Inject constructor(
                 break
             }
         }
-        
+
         return streak
     }
-    
+
     private fun isBookAbandoned(progress: ReadingProgress): Boolean {
         if (progress.isCompleted) return false
         val daysSinceLastRead = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - progress.lastUpdate)
         return daysSinceLastRead > 30 && progress.percentage < 90f
     }
-    
+
     private fun buildProgressContext(progress: DetailedBookProgress): String {
         val percentComplete = progress.progressPercent.toInt()
         val pagesInfo = "on page ${progress.currentPage} of ${progress.totalPages}"
-        
+
         return when {
             progress.isCompleted -> "Completed reading this book"
             percentComplete >= 90 -> "Almost finished ($percentComplete%), $pagesInfo. Just a few pages left!"
@@ -544,39 +544,39 @@ class AIReadingProgressService @Inject constructor(
             else -> "Just started ($percentComplete%), $pagesInfo. Beginning the journey."
         }
     }
-    
+
     private fun buildPatternContext(progress: DetailedBookProgress): String {
         val parts = mutableListOf<String>()
-        
+
         if (progress.totalReadingTimeMinutes > 0) {
             parts.add("Has spent ${formatDuration(progress.totalReadingTimeMinutes)} reading this book")
         }
-        
+
         if (progress.sessionCount > 0) {
             parts.add("over ${progress.sessionCount} reading sessions")
         }
-        
+
         if (progress.averageSessionMinutes > 0) {
             parts.add("averaging ${progress.averageSessionMinutes} minutes per session")
         }
-        
+
         progress.preferredReadingTime?.let {
             parts.add("usually reading in the $it")
         }
-        
+
         if (progress.readingStreak > 1) {
             parts.add("on a ${progress.readingStreak}-day reading streak")
         }
-        
+
         return if (parts.isNotEmpty()) parts.joinToString(", ") else progress.readingPattern
     }
-    
+
     private fun generateDiscussionTopics(
         progress: DetailedBookProgress,
         insights: List<com.universalmedialibrary.data.local.entity.ReaderAIInsight>
     ): List<String> {
         val topics = mutableListOf<String>()
-        
+
         // Progress-based suggestions
         when {
             progress.isJustStarted -> {
@@ -600,7 +600,7 @@ class AIReadingProgressService @Inject constructor(
                 topics.add("Would you recommend this book?")
             }
         }
-        
+
         // Genre-based suggestions
         progress.genres.forEach { genre ->
             when (genre.lowercase()) {
@@ -611,20 +611,20 @@ class AIReadingProgressService @Inject constructor(
                 "literary fiction" -> topics.add("Deeper themes and symbolism")
             }
         }
-        
+
         // Theme-based suggestions from AI insights
         insights.find { it.insightType.name == "THEMES" }?.keyThemes?.take(3)?.forEach { theme ->
             topics.add("The theme of $theme in the story")
         }
-        
+
         return topics.distinct().take(5)
     }
-    
+
     private fun calculateDaysReading(firstSession: Long?, lastSession: Long?): Int {
         if (firstSession == null || lastSession == null) return 0
         return TimeUnit.MILLISECONDS.toDays(lastSession - firstSession).toInt() + 1
     }
-    
+
     private fun getPhaseDescription(phase: ReadingPhase): String {
         return when (phase) {
             ReadingPhase.BEGINNING -> "Just starting the book, still meeting characters and setting"
@@ -635,16 +635,16 @@ class AIReadingProgressService @Inject constructor(
             ReadingPhase.FINALE -> "Near the end, wrapping up the story"
         }
     }
-    
+
     private fun getSpoilerWarning(phase: ReadingPhase): String {
         return when (phase) {
-            ReadingPhase.BEGINNING, ReadingPhase.EARLY -> 
+            ReadingPhase.BEGINNING, ReadingPhase.EARLY ->
                 "User is early in the book - avoid spoilers about major plot points"
-            ReadingPhase.RISING_ACTION, ReadingPhase.MIDDLE -> 
+            ReadingPhase.RISING_ACTION, ReadingPhase.MIDDLE ->
                 "User is mid-book - avoid spoilers about later events and the ending"
-            ReadingPhase.CLIMAX -> 
+            ReadingPhase.CLIMAX ->
                 "User is nearing the end - avoid revealing the conclusion"
-            ReadingPhase.FINALE -> 
+            ReadingPhase.FINALE ->
                 "User is almost finished - safe to discuss most of the book"
         }
     }

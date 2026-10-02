@@ -8,10 +8,10 @@ import androidx.compose.ui.unit.sp
 
 /**
  * Enhanced Typography Configuration for CleverFerret
- * 
+ *
  * Updated to support the enhanced UI system with proper
  * font weights, sizes, and letter spacing for metallic themes.
- * 
+ *
  * Note: Main CleverFerretTypography is defined in CleverFerretTheme.kt
  * This file provides additional typography utilities and extensions.
  */
@@ -40,7 +40,7 @@ val EnhancedTypography = Typography(
         lineHeight = 44.sp,
         letterSpacing = 0.sp
     ),
-    
+
     // Headline styles - for section headers
     headlineLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -63,7 +63,7 @@ val EnhancedTypography = Typography(
         lineHeight = 32.sp,
         letterSpacing = 0.sp
     ),
-    
+
     // Title styles - for card titles and list items
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -86,7 +86,7 @@ val EnhancedTypography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     ),
-    
+
     // Body styles - for main content
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -109,7 +109,7 @@ val EnhancedTypography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.4.sp
     ),
-    
+
     // Label styles - for buttons, tabs, and labels
     labelLarge = TextStyle(
         fontFamily = FontFamily.Default,

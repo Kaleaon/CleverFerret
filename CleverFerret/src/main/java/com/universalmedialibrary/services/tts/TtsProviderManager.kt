@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 /**
  * TTS Provider Manager
- * 
+ *
  * Manages the active TTS provider and provides the appropriate service
  */
 @Singleton
@@ -80,7 +80,7 @@ class TtsProviderManager @Inject constructor(
      */
     suspend fun getActiveService(): TextToSpeechService {
         val settings = providerSettings.first()
-        
+
         return when (settings.provider) {
             TtsProvider.GEMINI -> {
                 val apiKey = getEncryptedApiKey(settings.provider)
@@ -171,7 +171,7 @@ class TtsProviderManager @Inject constructor(
      */
     suspend fun isProviderConfigured(provider: TtsProvider): Boolean {
         if (!provider.requiresApiKey) return true
-        
+
         val apiKey = getEncryptedApiKey(provider)
         return !apiKey.isNullOrBlank()
     }

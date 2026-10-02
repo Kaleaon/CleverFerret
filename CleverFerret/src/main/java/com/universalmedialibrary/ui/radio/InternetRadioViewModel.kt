@@ -25,7 +25,7 @@ class InternetRadioViewModel @Inject constructor(
         _sampleStations,
         radioStationDao.getAllStations()
     ) { samples, dbStations ->
-        val mappedDbStations = dbStations.map { 
+        val mappedDbStations = dbStations.map {
             InternetRadioStation(
                 id = "db_${it.id}",
                 name = it.name,
@@ -50,7 +50,7 @@ class InternetRadioViewModel @Inject constructor(
     )
 
     // Expose visualizer state for the UI
-    val visualizerState: StateFlow<com.universalmedialibrary.services.visualizer.VisualizerState> = 
+    val visualizerState: StateFlow<com.universalmedialibrary.services.visualizer.VisualizerState> =
         audioVisualizerService.visualizerState
 
     // Dynamically extract available genres from all stations
@@ -65,7 +65,7 @@ class InternetRadioViewModel @Inject constructor(
     init {
         loadSampleStations()
     }
-    
+
     companion object {
         /**
          * Delay in milliseconds to allow ExoPlayer to initialize before attaching visualizer.
@@ -85,7 +85,7 @@ class InternetRadioViewModel @Inject constructor(
             musicPlayerService.play()
         }
     }
-    
+
     fun selectStation(station: InternetRadioStation) {
         viewModelScope.launch {
             _currentStation.value = station
@@ -98,7 +98,7 @@ class InternetRadioViewModel @Inject constructor(
                 duration = 0L, // Streams have no duration
                 albumArtUrl = null
             )
-            
+
             // Attach visualizer to the player for audio visualization
             // Wait for player initialization before attaching visualizer
             kotlinx.coroutines.delay(PLAYER_INIT_DELAY_MS)
@@ -113,7 +113,7 @@ class InternetRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun addCustomStation(name: String, url: String, genre: String) {
         viewModelScope.launch {
             val newStation = com.universalmedialibrary.data.local.entity.RadioStation(

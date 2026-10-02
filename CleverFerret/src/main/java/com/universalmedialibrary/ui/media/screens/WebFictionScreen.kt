@@ -27,7 +27,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Web Fiction Screen
- * 
+ *
  * Manages web serials and fanfiction from multiple sources:
  * - Royal Road
  * - Archive of Our Own (AO3)
@@ -35,7 +35,7 @@ import com.universalmedialibrary.ui.media.theme.*
  * - Wattpad
  * - SpaceBattles/SufficientVelocity
  * - And more...
- * 
+ *
  * Features:
  * - Chapter tracking & notifications
  * - Offline reading with download
@@ -59,7 +59,7 @@ fun WebFictionScreen(
 ) {
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Following", "Recent Updates", "Browse")
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -130,7 +130,7 @@ fun WebFictionScreen(
                     )
                 }
             }
-            
+
             // Content
             when (selectedTab) {
                 0 -> FollowingStoriesPage(
@@ -172,7 +172,7 @@ private fun FollowingStoriesPage(
         )
         return
     }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(MediaSpacing.MD),
         verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
@@ -238,7 +238,7 @@ private fun RecentUpdatesPage(
         )
         return
     }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(vertical = MediaSpacing.SM),
         modifier = Modifier.fillMaxSize()
@@ -270,7 +270,7 @@ private fun BrowseSourcesPage(
         )
         return
     }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(MediaSpacing.MD),
         verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD),

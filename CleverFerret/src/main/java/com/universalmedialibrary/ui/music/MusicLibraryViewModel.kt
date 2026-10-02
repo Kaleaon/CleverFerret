@@ -62,19 +62,19 @@ class MusicLibraryViewModel @Inject constructor(
     fun scan() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 // Use repository for scanning
                 musicRepository.scanLibrary()
-                
+
                 // Get data from repository
                 val tracks = musicRepository.tracks.value
                 allTracks = tracks
-                
+
                 val albums = musicRepository.albums.value
                 val artists = musicRepository.artists.value
                 val genres = musicRepository.genres.value
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     tracks = tracks,
@@ -82,7 +82,7 @@ class MusicLibraryViewModel @Inject constructor(
                     artists = artists,
                     genres = genres
                 )
-                
+
                 applyFiltersAndSort()
             } catch (e: Exception) {
                 // Handle scan error gracefully
@@ -99,7 +99,7 @@ class MusicLibraryViewModel @Inject constructor(
 
     private fun scanMusicFromMediaStore(): List<Track> {
         val songs = mutableListOf<Track>()
-        
+
         val projection = mutableListOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
@@ -120,10 +120,10 @@ class MusicLibraryViewModel @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             projection.add(MediaStore.Audio.Media.GENRE)
         }
-        
+
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
         val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
-        
+
         context.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             projection.toTypedArray(),
@@ -150,7 +150,7 @@ class MusicLibraryViewModel @Inject constructor(
             val dateModifiedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
             val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
             val mimeCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE)
-            
+
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idCol)
                 val title = cursor.getString(titleCol)
@@ -167,12 +167,12 @@ class MusicLibraryViewModel @Inject constructor(
                 val dateModified = cursor.getLong(dateModifiedCol)
                 val path = cursor.getString(pathCol)
                 val mimeType = cursor.getString(mimeCol)
-                
+
                 val contentUri: Uri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     id
                 )
-                
+
                 songs.add(
                     Track(
                         id = id,
@@ -195,18 +195,18 @@ class MusicLibraryViewModel @Inject constructor(
                 )
             }
         }
-        
+
         return songs
     }
 
     private fun aggregateAlbums(tracks: List<Track>): List<Album> {
         if (tracks.isEmpty()) return emptyList()
-        
+
         return try {
             tracks.groupBy { it.displayAlbum to it.albumArtist }
                 .mapNotNull { (key, albumTracks) ->
                     if (albumTracks.isEmpty()) return@mapNotNull null
-                    
+
                     val (albumName, artist) = key
                     Album(
                         name = albumName,
@@ -225,7 +225,7 @@ class MusicLibraryViewModel @Inject constructor(
 
     private fun aggregateArtists(tracks: List<Track>): List<Artist> {
         if (tracks.isEmpty()) return emptyList()
-        
+
         return try {
             tracks.groupBy { it.displayArtist }
                 .map { (artistName, artistTracks) ->
@@ -244,7 +244,7 @@ class MusicLibraryViewModel @Inject constructor(
 
     private fun aggregateGenres(tracks: List<Track>): List<Genre> {
         if (tracks.isEmpty()) return emptyList()
-        
+
         return try {
             tracks.groupBy { it.displayGenre }
                 .map { (genreName, genreTracks) ->
@@ -355,11 +355,11 @@ class MusicLibraryViewModel @Inject constructor(
             _uiState.value.selectedGenre?.let { genre ->
                 filtered = filtered.filter { it.displayGenre == genre }
             }
-            
+
             _uiState.value.selectedArtist?.let { artist ->
                 filtered = filtered.filter { it.displayArtist == artist }
             }
-            
+
             _uiState.value.selectedAlbum?.let { album ->
                 filtered = filtered.filter { it.displayAlbum == album }
             }

@@ -43,14 +43,14 @@ class OcrViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _ocrState.value = OcrState.Processing
-                
+
                 val result = ocrRepository.recognizeText(
                     bitmap = bitmap,
                     mediaItemId = mediaItemId,
                     pageNumber = pageNumber,
                     useCache = useCache
                 )
-                
+
                 result.onSuccess { ocrResult ->
                     _ocrState.value = OcrState.Success(ocrResult)
                 }.onFailure { error ->

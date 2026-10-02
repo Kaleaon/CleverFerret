@@ -2,14 +2,14 @@
 # CleverFerret ProGuard Rules
 #======================================
 # Project-specific rules for code shrinking and obfuscation
-# 
+#
 # These rules ensure:
 # - Proper preservation of framework classes
 # - Room database functionality
 # - Hilt dependency injection
 # - Compose UI rendering
 # - Network operations with Retrofit/OkHttp
-# 
+#
 # For more information:
 # https://developer.android.com/studio/build/shrink-code
 #======================================

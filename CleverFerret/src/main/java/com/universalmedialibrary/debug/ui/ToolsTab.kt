@@ -47,7 +47,7 @@ internal fun ToolsTab(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
-        
+
         item {
             Card(
                 colors = CardDefaults.cardColors(containerColor = MediaColors.BackgroundSurface),
@@ -60,12 +60,12 @@ internal fun ToolsTab(
                         description = "Export crash reports, errors, and metrics to JSON",
                         onClick = onExportLogs
                     )
-                    
+
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 12.dp),
                         color = MediaColors.BackgroundElevated
                     )
-                    
+
                     ToolButton(
                         icon = Icons.Default.Warning,
                         title = "Simulate Crash",

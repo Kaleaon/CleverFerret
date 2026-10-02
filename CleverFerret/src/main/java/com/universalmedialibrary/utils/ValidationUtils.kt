@@ -7,7 +7,7 @@ import java.io.File
  * Utility functions for input validation across the app
  */
 object ValidationUtils {
-    
+
     /**
      * Validates library name
      * @return null if valid, error message if invalid
@@ -21,7 +21,7 @@ object ValidationUtils {
             else -> null
         }
     }
-    
+
     /**
      * Validates file path
      * @return null if valid, error message if invalid
@@ -34,14 +34,14 @@ object ValidationUtils {
             else -> null
         }
     }
-    
+
     /**
      * Validates directory exists and is readable
      */
     fun validateDirectory(path: String): String? {
         val pathError = validatePath(path)
         if (pathError != null) return pathError
-        
+
         val file = File(path)
         return when {
             !file.exists() -> "Directory does not exist"
@@ -50,7 +50,7 @@ object ValidationUtils {
             else -> null
         }
     }
-    
+
     /**
      * Validates email address
      */
@@ -61,7 +61,7 @@ object ValidationUtils {
             else -> null
         }
     }
-    
+
     /**
      * Validates URL
      */
@@ -72,7 +72,7 @@ object ValidationUtils {
             else -> null
         }
     }
-    
+
     /**
      * Validates API key format
      */
@@ -85,7 +85,7 @@ object ValidationUtils {
             else -> null
         }
     }
-    
+
     /**
      * Validates ISBN
      */
@@ -98,7 +98,7 @@ object ValidationUtils {
             else -> "Invalid ISBN format (must be 10 or 13 digits)"
         }
     }
-    
+
     /**
      * Validates file size is within limits
      */
@@ -110,7 +110,7 @@ object ValidationUtils {
             else -> null
         }
     }
-    
+
     /**
      * Validates password strength
      */
@@ -123,7 +123,7 @@ object ValidationUtils {
             else -> null
         }
     }
-    
+
     /**
      * Validates port number
      */
@@ -135,7 +135,7 @@ object ValidationUtils {
             else -> null
         }
     }
-    
+
     /**
      * Sanitizes user input for database queries
      */
@@ -145,7 +145,7 @@ object ValidationUtils {
             .replace(Regex("[\\x00-\\x08\\x0B-\\x0C\\x0E-\\x1F]"), "") // Remove control characters
             .take(4096) // Limit length
     }
-    
+
     /**
      * Validates and sanitizes search query
      */

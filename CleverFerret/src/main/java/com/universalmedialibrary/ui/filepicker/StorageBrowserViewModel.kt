@@ -31,11 +31,11 @@ class StorageBrowserViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-                
+
                 val files = loadFiles(path)
-                
+
                 pathHistory.add(path)
-                
+
                 _uiState.value = _uiState.value.copy(
                     currentPath = path,
                     files = files,
@@ -59,7 +59,7 @@ class StorageBrowserViewModel @Inject constructor() : ViewModel() {
     fun navigateUp() {
         val currentPath = _uiState.value.currentPath
         val parentFile = File(currentPath).parentFile
-        
+
         if (parentFile != null && parentFile.canRead()) {
             pathHistory.removeLastOrNull()
             navigateTo(parentFile.absolutePath)
@@ -92,13 +92,13 @@ class StorageBrowserViewModel @Inject constructor() : ViewModel() {
 
     private suspend fun loadFiles(path: String): List<File> = withContext(Dispatchers.IO) {
         val directory = File(path)
-        
+
         if (!directory.exists() || !directory.isDirectory || !directory.canRead()) {
             throw IllegalAccessException("Cannot access directory")
         }
 
         val files = directory.listFiles()?.toList() ?: emptyList()
-        
+
         val filtered = if (!_uiState.value.showHidden) {
             files.filter { !it.name.startsWith(".") }
         } else {

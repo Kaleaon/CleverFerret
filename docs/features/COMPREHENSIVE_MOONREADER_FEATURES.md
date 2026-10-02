@@ -145,7 +145,7 @@ ReadingTimeEstimateDisplay(estimate, showDetailed = true)
 
 ### E-Ink Mode
 ```kotlin
-val eInkSettings = remember { 
+val eInkSettings = remember {
     EInkModeSettings(
         enabled = true,
         disableAnimations = true,

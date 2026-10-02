@@ -26,10 +26,10 @@ import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Service for FM radio tuning.
- * 
+ *
  * USAGE OF SYSTEM APIs:
  * This service utilizes 'SystemRadioWrapper' to access android.hardware.radio.* APIs via Reflection.
- * This allows the application to compile in standard environments while fully utilizing 
+ * This allows the application to compile in standard environments while fully utilizing
  * the device's FM Radio hardware at runtime.
  */
 @Singleton
@@ -41,11 +41,11 @@ class FMRadioService @Inject constructor(
     private val TAG = "FMRadioService"
     // Use a non-main dispatcher so unit tests don't depend on a running main looper.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    
+
     // Wrapper for Real Hardware Access
     private val systemRadio = SystemRadioWrapper(context)
     private var isHardwareConnected = false
-    
+
     private var recorder: MediaRecorder? = null
 
     private val _isAvailable = MutableStateFlow(false)
@@ -91,7 +91,7 @@ class FMRadioService @Inject constructor(
     private fun checkFMHardwareAvailability() {
         // Check permissions first
         // Using string literal as Manifest.permission.ACCESS_BROADCAST_RADIO might be hidden/SystemApi
-        if (ContextCompat.checkSelfPermission(context, "android.permission.ACCESS_BROADCAST_RADIO") 
+        if (ContextCompat.checkSelfPermission(context, "android.permission.ACCESS_BROADCAST_RADIO")
             != PackageManager.PERMISSION_GRANTED) {
             Log.w(TAG, "ACCESS_BROADCAST_RADIO permission not granted")
         }
@@ -108,7 +108,7 @@ class FMRadioService @Inject constructor(
         } else {
             Log.w(TAG, "System Radio API not supported on this device (missing classes)")
         }
-        
+
         // Hardware unavailable - enable simulation mode for testing
         _isAvailable.value = false
         _isSimulationMode.value = true
@@ -123,7 +123,7 @@ class FMRadioService @Inject constructor(
              val success = systemRadio.openTuner(object : SystemRadioWrapper.RadioTunerCallback {
                  override fun onProgramInfoChanged(freq: Int, name: String?, text: String?, pi: Int) {
                      _currentFrequency.value = freq
-                     
+
                      if (!name.isNullOrEmpty() || !text.isNullOrEmpty()) {
                          _rdsData.value = RDSData(
                              stationName = name ?: "",
@@ -131,7 +131,7 @@ class FMRadioService @Inject constructor(
                              programType = "" // Type not always available in basic metadata
                          )
                      }
-                     
+
                      // RadioDNS lookup if PI code is available
                      if (pi != 0) {
                          scope.launch {
@@ -157,7 +157,7 @@ class FMRadioService @Inject constructor(
                      }
                  }
              })
-             
+
              if (success) {
                  isHardwareConnected = true
                  // Tune to initial frequency
@@ -179,11 +179,11 @@ class FMRadioService @Inject constructor(
         }
 
         _currentFrequency.value = frequencyKhz
-        
+
         if (isHardwareConnected) {
             return systemRadio.tune(frequencyKhz)
         }
-        
+
         if (!isHardwareConnected) {
             Log.d(TAG, "Tuning in simulation mode to ${formatFrequency(frequencyKhz)}")
             simulateTuning(frequencyKhz)
@@ -207,7 +207,7 @@ class FMRadioService @Inject constructor(
             systemRadio.setMute(true)
         }
         _isPlaying.value = false
-        
+
         if (_isRecording.value) {
             stopRecording()
         }
@@ -238,12 +238,12 @@ class FMRadioService @Inject constructor(
      */
     fun startRecording(outputFile: File): Boolean {
         if (recorder != null) return false
-        
+
         try {
             recorder = MediaRecorder().apply {
                 // Use a supported constant (custom radio tuner sources are not part of the public API).
                 setAudioSource(MediaRecorder.AudioSource.DEFAULT)
-                
+
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 setAudioEncodingBitRate(128000)
@@ -289,7 +289,7 @@ class FMRadioService @Inject constructor(
         val mhz = frequencyKhz / 1000.0
         return "%.1f FM".format(mhz)
     }
-    
+
     private fun simulateTuning(frequencyKhz: Int) {
         // Run synchronously to ensure state is updated before tune() returns
         // This ensures tests can observe the signal strength immediately

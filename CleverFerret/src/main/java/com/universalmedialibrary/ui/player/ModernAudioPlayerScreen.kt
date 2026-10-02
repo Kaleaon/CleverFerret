@@ -70,7 +70,7 @@ fun ModernAudioPlayerScreen(
             artworkColors.accent
         )
     }
-    
+
     val coroutineScope = rememberCoroutineScope()
     var showAdvancedSheet by remember { mutableStateOf(false) }
     var showQueueSheet by remember { mutableStateOf(false) }
@@ -92,7 +92,7 @@ fun ModernAudioPlayerScreen(
                 .coerceIn(0f, 1f)
         } else 0f
     }
-    
+
     // Animated vinyl rotation
     val infiniteTransition = rememberInfiniteTransition(label = "vinyl")
     val rotation by infiniteTransition.animateFloat(
@@ -115,7 +115,7 @@ fun ModernAudioPlayerScreen(
         // Background blur effect
         uiState.currentTrack?.coverUrl?.let { coverUrl ->
             AsyncImage(
-                    
+
                 model = coverUrl,
                 contentDescription = "Media image",
                 modifier = Modifier
@@ -198,7 +198,7 @@ fun ModernAudioPlayerScreen(
                     val currentTrack = uiState.currentTrack
                     if (currentTrack?.coverUrl != null) {
                         AsyncImage(
-                    
+
                             model = currentTrack.coverUrl,
                             contentDescription = "Album Art",
                             modifier = Modifier.fillMaxSize(),
@@ -464,7 +464,7 @@ fun ModernAudioPlayerScreen(
                 }
             )
         }
-        
+
         // Share Dialog
         if (showShare) {
             AlertDialog(
@@ -546,7 +546,7 @@ private fun formatTime(ms: Long): String {
     val seconds = (ms / 1000) % 60
     val minutes = (ms / (1000 * 60)) % 60
     val hours = (ms / (1000 * 60 * 60))
-    
+
     return if (hours > 0) {
         String.format(Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
     } else {
@@ -561,12 +561,3 @@ internal fun formatOffset(offsetMs: Int): String {
         "-${offsetMs.absoluteValue} ms"
     }
 }
-
-
-
-
-
-
-
-
-

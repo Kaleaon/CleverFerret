@@ -28,7 +28,7 @@ import org.burnoutcrew.reorderable.*
 
 /**
  * Enhanced Queue Management Screen
- * 
+ *
  * Features:
  * - Drag and drop reordering
  * - Swipe to remove
@@ -58,7 +58,7 @@ fun EnhancedQueueScreen(
             onMoveTrack(from.index, to.index)
         }
     )
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -82,7 +82,7 @@ fun EnhancedQueueScreen(
                     IconButton(onClick = onShuffleQueue) {
                         Icon(Icons.Default.Shuffle, "Shuffle Queue")
                     }
-                    
+
                     // Clear queue
                     IconButton(onClick = { showClearConfirmation = true }) {
                         Icon(Icons.Default.Delete, "Clear Queue")
@@ -91,7 +91,7 @@ fun EnhancedQueueScreen(
             )
         }
     ) { paddingValues ->
-        
+
         if (queue.isEmpty()) {
             // Empty queue state
             Box(
@@ -138,7 +138,7 @@ fun EnhancedQueueScreen(
                 ) { index, track ->
                     ReorderableItem(reorderableState, key = track.id) { isDragging ->
                         val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
-                        
+
                         QueueTrackItem(
                             track = track,
                             index = index,
@@ -152,7 +152,7 @@ fun EnhancedQueueScreen(
                 }
             }
         }
-        
+
         // Clear confirmation dialog
         if (showClearConfirmation) {
             AlertDialog(
@@ -237,9 +237,9 @@ private fun QueueTrackItem(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             // Track info
             Column(
                 modifier = Modifier.weight(1f)
@@ -261,16 +261,16 @@ private fun QueueTrackItem(
                     )
                 }
             }
-            
+
             // Duration
             Text(
                 text = formatDuration(track.duration),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.width(8.dp))
-            
+
             // Remove button
             IconButton(
                 onClick = onRemove,
@@ -282,7 +282,7 @@ private fun QueueTrackItem(
                     modifier = Modifier.size(20.dp)
                 )
             }
-            
+
             // Drag handle
             Icon(
                 Icons.Default.DragHandle,
@@ -301,7 +301,7 @@ private fun formatTotalDuration(tracks: List<TrackInfo>): String {
     val totalSeconds = tracks.sumOf { it.duration } / 1000
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60
-    
+
     return if (hours > 0) {
         "${hours}h ${minutes}m"
     } else {

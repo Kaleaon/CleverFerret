@@ -38,14 +38,14 @@ fun AmbientSoundScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val playingSounds by viewModel.playingSounds.collectAsStateWithLifecycle()
-    
+
     var selectedCategory by remember { mutableStateOf<AmbientCategory?>(null) }
     var showFavoritesOnly by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = PhosphorIcons.Nature,
@@ -69,9 +69,9 @@ fun AmbientSoundScreen(
                             contentDescription = "Manage Themes"
                         )
                     }
-                    
+
                     // Favorites filter
-                    IconButton(onClick = { 
+                    IconButton(onClick = {
                         showFavoritesOnly = !showFavoritesOnly
                         if (showFavoritesOnly) {
                             viewModel.loadFavoriteSounds()
@@ -85,7 +85,7 @@ fun AmbientSoundScreen(
                             tint = if (showFavoritesOnly) MaterialTheme.colorScheme.primary else LocalContentColor.current
                         )
                     }
-                    
+
                     // Stop all sounds
                     if (playingSounds.isNotEmpty()) {
                         IconButton(onClick = { viewModel.stopAllSounds() }) {
@@ -117,9 +117,9 @@ fun AmbientSoundScreen(
                     }
                 }
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Content based on state
             when (val state = uiState) {
                 is AmbientSoundUiState.Loading -> {
@@ -130,7 +130,7 @@ fun AmbientSoundScreen(
                         CircularProgressIndicator()
                     }
                 }
-                
+
                 is AmbientSoundUiState.Success -> {
                     if (state.sounds.isEmpty()) {
                         EmptyState()
@@ -144,7 +144,7 @@ fun AmbientSoundScreen(
                         )
                     }
                 }
-                
+
                 is AmbientSoundUiState.Error -> {
                     ErrorState(message = state.message)
                 }
@@ -170,7 +170,7 @@ private fun CategoryFilterRow(
             onClick = { onCategorySelected(null) },
             label = { Text("All") }
         )
-        
+
         // Category filter chips
         AmbientCategory.values().forEach { category ->
             FilterChip(
@@ -217,16 +217,16 @@ private fun SoundCard(
     onVolumeChange: (Float) -> Unit
 ) {
     var showVolumeSlider by remember { mutableStateOf(false) }
-    
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isPlaying) 
-                MaterialTheme.colorScheme.primaryContainer 
-            else 
+            containerColor = if (isPlaying)
+                MaterialTheme.colorScheme.primaryContainer
+            else
                 MaterialTheme.colorScheme.surface
         )
     ) {
@@ -254,16 +254,16 @@ private fun SoundCard(
                     )
                 }
             }
-            
+
             // Play button
             Box(
                 modifier = Modifier
                     .size(56.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isPlaying) 
-                            MaterialTheme.colorScheme.primary 
-                        else 
+                        if (isPlaying)
+                            MaterialTheme.colorScheme.primary
+                        else
                             MaterialTheme.colorScheme.surfaceVariant
                     ),
                 contentAlignment = Alignment.Center
@@ -272,14 +272,14 @@ private fun SoundCard(
                     Icon(
                         imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                         contentDescription = if (isPlaying) "Pause" else "Play",
-                        tint = if (isPlaying) 
-                            MaterialTheme.colorScheme.onPrimary 
-                        else 
+                        tint = if (isPlaying)
+                            MaterialTheme.colorScheme.onPrimary
+                        else
                             MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
-            
+
             // Sound name
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -288,7 +288,7 @@ private fun SoundCard(
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Text(
                     text = sound.category.name.lowercase().replaceFirstChar { it.uppercase() },
                     style = MaterialTheme.typography.bodySmall,
@@ -316,9 +316,9 @@ private fun EmptyState() {
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = "No ambient sounds available",
                 style = MaterialTheme.typography.titleMedium,
@@ -344,9 +344,9 @@ private fun ErrorState(message: String) {
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,

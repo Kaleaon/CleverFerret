@@ -27,7 +27,7 @@ class NetworkManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    private val connectivityManager = 
+    private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     /**
@@ -36,7 +36,7 @@ class NetworkManager @Inject constructor(
     fun isConnectedToWiFi(): Boolean {
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        
+
         return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
     }
@@ -47,7 +47,7 @@ class NetworkManager @Inject constructor(
     fun isConnectedToCellular(): Boolean {
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        
+
         return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
     }
 
@@ -57,7 +57,7 @@ class NetworkManager @Inject constructor(
     fun isConnected(): Boolean {
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        
+
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
@@ -75,7 +75,7 @@ class NetworkManager @Inject constructor(
     fun getNetworkType(): NetworkType {
         val network = connectivityManager.activeNetwork ?: return NetworkType.NONE
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return NetworkType.NONE
-        
+
         return when {
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> NetworkType.WIFI
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> NetworkType.CELLULAR
@@ -91,9 +91,9 @@ class NetworkManager @Inject constructor(
     fun getConnectionQuality(): ConnectionQuality {
         val network = connectivityManager.activeNetwork ?: return ConnectionQuality.NONE
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return ConnectionQuality.NONE
-        
+
         val downstreamBandwidth = capabilities.linkDownstreamBandwidthKbps
-        
+
         return when {
             downstreamBandwidth <= 0 -> ConnectionQuality.UNKNOWN
             downstreamBandwidth < 1000 -> ConnectionQuality.POOR
@@ -119,7 +119,7 @@ class NetworkManager @Inject constructor(
      */
     fun isSafeToStream(requireHighQuality: Boolean = false): Boolean {
         if (!isConnected()) return false
-        
+
         val quality = getConnectionQuality()
         return if (requireHighQuality) {
             quality == ConnectionQuality.GOOD || quality == ConnectionQuality.EXCELLENT
@@ -134,7 +134,7 @@ class NetworkManager @Inject constructor(
     fun getEstimatedDownloadSpeedMbps(): Float {
         val network = connectivityManager.activeNetwork ?: return 0f
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return 0f
-        
+
         val downstreamKbps = capabilities.linkDownstreamBandwidthKbps
         return downstreamKbps / 1000f
     }
@@ -158,13 +158,13 @@ class NetworkManager @Inject constructor(
             ) {
                 val isWifi = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
                 val isCellular = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-                
+
                 val type = when {
                     isWifi -> NetworkType.WIFI
                     isCellular -> NetworkType.CELLULAR
                     else -> NetworkType.OTHER
                 }
-                
+
                 trySend(NetworkState.Changed(type, networkCapabilities))
             }
         }

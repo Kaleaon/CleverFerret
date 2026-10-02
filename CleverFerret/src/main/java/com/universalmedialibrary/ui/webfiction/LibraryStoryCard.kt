@@ -34,13 +34,13 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery, download, and management.
- * 
+ *
  * Streamlined experience combining:
  * - Site selection & Tag-based browsing
  * - Direct story download
  * - Library management (My Library)
  * - Update checker
- * 
+ *
  * No more jumping between screens! Reading is handled by the separate eReader.
  */
 
@@ -54,7 +54,7 @@ internal fun LibraryStoryCard(
     onDeleteClick: () -> Unit
 ) {
     var showMenu by rememberSaveable(story.id) { mutableStateOf(false) }
-    
+
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()
@@ -77,12 +77,12 @@ internal fun LibraryStoryCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 Box {
                     IconButton(onClick = { showMenu = true }) {
                         Icon(Icons.Default.MoreVert, "Menu")
                     }
-                    
+
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }
@@ -112,16 +112,16 @@ internal fun LibraryStoryCard(
                     }
                 }
             }
-            
+
             // Author
             Text(
                 "by ${story.author}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(Modifier.height(8.dp))
-            
+
             // Summary
             Text(
                 story.summary,
@@ -130,9 +130,9 @@ internal fun LibraryStoryCard(
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(Modifier.height(12.dp))
-            
+
             // Stats
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)

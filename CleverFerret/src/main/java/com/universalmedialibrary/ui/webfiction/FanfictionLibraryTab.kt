@@ -33,13 +33,13 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery, download, and management.
- * 
+ *
  * Streamlined experience combining:
  * - Site selection & Tag-based browsing
  * - Direct story download
  * - Library management (My Library)
  * - Update checker
- * 
+ *
  * No more jumping between screens! Reading is handled by the separate eReader.
  */
 
@@ -52,17 +52,17 @@ fun FanfictionLibraryTab(
     val stories by viewModel.allStories.collectAsState()
     val selectedFilter by viewModel.selectedFilter.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
-    
+
     var showFilterMenu by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
-    
+
     val filteredStories = remember(stories, selectedFilter, searchQuery) {
         stories.filter { story ->
             val matchesSearch = searchQuery.isBlank() ||
                 story.title.contains(searchQuery, ignoreCase = true) ||
                 story.author.contains(searchQuery, ignoreCase = true) ||
                 story.summary.contains(searchQuery, ignoreCase = true)
-            
+
             val matchesFilter = when (selectedFilter) {
                 FilterType.ALL -> true
                 FilterType.IN_PROGRESS -> story.status == "IN_PROGRESS"
@@ -71,7 +71,7 @@ fun FanfictionLibraryTab(
                 FilterType.FFN -> story.sourceSite == "FanFiction.Net"
                 FilterType.ROYAL_ROAD -> story.sourceSite == "Royal Road"
             }
-            
+
             matchesSearch && matchesFilter
         }
     }
@@ -94,11 +94,11 @@ fun FanfictionLibraryTab(
                     .padding(end = 8.dp),
                 singleLine = true
             )
-            
+
             IconButton(onClick = { showFilterMenu = true }) {
                 Icon(Icons.Default.FilterList, "Filter")
             }
-            
+
             DropdownMenu(
                 expanded = showFilterMenu,
                 onDismissRequest = { showFilterMenu = false }
@@ -119,7 +119,7 @@ fun FanfictionLibraryTab(
                 }
             }
         }
-        
+
         // Update status banner
         updateStatus?.let { status ->
             Surface(

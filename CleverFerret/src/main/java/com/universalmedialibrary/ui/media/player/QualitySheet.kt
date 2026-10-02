@@ -44,7 +44,7 @@ internal fun QualitySheet(
             color = MediaColors.TextPrimary,
             modifier = Modifier.padding(bottom = MediaSpacing.MD)
         )
-        
+
         qualities.forEach { quality ->
             Row(
                 modifier = Modifier
@@ -58,9 +58,9 @@ internal fun QualitySheet(
                     Text(
                         text = quality.label,
                         style = MediaTypography.BodyMedium,
-                        color = if (currentQuality == quality) 
-                            MediaColors.AccentPrimary 
-                        else 
+                        color = if (currentQuality == quality)
+                            MediaColors.AccentPrimary
+                        else
                             MediaColors.TextPrimary
                     )
                     quality.bitrate?.let { bitrate ->

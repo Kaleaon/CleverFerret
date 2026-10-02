@@ -53,7 +53,7 @@ internal fun OldTimeRadioShowCard(
             ) {
                 if (show.imageUrl != null) {
                     AsyncImage(
-                    
+
                         model = show.imageUrl,
                         contentDescription = "${show.title} show image",
                         contentScale = ContentScale.Crop,
@@ -70,9 +70,9 @@ internal fun OldTimeRadioShowCard(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             Text(
                 text = show.title,
                 style = MediaTypography.BodyMedium,
@@ -81,7 +81,7 @@ internal fun OldTimeRadioShowCard(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Text(
                 text = "${show.episodeCount} episodes",
                 style = MediaTypography.LabelSmall,

@@ -31,13 +31,13 @@ fun MetallicCard(
     val shimmerEnabled = metallicShimmerEnabled()
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
-    
+
     val scale by animateFloatAsState(
         targetValue = if (isHovered && onClick != null) 1.02f else 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "cardScale"
     )
-    
+
     Card(
         modifier = modifier
             .scale(scale)
@@ -89,7 +89,7 @@ fun GlassCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val patternsEnabled = geometricPatternsEnabled()
-    
+
     Card(
         modifier = modifier
             .glassEffect(
@@ -143,13 +143,13 @@ fun ElevatedLightCard(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
-    
+
     val cardElevation by animateDpAsState(
         targetValue = if (isHovered && onClick != null) elevation + 4.dp else elevation,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "cardElevation"
     )
-    
+
     Card(
         modifier = modifier
             .advancedLighting(
@@ -188,7 +188,7 @@ fun EmbossedCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val metallicColors = metallicColors()
-    
+
     Card(
         modifier = modifier
             .embossedEffect(
@@ -226,7 +226,7 @@ fun PatternedCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val patternsEnabled = geometricPatternsEnabled()
-    
+
     Card(
         modifier = modifier
             .then(
@@ -271,7 +271,7 @@ fun GlowingCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val glowEnabled = crystalGlowEnabled()
-    
+
     Card(
         modifier = modifier
             .then(

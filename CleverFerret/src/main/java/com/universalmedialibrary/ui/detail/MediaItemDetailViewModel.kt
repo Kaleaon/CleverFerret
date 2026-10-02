@@ -49,7 +49,7 @@ class MediaItemDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-                
+
                 // Load media item
                 val mediaItem = mediaItemDao.getMediaItemById(itemId)
                 if (mediaItem == null) {
@@ -59,13 +59,13 @@ class MediaItemDetailViewModel @Inject constructor(
                     )
                     return@launch
                 }
-                
+
                 // Load metadata
                 val metadata = metadataDao.getMetadataCommonByItemId(itemId)
-                
+
                 // Load progress
                 val progress = readingProgressDao.getProgress(itemId).first()
-                
+
                 // Load tags
                 val tags = tagRepository.getTagsForItem(itemId).first()
 
@@ -93,7 +93,7 @@ class MediaItemDetailViewModel @Inject constructor(
             try {
                 val currentItem = _uiState.value.mediaItem ?: return@launch
                 val newFavoriteState = !_uiState.value.isFavorite
-                
+
                 mediaItemDao.setFavorite(currentItem.itemId, newFavoriteState)
                 metadataDao.setFavorite(currentItem.itemId, newFavoriteState)
 
@@ -121,9 +121,9 @@ class MediaItemDetailViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     metadataRefreshTask = BackgroundTaskState.running("Metadata refresh", progress = 0.2f)
                 )
-                
+
                 val result = metadataFetchRepository.fetchMetadataForItem(mediaItem.itemId)
-                
+
                 when (result) {
                     is MetadataFetchResult.Success -> {
                         _uiState.value = _uiState.value.copy(
@@ -353,7 +353,7 @@ class MediaItemDetailViewModel @Inject constructor(
             try {
                 val itemId = _uiState.value.mediaItem?.itemId ?: return@launch
                 tagRepository.applyTagsByName(itemId, selectedTags)
-                
+
                 // Refresh tags
                 val tags = tagRepository.getTagsForItem(itemId).first()
                 _uiState.value = _uiState.value.copy(
@@ -385,14 +385,14 @@ data class MediaItemDetailUiState(
     val tags: List<UnifiedTag> = emptyList(),
     val isFavorite: Boolean = false,
     val error: String? = null,
-    
+
     val isFetchingMetadata: Boolean = false,
     val metadataFetchError: String? = null,
     val metadataFetchSuccess: String? = null,
     val metadataRefreshTask: BackgroundTaskState? = null,
     val thumbnailTask: BackgroundTaskState? = null,
     val imageCacheVersion: Long = 0L,
-    
+
     val showAddToCollectionDialog: Boolean = false,
     val availableCollections: List<UnifiedCollection> = emptyList(),
     val addToCollectionSuccess: String? = null,

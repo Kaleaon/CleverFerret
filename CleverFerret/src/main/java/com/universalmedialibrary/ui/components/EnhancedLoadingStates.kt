@@ -40,7 +40,7 @@ fun EnhancedLoadingState(
         ),
         label = "scale"
     )
-    
+
     val alpha by infiniteTransition.animateFloat(
         initialValue = 0.4f,
         targetValue = 1f,
@@ -76,13 +76,13 @@ fun EnhancedLoadingState(
                     )
                 }
             }
-            
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            
+
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
@@ -143,7 +143,7 @@ fun ShimmerListItem(
                         brush = Brush.horizontalGradient(shimmerColors)
                     )
             )
-            
+
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -158,7 +158,7 @@ fun ShimmerListItem(
                             brush = Brush.horizontalGradient(shimmerColors)
                         )
                 )
-                
+
                 // Subtitle placeholder
                 Box(
                     modifier = Modifier
@@ -169,9 +169,9 @@ fun ShimmerListItem(
                             brush = Brush.horizontalGradient(shimmerColors)
                         )
                 )
-                
+
                 Spacer(modifier = Modifier.weight(1f))
-                
+
                 // Progress placeholder
                 Box(
                     modifier = Modifier
@@ -229,7 +229,7 @@ fun ShimmerGridItem(
                         brush = Brush.verticalGradient(shimmerColors)
                     )
             )
-            
+
             Column(
                 modifier = Modifier.padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -244,7 +244,7 @@ fun ShimmerGridItem(
                             brush = Brush.horizontalGradient(shimmerColors)
                         )
                 )
-                
+
                 // Subtitle placeholder
                 Box(
                     modifier = Modifier

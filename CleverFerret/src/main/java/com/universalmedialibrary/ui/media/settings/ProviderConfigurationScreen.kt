@@ -26,7 +26,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Settings Screen
- * 
+ *
  * A beautiful, modular settings interface that allows users to:
  * - Configure API providers and their capabilities
  * - Manage integrations (Plex, Jellyfin, Calibre, etc.)
@@ -47,12 +47,12 @@ fun ProviderConfigurationScreen(
 ) {
     var apiKey by remember { mutableStateOf(configuration?.apiKey ?: "") }
     var serverUrl by remember { mutableStateOf(configuration?.serverUrl ?: "") }
-    var enabledCapabilities by remember { 
-        mutableStateOf(configuration?.enabledCapabilities ?: provider.supportedCapabilities) 
+    var enabledCapabilities by remember {
+        mutableStateOf(configuration?.enabledCapabilities ?: provider.supportedCapabilities)
     }
     var isEnabled by remember { mutableStateOf(configuration?.isEnabled ?: true) }
     var showApiKey by remember { mutableStateOf(false) }
-    
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -73,7 +73,7 @@ fun ProviderConfigurationScreen(
                 }
             }
         )
-        
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(MediaSpacing.ScreenHorizontal),
@@ -93,9 +93,9 @@ fun ProviderConfigurationScreen(
                             style = MediaTypography.BodyMedium,
                             color = MediaColors.TextSecondary
                         )
-                        
+
                         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                        
+
                         Text(
                             text = provider.website,
                             style = MediaTypography.BodySmall,
@@ -104,7 +104,7 @@ fun ProviderConfigurationScreen(
                     }
                 }
             }
-            
+
             // Enable/Disable toggle
             item {
                 SettingsCard {
@@ -116,14 +116,14 @@ fun ProviderConfigurationScreen(
                     )
                 }
             }
-            
+
             // Credentials section
             if (provider.requiresApiKey || provider.requiresOAuth || provider.id in listOf("plex", "jellyfin", "emby", "calibre")) {
                 item {
                     Spacer(modifier = Modifier.height(MediaSpacing.MD))
                     SettingsSectionHeader(title = "Credentials")
                 }
-                
+
                 item {
                     SettingsCard {
                         if (provider.requiresApiKey) {
@@ -133,24 +133,24 @@ fun ProviderConfigurationScreen(
                                     style = MediaTypography.LabelMedium,
                                     color = MediaColors.TextSecondary
                                 )
-                                
+
                                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                                
+
                                 OutlinedTextField(
                                     value = apiKey,
                                     onValueChange = { apiKey = it },
                                     modifier = Modifier.fillMaxWidth(),
                                     placeholder = { Text("Enter your API key") },
-                                    visualTransformation = if (showApiKey) 
-                                        VisualTransformation.None 
-                                    else 
+                                    visualTransformation = if (showApiKey)
+                                        VisualTransformation.None
+                                    else
                                         PasswordVisualTransformation(),
                                     trailingIcon = {
                                         IconButton(onClick = { showApiKey = !showApiKey }) {
                                             Icon(
-                                                imageVector = if (showApiKey) 
-                                                    Icons.Default.VisibilityOff 
-                                                else 
+                                                imageVector = if (showApiKey)
+                                                    Icons.Default.VisibilityOff
+                                                else
                                                     Icons.Default.Visibility,
                                                 contentDescription = "Media image"
                                             )
@@ -164,21 +164,21 @@ fun ProviderConfigurationScreen(
                                 )
                             }
                         }
-                        
+
                         if (provider.id in listOf("plex", "jellyfin", "emby", "calibre")) {
                             if (provider.requiresApiKey) {
                                 SettingsDivider()
                             }
-                            
+
                             Column(modifier = Modifier.padding(MediaSpacing.MD)) {
                                 Text(
                                     text = "Server URL",
                                     style = MediaTypography.LabelMedium,
                                     color = MediaColors.TextSecondary
                                 )
-                                
+
                                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                                
+
                                 OutlinedTextField(
                                     value = serverUrl,
                                     onValueChange = { serverUrl = it },
@@ -195,12 +195,12 @@ fun ProviderConfigurationScreen(
                     }
                 }
             }
-            
+
             // Capabilities section
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.MD))
                 SettingsSectionHeader(title = "Capabilities")
-                
+
                 Text(
                     text = "Select which features to use from ${provider.name}",
                     style = MediaTypography.BodySmall,
@@ -208,10 +208,10 @@ fun ProviderConfigurationScreen(
                     modifier = Modifier.padding(top = MediaSpacing.XS)
                 )
             }
-            
+
             // Group capabilities by category
             val capabilitiesByCategory = provider.supportedCapabilities.groupBy { it.category }
-            
+
             capabilitiesByCategory.forEach { (category, capabilities) ->
                 item {
                     Text(
@@ -221,7 +221,7 @@ fun ProviderConfigurationScreen(
                         modifier = Modifier.padding(top = MediaSpacing.MD, bottom = MediaSpacing.XS)
                     )
                 }
-                
+
                 item {
                     SettingsCard {
                         capabilities.forEachIndexed { index, capability ->
@@ -237,7 +237,7 @@ fun ProviderConfigurationScreen(
                                     }
                                 }
                             )
-                            
+
                             if (index < capabilities.size - 1) {
                                 SettingsDivider()
                             }
@@ -245,11 +245,11 @@ fun ProviderConfigurationScreen(
                     }
                 }
             }
-            
+
             // Save button
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.LG))
-                
+
                 Button(
                     onClick = {
                         onSave(
@@ -275,7 +275,7 @@ fun ProviderConfigurationScreen(
                     )
                 }
             }
-            
+
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.Huge))
             }

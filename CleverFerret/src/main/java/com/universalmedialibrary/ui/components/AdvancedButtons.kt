@@ -33,7 +33,7 @@ fun AdvancedMetallicButton(
     val shimmerEnabled = metallicShimmerEnabled()
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
         animationSpec = spring(
@@ -42,7 +42,7 @@ fun AdvancedMetallicButton(
         ),
         label = "buttonScale"
     )
-    
+
     Button(
         onClick = onClick,
         modifier = modifier
@@ -92,13 +92,13 @@ fun ElevatedActionButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val glowEnabled = crystalGlowEnabled()
-    
+
     val elevation by animateDpAsState(
         targetValue = if (isHovered) 8.dp else 4.dp,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "elevation"
     )
-    
+
     ElevatedButton(
         onClick = onClick,
         modifier = modifier
@@ -136,7 +136,7 @@ fun GradientButton(
 ) {
     val metallicColors = metallicColors()
     val shimmerEnabled = metallicShimmerEnabled()
-    
+
     Button(
         onClick = onClick,
         modifier = modifier
@@ -186,7 +186,7 @@ fun EmbossedOutlinedButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val metallicColors = metallicColors()
-    
+
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
@@ -216,7 +216,7 @@ fun GlowingFab(
     pulseGlow: Boolean = true
 ) {
     val glowEnabled = crystalGlowEnabled()
-    
+
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier

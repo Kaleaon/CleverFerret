@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class MediaModule {
-    
+
     /**
      * Binds the AdvancedMusicPlayerService to MediaCommandAPI interface
      * This allows BroadcastReceiver to inject the interface instead of the concrete service

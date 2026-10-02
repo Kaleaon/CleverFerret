@@ -21,11 +21,11 @@ import androidx.room.TypeConverters
 @TypeConverters(MidiTypeConverters::class)
 abstract class MidiDatabase : RoomDatabase() {
     abstract fun midiDao(): MidiDao
-    
+
     companion object {
         @Volatile
         private var INSTANCE: MidiDatabase? = null
-        
+
         fun getInstance(context: Context): MidiDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -50,7 +50,7 @@ class MidiTypeConverters {
     fun fromSoundfontFormat(format: SoundfontFormat): String {
         return format.name
     }
-    
+
     @androidx.room.TypeConverter
     fun toSoundfontFormat(formatString: String): SoundfontFormat {
         return try {

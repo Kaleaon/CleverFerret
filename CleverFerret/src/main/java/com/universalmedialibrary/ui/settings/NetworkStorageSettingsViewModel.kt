@@ -99,7 +99,7 @@ class NetworkStorageSettingsViewModel @Inject constructor(
                         port = port
                     )
                     networkStorageRepository.addSmbConfig(config)
-                    
+
                     // Test connection
                     val result = networkStorageRepository.testSmbConnection(config)
                     // Connection status will be updated through the flow
@@ -113,7 +113,7 @@ class NetworkStorageSettingsViewModel @Inject constructor(
                         password = password
                     )
                     networkStorageRepository.addWebDavConfig(config)
-                    
+
                     // Test connection
                     val result = networkStorageRepository.testWebDavConnection(config)
                     // Connection status will be updated through the flow

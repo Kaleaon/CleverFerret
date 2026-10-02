@@ -107,7 +107,7 @@ class ChromecastSessionManager @Inject constructor(
 
         // Build media queue
         val mediaQueue = buildMediaQueue(queueItems)
-        
+
         // Load queue to Chromecast
         val remoteMediaClient = castSession.remoteMediaClient
         remoteMediaClient?.load(
@@ -178,7 +178,7 @@ class ChromecastSessionManager @Inject constructor(
             .build()
 
         val mediaQueueItem = MediaQueueItem.Builder(mediaInfo).build()
-        
+
         castSession.remoteMediaClient?.queueInsertItems(
             arrayOf(mediaQueueItem),
             MediaQueueItem.INVALID_ITEM_ID,

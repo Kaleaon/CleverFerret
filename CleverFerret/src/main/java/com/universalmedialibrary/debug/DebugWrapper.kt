@@ -12,10 +12,10 @@ import com.universalmedialibrary.debug.ui.DebugQuickBar
 
 /**
  * Debug Wrapper Composable
- * 
+ *
  * Wraps the main app content and adds debug overlays/features
  * when running in debug build mode.
- * 
+ *
  * Usage:
  * ```
  * DebugWrapper(
@@ -44,19 +44,19 @@ fun DebugWrapper(
         content()
         return
     }
-    
+
     val crashCount by debugReportingService.crashReports.collectAsState()
     val errorCount by debugReportingService.errorLogs.collectAsState()
-    
+
     // Collect flags StateFlow to react to runtime changes
     val flags by featureFlagManager.flags.collectAsState()
-    val showPerformanceOverlay = flags[FeatureFlag.SHOW_PERFORMANCE_OVERLAY.key] 
+    val showPerformanceOverlay = flags[FeatureFlag.SHOW_PERFORMANCE_OVERLAY.key]
         ?: FeatureFlag.SHOW_PERFORMANCE_OVERLAY.defaultValue
-    
+
     Box(modifier = modifier.fillMaxSize()) {
         // Main content
         content()
-        
+
         // Debug overlay (floating button with metrics)
         if (showOverlay && showPerformanceOverlay) {
             DebugOverlay(
@@ -66,7 +66,7 @@ fun DebugWrapper(
                 onNavigateToDebugMenu = onNavigateToDebugMenu
             )
         }
-        
+
         // Debug quick bar (optional bottom bar)
         if (showQuickBar) {
             DebugQuickBar(
@@ -80,16 +80,16 @@ fun DebugWrapper(
 
 /**
  * Debug-aware error boundary (Placeholder)
- * 
+ *
  * NOTE: This is currently a placeholder implementation. Jetpack Compose does not
  * have a built-in error boundary mechanism like React. Exceptions thrown during
  * composition will propagate normally and crash the app.
- * 
+ *
  * For production use, consider:
  * - Using try-catch in event handlers and coroutines
  * - Implementing custom error handling via CompositionLocal
  * - Using a crash reporting library (Firebase Crashlytics, Sentry, etc.)
- * 
+ *
  * This wrapper provides a consistent API for future error boundary implementation
  * and logs errors when they are manually reported.
  */
@@ -105,7 +105,7 @@ fun DebugErrorBoundary(
         debugReportingService?.logError(tag, "Error reported: ${throwable.message}", throwable)
         onError?.invoke(throwable)
     }
-    
+
     // Render content - errors during composition will propagate normally
     // This is a limitation of Jetpack Compose's architecture
     CompositionLocalProvider(
@@ -125,25 +125,25 @@ val LocalErrorReporter = compositionLocalOf<(Throwable) -> Unit> { {} }
  */
 object DebugLog {
     private var service: DebugReportingService? = null
-    
+
     fun init(debugReportingService: DebugReportingService) {
         if (BuildConfig.DEBUG_REPORTING_ENABLED) {
             service = debugReportingService
         }
     }
-    
+
     fun info(tag: String, message: String) {
         service?.logInfo(tag, message)
     }
-    
+
     fun warning(tag: String, message: String) {
         service?.logWarning(tag, message)
     }
-    
+
     fun error(tag: String, message: String, throwable: Throwable? = null) {
         service?.logError(tag, message, throwable)
     }
-    
+
     /**
      * Log a user action for debugging
      */
@@ -151,14 +151,14 @@ object DebugLog {
         val detailsStr = details.entries.joinToString(", ") { "${it.key}=${it.value}" }
         service?.logInfo(tag, "Action: $action${if (detailsStr.isNotEmpty()) " ($detailsStr)" else ""}")
     }
-    
+
     /**
      * Log a navigation event
      */
     fun navigation(from: String?, to: String) {
         service?.logInfo("Navigation", "Navigate: ${from ?: "unknown"} -> $to")
     }
-    
+
     /**
      * Log a network request
      */
@@ -174,7 +174,7 @@ object DebugLog {
             service?.logInfo("Network", message)
         }
     }
-    
+
     /**
      * Log playback events
      */

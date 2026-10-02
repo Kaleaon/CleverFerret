@@ -23,7 +23,7 @@ import javax.inject.Inject
 class EnhancedReadingStatisticsViewModel @Inject constructor(
     private val metadataDao: MetadataDao
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(ReadingStatisticsUiState())
     val uiState: StateFlow<ReadingStatisticsUiState> = _uiState.asStateFlow()
 
@@ -34,10 +34,10 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 val currentYear = LocalDate.now().year
                 val startOfYear = LocalDate.of(currentYear, 1, 1).toEpochDay() * 86400000
-                
+
                 // Implement database queries for statistics
                 val booksReadAllTime = getBooksReadAllTime(libraryId)
                 val totalPagesRead = getTotalPagesRead(libraryId)
@@ -45,13 +45,13 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
                 val booksReadThisYear = getBooksReadThisYear(libraryId, startOfYear)
                 val currentlyReading = getCurrentlyReadingCount(libraryId)
                 val toRead = getToReadCount(libraryId)
-                
+
                 // Calculate monthly reading data (last 12 months)
                 val monthlyData = getMonthlyReadingData(libraryId)
-                
+
                 // Get publisher data
                 val publishers = getTopPublishers(libraryId)
-                
+
                 _uiState.value = ReadingStatisticsUiState(
                     booksReadAllTime = booksReadAllTime,
                     totalPagesRead = totalPagesRead,
@@ -72,7 +72,7 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Set yearly reading goal
      */
@@ -146,7 +146,7 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Get top publishers from database
      */

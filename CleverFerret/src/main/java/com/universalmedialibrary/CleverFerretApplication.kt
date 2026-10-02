@@ -20,19 +20,19 @@ import javax.inject.Inject
 
 /**
  * CleverFerretApplication - Main application class
- * 
+ *
  * Manages critical app-wide initialization and lifecycle operations:
  * - Hilt dependency injection setup via [@HiltAndroidApp]
  * - App upgrade detection and automatic backup creation
  * - Database migration handling with data protection
  * - User library preservation across version updates
- * 
+ *
  * Safety Features:
  * - Automatic backups before any database migrations
  * - Upgrade status tracking and logging
  * - Restoration support in case of migration failures
  * - Never wipes user data during upgrades
- * 
+ *
  * @see AppUpgradeManager for upgrade handling logic
  * @see BackupRestorationManager for backup/restore operations
  */
@@ -41,13 +41,13 @@ class CleverFerretApplication : Application() {
 
     @Inject
     lateinit var appUpgradeManager: AppUpgradeManager
-    
+
     @Inject
     lateinit var backupRestorationManager: BackupRestorationManager
-    
+
     @Inject
     lateinit var debugReportingService: DebugReportingService
-    
+
     @Inject
     lateinit var crashReporter: CrashReporter
 
@@ -55,16 +55,16 @@ class CleverFerretApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        
+
         Log.i(TAG, "Clever Ferret initializing...")
-        
+
         // Initialize themed sound collections
         ThemedCollections.initialize()
         Log.d(TAG, "Ambient themed collections initialized")
-        
+
         // Initialize crash handler
         initializeCrashHandler()
-        
+
         // Initialize debug reporting (for debug builds)
         initializeDebugReporting()
         ErrorLogger.initialize(crashReporter)
@@ -74,7 +74,7 @@ class CleverFerretApplication : Application() {
             handleAppUpgrade()
         }
     }
-    
+
     /**
      * Initialize debug reporting service for crash/error tracking
      * Only fully active in debug builds
@@ -83,14 +83,14 @@ class CleverFerretApplication : Application() {
         if (BuildConfig.DEBUG_REPORTING_ENABLED) {
             debugReportingService.initialize()
             Log.d(TAG, "Debug reporting service initialized")
-            
+
             // Log app startup
             debugReportingService.logInfo(TAG, "App started - ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
             debugReportingService.logInfo(TAG, "Build time: ${BuildConfig.BUILD_TIME}")
             debugReportingService.logInfo(TAG, "Git commit: ${BuildConfig.GIT_COMMIT}")
         }
     }
-    
+
     /**
      * Initialize custom crash handler for better error reporting
      */
@@ -117,7 +117,7 @@ class CleverFerretApplication : Application() {
                     Log.i(TAG, "🎉 First install - version ${status.version}")
                     Log.i(TAG, "Welcome to Clever Ferret!")
                 }
-                
+
                 is UpgradeStatus.Upgraded -> {
                     Log.i(TAG, "✅ App upgraded: ${status.fromVersion} → ${status.toVersion}")
                     if (status.backupPath != null) {
@@ -125,27 +125,27 @@ class CleverFerretApplication : Application() {
                     }
                     Log.i(TAG, "User library preserved successfully!")
                 }
-                
+
                 is UpgradeStatus.NoChange -> {
                     Log.d(TAG, "App version unchanged: ${status.version}")
                 }
-                
+
                 is UpgradeStatus.MigrationFailed -> {
                     Log.e(TAG, "❌ Migration failed: ${status.error}")
                     Log.e(TAG, "📦 Backup available at: ${status.backupPath}")
                     Log.e(TAG, "User data is safe - can restore from backup!")
-                    
+
                     // Request backup restoration dialog to be shown in MainActivity
                     backupRestorationManager.requestRestoration(
                         backupPath = status.backupPath,
                         errorMessage = status.error ?: "Unknown upgrade error"
                     )
                 }
-                
+
                 is UpgradeStatus.Downgrade -> {
                     Log.w(TAG, "⚠️ App downgrade: ${status.fromVersion} → ${status.toVersion}")
                 }
-                
+
                 is UpgradeStatus.Error -> {
                     Log.e(TAG, "❌ Upgrade check failed: ${status.message}")
                 }

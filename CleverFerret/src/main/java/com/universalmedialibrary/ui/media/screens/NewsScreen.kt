@@ -24,7 +24,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric News Screen
- * 
+ *
  * Calibre-style news recipe integration:
  * - Download news from various sources
  * - Multiple recipe support
@@ -43,7 +43,7 @@ fun NewsScreen(
     modifier: Modifier = Modifier
 ) {
     var showAddRecipeDialog by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -74,7 +74,7 @@ fun NewsScreen(
                         onFeedSelect = onFeedSelect
                     )
                 }
-                
+
                 // Loading indicator
                 if (state.isLoading) {
                     item {
@@ -91,7 +91,7 @@ fun NewsScreen(
                         }
                     }
                 }
-                
+
                 // Featured article (first article)
                 state.articles.firstOrNull()?.let { featured ->
                     item {
@@ -101,7 +101,7 @@ fun NewsScreen(
                         )
                     }
                 }
-                
+
                 // Rest of articles
                 items(state.articles.drop(1)) { article ->
                     NewsArticleCard(
@@ -112,7 +112,7 @@ fun NewsScreen(
             }
         }
     }
-    
+
     if (showAddRecipeDialog) {
         AddRecipeDialog(
             recipes = state.availableRecipes,
@@ -234,7 +234,7 @@ private fun FeaturedArticleCard(
             ) {
                 if (article.imageUrl != null) {
                     AsyncImage(
-                    
+
                         model = article.imageUrl,
                         contentDescription = "Media image",
                         contentScale = ContentScale.Crop,
@@ -255,7 +255,7 @@ private fun FeaturedArticleCard(
                         )
                     }
                 }
-                
+
                 // Feed badge
                 Surface(
                     shape = RoundedCornerShape(MediaCorners.XS),
@@ -272,7 +272,7 @@ private fun FeaturedArticleCard(
                     )
                 }
             }
-            
+
             // Content
             Column(modifier = Modifier.padding(MediaSpacing.MD)) {
                 Text(
@@ -283,9 +283,9 @@ private fun FeaturedArticleCard(
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.SemiBold
                 )
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                
+
                 article.summary?.let { summary ->
                     Text(
                         text = summary,
@@ -295,9 +295,9 @@ private fun FeaturedArticleCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
                     verticalAlignment = Alignment.CenterVertically
@@ -307,7 +307,7 @@ private fun FeaturedArticleCard(
                         style = MediaTypography.LabelSmall,
                         color = MediaColors.TextTertiary
                     )
-                    
+
                     if (article.isDownloaded) {
                         Icon(
                             imageVector = Icons.Default.OfflinePin,
@@ -348,7 +348,7 @@ private fun NewsArticleCard(
             ) {
                 if (article.imageUrl != null) {
                     AsyncImage(
-                    
+
                         model = article.imageUrl,
                         contentDescription = "Media image",
                         contentScale = ContentScale.Crop,
@@ -363,9 +363,9 @@ private fun NewsArticleCard(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = article.title,
@@ -375,9 +375,9 @@ private fun NewsArticleCard(
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.XS))
-                
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
                     verticalAlignment = Alignment.CenterVertically
@@ -394,7 +394,7 @@ private fun NewsArticleCard(
                         color = MediaColors.TextTertiary
                     )
                 }
-                
+
                 article.summary?.let { summary ->
                     Spacer(modifier = Modifier.height(MediaSpacing.XS))
                     Text(
@@ -406,7 +406,7 @@ private fun NewsArticleCard(
                     )
                 }
             }
-            
+
             if (article.isDownloaded) {
                 Icon(
                     imageVector = Icons.Default.OfflinePin,
@@ -440,25 +440,25 @@ private fun NewsEmptyState(
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(72.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Text(
             text = "No News Sources",
             style = MediaTypography.TitleMedium,
             color = MediaColors.TextPrimary
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = "Add news recipes to download articles",
             style = MediaTypography.BodyMedium,
             color = MediaColors.TextSecondary
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Button(
             onClick = onAddRecipe,
             colors = ButtonDefaults.buttonColors(

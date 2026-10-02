@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Gallery Feature Models
- * 
+ *
  * Plex-inspired photo/video gallery with advanced tagging, sorting, and smart collections.
  * Provides a rich in-app gallery experience similar to Google Photos and Plex.
  */
@@ -34,59 +34,59 @@ data class GalleryItem(
     val uri: String,
     val contentUri: String,
     val filePath: String,
-    
+
     // Media properties
     val mediaType: GalleryMediaType,
     val mimeType: String,
     val size: Long,
     val width: Int = 0,
     val height: Int = 0,
-    
+
     // Timestamps
     val dateTaken: Long,
     val dateAdded: Long,
     val dateModified: Long,
-    
+
     // Location (if available)
     val latitude: Double? = null,
     val longitude: Double? = null,
     val locationName: String? = null,
-    
+
     // Video specific
     val duration: Long? = null,  // Duration in milliseconds
-    
+
     // Album/Folder info
     val bucketId: String,
     val bucketName: String,
     val relativePath: String,
-    
+
     // User metadata
     val isFavorite: Boolean = false,
     val isHidden: Boolean = false,
     val userRating: Int = 0,  // 0-5 stars
     val tagIds: Set<Long> = emptySet(),
-    
+
     // AI-generated metadata (Plex-like features)
     val faces: List<FaceDetection> = emptyList(),
     val aiTags: List<String> = emptyList(),  // Auto-detected: "beach", "sunset", "people", etc.
     val dominantColors: List<String> = emptyList(),
     val sceneType: String? = null,  // "landscape", "portrait", "macro", etc.
-    
+
     // EXIF metadata
     val exifData: ExifData? = null
 ) {
     val aspectRatio: Float
         get() = if (height > 0) width.toFloat() / height else 1f
-    
+
     val isPortrait: Boolean
         get() = height > width
-    
+
     val isLandscape: Boolean
         get() = width > height
-    
+
     val isVideo: Boolean
         get() = mediaType == GalleryMediaType.VIDEO
-    
+
     val formattedDuration: String?
         get() = duration?.let { ms ->
             val seconds = (ms / 1000) % 60
@@ -98,7 +98,7 @@ data class GalleryItem(
                 String.format("%d:%02d", minutes, seconds)
             }
         }
-    
+
     val formattedSize: String
         get() = when {
             size >= 1_000_000_000 -> String.format("%.2f GB", size / 1_000_000_000.0)
@@ -165,7 +165,7 @@ data class GalleryAlbum(
     val totalSize: Long = 0,
     val latestTimestamp: Long = 0,
     val oldestTimestamp: Long = 0,
-    
+
     // User customization
     val customCoverUri: String? = null,
     val isHidden: Boolean = false,
@@ -174,7 +174,7 @@ data class GalleryAlbum(
 ) {
     val effectiveCoverUri: String?
         get() = customCoverUri ?: coverUri
-    
+
     val formattedTotalSize: String
         get() = when {
             totalSize >= 1_000_000_000 -> String.format("%.2f GB", totalSize / 1_000_000_000.0)
@@ -198,21 +198,21 @@ enum class SmartGalleryCollectionType {
     THIS_MONTH,
     THIS_YEAR,
     ON_THIS_DAY,        // Memories from same day in previous years
-    
+
     // Content-based (AI)
     PEOPLE,             // Photos with faces
     SELFIES,
     SCREENSHOTS,
     DOCUMENTS,
     RECEIPTS,
-    
+
     // Scene/Subject
     LANDSCAPES,
     PORTRAITS,
     ANIMALS,
     FOOD,
     TRAVEL,
-    
+
     // Media type
     VIDEOS,
     LIVE_PHOTOS,
@@ -220,16 +220,16 @@ enum class SmartGalleryCollectionType {
     TIME_LAPSE,
     PANORAMAS,
     RAW_PHOTOS,
-    
+
     // User activity
     FAVORITES,
     RECENTLY_ADDED,
     RECENTLY_EDITED,
     RECENTLY_SHARED,
-    
+
     // Location
     PLACES,             // Grouped by location
-    
+
     // Custom
     CUSTOM_FILTER
 }
@@ -248,10 +248,10 @@ data class SmartGalleryCollection(
     val itemCount: Int = 0,
     val isEnabled: Boolean = true,
     val displayOrder: Int = 0,
-    
+
     // For custom filters
     val filterRules: GalleryFilterRules? = null,
-    
+
     // Cache
     val lastRefreshed: Long = 0
 )
@@ -300,54 +300,54 @@ enum class GalleryViewMode {
 data class GalleryFilterRules(
     // Media type filters
     val mediaTypes: Set<GalleryMediaType> = emptySet(),
-    
+
     // Date range
     val dateFrom: Long? = null,
     val dateTo: Long? = null,
     val onThisDay: Boolean = false,  // Show items from same day in past years
-    
+
     // Size filters
     val minSize: Long? = null,
     val maxSize: Long? = null,
-    
+
     // Duration filters (for videos)
     val minDuration: Long? = null,
     val maxDuration: Long? = null,
-    
+
     // Dimension filters
     val minWidth: Int? = null,
     val minHeight: Int? = null,
     val orientation: MediaOrientation? = null,
-    
+
     // Location
     val hasLocation: Boolean? = null,
     val nearLocation: LocationFilter? = null,
-    
+
     // User data
     val isFavorite: Boolean? = null,
     val minRating: Int? = null,
     val maxRating: Int? = null,
     val tagIds: Set<Long> = emptySet(),
     val tagMatchMode: TagMatchMode = TagMatchMode.ANY,
-    
+
     // AI/Content filters
     val hasFaces: Boolean? = null,
     val personIds: Set<Long> = emptySet(),
     val aiTags: Set<String> = emptySet(),
     val sceneTypes: Set<String> = emptySet(),
-    
+
     // Album filters
     val albumIds: Set<String> = emptySet(),
     val excludeAlbumIds: Set<String> = emptySet(),
-    
+
     // Misc
     val isHidden: Boolean? = false,  // Default: don't show hidden
     val isScreenshot: Boolean? = null,
-    
+
     // Camera
     val cameraMake: String? = null,
     val cameraModel: String? = null,
-    
+
     // Text search
     val searchQuery: String? = null
 )
@@ -453,44 +453,44 @@ enum class MemoryType {
 data class GalleryState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    
+
     // Current view
     val albums: List<GalleryAlbum> = emptyList(),
     val currentAlbum: GalleryAlbum? = null,
     val items: List<GalleryItem> = emptyList(),
-    
+
     // Smart collections
     val smartCollections: List<SmartGalleryCollection> = emptyList(),
-    
+
     // Selection
     val selectedItemIds: Set<Long> = emptySet(),
     val isSelectionMode: Boolean = false,
-    
+
     // View settings
     val viewMode: GalleryViewMode = GalleryViewMode.GRID_MEDIUM,
     val sortOrder: GallerySortOrder = GallerySortOrder.DATE_TAKEN_DESC,
     val activeFilter: GalleryFilterRules? = null,
-    
+
     // Search
     val searchQuery: String = "",
     val searchResults: List<GalleryItem> = emptyList(),
-    
+
     // People
     val people: List<GalleryPerson> = emptyList(),
-    
+
     // Memories
     val memories: List<GalleryMemory> = emptyList(),
-    
+
     // Tags
     val tags: List<GalleryTag> = emptyList(),
-    
+
     // Statistics
     val totalItemCount: Int = 0,
     val totalSize: Long = 0
 ) {
     val hasSelection: Boolean
         get() = selectedItemIds.isNotEmpty()
-    
+
     val selectedCount: Int
         get() = selectedItemIds.size
 }
@@ -506,19 +506,19 @@ sealed interface GalleryEvent {
     data class OpenAlbum(val albumId: String) : GalleryEvent
     data class OpenItem(val itemId: Long) : GalleryEvent
     data object NavigateBack : GalleryEvent
-    
+
     // Filtering & Sorting
     data class SetSortOrder(val order: GallerySortOrder) : GalleryEvent
     data class SetViewMode(val mode: GalleryViewMode) : GalleryEvent
     data class ApplyFilter(val filter: GalleryFilterRules?) : GalleryEvent
     data class Search(val query: String) : GalleryEvent
-    
+
     // Selection
     data class ToggleSelection(val itemId: Long) : GalleryEvent
     data object SelectAll : GalleryEvent
     data object ClearSelection : GalleryEvent
     data class SetSelectionMode(val enabled: Boolean) : GalleryEvent
-    
+
     // Item actions
     data class ToggleFavorite(val itemId: Long) : GalleryEvent
     data class SetRating(val itemId: Long, val rating: Int) : GalleryEvent
@@ -528,28 +528,28 @@ sealed interface GalleryEvent {
     data class UnhideItems(val itemIds: Set<Long>) : GalleryEvent
     data class DeleteItems(val itemIds: Set<Long>) : GalleryEvent
     data class ShareItems(val itemIds: Set<Long>) : GalleryEvent
-    
+
     // Album actions
     data class CreateAlbum(val name: String) : GalleryEvent
     data class RenameAlbum(val albumId: String, val newName: String) : GalleryEvent
     data class SetAlbumCover(val albumId: String, val itemId: Long) : GalleryEvent
     data class ToggleAlbumPin(val albumId: String) : GalleryEvent
     data class HideAlbum(val albumId: String) : GalleryEvent
-    
+
     // Tag management
     data class CreateTag(val name: String, val color: String?) : GalleryEvent
     data class DeleteTag(val tagId: Long) : GalleryEvent
     data class RenameTag(val tagId: Long, val newName: String) : GalleryEvent
-    
+
     // People
     data class NamePerson(val personId: Long, val name: String) : GalleryEvent
     data class MergePeople(val personIds: Set<Long>, val targetId: Long) : GalleryEvent
     data class HidePerson(val personId: Long) : GalleryEvent
-    
+
     // Smart collections
     data class OpenSmartCollection(val type: SmartGalleryCollectionType) : GalleryEvent
     data object RefreshSmartCollections : GalleryEvent
-    
+
     // Refresh
     data object Refresh : GalleryEvent
     data object ScanForNewMedia : GalleryEvent

@@ -31,21 +31,21 @@ internal fun FractalVisualizer(
     val bass = state.frequencyBands.bass
     val mid = state.frequencyBands.mid
     val treble = state.frequencyBands.treble
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
-        
+
         // Recursive circle pattern
         fun drawFractalCircle(x: Float, y: Float, radius: Float, depth: Int, angle: Float) {
             if (depth <= 0 || radius < 5f) return
-            
+
             val intensity = when (depth) {
                 3 -> bass
                 2 -> mid
                 else -> treble
             }
-            
+
             drawCircle(
                 color = androidx.compose.ui.graphics.lerp(primaryColor, tertiaryColor, depth / 3f)
                     .copy(alpha = 0.3f + intensity * 0.7f),
@@ -53,7 +53,7 @@ internal fun FractalVisualizer(
                 center = Offset(x, y),
                 style = Stroke(width = 2f)
             )
-            
+
             // Draw child circles
             val childCount = 4
             val childRadius = radius * 0.4f
@@ -64,7 +64,7 @@ internal fun FractalVisualizer(
                 drawFractalCircle(childX, childY, childRadius, depth - 1, angle + rotation)
             }
         }
-        
+
         drawFractalCircle(centerX, centerY, min(size.width, size.height) * 0.25f, 3, rotation)
     }
 }

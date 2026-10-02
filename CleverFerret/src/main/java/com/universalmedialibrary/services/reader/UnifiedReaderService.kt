@@ -22,10 +22,10 @@ import javax.inject.Singleton
 
 /**
  * Unified Reader Service
- * 
+ *
  * Orchestrates all reading services to provide a single entry point
  * for opening any type of media file.
- * 
+ *
  * Routes files to appropriate readers:
  * - EPUB → Readium (professional EPUB 2/3 support)
  * - PDF → Readium (full PDF rendering)
@@ -33,7 +33,7 @@ import javax.inject.Singleton
  * - Comics (CBZ/CBR) → Gemini AI (our superior implementation)
  * - Standalone Audio → ExoPlayer (MP3, M4A, FLAC, etc.)
  * - Text → Basic text reader (TXT, MD, HTML)
- * 
+ *
  * This service demonstrates best-of-breed integration:
  * - Use industry-standard Readium for standard formats
  * - Use our unique Gemini AI for advanced comic features
@@ -53,7 +53,7 @@ class UnifiedReaderService @Inject constructor(
 
     /**
      * Detect publication type and open with appropriate reader
-     * 
+     *
      * @param filePath Path to publication file
      * @return ReaderType with appropriate service
      */
@@ -65,7 +65,7 @@ class UnifiedReaderService @Inject constructor(
             }
 
             val extension = file.extension.lowercase()
-            
+
             // 1. Specialized Readers (Readium, ExoPlayer, Gemini)
             when (extension) {
                 // Use Readium for EPUB (professional support)
@@ -78,7 +78,7 @@ class UnifiedReaderService @Inject constructor(
                         )
                     } ?: ReaderType.Error("Failed to open EPUB: $filePath")
                 }
-                
+
                 // Use Readium for PDF (better than basic PdfRenderer)
                 "pdf" -> {
                     return@withContext readiumPdfService.extractMetadata(filePath)?.let { publication ->
@@ -89,7 +89,7 @@ class UnifiedReaderService @Inject constructor(
                         )
                     } ?: ReaderType.Error("Failed to open PDF: $filePath")
                 }
-                
+
                 // Use Readium for Readium Audiobook format
                 "audiobook", "lcpa", "lcpdf" -> {
                     return@withContext readiumAudiobookService.extractMetadata(filePath)?.let { publication ->
@@ -100,7 +100,7 @@ class UnifiedReaderService @Inject constructor(
                         )
                     } ?: ReaderType.Error("Failed to open audiobook: $filePath")
                 }
-                
+
                 // Use our Gemini AI for comics (superior to Readium's partial CBZ)
                 "cbz", "cbr", "cbt", "cb7" -> {
                     return@withContext ReaderType.Comic(
@@ -108,7 +108,7 @@ class UnifiedReaderService @Inject constructor(
                         service = geminiComicService
                     )
                 }
-                
+
                 // Use ExoPlayer for standalone audio files
                 "mp3", "m4a", "m4b", "flac", "ogg", "wav", "aac" -> {
                     return@withContext ReaderType.Audio(
@@ -229,7 +229,7 @@ class UnifiedReaderService @Inject constructor(
 
     /**
      * Extract cover/artwork from any publication type
-     * 
+     *
      * @param filePath Path to publication
      * @return Bitmap cover or null
      */
@@ -237,7 +237,7 @@ class UnifiedReaderService @Inject constructor(
         try {
             val file = File(filePath)
             val extension = file.extension.lowercase()
-            
+
             when (extension) {
                 "epub" -> readiumEpubService.extractCover(filePath)
                 "pdf" -> readiumPdfService.extractThumbnail(filePath)
@@ -278,9 +278,9 @@ class UnifiedReaderService @Inject constructor(
             )
         )
     }
-    
+
     // Format extraction functions
-    
+
     private fun extractFB2Content(content: String): String {
         // FB2 is XML-based, extract text from <p> tags
         return try {
@@ -345,29 +345,29 @@ sealed class ReaderType {
         val metadata: com.universalmedialibrary.services.epub.EpubMetadata,
         val service: ReadiumEpubService
     ) : ReaderType()
-    
+
     data class Pdf(
         val filePath: String,
         val metadata: com.universalmedialibrary.services.epub.PdfMetadata,
         val service: ReadiumPdfService
     ) : ReaderType()
-    
+
     data class Audiobook(
         val filePath: String,
         val metadata: com.universalmedialibrary.services.epub.AudiobookMetadata,
         val service: ReadiumAudiobookService
     ) : ReaderType()
-    
+
     data class Comic(
         val filePath: String,
         val service: GeminiComicService
     ) : ReaderType()
-    
+
     data class Audio(
         val filePath: String,
         val manager: AudioPlaybackManager
     ) : ReaderType()
-    
+
     data class Text(
         val filePath: String,
         val content: String,
@@ -375,7 +375,7 @@ sealed class ReaderType {
         val parserConfidence: Float = 1.0f,
         val warnings: List<String> = emptyList()
     ) : ReaderType()
-    
+
     data class Error(
         val message: String
     ) : ReaderType()

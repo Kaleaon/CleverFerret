@@ -33,13 +33,13 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery, download, and management.
- * 
+ *
  * Streamlined experience combining:
  * - Site selection & Tag-based browsing
  * - Direct story download
  * - Library management (My Library)
  * - Update checker
- * 
+ *
  * No more jumping between screens! Reading is handled by the separate eReader.
  */
 
@@ -61,10 +61,10 @@ fun UnifiedFanfictionHubScreen(
     val uiState by viewModel.uiState.collectAsState()
     val downloadState by downloadViewModel.uiState.collectAsState()
     val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
-    
+
     var selectedTab by remember { mutableIntStateOf(HubTabs.DISCOVER) }
     val tabs = listOf("Discover", "Library", "Download")
-    
+
     var showQuickDownloadDialog by remember { mutableStateOf(false) }
 
         Scaffold(
@@ -87,7 +87,7 @@ fun UnifiedFanfictionHubScreen(
                             IconButton(onClick = { showQuickDownloadDialog = true }) {
                                 Icon(Icons.Default.Download, contentDescription = "Quick Download")
                             }
-                            
+
                             if (selectedTab == HubTabs.DISCOVER && uiState.selectedSite != null) {
                                 // Refresh tags (Discover tab)
                                 IconButton(onClick = { viewModel.refreshTags() }) {
@@ -109,7 +109,7 @@ fun UnifiedFanfictionHubScreen(
                             containerColor = MaterialTheme.colorScheme.primaryContainer
                         )
                     )
-                    
+
                     PrimaryTabRow(
                         selectedTabIndex = selectedTab,
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -156,12 +156,12 @@ fun UnifiedFanfictionHubScreen(
                         )
                     }
                 }
-                
+
                 // Tag loading indicator (only for Discover tab)
                 if (selectedTab == HubTabs.DISCOVER && uiState.isLoadingTags) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
-                
+
                 // Content
                 when (selectedTab) {
                     HubTabs.DISCOVER -> UnifiedContent(
@@ -173,7 +173,7 @@ fun UnifiedFanfictionHubScreen(
                     )
                     HubTabs.LIBRARY -> FanfictionLibraryTab(
                         viewModel = libraryViewModel,
-                        onStoryClick = { story -> 
+                        onStoryClick = { story ->
                             // Navigate to reader or details
                             // Assuming a reader route exists or details route
                             // For now, maybe just show a toast or log
@@ -270,7 +270,7 @@ private fun QuickDownloadDialog(
     onDismiss: () -> Unit
 ) {
     var url by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Quick Download") },

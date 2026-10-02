@@ -64,7 +64,7 @@ internal fun ReaderControlsOverlay(
                 IconButton(onClick = onClose) {
                     Icon(Icons.Default.Close, "Close", tint = MediaColors.TextPrimary)
                 }
-                
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = state.bookTitle,
@@ -81,7 +81,7 @@ internal fun ReaderControlsOverlay(
                         )
                     }
                 }
-                
+
                 IconButton(onClick = onBookmarkToggle) {
                     Icon(
                         if (state.isCurrentPageBookmarked) Icons.Default.Bookmark else Icons.Outlined.BookmarkBorder,
@@ -89,7 +89,7 @@ internal fun ReaderControlsOverlay(
                         tint = if (state.isCurrentPageBookmarked) MediaColors.AccentPrimary else MediaColors.TextSecondary
                     )
                 }
-                
+
                 IconButton(onClick = onTTSToggle) {
                     Icon(
                         if (state.isTTSPlaying) Icons.Default.VolumeUp else Icons.Outlined.VolumeUp,
@@ -99,9 +99,9 @@ internal fun ReaderControlsOverlay(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.weight(1f))
-        
+
         // Bottom bar
         Surface(
             color = MediaColors.BackgroundElevated.copy(alpha = 0.95f),
@@ -123,7 +123,7 @@ internal fun ReaderControlsOverlay(
                         style = MediaTypography.LabelSmall,
                         color = MediaColors.TextSecondary
                     )
-                    
+
                     Slider(
                         value = state.currentPage.toFloat(),
                         onValueChange = { onPageSelect(it.toInt()) },
@@ -136,14 +136,14 @@ internal fun ReaderControlsOverlay(
                             activeTrackColor = MediaColors.AccentPrimary
                         )
                     )
-                    
+
                     Text(
                         text = "${state.totalPages}",
                         style = MediaTypography.LabelSmall,
                         color = MediaColors.TextSecondary
                     )
                 }
-                
+
                 // Progress percentage
                 Text(
                     text = "${((state.currentPage + 1).toFloat() / state.totalPages * 100).toInt()}% complete",
@@ -152,9 +152,9 @@ internal fun ReaderControlsOverlay(
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.MD))
-                
+
                 // Action buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),

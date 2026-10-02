@@ -35,7 +35,7 @@ class OcrRepository @Inject constructor(
     ): Result<OcrResult> = withContext(Dispatchers.IO) {
         try {
             val cacheId = generateCacheId(bitmap, mediaItemId, pageNumber)
-            
+
             // Try to get from cache first
             if (useCache) {
                 val cached = ocrCacheDao.getById(cacheId)
@@ -43,10 +43,10 @@ class OcrRepository @Inject constructor(
                     return@withContext Result.success(deserializeOcrResult(cached))
                 }
             }
-            
+
             // Perform OCR
             val result = ocrService.recognizeText(bitmap)
-            
+
             // Cache result if successful
             result.onSuccess { ocrResult ->
                 val cacheEntity = OcrCacheEntity(
@@ -59,7 +59,7 @@ class OcrRepository @Inject constructor(
                 )
                 ocrCacheDao.insert(cacheEntity)
             }
-            
+
             result
         } catch (e: Exception) {
             Result.failure(e)
@@ -78,7 +78,7 @@ class OcrRepository @Inject constructor(
     ): Result<OcrResult> = withContext(Dispatchers.IO) {
         try {
             val cacheId = generateCacheId(bitmap, mediaItemId, pageNumber, region)
-            
+
             // Try to get from cache first
             if (useCache) {
                 val cached = ocrCacheDao.getById(cacheId)
@@ -86,10 +86,10 @@ class OcrRepository @Inject constructor(
                     return@withContext Result.success(deserializeOcrResult(cached))
                 }
             }
-            
+
             // Perform OCR on region
             val result = ocrService.recognizeTextInRegion(bitmap, region)
-            
+
             // Cache result if successful
             result.onSuccess { ocrResult ->
                 val cacheEntity = OcrCacheEntity(
@@ -102,7 +102,7 @@ class OcrRepository @Inject constructor(
                 )
                 ocrCacheDao.insert(cacheEntity)
             }
-            
+
             result
         } catch (e: Exception) {
             Result.failure(e)
@@ -151,7 +151,7 @@ class OcrRepository @Inject constructor(
                 append(it.bottom)
             }
         }
-        
+
         val digest = MessageDigest.getInstance("MD5")
         val hash = digest.digest(data.toByteArray())
         return hash.joinToString("") { "%02x".format(it) }

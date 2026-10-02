@@ -21,7 +21,7 @@ import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Google Drive Integration Service for CleverFerret
- * 
+ *
  * Provides comprehensive Google Drive integration including:
  * - File/folder synchronization
  * - Media file upload/download
@@ -34,18 +34,18 @@ class GoogleDriveService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val okHttpClient: OkHttpClient
 ) {
-    
+
     private val _isAuthenticated = MutableStateFlow(false)
     val isAuthenticated: Flow<Boolean> = _isAuthenticated.asStateFlow()
-    
+
     private val _syncProgress = MutableStateFlow(0f)
     val syncProgress: Flow<Float> = _syncProgress.asStateFlow()
-    
+
     private val _lastSyncTime = MutableStateFlow(0L)
     val lastSyncTime: Flow<Long> = _lastSyncTime.asStateFlow()
 
     private var accessToken: String? = null
-    
+
     companion object {
         const val DRIVE_APP_FOLDER = "CleverFerret"
     }

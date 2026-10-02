@@ -22,7 +22,7 @@ import com.universalmedialibrary.services.radio.HDRadioStation
 
 /**
  * HD Radio screen for high-quality digital radio streaming
- * 
+ *
  * HD Radio features:
  * - CD-quality audio
  * - Multiple channels per frequency (HD1, HD2, HD3)
@@ -235,7 +235,7 @@ fun HDRadioScreen(
                         onClick = { viewModel.playStation(station) }
                     )
                 }
-                
+
                 if (filteredStations.isEmpty()) {
                     item {
                         Box(
@@ -585,9 +585,9 @@ fun HDRadioStationCard(
                         station.displayFrequency,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (isPlaying) 
+                        color = if (isPlaying)
                             MaterialTheme.colorScheme.onPrimaryContainer
-                        else 
+                        else
                             MaterialTheme.colorScheme.onSurface
                     )
                     Surface(
@@ -609,9 +609,9 @@ fun HDRadioStationCard(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 // Call sign
                 Text(
                     station.callSign,
@@ -622,7 +622,7 @@ fun HDRadioStationCard(
                     else
                         MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 // Description
                 station.description?.let {
                     Text(
@@ -634,9 +634,9 @@ fun HDRadioStationCard(
                             MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 // Location and genre
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -669,7 +669,7 @@ fun HDRadioStationCard(
                             MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 // Features
                 if (station.hasArtistInfo || station.hasAlbumArt) {
                     Spacer(modifier = Modifier.height(4.dp))
@@ -707,7 +707,7 @@ fun HDRadioStationCard(
                     }
                 }
             }
-            
+
             // Play indicator
             if (isPlaying) {
                 Icon(
@@ -727,4 +727,3 @@ fun HDRadioStationCard(
         }
     }
 }
-

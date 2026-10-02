@@ -15,7 +15,7 @@ import com.universalmedialibrary.ui.theme.*
 
 /**
  * Theme Showcase Screen
- * 
+ *
  * Displays all 15 themes with live previews of components
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,21 +63,21 @@ fun ThemeShowcaseScreen(
                             text = "Current Theme",
                             style = MaterialTheme.typography.titleLarge
                         )
-                        
+
                         CompactThemeSelector(
                             currentTheme = currentTheme,
                             onThemeSelected = onThemeSelected
                         )
-                        
+
                         val config = currentTheme.getConfig()
-                        
+
                         // Theme info
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             InfoRow("Category", config.category.name.replace('_', ' '))
                             InfoRow("Description", config.description)
-                            
+
                             if (currentTheme.isAncientArchitect()) {
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                                 Text(
@@ -98,7 +98,7 @@ fun ThemeShowcaseScreen(
                     }
                 }
             }
-            
+
             // Component previews (only for Ancient Architect themes)
             if (currentTheme.isAncientArchitect()) {
                 item {
@@ -108,7 +108,7 @@ fun ThemeShowcaseScreen(
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
-                
+
                 // Button previews
                 item {
                     PreviewSection(title = "Buttons") {
@@ -121,14 +121,14 @@ fun ThemeShowcaseScreen(
                             ) {
                                 Text("Primary Button")
                             }
-                            
+
                             AncientArchitectSecondaryButton(
                                 onClick = {},
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text("Secondary Button")
                             }
-                            
+
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
@@ -145,7 +145,7 @@ fun ThemeShowcaseScreen(
                         }
                     }
                 }
-                
+
                 // Card previews
                 item {
                     PreviewSection(title = "Cards") {
@@ -169,7 +169,7 @@ fun ThemeShowcaseScreen(
                         }
                     }
                 }
-                
+
                 // Notification previews
                 item {
                     PreviewSection(title = "Notifications") {
@@ -182,7 +182,7 @@ fun ThemeShowcaseScreen(
                                 title = "Information",
                                 dismissible = false
                             )
-                            
+
                             AncientArchitectNotification(
                                 message = "Operation completed successfully",
                                 type = NotificationType.SUCCESS,
@@ -191,7 +191,7 @@ fun ThemeShowcaseScreen(
                         }
                     }
                 }
-                
+
                 // Navigation rail preview
                 item {
                     PreviewSection(title = "Navigation Rail") {
@@ -208,9 +208,9 @@ fun ThemeShowcaseScreen(
                                 ),
                                 onItemSelected = {}
                             )
-                            
+
                             Spacer(modifier = Modifier.width(16.dp))
-                            
+
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -226,7 +226,7 @@ fun ThemeShowcaseScreen(
                     }
                 }
             }
-            
+
             // Theme gallery
             item {
                 Text(
@@ -235,7 +235,7 @@ fun ThemeShowcaseScreen(
                     modifier = Modifier.padding(top = 16.dp)
                 )
             }
-            
+
             item {
                 ThemeSelector(
                     currentTheme = currentTheme,

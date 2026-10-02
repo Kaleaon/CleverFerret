@@ -59,4 +59,3 @@ data class UndoSummary(
     val deletedDbItems: Int = 0,
     val deletedDbFailures: Int = 0
 )
-

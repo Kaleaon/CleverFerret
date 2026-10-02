@@ -5,42 +5,42 @@ import java.io.InputStream
 
 /**
  * Base interface for all document parsers
- * 
+ *
  * This interface defines the contract for parsing various document formats
  * and extracting their content, metadata, and structure.
  */
 interface DocumentParser {
-    
+
     /**
      * Parse a document from a file path
-     * 
+     *
      * @param filePath Path to the document file
      * @return ParsedDocument containing the extracted content and metadata
      * @throws ParserException if parsing fails
      */
     suspend fun parse(filePath: String): ParsedDocument
-    
+
     /**
      * Parse a document from an InputStream
-     * 
+     *
      * @param inputStream InputStream of the document
      * @param fileName Original file name (for format detection)
      * @return ParsedDocument containing the extracted content and metadata
      * @throws ParserException if parsing fails
      */
     suspend fun parse(inputStream: InputStream, fileName: String): ParsedDocument
-    
+
     /**
      * Check if this parser supports the given file format
-     * 
+     *
      * @param fileName File name with extension
      * @return true if this parser can handle the file format
      */
     fun supports(fileName: String): Boolean
-    
+
     /**
      * Get the list of supported file extensions
-     * 
+     *
      * @return List of supported extensions (without the dot)
      */
     fun getSupportedExtensions(): List<String>

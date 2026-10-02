@@ -19,7 +19,7 @@ import javax.inject.Singleton
 
 /**
  * Multi-language ML Kit-based OCR service
- * 
+ *
  * Supports multiple scripts: Latin, Chinese, Japanese, Korean, Devanagari
  */
 @Singleton
@@ -59,7 +59,7 @@ class MultiLanguageOcrService @Inject constructor(
             val recognizer = getRecognizer(currentLanguage)
             val image = InputImage.fromBitmap(bitmap, 0)
             val visionText = recognizer.process(image).await()
-            
+
             val result = convertToOcrResult(visionText)
             Result.success(result)
         } catch (e: Exception) {
@@ -77,7 +77,7 @@ class MultiLanguageOcrService @Inject constructor(
                 region.width(),
                 region.height()
             )
-            
+
             recognizeText(croppedBitmap)
         } catch (e: Exception) {
             Result.failure(e)
@@ -132,7 +132,7 @@ class MultiLanguageOcrService @Inject constructor(
         }
 
         val avgConfidence = if (blocks.isNotEmpty()) OcrService.DEFAULT_CONFIDENCE else 0f
-        
+
         return OcrResult(
             text = visionText.text,
             blocks = blocks,

@@ -23,13 +23,13 @@ class ReadiumPdfService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val TAG = "ReadiumPdfService"
-    
+
     private val httpClient by lazy { DefaultHttpClient() }
-    
+
     private val assetRetriever by lazy {
         AssetRetriever(context.contentResolver, httpClient)
     }
-    
+
     // PDF Parser temporarily disabled - API requires pdfFactory parameter
     // Will be re-enabled with proper PDF factory in v1.1.0
 
@@ -41,9 +41,9 @@ class ReadiumPdfService @Inject constructor(
     suspend fun extractMetadata(pdfPath: String): PdfMetadata? = withContext(Dispatchers.IO) {
         try {
             val publication = openPublication(pdfPath) ?: return@withContext null
-            
+
             val metadata = publication.metadata
-            
+
             val result = PdfMetadata(
                 title = metadata.title ?: "Unknown",
                 authors = metadata.authors.mapNotNull { it.name },
@@ -52,7 +52,7 @@ class ReadiumPdfService @Inject constructor(
                 numberOfPages = publication.readingOrder.size,
                 language = metadata.languages.firstOrNull()
             )
-            
+
             publication.close()
             result
         } catch (e: Exception) {
@@ -69,7 +69,7 @@ class ReadiumPdfService @Inject constructor(
     suspend fun extractTableOfContents(pdfPath: String): List<TocItem> = withContext(Dispatchers.IO) {
         try {
             val publication = openPublication(pdfPath) ?: return@withContext emptyList()
-            
+
             val toc = publication.tableOfContents.map { link ->
                 TocItem(
                     title = link.title ?: "Untitled",
@@ -82,7 +82,7 @@ class ReadiumPdfService @Inject constructor(
                     }
                 )
             }
-            
+
             publication.close()
             toc
         } catch (e: Exception) {

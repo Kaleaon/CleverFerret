@@ -59,13 +59,13 @@ class CacheManager @Inject constructor(
     private fun getExternalCacheDirectory(): File {
         // Try to get external cache directory
         val externalCacheDir = context.externalCacheDir
-        
+
         if (externalCacheDir != null && isExternalStorageWritable()) {
             return File(externalCacheDir, "artwork").apply {
                 if (!exists()) mkdirs()
             }
         }
-        
+
         // Fallback to internal if external is not available
         return File(context.cacheDir, "artwork").apply {
             if (!exists()) mkdirs()
@@ -120,19 +120,19 @@ class CacheManager @Inject constructor(
      */
     suspend fun cleanCacheIfNeeded() {
         if (!isCacheOverLimit()) return
-        
+
         val cacheDir = getCacheDirectory()
         val maxSizeMB = settingsRepository.maxCacheSizeMBFlow.first()
         val targetSizeBytes = (maxSizeMB.toLong() * 1024L * 1024L * 8L) / 10L // Clean to 80% of max
-        
+
         // Get all files recursively sorted by last modified (oldest first)
         val files = getAllFilesRecursively(cacheDir).sortedBy { it.lastModified() }
-        
+
         var currentSize = calculateDirectorySize(cacheDir)
-        
+
         for (file in files) {
             if (currentSize <= targetSizeBytes) break
-            
+
             val fileSize = if (file.isDirectory) calculateDirectorySize(file) else file.length()
             if (file.deleteRecursively()) {
                 currentSize -= fileSize
@@ -146,15 +146,15 @@ class CacheManager @Inject constructor(
     suspend fun migrateCacheLocation(newLocation: CacheLocation) {
         val currentLocation = settingsRepository.cacheLocationFlow.first()
         if (currentLocation == newLocation) return
-        
+
         val sourceDir = getCacheDirectoryForLocation(currentLocation)
         val targetDir = getCacheDirectoryForLocation(newLocation)
-        
+
         if (!sourceDir.exists()) {
             settingsRepository.setCacheLocation(newLocation)
             return
         }
-        
+
         // Copy files to new location
         sourceDir.listFiles()?.forEach { file ->
             try {
@@ -164,10 +164,10 @@ class CacheManager @Inject constructor(
                 // Log error but continue migration
             }
         }
-        
+
         // Update settings
         settingsRepository.setCacheLocation(newLocation)
-        
+
         // Clean old location
         sourceDir.listFiles()?.forEach { it.delete() }
     }
@@ -187,7 +187,7 @@ class CacheManager @Inject constructor(
         val cacheDir = getCacheDirectory()
         val maxAgeMillis = maxAgeDays * 24L * 60L * 60L * 1000L
         val now = System.currentTimeMillis()
-        
+
         cacheDir.listFiles()?.forEach { file ->
             if (now - file.lastModified() > maxAgeMillis) {
                 file.delete()
@@ -205,7 +205,7 @@ class CacheManager @Inject constructor(
         val location = settingsRepository.cacheLocationFlow.first()
         val cacheDir = getCacheDirectory()
         val fileCount = cacheDir.listFiles()?.size ?: 0
-        
+
         return CacheStats(
             currentSizeMB = currentSize,
             maxSizeMB = maxSize.toLong(),

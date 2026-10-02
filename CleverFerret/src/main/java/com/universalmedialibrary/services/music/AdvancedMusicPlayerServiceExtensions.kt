@@ -9,13 +9,13 @@ import javax.inject.Inject
 
 /**
  * Extensions for AdvancedMusicPlayerService
- * 
+ *
  * This file adds PowerampAPI-inspired features to the music player:
  * - Advanced playback commands
  * - Broadcast integration
  * - Volume and speed control
  * - Queue management enhancements
- * 
+ *
  * These extensions make AdvancedMusicPlayerService implement MediaCommandAPI
  */
 

@@ -25,7 +25,7 @@ import javax.inject.Singleton
 
 /**
  * Google Cloud Text-to-Speech Service with Gemini Voices
- * 
+ *
  * Uses Google Cloud Text-to-Speech API for high-quality AI-powered speech
  * Documentation: https://cloud.google.com/text-to-speech/docs/gemini-tts
  */
@@ -37,7 +37,7 @@ class GeminiTtsService @Inject constructor(
     private var apiKey: String? = null
     private val _ttsState = MutableStateFlow(TtsServiceState())
     override val ttsState: StateFlow<TtsServiceState> = _ttsState.asStateFlow()
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var mediaPlayer: MediaPlayer? = null
 
@@ -170,7 +170,7 @@ class GeminiTtsService @Inject constructor(
                     prepare()
                     start()
                 }
-                
+
                 true
             } catch (e: Exception) {
                 _ttsState.value = _ttsState.value.copy(

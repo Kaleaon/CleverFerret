@@ -108,19 +108,19 @@ class TextToSpeechWidget : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        
+
         when (intent.action) {
             ACTION_PLAY_PAUSE -> {
                 // Toggle TTS play/pause state
                 val isPlaying = prefs.getBoolean(PREF_IS_PLAYING, false)
                 prefs.edit().putBoolean(PREF_IS_PLAYING, !isPlaying).apply()
-                
+
                 // Broadcast intent to EnhancedEReaderViewModel to handle TTS (explicit broadcast for security)
                 val ttsIntent = Intent("com.universalmedialibrary.TTS_CONTROL")
                     .setPackage(context.packageName)
                 ttsIntent.putExtra("action", if (isPlaying) "pause" else "play")
                 context.sendBroadcast(ttsIntent)
-                
+
                 updateAllWidgets(context)
             }
             ACTION_PREV_SENTENCE -> {
@@ -147,14 +147,14 @@ class TextToSpeechWidget : AppWidgetProvider() {
                     else -> 1.0f
                 }
                 prefs.edit().putFloat(PREF_TTS_SPEED, newSpeed).apply()
-                
+
                 // Broadcast speed change (explicit broadcast for security)
                 val ttsIntent = Intent("com.universalmedialibrary.TTS_CONTROL")
                     .setPackage(context.packageName)
                 ttsIntent.putExtra("action", "speed")
                 ttsIntent.putExtra("speed", newSpeed)
                 context.sendBroadcast(ttsIntent)
-                
+
                 updateAllWidgets(context)
             }
         }

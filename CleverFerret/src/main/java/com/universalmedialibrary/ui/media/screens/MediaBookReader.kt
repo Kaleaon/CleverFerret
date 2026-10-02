@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Clean Media-Centric Comprehensive Book Reader
- * 
+ *
  * Supports ALL book formats:
  * - EPUB (2.x, 3.x with fixed-layout support)
  * - PDF (with reflow option)
@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
  * - TXT/HTML/MHTML
  * - DjVu
  * - CHM (Help files)
- * 
+ *
  * Features:
  * - Multiple reading modes (paginated, scroll, two-page)
  * - Customizable themes, fonts, margins
@@ -79,31 +79,31 @@ fun MediaBookReader(
     var showTableOfContents by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     var showBookmarks by remember { mutableStateOf(false) }
-    
+
     val pagerState = rememberPagerState(
         initialPage = state.currentPage,
         pageCount = { state.totalPages }
     )
     val coroutineScope = rememberCoroutineScope()
-    
+
     // Apply reading theme
     val backgroundColor = state.settings.theme.backgroundColor
     val textColor = state.settings.theme.textColor
-    
+
     // Sync pager state with external state
     LaunchedEffect(state.currentPage) {
         if (pagerState.currentPage != state.currentPage) {
             pagerState.scrollToPage(state.currentPage)
         }
     }
-    
+
     // Report page changes
     LaunchedEffect(pagerState.currentPage) {
         if (pagerState.currentPage != state.currentPage) {
             onPageChange(pagerState.currentPage)
         }
     }
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -165,7 +165,7 @@ fun MediaBookReader(
                 )
             }
         }
-        
+
         // Animated controls overlay
         AnimatedVisibility(
             visible = showControls,
@@ -188,7 +188,7 @@ fun MediaBookReader(
                 }
             )
         }
-        
+
         // TTS indicator
         if (state.isTTSPlaying) {
             TTSIndicator(
@@ -198,7 +198,7 @@ fun MediaBookReader(
             )
         }
     }
-    
+
     // Settings bottom sheet
     if (showSettings) {
         ReaderSettingsSheet(
@@ -207,7 +207,7 @@ fun MediaBookReader(
             onDismiss = { showSettings = false }
         )
     }
-    
+
     // Table of contents sheet
     if (showTableOfContents) {
         TableOfContentsSheet(
@@ -220,7 +220,7 @@ fun MediaBookReader(
             onDismiss = { showTableOfContents = false }
         )
     }
-    
+
     // Search sheet
     if (showSearch) {
         SearchInBookSheet(
@@ -235,7 +235,7 @@ fun MediaBookReader(
             onDismiss = { showSearch = false }
         )
     }
-    
+
     // Bookmarks sheet
     if (showBookmarks) {
         BookmarksSheet(
@@ -372,7 +372,7 @@ internal fun ThemePresetChip(
     onClick: () -> Unit
 ) {
     val theme = preset.toTheme()
-    
+
     Surface(
         modifier = Modifier
             .size(48.dp)
@@ -423,7 +423,7 @@ internal fun SearchResultItem(
             color = MediaColors.AccentPrimary,
             modifier = Modifier.width(40.dp)
         )
-        
+
         Text(
             result.excerpt,
             style = MediaTypography.BodySmall,
@@ -536,4 +536,3 @@ enum class PageAnimation(val displayName: String) {
     CURL("Curl"),
     FADE("Fade")
 }
-

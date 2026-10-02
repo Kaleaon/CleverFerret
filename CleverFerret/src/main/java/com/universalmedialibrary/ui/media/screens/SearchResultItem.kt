@@ -66,7 +66,7 @@ internal fun SearchResultItem(
         ) {
             if (result.imageUrl != null) {
                 AsyncImage(
-                    
+
                     model = result.imageUrl,
                     contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
@@ -83,9 +83,9 @@ internal fun SearchResultItem(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = result.title,
@@ -95,7 +95,7 @@ internal fun SearchResultItem(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
             )
-            
+
             if (result.subtitle != null) {
                 Text(
                     text = result.subtitle,
@@ -105,7 +105,7 @@ internal fun SearchResultItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            
+
             // Source badge for external results
             if (result.source != null && result.source != "Local") {
                 Spacer(modifier = Modifier.height(2.dp))
@@ -122,7 +122,7 @@ internal fun SearchResultItem(
                 }
             }
         }
-        
+
         // Category indicator
         Icon(
             imageVector = result.category.icon,

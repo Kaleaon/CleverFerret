@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 /**
  * ML Kit-based OCR service for on-device text recognition
- * 
+ *
  * Uses Google ML Kit Text Recognition API for offline text extraction
  * from images in books, comics, and other media.
  */
@@ -33,7 +33,7 @@ class MLKitOcrService @Inject constructor(
         return try {
             val image = InputImage.fromBitmap(bitmap, 0)
             val visionText = recognizer.process(image).await()
-            
+
             val result = convertToOcrResult(visionText)
             Result.success(result)
         } catch (e: Exception) {
@@ -51,7 +51,7 @@ class MLKitOcrService @Inject constructor(
                 region.width(),
                 region.height()
             )
-            
+
             recognizeText(croppedBitmap)
         } catch (e: Exception) {
             Result.failure(e)
@@ -91,7 +91,7 @@ class MLKitOcrService @Inject constructor(
         }
 
         val avgConfidence = if (blocks.isNotEmpty()) OcrService.DEFAULT_CONFIDENCE else 0f
-        
+
         return OcrResult(
             text = visionText.text,
             blocks = blocks,

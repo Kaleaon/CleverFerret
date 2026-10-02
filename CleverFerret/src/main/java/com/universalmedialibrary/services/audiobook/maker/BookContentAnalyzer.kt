@@ -14,7 +14,7 @@ import javax.inject.Singleton
 class BookContentAnalyzer @Inject constructor(
     private val geminiService: GeminiService
 ) {
-    
+
     /**
      * Analyze a book's content to extract characters and metadata
      */
@@ -27,32 +27,32 @@ class BookContentAnalyzer @Inject constructor(
             if (!geminiService.isInitialized()) {
                 geminiService.initialize()
             }
-            
+
             if (!geminiService.isInitialized()) {
                 return@withContext BookAnalysisResult(
                     success = false,
                     error = "Gemini service not initialized"
                 )
             }
-            
+
             // Sample the book - take beginning, middle, and end sections
             val sampleText = sampleBookText(bookText)
-            
+
             val prompt = buildAnalysisPrompt(sampleText, title, author)
-            
+
             // Use Gemini to analyze the book
             val response = geminiService.enhanceBookMetadata(
                 title = title ?: "Unknown",
                 author = author ?: "Unknown",
                 existingText = sampleText
             )
-            
+
             // Extract characters using AI
             val characters = extractCharacters(sampleText)
-            
+
             // Determine genre
             val genre = determineGenre(sampleText, response)
-            
+
             BookAnalysisResult(
                 success = true,
                 characters = characters,
@@ -60,7 +60,7 @@ class BookContentAnalyzer @Inject constructor(
                 settings = extractSettings(sampleText),
                 mainThemes = extractThemes(sampleText)
             )
-            
+
         } catch (e: Exception) {
             BookAnalysisResult(
                 success = false,
@@ -68,19 +68,19 @@ class BookContentAnalyzer @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Extract characters from book text using AI
      */
-    private suspend fun extractCharacters(bookText: String): List<BookCharacter> = 
+    private suspend fun extractCharacters(bookText: String): List<BookCharacter> =
         withContext(Dispatchers.IO) {
         // Simple character extraction - in production, use more sophisticated NLP
         val characterNames = mutableSetOf<String>()
-        
+
         // Look for capitalized names that appear multiple times
         val wordPattern = Regex("\\b[A-Z][a-z]+\\b")
         val words = wordPattern.findAll(bookText).map { it.value }.toList()
-        
+
         // Find names that appear frequently (likely characters)
         val nameFrequency = words.groupingBy { it }.eachCount()
         val characters = nameFrequency.filter { it.value >= 3 }
@@ -93,10 +93,10 @@ class BookContentAnalyzer @Inject constructor(
                 )
             }
             .take(10) // Limit to top 10 characters
-        
+
         characters
     }
-    
+
     /**
      * Create a default voice profile for a character
      */
@@ -118,7 +118,7 @@ class BookContentAnalyzer @Inject constructor(
             age = VoiceAge.ADULT
         )
     }
-    
+
     /**
      * Determine book genre from content
      */
@@ -127,24 +127,24 @@ class BookContentAnalyzer @Inject constructor(
         metadata: com.universalmedialibrary.services.gemini.BookEnhancementResult
     ): BookGenre {
         val lowerText = bookText.lowercase()
-        
+
         // Check for genre-specific keywords
         return when {
-            lowerText.contains("magic") || lowerText.contains("dragon") || 
+            lowerText.contains("magic") || lowerText.contains("dragon") ||
             lowerText.contains("wizard") || lowerText.contains("elf") -> BookGenre.FANTASY
-            
+
             lowerText.contains("spaceship") || lowerText.contains("laser") ||
             lowerText.contains("robot") || lowerText.contains("planet") -> BookGenre.SCIENCE_FICTION
-            
+
             lowerText.contains("murder") || lowerText.contains("detective") ||
             lowerText.contains("investigation") -> BookGenre.MYSTERY
-            
+
             lowerText.contains("vampire") || lowerText.contains("werewolf") ||
             lowerText.contains("supernatural") -> BookGenre.PARANORMAL
-            
+
             lowerText.contains("horror") || lowerText.contains("terror") ||
             lowerText.contains("nightmare") -> BookGenre.HORROR
-            
+
             else -> {
                 // Try to map from metadata genre
                 val metadataGenre = metadata.enhancedMetadata?.genre?.lowercase() ?: ""
@@ -152,7 +152,7 @@ class BookContentAnalyzer @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Map genre string to BookGenre enum
      */
@@ -174,14 +174,14 @@ class BookContentAnalyzer @Inject constructor(
             else -> BookGenre.UNKNOWN
         }
     }
-    
+
     /**
      * Extract common settings from book
      */
     private fun extractSettings(bookText: String): List<String> {
         val lowerText = bookText.lowercase()
         val settings = mutableListOf<String>()
-        
+
         // Common location keywords
         val locationKeywords = mapOf(
             "forest" to listOf("forest", "woods", "trees", "woodland"),
@@ -193,23 +193,23 @@ class BookContentAnalyzer @Inject constructor(
             "village" to listOf("village", "town", "hamlet"),
             "dungeon" to listOf("dungeon", "cave", "underground")
         )
-        
+
         locationKeywords.forEach { (setting, keywords) ->
             if (keywords.any { lowerText.contains(it) }) {
                 settings.add(setting)
             }
         }
-        
+
         return settings.distinct()
     }
-    
+
     /**
      * Extract main themes from book
      */
     private fun extractThemes(bookText: String): List<String> {
         val lowerText = bookText.lowercase()
         val themes = mutableListOf<String>()
-        
+
         // Common theme keywords
         val themeKeywords = mapOf(
             "revenge" to listOf("revenge", "vengeance", "retribution"),
@@ -221,16 +221,16 @@ class BookContentAnalyzer @Inject constructor(
             "power" to listOf("power", "control", "dominance"),
             "survival" to listOf("survive", "survival", "endure")
         )
-        
+
         themeKeywords.forEach { (theme, keywords) ->
             if (keywords.any { lowerText.contains(it) }) {
                 themes.add(theme)
             }
         }
-        
+
         return themes.distinct()
     }
-    
+
     /**
      * Sample book text for analysis (beginning, middle, end)
      */
@@ -238,17 +238,17 @@ class BookContentAnalyzer @Inject constructor(
         if (fullText.length <= sampleSize * 3) {
             return fullText
         }
-        
+
         val beginning = fullText.take(sampleSize)
         val middle = fullText.substring(
             fullText.length / 2 - sampleSize / 2,
             fullText.length / 2 + sampleSize / 2
         )
         val end = fullText.takeLast(sampleSize)
-        
+
         return "$beginning\n...\n$middle\n...\n$end"
     }
-    
+
     /**
      * Build prompt for AI analysis
      */
@@ -264,17 +264,17 @@ class BookContentAnalyzer @Inject constructor(
             3. Common settings/locations
             4. Main themes
             5. Narrative style
-            
+
             Book: ${title ?: "Unknown"}
             Author: ${author ?: "Unknown"}
-            
+
             Sample Text:
             $sampleText
-            
+
             Provide analysis in JSON format.
         """.trimIndent()
     }
-    
+
     /**
      * Analyze a specific chapter for context
      */
@@ -283,22 +283,22 @@ class BookContentAnalyzer @Inject constructor(
         bookGenre: BookGenre
     ): BookContext = withContext(Dispatchers.IO) {
         val lowerText = chapterText.lowercase()
-        
+
         // Detect setting
         val setting = detectSetting(lowerText, bookGenre)
-        
+
         // Detect time of day
         val timeOfDay = detectTimeOfDay(lowerText)
-        
+
         // Detect weather
         val weather = detectWeather(lowerText)
-        
+
         // Detect mood
         val mood = detectMood(lowerText)
-        
+
         // Detect action level
         val actionLevel = detectActionLevel(lowerText)
-        
+
         BookContext(
             genre = bookGenre,
             setting = setting,
@@ -308,7 +308,7 @@ class BookContentAnalyzer @Inject constructor(
             actionLevel = actionLevel
         )
     }
-    
+
     private fun detectSetting(text: String, genre: BookGenre): String {
         return when (genre) {
             BookGenre.FANTASY -> when {
@@ -327,7 +327,7 @@ class BookContentAnalyzer @Inject constructor(
             else -> "generic_setting"
         }
     }
-    
+
     private fun detectTimeOfDay(text: String): String? {
         return when {
             text.contains("morning") || text.contains("dawn") -> "morning"
@@ -337,7 +337,7 @@ class BookContentAnalyzer @Inject constructor(
             else -> null
         }
     }
-    
+
     private fun detectWeather(text: String): String? {
         return when {
             text.contains("rain") || text.contains("raining") -> "rain"
@@ -348,7 +348,7 @@ class BookContentAnalyzer @Inject constructor(
             else -> null
         }
     }
-    
+
     private fun detectMood(text: String): String? {
         return when {
             text.contains("tense") || text.contains("nervous") -> "tense"
@@ -359,22 +359,22 @@ class BookContentAnalyzer @Inject constructor(
             else -> null
         }
     }
-    
+
     private fun detectActionLevel(text: String): ActionLevel {
         var actionScore = 0
-        
+
         // Action keywords
         val actionKeywords = listOf(
             "fight", "battle", "attack", "strike", "punch", "kick",
             "shoot", "fired", "explosion", "chase", "run", "flee"
         )
-        
+
         actionKeywords.forEach { keyword ->
             if (text.contains(keyword)) {
                 actionScore++
             }
         }
-        
+
         return when {
             actionScore == 0 -> ActionLevel.NONE
             actionScore <= 2 -> ActionLevel.LOW

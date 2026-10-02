@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Manga Reader Settings
- * 
+ *
  * Comprehensive settings for manga/webtoon reading experience
  * Inspired by Futon/Kotatsu reader settings
  */
@@ -13,42 +13,42 @@ data class MangaReaderSettings(
     // Reading Mode
     val readerMode: ReaderMode = ReaderMode.STANDARD,
     val readingDirection: ReadingDirection = ReadingDirection.LTR,
-    
+
     // Page Display
     val zoomMode: ZoomMode = ZoomMode.FIT_WIDTH,
     val doublePage: Boolean = false,
     val keepScreenOn: Boolean = true,
     val showPageNumbers: Boolean = true,
-    
+
     // Page Cropping (edge detection)
     val cropBorders: Boolean = true,
     val cropBordersWebtoon: Boolean = false,
     val cropBordersThreshold: Float = 0.15f, // % of white/black to consider as border
-    
+
     // Background & Color
     val backgroundColor: ReaderBackground = ReaderBackground.DEFAULT,
     val colorFilter: ColorFilterSettings? = null,
     val use32BitColor: Boolean = false,
-    
+
     // Navigation
     val tapNavigation: Boolean = true,
     val tapZones: TapZoneConfig = TapZoneConfig.DEFAULT,
     val volumeKeysNavigation: Boolean = false,
     val swipeNavigation: Boolean = true,
-    
+
     // Webtoon-specific
     val webtoonGapBetweenPages: Int = 0, // dp
     val webtoonSidePadding: Int = 0, // dp
     val webtoonScrollSpeed: Float = 1.0f,
-    
+
     // Animation
     val pageTransitionAnimation: PageAnimation = PageAnimation.SLIDE,
     val animationDuration: Int = 300,
-    
+
     // Auto-scroll
     val autoScrollEnabled: Boolean = false,
     val autoScrollSpeed: Float = 1.0f, // pages per minute
-    
+
     // Preloading
     val preloadPages: Int = 3,
     val cachePages: Int = 10
@@ -122,7 +122,7 @@ data class TapZoneConfig(
 ) {
     companion object {
         val DEFAULT = TapZoneConfig()
-        
+
         val MANGA_RTL = TapZoneConfig(
             leftAction = TapAction.NEXT_PAGE,
             rightAction = TapAction.PREVIOUS_PAGE
@@ -158,7 +158,7 @@ data class ColorFilterSettings(
     val grayscale: Boolean = false
 ) {
     val isEmpty: Boolean
-        get() = brightness == 0f && contrast == 0f && saturation == 0f && 
+        get() = brightness == 0f && contrast == 0f && saturation == 0f &&
                 warmth == 0f && !inverted && !grayscale
 }
 

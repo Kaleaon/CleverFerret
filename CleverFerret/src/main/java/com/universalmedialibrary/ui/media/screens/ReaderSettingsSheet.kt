@@ -55,7 +55,7 @@ internal fun ReaderSettingsSheet(
                 color = MediaColors.TextPrimary,
                 modifier = Modifier.padding(bottom = MediaSpacing.MD)
             )
-            
+
             // Font size
             SettingSection(title = "Font Size") {
                 Row(
@@ -69,7 +69,7 @@ internal fun ReaderSettingsSheet(
                     }) {
                         Icon(Icons.Default.Remove, "Decrease", tint = MediaColors.TextSecondary)
                     }
-                    
+
                     Text(
                         "${settings.fontSize.toInt()}",
                         style = MediaTypography.TitleMedium,
@@ -77,7 +77,7 @@ internal fun ReaderSettingsSheet(
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center
                     )
-                    
+
                     IconButton(onClick = {
                         if (settings.fontSize < 32) {
                             onSettingsChange(settings.copy(fontSize = settings.fontSize + 2))
@@ -87,7 +87,7 @@ internal fun ReaderSettingsSheet(
                     }
                 }
             }
-            
+
             // Font family
             SettingSection(title = "Font") {
                 LazyRow(
@@ -102,7 +102,7 @@ internal fun ReaderSettingsSheet(
                     }
                 }
             }
-            
+
             // Line height
             SettingSection(title = "Line Height") {
                 Slider(
@@ -115,7 +115,7 @@ internal fun ReaderSettingsSheet(
                     )
                 )
             }
-            
+
             // Theme presets
             SettingSection(title = "Theme") {
                 LazyRow(
@@ -125,7 +125,7 @@ internal fun ReaderSettingsSheet(
                         ThemePresetChip(
                             preset = preset,
                             isSelected = settings.themePreset == preset,
-                            onClick = { 
+                            onClick = {
                                 onSettingsChange(settings.copy(
                                     themePreset = preset,
                                     theme = preset.toTheme()
@@ -135,7 +135,7 @@ internal fun ReaderSettingsSheet(
                     }
                 }
             }
-            
+
             // Reading mode
             SettingSection(title = "Reading Mode") {
                 Row(
@@ -152,7 +152,7 @@ internal fun ReaderSettingsSheet(
                     }
                 }
             }
-            
+
             // Page animation
             SettingSection(title = "Page Animation") {
                 LazyRow(
@@ -167,7 +167,7 @@ internal fun ReaderSettingsSheet(
                     }
                 }
             }
-            
+
             // Toggles
             SettingSection(title = "Display") {
                 SettingToggle(
@@ -186,7 +186,7 @@ internal fun ReaderSettingsSheet(
                     onCheckedChange = { onSettingsChange(settings.copy(volumePageTurn = it)) }
                 )
             }
-            
+
             Spacer(Modifier.height(MediaSpacing.XL))
         }
     }

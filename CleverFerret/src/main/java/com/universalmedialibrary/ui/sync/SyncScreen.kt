@@ -538,7 +538,7 @@ private fun SyncOptionsBottomSheet(
 private fun formatSyncTime(timestamp: Long): String {
     val now = System.currentTimeMillis()
     val diff = now - timestamp
-    
+
     return when {
         diff < 60_000 -> "Just now"
         diff < 3600_000 -> "${diff / 60_000}m ago"

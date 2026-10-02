@@ -52,18 +52,18 @@ internal fun SearchResultsList(
                         count = categoryResults.size
                     )
                 }
-                
+
                 items(categoryResults.take(5)) { result ->
                     SearchResultItem(
                         result = result,
                         onClick = { onResultClick(result) }
                     )
                 }
-                
+
                 if (categoryResults.size > 5) {
                     item {
                         TextButton(
-                            onClick = { 
+                            onClick = {
                                 onCategoryFilterChange(category)
                                 onCategoryNavigate(category)
                             },
@@ -79,7 +79,7 @@ internal fun SearchResultsList(
                         }
                     }
                 }
-                
+
                 item {
                     HorizontalDivider(
                         color = MediaColors.Border,

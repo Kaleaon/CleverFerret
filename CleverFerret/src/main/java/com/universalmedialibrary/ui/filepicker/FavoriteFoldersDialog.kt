@@ -50,8 +50,8 @@ internal fun FavoriteFoldersDialog(
             ) {
                 // Add current folder button
                 val currentFolder = File(currentPath)
-                if (currentFolder.exists() && currentFolder.isDirectory && 
-                    currentPath.isNotEmpty() && 
+                if (currentFolder.exists() && currentFolder.isDirectory &&
+                    currentPath.isNotEmpty() &&
                     !favoriteFolders.contains(currentPath)) {
                     Row(
                         modifier = Modifier
@@ -75,7 +75,7 @@ internal fun FavoriteFoldersDialog(
                     }
                     HorizontalDivider()
                 }
-                
+
                 if (favoriteFolders.isEmpty()) {
                     Text(
                         "No favorite folders",
@@ -97,8 +97,8 @@ internal fun FavoriteFoldersDialog(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    folder, 
-                                    maxLines = 1, 
+                                    folder,
+                                    maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.fillMaxWidth()
                                 )

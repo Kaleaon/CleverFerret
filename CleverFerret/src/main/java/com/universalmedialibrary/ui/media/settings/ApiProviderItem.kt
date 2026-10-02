@@ -26,7 +26,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Settings Screen
- * 
+ *
  * A beautiful, modular settings interface that allows users to:
  * - Configure API providers and their capabilities
  * - Manage integrations (Plex, Jellyfin, Calibre, etc.)
@@ -52,7 +52,7 @@ internal fun ApiProviderItem(
         // Provider icon placeholder
         Surface(
             shape = RoundedCornerShape(MediaCorners.SM),
-            color = if (isConfigured) MediaColors.Success.copy(alpha = 0.15f) 
+            color = if (isConfigured) MediaColors.Success.copy(alpha = 0.15f)
                    else MediaColors.BackgroundSurface,
             modifier = Modifier.size(48.dp)
         ) {
@@ -63,9 +63,9 @@ internal fun ApiProviderItem(
                 tint = if (isConfigured) MediaColors.Success else MediaColors.TextSecondary
             )
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -74,7 +74,7 @@ internal fun ApiProviderItem(
                     color = MediaColors.TextPrimary,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 if (provider.requiresApiKey || provider.requiresOAuth) {
                     Spacer(modifier = Modifier.width(MediaSpacing.SM))
                     Surface(
@@ -89,7 +89,7 @@ internal fun ApiProviderItem(
                         )
                     }
                 }
-                
+
                 if (!provider.isFree) {
                     Spacer(modifier = Modifier.width(MediaSpacing.XS))
                     Surface(
@@ -105,13 +105,13 @@ internal fun ApiProviderItem(
                     }
                 }
             }
-            
+
             Text(
                 text = provider.description,
                 style = MediaTypography.BodySmall,
                 color = MediaColors.TextSecondary
             )
-            
+
             // Show capabilities count
             Text(
                 text = "${provider.supportedCapabilities.size} capabilities",
@@ -119,7 +119,7 @@ internal fun ApiProviderItem(
                 color = MediaColors.TextTertiary
             )
         }
-        
+
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = "Media image",

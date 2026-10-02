@@ -104,10 +104,10 @@ class CollaborativeSessionViewModel @Inject constructor(
             try {
                 _uiState.value = CollaborativeUiState.Starting
                 collaborativeService.startSession(sessionId)
-                
+
                 // If Chromecast session type, start casting
                 _currentSession.value?.let { session ->
-                    if (session.sessionType == SessionType.CHROMECAST || 
+                    if (session.sessionType == SessionType.CHROMECAST ||
                         session.sessionType == SessionType.BOTH) {
                         chromecastManager.startCasting(session)
                     }
@@ -163,7 +163,7 @@ class CollaborativeSessionViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val queueItem = collaborativeService.addTrackToQueue(sessionId, clientId, mediaItemId)
-                
+
                 // Add to cast queue if casting
                 if (chromecastManager.isCasting()) {
                     chromecastManager.addTrackToQueue(queueItem)

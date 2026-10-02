@@ -307,4 +307,3 @@ internal fun deriveMetadataForComicArchive(context: Context, uri: Uri, fallbackN
         deriveMetadataFromName(fallbackName)
     }
 }
-

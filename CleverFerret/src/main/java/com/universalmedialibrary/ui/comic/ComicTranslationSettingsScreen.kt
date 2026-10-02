@@ -34,19 +34,19 @@ class ComicTranslationSettingsViewModel @Inject constructor(
 
     var geminiApiKey by mutableStateOf("")
         private set
-    
+
     var isGeminiKeyVisible by mutableStateOf(false)
         private set
-    
+
     var selectedLanguage by mutableStateOf("en")
         private set
-    
+
     var saveStatus by mutableStateOf<SaveStatus>(SaveStatus.None)
         private set
-    
+
     var areKeysConfigured by mutableStateOf(false)
         private set
-    
+
     val availableLanguages = listOf(
         Language("en", "English"),
         Language("es", "Spanish"),
@@ -61,7 +61,7 @@ class ComicTranslationSettingsViewModel @Inject constructor(
         Language("ar", "Arabic"),
         Language("hi", "Hindi")
     )
-    
+
     data class Language(val code: String, val name: String)
 
     sealed class SaveStatus {
@@ -87,7 +87,7 @@ class ComicTranslationSettingsViewModel @Inject constructor(
     fun toggleGeminiKeyVisibility() {
         isGeminiKeyVisible = !isGeminiKeyVisible
     }
-    
+
     fun updateSelectedLanguage(languageCode: String) {
         selectedLanguage = languageCode
     }
@@ -96,14 +96,14 @@ class ComicTranslationSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 saveStatus = SaveStatus.Saving
-                
+
                 if (!apiKeyManager.validateKeyFormat(geminiApiKey)) {
                     saveStatus = SaveStatus.Error("Invalid Gemini API key format")
                     return@launch
                 }
-                
+
                 apiKeyManager.setGeminiApiKey(geminiApiKey)
-                
+
                 areKeysConfigured = true
                 saveStatus = SaveStatus.Success
             } catch (e: Exception) {
@@ -124,7 +124,7 @@ class ComicTranslationSettingsViewModel @Inject constructor(
 
 /**
  * Comic Translation Settings Screen
- * 
+ *
  * This screen allows users to configure their API keys for comic translation.
  * The keys are stored securely using EncryptedSharedPreferences.
  */
@@ -199,7 +199,7 @@ fun ComicTranslationSettingsScreen(
                 onVisibilityToggle = { viewModel.toggleGeminiKeyVisibility() },
                 helpText = "Get your key at: https://makersuite.google.com/app/apikey"
             )
-            
+
             // Language Selection
             LanguageSelector(
                 selectedLanguage = viewModel.selectedLanguage,
@@ -246,7 +246,7 @@ fun ComicTranslationSettingsScreen(
                         Text("Clear Keys")
                     }
                 }
-                
+
                 Button(
                     onClick = { viewModel.saveKeys() },
                     modifier = Modifier.weight(1f),
@@ -316,7 +316,7 @@ private fun LanguageSelector(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedLang = availableLanguages.find { it.code == selectedLanguage }
-    
+
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -325,7 +325,7 @@ private fun LanguageSelector(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded }
@@ -345,7 +345,7 @@ private fun LanguageSelector(
                 },
                 colors = OutlinedTextFieldDefaults.colors()
             )
-            
+
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
@@ -364,7 +364,7 @@ private fun LanguageSelector(
                 }
             }
         }
-        
+
         Text(
             "Select the language you want to translate comics into",
             style = MaterialTheme.typography.bodySmall,

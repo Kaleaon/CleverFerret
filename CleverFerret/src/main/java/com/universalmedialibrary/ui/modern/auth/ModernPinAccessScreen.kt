@@ -143,4 +143,3 @@ private fun IconKey(icon: ImageVector, contentDescription: String, onClick: () -
         contentAlignment = Alignment.Center,
     ) { Icon(icon, contentDescription = contentDescription, tint = cs.onSurfaceVariant) }
 }
-

@@ -17,11 +17,11 @@ import me.saket.swipe.rememberSwipeableActionsState
 
 /**
  * Swipeable Library Item Component (Phase 2)
- * 
+ *
  * Provides swipe gestures for common library actions:
  * - Swipe left: Delete
  * - Swipe right: Archive/Mark as Read
- * 
+ *
  * Inspired by Myne's swipe actions with Material You design.
  */
 @Composable
@@ -39,9 +39,9 @@ fun SwipeableLibraryItem(
         content()
         return
     }
-    
+
     val state = rememberSwipeableActionsState()
-    
+
     // Define swipe actions
     val startActions = buildList {
         // Right swipe actions (left side)
@@ -76,7 +76,7 @@ fun SwipeableLibraryItem(
             )
         }
     }
-    
+
     val endActions = buildList {
         // Left swipe actions (right side)
         if (onBookmark != null) {
@@ -110,7 +110,7 @@ fun SwipeableLibraryItem(
             )
         }
     }
-    
+
     SwipeableActionsBox(
         modifier = modifier,
         state = state,
@@ -159,7 +159,7 @@ object SwipeActionPresets {
             content = content
         )
     }
-    
+
     @Composable
     fun LibraryMusic(
         onDelete: () -> Unit,
@@ -172,7 +172,7 @@ object SwipeActionPresets {
             content = content
         )
     }
-    
+
     @Composable
     fun LibraryVideo(
         onDelete: () -> Unit,

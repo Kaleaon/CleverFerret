@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Sleep Timer Dialog
- * 
+ *
  * Allows users to set a sleep timer that will pause/stop playback after a specified duration.
  * Commonly used for audiobook listening before bed.
  *
@@ -39,7 +39,7 @@ fun SleepTimerDialog(
         TimerOption(90, "1.5 hours"),
         TimerOption(120, "2 hours")
     )
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {

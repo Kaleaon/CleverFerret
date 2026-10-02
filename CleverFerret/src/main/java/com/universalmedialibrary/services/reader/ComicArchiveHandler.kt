@@ -9,7 +9,7 @@ import java.io.FileInputStream
 
 /**
  * Handler for CB7 (7-Zip) and CBT (TAR) comic archive formats
- * 
+ *
  * Uses Apache Commons Compress library for extraction
  */
 object ComicArchiveHandler {
@@ -21,17 +21,17 @@ object ComicArchiveHandler {
 
     /**
      * Extract image entries from a CB7 (7-Zip) archive
-     * 
+     *
      * @param file The CB7 file
      * @return List of comic pages metadata (compatible with ComicReaderEngine)
      */
     fun extractSevenZipImageEntries(file: File): List<ExtractedComicPage> {
         val pages = mutableListOf<ExtractedComicPage>()
-        
+
         SevenZFile.builder().setFile(file).get().use { sevenZFile ->
             var entry = sevenZFile.nextEntry
             var index = 0
-            
+
             while (entry != null) {
                 if (!entry.isDirectory && isImageFile(entry.name)) {
                     pages.add(
@@ -46,23 +46,23 @@ object ComicArchiveHandler {
                 entry = sevenZFile.nextEntry
             }
         }
-        
+
         return pages.sortedBy { it.entryName }
     }
 
     /**
      * Extract image entries from a CBT (TAR) archive
-     * 
+     *
      * @param file The CBT file
      * @return List of comic pages metadata (compatible with ComicReaderEngine)
      */
     fun extractTarImageEntries(file: File): List<ExtractedComicPage> {
         val pages = mutableListOf<ExtractedComicPage>()
-        
+
         TarArchiveInputStream(FileInputStream(file)).use { tarInput ->
             var entry = tarInput.nextEntry
             var index = 0
-            
+
             while (entry != null) {
                 if (!entry.isDirectory && isImageFile(entry.name)) {
                     pages.add(
@@ -77,7 +77,7 @@ object ComicArchiveHandler {
                 entry = tarInput.nextEntry
             }
         }
-        
+
         return pages.sortedBy { it.entryName }
     }
 
@@ -87,14 +87,14 @@ object ComicArchiveHandler {
     fun getPageBitmapFromSevenZip(file: File, entryName: String): Bitmap? {
         SevenZFile.builder().setFile(file).get().use { sevenZFile ->
             var entry = sevenZFile.nextEntry
-            
+
             while (entry != null) {
                 if (!entry.isDirectory && entry.name == entryName) {
                     // Validate entry size to prevent memory issues (100MB limit)
                     if (entry.size > MAX_IMAGE_SIZE_BYTES) {
                         throw IllegalStateException("Image file too large: ${entry.size} bytes (max ${MAX_IMAGE_SIZE_BYTES})")
                     }
-                    
+
                     val content = ByteArray(entry.size.toInt())
                     sevenZFile.read(content)
                     return BitmapFactory.decodeByteArray(content, 0, content.size)
@@ -102,7 +102,7 @@ object ComicArchiveHandler {
                 entry = sevenZFile.nextEntry
             }
         }
-        
+
         return null
     }
 
@@ -112,14 +112,14 @@ object ComicArchiveHandler {
     fun getPageBitmapFromTar(file: File, entryName: String): Bitmap? {
         TarArchiveInputStream(FileInputStream(file)).use { tarInput ->
             var entry = tarInput.nextEntry
-            
+
             while (entry != null) {
                 if (!entry.isDirectory && entry.name == entryName) {
                     // Validate entry size to prevent memory issues (100MB limit)
                     if (entry.size > MAX_IMAGE_SIZE_BYTES) {
                         throw IllegalStateException("Image file too large: ${entry.size} bytes (max ${MAX_IMAGE_SIZE_BYTES})")
                     }
-                    
+
                     val content = ByteArray(entry.size.toInt())
                     tarInput.read(content)
                     return BitmapFactory.decodeByteArray(content, 0, content.size)
@@ -127,7 +127,7 @@ object ComicArchiveHandler {
                 entry = tarInput.nextEntry
             }
         }
-        
+
         return null
     }
 

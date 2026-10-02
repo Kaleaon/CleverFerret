@@ -17,10 +17,10 @@ import javax.inject.Singleton
 
 /**
  * Manga Source Service
- * 
+ *
  * Manages online manga sources for browsing and downloading manga
  * Designed to integrate with futon-parsers library when available
- * 
+ *
  * Features:
  * - Browse 1200+ manga sources (via futon-parsers)
  * - Search across multiple sources
@@ -34,10 +34,10 @@ class MangaSourceService @Inject constructor(
     private val httpClient: OkHttpClient,
     private val sourceRepository: MangaSourceRepository
 ) {
-    
+
     companion object {
         private const val TAG = "MangaSourceService"
-        
+
         // Popular built-in sources for when futon-parsers is not available
         val BUILTIN_SOURCES = listOf(
             MangaSource(
@@ -75,25 +75,25 @@ class MangaSourceService @Inject constructor(
             )
         )
     }
-    
+
     private val _availableSources = MutableStateFlow<List<MangaSource>>(emptyList())
     val availableSources: StateFlow<List<MangaSource>> = _availableSources.asStateFlow()
-    
+
     private val _enabledSources = MutableStateFlow<List<MangaSource>>(emptyList())
     val enabledSources: StateFlow<List<MangaSource>> = _enabledSources.asStateFlow()
-    
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    
+
     init {
         loadSources()
     }
-    
+
     private fun loadSources() {
         _availableSources.value = BUILTIN_SOURCES
         _enabledSources.value = BUILTIN_SOURCES.filter { it.isEnabled }
     }
-    
+
     /**
      * Get all available manga sources
      */
@@ -105,14 +105,14 @@ class MangaSourceService @Inject constructor(
             savedSources
         }
     }
-    
+
     /**
      * Get enabled sources
      */
     suspend fun getEnabledSources(): List<MangaSource> = withContext(Dispatchers.IO) {
         getAllSources().filter { it.isEnabled }
     }
-    
+
     /**
      * Enable or disable a source
      */
@@ -120,7 +120,7 @@ class MangaSourceService @Inject constructor(
         sourceRepository.setSourceEnabled(sourceId, enabled)
         loadSources()
     }
-    
+
     /**
      * Pin or unpin a source
      */
@@ -128,7 +128,7 @@ class MangaSourceService @Inject constructor(
         sourceRepository.setSourcePinned(sourceId, pinned)
         loadSources()
     }
-    
+
     /**
      * Search for manga across a source
      */
@@ -139,7 +139,7 @@ class MangaSourceService @Inject constructor(
     ): Result<MangaListPage> = withContext(Dispatchers.IO) {
         try {
             _isLoading.value = true
-            
+
             when (sourceId) {
                 "mangadex" -> searchMangaDex(query, page)
                 else -> Result.failure(Exception("Source $sourceId not yet implemented"))
@@ -151,7 +151,7 @@ class MangaSourceService @Inject constructor(
             _isLoading.value = false
         }
     }
-    
+
     /**
      * Get popular manga from a source
      */
@@ -161,7 +161,7 @@ class MangaSourceService @Inject constructor(
     ): Result<MangaListPage> = withContext(Dispatchers.IO) {
         try {
             _isLoading.value = true
-            
+
             when (sourceId) {
                 "mangadex" -> getPopularMangaDex(page)
                 else -> Result.failure(Exception("Source $sourceId not yet implemented"))
@@ -173,7 +173,7 @@ class MangaSourceService @Inject constructor(
             _isLoading.value = false
         }
     }
-    
+
     /**
      * Get latest updates from a source
      */
@@ -183,7 +183,7 @@ class MangaSourceService @Inject constructor(
     ): Result<MangaListPage> = withContext(Dispatchers.IO) {
         try {
             _isLoading.value = true
-            
+
             when (sourceId) {
                 "mangadex" -> getLatestMangaDex(page)
                 else -> Result.failure(Exception("Source $sourceId not yet implemented"))
@@ -195,7 +195,7 @@ class MangaSourceService @Inject constructor(
             _isLoading.value = false
         }
     }
-    
+
     /**
      * Get manga details including chapters
      */
@@ -213,7 +213,7 @@ class MangaSourceService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     /**
      * Get chapter pages for reading
      */
@@ -232,163 +232,163 @@ class MangaSourceService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     // ========================================
     // MangaDex Implementation
     // ========================================
-    
+
     private val mangaDexBaseUrl = "https://api.mangadex.org"
-    
+
     private suspend fun searchMangaDex(query: String, page: Int): Result<MangaListPage> {
         val limit = 20
         val offset = page * limit
-        
+
         val url = "$mangaDexBaseUrl/manga?title=$query&limit=$limit&offset=$offset" +
                   "&includes[]=cover_art&includes[]=author"
-        
+
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", "CleverFerret/1.0")
             .build()
-        
+
         httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 return Result.failure(Exception("HTTP error: ${response.code}"))
             }
-            
+
             val json = JSONObject(response.body?.string() ?: "")
             val data = json.getJSONArray("data")
             val total = json.optInt("total", 0)
-            
+
             val manga = parseMangaDexList(data)
-            
+
             return Result.success(MangaListPage(
                 manga = manga,
                 hasNextPage = offset + limit < total
             ))
         }
     }
-    
+
     private suspend fun getPopularMangaDex(page: Int): Result<MangaListPage> {
         val limit = 20
         val offset = page * limit
-        
+
         val url = "$mangaDexBaseUrl/manga?order[followedCount]=desc&limit=$limit&offset=$offset" +
                   "&includes[]=cover_art&includes[]=author"
-        
+
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", "CleverFerret/1.0")
             .build()
-        
+
         httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 return Result.failure(Exception("HTTP error: ${response.code}"))
             }
-            
+
             val json = JSONObject(response.body?.string() ?: "")
             val data = json.getJSONArray("data")
             val total = json.optInt("total", 0)
-            
+
             return Result.success(MangaListPage(
                 manga = parseMangaDexList(data),
                 hasNextPage = offset + limit < total
             ))
         }
     }
-    
+
     private suspend fun getLatestMangaDex(page: Int): Result<MangaListPage> {
         val limit = 20
         val offset = page * limit
-        
+
         val url = "$mangaDexBaseUrl/manga?order[latestUploadedChapter]=desc&limit=$limit&offset=$offset" +
                   "&includes[]=cover_art&includes[]=author"
-        
+
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", "CleverFerret/1.0")
             .build()
-        
+
         httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 return Result.failure(Exception("HTTP error: ${response.code}"))
             }
-            
+
             val json = JSONObject(response.body?.string() ?: "")
             val data = json.getJSONArray("data")
             val total = json.optInt("total", 0)
-            
+
             return Result.success(MangaListPage(
                 manga = parseMangaDexList(data),
                 hasNextPage = offset + limit < total
             ))
         }
     }
-    
+
     private suspend fun getMangaDetailsMangaDex(mangaUrl: String): Result<OnlineManga> {
         val mangaId = mangaUrl.substringAfterLast("/")
-        
+
         // Get manga details
         val detailsUrl = "$mangaDexBaseUrl/manga/$mangaId?includes[]=cover_art&includes[]=author&includes[]=artist"
-        
+
         val detailsRequest = Request.Builder()
             .url(detailsUrl)
             .header("User-Agent", "CleverFerret/1.0")
             .build()
-        
+
         val manga = httpClient.newCall(detailsRequest).execute().use { response ->
             if (!response.isSuccessful) {
                 return Result.failure(Exception("HTTP error: ${response.code}"))
             }
-            
+
             val json = JSONObject(response.body?.string() ?: "")
             parseMangaDexManga(json.getJSONObject("data"))
         }
-        
+
         // Get chapters
         val chaptersUrl = "$mangaDexBaseUrl/manga/$mangaId/feed?limit=500&order[chapter]=asc&translatedLanguage[]=en"
-        
+
         val chaptersRequest = Request.Builder()
             .url(chaptersUrl)
             .header("User-Agent", "CleverFerret/1.0")
             .build()
-        
+
         val chapters = httpClient.newCall(chaptersRequest).execute().use { response ->
             if (!response.isSuccessful) {
                 return Result.failure(Exception("HTTP error: ${response.code}"))
             }
-            
+
             val json = JSONObject(response.body?.string() ?: "")
             parseMangaDexChapters(json.getJSONArray("data"), manga.id)
         }
-        
+
         return Result.success(manga.copy(chapters = chapters))
     }
-    
+
     private suspend fun getChapterPagesMangaDex(
         chapterId: Long,
         chapterUrl: String
     ): Result<List<MangaPage>> {
         val chapterMdId = chapterUrl.substringAfterLast("/")
-        
+
         val url = "$mangaDexBaseUrl/at-home/server/$chapterMdId"
-        
+
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", "CleverFerret/1.0")
             .build()
-        
+
         httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 return Result.failure(Exception("HTTP error: ${response.code}"))
             }
-            
+
             val json = JSONObject(response.body?.string() ?: "")
             val baseUrl = json.getString("baseUrl")
             val chapter = json.getJSONObject("chapter")
             val hash = chapter.getString("hash")
             val data = chapter.getJSONArray("data")
-            
+
             val pages = (0 until data.length()).map { i ->
                 val filename = data.getString(i)
                 MangaPage(
@@ -397,13 +397,13 @@ class MangaSourceService @Inject constructor(
                     url = "$baseUrl/data/$hash/$filename"
                 )
             }
-            
+
             return Result.success(pages)
         }
     }
-    
+
     // Helper parsing methods
-    
+
     private fun parseMangaDexList(data: JSONArray): List<OnlineManga> {
         return (0 until data.length()).mapNotNull { i ->
             try {
@@ -414,33 +414,33 @@ class MangaSourceService @Inject constructor(
             }
         }
     }
-    
+
     private fun parseMangaDexManga(data: JSONObject): OnlineManga {
         val id = data.getString("id")
         val attributes = data.getJSONObject("attributes")
         val relationships = data.optJSONArray("relationships") ?: JSONArray()
-        
+
         // Get title
         val titleObj = attributes.getJSONObject("title")
         val title = titleObj.optString("en")
             ?: titleObj.optString("ja-ro")
             ?: titleObj.keys().asSequence().firstOrNull()?.let { titleObj.getString(it) }
             ?: "Unknown"
-        
+
         // Get alt title
         val altTitles = attributes.optJSONArray("altTitles")
-        val altTitle = altTitles?.let { 
+        val altTitle = altTitles?.let {
             (0 until it.length()).asSequence()
                 .mapNotNull { i -> it.optJSONObject(i)?.optString("en") }
                 .firstOrNull()
         }
-        
+
         // Get description
         val descObj = attributes.optJSONObject("description")
-        val description = descObj?.optString("en") ?: descObj?.let { 
+        val description = descObj?.optString("en") ?: descObj?.let {
             it.keys().asSequence().firstOrNull()?.let { key -> it.getString(key) }
         }
-        
+
         // Get cover
         var coverUrl: String? = null
         for (i in 0 until relationships.length()) {
@@ -453,7 +453,7 @@ class MangaSourceService @Inject constructor(
                 break
             }
         }
-        
+
         // Get author
         var author: String? = null
         for (i in 0 until relationships.length()) {
@@ -463,7 +463,7 @@ class MangaSourceService @Inject constructor(
                 break
             }
         }
-        
+
         // Get tags
         val tagsArray = attributes.optJSONArray("tags") ?: JSONArray()
         val tags = (0 until tagsArray.length()).mapNotNull { i ->
@@ -473,7 +473,7 @@ class MangaSourceService @Inject constructor(
             val tagName = nameObj.optString("en") ?: return@mapNotNull null
             MangaTag(key = tag.getString("id"), title = tagName, source = "mangadex")
         }
-        
+
         // Get state
         val status = attributes.optString("status")
         val state = when (status) {
@@ -483,7 +483,7 @@ class MangaSourceService @Inject constructor(
             "cancelled" -> MangaState.ABANDONED
             else -> MangaState.UNKNOWN
         }
-        
+
         // Get content rating
         val rating = attributes.optString("contentRating")
         val contentRating = when (rating) {
@@ -492,7 +492,7 @@ class MangaSourceService @Inject constructor(
             "erotica", "pornographic" -> ContentRating.NSFW
             else -> ContentRating.SAFE
         }
-        
+
         return OnlineManga(
             id = id.hashCode().toLong(),
             sourceId = "mangadex",
@@ -509,30 +509,30 @@ class MangaSourceService @Inject constructor(
             isNsfw = contentRating == ContentRating.NSFW
         )
     }
-    
+
     private fun parseMangaDexChapters(data: JSONArray, mangaId: Long): List<MangaChapter> {
         return (0 until data.length()).mapNotNull { i ->
             try {
                 val chapter = data.getJSONObject(i)
                 val id = chapter.getString("id")
                 val attrs = chapter.getJSONObject("attributes")
-                
+
                 val chapterNum = attrs.optString("chapter")
                     .takeIf { it.isNotBlank() }
                     ?.toFloatOrNull() ?: (i + 1).toFloat()
-                
+
                 val volume = attrs.optString("volume")
                     .takeIf { it.isNotBlank() }
                     ?.toIntOrNull() ?: 0
-                
+
                 val title = attrs.optString("title").takeIf { it.isNotBlank() }
                     ?: "Chapter $chapterNum"
-                
+
                 val uploadDate = attrs.optString("publishAt")
                 val timestamp = try {
                     java.time.Instant.parse(uploadDate).toEpochMilli()
                 } catch (e: Exception) { 0L }
-                
+
                 // Get scanlator
                 val relationships = chapter.optJSONArray("relationships") ?: JSONArray()
                 var scanlator: String? = null
@@ -543,7 +543,7 @@ class MangaSourceService @Inject constructor(
                         break
                     }
                 }
-                
+
                 MangaChapter(
                     id = id.hashCode().toLong(),
                     mangaId = mangaId,

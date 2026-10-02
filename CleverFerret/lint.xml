@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
     <!-- Suppress common issues for development builds -->
-    
+
     <!-- Translation issues - we'll handle internationalization later -->
     <issue id="MissingTranslation" severity="warning" />
     <issue id="ExtraTranslation" severity="warning" />
@@ -11,92 +11,92 @@
     <issue id="NewerVersionAvailable" severity="ignore" />
     <issue id="Aligned16KB" severity="ignore" />
     <issue id="UseKtx" severity="ignore" />
-    
+
     <!-- Icon and resource issues -->
     <issue id="IconMissingDensityFolder" severity="warning" />
     <issue id="IconDensities" severity="warning" />
     <issue id="IconDuplicates" severity="warning" />
     <issue id="IconLocation" severity="warning" />
     <issue id="MissingApplicationIcon" severity="warning" />
-    
+
     <!-- Unused resources - common during development -->
     <issue id="UnusedResources" severity="ignore" />
     <issue id="UnusedIds" severity="ignore" />
-    
+
     <!-- API compatibility issues that are acceptable -->
     <issue id="NewApi" severity="warning" />
     <issue id="OldTargetApi" severity="warning" />
-    
+
     <!-- Performance warnings that don't affect functionality -->
     <issue id="UselessParent" severity="warning" />
     <issue id="TooManyViews" severity="warning" />
     <issue id="TooDeepLayout" severity="warning" />
     <issue id="UseCompoundDrawables" severity="warning" />
-    
+
     <!-- Accessibility - important but not blocking for development -->
     <issue id="ContentDescription" severity="warning" />
     <issue id="ClickableViewAccessibility" severity="warning" />
     <issue id="KeyboardInaccessibleWidget" severity="warning" />
-    
+
     <!-- Security issues that are acceptable for this type of app -->
     <issue id="AllowBackup" severity="warning" />
     <issue id="ExportedReceiver" severity="warning" />
     <issue id="ExportedService" severity="warning" />
     <issue id="HardcodedDebugMode" severity="warning" />
-    
+
     <!-- Naming conventions -->
     <issue id="TypographyFractions" severity="ignore" />
     <issue id="TypographyDashes" severity="ignore" />
     <issue id="TypographyQuotes" severity="ignore" />
-    
+
     <!-- Jetpack Compose specific -->
     <issue id="ComposableNaming" severity="warning" />
     <issue id="UnrememberedMutableState" severity="warning" />
-    
+
     <!-- Suppress specific files that might have issues -->
     <issue id="HardcodedText">
         <ignore path="src/main/java/com/universalmedialibrary/ui/theme/PlexTheme.kt" />
         <ignore path="src/main/java/com/universalmedialibrary/ui/settings/SettingsScreen.kt" />
     </issue>
-    
+
     <!-- Allow hardcoded strings in certain development screens -->
     <issue id="HardcodedText" severity="warning" />
-    
+
     <!-- Ignore lint issues in generated files -->
     <issue id="all">
         <ignore path="**/build/**" />
         <ignore path="**/generated/**" />
     </issue>
-    
+
     <!-- DefaultLocale - format strings with locales -->
     <issue id="DefaultLocale" severity="warning" />
-    
+
     <!-- Screen orientation - acceptable for some activities -->
     <issue id="LockedOrientationActivity" severity="warning" />
-    
+
     <!-- Media3 experimental APIs -->
     <issue id="UnsafeOptInUsageError" severity="ignore" />
-    
+
     <!-- Retrofit and networking -->
     <!-- These are reported from transitive dependencies (cannot be fixed here). -->
     <issue id="TrustAllX509TrustManager" severity="ignore" />
     <issue id="BadHostnameVerifier" severity="warning" />
-    
+
     <!-- Third-party library issues -->
     <issue id="VectorPath" severity="warning" />
     <issue id="ImpliedQuantity" severity="ignore" />
-    
+
     <!-- Development and debugging -->
     <issue id="LogConditional" severity="ignore" />
     <issue id="StopShip" severity="error" />
     <issue id="PrintStackTrace" severity="error" />
-    
+
     <!-- Manifest issues that are acceptable -->
     <issue id="PermissionImpliesUnsupportedChromeOsHardware" severity="warning" />
     <issue id="DataExtractionRules" severity="warning" />
     <issue id="UnusedAttribute" severity="warning" />
     <issue id="HardwareIds" severity="ignore" />
-    
+
     <!-- Compose-specific suppressions -->
     <issue id="ModifierParameter" severity="ignore" />
     <issue id="UnnecessaryComposedModifier" severity="ignore" />
@@ -107,7 +107,7 @@
 
     <!-- Third-party Compose gesture helpers -->
     <issue id="ReturnFromAwaitPointerEventScope" severity="ignore" />
-    
+
     <!-- Suppress issues in specific problematic files -->
     <issue id="all">
         <ignore path="src/main/java/com/universalmedialibrary/services/analysis/**" />

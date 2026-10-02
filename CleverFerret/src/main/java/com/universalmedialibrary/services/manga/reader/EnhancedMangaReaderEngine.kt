@@ -26,7 +26,7 @@ import javax.inject.Singleton
 
 /**
  * Enhanced Manga Reader Engine
- * 
+ *
  * Advanced manga reading engine with features inspired by Futon/Kotatsu:
  * - Page preloading and caching
  * - Edge detection and border cropping
@@ -42,46 +42,46 @@ class EnhancedMangaReaderEngine @Inject constructor(
     private val edgeDetector: PageEdgeDetector,
     private val webtoonScroller: WebtoonScroller
 ) {
-    
+
     companion object {
         private const val TAG = "MangaReaderEngine"
         private const val CACHE_SIZE_MB = 50
         private const val PRELOAD_AHEAD = 3
         private const val PRELOAD_BEHIND = 1
     }
-    
+
     // Page bitmap cache
     private val pageCache: LruCache<String, Bitmap> = LruCache(
         (CACHE_SIZE_MB * 1024 * 1024).toInt() / (1024 * 1024) // Simplified to MB count
     )
-    
+
     // Current state
     private var currentManga: OnlineManga? = null
     private var currentChapter: MangaChapter? = null
     private var chapters: List<MangaChapter> = emptyList()
     private var pages: List<MangaPage> = emptyList()
     private var currentPageIndex: Int = 0
-    
+
     // Settings
     private val _settings = MutableStateFlow(MangaReaderSettings())
     val settings: StateFlow<MangaReaderSettings> = _settings.asStateFlow()
-    
+
     // Page state
     private val _pageState = MutableStateFlow<MangaPageState?>(null)
     val pageState: StateFlow<MangaPageState?> = _pageState.asStateFlow()
-    
+
     // Loading state
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    
+
     // Current page bitmap
     private val _currentPageBitmap = MutableStateFlow<Bitmap?>(null)
     val currentPageBitmap: StateFlow<Bitmap?> = _currentPageBitmap.asStateFlow()
-    
+
     // Content bounds (for cropped pages)
     private val _contentBounds = MutableStateFlow<Rect?>(null)
     val contentBounds: StateFlow<Rect?> = _contentBounds.asStateFlow()
-    
+
     /**
      * Load manga for reading
      */
@@ -94,10 +94,10 @@ class EnhancedMangaReaderEngine @Inject constructor(
         currentChapter = chapter
         chapters = manga.chapters ?: listOf(chapter)
         currentPageIndex = pageIndex
-        
+
         updatePageState()
     }
-    
+
     /**
      * Load chapter pages
      */
@@ -105,28 +105,28 @@ class EnhancedMangaReaderEngine @Inject constructor(
         pages = chapterPages
         currentPageIndex = 0
         updatePageState()
-        
+
         // Load first page
         loadPage(0)
-        
+
         // Preload next pages
         preloadPages()
     }
-    
+
     /**
      * Go to specific page
      */
     suspend fun goToPage(pageIndex: Int): Boolean {
         if (pageIndex < 0 || pageIndex >= pages.size) return false
-        
+
         currentPageIndex = pageIndex
         updatePageState()
         loadPage(pageIndex)
         preloadPages()
-        
+
         return true
     }
-    
+
     /**
      * Go to next page
      */
@@ -138,7 +138,7 @@ class EnhancedMangaReaderEngine @Inject constructor(
             nextChapter()
         }
     }
-    
+
     /**
      * Go to previous page
      */
@@ -150,7 +150,7 @@ class EnhancedMangaReaderEngine @Inject constructor(
             previousChapter(goToLastPage = true)
         }
     }
-    
+
     /**
      * Go to next chapter
      */
@@ -165,7 +165,7 @@ class EnhancedMangaReaderEngine @Inject constructor(
         }
         return false
     }
-    
+
     /**
      * Go to previous chapter
      */
@@ -180,24 +180,24 @@ class EnhancedMangaReaderEngine @Inject constructor(
         }
         return false
     }
-    
+
     /**
      * Update reader settings
      */
     fun updateSettings(newSettings: MangaReaderSettings) {
         _settings.value = newSettings
     }
-    
+
     /**
      * Get color filter paint for rendering
      */
     fun getColorFilterPaint(): Paint? {
         val filter = _settings.value.colorFilter ?: return null
         if (filter.isEmpty) return null
-        
+
         val paint = Paint()
         val colorMatrix = ColorMatrix()
-        
+
         // Apply brightness
         if (filter.brightness != 0f) {
             val brightnessMatrix = ColorMatrix()
@@ -210,7 +210,7 @@ class EnhancedMangaReaderEngine @Inject constructor(
             ))
             colorMatrix.postConcat(brightnessMatrix)
         }
-        
+
         // Apply contrast
         if (filter.contrast != 0f) {
             val contrastMatrix = ColorMatrix()
@@ -224,7 +224,7 @@ class EnhancedMangaReaderEngine @Inject constructor(
             ))
             colorMatrix.postConcat(contrastMatrix)
         }
-        
+
         // Apply warmth (blue light filter)
         if (filter.warmth != 0f) {
             val warmthMatrix = ColorMatrix()
@@ -237,14 +237,14 @@ class EnhancedMangaReaderEngine @Inject constructor(
             ))
             colorMatrix.postConcat(warmthMatrix)
         }
-        
+
         // Apply grayscale
         if (filter.grayscale) {
             val grayscaleMatrix = ColorMatrix()
             grayscaleMatrix.setSaturation(0f)
             colorMatrix.postConcat(grayscaleMatrix)
         }
-        
+
         // Apply inversion
         if (filter.inverted) {
             val invertMatrix = ColorMatrix(floatArrayOf(
@@ -255,11 +255,11 @@ class EnhancedMangaReaderEngine @Inject constructor(
             ))
             colorMatrix.postConcat(invertMatrix)
         }
-        
+
         paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
         return paint
     }
-    
+
     /**
      * Clear cache and resources
      */
@@ -274,36 +274,36 @@ class EnhancedMangaReaderEngine @Inject constructor(
         _currentPageBitmap.value = null
         _contentBounds.value = null
     }
-    
+
     // Private methods
-    
+
     private suspend fun loadPage(pageIndex: Int) = withContext(Dispatchers.IO) {
         if (pageIndex < 0 || pageIndex >= pages.size) return@withContext
-        
+
         _isLoading.value = true
-        
+
         try {
             val page = pages[pageIndex]
             val cacheKey = "${currentChapter?.id}_$pageIndex"
-            
+
             // Check cache first
             var bitmap = pageCache.get(cacheKey)
-            
+
             if (bitmap == null) {
                 // Download and decode
                 bitmap = downloadPage(page)
-                
+
                 if (bitmap != null) {
                     // Apply border cropping if enabled
                     if (_settings.value.cropBorders) {
                         val bounds = edgeDetector.detectContentBounds(
-                            bitmap, 
+                            bitmap,
                             _settings.value.cropBordersThreshold
                         )
                         _contentBounds.value = bounds
-                        
+
                         // Optionally crop the bitmap
-                        if (bounds.left > 0 || bounds.top > 0 || 
+                        if (bounds.left > 0 || bounds.top > 0 ||
                             bounds.right < bitmap.width || bounds.bottom < bitmap.height) {
                             bitmap = Bitmap.createBitmap(
                                 bitmap,
@@ -314,34 +314,34 @@ class EnhancedMangaReaderEngine @Inject constructor(
                             )
                         }
                     }
-                    
+
                     // Cache the processed bitmap
                     pageCache.put(cacheKey, bitmap)
                 }
             }
-            
+
             if (pageIndex == currentPageIndex) {
                 _currentPageBitmap.value = bitmap
             }
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to load page $pageIndex", e)
         } finally {
             _isLoading.value = false
         }
     }
-    
+
     private suspend fun downloadPage(page: MangaPage): Bitmap? = withContext(Dispatchers.IO) {
         try {
             val requestBuilder = Request.Builder()
                 .url(page.url)
                 .header("User-Agent", "CleverFerret/1.0")
-            
+
             page.referer?.let { requestBuilder.header("Referer", it) }
-            
+
             httpClient.newCall(requestBuilder.build()).execute().use { response ->
                 if (!response.isSuccessful) return@withContext null
-                
+
                 val bytes = response.body?.bytes() ?: return@withContext null
                 BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
             }
@@ -350,7 +350,7 @@ class EnhancedMangaReaderEngine @Inject constructor(
             null
         }
     }
-    
+
     private suspend fun preloadPages() = withContext(Dispatchers.IO) {
         // Preload ahead
         for (i in 1..PRELOAD_AHEAD) {
@@ -362,7 +362,7 @@ class EnhancedMangaReaderEngine @Inject constructor(
                 }
             }
         }
-        
+
         // Preload behind
         for (i in 1..PRELOAD_BEHIND) {
             val idx = currentPageIndex - i
@@ -374,11 +374,11 @@ class EnhancedMangaReaderEngine @Inject constructor(
             }
         }
     }
-    
+
     private fun updatePageState() {
         val manga = currentManga ?: return
         val chapter = currentChapter ?: return
-        
+
         _pageState.value = MangaPageState(
             pageIndex = currentPageIndex,
             totalPages = pages.size.coerceAtLeast(1),

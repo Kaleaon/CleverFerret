@@ -35,7 +35,7 @@ internal fun FileSystemTopBar(
 ) {
     var showSearch by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
-    
+
     TopAppBar(
         title = {
             if (showSearch) {
@@ -45,8 +45,8 @@ internal fun FileSystemTopBar(
                         searchQuery = it
                         onSearch(it)
                     },
-                    placeholder = { 
-                        Text("Search in folder...", color = MediaColors.TextTertiary) 
+                    placeholder = {
+                        Text("Search in folder...", color = MediaColors.TextTertiary)
                     },
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(

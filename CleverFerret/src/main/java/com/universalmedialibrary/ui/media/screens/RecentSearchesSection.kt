@@ -49,7 +49,7 @@ internal fun RecentSearchesSection(
                 style = MediaTypography.TitleSmall,
                 color = MediaColors.TextSecondary
             )
-            
+
             TextButton(onClick = onClearAll) {
                 Text(
                     text = "Clear",
@@ -57,7 +57,7 @@ internal fun RecentSearchesSection(
                 )
             }
         }
-        
+
         recentSearches.forEach { search ->
             Row(
                 modifier = Modifier
@@ -72,16 +72,16 @@ internal fun RecentSearchesSection(
                     tint = MediaColors.TextTertiary,
                     modifier = Modifier.size(20.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                
+
                 Text(
                     text = search,
                     style = MediaTypography.BodyMedium,
                     color = MediaColors.TextPrimary,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 Icon(
                     imageVector = Icons.Default.NorthWest,
                     contentDescription = "Use this search",

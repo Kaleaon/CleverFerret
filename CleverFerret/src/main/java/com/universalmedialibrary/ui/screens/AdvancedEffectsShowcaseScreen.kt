@@ -38,7 +38,7 @@ fun AdvancedEffectsShowcaseScreen() {
             item {
                 SectionHeader("Metallic Effects")
             }
-            
+
             item {
                 MetallicCard(
                     modifier = Modifier.fillMaxWidth()
@@ -56,12 +56,12 @@ fun AdvancedEffectsShowcaseScreen() {
                     )
                 }
             }
-            
+
             // Section: Glass Effects
             item {
                 SectionHeader("Glass & Blur Effects")
             }
-            
+
             item {
                 GlassCard(
                     modifier = Modifier.fillMaxWidth()
@@ -79,12 +79,12 @@ fun AdvancedEffectsShowcaseScreen() {
                     )
                 }
             }
-            
+
             // Section: Glow Effects
             item {
                 SectionHeader("Crystal Glow Effects")
             }
-            
+
             item {
                 GlowingCard(
                     modifier = Modifier.fillMaxWidth(),
@@ -103,12 +103,12 @@ fun AdvancedEffectsShowcaseScreen() {
                     )
                 }
             }
-            
+
             // Section: Depth & Elevation
             item {
                 SectionHeader("Depth & Elevation")
             }
-            
+
             item {
                 ElevatedLightCard(
                     modifier = Modifier.fillMaxWidth()
@@ -126,12 +126,12 @@ fun AdvancedEffectsShowcaseScreen() {
                     )
                 }
             }
-            
+
             // Section: Embossed Effects
             item {
                 SectionHeader("Carved & Embossed")
             }
-            
+
             item {
                 EmbossedCard(
                     modifier = Modifier.fillMaxWidth()
@@ -149,12 +149,12 @@ fun AdvancedEffectsShowcaseScreen() {
                     )
                 }
             }
-            
+
             // Section: Patterns
             item {
                 SectionHeader("Geometric Patterns")
             }
-            
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -170,7 +170,7 @@ fun AdvancedEffectsShowcaseScreen() {
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    
+
                     PatternedCard(
                         modifier = Modifier.weight(1f),
                         patternType = PatternType.DIAGONAL_LINES
@@ -183,7 +183,7 @@ fun AdvancedEffectsShowcaseScreen() {
                     }
                 }
             }
-            
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -199,7 +199,7 @@ fun AdvancedEffectsShowcaseScreen() {
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    
+
                     PatternedCard(
                         modifier = Modifier.weight(1f),
                         patternType = PatternType.HEXAGONS
@@ -212,12 +212,12 @@ fun AdvancedEffectsShowcaseScreen() {
                     }
                 }
             }
-            
+
             // Section: Gradient Overlays
             item {
                 SectionHeader("Gradient Overlays")
             }
-            
+
             item {
                 GradientOverlayCard(
                     modifier = Modifier.fillMaxWidth(),
@@ -240,12 +240,12 @@ fun AdvancedEffectsShowcaseScreen() {
                     )
                 }
             }
-            
+
             // Section: Buttons
             item {
                 SectionHeader("Enhanced Buttons")
             }
-            
+
             item {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -257,7 +257,7 @@ fun AdvancedEffectsShowcaseScreen() {
                     ) {
                         Text("Metallic Button with Shimmer")
                     }
-                    
+
                     ElevatedActionButton(
                         onClick = {},
                         modifier = Modifier.fillMaxWidth()
@@ -266,7 +266,7 @@ fun AdvancedEffectsShowcaseScreen() {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Elevated Action Button")
                     }
-                    
+
                     GradientButton(
                         onClick = {},
                         icon = Icons.Default.Favorite,
@@ -274,7 +274,7 @@ fun AdvancedEffectsShowcaseScreen() {
                     ) {
                         Text("Gradient Button")
                     }
-                    
+
                     EmbossedOutlinedButton(
                         onClick = {},
                         modifier = Modifier.fillMaxWidth()
@@ -283,7 +283,7 @@ fun AdvancedEffectsShowcaseScreen() {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Embossed Outlined Button")
                     }
-                    
+
                     GlassButton(
                         onClick = {},
                         modifier = Modifier.fillMaxWidth()
@@ -294,12 +294,12 @@ fun AdvancedEffectsShowcaseScreen() {
                     }
                 }
             }
-            
+
             // Section: FAB
             item {
                 SectionHeader("Floating Action Buttons")
             }
-            
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -309,7 +309,7 @@ fun AdvancedEffectsShowcaseScreen() {
                         onClick = {},
                         icon = Icons.Default.Add
                     )
-                    
+
                     GlowingFab(
                         onClick = {},
                         icon = Icons.Default.Edit,
@@ -317,7 +317,7 @@ fun AdvancedEffectsShowcaseScreen() {
                     )
                 }
             }
-            
+
             // Info section
             item {
                 Card(

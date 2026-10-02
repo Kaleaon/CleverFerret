@@ -214,7 +214,7 @@ class PodcastDownloadManager @Inject constructor(
             while (!isComplete && activeDownloads.containsKey(downloadId)) {
                 val query = DownloadManager.Query().setFilterById(downloadId)
                 val cursor = downloadManager.query(query)
-                
+
                 try {
                     if (cursor.moveToFirst()) {
                         val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)

@@ -19,25 +19,25 @@ class ComicRepository @Inject constructor(
         const val MEDIA_TYPE_COMIC = "COMIC"
         const val MEDIA_TYPE_MANGA = "MANGA"
     }
-    
-    fun getAllComics(): Flow<List<MediaItem>> = 
+
+    fun getAllComics(): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(MEDIA_TYPE_COMIC)
-    
-    suspend fun getComicById(id: Long): MediaItem? = 
+
+    suspend fun getComicById(id: Long): MediaItem? =
         mediaItemDao.getMediaItemById(id)
-    
-    fun getRecentlyAddedComics(limit: Int = 10): Flow<List<MediaItem>> = 
+
+    fun getRecentlyAddedComics(limit: Int = 10): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(MEDIA_TYPE_COMIC).map { it.take(limit) }
-    
-    suspend fun searchComics(query: String): List<MediaItem> = 
+
+    suspend fun searchComics(query: String): List<MediaItem> =
         mediaItemDao.searchMediaItems(query, 100)
             .filter { it.mediaType == MEDIA_TYPE_COMIC || it.mediaType == MEDIA_TYPE_MANGA }
-    
+
     suspend fun insertComic(comic: MediaItem) = mediaItemDao.insertMediaItem(comic)
-    
+
     suspend fun updateComic(comic: MediaItem) = mediaItemDao.updateMediaItem(comic)
-    
+
     suspend fun deleteComic(comic: MediaItem) = mediaItemDao.deleteMediaItem(comic)
-    
+
     suspend fun getComicCount(): Int = mediaItemDao.getItemCountByType(MEDIA_TYPE_COMIC)
 }

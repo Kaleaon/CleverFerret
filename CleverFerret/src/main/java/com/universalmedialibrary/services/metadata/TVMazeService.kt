@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 /**
  * TVMaze Service
- * 
+ *
  * Comprehensive service for fetching TV show data from TVMaze API.
  * TVMaze provides:
  * - Complete TV show information
@@ -25,18 +25,18 @@ import javax.inject.Singleton
  * - High-quality images
  * - Network and schedule data
  * - Links to IMDb, TheTVDB, and TVRage
- * 
+ *
  * Best of all: No API key required!
  */
 @Singleton
 class TVMazeService @Inject constructor() {
-    
+
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
         isLenient = true
     }
-    
+
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
@@ -48,7 +48,7 @@ class TVMazeService @Inject constructor() {
             chain.proceed(request)
         }
         .build()
-    
+
     private val tvMazeApi: TVMazeApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.tvmaze.com/")
@@ -57,10 +57,10 @@ class TVMazeService @Inject constructor() {
             .build()
             .create(TVMazeApi::class.java)
     }
-    
+
     /**
      * Search for TV shows by name
-     * 
+     *
      * Example:
      * ```kotlin
      * val results = service.searchShows("Breaking Bad")
@@ -86,10 +86,10 @@ class TVMazeService @Inject constructor() {
             )
         }
     }
-    
+
     /**
      * Get complete show information including episodes and cast
-     * 
+     *
      * Example:
      * ```kotlin
      * val details = service.getCompleteShowDetails(169) // Breaking Bad
@@ -107,19 +107,19 @@ class TVMazeService @Inject constructor() {
             } catch (e: Exception) {
                 emptyList()
             }
-            
+
             val cast = try {
                 tvMazeApi.getShowCast(showId)
             } catch (e: Exception) {
                 emptyList()
             }
-            
+
             val seasons = try {
                 tvMazeApi.getShowSeasons(showId)
             } catch (e: Exception) {
                 emptyList()
             }
-            
+
             CompleteShowDetails(
                 show = show,
                 episodes = episodes,
@@ -141,7 +141,7 @@ class TVMazeService @Inject constructor() {
             )
         }
     }
-    
+
     /**
      * Get basic show information
      */
@@ -152,10 +152,10 @@ class TVMazeService @Inject constructor() {
             null
         }
     }
-    
+
     /**
      * Get all episodes for a show organized by season
-     * 
+     *
      * Example:
      * ```kotlin
      * val episodesBySeason = service.getEpisodesBySeason(169)
@@ -172,10 +172,10 @@ class TVMazeService @Inject constructor() {
             emptyMap()
         }
     }
-    
+
     /**
      * Get specific episode by season and episode number
-     * 
+     *
      * Example:
      * ```kotlin
      * val episode = service.getEpisode(169, season = 1, episode = 1)
@@ -189,7 +189,7 @@ class TVMazeService @Inject constructor() {
             null
         }
     }
-    
+
     /**
      * Get cast for a show
      */
@@ -200,7 +200,7 @@ class TVMazeService @Inject constructor() {
             emptyList()
         }
     }
-    
+
     /**
      * Get seasons for a show
      */
@@ -211,13 +211,13 @@ class TVMazeService @Inject constructor() {
             emptyList()
         }
     }
-    
+
     /**
      * Find show by IMDb ID
-     * 
+     *
      * This uses TVMaze's direct lookup endpoint for IMDb IDs.
      * Falls back to search if the direct lookup fails.
-     * 
+     *
      * Example:
      * ```kotlin
      * val show = service.findShowByImdbId("tt0903747") // Breaking Bad
@@ -239,10 +239,10 @@ class TVMazeService @Inject constructor() {
             }
         }
     }
-    
+
     /**
      * Get episode air dates for scheduling
-     * 
+     *
      * Useful for tracking when new episodes air
      */
     suspend fun getUpcomingEpisodes(showId: Int): List<TVMazeEpisode> {
@@ -256,10 +256,10 @@ class TVMazeService @Inject constructor() {
             emptyList()
         }
     }
-    
+
     /**
      * Get show information formatted for CleverFerret MediaItem
-     * 
+     *
      * This helper method formats TVMaze data into a structure
      * that's easy to use for creating MediaItem metadata.
      */
@@ -289,7 +289,7 @@ class TVMazeService @Inject constructor() {
             null
         }
     }
-    
+
     /**
      * Get episode metadata formatted for CleverFerret
      */
@@ -301,7 +301,7 @@ class TVMazeService @Inject constructor() {
         return try {
             val show = tvMazeApi.getShow(showId)
             val episodeData = tvMazeApi.getEpisodeByNumber(showId, season, episode)
-            
+
             TVEpisodeMetadata(
                 tvMazeEpisodeId = episodeData.id,
                 tvMazeShowId = show.id,
@@ -319,10 +319,10 @@ class TVMazeService @Inject constructor() {
             null
         }
     }
-    
+
     /**
      * Clean HTML tags from TVMaze summaries
-     * 
+     *
      * TVMaze returns summaries with HTML tags like <p>, <b>, etc.
      * This helper strips them out for cleaner display.
      */

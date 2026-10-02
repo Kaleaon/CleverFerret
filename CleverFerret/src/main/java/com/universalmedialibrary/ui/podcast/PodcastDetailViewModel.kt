@@ -56,7 +56,7 @@ class PodcastDetailViewModel @Inject constructor(
                 }
         }
     }
-    
+
     fun refreshPodcast() {
         viewModelScope.launch {
              _uiState.value = _uiState.value.copy(isLoading = true)

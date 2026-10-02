@@ -31,7 +31,7 @@ class ContextDetectionServiceTest {
     fun `detectTimeContext should detect morning`() {
         val text = "She woke up at dawn, as the sun was rising over the horizon."
         val result = contextDetectionService.detectTimeContext(text)
-        
+
         assertEquals(TimeContext.MORNING, result)
     }
 
@@ -39,7 +39,7 @@ class ContextDetectionServiceTest {
     fun `detectTimeContext should detect night`() {
         val text = "The night was dark and the stars shone brightly in the midnight sky."
         val result = contextDetectionService.detectTimeContext(text)
-        
+
         assertEquals(TimeContext.NIGHT, result)
     }
 
@@ -47,7 +47,7 @@ class ContextDetectionServiceTest {
     fun `detectWeatherContext should detect rain`() {
         val text = "It was raining heavily, the storm clouds gathering overhead."
         val result = contextDetectionService.detectWeatherContext(text)
-        
+
         assertTrue(result.contains(AmbientSoundType.RAIN))
     }
 
@@ -55,7 +55,7 @@ class ContextDetectionServiceTest {
     fun `detectWeatherContext should detect thunder`() {
         val text = "Thunder rumbled in the distance as lightning lit up the sky."
         val result = contextDetectionService.detectWeatherContext(text)
-        
+
         assertTrue(result.contains(AmbientSoundType.THUNDER))
     }
 
@@ -63,7 +63,7 @@ class ContextDetectionServiceTest {
     fun `detectLocationContext should detect cafe`() {
         val text = "They met at the coffee shop, the aroma of freshly brewed coffee filling the air."
         val result = contextDetectionService.detectLocationContext(text)
-        
+
         assertTrue(result.contains(AmbientSoundType.CAFE))
     }
 
@@ -71,7 +71,7 @@ class ContextDetectionServiceTest {
     fun `detectLocationContext should detect library`() {
         val text = "In the quiet reading room of the library, she opened her book."
         val result = contextDetectionService.detectLocationContext(text)
-        
+
         assertTrue(result.contains(AmbientSoundType.LIBRARY))
     }
 
@@ -79,7 +79,7 @@ class ContextDetectionServiceTest {
     fun `detectLocationContext should detect forest`() {
         val text = "They walked through the dense forest, surrounded by tall trees."
         val result = contextDetectionService.detectLocationContext(text)
-        
+
         assertTrue(result.contains(AmbientSoundType.FOREST))
     }
 
@@ -108,7 +108,7 @@ class ContextDetectionServiceTest {
 
         val text = "It was raining outside the coffee shop"
         val result = contextDetectionService.detectAmbientContext(text, maxResults = 5)
-        
+
         // Should detect both rain and cafe sounds
         assertTrue(result.size >= 2)
         assertTrue(result.any { it.first.soundType == AmbientSoundType.RAIN })
@@ -131,7 +131,7 @@ class ContextDetectionServiceTest {
 
         val chapterText = "The waves crashed against the shore as she walked along the beach."
         val suggestions = contextDetectionService.getSuggestionsForChapter(chapterText)
-        
+
         assertTrue(suggestions.recommendedSounds.isNotEmpty())
         assertTrue(suggestions.recommendedSounds.any { it.soundType == AmbientSoundType.OCEAN })
     }

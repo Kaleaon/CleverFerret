@@ -94,7 +94,7 @@ fun TtsProviderSettingsScreen(
 ) {
     val providerSettings by viewModel.providerSettings.collectAsState()
     val isConfigured by viewModel.isConfigured.collectAsState()
-    
+
     var showApiKeyDialog by remember { mutableStateOf(false) }
     var selectedProviderForConfig by remember { mutableStateOf<TtsProvider?>(null) }
 
@@ -154,7 +154,7 @@ fun TtsProviderSettingsScreen(
 
             item {
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Info card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -260,7 +260,7 @@ fun TtsProviderCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    
+
                     if (provider.requiresApiKey) {
                         if (isConfigured) {
                             Icon(
@@ -279,15 +279,15 @@ fun TtsProviderCard(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 Text(
                     text = provider.description,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 if (provider.requiresApiKey && !isConfigured) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -297,7 +297,7 @@ fun TtsProviderCard(
                     )
                 }
             }
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -307,7 +307,7 @@ fun TtsProviderCard(
                         Icon(Icons.Default.Settings, "Configure")
                     }
                 }
-                
+
                 RadioButton(
                     selected = isSelected,
                     onClick = onClick
@@ -339,7 +339,7 @@ fun ApiKeyConfigDialog(
                     text = "Enter your API key to use ${provider.displayName}.",
                     style = MaterialTheme.typography.bodyMedium
                 )
-                
+
                 OutlinedTextField(
                     value = apiKey,
                     onValueChange = { apiKey = it },
@@ -361,7 +361,7 @@ fun ApiKeyConfigDialog(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
-                
+
                 Text(
                     text = when (provider) {
                         TtsProvider.GEMINI -> "Get your API key from: https://makersuite.google.com/app/apikey"

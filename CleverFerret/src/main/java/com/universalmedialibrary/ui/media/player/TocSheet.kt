@@ -47,7 +47,7 @@ internal fun TocSheet(
             color = MediaColors.TextPrimary,
             modifier = Modifier.padding(bottom = MediaSpacing.MD)
         )
-        
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -80,7 +80,7 @@ internal fun TocSheet(
                             else
                                 FontWeight.Normal
                         )
-                        
+
                         if (chapter.progress > 0) {
                             Spacer(modifier = Modifier.height(MediaSpacing.XS))
                             LinearProgressIndicator(
@@ -94,7 +94,7 @@ internal fun TocSheet(
                             )
                         }
                     }
-                    
+
                     if (index == currentChapterIndex) {
                         Icon(
                             imageVector = Icons.Default.PlayArrow,

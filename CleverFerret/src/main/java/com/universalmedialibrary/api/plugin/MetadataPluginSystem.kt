@@ -8,7 +8,7 @@ import java.util.UUID
 
 /**
  * CleverFerret Modular Plugin Architecture
- * 
+ *
  * A flexible, extensible plugin system for metadata providers, content sources,
  * and media services. Designed for easy addition of new APIs and services.
  */
@@ -23,37 +23,37 @@ import java.util.UUID
 interface Plugin {
     /** Unique identifier for this plugin */
     val id: String
-    
+
     /** Human-readable name */
     val name: String
-    
+
     /** Plugin version */
     val version: String
-    
+
     /** Plugin description */
     val description: String
-    
+
     /** Plugin author/maintainer */
     val author: String
-    
+
     /** Plugin category */
     val category: PluginCategory
-    
+
     /** Whether the plugin is enabled */
     var isEnabled: Boolean
-    
+
     /** Plugin capabilities */
     val capabilities: Set<PluginCapability>
-    
+
     /** Configuration options for this plugin */
     val configurationOptions: List<ConfigurationOption>
-    
+
     /** Initialize the plugin */
     suspend fun initialize(): Result<Unit>
-    
+
     /** Shutdown the plugin */
     suspend fun shutdown()
-    
+
     /** Check if the plugin is healthy/working */
     suspend fun healthCheck(): PluginHealth
 }
@@ -92,30 +92,30 @@ enum class PluginCapability {
     FETCH_RECOMMENDATIONS,
     FETCH_SERIES_INFO,
     FETCH_AUTHOR_INFO,
-    
+
     // Content capabilities
     DOWNLOAD_CONTENT,
     STREAM_CONTENT,
     PREVIEW_CONTENT,
-    
+
     // Social capabilities
     SYNC_PROGRESS,
     SYNC_RATINGS,
     SYNC_REVIEWS,
     SHARE_ACTIVITY,
-    
+
     // Analytics capabilities
     TRACK_READING,
     TRACK_LISTENING,
     TRACK_WATCHING,
     GENERATE_STATS,
-    
+
     // Conversion capabilities
     CONVERT_EPUB,
     CONVERT_PDF,
     CONVERT_AUDIO,
     CONVERT_VIDEO,
-    
+
     // Server capabilities
     LIBRARY_SYNC,
     MEDIA_STREAMING,
@@ -150,7 +150,7 @@ sealed class ConfigurationOption {
     abstract val description: String
     abstract val required: Boolean
     abstract val defaultValue: Any?
-    
+
     @Serializable
     data class Text(
         override val key: String,
@@ -162,7 +162,7 @@ sealed class ConfigurationOption {
         val isSecret: Boolean = false,
         val validation: TextValidation? = null
     ) : ConfigurationOption()
-    
+
     @Serializable
     data class Number(
         override val key: String,
@@ -173,7 +173,7 @@ sealed class ConfigurationOption {
         @Contextual val min: kotlin.Number? = null,
         @Contextual val max: kotlin.Number? = null
     ) : ConfigurationOption()
-    
+
     @Serializable
     data class Toggle(
         override val key: String,
@@ -182,7 +182,7 @@ sealed class ConfigurationOption {
         override val required: Boolean = false,
         override val defaultValue: Boolean = false
     ) : ConfigurationOption()
-    
+
     @Serializable
     data class Selection(
         override val key: String,
@@ -192,7 +192,7 @@ sealed class ConfigurationOption {
         override val defaultValue: String? = null,
         val options: List<SelectionItem>
     ) : ConfigurationOption()
-    
+
     @Serializable
     data class MultiSelection(
         override val key: String,
@@ -228,16 +228,16 @@ data class TextValidation(
 interface MetadataProviderPlugin : Plugin {
     /** Media types this provider supports */
     val supportedMediaTypes: Set<MediaType>
-    
+
     /** Search for metadata */
     suspend fun search(query: MetadataQuery): Result<List<MetadataSearchResult>>
-    
+
     /** Fetch detailed metadata for an item */
     suspend fun fetchDetails(id: String, mediaType: MediaType): Result<MediaMetadata>
-    
+
     /** Fetch cover art */
     suspend fun fetchCoverArt(id: String, size: CoverSize = CoverSize.LARGE): Result<String>
-    
+
     /** Fetch recommendations based on an item */
     suspend fun fetchRecommendations(id: String, limit: Int = 10): Result<List<MetadataSearchResult>>
 }
@@ -372,26 +372,26 @@ data class RatingInfo(
 interface ContentSourcePlugin : Plugin {
     /** Media types this source provides */
     val supportedMediaTypes: Set<MediaType>
-    
+
     /** Supported file formats */
     val supportedFormats: Set<String>
-    
+
     /** Browse available content */
     suspend fun browse(
         category: String? = null,
         page: Int = 1,
         pageSize: Int = 50
     ): Result<ContentBrowseResult>
-    
+
     /** Search content */
     suspend fun search(query: String, mediaType: MediaType? = null): Result<List<ContentItem>>
-    
+
     /** Get content details */
     suspend fun getDetails(id: String): Result<ContentItem>
-    
+
     /** Download content */
     suspend fun download(id: String, format: String? = null): Flow<DownloadProgress>
-    
+
     /** Stream content (if supported) */
     suspend fun getStreamUrl(id: String): Result<String>
 }
@@ -471,16 +471,16 @@ enum class DownloadStatus {
 interface MediaServerPlugin : Plugin {
     /** Connect to a server */
     suspend fun connect(config: ServerConfig): Result<ServerInfo>
-    
+
     /** Disconnect from server */
     suspend fun disconnect()
-    
+
     /** Get server status */
     suspend fun getServerStatus(): Result<ServerStatus>
-    
+
     /** Get libraries */
     suspend fun getLibraries(): Result<List<ServerLibrary>>
-    
+
     /** Browse library content */
     suspend fun browseLibrary(
         libraryId: String,
@@ -488,16 +488,16 @@ interface MediaServerPlugin : Plugin {
         page: Int = 1,
         pageSize: Int = 50
     ): Result<ServerBrowseResult>
-    
+
     /** Search across libraries */
     suspend fun search(query: String, libraryId: String? = null): Result<List<ServerMediaItem>>
-    
+
     /** Get item details */
     suspend fun getItemDetails(itemId: String): Result<ServerMediaItem>
-    
+
     /** Get stream URL for playback */
     suspend fun getStreamUrl(itemId: String, quality: StreamQuality? = null): Result<StreamInfo>
-    
+
     /** Sync progress */
     suspend fun syncProgress(itemId: String, progress: PlaybackProgress): Result<Unit>
 }
@@ -615,25 +615,25 @@ data class AudioTrack(
 interface SocialIntegrationPlugin : Plugin {
     /** Authenticate with the service */
     suspend fun authenticate(credentials: SocialCredentials): Result<SocialUser>
-    
+
     /** Get current user profile */
     suspend fun getCurrentUser(): Result<SocialUser>
-    
+
     /** Sync reading/listening progress */
     suspend fun syncProgress(item: SocialMediaItem): Result<Unit>
-    
+
     /** Rate an item */
     suspend fun rateItem(itemId: String, rating: Float): Result<Unit>
-    
+
     /** Get user's shelves/lists */
     suspend fun getShelves(): Result<List<SocialShelf>>
-    
+
     /** Add item to shelf */
     suspend fun addToShelf(itemId: String, shelfId: String): Result<Unit>
-    
+
     /** Get user's activity feed */
     suspend fun getActivityFeed(page: Int = 1): Result<List<SocialActivity>>
-    
+
     /** Get friends/followers */
     suspend fun getFriends(): Result<List<SocialUser>>
 }
@@ -717,37 +717,37 @@ enum class ActivityType {
 interface PluginRegistry {
     /** Get all registered plugins */
     fun getAllPlugins(): List<Plugin>
-    
+
     /** Get plugins by category */
     fun getPluginsByCategory(category: PluginCategory): List<Plugin>
-    
+
     /** Get a specific plugin by ID */
     fun getPlugin(id: String): Plugin?
-    
+
     /** Get all metadata providers */
     fun getMetadataProviders(): List<MetadataProviderPlugin>
-    
+
     /** Get all content sources */
     fun getContentSources(): List<ContentSourcePlugin>
-    
+
     /** Get all media server plugins */
     fun getMediaServers(): List<MediaServerPlugin>
-    
+
     /** Get all social integrations */
     fun getSocialIntegrations(): List<SocialIntegrationPlugin>
-    
+
     /** Register a plugin */
     fun registerPlugin(plugin: Plugin)
-    
+
     /** Unregister a plugin */
     fun unregisterPlugin(id: String)
-    
+
     /** Enable/disable a plugin */
     fun setPluginEnabled(id: String, enabled: Boolean)
-    
+
     /** Get plugin configuration */
     fun getPluginConfig(id: String): Map<String, Any>
-    
+
     /** Update plugin configuration */
     fun updatePluginConfig(id: String, config: Map<String, Any>)
 }

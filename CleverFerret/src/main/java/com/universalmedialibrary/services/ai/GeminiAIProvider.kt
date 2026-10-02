@@ -15,7 +15,7 @@ class GeminiAIProvider @Inject constructor() : AIProvider {
     // This should be injected or passed during the call, but for now we instantiate per request
     // based on the key provided by the manager.
     // Ideally, the manager holds the key.
-    
+
     private var activeKey: String? = null
 
     fun setApiKey(key: String) {
@@ -28,7 +28,7 @@ class GeminiAIProvider @Inject constructor() : AIProvider {
         type: ReaderAIInsightType
     ): Result<String> = withContext(Dispatchers.IO) {
         val key = activeKey ?: return@withContext Result.failure(IllegalStateException("API Key not set"))
-        
+
         try {
             // Use Gemini 1.5 Flash for speed and efficiency, or Pro for quality
             val model = GenerativeModel(
@@ -68,13 +68,13 @@ class GeminiAIProvider @Inject constructor() : AIProvider {
         return """
             You are an expert literary assistant.
             Task: ${type.name.replace("_", " ")}
-            
+
             Context:
             $context
-            
+
             User Prompt:
             $prompt
-            
+
             Please provide a concise and insightful response.
         """.trimIndent()
     }

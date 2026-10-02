@@ -41,10 +41,10 @@ class MusicTagService @Inject constructor(
                 modelName = "gemini-2.0-flash-exp",
                 apiKey = apiKey
             )
-            
+
             // Create predefined tags on first run
             tagRepository.createPredefinedTags()
-            
+
             true
         } catch (e: Exception) {
             false
@@ -73,13 +73,13 @@ class MusicTagService @Inject constructor(
         try {
             val prompt = """
                 Analyze this music track and suggest relevant tags for organization:
-                
+
                 Title: ${track.title}
                 Artist: ${track.artist}
                 Album: ${track.album}
                 Genre: ${track.genre}
                 Year: ${track.year}
-                
+
                 Suggest tags in these categories:
                 - MOOD: Emotional feeling (Happy, Sad, Energetic, Relaxing, Romantic, Angry, Peaceful, etc.)
                 - ACTIVITY: When to listen (Workout, Study, Party, Sleep, Driving, Cooking, etc.)
@@ -89,7 +89,7 @@ class MusicTagService @Inject constructor(
                 - OCCASION: Special events (Christmas, Halloween, Wedding, Summer, etc.)
                 - SERIES: If part of soundtrack/series (Movie, TV Show, Game, etc.)
                 - GENRE: Specific subgenres beyond the main genre
-                
+
                 Return ONLY valid JSON:
                 {
                     "suggested_tags": [
@@ -101,7 +101,7 @@ class MusicTagService @Inject constructor(
                         }
                     ]
                 }
-                
+
                 Guidelines:
                 - Suggest 3-8 most relevant tags
                 - High confidence (>0.7) only
@@ -127,14 +127,14 @@ class MusicTagService @Inject constructor(
      */
     suspend fun suggestTagsForTracks(tracks: List<Track>): Map<Long, List<SuggestedTag>> = withContext(Dispatchers.IO) {
         val results = mutableMapOf<Long, List<SuggestedTag>>()
-        
+
         tracks.forEach { track ->
             val result = suggestTagsForTrack(track)
             if (result.success) {
                 results[track.id] = result.suggestedTags
             }
         }
-        
+
         results
     }
 
@@ -159,25 +159,25 @@ class MusicTagService @Inject constructor(
             }
 
             val json = jsonText.substring(jsonStart, jsonEnd)
-            
+
             // Extract suggested_tags array
             val suggestedTags = mutableListOf<SuggestedTag>()
             val tagsArrayPattern = "\"suggested_tags\"\\s*:\\s*\\[(.*?)\\]".toRegex(RegexOption.DOT_MATCHES_ALL)
             val tagsArrayMatch = tagsArrayPattern.find(json)
-            
+
             if (tagsArrayMatch != null) {
                 val tagsContent = tagsArrayMatch.groupValues[1]
-                
+
                 // Extract individual tag objects
                 val tagPattern = "\\{([^}]+)\\}".toRegex()
                 tagPattern.findAll(tagsContent).forEach { match ->
                     val tagJson = match.value
-                    
+
                     val name = extractJsonValue(tagJson, "name")
                     val category = extractJsonValue(tagJson, "category")
                     val confidence = extractJsonValue(tagJson, "confidence")?.toFloatOrNull() ?: 0.5f
                     val reason = extractJsonValue(tagJson, "reason")
-                    
+
                     if (name != null && category != null) {
                         suggestedTags.add(
                             SuggestedTag(

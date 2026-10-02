@@ -29,7 +29,7 @@ internal fun StorageInfoBar(
     freeSpace: Long
 ) {
     val usedPercent = if (totalSpace > 0) usedSpace.toFloat() / totalSpace else 0f
-    
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,9 +50,9 @@ internal fun StorageInfoBar(
                 color = MediaColors.TextTertiary
             )
         }
-        
+
         Spacer(Modifier.height(MediaSpacing.XS))
-        
+
         LinearProgressIndicator(
             progress = { usedPercent },
             modifier = Modifier

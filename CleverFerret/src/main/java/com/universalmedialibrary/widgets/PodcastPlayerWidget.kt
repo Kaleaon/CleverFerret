@@ -56,10 +56,10 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             // Get current playback state
             val currentItem = queueManager?.currentItem?.value
             val playbackState = queueManager?.playbackState?.value
-            
+
             views.setTextViewText(R.id.widget_podcast_title, currentItem?.title ?: "No Podcast Playing")
             views.setTextViewText(R.id.widget_episode_title, currentItem?.artist ?: "")
-            
+
             val durationText = if (playbackState != null && playbackState.duration > 0) {
                 "${formatTime(playbackState.currentPositionMs)} / ${formatTime(playbackState.duration)}"
             } else {
@@ -67,7 +67,7 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             }
             views.setTextViewText(R.id.widget_episode_duration, durationText)
             views.setTextViewText(R.id.widget_playback_speed, "${playbackState?.playbackSpeed ?: 1.0f}x")
-            
+
             val progress = if (playbackState != null && playbackState.duration > 0) {
                 ((playbackState.currentPositionMs.toFloat() / playbackState.duration) * 100).toInt()
             } else 0

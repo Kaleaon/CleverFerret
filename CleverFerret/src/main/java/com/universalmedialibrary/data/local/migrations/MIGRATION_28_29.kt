@@ -14,7 +14,7 @@ internal val MIGRATION_28_29: Migration = object : Migration(28, 29) {
                 timestamp INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS saved_searches (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -25,4 +25,3 @@ internal val MIGRATION_28_29: Migration = object : Migration(28, 29) {
         """.trimIndent())
     }
 }
-

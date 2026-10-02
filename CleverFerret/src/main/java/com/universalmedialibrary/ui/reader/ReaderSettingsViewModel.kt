@@ -297,7 +297,7 @@ class ReaderSettingsViewModel @Inject constructor(
     }
 
     // Enhanced Reading Features Update Methods
-    
+
     /**
      * Update color scheme
      */
@@ -312,7 +312,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update reading ruler enabled state
      */
@@ -327,7 +327,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update reading ruler settings
      */
@@ -347,7 +347,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update RSVP enabled state
      */
@@ -362,7 +362,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update RSVP settings
      */
@@ -377,7 +377,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update enhanced auto-scroll enabled state
      */
@@ -392,7 +392,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update enhanced auto-scroll speed
      */

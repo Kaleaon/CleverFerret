@@ -26,7 +26,7 @@ import javax.inject.Singleton
 
 /**
  * Gallery Repository
- * 
+ *
  * Provides a unified interface for gallery operations, combining MediaStore access
  * with local database storage for user metadata (tags, favorites, ratings, etc.)
  */
@@ -40,17 +40,17 @@ class GalleryRepository @Inject constructor(
     companion object {
         private const val TAG = "GalleryRepository"
     }
-    
+
     private val contentResolver: ContentResolver = context.contentResolver
-    
+
     // User metadata cache (favorites, ratings, hidden items)
     private val _userMetadata = MutableStateFlow<Map<Long, GalleryUserMetadata>>(emptyMap())
     private val userMetadata: StateFlow<Map<Long, GalleryUserMetadata>> = _userMetadata.asStateFlow()
-    
+
     // Smart collections
     private val _smartCollections = MutableStateFlow<List<SmartGalleryCollection>>(emptyList())
     val smartCollections: StateFlow<List<SmartGalleryCollection>> = _smartCollections.asStateFlow()
-    
+
     /**
      * Initialize and load all data
      */
@@ -58,7 +58,7 @@ class GalleryRepository @Inject constructor(
         loadUserMetadata()
         refreshSmartCollections()
     }
-    
+
     /**
      * Load all media items (enriched with user metadata)
      */
@@ -66,7 +66,7 @@ class GalleryRepository @Inject constructor(
         val items = galleryManager.loadAllMedia()
         return enrichItemsWithUserData(items)
     }
-    
+
     /**
      * Get all items as a flow (enriched with user metadata)
      */
@@ -78,14 +78,14 @@ class GalleryRepository @Inject constructor(
             enrichItemsWithUserData(items, metadata)
         }
     }
-    
+
     /**
      * Get albums as a flow
      */
     fun observeAlbums(): Flow<List<GalleryAlbum>> {
         return galleryManager.albums
     }
-    
+
     /**
      * Get all albums
      */
@@ -95,7 +95,7 @@ class GalleryRepository @Inject constructor(
             galleryManager.albums.value
         }
     }
-    
+
     /**
      * Get items for a specific album
      */
@@ -106,7 +106,7 @@ class GalleryRepository @Inject constructor(
         val items = galleryManager.getItemsForAlbum(albumId, sortOrder)
         return enrichItemsWithUserData(items)
     }
-    
+
     /**
      * Get filtered items
      */
@@ -117,7 +117,7 @@ class GalleryRepository @Inject constructor(
         val items = galleryManager.getFilteredItems(filter, sortOrder)
         return enrichItemsWithUserData(items)
     }
-    
+
     /**
      * Search items by query
      */
@@ -128,7 +128,7 @@ class GalleryRepository @Inject constructor(
         val filter = GalleryFilterRules(searchQuery = query)
         return getFilteredItems(filter, sortOrder)
     }
-    
+
     /**
      * Get item by ID
      */
@@ -136,9 +136,9 @@ class GalleryRepository @Inject constructor(
         val item = galleryManager.allItems.value.find { it.id == itemId }
         return item?.let { enrichItemWithUserData(it) }
     }
-    
+
     // ==================== SMART COLLECTIONS ====================
-    
+
     /**
      * Refresh smart collection counts and data
      */
@@ -146,14 +146,14 @@ class GalleryRepository @Inject constructor(
         val items = galleryManager.allItems.value.ifEmpty {
             loadAllMedia()
         }
-        
+
         val collections = buildSmartCollections(items)
         _smartCollections.value = collections
     }
-    
+
     private fun buildSmartCollections(items: List<GalleryItem>): List<SmartGalleryCollection> {
         val collections = mutableListOf<SmartGalleryCollection>()
-        
+
         // Favorites
         val favorites = items.count { _userMetadata.value[it.id]?.isFavorite == true }
         if (favorites > 0) {
@@ -166,7 +166,7 @@ class GalleryRepository @Inject constructor(
                 displayOrder = 0
             ))
         }
-        
+
         // Recently Added (last 7 days)
         val recentCutoff = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
         val recentlyAdded = items.count { it.dateAdded >= recentCutoff }
@@ -180,7 +180,7 @@ class GalleryRepository @Inject constructor(
                 displayOrder = 1
             ))
         }
-        
+
         // Today
         val todayStart = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
@@ -199,7 +199,7 @@ class GalleryRepository @Inject constructor(
                 displayOrder = 2
             ))
         }
-        
+
         // Videos
         val videoCount = items.count { it.mediaType == GalleryMediaType.VIDEO }
         if (videoCount > 0) {
@@ -212,9 +212,9 @@ class GalleryRepository @Inject constructor(
                 displayOrder = 3
             ))
         }
-        
+
         // Screenshots
-        val screenshots = items.count { 
+        val screenshots = items.count {
             it.bucketName.contains("screenshot", ignoreCase = true) ||
             it.relativePath.contains("screenshot", ignoreCase = true)
         }
@@ -228,7 +228,7 @@ class GalleryRepository @Inject constructor(
                 displayOrder = 4
             ))
         }
-        
+
         // On This Day (memories from same day in previous years)
         val onThisDay = galleryManager.getOnThisDay().size
         if (onThisDay > 0) {
@@ -241,7 +241,7 @@ class GalleryRepository @Inject constructor(
                 displayOrder = 5
             ))
         }
-        
+
         // Places (items with location)
         val withLocation = items.count { it.latitude != null && it.longitude != null }
         if (withLocation > 0) {
@@ -254,10 +254,10 @@ class GalleryRepository @Inject constructor(
                 displayOrder = 6
             ))
         }
-        
+
         return collections.sortedBy { it.displayOrder }
     }
-    
+
     /**
      * Get items for a smart collection
      */
@@ -267,8 +267,8 @@ class GalleryRepository @Inject constructor(
     ): List<GalleryItem> = withContext(Dispatchers.IO) {
         val items = when (type) {
             SmartGalleryCollectionType.FAVORITES -> {
-                galleryManager.allItems.value.filter { 
-                    _userMetadata.value[it.id]?.isFavorite == true 
+                galleryManager.allItems.value.filter {
+                    _userMetadata.value[it.id]?.isFavorite == true
                 }
             }
             SmartGalleryCollectionType.RECENTLY_ADDED -> {
@@ -291,12 +291,12 @@ class GalleryRepository @Inject constructor(
             }
             else -> emptyList()
         }
-        
+
         enrichItemsWithUserData(items)
     }
-    
+
     // ==================== USER METADATA ====================
-    
+
     /**
      * Toggle favorite status for an item
      */
@@ -305,7 +305,7 @@ class GalleryRepository @Inject constructor(
         val updated = current.copy(isFavorite = !current.isFavorite)
         updateUserMetadata(itemId, updated)
     }
-    
+
     /**
      * Set rating for an item (0-5)
      */
@@ -314,7 +314,7 @@ class GalleryRepository @Inject constructor(
         val updated = current.copy(rating = rating.coerceIn(0, 5))
         updateUserMetadata(itemId, updated)
     }
-    
+
     /**
      * Hide/unhide an item
      */
@@ -323,7 +323,7 @@ class GalleryRepository @Inject constructor(
         val updated = current.copy(isHidden = hidden)
         updateUserMetadata(itemId, updated)
     }
-    
+
     /**
      * Add tags to items
      */
@@ -334,7 +334,7 @@ class GalleryRepository @Inject constructor(
             updateUserMetadata(itemId, updated)
         }
     }
-    
+
     /**
      * Remove tags from items
      */
@@ -345,25 +345,25 @@ class GalleryRepository @Inject constructor(
             updateUserMetadata(itemId, updated)
         }
     }
-    
+
     private suspend fun updateUserMetadata(itemId: Long, metadata: GalleryUserMetadata) {
         val newMap = _userMetadata.value.toMutableMap()
         newMap[itemId] = metadata
         _userMetadata.value = newMap
-        
+
         // Persist to preferences
         galleryPreferencesStore.saveUserMetadata(newMap)
-        
+
         // Refresh smart collections
         refreshSmartCollections()
     }
-    
+
     private suspend fun loadUserMetadata() {
         _userMetadata.value = galleryPreferencesStore.loadUserMetadata()
     }
-    
+
     // ==================== TAG MANAGEMENT ====================
-    
+
     /**
      * Get all gallery tags
      */
@@ -382,7 +382,7 @@ class GalleryRepository @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Create a new tag
      */
@@ -394,13 +394,13 @@ class GalleryRepository @Inject constructor(
         )
         unifiedTagDao.insertTag(tag)
     }
-    
+
     /**
      * Delete a tag
      */
     suspend fun deleteTag(tagId: Long) = withContext(Dispatchers.IO) {
         unifiedTagDao.deleteTag(tagId)
-        
+
         // Remove tag from all items
         val newMap = _userMetadata.value.mapValues { (_, metadata) ->
             metadata.copy(tagIds = metadata.tagIds - tagId)
@@ -408,16 +408,16 @@ class GalleryRepository @Inject constructor(
         _userMetadata.value = newMap
         galleryPreferencesStore.saveUserMetadata(newMap)
     }
-    
+
     /**
      * Rename a tag
      */
     suspend fun renameTag(tagId: Long, newName: String) = withContext(Dispatchers.IO) {
         unifiedTagDao.updateTagName(tagId, newName)
     }
-    
+
     // ==================== DELETION ====================
-    
+
     /**
      * Delete items from device (requires user confirmation via system UI on Android 11+)
      */
@@ -427,7 +427,7 @@ class GalleryRepository @Inject constructor(
                 val item = galleryManager.allItems.value.find { it.id == id }
                 item?.let { Uri.parse(it.uri) }
             }
-            
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 // Android 11+ requires using createDeleteRequest
                 DeleteResult.RequiresPermission(
@@ -441,17 +441,17 @@ class GalleryRepository @Inject constructor(
                     val deleted = contentResolver.delete(uri, null, null)
                     if (deleted > 0) deletedCount++
                 }
-                
+
                 if (deletedCount > 0) {
                     galleryManager.removeFromCache(itemIds.toList())
-                    
+
                     // Remove user metadata
                     val newMap = _userMetadata.value.toMutableMap()
                     itemIds.forEach { newMap.remove(it) }
                     _userMetadata.value = newMap
                     galleryPreferencesStore.saveUserMetadata(newMap)
                 }
-                
+
                 DeleteResult.Success(deletedCount)
             }
         } catch (e: Exception) {
@@ -459,21 +459,21 @@ class GalleryRepository @Inject constructor(
             DeleteResult.Error(e.message ?: "Unknown error")
         }
     }
-    
+
     /**
      * Handle deletion result after user confirms on Android 11+
      */
     fun onDeleteConfirmed(itemIds: Set<Long>) {
         galleryManager.removeFromCache(itemIds.toList())
-        
+
         // Remove user metadata
         val newMap = _userMetadata.value.toMutableMap()
         itemIds.forEach { newMap.remove(it) }
         _userMetadata.value = newMap
     }
-    
+
     // ==================== HELPERS ====================
-    
+
     private fun enrichItemsWithUserData(
         items: List<GalleryItem>,
         metadata: Map<Long, GalleryUserMetadata> = _userMetadata.value
@@ -492,7 +492,7 @@ class GalleryRepository @Inject constructor(
             }
         }
     }
-    
+
     private fun enrichItemWithUserData(item: GalleryItem): GalleryItem {
         val userData = _userMetadata.value[item.id] ?: return item
         return item.copy(
@@ -502,7 +502,7 @@ class GalleryRepository @Inject constructor(
             tagIds = userData.tagIds
         )
     }
-    
+
     /**
      * Refresh data from MediaStore
      */

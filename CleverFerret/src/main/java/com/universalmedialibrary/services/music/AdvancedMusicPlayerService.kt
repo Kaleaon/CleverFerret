@@ -84,7 +84,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         try {
             // Ensure ExoPlayer is initialized
             exoPlayerService.initialize()
-            
+
             updatePlaybackState(isLoading = true)
 
             // Create track info with metadata enhancement
@@ -101,7 +101,7 @@ class AdvancedMusicPlayerService @Inject constructor(
                 maxWidth = 512,
                 maxHeight = 512
             )
-            
+
             // Use the MediaSession-integrated method
             exoPlayerService.loadMediaWithSession(
                 mediaPath = mediaItem.filePath,
@@ -139,7 +139,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         try {
             // Ensure ExoPlayer is initialized
             exoPlayerService.initialize()
-            
+
             updatePlaybackState(isLoading = true)
 
             // Create track info
@@ -189,7 +189,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         try {
             // Ensure ExoPlayer is initialized
             exoPlayerService.initialize()
-            
+
             updatePlaybackState(isLoading = true)
 
             // Create track infos with metadata enhancement
@@ -259,7 +259,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     override fun addToQueue(mediaId: String) {
         // Convert mediaId to Long and add to queue
         val mediaIdLong = mediaId.toLongOrNull() ?: return
-        
+
         // Fetch MediaItem from repository and add to queue
         serviceScope.launch {
             try {
@@ -294,7 +294,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     override fun removeFromQueue(index: Int) {
         val currentQueue = _queue.value
         if (index < 0 || index >= currentQueue.size) return
-        
+
         _queue.value = currentQueue.filterIndexed { i, _ -> i != index }
     }
 
@@ -304,7 +304,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     override fun moveInQueue(from: Int, to: Int) {
         val currentQueue = _queue.value.toMutableList()
         if (from < 0 || from >= currentQueue.size || to < 0 || to >= currentQueue.size) return
-        
+
         val item = currentQueue.removeAt(from)
         currentQueue.add(to, item)
         _queue.value = currentQueue
@@ -316,7 +316,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     override fun skipToQueuePosition(index: Int) {
         val currentQueue = _queue.value
         if (index < 0 || index >= currentQueue.size) return
-        
+
         currentQueueIndex = index
         playCurrentTrack()
     }
@@ -496,7 +496,7 @@ class AdvancedMusicPlayerService @Inject constructor(
 
     private var crossfadeDurationMs: Int = 0
     private var gaplessEnabled: Boolean = true
-    
+
     /**
      * Set crossfade duration
      * @param durationMs Duration in milliseconds (0 to disable, typically 1000-5000ms)
@@ -540,7 +540,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Apply ReplayGain volume adjustment for a track
      */
@@ -552,7 +552,7 @@ class AdvancedMusicPlayerService @Inject constructor(
                 trackGain = track.replayGainTrack,
                 albumGain = track.replayGainAlbum
             )
-            
+
             // Only adjust if different from current volume
             if (adjustedVolume != currentVolume) {
                 exoPlayerService.setVolume(adjustedVolume)
@@ -765,15 +765,14 @@ class AdvancedMusicPlayerService @Inject constructor(
      * Get ExoPlayerService instance for visualizer attachment
      */
     fun getExoPlayerService(): ExoPlayerService = exoPlayerService
-    
+
     /**
      * Get Last.fm scrobbler service
      */
     fun getLastFmScrobbler(): LastFmScrobblerService = scrobbleManager.underlying()
-    
+
     /**
      * Get audio profile service
      */
     fun getAudioProfileService(): AudioProfileService = audioProfileService
 }
-

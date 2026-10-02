@@ -24,7 +24,7 @@ import coil.compose.AsyncImage
 
 /**
  * Media-Centric Media Grid Component
- * 
+ *
  * Beautiful grid layout for displaying media items with
  * poster images, progress indicators, and metadata.
  */
@@ -90,7 +90,7 @@ fun MediaCard(
     modifier: Modifier = Modifier
 ) {
     var isHovered by remember { mutableStateOf(false) }
-    
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -105,7 +105,7 @@ fun MediaCard(
             // Poster Image
             if (item.imageUrl != null) {
                 AsyncImage(
-                    
+
                     model = item.imageUrl,
                     contentDescription = item.title,
                     modifier = Modifier.fillMaxSize(),
@@ -136,7 +136,7 @@ fun MediaCard(
                     }
                 }
             }
-            
+
             // Progress Indicator Overlay (if in progress)
             item.progress?.let { progress ->
                 if (progress > 0f && progress < 1f) {
@@ -150,7 +150,7 @@ fun MediaCard(
                     )
                 }
             }
-            
+
             // Play Button Overlay (on hover/press)
             if (isHovered || item.progress != null) {
                 Box(
@@ -178,7 +178,7 @@ fun MediaCard(
                     }
                 }
             }
-            
+
             // Rating Badge (top right)
             item.rating?.let { rating ->
                 Surface(
@@ -209,7 +209,7 @@ fun MediaCard(
             }
         }
     }
-    
+
     // Title and metadata below card
     Column(
         modifier = Modifier
@@ -224,7 +224,7 @@ fun MediaCard(
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.onBackground
         )
-        
+
         item.subtitle?.let { subtitle ->
             Text(
                 text = subtitle,
@@ -234,7 +234,7 @@ fun MediaCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        
+
         item.year?.let { year ->
             Text(
                 text = year,

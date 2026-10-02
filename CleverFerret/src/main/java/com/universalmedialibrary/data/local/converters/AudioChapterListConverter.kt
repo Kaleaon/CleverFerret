@@ -10,12 +10,12 @@ import com.universalmedialibrary.services.audiobook.AudioChapter
  */
 class AudioChapterListConverter {
     private val gson = Gson()
-    
+
     @TypeConverter
     fun fromAudioChapterList(chapters: List<AudioChapter>?): String? {
         return chapters?.let { gson.toJson(it) }
     }
-    
+
     @TypeConverter
     fun toAudioChapterList(data: String?): List<AudioChapter>? {
         if (data == null) return null

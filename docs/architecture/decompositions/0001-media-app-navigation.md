@@ -1,7 +1,7 @@
 # Navigation Graph Decomposition: MediaAppNavigation.kt
 
-**Status:** Design (Ready for Implementation)  
-**Date:** 2026-05-02  
+**Status:** Design (Ready for Implementation)
+**Date:** 2026-05-02
 **Phase:** Roadmap Phase 1, Step 6
 
 ---
@@ -285,10 +285,10 @@ fun MediaAppNavHost(
         addDiscoveryRoutes(navController)
         addOrganizationRoutes(navController, onShowSnackbar)
         addSettingsRoutes(navController)
-        
+
         // Legacy compatibility block (preserved)
         // ... legacy routes remain here for deep-link support ...
-        
+
         // Debug menu (conditional)
         if (BuildConfig.SHOW_DEBUG_MENU) {
             composable(MediaRoutes.DEBUG_MENU) {
@@ -330,7 +330,7 @@ private val MediaType.routeName: String
 - Test that dialogs properly close when their target route is navigated
 - Verify `navController.popBackStack()` correctly returns focus to parent
 
-**Verification step:** 
+**Verification step:**
 - [ ] Run LibraryNavigationFlowTest.kt; confirm no "unexpected destination" failures
 - [ ] Manually test: open collection dialog, navigate to detail, pop back → verify parent state is restored
 

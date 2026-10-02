@@ -173,4 +173,3 @@ internal fun houseVector(): ImageVector = materialIcon(name = "House") {
         close()
     }
 }
-

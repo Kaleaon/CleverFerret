@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface CollaborativeSessionDao {
-    
+
     // Session operations
     @Query("SELECT * FROM collaborative_sessions WHERE sessionId = :sessionId")
     fun getSession(sessionId: String): Flow<CollaborativeSession?>

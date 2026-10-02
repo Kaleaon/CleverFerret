@@ -14,12 +14,12 @@ import javax.inject.Inject
 class UniversalSearchViewModel @Inject constructor(
     private val universalSearchService: UniversalSearchService
 ) : ViewModel() {
-    
+
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
-    
+
     private val _selectedCategory = MutableStateFlow<FormatRegistry.FormatCategory?>(null)
-    
+
     private val formatResults = combine(_query, _selectedCategory) { query, category -> query to category }
         .debounce(300)
         .flatMapLatest { (query, category) ->
@@ -30,7 +30,7 @@ class UniversalSearchViewModel @Inject constructor(
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    
+
     private val tagResults = _query
         .debounce(300)
         .flatMapLatest { query ->
@@ -41,7 +41,7 @@ class UniversalSearchViewModel @Inject constructor(
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    
+
     val uiState: StateFlow<UniversalSearchUiState> = combine(
         _query,
         formatResults,
@@ -60,16 +60,16 @@ class UniversalSearchViewModel @Inject constructor(
         SharingStarted.WhileSubscribed(5000),
         UniversalSearchUiState()
     )
-    
+
     fun updateQuery(newQuery: String) {
         _query.value = newQuery
     }
-    
+
     fun clearQuery() {
         _query.value = ""
         _selectedCategory.value = null
     }
-    
+
     fun selectCategory(category: FormatRegistry.FormatCategory) {
         _selectedCategory.value = category
     }

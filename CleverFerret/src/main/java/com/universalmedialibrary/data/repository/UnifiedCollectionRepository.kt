@@ -28,19 +28,19 @@ class UnifiedCollectionRepository @Inject constructor(
     /**
      * Get all collections
      */
-    fun getAllCollections(): Flow<List<UnifiedCollection>> = 
+    fun getAllCollections(): Flow<List<UnifiedCollection>> =
         collectionDao.getAllCollections()
 
     /**
      * Get collection by ID
      */
-    fun getCollection(collectionId: Long): Flow<UnifiedCollection?> = 
+    fun getCollection(collectionId: Long): Flow<UnifiedCollection?> =
         collectionDao.getCollection(collectionId)
 
     /**
      * Get items in a collection
      */
-    fun getItemsInCollection(collectionId: Long): Flow<List<MediaItem>> = 
+    fun getItemsInCollection(collectionId: Long): Flow<List<MediaItem>> =
         collectionDao.getItemsInCollection(collectionId)
 
     /**
@@ -148,11 +148,11 @@ class UnifiedCollectionRepository @Inject constructor(
             type = CollectionType.PLAYLIST,
             description = description
         )
-        
+
         if (itemIds.isNotEmpty()) {
             addItemsToCollection(collectionId, itemIds)
         }
-        
+
         return collectionId
     }
 
@@ -170,11 +170,11 @@ class UnifiedCollectionRepository @Inject constructor(
             description = description,
             sortBy = SortField.CUSTOM  // Series have specific order
         )
-        
+
         if (itemIds.isNotEmpty()) {
             addItemsToCollection(collectionId, itemIds)
         }
-        
+
         return collectionId
     }
 
@@ -191,11 +191,11 @@ class UnifiedCollectionRepository @Inject constructor(
             type = CollectionType.READING_LIST,
             description = description
         )
-        
+
         if (itemIds.isNotEmpty()) {
             addItemsToCollection(collectionId, itemIds)
         }
-        
+
         return collectionId
     }
 
@@ -212,11 +212,11 @@ class UnifiedCollectionRepository @Inject constructor(
             type = CollectionType.WATCH_LIST,
             description = description
         )
-        
+
         if (itemIds.isNotEmpty()) {
             addItemsToCollection(collectionId, itemIds)
         }
-        
+
         return collectionId
     }
 

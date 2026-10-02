@@ -46,9 +46,9 @@ internal fun VerticalIndicator(
                 tint = Color.White,
                 modifier = Modifier.size(24.dp)
             )
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             Box(
                 modifier = Modifier
                     .width(4.dp)

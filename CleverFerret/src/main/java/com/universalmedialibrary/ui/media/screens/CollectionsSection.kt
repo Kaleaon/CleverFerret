@@ -76,9 +76,9 @@ internal fun CollectionsSection(
             color = MediaColors.TextPrimary,
             modifier = Modifier.semantics { heading() }
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
-        
+
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
         ) {

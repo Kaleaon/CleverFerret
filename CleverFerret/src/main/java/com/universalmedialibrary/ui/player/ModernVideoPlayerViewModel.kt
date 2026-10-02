@@ -25,12 +25,12 @@ class ModernVideoPlayerViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val chromecastManager: com.universalmedialibrary.services.cast.ChromecastManager
 ) : ViewModel() {
-    
+
     private val TAG = "ModernVideoPlayerViewModel"
 
     private val _uiState = MutableStateFlow(ModernVideoPlayerUiState())
     val uiState: StateFlow<ModernVideoPlayerUiState> = _uiState.asStateFlow()
-    
+
     val castState = chromecastManager.castState
 
     private var exoPlayer: ExoPlayer? = null
@@ -44,14 +44,14 @@ class ModernVideoPlayerViewModel @Inject constructor(
                     val mediaItem = MediaItem.fromUri(videoPath)
                     setMediaItem(mediaItem)
                     prepare()
-                    
+
                     addListener(object : Player.Listener {
                         override fun onEvents(player: Player, events: Player.Events) {
-                            val durationMs = player.duration.takeIf { it > 0 && it != C.TIME_UNSET } 
+                            val durationMs = player.duration.takeIf { it > 0 && it != C.TIME_UNSET }
                                 ?: _uiState.value.duration
                             val positionMs = player.currentPosition.coerceAtLeast(0)
                             val progress = if (durationMs > 0) positionMs.toFloat() / durationMs else 0f
-                            
+
                             _uiState.value = _uiState.value.copy(
                                 duration = durationMs,
                                 currentPosition = positionMs,
@@ -144,7 +144,7 @@ class ModernVideoPlayerViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(
             subtitlesEnabled = newState
         )
-        
+
         // Toggle subtitle/text tracks in ExoPlayer
         exoPlayer?.let { player ->
             val trackSelector = player.trackSelector
@@ -194,7 +194,7 @@ class ModernVideoPlayerViewModel @Inject constructor(
                     else -> "Auto"
                 }
                 _uiState.value = _uiState.value.copy(videoQuality = nextQuality)
-                
+
                 // Set max video resolution based on selection
                 val params = trackSelector.parameters.buildUpon()
                 when (nextQuality) {
@@ -215,7 +215,7 @@ class ModernVideoPlayerViewModel @Inject constructor(
             Log.d(TAG, "Casting $title to Chromecast")
         }
     }
-    
+
     fun stopVideoCasting() {
         chromecastManager.stopCasting()
     }

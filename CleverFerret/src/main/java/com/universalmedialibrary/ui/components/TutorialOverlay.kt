@@ -18,10 +18,10 @@ import androidx.compose.ui.window.DialogProperties
 
 /**
  * Tutorial Overlay System (Phase 3)
- * 
+ *
  * Provides interactive onboarding hints using simple dialog overlays.
  * Inspired by Myne's onboarding system with Material You integration.
- * 
+ *
  * Simplified implementation without external dependencies.
  * Features:
  * - Show descriptive dialogs for features
@@ -47,25 +47,25 @@ object TutorialHints {
         description = "Tap the '+' button to create a new media library. " +
                 "You can organize your books, music, videos, and more!"
     )
-    
+
     val CALIBRE_IMPORT = TutorialHint(
         title = "Import from Calibre",
         description = "Already have a Calibre library? Import it to bring " +
                 "all your books and metadata into CleverFerret."
     )
-    
+
     val MEDIA_TYPE_SELECTION = TutorialHint(
         title = "Choose Media Types",
         description = "Select what type of media this library will contain: " +
                 "Books, Music, Videos, Podcasts, and more!"
     )
-    
+
     val READER_FEATURES = TutorialHint(
         title = "Enhanced Reading Features",
         description = "Customize your reading experience with font options, " +
                 "themes, and more in the reader settings."
     )
-    
+
     val SWIPE_ACTIONS = TutorialHint(
         title = "Swipe for Quick Actions",
         description = "Swipe left or right on library items for quick actions " +
@@ -104,13 +104,13 @@ fun TutorialDialog(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                
+
                 Text(
                     text = hint.description,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier.align(Alignment.End)
@@ -134,7 +134,7 @@ fun TutorialOverlay(
 ) {
     Box {
         content()
-        
+
         if (enabled) {
             TutorialDialog(
                 hint = hint,
@@ -156,10 +156,10 @@ fun SequentialTutorials(
 ) {
     var currentIndex by remember { mutableIntStateOf(0) }
     var showTutorial by remember { mutableStateOf(enabled && hints.isNotEmpty()) }
-    
+
     Box {
         content()
-        
+
         if (showTutorial && currentIndex < hints.size) {
             TutorialDialog(
                 hint = hints[currentIndex],

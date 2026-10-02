@@ -18,7 +18,7 @@ class RecommendationsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val recommendationService: SmartRecommendationService
 ) : ViewModel() {
-    
+
     private val dismissedPrefs = context.getSharedPreferences(
         "dismissed_recommendations",
         Context.MODE_PRIVATE
@@ -46,7 +46,7 @@ class RecommendationsViewModel @Inject constructor(
                 val allRecommendations = recommendationService.getRecommendations(
                     options = _options.value
                 )
-                
+
                 // Filter out dismissed recommendations
                 val recommendations = allRecommendations.filterNot { isRecommendationDismissed(it) }
 
@@ -116,9 +116,9 @@ class RecommendationsViewModel @Inject constructor(
                 // Remove from current list
                 val current = _uiState.value.recommendations.toMutableList()
                 current.remove(recommendation)
-                
+
                 val grouped = current.groupBy { it.source }
-                
+
                 _uiState.value = _uiState.value.copy(
                     recommendations = current,
                     groupedRecommendations = grouped
@@ -134,7 +134,7 @@ class RecommendationsViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun isRecommendationDismissed(recommendation: Recommendation): Boolean {
         return dismissedPrefs.getBoolean("dismissed_${recommendation.itemId}", false)
     }

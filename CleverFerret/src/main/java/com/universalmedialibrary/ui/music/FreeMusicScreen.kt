@@ -224,7 +224,7 @@ private fun TrackCard(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AsyncImage(
-                    
+
                 model = track.coverUrl,
                 contentDescription = "Media image",
                 modifier = Modifier.size(72.dp)

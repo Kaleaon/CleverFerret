@@ -37,7 +37,7 @@ internal fun FileTypeFilterSection(
     onTypesChange: (Set<FileType>) -> Unit
 ) {
     val allTypes = FileType.allBookTypes()
-    
+
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {

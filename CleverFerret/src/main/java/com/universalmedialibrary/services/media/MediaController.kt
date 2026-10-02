@@ -47,7 +47,7 @@ class MediaController @Inject constructor(
     ) {
         // Update active service type
         activeServiceType = serviceType
-        
+
         // Update metadata in MediaSession
         mediaSessionManager.updateMetadata(
             title = title,
@@ -56,7 +56,7 @@ class MediaController @Inject constructor(
             artwork = artwork,
             duration = 0
         )
-        
+
         // Update controller state
         updateControllerState(
             currentTrack = title,

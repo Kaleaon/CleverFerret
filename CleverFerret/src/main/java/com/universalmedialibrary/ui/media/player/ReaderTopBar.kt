@@ -63,7 +63,7 @@ internal fun ReaderTopBar(
                     tint = MediaColors.TextPrimary
                 )
             }
-            
+
             // Title & Chapter
             Column(
                 modifier = Modifier.weight(1f),
@@ -87,7 +87,7 @@ internal fun ReaderTopBar(
                     )
                 }
             }
-            
+
             // Action buttons
             Row {
                 IconButton(onClick = onBookmark) {
@@ -97,7 +97,7 @@ internal fun ReaderTopBar(
                         tint = if (isBookmarked) MediaColors.AccentPrimary else MediaColors.TextSecondary
                     )
                 }
-                
+
                 IconButton(onClick = onTts) {
                     Icon(
                         imageVector = if (isTtsActive) Icons.Filled.VolumeUp else Icons.Outlined.VolumeUp,
@@ -105,7 +105,7 @@ internal fun ReaderTopBar(
                         tint = if (isTtsActive) MediaColors.AccentPrimary else MediaColors.TextSecondary
                     )
                 }
-                
+
                 IconButton(onClick = onToc) {
                     Icon(
                         imageVector = Icons.Default.List,
@@ -113,7 +113,7 @@ internal fun ReaderTopBar(
                         tint = MediaColors.TextSecondary
                     )
                 }
-                
+
                 IconButton(onClick = onSearch) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -121,7 +121,7 @@ internal fun ReaderTopBar(
                         tint = MediaColors.TextSecondary
                     )
                 }
-                
+
                 IconButton(onClick = onSettings) {
                     Icon(
                         imageVector = Icons.Default.Settings,

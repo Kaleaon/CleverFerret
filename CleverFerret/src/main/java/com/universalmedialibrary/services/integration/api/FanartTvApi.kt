@@ -9,11 +9,11 @@ import retrofit2.http.Query
 /**
  * Fanart.tv API
  * Documentation: https://fanarttv.docs.apiary.io/#
- * 
+ *
  * Provides high-quality fanart for movies, TV shows, music artists, and albums
  */
 interface FanartTvApi {
-    
+
     /**
      * Get fanart for a movie by TMDb ID
      * @param movieId The Movie Database (TMDb) movie ID
@@ -24,7 +24,7 @@ interface FanartTvApi {
         @Path("movie_id") movieId: String,
         @Query("api_key") apiKey: String
     ): FanartTvMovieResponse
-    
+
     /**
      * Get fanart for a TV show by TheTVDB ID
      * @param tvId The TVDB show ID
@@ -35,7 +35,7 @@ interface FanartTvApi {
         @Path("tv_id") tvId: String,
         @Query("api_key") apiKey: String
     ): FanartTvTvResponse
-    
+
     /**
      * Get fanart for a music artist by MusicBrainz ID
      * @param artistId The MusicBrainz artist ID
@@ -46,7 +46,7 @@ interface FanartTvApi {
         @Path("artist_id") artistId: String,
         @Query("api_key") apiKey: String
     ): FanartTvArtistResponse
-    
+
     /**
      * Get fanart for a music album by MusicBrainz release-group ID
      * @param albumId The MusicBrainz release-group ID
@@ -57,7 +57,7 @@ interface FanartTvApi {
         @Path("album_id") albumId: String,
         @Query("api_key") apiKey: String
     ): FanartTvAlbumResponse
-    
+
     /**
      * Get the latest fanart added (all types)
      * @param apiKey Your Fanart.tv API key
@@ -91,7 +91,7 @@ data class FanartTvMovieResponse(
     val name: String,
     @SerialName("tmdb_id") val tmdbId: String,
     @SerialName("imdb_id") val imdbId: String? = null,
-    
+
     // Posters and artwork
     @SerialName("movieposter") val moviePosters: List<FanartImage>? = null,
     @SerialName("moviebackground") val movieBackgrounds: List<FanartImage>? = null,
@@ -111,7 +111,7 @@ data class FanartTvMovieResponse(
 data class FanartTvTvResponse(
     val name: String,
     @SerialName("thetvdb_id") val thetvdbId: String,
-    
+
     // TV show artwork
     @SerialName("hdtvlogo") val hdTvLogos: List<FanartImage>? = null,
     @SerialName("clearlogo") val clearLogos: List<FanartImage>? = null,
@@ -133,14 +133,14 @@ data class FanartTvTvResponse(
 data class FanartTvArtistResponse(
     val name: String,
     @SerialName("mbid_id") val mbidId: String,
-    
+
     // Artist artwork
     @SerialName("artistbackground") val artistBackgrounds: List<FanartImage>? = null,
     @SerialName("artistthumb") val artistThumbs: List<FanartImage>? = null,
     @SerialName("hdmusiclogo") val hdMusicLogos: List<FanartImage>? = null,
     @SerialName("musiclogo") val musicLogos: List<FanartImage>? = null,
     @SerialName("musicbanner") val musicBanners: List<FanartImage>? = null,
-    
+
     // Albums
     val albums: Map<String, FanartTvAlbumArt>? = null
 )
@@ -161,7 +161,7 @@ data class FanartTvAlbumArt(
 data class FanartTvAlbumResponse(
     val name: String? = null,
     @SerialName("mbid_id") val mbidId: String? = null,
-    
+
     @SerialName("albumcover") val albumCovers: List<FanartImage>? = null,
     @SerialName("cdart") val cdArt: List<FanartImage>? = null
 )

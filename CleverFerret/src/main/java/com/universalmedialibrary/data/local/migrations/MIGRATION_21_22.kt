@@ -12,4 +12,3 @@ internal val MIGRATION_21_22: Migration = object : Migration(21, 22) {
         // No schema changes — version bump only
     }
 }
-

@@ -8,10 +8,10 @@ import kotlinx.serialization.Serializable
 
 /**
  * Multi-Purpose API System
- * 
+ *
  * Recognizes that APIs often serve multiple purposes and allows
  * flexible configuration of what each API is used for.
- * 
+ *
  * Examples:
  * - TMDB: Movie metadata, TV show metadata, person info, images, recommendations
  * - Google Books: Book metadata, cover art, reading progress sync
@@ -40,13 +40,13 @@ enum class ApiCapability(
     PODCAST_METADATA("Podcast Metadata", "Fetch podcast and episode info", ApiCapabilityCategory.METADATA),
     COMIC_METADATA("Comic Metadata", "Fetch comic series, issue info", ApiCapabilityCategory.METADATA),
     AUDIOBOOK_METADATA("Audiobook Metadata", "Fetch audiobook narrator, duration", ApiCapabilityCategory.METADATA),
-    
+
     // Artwork Capabilities
     COVER_ART("Cover Art", "Fetch cover/poster images", ApiCapabilityCategory.ARTWORK),
     BACKDROP_ART("Backdrop Art", "Fetch widescreen backdrop images", ApiCapabilityCategory.ARTWORK),
     ARTIST_IMAGES("Artist Images", "Fetch artist/author photos", ApiCapabilityCategory.ARTWORK),
     FANART("Fan Art", "Fetch community-created artwork", ApiCapabilityCategory.ARTWORK),
-    
+
     // Content Capabilities
     BOOK_DOWNLOAD("Book Download", "Download ebooks", ApiCapabilityCategory.CONTENT),
     AUDIOBOOK_DOWNLOAD("Audiobook Download", "Download audiobooks", ApiCapabilityCategory.CONTENT),
@@ -55,26 +55,26 @@ enum class ApiCapability(
     VIDEO_STREAM("Video Streaming", "Stream movies/TV", ApiCapabilityCategory.CONTENT),
     RADIO_STREAM("Radio Streaming", "Stream radio stations", ApiCapabilityCategory.CONTENT),
     FANFICTION_DOWNLOAD("Fanfiction Download", "Download web fiction", ApiCapabilityCategory.CONTENT),
-    
+
     // Discovery Capabilities
     SEARCH("Search", "Search for content", ApiCapabilityCategory.DISCOVERY),
     RECOMMENDATIONS("Recommendations", "Get personalized recommendations", ApiCapabilityCategory.DISCOVERY),
     SIMILAR_CONTENT("Similar Content", "Find similar items", ApiCapabilityCategory.DISCOVERY),
     TRENDING("Trending Content", "Get trending/popular items", ApiCapabilityCategory.DISCOVERY),
     NEW_RELEASES("New Releases", "Get newly released content", ApiCapabilityCategory.DISCOVERY),
-    
+
     // Sync Capabilities
     LIBRARY_SYNC("Library Sync", "Sync library contents", ApiCapabilityCategory.SYNC),
     PROGRESS_SYNC("Progress Sync", "Sync reading/watching progress", ApiCapabilityCategory.SYNC),
     RATING_SYNC("Rating Sync", "Sync ratings and reviews", ApiCapabilityCategory.SYNC),
     COLLECTION_SYNC("Collection Sync", "Sync collections/playlists", ApiCapabilityCategory.SYNC),
-    
+
     // Social Capabilities
     SCROBBLING("Scrobbling", "Track listening history", ApiCapabilityCategory.SOCIAL),
     SOCIAL_SHARING("Social Sharing", "Share activity to social networks", ApiCapabilityCategory.SOCIAL),
     REVIEWS("Reviews", "Fetch or submit reviews", ApiCapabilityCategory.SOCIAL),
     SHELVES("Reading Shelves", "Manage want-to-read, reading, read shelves", ApiCapabilityCategory.SOCIAL),
-    
+
     // Extra Capabilities
     TRAILERS("Trailers", "Fetch movie/show trailers", ApiCapabilityCategory.EXTRA),
     SUBTITLES("Subtitles", "Fetch subtitles/captions", ApiCapabilityCategory.EXTRA),
@@ -119,7 +119,7 @@ data class ApiProvider(
  * Registry of all known API providers
  */
 object ApiProviderRegistry {
-    
+
     // Book APIs
     val GOOGLE_BOOKS = ApiProvider(
         id = "google_books",
@@ -135,7 +135,7 @@ object ApiProviderRegistry {
         requiresApiKey = false,
         isFree = true
     )
-    
+
     val OPEN_LIBRARY = ApiProvider(
         id = "open_library",
         name = "Open Library",
@@ -150,7 +150,7 @@ object ApiProviderRegistry {
         requiresApiKey = false,
         isFree = true
     )
-    
+
     val GOODREADS = ApiProvider(
         id = "goodreads",
         name = "Goodreads",
@@ -167,7 +167,7 @@ object ApiProviderRegistry {
         requiresOAuth = true,
         isFree = true
     )
-    
+
     // Movie/TV APIs
     val TMDB = ApiProvider(
         id = "tmdb",
@@ -191,7 +191,7 @@ object ApiProviderRegistry {
         isFree = true,
         rateLimit = 50
     )
-    
+
     val OMDB = ApiProvider(
         id = "omdb",
         name = "OMDb API",
@@ -208,7 +208,7 @@ object ApiProviderRegistry {
         isFree = true,
         rateLimit = 1000
     )
-    
+
     val TV_MAZE = ApiProvider(
         id = "tv_maze",
         name = "TVMaze",
@@ -223,7 +223,7 @@ object ApiProviderRegistry {
         requiresApiKey = false,
         isFree = true
     )
-    
+
     val FANART_TV = ApiProvider(
         id = "fanart_tv",
         name = "Fanart.tv",
@@ -238,7 +238,7 @@ object ApiProviderRegistry {
         requiresApiKey = true,
         isFree = true
     )
-    
+
     // Music APIs
     val MUSICBRAINZ = ApiProvider(
         id = "musicbrainz",
@@ -253,7 +253,7 @@ object ApiProviderRegistry {
         requiresApiKey = false,
         isFree = true
     )
-    
+
     val LAST_FM = ApiProvider(
         id = "last_fm",
         name = "Last.fm",
@@ -271,7 +271,7 @@ object ApiProviderRegistry {
         requiresApiKey = true,
         isFree = true
     )
-    
+
     val SPOTIFY = ApiProvider(
         id = "spotify",
         name = "Spotify",
@@ -292,7 +292,7 @@ object ApiProviderRegistry {
         requiresOAuth = true,
         isFree = false
     )
-    
+
     // Podcast APIs
     val PODCAST_INDEX = ApiProvider(
         id = "podcast_index",
@@ -309,7 +309,7 @@ object ApiProviderRegistry {
         requiresApiKey = true,
         isFree = true
     )
-    
+
     val APPLE_PODCASTS = ApiProvider(
         id = "apple_podcasts",
         name = "Apple Podcasts",
@@ -323,7 +323,7 @@ object ApiProviderRegistry {
         requiresApiKey = false,
         isFree = true
     )
-    
+
     // Media Server APIs
     val PLEX = ApiProvider(
         id = "plex",
@@ -345,7 +345,7 @@ object ApiProviderRegistry {
         requiresOAuth = true,
         isFree = false
     )
-    
+
     val JELLYFIN = ApiProvider(
         id = "jellyfin",
         name = "Jellyfin",
@@ -364,7 +364,7 @@ object ApiProviderRegistry {
         requiresApiKey = true,
         isFree = true
     )
-    
+
     val EMBY = ApiProvider(
         id = "emby",
         name = "Emby",
@@ -383,7 +383,7 @@ object ApiProviderRegistry {
         requiresApiKey = true,
         isFree = false
     )
-    
+
     val CALIBRE = ApiProvider(
         id = "calibre",
         name = "Calibre Content Server",
@@ -399,7 +399,7 @@ object ApiProviderRegistry {
         requiresApiKey = false,
         isFree = true
     )
-    
+
     // AI/Cloud APIs
     val GEMINI = ApiProvider(
         id = "gemini",
@@ -416,7 +416,7 @@ object ApiProviderRegistry {
         requiresApiKey = true,
         isFree = false
     )
-    
+
     val OPENAI = ApiProvider(
         id = "openai",
         name = "OpenAI",
@@ -430,7 +430,7 @@ object ApiProviderRegistry {
         requiresApiKey = true,
         isFree = false
     )
-    
+
     val ELEVEN_LABS = ApiProvider(
         id = "eleven_labs",
         name = "ElevenLabs",
@@ -442,7 +442,7 @@ object ApiProviderRegistry {
         requiresApiKey = true,
         isFree = false
     )
-    
+
     // Radio
     val RADIO_BROWSER = ApiProvider(
         id = "radio_browser",
@@ -456,7 +456,7 @@ object ApiProviderRegistry {
         requiresApiKey = false,
         isFree = true
     )
-    
+
     // Audiobooks
     val LIBRIVOX = ApiProvider(
         id = "librivox",
@@ -471,7 +471,7 @@ object ApiProviderRegistry {
         requiresApiKey = false,
         isFree = true
     )
-    
+
     /**
      * All registered providers
      */
@@ -484,14 +484,14 @@ object ApiProviderRegistry {
         GEMINI, OPENAI, ELEVEN_LABS,
         RADIO_BROWSER, LIBRIVOX
     )
-    
+
     /**
      * Get providers that support a specific capability
      */
     fun getProvidersForCapability(capability: ApiCapability): List<ApiProvider> {
         return allProviders.filter { capability in it.supportedCapabilities }
     }
-    
+
     /**
      * Get all capabilities for a provider
      */
@@ -522,10 +522,10 @@ data class ApiConfiguration(
  * Manager for API configurations
  */
 class ApiConfigurationManager {
-    
+
     private val _configurations = MutableStateFlow<Map<String, ApiConfiguration>>(emptyMap())
     val configurations: StateFlow<Map<String, ApiConfiguration>> = _configurations.asStateFlow()
-    
+
     /**
      * Get the preferred provider for a specific capability
      */
@@ -534,7 +534,7 @@ class ApiConfigurationManager {
             .filter { it.isEnabled && capability in it.enabledCapabilities }
             .maxByOrNull { it.priority }
     }
-    
+
     /**
      * Get all configured providers for a capability (fallback chain)
      */
@@ -543,21 +543,21 @@ class ApiConfigurationManager {
             .filter { it.isEnabled && capability in it.enabledCapabilities }
             .sortedByDescending { it.priority }
     }
-    
+
     /**
      * Add or update a provider configuration
      */
     fun setConfiguration(config: ApiConfiguration) {
         _configurations.value = _configurations.value + (config.providerId to config)
     }
-    
+
     /**
      * Remove a provider configuration
      */
     fun removeConfiguration(providerId: String) {
         _configurations.value = _configurations.value - providerId
     }
-    
+
     /**
      * Set which capabilities to use from a provider
      */
@@ -567,7 +567,7 @@ class ApiConfigurationManager {
             enabledCapabilities = capabilities
         ))
     }
-    
+
     /**
      * Set priority for a provider (higher = preferred)
      */
@@ -587,7 +587,7 @@ class ApiConfigurationManager {
  * Unified service that routes requests to the appropriate configured provider
  */
 interface UnifiedApiService {
-    
+
     /**
      * Search across all configured providers for a capability
      */
@@ -595,7 +595,7 @@ interface UnifiedApiService {
         capability: ApiCapability,
         request: suspend (ApiConfiguration) -> Result<T>
     ): Result<T>
-    
+
     /**
      * Execute on all providers and merge results
      */
@@ -611,34 +611,34 @@ interface UnifiedApiService {
 class UnifiedApiServiceImpl(
     private val configManager: ApiConfigurationManager
 ) : UnifiedApiService {
-    
+
     override suspend fun <T> executeWithFallback(
         capability: ApiCapability,
         request: suspend (ApiConfiguration) -> Result<T>
     ): Result<T> {
         val providers = configManager.getProvidersForCapability(capability)
-        
+
         for (provider in providers) {
             val result = request(provider)
             if (result.isSuccess) {
                 return result
             }
         }
-        
+
         return Result.failure(NoConfiguredProviderException(capability))
     }
-    
+
     override suspend fun <T> executeOnAll(
         capability: ApiCapability,
         request: suspend (ApiConfiguration) -> Result<List<T>>
     ): List<T> {
         val providers = configManager.getProvidersForCapability(capability)
-        
+
         return providers.flatMap { provider ->
             request(provider).getOrDefault(emptyList())
         }
     }
 }
 
-class NoConfiguredProviderException(capability: ApiCapability) : 
+class NoConfiguredProviderException(capability: ApiCapability) :
     Exception("No configured provider for capability: ${capability.displayName}")

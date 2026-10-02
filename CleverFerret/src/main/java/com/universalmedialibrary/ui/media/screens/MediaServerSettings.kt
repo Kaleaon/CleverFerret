@@ -28,7 +28,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Media Server Settings
- * 
+ *
  * Comprehensive settings screen for connecting to media servers:
  * - Plex
  * - Jellyfin
@@ -37,7 +37,7 @@ import com.universalmedialibrary.ui.media.theme.*
  * - Calibre Content Server
  * - Kavita
  * - Komga
- * 
+ *
  * Features:
  * - Server discovery
  * - Manual server setup
@@ -61,7 +61,7 @@ fun MediaServerSettingsScreen(
 ) {
     var showAddServerDialog by remember { mutableStateOf(false) }
     var selectedServerType by remember { mutableStateOf<ServerType?>(null) }
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -102,7 +102,7 @@ fun MediaServerSettingsScreen(
                 item {
                     SectionHeader("Connected Servers")
                 }
-                
+
                 items(items = state.connectedServers, key = { it.id }) { server ->
                     ConnectedServerCard(
                         server = server,
@@ -114,13 +114,13 @@ fun MediaServerSettingsScreen(
                     )
                 }
             }
-            
+
             // Discovered servers
             if (state.discoveredServers.isNotEmpty()) {
                 item {
                     SectionHeader("Discovered on Network")
                 }
-                
+
                 items(items = state.discoveredServers, key = { it.id }) { server ->
                     DiscoveredServerCard(
                         server = server,
@@ -128,12 +128,12 @@ fun MediaServerSettingsScreen(
                     )
                 }
             }
-            
+
             // Add server options
             item {
                 SectionHeader("Add Media Server")
             }
-            
+
             item {
                 ServerTypeGrid(
                     onServerTypeClick = { type ->
@@ -142,14 +142,14 @@ fun MediaServerSettingsScreen(
                     }
                 )
             }
-            
+
             // Tips
             item {
                 TipsCard()
             }
         }
     }
-    
+
     // Add server dialog
     if (showAddServerDialog && selectedServerType != null) {
         AddServerDialog(
@@ -187,7 +187,7 @@ private fun ConnectedServerCard(
     onToggleEnabled: (Boolean) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -212,9 +212,9 @@ private fun ConnectedServerCard(
                         modifier = Modifier.padding(MediaSpacing.SM)
                     )
                 }
-                
+
                 Spacer(Modifier.width(MediaSpacing.MD))
-                
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         server.name,
@@ -235,12 +235,12 @@ private fun ConnectedServerCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 // Status indicator
                 StatusIndicator(status = server.status)
-                
+
                 Spacer(Modifier.width(MediaSpacing.SM))
-                
+
                 // Enable toggle
                 Switch(
                     checked = server.isEnabled,
@@ -250,21 +250,21 @@ private fun ConnectedServerCard(
                         checkedTrackColor = MediaColors.AccentPrimary.copy(alpha = 0.5f)
                     )
                 )
-                
+
                 Icon(
                     if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                     null,
                     tint = MediaColors.TextTertiary
                 )
             }
-            
+
             // Expanded details
             AnimatedVisibility(visible = expanded) {
                 Column(modifier = Modifier.padding(top = MediaSpacing.MD)) {
                     HorizontalDivider(color = MediaColors.Border)
-                    
+
                     Spacer(Modifier.height(MediaSpacing.MD))
-                    
+
                     // Server stats
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -274,9 +274,9 @@ private fun ConnectedServerCard(
                         ServerStat("Items", server.itemCount.toString())
                         ServerStat("Last Sync", server.lastSync)
                     }
-                    
+
                     Spacer(Modifier.height(MediaSpacing.MD))
-                    
+
                     // Action buttons
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -290,7 +290,7 @@ private fun ConnectedServerCard(
                             Spacer(Modifier.width(MediaSpacing.XS))
                             Text("Test")
                         }
-                        
+
                         OutlinedButton(
                             onClick = onSync,
                             modifier = Modifier.weight(1f)
@@ -299,7 +299,7 @@ private fun ConnectedServerCard(
                             Spacer(Modifier.width(MediaSpacing.XS))
                             Text("Sync")
                         }
-                        
+
                         OutlinedButton(
                             onClick = onEdit,
                             modifier = Modifier.weight(1f)
@@ -309,9 +309,9 @@ private fun ConnectedServerCard(
                             Text("Edit")
                         }
                     }
-                    
+
                     Spacer(Modifier.height(MediaSpacing.SM))
-                    
+
                     TextButton(
                         onClick = onRemove,
                         colors = ButtonDefaults.textButtonColors(contentColor = MediaColors.Error)
@@ -334,7 +334,7 @@ private fun StatusIndicator(status: ServerStatus) {
         ServerStatus.ERROR -> MediaColors.Error to "Error"
         ServerStatus.OFFLINE -> MediaColors.TextTertiary to "Offline"
     }
-    
+
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
@@ -388,9 +388,9 @@ private fun DiscoveredServerCard(
                 tint = server.type.color,
                 modifier = Modifier.size(32.dp)
             )
-            
+
             Spacer(Modifier.width(MediaSpacing.MD))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     server.name,
@@ -403,7 +403,7 @@ private fun DiscoveredServerCard(
                     color = MediaColors.TextTertiary
                 )
             }
-            
+
             Button(
                 onClick = onConnect,
                 colors = ButtonDefaults.buttonColors(
@@ -425,7 +425,7 @@ private fun ServerTypeGrid(
         listOf(ServerType.SUBSONIC, ServerType.CALIBRE, ServerType.KAVITA),
         listOf(ServerType.KOMGA, ServerType.AUDIOBOOKSHELF, ServerType.NAVIDROME)
     )
-    
+
     Column(verticalArrangement = Arrangement.spacedBy(MediaSpacing.SM)) {
         serverTypes.forEach { row ->
             Row(
@@ -498,9 +498,9 @@ private fun TipsCard() {
                 tint = MediaColors.AccentPrimary,
                 modifier = Modifier.size(24.dp)
             )
-            
+
             Spacer(Modifier.width(MediaSpacing.MD))
-            
+
             Column {
                 Text(
                     "Tips for connecting",
@@ -540,9 +540,9 @@ private fun AddServerDialog(
     var showPassword by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var pinCode by remember { mutableStateOf<String?>(null) }
-    
+
     val authMethod = serverType.authMethod
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -595,7 +595,7 @@ private fun AddServerDialog(
                             )
                         }
                     }
-                    
+
                     AuthMethod.USERNAME_PASSWORD, AuthMethod.URL_USERNAME_PASSWORD -> {
                         if (authMethod == AuthMethod.URL_USERNAME_PASSWORD) {
                             OutlinedTextField(
@@ -611,7 +611,7 @@ private fun AddServerDialog(
                                 )
                             )
                         }
-                        
+
                         OutlinedTextField(
                             value = username,
                             onValueChange = { username = it },
@@ -623,7 +623,7 @@ private fun AddServerDialog(
                                 unfocusedBorderColor = MediaColors.Border
                             )
                         )
-                        
+
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
@@ -649,7 +649,7 @@ private fun AddServerDialog(
                             )
                         )
                     }
-                    
+
                     AuthMethod.API_KEY -> {
                         OutlinedTextField(
                             value = serverUrl,
@@ -663,7 +663,7 @@ private fun AddServerDialog(
                                 unfocusedBorderColor = MediaColors.Border
                             )
                         )
-                        
+
                         OutlinedTextField(
                             value = apiKey,
                             onValueChange = { apiKey = it },

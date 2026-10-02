@@ -18,7 +18,7 @@ import com.universalmedialibrary.services.visualizer.getCategory
 
 /**
  * Preset Browser Screen
- * 
+ *
  * Allows users to browse, download, and manage visualizer presets
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,15 +34,15 @@ fun PresetBrowserScreen(
     var showImportDialog by remember { mutableStateOf(false) }
     var selectedPreset by remember { mutableStateOf<VisualizerPreset?>(null) }
     var presetToShare by remember { mutableStateOf<VisualizerPreset?>(null) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = "Visualizer Presets",
                         style = MaterialTheme.typography.titleMedium
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -89,7 +89,7 @@ fun PresetBrowserScreen(
                     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
-            
+
             // Preset count
             Text(
                 text = "${presets.size} presets available",
@@ -97,7 +97,7 @@ fun PresetBrowserScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
-            
+
             // Preset list
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -107,7 +107,7 @@ fun PresetBrowserScreen(
                 items(presets) { preset ->
                     PresetCard(
                         preset = preset,
-                        onClick = { 
+                        onClick = {
                             selectedPreset = preset
                             onPresetSelected(preset)
                         },
@@ -118,7 +118,7 @@ fun PresetBrowserScreen(
             }
         }
     }
-    
+
     if (showImportDialog) {
         ImportPresetDialog(
             onDismiss = { showImportDialog = false },
@@ -128,7 +128,7 @@ fun PresetBrowserScreen(
             }
         )
     }
-    
+
     presetToShare?.let { preset ->
         PresetShareDialog(
             preset = preset,
@@ -172,15 +172,15 @@ private fun PresetCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 // Category badge
                 AssistChip(
                     onClick = { },
-                    label = { 
+                    label = {
                         Text(
                             preset.getCategory().name,
                             style = MaterialTheme.typography.labelSmall
-                        ) 
+                        )
                     },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -188,7 +188,7 @@ private fun PresetCard(
                     )
                 )
             }
-            
+
             if (preset.description.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -199,7 +199,7 @@ private fun PresetCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             // Tags
             if (preset.tags.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -209,11 +209,11 @@ private fun PresetCard(
                     preset.tags.take(3).forEach { tag ->
                         SuggestionChip(
                             onClick = { },
-                            label = { 
+                            label = {
                                 Text(
                                     tag,
                                     style = MaterialTheme.typography.labelSmall
-                                ) 
+                                )
                             },
                             colors = SuggestionChipDefaults.suggestionChipColors(
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -223,7 +223,7 @@ private fun PresetCard(
                     }
                 }
             }
-            
+
             // Actions
             Row(
                 modifier = Modifier
@@ -246,7 +246,7 @@ private fun PresetCard(
                         Text("Edit", style = MaterialTheme.typography.labelSmall)
                     }
                 }
-                
+
                 OutlinedButton(
                     onClick = onShare,
                     modifier = Modifier.weight(1f)
@@ -259,7 +259,7 @@ private fun PresetCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Share")
                 }
-                
+
                 Button(
                     onClick = onClick,
                     modifier = Modifier.weight(1f)
@@ -283,7 +283,7 @@ private fun ImportPresetDialog(
     onImport: (String) -> Unit
 ) {
     var jsonText by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Import Preset") },
@@ -320,4 +320,3 @@ private fun ImportPresetDialog(
         }
     )
 }
-

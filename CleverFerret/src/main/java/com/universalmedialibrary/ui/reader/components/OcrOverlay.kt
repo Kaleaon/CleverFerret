@@ -27,7 +27,7 @@ import androidx.compose.ui.window.DialogProperties
 
 /**
  * OCR Overlay UI Component
- * 
+ *
  * Provides controls for OCR text recognition with result display and TTS
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,7 +48,7 @@ fun OcrOverlay(
 ) {
     val clipboardManager = LocalClipboardManager.current
     var showLanguageMenu by remember { mutableStateOf(false) }
-    
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -69,7 +69,7 @@ fun OcrOverlay(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             IconButton(onClick = onDismiss) {
                 Icon(
                     imageVector = Icons.Default.Close,
@@ -77,9 +77,9 @@ fun OcrOverlay(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Language selector (if multi-language support is enabled)
         if (currentLanguage != null && availableLanguages != null && onLanguageChange != null) {
             Row(
@@ -91,7 +91,7 @@ fun OcrOverlay(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(end = 8.dp)
                 )
-                
+
                 Box {
                     OutlinedButton(
                         onClick = { showLanguageMenu = true },
@@ -104,7 +104,7 @@ fun OcrOverlay(
                             contentDescription = "Select language"
                         )
                     }
-                    
+
                     DropdownMenu(
                         expanded = showLanguageMenu,
                         onDismissRequest = { showLanguageMenu = false }
@@ -121,10 +121,10 @@ fun OcrOverlay(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
         }
-        
+
         // OCR Button
         Button(
             onClick = onRecognizeText,
@@ -147,7 +147,7 @@ fun OcrOverlay(
                 Text("Extract Text")
             }
         }
-        
+
         // Result display
         AnimatedVisibility(
             visible = ocrResult != null && !isProcessing,
@@ -165,7 +165,7 @@ fun OcrOverlay(
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold
                     )
-                    
+
                     if (ocrResult != null) {
                         Row {
                             // TTS controls (if available)
@@ -185,7 +185,7 @@ fun OcrOverlay(
                                     )
                                 }
                             }
-                            
+
                             IconButton(
                                 onClick = {
                                     clipboardManager.setText(AnnotatedString(ocrResult))
@@ -199,9 +199,9 @@ fun OcrOverlay(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -239,7 +239,7 @@ fun OcrOverlay(
                 }
             }
         }
-        
+
         // Info text
         if (!isProcessing && ocrResult == null) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -305,7 +305,7 @@ fun OcrResultDialog(
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
-                    
+
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -313,9 +313,9 @@ fun OcrResultDialog(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -332,9 +332,9 @@ fun OcrResultDialog(
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -345,7 +345,7 @@ fun OcrResultDialog(
                     ) {
                         Text("Close")
                     }
-                    
+
                     Button(
                         onClick = onCopy,
                         modifier = Modifier.weight(1f)

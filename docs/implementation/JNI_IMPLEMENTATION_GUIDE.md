@@ -54,14 +54,14 @@ CleverFerret/
 ```kotlin
 android {
     // ... existing config ...
-    
+
     defaultConfig {
         // ... existing config ...
-        
+
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
         }
-        
+
         externalNativeBuild {
             cmake {
                 cppFlags += listOf("-std=c++17", "-frtti", "-fexceptions")
@@ -72,7 +72,7 @@ android {
             }
         }
     }
-    
+
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
@@ -157,16 +157,16 @@ Java_com_universalmedialibrary_parsers_impl_MobiParser_parseMobiNative(
     JNIEnv* env,
     jobject /* this */,
     jstring filePath) {
-    
+
     const char* path = env->GetStringUTFChars(filePath, nullptr);
-    
+
     // Initialize MOBI data structure
     MOBIData* m = mobi_init();
     if (m == nullptr) {
         env->ReleaseStringUTFChars(filePath, path);
         return env->NewStringUTF("");
     }
-    
+
     // Open MOBI file
     FILE* file = fopen(path, "rb");
     if (file == nullptr) {
@@ -174,17 +174,17 @@ Java_com_universalmedialibrary_parsers_impl_MobiParser_parseMobiNative(
         env->ReleaseStringUTFChars(filePath, path);
         return env->NewStringUTF("");
     }
-    
+
     // Load MOBI file
     MOBI_RET ret = mobi_load_file(m, file);
     fclose(file);
-    
+
     if (ret != MOBI_SUCCESS) {
         mobi_free(m);
         env->ReleaseStringUTFChars(filePath, path);
         return env->NewStringUTF("");
     }
-    
+
     // Parse MOBI file
     MOBIRawml* rawml = mobi_init_rawml(m);
     if (rawml == nullptr) {
@@ -192,7 +192,7 @@ Java_com_universalmedialibrary_parsers_impl_MobiParser_parseMobiNative(
         env->ReleaseStringUTFChars(filePath, path);
         return env->NewStringUTF("");
     }
-    
+
     ret = mobi_parse_rawml(rawml, m);
     if (ret != MOBI_SUCCESS) {
         mobi_free_rawml(rawml);
@@ -200,7 +200,7 @@ Java_com_universalmedialibrary_parsers_impl_MobiParser_parseMobiNative(
         env->ReleaseStringUTFChars(filePath, path);
         return env->NewStringUTF("");
     }
-    
+
     // Extract text content
     std::string content;
     MOBIPart* part = rawml->markup;
@@ -210,12 +210,12 @@ Java_com_universalmedialibrary_parsers_impl_MobiParser_parseMobiNative(
         }
         part = part->next;
     }
-    
+
     // Cleanup
     mobi_free_rawml(rawml);
     mobi_free(m);
     env->ReleaseStringUTFChars(filePath, path);
-    
+
     return env->NewStringUTF(content.c_str());
 }
 
@@ -224,16 +224,16 @@ Java_com_universalmedialibrary_parsers_impl_MobiParser_extractMobiMetadata(
     JNIEnv* env,
     jobject /* this */,
     jstring filePath) {
-    
+
     const char* path = env->GetStringUTFChars(filePath, nullptr);
-    
+
     // Initialize MOBI data structure
     MOBIData* m = mobi_init();
     if (m == nullptr) {
         env->ReleaseStringUTFChars(filePath, path);
         return nullptr;
     }
-    
+
     // Open and load MOBI file
     FILE* file = fopen(path, "rb");
     if (file == nullptr) {
@@ -241,37 +241,37 @@ Java_com_universalmedialibrary_parsers_impl_MobiParser_extractMobiMetadata(
         env->ReleaseStringUTFChars(filePath, path);
         return nullptr;
     }
-    
+
     MOBI_RET ret = mobi_load_file(m, file);
     fclose(file);
-    
+
     if (ret != MOBI_SUCCESS) {
         mobi_free(m);
         env->ReleaseStringUTFChars(filePath, path);
         return nullptr;
     }
-    
+
     // Create HashMap for metadata
     jclass hashMapClass = env->FindClass("java/util/HashMap");
     jmethodID hashMapInit = env->GetMethodID(hashMapClass, "<init>", "()V");
     jmethodID hashMapPut = env->GetMethodID(hashMapClass, "put",
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-    
+
     jobject hashMap = env->NewObject(hashMapClass, hashMapInit);
-    
+
     // Extract metadata
     if (m->mh != nullptr && m->mh->full_name_length > 0) {
         jstring key = env->NewStringUTF("title");
         jstring value = env->NewStringUTF(reinterpret_cast<const char*>(m->mh->full_name));
         env->CallObjectMethod(hashMap, hashMapPut, key, value);
     }
-    
+
     // Add more metadata fields as needed
-    
+
     // Cleanup
     mobi_free(m);
     env->ReleaseStringUTFChars(filePath, path);
-    
+
     return hashMap;
 }
 ```
@@ -279,33 +279,33 @@ Java_com_universalmedialibrary_parsers_impl_MobiParser_extractMobiMetadata(
 4. **Update MobiParser.kt to use native methods**:
 ```kotlin
 class MobiParser : DocumentParser {
-    
+
     companion object {
         init {
             System.loadLibrary("mobi")
         }
     }
-    
+
     private external fun parseMobiNative(filePath: String): String
     private external fun extractMobiMetadata(filePath: String): Map<String, String>
-    
+
     override suspend fun parse(filePath: String): ParsedDocument = withContext(Dispatchers.IO) {
         try {
             val content = parseMobiNative(filePath)
             val metadataMap = extractMobiMetadata(filePath)
-            
+
             val metadata = DocumentMetadata(
                 title = metadataMap["title"],
                 author = metadataMap["author"],
                 format = "MOBI"
             )
-            
+
             ParsedDocument(content, metadata)
         } catch (e: Exception) {
             throw ParserException("Failed to parse MOBI file: $filePath", e)
         }
     }
-    
+
     // ... rest of implementation
 }
 ```
@@ -359,7 +359,7 @@ fun testMobiParser() {
     val parser = MobiParser()
     val testFile = "test_files/sample.mobi"
     val result = runBlocking { parser.parse(testFile) }
-    
+
     assertNotNull(result.content)
     assertTrue(result.content.isNotEmpty())
     assertEquals("MOBI", result.metadata.format)

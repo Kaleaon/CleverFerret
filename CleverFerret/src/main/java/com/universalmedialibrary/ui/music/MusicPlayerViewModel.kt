@@ -52,21 +52,21 @@ class MusicPlayerViewModel @Inject constructor(
 
     val playlistMode: StateFlow<PlaylistMode> =
         musicPlayerService.playlistMode
-    
+
     val sleepTimerState = sleepTimerManager.state
-    
+
     private val _playbackSpeed = MutableStateFlow(1.0f)
     val playbackSpeed: StateFlow<Float> = _playbackSpeed.asStateFlow()
-    
+
     private val _volume = MutableStateFlow(1.0f)
     val volume: StateFlow<Float> = _volume.asStateFlow()
-    
+
     private val _equalizerPreset = MutableStateFlow("Normal")
     val equalizerPreset: StateFlow<String> = _equalizerPreset.asStateFlow()
-    
+
     private val _isFavorite = MutableStateFlow(false)
     val isFavorite: StateFlow<Boolean> = _isFavorite.asStateFlow()
-    
+
     // Playlists for "Add to Playlist" feature
     val playlists: StateFlow<List<Playlist>> = playlistDao.getAllPlaylistsFlow()
         .stateIn(
@@ -74,11 +74,11 @@ class MusicPlayerViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-    
+
     // Enhanced metadata for current track
     private val _currentTrackMetadata = MutableStateFlow<EnhancedTrackMetadata?>(null)
     val currentTrackMetadata: StateFlow<EnhancedTrackMetadata?> = _currentTrackMetadata.asStateFlow()
-    
+
     // Seek amounts (configurable)
     private val seekBackwardMs = 10000L // 10 seconds
     private val seekForwardMs = 30000L // 30 seconds
@@ -202,7 +202,7 @@ class MusicPlayerViewModel @Inject constructor(
         _playbackSpeed.value = speed
         exoPlayerService.setPlaybackSpeed(speed)
     }
-    
+
     /**
      * Set volume
      */
@@ -210,7 +210,7 @@ class MusicPlayerViewModel @Inject constructor(
         _volume.value = volume
         exoPlayerService.setVolume(volume)
     }
-    
+
     /**
      * Set equalizer preset
      */
@@ -219,7 +219,7 @@ class MusicPlayerViewModel @Inject constructor(
         // Equalizer settings would be applied here in production
         // Example: equalizerService.applyPreset(preset)
     }
-    
+
     /**
      * Toggle favorite status
      */
@@ -245,7 +245,7 @@ class MusicPlayerViewModel @Inject constructor(
             _isFavorite.value = newState
         }
     }
-    
+
     /**
      * Seek backward (default -10s)
      */
@@ -254,7 +254,7 @@ class MusicPlayerViewModel @Inject constructor(
         val newPos = (currentPos - amountMs).coerceAtLeast(0)
         seekTo(newPos)
     }
-    
+
     /**
      * Seek forward (default +30s)
      */
@@ -264,35 +264,35 @@ class MusicPlayerViewModel @Inject constructor(
         val newPos = (currentPos + amountMs).coerceAtMost(duration)
         seekTo(newPos)
     }
-    
+
     /**
      * Toggle shuffle mode
      */
     fun toggleShuffle() {
         musicPlayerService.toggleShuffle()
     }
-    
+
     /**
      * Toggle repeat mode
      */
     fun toggleRepeat() {
         musicPlayerService.toggleRepeat()
     }
-    
+
     /**
      * Jump to specific track in queue
      */
     fun jumpToQueuePosition(index: Int) {
         musicPlayerService.skipToQueuePosition(index)
     }
-    
+
     /**
      * Move track in queue
      */
     fun moveTrackInQueue(fromIndex: Int, toIndex: Int) {
         musicPlayerService.moveInQueue(fromIndex, toIndex)
     }
-    
+
     /**
      * Remove track from queue by index
      */
@@ -300,20 +300,20 @@ class MusicPlayerViewModel @Inject constructor(
         val id = queue.value.getOrNull(index)?.id ?: return
         musicPlayerService.removeFromQueue(id)
     }
-    
+
     /**
      * Shuffle queue
      */
     fun shuffleQueue() {
         musicPlayerService.shuffleQueue()
     }
-    
+
     /**
      * Load enhanced metadata for current track
      */
     fun loadEnhancedMetadata() {
         val track = currentTrack.value ?: return
-        
+
         viewModelScope.launch {
             try {
                 val metadata = enhancedMetadataService.extractMetadata(track.filePath)
@@ -324,7 +324,7 @@ class MusicPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get current queue index
      */
@@ -332,7 +332,7 @@ class MusicPlayerViewModel @Inject constructor(
         val track = currentTrack.value ?: return -1
         return queue.value.indexOfFirst { it.id == track.id }
     }
-    
+
     /**
      * Start sleep timer
      */
@@ -345,20 +345,20 @@ class MusicPlayerViewModel @Inject constructor(
             }
         )
     }
-    
+
     /**
      * Stop sleep timer
      */
     fun stopSleepTimer() {
         sleepTimerManager.stopTimer()
     }
-    
+
     /**
      * Share current track
      */
     fun shareTrack() {
         val track = currentTrack.value ?: return
-        
+
         try {
             val shareText = buildString {
                 append("Now listening to:\n")
@@ -370,14 +370,14 @@ class MusicPlayerViewModel @Inject constructor(
                     append("\nAlbum: ${track.album}")
                 }
             }
-            
+
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, shareText)
                 putExtra(Intent.EXTRA_SUBJECT, "Check out this song!")
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            
+
             val chooser = Intent.createChooser(shareIntent, "Share via")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(chooser)
@@ -429,7 +429,7 @@ class MusicPlayerViewModel @Inject constructor(
      */
     fun addToPlaylist(playlistId: Long) {
         val track = currentTrack.value ?: return
-        
+
         viewModelScope.launch {
             try {
                 // Get the next position in the playlist
@@ -445,13 +445,13 @@ class MusicPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Create new playlist with current track
      */
     fun createPlaylistWithCurrentTrack(name: String) {
         val track = currentTrack.value ?: return
-        
+
         viewModelScope.launch {
             try {
                 val playlist = Playlist(
@@ -459,7 +459,7 @@ class MusicPlayerViewModel @Inject constructor(
                     description = "Created from Now Playing"
                 )
                 val playlistId = playlistDao.insertPlaylist(playlist)
-                
+
                 // Add current track to new playlist
                 val playlistItem = com.universalmedialibrary.data.local.entity.PlaylistItem(
                     playlistId = playlistId,
@@ -472,7 +472,7 @@ class MusicPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         // Don't release the service here as it should continue playing in background

@@ -20,13 +20,13 @@ class CoverService @Inject constructor(
     private val amazonCoverSource: AmazonCoverSource,
     private val googleBooksCoverSource: GoogleBooksCoverSource
 ) {
-    
+
     private val sources = listOf(
         appleBooksCoverSource,
         amazonCoverSource,
         googleBooksCoverSource
     ).sortedByDescending { it.priority }
-    
+
     /**
      * Find the best available cover from all sources
      */
@@ -46,18 +46,18 @@ class CoverService @Inject constructor(
                     }
                 }
             }.awaitAll().filterNotNull()
-            
+
             // Return highest quality result
-            val best = results.maxByOrNull { 
-                it.quality.ordinal * 1000 + it.width + it.height 
+            val best = results.maxByOrNull {
+                it.quality.ordinal * 1000 + it.width + it.height
             }
-            
+
             Result.success(best)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Download and save cover to local storage
      */
@@ -67,29 +67,29 @@ class CoverService @Inject constructor(
     ): Result<String> = withContext(Dispatchers.IO) {
         try {
             // Find the source (handle Amazon's domain-specific naming)
-            val source = sources.find { 
-                coverResult.source == it.sourceName || 
+            val source = sources.find {
+                coverResult.source == it.sourceName ||
                 coverResult.source.startsWith(it.sourceName + " (")
             } ?: return@withContext Result.failure(
                     Exception("Source ${coverResult.source} not found")
                 )
-            
+
             // Download cover
             val imageData = source.downloadCover(coverResult.url).getOrThrow()
-            
+
             // Save to file
             val coversDir = File(context.filesDir, "covers")
             coversDir.mkdirs()
-            
+
             val coverFile = File(coversDir, "$bookId.jpg")
             coverFile.writeBytes(imageData)
-            
+
             Result.success(coverFile.absolutePath)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Get cover quality from dimensions
      */

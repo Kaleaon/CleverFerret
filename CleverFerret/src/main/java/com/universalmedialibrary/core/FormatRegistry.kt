@@ -6,14 +6,14 @@ import javax.inject.Singleton
 
 /**
  * Centralized registry for all file formats supported by the application.
- * 
+ *
  * Provides unified search and discovery of file formats across:
  * - Books/Documents (EPUB, PDF, DOCX, etc.)
  * - Audio (MP3, M4A, FLAC, etc.)
  * - Video (MP4, MKV, AVI, etc.)
  * - Comics (CBZ, CBR, CBT, CB7)
  * - Images (PNG, JPG, WEBP, etc.)
- * 
+ *
  * All formats are searchable by:
  * - Extension
  * - MIME type
@@ -23,7 +23,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class FormatRegistry @Inject constructor() {
-    
+
     /**
      * Format information for a file type
      */
@@ -38,7 +38,7 @@ class FormatRegistry @Inject constructor() {
         val isWritable: Boolean = false,
         val readerService: String? = null // Service that handles this format
     )
-    
+
     /**
      * Format categories for organization
      */
@@ -53,26 +53,26 @@ class FormatRegistry @Inject constructor() {
         TEXT,       // TXT, MD, HTML, etc.
         OTHER
     }
-    
+
     /**
      * All registered formats indexed by extension
      */
     private val formatsByExtension = mutableMapOf<String, FormatInfo>()
-    
+
     /**
      * All registered formats indexed by MIME type
      */
     private val formatsByMimeType = mutableMapOf<String, FormatInfo>()
-    
+
     /**
      * All registered formats by category
      */
     private val formatsByCategory = mutableMapOf<FormatCategory, MutableList<FormatInfo>>()
-    
+
     init {
         registerAllFormats()
     }
-    
+
     /**
      * Register all supported formats
      */
@@ -111,17 +111,17 @@ class FormatRegistry @Inject constructor() {
                 formatsByCategory.getOrPut(formatInfo.category) { mutableListOf() }.add(formatInfo)
             }
         }
-        
+
         // Register audio formats
         registerAudioFormats()
-        
+
         // Register video formats
         registerVideoFormats()
-        
+
         // Register image formats
         registerImageFormats()
     }
-    
+
     /**
      * Register audio formats
      */
@@ -137,7 +137,7 @@ class FormatRegistry @Inject constructor() {
             FormatInfo("opus", listOf("opus"), listOf("audio/opus"), "Opus", "Opus Audio", FormatCategory.AUDIO, readerService = "ExoPlayerService"),
             FormatInfo("audiobook", listOf("audiobook", "lcpa", "lcpdf"), listOf("application/audiobook+zip"), "Audiobook", "Readium Audiobook", FormatCategory.AUDIO, readerService = "ReadiumAudiobookService")
         )
-        
+
         audioFormats.forEach { format ->
             format.extensions.forEach { ext ->
                 formatsByExtension[ext.lowercase()] = format
@@ -148,7 +148,7 @@ class FormatRegistry @Inject constructor() {
             formatsByCategory.getOrPut(format.category) { mutableListOf() }.add(format)
         }
     }
-    
+
     /**
      * Register video formats
      */
@@ -161,7 +161,7 @@ class FormatRegistry @Inject constructor() {
             FormatInfo("mov", listOf("mov"), listOf("video/quicktime"), "MOV", "QuickTime Video", FormatCategory.VIDEO, readerService = "ExoPlayerService"),
             FormatInfo("m4v", listOf("m4v"), listOf("video/x-m4v"), "M4V", "MPEG-4 Video", FormatCategory.VIDEO, readerService = "ExoPlayerService")
         )
-        
+
         videoFormats.forEach { format ->
             format.extensions.forEach { ext ->
                 formatsByExtension[ext.lowercase()] = format
@@ -172,7 +172,7 @@ class FormatRegistry @Inject constructor() {
             formatsByCategory.getOrPut(format.category) { mutableListOf() }.add(format)
         }
     }
-    
+
     /**
      * Register image formats
      */
@@ -185,7 +185,7 @@ class FormatRegistry @Inject constructor() {
             FormatInfo("bmp", listOf("bmp"), listOf("image/bmp"), "BMP", "Bitmap Image", FormatCategory.IMAGE),
             FormatInfo("svg", listOf("svg"), listOf("image/svg+xml"), "SVG", "Scalable Vector Graphics", FormatCategory.IMAGE)
         )
-        
+
         imageFormats.forEach { format ->
             format.extensions.forEach { ext ->
                 formatsByExtension[ext.lowercase()] = format
@@ -196,14 +196,14 @@ class FormatRegistry @Inject constructor() {
             formatsByCategory.getOrPut(format.category) { mutableListOf() }.add(format)
         }
     }
-    
+
     /**
      * Search formats by query (searches extension, display name, description)
      */
     fun searchFormats(query: String): List<FormatInfo> {
         val lowerQuery = query.lowercase().trim()
         if (lowerQuery.isEmpty()) return getAllFormats()
-        
+
         return formatsByExtension.values.distinctBy { it.extension }.filter { format ->
             format.extension.lowercase().contains(lowerQuery) ||
             format.displayName.lowercase().contains(lowerQuery) ||
@@ -212,63 +212,63 @@ class FormatRegistry @Inject constructor() {
             format.mimeTypes.any { it.lowercase().contains(lowerQuery) }
         }
     }
-    
+
     /**
      * Get format by extension
      */
     fun getFormatByExtension(extension: String): FormatInfo? {
         return formatsByExtension[extension.lowercase()]
     }
-    
+
     /**
      * Get format by MIME type
      */
     fun getFormatByMimeType(mimeType: String): FormatInfo? {
         return formatsByMimeType[mimeType.lowercase()]
     }
-    
+
     /**
      * Get all formats in a category
      */
     fun getFormatsByCategory(category: FormatCategory): List<FormatInfo> {
         return formatsByCategory[category]?.distinctBy { it.extension } ?: emptyList()
     }
-    
+
     /**
      * Get all readable formats
      */
     fun getReadableFormats(): List<FormatInfo> {
         return formatsByExtension.values.distinctBy { it.extension }.filter { it.isReadable }
     }
-    
+
     /**
      * Get all formats
      */
     fun getAllFormats(): List<FormatInfo> {
         return formatsByExtension.values.distinctBy { it.extension }.toList()
     }
-    
+
     /**
      * Check if extension is supported
      */
     fun isSupported(extension: String): Boolean {
         return formatsByExtension.containsKey(extension.lowercase())
     }
-    
+
     /**
      * Check if extension is readable
      */
     fun isReadable(extension: String): Boolean {
         return getFormatByExtension(extension)?.isReadable ?: false
     }
-    
+
     /**
      * Get all supported extensions
      */
     fun getAllExtensions(): List<String> {
         return formatsByExtension.keys.toList()
     }
-    
+
     /**
      * Get all supported MIME types
      */

@@ -47,7 +47,7 @@ internal fun FlagsTab(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
-        
+
         items(flags.entries.toList()) { (key, value) ->
             Card(
                 colors = CardDefaults.cardColors(containerColor = MediaColors.BackgroundSurface),

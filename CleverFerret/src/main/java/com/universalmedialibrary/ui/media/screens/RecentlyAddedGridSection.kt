@@ -79,13 +79,13 @@ internal fun RecentlyAddedGridSection(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.semantics { heading() }
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
-        
+
         // 2-column grid
         val columns = 2
         val rows = (items.size + columns - 1) / columns
-        
+
         Column(
             verticalArrangement = Arrangement.spacedBy(MediaSpacing.LG)
         ) {

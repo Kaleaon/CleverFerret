@@ -45,7 +45,7 @@ internal fun AlbumGridItem(album: Album, onClick: () -> Unit) {
             ) {
                 if (album.artworkUri != null) {
                     AsyncImage(
-                    
+
                         model = album.artworkUri,
                         contentDescription = "Media image",
                         modifier = Modifier.fillMaxSize(),

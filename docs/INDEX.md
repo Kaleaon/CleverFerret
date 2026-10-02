@@ -1,6 +1,6 @@
 # CleverFerret Documentation Index
 
-**Last Updated:** December 31, 2024  
+**Last Updated:** December 31, 2024
 **Version:** 1.6.5 (Build 32)
 
 Complete index of all documentation for the CleverFerret Universal Media Library Android application.
@@ -101,7 +101,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [Parser Implementation Summary](implementation/PARSER_IMPLEMENTATION_SUMMARY.md) - Current parser implementation status
 - [Parser Integration Guide](implementation/PARSER_INTEGRATION_GUIDE.md) - Active parser integration roadmap
 - [Roadmap](ROADMAP.md) - Product roadmap and milestone sequencing
-- [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - App improvement opportunities
+- [Archived Improvements Needed](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md) - App improvement opportunities (archived)
 
 ### Archived PWA / Historical planning
 - [Archived Improvements Needed](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md) - Former PWA-focused improvement plan (archived)

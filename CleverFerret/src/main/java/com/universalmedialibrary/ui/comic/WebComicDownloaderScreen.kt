@@ -172,22 +172,22 @@ private fun DirectDownloadTab(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Text(
             "Download Web Comic",
             style = MaterialTheme.typography.headlineSmall
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             "Enter a URL to a comic page or .cbz file",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
@@ -214,7 +214,7 @@ private fun DirectDownloadTab(
             }
             Text(if (isDownloading) "Downloading..." else "Download")
         }
-        
+
         if (status.isNotBlank()) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(status, style = MaterialTheme.typography.bodyMedium)
@@ -231,7 +231,7 @@ private fun ComicSeriesCard(series: ComicSeries) {
         Row(modifier = Modifier.padding(8.dp)) {
             if (series.imageUrl != null) {
                 AsyncImage(
-                    
+
                     model = series.imageUrl,
                     contentDescription = "Media image",
                     modifier = Modifier

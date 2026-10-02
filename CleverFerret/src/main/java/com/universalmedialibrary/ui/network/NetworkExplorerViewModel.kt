@@ -17,7 +17,7 @@ import javax.inject.Inject
 class NetworkExplorerViewModel @Inject constructor(
     private val networkExplorerService: NetworkExplorerService
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(NetworkExplorerUiState())
     val uiState: StateFlow<NetworkExplorerUiState> = _uiState.asStateFlow()
 
@@ -100,7 +100,7 @@ class NetworkExplorerViewModel @Inject constructor(
                     downloadProgress = progress
                 )
             }
-            
+
             _uiState.value = _uiState.value.copy(
                 downloadComplete = success,
                 downloadProgress = if (success) 1f else 0f

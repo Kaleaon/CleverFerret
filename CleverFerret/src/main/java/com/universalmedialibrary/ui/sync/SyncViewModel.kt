@@ -37,7 +37,7 @@ class SyncViewModel @Inject constructor(
                 )
 
                 val result = syncService.sync(options)
-                
+
                 _uiState.value = _uiState.value.copy(
                     isSyncing = false,
                     lastSyncResult = result,
@@ -138,7 +138,7 @@ class SyncViewModel @Inject constructor(
             if (enabled) {
                 // In a real implementation, this would schedule periodic work
                 // using WorkManager for background sync
-                
+
                 // Example implementation (would require WorkManager dependency):
                 // val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
                 //     6, TimeUnit.HOURS // Repeat every 6 hours
@@ -154,7 +154,7 @@ class SyncViewModel @Inject constructor(
                 //     ExistingPeriodicWorkPolicy.UPDATE,
                 //     syncRequest
                 // )
-                
+
                 // For now, just log that auto-sync is enabled
                 android.util.Log.i("SyncViewModel", "Auto-sync scheduling would be enabled here")
             } else {

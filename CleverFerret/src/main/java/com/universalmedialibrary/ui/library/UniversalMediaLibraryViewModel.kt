@@ -42,7 +42,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    
+
     private val _libraryItemCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
     val libraryItemCounts: StateFlow<Map<String, Int>> = _libraryItemCounts.asStateFlow()
 
@@ -65,16 +65,16 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                             allMediaItems = emptyList()
                         } else {
                             val itemIds = mediaItems.map { it.itemId }
-                            
+
                             // Batch fetch all metadata and progress at once
                             val metadataMap = mediaRepository.getCommonMetadataBatch(itemIds)
                             val progressMap = historyRepository.getReadingProgressBatch(itemIds)
-                            
+
                             // Convert MediaItems to MediaItemWithMetadata using pre-fetched data
                             allMediaItems = mediaItems.map { mediaItem ->
                                 val metadata = metadataMap[mediaItem.itemId]
                                 val progressData = progressMap[mediaItem.itemId]
-                                
+
                                 MediaItemWithMetadata(
                                     itemId = mediaItem.itemId,
                                     title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
@@ -86,7 +86,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                                 )
                             }
                         }
-                        
+
                         // Update library item counts by media type
                         val countsByMediaType = try {
                             mediaRepository.getLibraryItemCountsByType(libraryId)
@@ -95,10 +95,10 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                         }
                         _libraryItemCounts.value = countsByMediaType
                     }
-                    
+
                     // Apply filters and sorting
                     applyFiltersAndSort()
-                    
+
                     // Turn off loading after first emission
                     _isLoading.value = false
                 }

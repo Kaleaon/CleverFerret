@@ -42,7 +42,7 @@ import kotlin.math.pow
 
 /**
  * Enhanced Storage Browser Screen with folder selection and batch import
- * 
+ *
  * Features:
  * - Multiple folder selection with checkboxes
  * - Recursive folder scanning
@@ -59,21 +59,21 @@ fun EnhancedStorageBrowserScreen(
     allowMultipleSelection: Boolean = true,
     allowFolderSelection: Boolean = true,
     filterMediaTypes: List<String> = listOf(
-        "epub", "pdf", "mp3", "mp4", "mkv", "cbz", "cbr", "txt", "mobi", "azw", "azw3", 
+        "epub", "pdf", "mp3", "mp4", "mkv", "cbz", "cbr", "txt", "mobi", "azw", "azw3",
         "fb2", "djvu", "doc", "docx", "rtf", "html", "htm", "jpg", "jpeg", "png", "gif"
     ),
     viewModel: StorageBrowserViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    
+
     // Selection state
     var selectedFiles by remember { mutableStateOf<Set<File>>(emptySet()) }
     var selectedFolders by remember { mutableStateOf<Set<File>>(emptySet()) }
     var showImportDialog by remember { mutableStateOf(false) }
     var importProgress by remember { mutableStateOf(0f) }
     var isImporting by remember { mutableStateOf(false) }
-    
+
 
     Scaffold(
         topBar = {
@@ -117,7 +117,7 @@ fun EnhancedStorageBrowserScreen(
                             Icon(Icons.Default.SelectAll, contentDescription = "Select All")
                         }
                     }
-                    
+
                     // Clear selection button
                     if (selectedFiles.isNotEmpty() || selectedFolders.isNotEmpty()) {
                         IconButton(
@@ -129,7 +129,7 @@ fun EnhancedStorageBrowserScreen(
                             Icon(Icons.Default.Clear, contentDescription = "Clear Selection")
                         }
                     }
-                    
+
                     // Import button
                     if ((selectedFiles.isNotEmpty() || selectedFolders.isNotEmpty()) && !isImporting) {
                         IconButton(
@@ -138,7 +138,7 @@ fun EnhancedStorageBrowserScreen(
                             Icon(Icons.Default.ImportExport, contentDescription = "Import Selected")
                         }
                     }
-                    
+
                     // View mode toggle
                     var showMenu by remember { mutableStateOf(false) }
                     IconButton(onClick = { showMenu = true }) {
@@ -207,7 +207,7 @@ fun EnhancedStorageBrowserScreen(
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
-                            
+
                             val totalSize = selectedFiles.sumOf { it.length() }
                             if (totalSize > 0) {
                                 Text(
@@ -217,7 +217,7 @@ fun EnhancedStorageBrowserScreen(
                                 )
                             }
                         }
-                        
+
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -230,7 +230,7 @@ fun EnhancedStorageBrowserScreen(
                                 ) {
                                     Text("Clear")
                                 }
-                                
+
                                 Button(
                                     onClick = { showImportDialog = true }
                                 ) {
@@ -353,7 +353,7 @@ fun EnhancedStorageBrowserScreen(
             }
         }
     }
-    
+
     // Import confirmation dialog
     if (showImportDialog) {
         ImportConfirmationDialog(
@@ -363,13 +363,13 @@ fun EnhancedStorageBrowserScreen(
                 scope.launch {
                     isImporting = true
                     importProgress = 0f
-                    
+
                     try {
                         val allFiles = mutableListOf<File>()
-                        
+
                         // Add selected files
                         allFiles.addAll(selectedFiles)
-                        
+
                         // Add files from selected folders (optionally recursive)
                         selectedFolders.forEach { folder ->
                             if (includeSubfolders) {
@@ -378,7 +378,7 @@ fun EnhancedStorageBrowserScreen(
                                 allFiles.addAll(getFilesInFolder(folder, filterMediaTypes))
                             }
                         }
-                        
+
                         // Filter by media types if validation is enabled
                         val finalFiles = if (validateFiles) {
                             allFiles.filter { file ->
@@ -387,23 +387,23 @@ fun EnhancedStorageBrowserScreen(
                         } else {
                             allFiles
                         }
-                        
+
                         // Simulate progress updates
                         val chunkSize = maxOf(1, finalFiles.size / 20)
                         finalFiles.chunked(chunkSize).forEachIndexed { index, chunk ->
                             importProgress = (index + 1).toFloat() / (finalFiles.size / chunkSize + 1)
                             kotlinx.coroutines.delay(100) // Small delay for visual feedback
                         }
-                        
+
                         // Complete import
                         onFilesSelected(finalFiles)
                         onFoldersSelected(selectedFolders.toList())
-                        
+
                         // Clear selection after successful import
                         selectedFiles = emptySet()
                         selectedFolders = emptySet()
                         showImportDialog = false
-                        
+
                     } catch (e: Exception) {
                         // Handle error
                         android.util.Log.e("EnhancedFileBrowser", "Import failed", e)
@@ -421,11 +421,11 @@ fun EnhancedStorageBrowserScreen(
 
 
 private fun getAllFilesRecursively(
-    folder: File, 
+    folder: File,
     allowedExtensions: List<String>
 ): List<File> {
     val files = mutableListOf<File>()
-    
+
     try {
         folder.walkTopDown().forEach { file ->
             if (file.isFile && allowedExtensions.contains(file.extension.lowercase())) {
@@ -435,12 +435,12 @@ private fun getAllFilesRecursively(
     } catch (e: SecurityException) {
         android.util.Log.w("EnhancedFileBrowser", "Cannot access ${folder.path}: ${e.message}")
     }
-    
+
     return files
 }
 
 private fun getFilesInFolder(
-    folder: File, 
+    folder: File,
     allowedExtensions: List<String>
 ): List<File> {
     return try {
@@ -502,7 +502,7 @@ private fun EmptyFolderView() {
 
 @Composable
 private fun ErrorView(
-    message: String, 
+    message: String,
     onRetry: () -> Unit,
     showPermissionHint: Boolean = false,
     onRequestPermission: () -> Unit = {}
@@ -528,7 +528,7 @@ private fun ErrorView(
                 color = MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.Center
             )
-            
+
             if (showPermissionHint) {
                 Text(
                     text = "This may be due to missing storage permissions. Grant 'All Files Access' permission to browse documents and ebooks.",
@@ -536,14 +536,14 @@ private fun ErrorView(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
-                
+
                 OutlinedButton(onClick = onRequestPermission) {
                     Icon(Icons.Default.Security, contentDescription = "Security")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Grant Permission")
                 }
             }
-            
+
             Button(onClick = onRetry) {
                 Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                 Spacer(modifier = Modifier.width(8.dp))

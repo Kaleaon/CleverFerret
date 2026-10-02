@@ -14,10 +14,10 @@ class SearchHistoryRepository @Inject constructor(
 ) {
     suspend fun getRecentSearches(limit: Int = 10): List<SearchHistory> =
         searchHistoryDao.getRecentSearches(limit)
-    
+
     suspend fun getAllSearchHistory(limit: Int = 50): List<SearchHistory> =
         searchHistoryDao.getAllSearchHistory(limit)
-    
+
     suspend fun insertSearch(search: SearchHistory): Long =
         searchHistoryDao.insertSearch(search)
 
@@ -26,7 +26,7 @@ class SearchHistoryRepository @Inject constructor(
 
     suspend fun searchHistory(queryText: String, limit: Int = 10): List<SearchHistory> =
         searchHistoryDao.searchHistory(queryText, limit)
-    
+
     suspend fun clearSearchHistory() =
         searchHistoryDao.clearHistory()
 }

@@ -210,7 +210,7 @@ println(document.content)
 fun testMobiParser() = runTest {
     val parser = MobiParser()
     val document = parser.parse("test_files/sample.mobi")
-    
+
     assertNotNull(document.content)
     assertNotNull(document.metadata.title)
     assertEquals("MOBI", document.metadata.format)
@@ -222,7 +222,7 @@ fun testAllParsers() = runTest {
         "docx", "doc", "rtf", "chm", "odt",
         "mobi", "azw", "azw3", "lit", "snb", "rb", "pdb", "djvu"
     )
-    
+
     formats.forEach { format ->
         assertTrue(ParserFactory.isSupported("test.$format"))
     }
@@ -238,7 +238,7 @@ fun testParserFactory() = runTest {
         "book.mobi" to MobiParser::class,
         "scan.djvu" to DjvuParser::class
     )
-    
+
     testFiles.forEach { (fileName, expectedClass) ->
         val parser = ParserFactory.getParser(fileName)
         assertTrue(parser::class == expectedClass)
@@ -302,6 +302,6 @@ The simplified architecture makes the codebase more maintainable, easier to test
 
 ---
 
-**Implementation Date**: January 2025  
-**Status**: ✅ Complete  
+**Implementation Date**: January 2025
+**Status**: ✅ Complete
 **Next Steps**: Integration testing and user feedback

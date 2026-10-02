@@ -298,14 +298,14 @@ class MetadataFetchRepository @Inject constructor(
      */
     private fun parseReleaseDate(dateString: String?): Long? {
         if (dateString.isNullOrBlank()) return null
-        
+
         return try {
             val formats = listOf(
                 "yyyy-MM-dd",
                 "yyyy-MM",
                 "yyyy"
             )
-            
+
             for (format in formats) {
                 try {
                     val formatter = SimpleDateFormat(format, Locale.US)

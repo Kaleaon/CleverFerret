@@ -52,7 +52,7 @@ class AudiobookService @Inject constructor(
     private val audiobookDao: AudiobookDao,
     private val artworkLoader: ArtworkLoader
 ) {
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _audiobookState = MutableStateFlow(AudiobookState())
@@ -95,7 +95,7 @@ class AudiobookService @Inject constructor(
                     maxWidth = 512,
                     maxHeight = 512
                 )
-                
+
                 // Register with MediaController for notifications and media session
                 mediaController.registerMediaService(
                     serviceType = MediaServiceType.AUDIOBOOK,
@@ -122,7 +122,7 @@ class AudiobookService @Inject constructor(
     /**
      * Import audiobook from file
      */
-    suspend fun importAudiobook(filePath: String): Result<AudiobookEntity> = 
+    suspend fun importAudiobook(filePath: String): Result<AudiobookEntity> =
         withContext(Dispatchers.IO) {
             try {
                 val file = File(filePath)
@@ -131,12 +131,12 @@ class AudiobookService @Inject constructor(
                         Exception("File not found: $filePath")
                     )
                 }
-                
+
                 val metadata = extractMetadata(filePath)
-                val coverPath = metadata.coverArt?.let { 
+                val coverPath = metadata.coverArt?.let {
                     saveCoverArt(it, metadata.title)
                 }
-                
+
                 val entity = AudiobookEntity(
                     id = UUID.randomUUID().toString(),
                     filePath = filePath,
@@ -159,24 +159,24 @@ class AudiobookService @Inject constructor(
                     lastPlayedPosition = 0,
                     isFinished = false
                 )
-                
+
                 audiobookDao.insert(entity)
                 Result.success(entity)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
-    
+
     /**
      * Extract metadata from audiobook file
      */
-    private suspend fun extractMetadata(filePath: String): AudiobookMetadata = 
+    private suspend fun extractMetadata(filePath: String): AudiobookMetadata =
         withContext(Dispatchers.IO) {
             val retriever = MediaMetadataRetriever()
-            
+
             try {
                 retriever.setDataSource(filePath)
-                
+
                 val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
                     ?: File(filePath).nameWithoutExtension
                 val author = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
@@ -190,9 +190,9 @@ class AudiobookService @Inject constructor(
                 val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
                     ?.toIntOrNull()
                 val coverArt = retriever.embeddedPicture
-                
+
                 val chapters = extractChapters(filePath, durationMs)
-                
+
                 AudiobookMetadata(
                     title = title,
                     author = author,
@@ -213,7 +213,7 @@ class AudiobookService @Inject constructor(
                 retriever.release()
             }
         }
-    
+
     /**
      * Extract chapter information
      * Note: Android MediaMetadataRetriever doesn't support chapter extraction
@@ -224,23 +224,23 @@ class AudiobookService @Inject constructor(
         // Could be enhanced with external library support
         return emptyList()
     }
-    
+
     /**
      * Save cover art to storage
      */
-    private suspend fun saveCoverArt(coverArt: ByteArray, title: String): String = 
+    private suspend fun saveCoverArt(coverArt: ByteArray, title: String): String =
         withContext(Dispatchers.IO) {
             val coversDir = File(context.filesDir, "audiobook_covers")
             coversDir.mkdirs()
-            
+
             val sanitizedTitle = title.replace(Regex("[^a-zA-Z0-9.-]"), "_")
                 .take(50)
             val coverFile = File(coversDir, "$sanitizedTitle.jpg")
-            
+
             coverFile.writeBytes(coverArt)
             coverFile.absolutePath
         }
-    
+
     /**
      * Update playback position (for AudiobookEntity)
      */
@@ -249,7 +249,7 @@ class AudiobookService @Inject constructor(
             audiobookDao.updatePosition(audiobookId, positionSeconds)
         }
     }
-    
+
     /**
      * Mark audiobook as finished (for AudiobookEntity)
      */
@@ -265,7 +265,7 @@ class AudiobookService @Inject constructor(
     fun createBookmark(note: String? = null) {
         val audiobook = currentAudiobook ?: return
         val state = _audiobookState.value
-        
+
         serviceScope.launch {
             try {
                 val bookmark = Bookmark(
@@ -282,9 +282,9 @@ class AudiobookService @Inject constructor(
                     bookmarkType = "MANUAL",
                     dateCreated = System.currentTimeMillis()
                 )
-                
+
                 val bookmarkId = bookmarkDao.insertBookmark(bookmark)
-                
+
                 // Update in-memory state with new bookmark
                 val audiobookBookmark = AudiobookBookmark(
                     id = bookmarkId.toString(), // Convert Long to String
@@ -296,7 +296,7 @@ class AudiobookService @Inject constructor(
                     note = note,
                     createdAt = System.currentTimeMillis()
                 )
-                
+
                 updateAudiobookState(
                     bookmarks = state.bookmarks + audiobookBookmark
                 )
@@ -313,12 +313,12 @@ class AudiobookService @Inject constructor(
         serviceScope.launch {
             try {
                 val state = _audiobookState.value
-                
+
                 // Optimistic UI update
                 updateAudiobookState(
                     bookmarks = state.bookmarks.filter { it.id != bookmark.id }
                 )
-                
+
                 // Persist to database
                 bookmarkDao.deleteBookmark(bookmark.id.toLongOrNull() ?: 0L)
             } catch (e: Exception) {
@@ -337,7 +337,7 @@ class AudiobookService @Inject constructor(
         val hours = totalSeconds / 3600
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
-        
+
         return if (hours > 0) {
             String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
         } else {
@@ -350,7 +350,7 @@ class AudiobookService @Inject constructor(
         // For now, return a basic structure
         val commonMetadata = metadataDao.getMetadataCommonByItemId(mediaItem.itemId)
         val authors = metadataDao.getAuthorsByItemId(mediaItem.itemId)
-        
+
         return Audiobook(
             id = mediaItem.itemId.toString(),
             title = commonMetadata?.title ?: mediaItem.fileName,
@@ -427,10 +427,10 @@ class AudiobookService @Inject constructor(
     fun goToChapter(chapterIndex: Int) {
         val audiobook = currentAudiobook ?: return
         if (chapterIndex < 0 || chapterIndex >= audiobook.chapters.size) return
-        
+
         val chapter = audiobook.chapters[chapterIndex]
         exoPlayerService.seekTo(chapter.startTimeMs)
-        
+
         _audiobookState.value = _audiobookState.value.copy(
             currentChapter = chapterIndex,
             currentChapterIndex = chapterIndex
@@ -494,7 +494,7 @@ class AudiobookService @Inject constructor(
         _audiobookState.value = _audiobookState.value.copy(
             sleepTimerEndTime = endTime
         )
-        
+
         // Schedule timer to pause playback
         serviceScope.launch {
             kotlinx.coroutines.delay(minutes * 60 * 1000L)
@@ -523,7 +523,7 @@ class AudiobookService @Inject constructor(
         goToChapter(bookmark.chapterIndex)
         exoPlayerService.seekTo(bookmark.position)
     }
-    
+
     /**
      * Release resources and cancel pending operations
      */

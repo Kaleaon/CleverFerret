@@ -16,25 +16,25 @@ import java.io.InputStream
 
 /**
  * Parser for MOBI/AZW/AZW3 files using lib-mobi (Pure Java) AND Apache Tika
- * 
+ *
  * MOBI is an eBook format developed by Mobipocket and used by Amazon Kindle.
  * AZW and AZW3 are Amazon's proprietary variants of the MOBI format.
- * 
+ *
  * This implementation uses:
  * 1. lib-mobi for specialized metadata extraction (better than Tika for Kindle formats)
  * 2. Apache Tika as a fallback/primary engine for text extraction
- * 
+ *
  * Libraries:
  * - https://github.com/marcelmay/lib-mobi
  * - Apache Tika
- * 
+ *
  * Features:
  * - Pure Java implementation (no JNI required)
  * - Deep Metadata extraction from MOBI/AZW/AZW3 files
  * - Text content extraction via Tika
  */
 class MobiParser : DocumentParser {
-    
+
     // Tika instance not used directly as we create AutoDetectParser, but kept for potential future use or removed if strictly unused.
     // private val tika = Tika()
 
@@ -76,7 +76,7 @@ class MobiParser : DocumentParser {
             throw ParserException("Failed to parse MOBI file: $filePath", e)
         }
     }
-    
+
     override suspend fun parse(inputStream: InputStream, fileName: String): ParsedDocument =
         withContext(Dispatchers.IO) {
             try {
@@ -131,14 +131,14 @@ class MobiParser : DocumentParser {
         val metadata = Metadata()
         val parser = AutoDetectParser()
         val context = ParseContext()
-        
+
         parser.parse(inputStream, handler, metadata, context)
         return handler.toString()
     }
-    
+
     private fun extractMetadata(header: MobiHeader, fileName: String): DocumentMetadata {
         val exthHeader = header.exthHeader
-        
+
         // MOBI EXTH record type codes
         val EXTH_TITLE = 503
         val EXTH_AUTHOR = 100
@@ -149,42 +149,42 @@ class MobiParser : DocumentParser {
         val EXTH_LANGUAGE = 524
         val EXTH_ISBN = 104
         val EXTH_PUBLISHER = 101
-        
+
         // Extract title
-        val title = header.palmDatabaseHeader?.name 
+        val title = header.palmDatabaseHeader?.name
             ?: exthHeader?.getRecordByTypeCode(EXTH_TITLE)?.data
             ?: fileName.substringBeforeLast(".")
-        
+
         // Extract author
         val author = exthHeader?.getRecordByTypeCode(EXTH_AUTHOR)?.data
             ?: exthHeader?.getRecordByTypeCode(EXTH_CREATOR)?.data
-        
+
         // Extract subject/description
         val subject = exthHeader?.getRecordByTypeCode(EXTH_SUBJECT)?.data
             ?: exthHeader?.getRecordByTypeCode(EXTH_DESCRIPTION)?.data
-        
+
         // Extract keywords
         val keywords = exthHeader?.getRecordByTypeCode(EXTH_KEYWORDS)?.data
             ?.split(",")
             ?.map { it.trim() }
             ?: emptyList()
-        
+
         // Extract dates
         val creationDate = header.palmDatabaseHeader?.creationDate?.toString()
         val modificationDate = header.palmDatabaseHeader?.modificationDate?.toString()
-        
+
         // Extract language
         val language = exthHeader?.getRecordByTypeCode(EXTH_LANGUAGE)?.data
-        
+
         // Extract custom properties
         val customProperties = mutableMapOf<String, String>()
         exthHeader?.getRecordByTypeCode(EXTH_ISBN)?.data?.let { customProperties["isbn"] = it }
         exthHeader?.getRecordByTypeCode(EXTH_PUBLISHER)?.data?.let { customProperties["publisher"] = it }
-        
+
         customProperties["mobiType"] = header.mobiType?.toString() ?: "UNKNOWN"
         customProperties["encoding"] = header.encoding?.toString() ?: "UNKNOWN"
         customProperties["encrypted"] = (header.encryptionType > 0).toString()
-        
+
         return DocumentMetadata(
             title = title,
             author = author,
@@ -199,7 +199,7 @@ class MobiParser : DocumentParser {
             customProperties = customProperties
         )
     }
-    
+
     private fun extractContentInfo(header: MobiHeader, filePath: String?): String {
         // Fallback method that describes the file when full text extraction fails.
         // Includes all available metadata to give the user as much context as possible.
@@ -242,7 +242,7 @@ class MobiParser : DocumentParser {
 
         return info.toString()
     }
-    
+
     private fun determineFormat(fileName: String, header: MobiHeader): String {
         val extension = fileName.substringAfterLast(".", "").lowercase()
         return when {
@@ -253,15 +253,15 @@ class MobiParser : DocumentParser {
             else -> "MOBI"
         }
     }
-    
+
     override fun supports(fileName: String): Boolean {
         val lowerName = fileName.lowercase()
-        return lowerName.endsWith(".mobi") || 
-               lowerName.endsWith(".azw") || 
+        return lowerName.endsWith(".mobi") ||
+               lowerName.endsWith(".azw") ||
                lowerName.endsWith(".azw3") ||
                lowerName.endsWith(".prc")
     }
-    
+
     override fun getSupportedExtensions(): List<String> {
         return listOf("mobi", "azw", "azw3", "prc")
     }

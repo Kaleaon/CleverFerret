@@ -30,13 +30,13 @@ fun SoundPacksScreen(
     val soundPacks = remember { SoundPackManager.getAllPacks() }
     val totalSounds = remember { SoundPackManager.getTotalSoundCount() }
     val totalSizeMB = remember { SoundPackManager.getTotalSizeMB() }
-    
+
     var expandedPackId by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Collections,
@@ -127,19 +127,19 @@ fun SoundPacksScreen(
                     }
                 }
             }
-            
+
             // Pack list
             items(soundPacks) { pack ->
                 SoundPackCard(
                     pack = pack,
                     isExpanded = expandedPackId == pack.id,
-                    onExpandToggle = { 
+                    onExpandToggle = {
                         expandedPackId = if (expandedPackId == pack.id) null else pack.id
                     },
                     onPackSelected = { onPackSelected(pack) }
                 )
             }
-            
+
             // Attribution card
             item {
                 Card(
@@ -226,7 +226,7 @@ private fun SoundPackCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                
+
                 IconButton(onClick = onExpandToggle) {
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -234,9 +234,9 @@ private fun SoundPackCard(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Pack stats
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -255,21 +255,21 @@ private fun SoundPackCard(
                     label = "${pack.quality.bitDepth}-bit"
                 )
             }
-            
+
             // Expanded content
             if (isExpanded) {
                 Spacer(modifier = Modifier.height(12.dp))
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 Text(
                     text = pack.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 // Technical details
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceVariant,
@@ -287,9 +287,9 @@ private fun SoundPackCard(
                         DetailRow("Source", pack.source)
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 // Sample sounds preview
                 Text(
                     text = "Sample Sounds (${pack.sounds.size} total)",
@@ -297,7 +297,7 @@ private fun SoundPackCard(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 pack.sounds.take(3).forEach { sound ->
                     Row(
                         modifier = Modifier
@@ -326,7 +326,7 @@ private fun SoundPackCard(
                         }
                     }
                 }
-                
+
                 if (pack.sounds.size > 3) {
                     Text(
                         text = "...and ${pack.sounds.size - 3} more",

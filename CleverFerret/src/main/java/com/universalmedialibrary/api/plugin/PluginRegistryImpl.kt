@@ -14,72 +14,72 @@ import javax.inject.Singleton
 
 /**
  * Implementation of the Plugin Registry
- * 
+ *
  * Manages all plugins in the application, handles registration,
  * lifecycle, configuration, and event dispatching.
  */
 @Singleton
 class PluginRegistryImpl @Inject constructor() : PluginRegistry {
-    
+
     private val plugins = ConcurrentHashMap<String, Plugin>()
     private val pluginConfigs = ConcurrentHashMap<String, MutableMap<String, Any>>()
     private val lifecycleCallbacks = java.util.concurrent.CopyOnWriteArrayList<PluginLifecycleCallback>()
-    
+
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    
+
     private val _events = MutableSharedFlow<PluginEvent>(replay = 0)
     val events: SharedFlow<PluginEvent> = _events.asSharedFlow()
-    
+
     override fun getAllPlugins(): List<Plugin> = plugins.values.toList()
-    
+
     override fun getPluginsByCategory(category: PluginCategory): List<Plugin> {
         return plugins.values.filter { it.category == category }
     }
-    
+
     override fun getPlugin(id: String): Plugin? = plugins[id]
-    
+
     override fun getMetadataProviders(): List<MetadataProviderPlugin> {
         return plugins.values
             .filterIsInstance<MetadataProviderPlugin>()
             .filter { it.isEnabled }
     }
-    
+
     override fun getContentSources(): List<ContentSourcePlugin> {
         return plugins.values
             .filterIsInstance<ContentSourcePlugin>()
             .filter { it.isEnabled }
     }
-    
+
     override fun getMediaServers(): List<MediaServerPlugin> {
         return plugins.values
             .filterIsInstance<MediaServerPlugin>()
             .filter { it.isEnabled }
     }
-    
+
     override fun getSocialIntegrations(): List<SocialIntegrationPlugin> {
         return plugins.values
             .filterIsInstance<SocialIntegrationPlugin>()
             .filter { it.isEnabled }
     }
-    
+
     override fun registerPlugin(plugin: Plugin) {
         plugins[plugin.id] = plugin
-        
+
         // Initialize default config
         val defaultConfig = mutableMapOf<String, Any>()
         plugin.configurationOptions.forEach { option ->
             option.defaultValue?.let { defaultConfig[option.key] = it }
         }
         pluginConfigs[plugin.id] = defaultConfig
-        
+
         // Notify callbacks
         lifecycleCallbacks.forEach { it.onPluginRegistered(plugin) }
-        
+
         // Emit event
         scope.launch {
             _events.emit(PluginEvent.PluginRegistered(plugin))
         }
-        
+
         // Initialize plugin if enabled
         if (plugin.isEnabled) {
             scope.launch {
@@ -91,7 +91,7 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
             }
         }
     }
-    
+
     override fun unregisterPlugin(id: String) {
         plugins.remove(id)?.let { plugin ->
             scope.launch {
@@ -106,12 +106,12 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
         }
         pluginConfigs.remove(id)
     }
-    
+
     override fun setPluginEnabled(id: String, enabled: Boolean) {
         plugins[id]?.let { plugin ->
             val wasEnabled = plugin.isEnabled
             plugin.isEnabled = enabled
-            
+
             if (enabled && !wasEnabled) {
                 scope.launch {
                     try {
@@ -136,45 +136,45 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
             }
         }
     }
-    
+
     override fun getPluginConfig(id: String): Map<String, Any> {
         return pluginConfigs[id]?.toMap() ?: emptyMap()
     }
-    
+
     override fun updatePluginConfig(id: String, config: Map<String, Any>) {
         pluginConfigs.getOrPut(id) { mutableMapOf() }.putAll(config)
         scope.launch {
             _events.emit(PluginEvent.PluginConfigUpdated(id))
         }
     }
-    
+
     fun addLifecycleCallback(callback: PluginLifecycleCallback) {
         lifecycleCallbacks.add(callback)
     }
-    
+
     fun removeLifecycleCallback(callback: PluginLifecycleCallback) {
         lifecycleCallbacks.remove(callback)
     }
-    
+
     /**
      * Get all enabled providers for a specific media type
      */
     fun getProvidersForMediaType(mediaType: MediaType): List<MetadataProviderPlugin> {
         return getMetadataProviders().filter { mediaType in it.supportedMediaTypes }
     }
-    
+
     /**
      * Aggregate search across all enabled metadata providers
      */
     suspend fun searchAllProviders(query: MetadataQuery): List<MetadataSearchResult> {
         val providers = query.mediaType?.let { getProvidersForMediaType(it) }
             ?: getMetadataProviders()
-        
+
         return providers.flatMap { provider ->
             provider.search(query).getOrElse { emptyList() }
         }.sortedByDescending { it.relevanceScore }
     }
-    
+
     /**
      * Health check all plugins
      */
@@ -212,13 +212,13 @@ class AggregatedMetadataService(
         }.let { list ->
             query.mediaType?.let { mt -> list.filter { mt in it.supportedMediaTypes } } ?: list
         }
-        
+
         return providers.flatMap { provider ->
             provider.search(query).getOrElse { emptyList() }
         }.distinctBy { "${it.providerId}:${it.id}" }
             .sortedByDescending { it.relevanceScore }
     }
-    
+
     /**
      * Fetch detailed metadata, trying multiple providers
      */
@@ -229,10 +229,10 @@ class AggregatedMetadataService(
     ): MediaMetadata? {
         val provider = registry.getMetadataProviders()
             .find { it.id == providerId } ?: return null
-        
+
         return provider.fetchDetails(id, mediaType).getOrNull()
     }
-    
+
     /**
      * Fetch best available cover art
      */
@@ -243,10 +243,10 @@ class AggregatedMetadataService(
     ): String? {
         val provider = registry.getMetadataProviders()
             .find { it.id == providerId } ?: return null
-        
+
         return provider.fetchCoverArt(id, size).getOrNull()
     }
-    
+
     /**
      * Get recommendations from multiple providers
      */

@@ -121,4 +121,3 @@ data class LyricsApiSettings(
     val geniusApiKey: String = "",
     val priority: List<String> = listOf("Musixmatch", "Genius")
 )
-

@@ -21,14 +21,14 @@ import javax.inject.Inject
 
 /**
  * ViewModel for Clean media-centric Library Screen
- * 
+ *
  * Handles:
  * - Loading items for a specific media type
  * - Filtering (unread, in-progress, favorites, etc.)
  * - Sorting (title, date added, rating, etc.)
  * - View mode persistence
  * - Search within library
- * 
+ *
  * Loads real library data (no sample placeholders).
  */
 @HiltViewModel
@@ -41,28 +41,28 @@ class MediaLibraryViewModel @Inject constructor(
     private val webFictionRepository: WebFictionRepository,
     private val mediaRepository: MediaRepository
 ) : ViewModel() {
-    
+
     // Get media type from navigation argument
     private val mediaTypeArg: String = savedStateHandle.get<String>("mediaType") ?: "book"
-    
+
     private val _mediaType = MutableStateFlow(MediaType.fromString(mediaTypeArg))
     val mediaType: StateFlow<MediaType> = _mediaType.asStateFlow()
-    
+
     private val _uiState = MutableStateFlow(LibraryScreenState(
         libraryTitle = getLibraryTitle(MediaType.fromString(mediaTypeArg)),
         mediaType = MediaType.fromString(mediaTypeArg)
     ))
     val uiState: StateFlow<LibraryScreenState> = _uiState.asStateFlow()
-    
+
     private val _currentFilter = MutableStateFlow(LibraryFilter.ALL)
     private val _currentSort = MutableStateFlow(LibrarySortOption.RECENTLY_ADDED)
     private val _viewMode = MutableStateFlow(LibraryViewMode.GRID)
     private val _searchQuery = MutableStateFlow("")
-    
+
     init {
         observeAndLoad()
     }
-    
+
     private fun observeAndLoad() {
         viewModelScope.launch {
             combine(
@@ -100,31 +100,31 @@ class MediaLibraryViewModel @Inject constructor(
                 }
         }
     }
-    
+
     fun setFilter(filter: LibraryFilter) {
         _currentFilter.value = filter
         _uiState.update { it.copy(currentFilter = filter) }
     }
-    
+
     fun setSort(sort: LibrarySortOption) {
         _currentSort.value = sort
         _uiState.update { it.copy(sortOption = sort) }
     }
-    
+
     fun setViewMode(mode: LibraryViewMode) {
         _viewMode.value = mode
         _uiState.update { it.copy(viewMode = mode) }
     }
-    
+
     fun search(query: String) {
         _searchQuery.value = query
     }
-    
+
     fun refresh() {
         // Data flows update automatically; force re-emit by nudging search query.
         _searchQuery.value = _searchQuery.value
     }
-    
+
     private fun itemsFlowFor(params: Params): Flow<List<MediaItem>> {
         return when (params.mediaType) {
             MediaType.BOOK -> bookRepository.getAllBooks()
@@ -214,7 +214,7 @@ class MediaLibraryViewModel @Inject constructor(
             )
         }
     }
-    
+
     private fun getMediaTypeName(mediaType: MediaType): String = when (mediaType) {
         MediaType.BOOK -> "Book"
         MediaType.AUDIOBOOK -> "Audiobook"
@@ -229,7 +229,7 @@ class MediaLibraryViewModel @Inject constructor(
         MediaType.NEWS -> "Article"
         MediaType.UNKNOWN -> "Item"
     }
-    
+
     private fun getDurationString(mediaType: MediaType, index: Int): String? = when (mediaType) {
         MediaType.BOOK, MediaType.COMIC -> "${100 + index * 20} pages"
         MediaType.AUDIOBOOK, MediaType.MOVIE -> "${1 + index % 3}h ${index * 5 % 60}m"
@@ -239,7 +239,7 @@ class MediaLibraryViewModel @Inject constructor(
         MediaType.FANFICTION -> "${10 + index * 5} chapters"
         else -> null
     }
-    
+
     private fun getLibraryTitle(mediaType: MediaType): String = when (mediaType) {
         MediaType.BOOK -> "Books"
         MediaType.AUDIOBOOK -> "Audiobooks"
@@ -254,7 +254,7 @@ class MediaLibraryViewModel @Inject constructor(
         MediaType.NEWS -> "News"
         MediaType.UNKNOWN -> "Library"
     }
-    
+
     private fun getFilterGroupsForMediaType(mediaType: MediaType): List<LibraryFilterGroup> {
         return when (mediaType) {
             MediaType.BOOK, MediaType.COMIC, MediaType.FANFICTION -> listOf(

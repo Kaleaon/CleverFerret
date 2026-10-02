@@ -20,12 +20,11 @@ internal val MIGRATION_24_25: Migration = object : Migration(24, 25) {
                 cachedAt INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         // Create index for faster queries by comicId
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_comic_translation_cache_comicId 
+            CREATE INDEX IF NOT EXISTS index_comic_translation_cache_comicId
             ON comic_translation_cache (comicId)
         """.trimIndent())
     }
 }
-

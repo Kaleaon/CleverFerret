@@ -59,28 +59,28 @@ data class DetailedBookProgress(
     val progressPercent: Float,
     val pagesRead: Int,
     val pagesRemaining: Int,
-    
+
     // Time tracking
     val totalReadingTimeMinutes: Int,
     val averageSessionMinutes: Int,
     val estimatedMinutesRemaining: Int?,
-    
+
     // Session info
     val sessionCount: Int,
     val lastSessionDate: Long?,
     val firstSessionDate: Long?,
-    
+
     // Reading pattern analysis
     val readingPattern: String,
     val preferredReadingTime: String?,
     val readingStreak: Int,
-    
+
     // Book info
     val genres: List<String>,
     val summary: String?,
     val year: Int?,
     val rating: Float?,
-    
+
     // Status
     val isCompleted: Boolean,
     val completedDate: Long?,
@@ -114,30 +114,30 @@ data class BookDiscussionContext(
     val bookId: Long,
     val title: String,
     val author: String?,
-    
+
     // Summaries for AI
     val progressSummary: String,
     val patternSummary: String,
-    
+
     // Progress data
     val currentPage: Int,
     val totalPages: Int,
     val currentChapter: Int,
     val progressPercent: Float,
-    
+
     // Book info
     val genres: List<String>,
     val bookSummary: String?,
     val year: Int?,
-    
+
     // AI insights
     val existingSummary: String?,
     val keyThemes: List<String>,
     val characterAnalysis: String?,
-    
+
     // Discussion helpers
     val suggestedTopics: List<String>,
-    
+
     // Reading journey
     val daysReading: Int,
     val isNearingEnd: Boolean,

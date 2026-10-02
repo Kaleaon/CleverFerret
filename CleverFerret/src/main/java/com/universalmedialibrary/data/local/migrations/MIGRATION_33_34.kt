@@ -79,19 +79,18 @@ internal val MIGRATION_33_34: Migration = object : Migration(33, 34) {
 
         // Create indices for better query performance
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_session_clients_sessionId 
+            CREATE INDEX IF NOT EXISTS index_session_clients_sessionId
             ON session_clients(sessionId)
         """.trimIndent())
 
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_session_queue_items_sessionId 
+            CREATE INDEX IF NOT EXISTS index_session_queue_items_sessionId
             ON session_queue_items(sessionId)
         """.trimIndent())
 
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_session_votes_sessionId 
+            CREATE INDEX IF NOT EXISTS index_session_votes_sessionId
             ON session_votes(sessionId)
         """.trimIndent())
     }
 }
-

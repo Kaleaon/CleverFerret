@@ -320,7 +320,7 @@ private fun AudiobookArtSection(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             AsyncImage(
-                    
+
                 model = ImageRequest.Builder(LocalContext.current)
                     .data("https://via.placeholder.com/280x280/4A90E2/FFFFFF?text=Audiobook")
                     .crossfade(true)
@@ -631,7 +631,7 @@ fun BookmarksBottomSheet(
             dateCreated = ab.createdAt
         )
     }
-    
+
     com.universalmedialibrary.ui.components.BookmarksDialog(
         bookmarks = bookmarkEntities,
         onBookmarkSelect = { bookmark ->
@@ -651,7 +651,7 @@ private fun formatTimestamp(millis: Long): String {
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60
     val seconds = totalSeconds % 60
-    
+
     return if (hours > 0) {
         String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
     } else {

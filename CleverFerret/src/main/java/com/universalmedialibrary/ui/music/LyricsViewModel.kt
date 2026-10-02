@@ -47,7 +47,7 @@ class LyricsViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
-            
+
             try {
                 val result = lyricsService.getLyrics(track, forceRefresh = false)
                 if (result.success) {
@@ -69,15 +69,15 @@ class LyricsViewModel @Inject constructor(
      */
     fun refreshLyrics() {
         val track = currentTrack ?: return
-        
+
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
-            
+
             try {
                 // Clear cache first
                 lyricsService.clearCache(track.id)
-                
+
                 // Fetch fresh lyrics
                 val result = lyricsService.getLyrics(track, forceRefresh = true)
                 if (result.success) {

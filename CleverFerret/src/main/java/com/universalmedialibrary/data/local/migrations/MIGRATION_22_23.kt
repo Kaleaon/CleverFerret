@@ -25,13 +25,13 @@ internal val MIGRATION_22_23: Migration = object : Migration(22, 23) {
                 createdAt INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         // Create unique index
         database.execSQL("""
-            CREATE UNIQUE INDEX IF NOT EXISTS index_comic_panels_comicId_pageNumber_panelIndex 
+            CREATE UNIQUE INDEX IF NOT EXISTS index_comic_panels_comicId_pageNumber_panelIndex
             ON comic_panels (comicId, pageNumber, panelIndex)
         """.trimIndent())
-        
+
         // Create comic_translations table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS comic_translations (
@@ -50,7 +50,7 @@ internal val MIGRATION_22_23: Migration = object : Migration(22, 23) {
                 FOREIGN KEY(panelId) REFERENCES comic_panels(id) ON DELETE CASCADE
             )
         """.trimIndent())
-        
+
         // Create comic_reading_sessions table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS comic_reading_sessions (
@@ -67,4 +67,3 @@ internal val MIGRATION_22_23: Migration = object : Migration(22, 23) {
         """.trimIndent())
     }
 }
-

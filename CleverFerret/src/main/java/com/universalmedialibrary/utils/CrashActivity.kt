@@ -24,19 +24,19 @@ import com.universalmedialibrary.ui.theme.CleverFerretTheme
 
 /**
  * Custom crash activity with Material You design.
- * 
+ *
  * Displays a user-friendly crash screen when an unhandled exception occurs,
  * allowing users to view the error details and report the issue.
- * 
+ *
  * Integrates with CustomActivityOnCrash library for crash handling.
  */
 class CrashActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         val config = CustomActivityOnCrash.getConfigFromIntent(intent)
-        
+
         setContent {
             CleverFerretTheme {
                 CrashScreen(
@@ -69,7 +69,7 @@ private fun CrashScreen(
 ) {
     val context = LocalContext.current
     var showErrorDetails by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -97,14 +97,14 @@ private fun CrashScreen(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )
-            
+
             // Error title
             Text(
                 text = "Oops! Something went wrong",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            
+
             // Error message
             Text(
                 text = "CleverFerret encountered an unexpected error and needs to restart. " +
@@ -112,16 +112,16 @@ private fun CrashScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Show/Hide error details button
             ElevatedButton(
                 onClick = { showErrorDetails = !showErrorDetails },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = if (showErrorDetails) Icons.Default.ExpandLess 
+                    imageVector = if (showErrorDetails) Icons.Default.ExpandLess
                                   else Icons.Default.ExpandMore,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
@@ -129,7 +129,7 @@ private fun CrashScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(if (showErrorDetails) "Hide Error Details" else "Show Error Details")
             }
-            
+
             // Error details card
             if (showErrorDetails) {
                 ElevatedCard(
@@ -150,10 +150,10 @@ private fun CrashScreen(
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            
+
                             IconButton(
                                 onClick = {
-                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) 
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE)
                                             as ClipboardManager
                                     val clip = ClipData.newPlainText("Error Details", errorDetails)
                                     clipboard.setPrimaryClip(clip)
@@ -166,9 +166,9 @@ private fun CrashScreen(
                                 )
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
                             color = MaterialTheme.colorScheme.surfaceVariant,
@@ -185,9 +185,9 @@ private fun CrashScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         Text(
                             text = "You can copy this error and report it to the developers.",
                             style = MaterialTheme.typography.bodySmall,
@@ -196,9 +196,9 @@ private fun CrashScreen(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.weight(1f))
-            
+
             // Action buttons
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -216,7 +216,7 @@ private fun CrashScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Restart App")
                 }
-                
+
                 OutlinedButton(
                     onClick = onClose,
                     modifier = Modifier.fillMaxWidth()

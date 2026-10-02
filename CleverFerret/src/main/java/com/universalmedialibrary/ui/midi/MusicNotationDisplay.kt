@@ -21,7 +21,7 @@ import kotlin.math.abs
 
 /**
  * Music Notation Display
- * 
+ *
  * Displays MIDI notes as standard music notation on a staff
  * Features:
  * - Treble and bass clefs
@@ -38,7 +38,7 @@ fun MusicNotationDisplay(
     onBack: () -> Unit
 ) {
     var zoomLevel by remember { mutableFloatStateOf(1f) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -87,7 +87,7 @@ fun MusicNotationDisplay(
                     }
                 }
             }
-            
+
             // Staff display
             StaffDisplay(
                 notes = notes,
@@ -111,7 +111,7 @@ private fun StaffDisplay(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    
+
     Box(
         modifier = modifier
             .horizontalScroll(scrollState)
@@ -125,21 +125,21 @@ private fun StaffDisplay(
         ) {
             val staffSpacing = 15f * zoomLevel
             val staffTop = 100f
-            
+
             // Draw treble clef staff
             drawStaff(
                 topY = staffTop,
                 spacing = staffSpacing,
                 clef = "treble"
             )
-            
+
             // Draw bass clef staff
             drawStaff(
                 topY = staffTop + 150f,
                 spacing = staffSpacing,
                 clef = "bass"
             )
-            
+
             // Draw time signature
             drawTimeSignature(
                 x = 80f * zoomLevel,
@@ -148,7 +148,7 @@ private fun StaffDisplay(
                 timeSignature = timeSignature,
                 spacing = staffSpacing
             )
-            
+
             // Draw key signature if present
             if (keySignature != null) {
                 drawKeySignature(
@@ -159,13 +159,13 @@ private fun StaffDisplay(
                     spacing = staffSpacing
                 )
             }
-            
+
             // Draw measure lines
             val measureWidth = 200f * zoomLevel
             val startX = 200f * zoomLevel
             for (measure in 0..10) {
                 val x = startX + measure * measureWidth
-                
+
                 // Treble staff measure line
                 drawLine(
                     color = Color.Black,
@@ -173,7 +173,7 @@ private fun StaffDisplay(
                     end = Offset(x, staffTop + 4 * staffSpacing),
                     strokeWidth = 1f
                 )
-                
+
                 // Bass staff measure line
                 drawLine(
                     color = Color.Black,
@@ -182,22 +182,22 @@ private fun StaffDisplay(
                     strokeWidth = 1f
                 )
             }
-            
+
             // Draw notes on staff
             val sortedNotes = notes.sortedBy { it.startTime }
             var currentX = startX + 50f * zoomLevel
-            
+
             for (note in sortedNotes.take(50)) { // Limit for performance
                 val staffY = if (note.pitch >= 60) staffTop else staffTop + 150f
                 val position = getNotePosition(note.pitch, staffY, staffSpacing)
-                
+
                 // Draw note head
                 drawCircle(
                     color = Color.Black,
                     radius = 6f * zoomLevel,
                     center = Offset(currentX, position)
                 )
-                
+
                 // Draw stem
                 drawLine(
                     color = Color.Black,
@@ -205,7 +205,7 @@ private fun StaffDisplay(
                     end = Offset(currentX + 5f * zoomLevel, position - 40f * zoomLevel),
                     strokeWidth = 1.5f
                 )
-                
+
                 // Draw ledger lines if needed
                 drawLedgerLines(
                     noteX = currentX,
@@ -214,7 +214,7 @@ private fun StaffDisplay(
                     spacing = staffSpacing,
                     zoomLevel = zoomLevel
                 )
-                
+
                 currentX += 40f * zoomLevel
             }
         }
@@ -227,7 +227,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawStaff(
     clef: String
 ) {
     val width = size.width
-    
+
     // Draw 5 staff lines
     for (i in 0..4) {
         val y = topY + i * spacing
@@ -238,7 +238,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawStaff(
             strokeWidth = 1f
         )
     }
-    
+
     // Draw clef symbol (simplified representation)
     if (clef == "treble") {
         // Draw treble clef (G clef) - simplified
@@ -273,7 +273,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawStaff(
             path = clefPath,
             color = Color.Black
         )
-        
+
         // Draw two dots
         drawCircle(
             color = Color.Black,
@@ -314,20 +314,20 @@ private fun getNotePosition(pitch: Int, staffY: Float, spacing: Float): Float {
     // Middle C = 60
     // Each semitone is not exactly a position on the staff
     // Need to map MIDI pitch to staff position
-    
+
     // Simplified mapping (proper implementation would use scale degrees)
     val noteNames = listOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
     val staffPositions = mapOf(
         "C" to 0, "D" to -1, "E" to -2, "F" to -3, "G" to -4, "A" to -5, "B" to -6
     )
-    
+
     val noteIndex = pitch % 12
     val octave = pitch / 12
     val noteName = noteNames[noteIndex].replace("#", "")
-    
+
     val basePosition = staffPositions[noteName] ?: 0
     val octaveOffset = (octave - 4) * -7 // Each octave is 7 staff positions
-    
+
     return staffY + 4 * spacing + (basePosition + octaveOffset) * (spacing / 2f)
 }
 
@@ -340,7 +340,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLedgerLines(
 ) {
     val staffBottom = staffY + 4 * spacing
     val staffTop = staffY
-    
+
     // Draw ledger lines above staff
     if (noteY < staffTop) {
         var ledgerY = staffTop - spacing
@@ -356,7 +356,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLedgerLines(
             ledgerY -= spacing
         }
     }
-    
+
     // Draw ledger lines below staff
     if (noteY > staffBottom) {
         var ledgerY = staffBottom + spacing

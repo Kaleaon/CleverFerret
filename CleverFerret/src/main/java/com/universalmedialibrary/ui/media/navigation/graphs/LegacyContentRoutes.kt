@@ -49,18 +49,18 @@ fun NavGraphBuilder.legacyContentRoutes(
             navController = navController
         )
     }
-    
+
     composable("story_manager") {
         com.universalmedialibrary.ui.webfiction.StoryManagerRoute(
             onBack = { navController.popBackStack() }
         )
     }
-    
+
     composable("webfiction_story/{storyId}") { backStackEntry ->
         val storyId = backStackEntry.arguments?.getString("storyId") ?: ""
         val viewModel: ReaderViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         MediaReaderScreen(
             state = state,
             onPageChange = { viewModel.goToPage(it) },
@@ -74,35 +74,35 @@ fun NavGraphBuilder.legacyContentRoutes(
             onTtsToggle = { viewModel.toggleTts() }
         )
     }
-    
+
     composable("web_comic_downloader") {
         com.universalmedialibrary.ui.webfiction.UnifiedFanfictionHubScreen(
             navController = navController
         )
     }
-    
+
     composable("metabods_tag_browser") {
         com.universalmedialibrary.ui.webfiction.MetabodsTagBrowserScreen(
             navController = navController
         )
     }
-    
+
     composable("universal_tag_browser") {
         com.universalmedialibrary.ui.webfiction.UniversalTagBrowserScreen(
             navController = navController
         )
     }
-    
+
     composable("hivefy_music") {
         com.universalmedialibrary.ui.music.hivefy.HivefyMusicScreen(
             onBack = { navController.popBackStack() }
         )
     }
-    
+
     composable("opds_catalog") {
         val viewModel: OPDSViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         OPDSBrowserScreen(
             state = state,
             onCatalogClick = { catalog -> viewModel.openCatalog(catalog) },
@@ -115,18 +115,18 @@ fun NavGraphBuilder.legacyContentRoutes(
             },
             onSearch = { query -> viewModel.search(query) },
             onAddCatalog = { url -> viewModel.addCatalog(url) },
-            onBackClick = { 
+            onBackClick = {
                 if (!viewModel.navigateBack()) {
                     navController.popBackStack()
                 }
             }
         )
     }
-    
+
     composable("storage_browser") {
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
-        
+
         com.universalmedialibrary.ui.filepicker.EnhancedFileBrowser(
             onFileSelected = { file ->
                 // Import the selected file to library
@@ -141,7 +141,7 @@ fun NavGraphBuilder.legacyContentRoutes(
                             else -> "DOCUMENT"
                         }
                         onShowSnackbar("Importing ${file.name}...")
-                        
+
                         // Navigate to appropriate detail/reader based on type
                         when (mediaType) {
                             "BOOK", "COMIC", "DOCUMENT" -> {
@@ -163,7 +163,7 @@ fun NavGraphBuilder.legacyContentRoutes(
             }
         )
     }
-    
+
     composable("reading_statistics") {
         // Reading statistics requires a specific media ID - show a placeholder for now
         // Users should navigate to this from a specific media detail screen
@@ -173,7 +173,7 @@ fun NavGraphBuilder.legacyContentRoutes(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Reading Statistics", style = MaterialTheme.typography.titleMedium)
-                Text("Please access statistics from a book's detail page", 
+                Text("Please access statistics from a book's detail page",
                      style = MaterialTheme.typography.bodyMedium)
                 Button(onClick = { navController.popBackStack() }) {
                     Text("Go Back")
@@ -181,30 +181,30 @@ fun NavGraphBuilder.legacyContentRoutes(
             }
         }
     }
-    
+
     composable("free_audiobooks") {
         MediaDiscoverScreen(
             onNavigate = navController::navigate,
             onBackClick = { navController.popBackStack() }
         )
     }
-    
+
     composable("free_music") {
         com.universalmedialibrary.ui.music.FreeMusicScreen(
             onBack = { navController.popBackStack() }
         )
     }
-    
+
     composable("free_media") {
         com.universalmedialibrary.ui.media.FreeMediaScreen(
             onBack = { navController.popBackStack() }
         )
     }
-    
+
     composable("podcasts") {
         val viewModel: PodcastViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         PodcastScreen(
             state = state,
             onShowClick = { show ->
@@ -221,23 +221,23 @@ fun NavGraphBuilder.legacyContentRoutes(
             onSearchClick = { navController.navigate(MediaRoutes.SEARCH) }
         )
     }
-    
+
     composable("radio") {
         com.universalmedialibrary.ui.radio.RadioScreen(
             onBack = { navController.popBackStack() }
         )
     }
-    
+
     composable("visualizer") {
         com.universalmedialibrary.ui.visualizer.VisualizerScreen(
             onBack = { navController.popBackStack() }
         )
     }
-    
+
     composable("ambient") {
         val viewModel: AmbientViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         MediaAmbientScreen(
             state = state,
             onSoundToggle = { sound -> viewModel.toggleSound(sound) },
@@ -247,11 +247,11 @@ fun NavGraphBuilder.legacyContentRoutes(
             onBackClick = { navController.popBackStack() }
         )
     }
-    
+
     composable("music") {
         val viewModel: MusicViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         MusicLibraryScreen(
             state = state,
             onArtistClick = { artist ->
@@ -267,11 +267,11 @@ fun NavGraphBuilder.legacyContentRoutes(
             onSearchClick = { navController.navigate(MediaRoutes.SEARCH) }
         )
     }
-    
+
     composable("collections") {
         val viewModel: CollectionsViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         MediaCollectionsScreen(
             state = state,
             onCollectionClick = { collection ->
@@ -281,7 +281,7 @@ fun NavGraphBuilder.legacyContentRoutes(
             onBackClick = { navController.popBackStack() }
         )
     }
-    
+
     // Legacy library detail routes (library_details/{typeId} pattern)
     composable("library_details/{typeId}") { backStackEntry ->
         val typeId = backStackEntry.arguments?.getString("typeId") ?: "1"
@@ -296,7 +296,7 @@ fun NavGraphBuilder.legacyContentRoutes(
         }
         val viewModel: MediaLibraryViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         UiErrorBoundary(
             boundaryName = "Route:${MediaRoutes.LIBRARY}",
             onGoHome = { navController.navigate(MediaRoutes.HOME) },
@@ -322,13 +322,13 @@ fun NavGraphBuilder.legacyContentRoutes(
             )
         }
     }
-    
+
     // Legacy detail route
     composable("detail/{itemId}") { backStackEntry ->
         val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
         val viewModel: MediaDetailViewModel = hiltViewModel()
         val vmState by viewModel.uiState.collectAsState()
-        
+
         val screenState = MediaDetailState(
             item = MediaDetailItem(
                 id = itemId,
@@ -339,7 +339,7 @@ fun NavGraphBuilder.legacyContentRoutes(
             ),
             isLoading = vmState.isLoading
         )
-        
+
         MediaDetailScreen(
             state = screenState,
             onBackClick = { navController.popBackStack() },
@@ -353,7 +353,7 @@ fun NavGraphBuilder.legacyContentRoutes(
             onDownloadClick = { viewModel.download() }
         )
     }
-    
+
     // Metadata editor route
     composable("metadata_editor/{itemId}") { backStackEntry ->
         val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
@@ -363,12 +363,12 @@ fun NavGraphBuilder.legacyContentRoutes(
             onCancel = { navController.popBackStack() }
         )
     }
-    
+
     composable("fanfiction_download") {
         com.universalmedialibrary.ui.fanfiction.FanfictionDownloadScreen(
             onNavigateBack = { navController.popBackStack() }
         )
     }
-    
+
     // =====================================================================
 }

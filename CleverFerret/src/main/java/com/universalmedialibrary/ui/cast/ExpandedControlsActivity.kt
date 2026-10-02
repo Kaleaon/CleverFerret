@@ -63,7 +63,7 @@ private fun ExpandedControlsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = "Casting to ${castState.deviceName ?: "Chromecast"}",
                         style = MaterialTheme.typography.titleMedium
@@ -130,12 +130,12 @@ private fun ExpandedControlsScreen(
                                 FilterChip(
                                     selected = visualizerStyle == style,
                                     onClick = { visualizerStyle = style },
-                                    label = { 
+                                    label = {
                                         Text(
                                             style.name.replace("_", " ").lowercase()
                                                 .replaceFirstChar { it.uppercase() },
                                             style = MaterialTheme.typography.labelSmall
-                                        ) 
+                                        )
                                     },
                                     modifier = Modifier.weight(1f)
                                 )
@@ -150,12 +150,12 @@ private fun ExpandedControlsScreen(
                                 FilterChip(
                                     selected = visualizerStyle == style,
                                     onClick = { visualizerStyle = style },
-                                    label = { 
+                                    label = {
                                         Text(
                                             style.name.replace("_", " ").lowercase()
                                                 .replaceFirstChar { it.uppercase() },
                                             style = MaterialTheme.typography.labelSmall
-                                        ) 
+                                        )
                                     },
                                     modifier = Modifier.weight(1f)
                                 )

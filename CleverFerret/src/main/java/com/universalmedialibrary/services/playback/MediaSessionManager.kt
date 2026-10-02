@@ -135,7 +135,7 @@ class MediaSessionManager @Inject constructor(
 
             artist?.let { metadataBuilder.setArtist(it) }
             album?.let { metadataBuilder.setAlbumTitle(it) }
-            
+
             artworkBitmap?.let { bitmap ->
                 // Convert Bitmap to ByteArray for MediaMetadata
                 val stream = java.io.ByteArrayOutputStream()
@@ -144,7 +144,7 @@ class MediaSessionManager @Inject constructor(
             }
 
             val mediaMetadata = metadataBuilder.build()
-            
+
             // Update player's media metadata in-place without disrupting playback
             val currentMediaItem = player.currentMediaItem
             if (currentMediaItem != null && player.currentMediaItemIndex >= 0) {
@@ -177,11 +177,11 @@ class MediaSessionManager @Inject constructor(
                     Player.REPEAT_MODE_ALL
                 }
             }
-            
+
             if (repeatMode != RepeatMode.SHUFFLE) {
                 player.shuffleModeEnabled = false
             }
-            
+
             player.repeatMode = playerRepeatMode
             updateSessionState(repeatMode = repeatMode)
         }

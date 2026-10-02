@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 /**
  * Readium Audiobook Service
- * 
+ *
  * NOTE: AudioParser in Readium 3.1.2 has different initialization requirements.
  * For MP3/M4A/FLAC files, use AudioPlaybackManager instead.
  * Manifest-based audiobooks (.audiobook, .lcpa) support will be added when needed.

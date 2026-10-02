@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 /**
  * Extracts metadata from text content using NLP techniques
- * 
+ *
  * Note: OCR functionality has been migrated to GeminiService.
  * This service now focuses on text-based metadata extraction from existing text content.
  */

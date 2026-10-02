@@ -27,33 +27,33 @@ class MediaServerRepository @Inject constructor(
     private val jellyfinClient: JellyfinClient,
     private val apiManager: ApiManager
 ) {
-    
+
     // Jellyfin Operations
-    
+
     fun getAllJellyfinServers(): Flow<List<JellyfinServer>> {
         return jellyfinServerDao.getAll()
     }
-    
+
     suspend fun getJellyfinServerById(id: Long): JellyfinServer? {
         return jellyfinServerDao.getById(id)
     }
-    
+
     suspend fun insertJellyfinServer(server: JellyfinServer): Long {
         return jellyfinServerDao.insert(server)
     }
-    
+
     suspend fun updateJellyfinServer(server: JellyfinServer) {
         jellyfinServerDao.update(server)
     }
-    
+
     suspend fun deleteJellyfinServer(server: JellyfinServer) {
         jellyfinServerDao.delete(server)
     }
-    
+
     suspend fun deleteJellyfinServerById(id: Long) {
         jellyfinServerDao.deleteById(id)
     }
-    
+
     suspend fun testJellyfinConnection(server: JellyfinServer): Result<String> {
         return try {
             // Test connection using the API key if available
@@ -66,33 +66,33 @@ class MediaServerRepository @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     // Plex Operations
-    
+
     fun getAllPlexServers(): Flow<List<PlexServer>> {
         return plexServerDao.getAllServers()
     }
-    
+
     suspend fun getPlexServerById(id: Long): PlexServer? {
         return plexServerDao.getServerById(id)
     }
-    
+
     suspend fun insertPlexServer(server: PlexServer): Long {
         return plexServerDao.insertServer(server)
     }
-    
+
     suspend fun updatePlexServer(server: PlexServer) {
         plexServerDao.updateServer(server)
     }
-    
+
     suspend fun deletePlexServer(server: PlexServer) {
         plexServerDao.deleteServer(server)
     }
-    
+
     suspend fun deletePlexServerById(id: Long) {
         plexServerDao.deleteServerById(id)
     }
-    
+
     suspend fun testPlexConnection(server: PlexServer): Result<Unit> {
         return try {
             val api = apiManager.createPlexApi(server.url, server.token)
@@ -102,33 +102,33 @@ class MediaServerRepository @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     // Emby Operations
-    
+
     fun getAllEmbyServers(): Flow<List<EmbyServer>> {
         return embyServerDao.getAll()
     }
-    
+
     suspend fun getEmbyServerById(id: Long): EmbyServer? {
         return embyServerDao.getById(id)
     }
-    
+
     suspend fun insertEmbyServer(server: EmbyServer): Long {
         return embyServerDao.insert(server)
     }
-    
+
     suspend fun updateEmbyServer(server: EmbyServer) {
         embyServerDao.update(server)
     }
-    
+
     suspend fun deleteEmbyServer(server: EmbyServer) {
         embyServerDao.delete(server)
     }
-    
+
     suspend fun deleteEmbyServerById(id: Long) {
         embyServerDao.deleteById(id)
     }
-    
+
     suspend fun testEmbyConnection(server: EmbyServer): Result<Unit> {
         return try {
             val api = apiManager.createEmbyApi(server.url, server.apiKey ?: "")
@@ -138,33 +138,33 @@ class MediaServerRepository @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     // YAACC (DLNA/UPnP) Operations
-    
+
     fun getAllYaaccServers(): Flow<List<YaaccServer>> {
         return yaaccServerDao.getAll()
     }
-    
+
     suspend fun getYaaccServerById(id: Long): YaaccServer? {
         return yaaccServerDao.getById(id)
     }
-    
+
     suspend fun insertYaaccServer(server: YaaccServer): Long {
         return yaaccServerDao.insert(server)
     }
-    
+
     suspend fun updateYaaccServer(server: YaaccServer) {
         yaaccServerDao.update(server)
     }
-    
+
     suspend fun deleteYaaccServer(server: YaaccServer) {
         yaaccServerDao.delete(server)
     }
-    
+
     suspend fun deleteYaaccServerById(id: Long) {
         yaaccServerDao.deleteById(id)
     }
-    
+
     suspend fun testYaaccConnection(server: YaaccServer): Result<Unit> {
         return try {
             // For DLNA/UPnP, we can do a simple TCP connection test
@@ -179,9 +179,9 @@ class MediaServerRepository @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     // Unified Operations
-    
+
     suspend fun getServerCount(): Int {
         return jellyfinServerDao.getServerCount() +
                plexServerDao.getServerCount() +

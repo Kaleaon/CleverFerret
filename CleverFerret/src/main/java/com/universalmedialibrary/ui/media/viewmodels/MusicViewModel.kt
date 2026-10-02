@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 /**
  * ViewModel for Clean media-centric Music Library
- * 
+ *
  * Connects to real music services for actual playback and library management.
  */
 @HiltViewModel
@@ -31,36 +31,36 @@ class MusicViewModel @Inject constructor(
     private val musicPlayerService: AdvancedMusicPlayerService,
     private val playlistManager: MusicPlaylistManager
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(MusicLibraryState())
     val uiState: StateFlow<MusicLibraryState> = _uiState.asStateFlow()
-    
+
     private val _nowPlaying = MutableStateFlow<MusicTrack?>(null)
     val nowPlaying: StateFlow<MusicTrack?> = _nowPlaying.asStateFlow()
-    
+
     init {
         loadMusicLibrary()
         observePlaybackState()
         observePlaylists()
     }
-    
+
     private fun loadMusicLibrary() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            
+
             // Trigger library scan
             try {
                 musicRepository.scanLibrary()
             } catch (e: Exception) {
                 // Log but don't fail - we'll still try to show cached data
             }
-            
+
             // Observe tracks from repository
             musicRepository.tracks.collect { tracks ->
                 val albums = musicRepository.albums.value
                 val artists = musicRepository.artists.value
                 val genres = musicRepository.genres.value
-                
+
                 _uiState.update {
                     MusicLibraryState(
                         albums = albums.map { it.toMusicAlbum() },
@@ -75,7 +75,7 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun observePlaybackState() {
         viewModelScope.launch {
             musicPlayerService.currentTrack.collect { trackInfo ->
@@ -98,7 +98,7 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun observePlaylists() {
         viewModelScope.launch {
             playlistManager.getPlaylistOverviews().collect { overviews ->
@@ -115,7 +115,7 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun playAlbum(album: MusicAlbum) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -123,7 +123,7 @@ class MusicViewModel @Inject constructor(
                 val tracks = musicRepository.tracks.value
                     .filter { it.displayAlbum == album.title }
                     .sortedBy { it.trackNumber }
-                
+
                 if (tracks.isNotEmpty()) {
                     val firstTrack = tracks.first()
                     musicPlayerService.playTrackFromUri(
@@ -140,13 +140,13 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun playArtist(artist: MusicArtist) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val tracks = musicRepository.tracks.value
                     .filter { it.displayArtist == artist.name }
-                
+
                 if (tracks.isNotEmpty()) {
                     val firstTrack = tracks.first()
                     musicPlayerService.playTrackFromUri(
@@ -163,14 +163,14 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun playTrack(track: MusicTrack) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // Find the real track from repository
                 val realTrack = musicRepository.tracks.value
                     .find { it.id.toString() == track.id || it.title == track.title }
-                
+
                 if (realTrack != null) {
                     musicPlayerService.playTrackFromUri(
                         uri = realTrack.uri.toString(),
@@ -186,7 +186,7 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun playPlaylist(playlist: MusicPlaylist) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -197,7 +197,7 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun shuffleAll() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -220,26 +220,26 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun togglePlayPause() {
         musicPlayerService.togglePlayPause()
     }
-    
+
     fun skipPrevious() {
         musicPlayerService.skipPrevious()
     }
-    
+
     fun skipNext() {
         musicPlayerService.skipNext()
     }
-    
+
     private fun formatDuration(durationMs: Long): String {
         val totalSeconds = durationMs / 1000
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
         return "$minutes:${seconds.toString().padStart(2, '0')}"
     }
-    
+
     // Extension functions to convert between data models
     private fun Album.toMusicAlbum(): MusicAlbum = MusicAlbum(
         id = "album_${this.name}_${this.artist}",
@@ -250,7 +250,7 @@ class MusicViewModel @Inject constructor(
         trackCount = this.trackCount,
         duration = formatDuration(this.tracks.sumOf { it.duration })
     )
-    
+
     private fun Artist.toMusicArtist(): MusicArtist = MusicArtist(
         id = "artist_${this.name}",
         name = this.name,
@@ -258,7 +258,7 @@ class MusicViewModel @Inject constructor(
         albumCount = this.albumCount,
         trackCount = this.trackCount
     )
-    
+
     private fun Track.toMusicTrack(): MusicTrack = MusicTrack(
         id = this.id.toString(),
         title = this.title ?: "Unknown Title",
@@ -268,13 +268,13 @@ class MusicViewModel @Inject constructor(
         duration = formatDuration(this.duration),
         trackNumber = this.trackNumber ?: 0
     )
-    
+
     private fun Genre.toMusicGenre(): MusicGenre = MusicGenre(
         name = this.name,
         trackCount = this.trackCount,
         color = getGenreColor(this.name.hashCode())
     )
-    
+
     private fun getGenreColor(hash: Int): Color {
         val colors = listOf(
             Color(0xFFE91E63),

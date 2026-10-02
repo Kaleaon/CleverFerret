@@ -128,15 +128,15 @@ private fun OTREmptyState(onImport: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
-            
+
             Button(onClick = onImport) {
                 Icon(Icons.Default.Add, null)
                 Spacer(Modifier.width(8.dp))
                 Text("Import Episodes")
             }
-            
+
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-            
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth(0.8f)
@@ -180,7 +180,7 @@ private fun CategoriesTab(
     onNavigateToSeries: (String) -> Unit
 ) {
     val groupedSeries = series.groupBy { it.category }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -194,7 +194,7 @@ private fun CategoriesTab(
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
-            
+
             items(seriesList) { seriesItem ->
                 OTRSeriesCard(
                     series = seriesItem,
@@ -286,4 +286,3 @@ private fun OTRSeriesCard(
         }
     }
 }
-

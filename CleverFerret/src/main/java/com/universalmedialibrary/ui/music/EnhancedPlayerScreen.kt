@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Enhanced music player with stunning visual effects
- * 
+ *
  * Features:
  * - Animated rotating album art
  * - Glassmorphism effects
@@ -131,7 +131,7 @@ fun EnhancedPlayerUI(
                         Spacer(Modifier.width(8.dp))
                         Text(if (showLyrics) "Hide Lyrics" else "Show Lyrics")
                     }
-                    
+
                     // Refresh lyrics button
                     IconButton(
                         onClick = { /* Trigger refresh */ }
@@ -189,7 +189,7 @@ fun EnhancedPlayerUI(
 @Composable
 private fun AnimatedBackground(track: Track?) {
     val infiniteTransition = rememberInfiniteTransition(label = "background")
-    
+
     val offset by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1000f,
@@ -279,7 +279,7 @@ private fun AnimatedAlbumArt(
             Box {
                 if (track?.uri != null) {
                     AsyncImage(
-                    
+
                         model = track.uri,
                         contentDescription = "Album art",
                         modifier = Modifier.fillMaxSize(),
@@ -528,14 +528,14 @@ private fun LyricsDisplay(
 
                 Text(
                     text = line.text,
-                    style = if (isCurrent) 
-                        MaterialTheme.typography.headlineSmall 
-                    else 
+                    style = if (isCurrent)
+                        MaterialTheme.typography.headlineSmall
+                    else
                         MaterialTheme.typography.bodyLarge,
                     fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
-                    color = if (isCurrent) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
+                    color = if (isCurrent)
+                        MaterialTheme.colorScheme.primary
+                    else
                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     textAlign = TextAlign.Center,
                     modifier = Modifier

@@ -13,13 +13,13 @@ import kotlin.random.Random
  * by animating volume levels with randomized patterns
  */
 class AmbientSoundAnimator {
-    
+
     private val _isAnimating = MutableStateFlow(false)
     val isAnimating: StateFlow<Boolean> = _isAnimating.asStateFlow()
-    
+
     private var animationJob: Job? = null
     private val animationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    
+
     /**
      * Animation modes that control how many layers are animated simultaneously
      */
@@ -30,7 +30,7 @@ class AmbientSoundAnimator {
         QUAD,   // Animate 4 layers simultaneously
         ALL     // Animate all layers with independent patterns
     }
-    
+
     /**
      * Animation speed controlling how fast the volume changes occur
      */
@@ -41,10 +41,10 @@ class AmbientSoundAnimator {
         FAST(5000),        // 5 seconds
         VERY_FAST(2000)    // 2 seconds
     }
-    
+
     /**
      * Start animating sound layers with specified mode and speed
-     * 
+     *
      * @param layerCount Number of sound layers to animate
      * @param mode Animation complexity mode
      * @param speed How fast the animation cycles
@@ -57,9 +57,9 @@ class AmbientSoundAnimator {
         onVolumeChange: (layerIndex: Int, volume: Float) -> Unit
     ) {
         stopAnimation()
-        
+
         _isAnimating.value = true
-        
+
         animationJob = animationScope.launch {
             val activeLayerCount = when (mode) {
                 AnimationMode.SOLO -> 1
@@ -68,20 +68,20 @@ class AmbientSoundAnimator {
                 AnimationMode.QUAD -> 4
                 AnimationMode.ALL -> layerCount
             }.coerceAtMost(layerCount)
-            
+
             // Initialize random phases for each layer to create variety
             val phases = List(layerCount) { Random.nextFloat() * 2f * Math.PI.toFloat() }
-            val frequencies = List(layerCount) { 
+            val frequencies = List(layerCount) {
                 // Random frequency multiplier between 0.5 and 1.5 for variety
-                0.5f + Random.nextFloat() 
+                0.5f + Random.nextFloat()
             }
-            
+
             var elapsedTime = 0L
             val updateIntervalMs = 100L // Update every 100ms for smooth animation
-            
+
             while (isActive && _isAnimating.value) {
                 val cycleProgress = (elapsedTime % speed.durationMs) / speed.durationMs.toFloat()
-                
+
                 // Calculate active layers for this cycle
                 val activeLayers = if (mode == AnimationMode.ALL) {
                     (0 until layerCount).toList()
@@ -90,7 +90,7 @@ class AmbientSoundAnimator {
                     val startIndex = ((cycleProgress * layerCount).toInt()) % layerCount
                     (0 until activeLayerCount).map { (startIndex + it) % layerCount }
                 }
-                
+
                 // Update volumes for all layers
                 for (i in 0 until layerCount) {
                     val volume = if (activeLayers.contains(i)) {
@@ -100,7 +100,7 @@ class AmbientSoundAnimator {
                             phases[i],
                             frequencies[i]
                         )
-                        
+
                         // Add subtle randomness (±10%) for natural feel
                         val randomness = (Random.nextFloat() - 0.5f) * 0.2f
                         (baseVolume + randomness).coerceIn(0f, 1f)
@@ -108,16 +108,16 @@ class AmbientSoundAnimator {
                         // Inactive layers fade to lower volume
                         calculateFadeVolume(cycleProgress, phases[i])
                     }
-                    
+
                     onVolumeChange(i, volume)
                 }
-                
+
                 delay(updateIntervalMs)
                 elapsedTime += updateIntervalMs
             }
         }
     }
-    
+
     /**
      * Calculate animated volume using sine wave with phase and frequency
      */
@@ -131,7 +131,7 @@ class AmbientSoundAnimator {
         val sine = sin(angle)
         return 0.65f + (sine * 0.35f) // Maps [-1, 1] to [0.3, 1.0]
     }
-    
+
     /**
      * Calculate fade volume for inactive layers
      */
@@ -141,7 +141,7 @@ class AmbientSoundAnimator {
         val sine = sin(angle)
         return 0.2f + (sine * 0.1f) // Maps [-1, 1] to [0.1, 0.3]
     }
-    
+
     /**
      * Stop the animation
      */
@@ -150,7 +150,7 @@ class AmbientSoundAnimator {
         animationJob?.cancel()
         animationJob = null
     }
-    
+
     /**
      * Clean up resources
      */
@@ -190,7 +190,7 @@ data class LayeredSoundscape(
  * Preset layered soundscapes inspired by myNoise.net and 99sounds.org
  */
 object LayeredSoundscapePresets {
-    
+
     fun getRainSoundscape() = LayeredSoundscape(
         id = 1,
         name = "Layered Rain",
@@ -206,7 +206,7 @@ object LayeredSoundscapePresets {
         recommendedAnimationMode = AmbientSoundAnimator.AnimationMode.TRIO,
         recommendedSpeed = AmbientSoundAnimator.AnimationSpeed.SLOW
     )
-    
+
     fun getForestSoundscape() = LayeredSoundscape(
         id = 2,
         name = "Deep Forest",
@@ -222,7 +222,7 @@ object LayeredSoundscapePresets {
         recommendedAnimationMode = AmbientSoundAnimator.AnimationMode.ALL,
         recommendedSpeed = AmbientSoundAnimator.AnimationSpeed.VERY_SLOW
     )
-    
+
     fun getCafeSoundscape() = LayeredSoundscape(
         id = 3,
         name = "Bustling Cafe",
@@ -238,7 +238,7 @@ object LayeredSoundscapePresets {
         recommendedAnimationMode = AmbientSoundAnimator.AnimationMode.QUAD,
         recommendedSpeed = AmbientSoundAnimator.AnimationSpeed.MEDIUM
     )
-    
+
     fun getOceanSoundscape() = LayeredSoundscape(
         id = 4,
         name = "Ocean Waves",
@@ -254,7 +254,7 @@ object LayeredSoundscapePresets {
         recommendedAnimationMode = AmbientSoundAnimator.AnimationMode.TRIO,
         recommendedSpeed = AmbientSoundAnimator.AnimationSpeed.SLOW
     )
-    
+
     fun getAllPresets() = listOf(
         getRainSoundscape(),
         getForestSoundscape(),

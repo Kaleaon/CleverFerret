@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 /**
  * Service that integrates Fanart.tv with metadata fetching
- * 
+ *
  * This service demonstrates how to automatically fetch and enhance
  * artwork when adding new movies, TV shows, or music to the library.
  */
@@ -32,7 +32,7 @@ class MetadataWithFanartService @Inject constructor(
 
     /**
      * Save movie metadata and enhance with Fanart.tv artwork
-     * 
+     *
      * Example usage:
      * ```
      * val movieMetadata = MetadataCommon(
@@ -42,13 +42,13 @@ class MetadataWithFanartService @Inject constructor(
      *     summary = "A computer hacker learns...",
      *     externalId = "603" // TMDb ID
      * )
-     * 
+     *
      * val movieSpecific = MetadataMovie(
      *     itemId = 123,
      *     tmdbId = "603",
      *     imdbId = "tt0133093"
      * )
-     * 
+     *
      * val success = metadataWithFanartService.saveMovieWithFanart(
      *     movieMetadata,
      *     movieSpecific
@@ -64,9 +64,9 @@ class MetadataWithFanartService @Inject constructor(
                 // Save basic metadata
                 metadataDao.insertMetadataCommon(metadata)
                 metadataDao.insertMetadataMovie(movieMetadata)
-                
+
                 Log.d(TAG, "Saved movie metadata for item ${metadata.itemId}")
-                
+
                 // Enhance with Fanart.tv if enabled and TMDb ID is available
                 if (movieMetadata.tmdbId != null && fanartTvService.isEnabled()) {
                     Log.d(TAG, "Enhancing artwork with Fanart.tv for TMDb ID ${movieMetadata.tmdbId}")
@@ -78,7 +78,7 @@ class MetadataWithFanartService @Inject constructor(
                 } else {
                     Log.d(TAG, "Skipping Fanart.tv enhancement: enabled=${fanartTvService.isEnabled()}, tmdbId=${movieMetadata.tmdbId}")
                 }
-                
+
                 true
             } catch (e: Exception) {
                 Log.e(TAG, "Error saving movie with fanart", e)
@@ -89,10 +89,10 @@ class MetadataWithFanartService @Inject constructor(
 
     /**
      * Batch enhance artwork for existing library items
-     * 
+     *
      * This can be called to enhance artwork for movies/shows that were
      * added before Fanart.tv was configured.
-     * 
+     *
      * Example usage:
      * ```
      * val count = metadataWithFanartService.enhanceExistingLibrary()
@@ -110,12 +110,12 @@ class MetadataWithFanartService @Inject constructor(
                 // Get all movies with TMDb IDs
                 val movies = getAllMoviesWithTmdbIds()
                 Log.d(TAG, "Found ${movies.size} movies to enhance")
-                
+
                 // Enhance in batches
                 val items = movies.map { (itemId, tmdbId) ->
                     Triple(itemId, tmdbId, ArtworkType.MOVIE)
                 }
-                
+
                 val count = artworkEnhancementService.batchEnhanceArtwork(items)
                 Log.d(TAG, "Enhanced $count of ${items.size} items")
                 count

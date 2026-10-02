@@ -19,11 +19,11 @@ import kotlinx.serialization.Serializable
 data class SearchHistory(
     @PrimaryKey(autoGenerate = true)
     val historyId: Long = 0,
-    
+
     val query: String,
     val resultCount: Int = 0,
     val timestamp: Long = System.currentTimeMillis(),
-    
+
     // Optional filter criteria used in the search
     val mediaTypes: String? = null, // JSON array of media types
     val sortBy: String? = null,
@@ -44,15 +44,15 @@ data class SearchHistory(
 data class SavedSearchEntity(
     @PrimaryKey(autoGenerate = true)
     val savedSearchId: Long = 0,
-    
+
     val name: String,
     val query: String,
-    
+
     // Saved filter criteria
     val mediaTypes: String? = null, // JSON array of media types
     val sortBy: String? = null,
     val filterCriteria: String? = null, // JSON string of additional filters
-    
+
     val createdAt: Long = System.currentTimeMillis(),
     val lastUsed: Long? = null
 )

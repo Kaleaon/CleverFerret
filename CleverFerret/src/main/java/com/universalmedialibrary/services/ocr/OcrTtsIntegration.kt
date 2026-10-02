@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 /**
  * Integration service connecting OCR results with Text-to-Speech
- * 
+ *
  * Allows users to hear the extracted text read aloud using Android's TTS engine
  */
 @Singleton
@@ -18,7 +18,7 @@ class OcrTtsIntegration @Inject constructor(
 
     /**
      * Speak the OCR result text using TTS
-     * 
+     *
      * @param ocrState Current OCR state containing the text to speak
      * @return true if TTS started successfully, false otherwise
      */
@@ -37,17 +37,17 @@ class OcrTtsIntegration @Inject constructor(
 
     /**
      * Speak specific text from OCR
-     * 
+     *
      * @param text The text to speak
      * @return true if TTS started successfully, false otherwise
      */
     suspend fun speakText(text: String): Boolean {
         if (text.isBlank()) return false
-        
+
         if (!ttsService.ttsState.value.isInitialized) {
             ttsService.initialize()
         }
-        
+
         return ttsService.speak(text)
     }
 
@@ -86,7 +86,7 @@ class OcrTtsIntegration @Inject constructor(
 
     /**
      * Set TTS speech rate
-     * 
+     *
      * @param rate Speech rate (0.5 = half speed, 1.0 = normal, 2.0 = double speed)
      */
     suspend fun setSpeechRate(rate: Float) {
@@ -95,7 +95,7 @@ class OcrTtsIntegration @Inject constructor(
 
     /**
      * Set TTS pitch
-     * 
+     *
      * @param pitch Pitch level (0.5 = lower pitch, 1.0 = normal, 2.0 = higher pitch)
      */
     suspend fun setPitch(pitch: Float) {
@@ -104,7 +104,7 @@ class OcrTtsIntegration @Inject constructor(
 
     /**
      * Set TTS language
-     * 
+     *
      * @param languageCode Language code (e.g., "en", "es", "fr")
      */
     suspend fun setLanguage(languageCode: String) {

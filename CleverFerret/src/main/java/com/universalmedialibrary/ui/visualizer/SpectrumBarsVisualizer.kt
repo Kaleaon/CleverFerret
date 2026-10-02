@@ -39,7 +39,7 @@ internal fun SpectrumBarsVisualizer(
             val barHeight = magnitude * maxHeight * 0.9f
             val x = index * barWidth
             val progress = index.toFloat() / spectrum.size
-            
+
             // Calculate rainbow color based on position and intensity
             val hue = (progress * 270f + bass * 90f) % 360f
             val barColor = Color.hsv(hue, 0.9f, 0.95f + magnitude * 0.05f)
@@ -68,7 +68,7 @@ internal fun SpectrumBarsVisualizer(
                 topLeft = Offset(x + gap, maxHeight - barHeight),
                 size = androidx.compose.ui.geometry.Size(barWidth - gap * 2, barHeight)
             )
-            
+
             // Draw top cap (bright white highlight for peaks)
             if (magnitude > 0.2f) {
                 drawRect(
@@ -78,7 +78,7 @@ internal fun SpectrumBarsVisualizer(
                 )
             }
         }
-        
+
         // Draw reflection effect at bottom
         spectrum.forEachIndexed { index, magnitude ->
             val barHeight = magnitude * maxHeight * 0.15f // Shorter reflection

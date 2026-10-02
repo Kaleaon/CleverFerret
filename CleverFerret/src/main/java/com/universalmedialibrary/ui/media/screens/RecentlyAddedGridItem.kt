@@ -74,13 +74,13 @@ internal fun RecentlyAddedGridItem(
             primaryColor.copy(alpha = 0.7f)
         )
     )
-    
+
     // Choose aspect ratio based on media type
     val aspectRatio = when (item.mediaType) {
         MediaType.MUSIC, MediaType.PODCAST -> 1f // Square for albums/podcasts
         else -> MediaSizes.PosterAspectRatio // 2:3 for movies, books, etc.
     }
-    
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,7 +101,7 @@ internal fun RecentlyAddedGridItem(
                         shape = RoundedCornerShape(10.dp)
                     )
             )
-            
+
             // Inner card
             Box(
                 modifier = Modifier
@@ -113,7 +113,7 @@ internal fun RecentlyAddedGridItem(
                 // Cover image
                 if (item.imageUrl != null) {
                     AsyncImage(
-                    
+
                         model = item.imageUrl,
                         contentDescription = item.title,
                         modifier = Modifier.fillMaxSize(),
@@ -134,7 +134,7 @@ internal fun RecentlyAddedGridItem(
                         )
                     }
                 }
-                
+
                 // Media type indicator badge (top right)
                 Surface(
                     modifier = Modifier
@@ -157,9 +157,9 @@ internal fun RecentlyAddedGridItem(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         // Title
         Text(
             text = item.title,
@@ -169,7 +169,7 @@ internal fun RecentlyAddedGridItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         // Subtitle
         item.subtitle?.let { subtitle ->
             Text(

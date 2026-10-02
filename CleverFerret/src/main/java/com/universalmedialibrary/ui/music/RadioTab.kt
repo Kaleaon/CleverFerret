@@ -71,7 +71,7 @@ fun RadioTab(
                     onDelete = { onDeleteStation(station) }
                 )
             }
-            
+
             // Add station button at bottom
             item {
                 OutlinedButton(
@@ -95,7 +95,7 @@ private fun RadioStationItem(
     onDelete: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    
+
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -123,7 +123,7 @@ private fun RadioStationItem(
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
-                
+
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
@@ -146,19 +146,19 @@ private fun RadioStationItem(
                     }
                 }
             }
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 FilledTonalIconButton(onClick = onPlay) {
                     Icon(Icons.Default.PlayArrow, "Play")
                 }
-                
+
                 Box {
                     IconButton(onClick = { showMenu = true }) {
                         Icon(Icons.Default.MoreVert, "More")
                     }
-                    
+
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }

@@ -42,7 +42,7 @@ import javax.inject.Inject
 
 /**
  * Main Activity for Clean media-centric CleverFerret
- * 
+ *
  * Entry point for the redesigned app with:
  * - Edge-to-edge display
  * - Responsive navigation (sidebar on tablets, bottom nav on phones)
@@ -51,14 +51,14 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class MediaMainActivity : ComponentActivity() {
-    
+
     @Inject
     lateinit var playbackStateManager: PlaybackStateManager
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        
+
         setContent {
             MediaAppRoot(playbackStateManager = playbackStateManager)
         }
@@ -128,26 +128,26 @@ fun MediaMainScreen(
             else -> currentRoute
         } ?: MediaRoutes.HOME
     }
-    
+
     // Check if we should show navigation (hide during player screens)
     val showNavigation = remember(currentRoute) {
         currentRoute != null && !currentRoute.startsWith("player/") && !currentRoute.startsWith("reader/")
     }
-    
+
     // Check if we should show mini player
     val playbackState by playbackStateManager.currentPlayback.collectAsState()
     val showMiniPlayer = remember(playbackState, currentRoute) {
         playbackState != null && !currentRoute.orEmpty().startsWith("player/")
     }
-    
+
     // Snackbar state for global messages
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    
+
     // Check screen size for layout decisions
     val configuration = LocalConfiguration.current
     val isCompact = configuration.screenWidthDp < 600
-    
+
     if (isCompact) {
         // MOBILE LAYOUT: Single Scaffold with proper bottom bar
         Scaffold(
@@ -182,7 +182,7 @@ fun MediaMainScreen(
                                 )
                             }
                         }
-                        
+
                         // Bottom Navigation (always visible on mobile)
                         MediaBottomNavigation(
                             currentRoute = currentRouteForNavigation,
@@ -223,14 +223,14 @@ fun MediaMainScreen(
         // TABLET/DESKTOP LAYOUT: Sidebar navigation
         Row(modifier = Modifier.fillMaxSize()) {
             var sidebarExpanded by remember { mutableStateOf(configuration.screenWidthDp >= 840) }
-            
+
             MediaSidebar(
                 currentRoute = currentRouteForNavigation,
                 onNavigate = { route -> navController.navigate(resolveRouteOrFallback(route)) },
                 isExpanded = sidebarExpanded,
                 onToggleExpanded = { sidebarExpanded = !sidebarExpanded }
             )
-            
+
             Scaffold(
                 modifier = Modifier.weight(1f).fillMaxHeight(),
                 snackbarHost = { SnackbarHost(snackbarHostState) },

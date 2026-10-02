@@ -27,36 +27,36 @@ import javax.inject.Singleton
 class MusicRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
     val tracks: StateFlow<List<Track>> = _tracks.asStateFlow()
-    
+
     private val _albums = MutableStateFlow<List<Album>>(emptyList())
     val albums: StateFlow<List<Album>> = _albums.asStateFlow()
-    
+
     private val _artists = MutableStateFlow<List<Artist>>(emptyList())
     val artists: StateFlow<List<Artist>> = _artists.asStateFlow()
-    
+
     private val _genres = MutableStateFlow<List<Genre>>(emptyList())
     val genres: StateFlow<List<Genre>> = _genres.asStateFlow()
-    
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    
+
     /**
      * Scan music library from MediaStore
      */
     suspend fun scanLibrary() = withContext(Dispatchers.IO) {
         _isLoading.value = true
-        
+
         try {
             val scannedTracks = scanMusicFromMediaStore()
             _tracks.value = scannedTracks
-            
+
             _albums.value = aggregateAlbums(scannedTracks)
             _artists.value = aggregateArtists(scannedTracks)
             _genres.value = aggregateGenres(scannedTracks)
-            
+
             _isLoading.value = false
         } catch (e: Exception) {
             // Handle scan error gracefully
@@ -68,41 +68,41 @@ class MusicRepository @Inject constructor(
             throw e
         }
     }
-    
+
     /**
      * Get album by name
      */
     fun getAlbum(albumName: String): Album? {
         return _albums.value.find { it.name == albumName }
     }
-    
+
     /**
      * Get artist by name
      */
     fun getArtist(artistName: String): Artist? {
         return _artists.value.find { it.name == artistName }
     }
-    
+
     /**
      * Get genre by name
      */
     fun getGenre(genreName: String): Genre? {
         return _genres.value.find { it.name == genreName }
     }
-    
+
     /**
      * Get albums by artist
      */
     fun getAlbumsByArtist(artistName: String): List<Album> {
         return _albums.value.filter { it.artist == artistName }
     }
-    
+
     /**
      * Scan music from Android MediaStore
      */
     private fun scanMusicFromMediaStore(): List<Track> {
         val songs = mutableListOf<Track>()
-        
+
         val projection = mutableListOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
@@ -124,10 +124,10 @@ class MusicRepository @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             projection.add(MediaStore.Audio.Media.GENRE)
         }
-        
+
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
         val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
-        
+
         context.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             projection.toTypedArray(),
@@ -155,7 +155,7 @@ class MusicRepository @Inject constructor(
             val dateModifiedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
             val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
             val mimeCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE)
-            
+
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idCol)
                 val title = cursor.getString(titleCol)
@@ -177,12 +177,12 @@ class MusicRepository @Inject constructor(
                 val dateModified = cursor.getLong(dateModifiedCol)
                 val path = cursor.getString(pathCol)
                 val mimeType = cursor.getString(mimeCol)
-                
+
                 val uri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     id
                 )
-                
+
                 songs.add(
                     Track(
                         id = id,
@@ -206,24 +206,24 @@ class MusicRepository @Inject constructor(
                 )
             }
         }
-        
+
         return songs
     }
-    
+
     /**
      * Aggregate tracks into albums
      */
     private fun aggregateAlbums(tracks: List<Track>): List<Album> {
         if (tracks.isEmpty()) return emptyList()
-        
+
         return try {
             tracks.groupBy { it.album }
                 .map { (albumName, albumTracks) ->
                     val sortedTracks = albumTracks.sortedBy { it.trackNumber }
-                    val artist = albumTracks.firstOrNull()?.albumArtist 
-                        ?: albumTracks.firstOrNull()?.artist 
+                    val artist = albumTracks.firstOrNull()?.albumArtist
+                        ?: albumTracks.firstOrNull()?.artist
                         ?: "Unknown Artist"
-                    
+
                       Album(
                           name = albumName ?: "Unknown Album",
                           artist = artist,
@@ -238,18 +238,18 @@ class MusicRepository @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Aggregate tracks into artists
      */
     private fun aggregateArtists(tracks: List<Track>): List<Artist> {
         if (tracks.isEmpty()) return emptyList()
-        
+
         return try {
             tracks.groupBy { it.artist }
                 .map { (artistName, artistTracks) ->
                     val albums = artistTracks.groupBy { it.album }.size
-                    
+
                     Artist(
                         name = artistName ?: "Unknown Artist",
                         trackCount = artistTracks.size,
@@ -262,13 +262,13 @@ class MusicRepository @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Aggregate tracks into genres
      */
     private fun aggregateGenres(tracks: List<Track>): List<Genre> {
         if (tracks.isEmpty()) return emptyList()
-        
+
         return try {
             tracks.groupBy { it.displayGenre }
                 .map { (genreName, genreTracks) ->

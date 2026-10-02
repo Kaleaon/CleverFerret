@@ -21,16 +21,16 @@ class OrganizationViewModel @Inject constructor(
     private val duplicateDetectionService: DuplicateDetectionService,
     private val seriesManagementService: SeriesManagementService
 ) : ViewModel() {
-    
+
     private val _duplicateGroups = MutableStateFlow<List<DuplicateGroup>>(emptyList())
     val duplicateGroups: StateFlow<List<DuplicateGroup>> = _duplicateGroups.asStateFlow()
-    
+
     private val _seriesSuggestions = MutableStateFlow<List<SeriesSuggestion>>(emptyList())
     val seriesSuggestions: StateFlow<List<SeriesSuggestion>> = _seriesSuggestions.asStateFlow()
-    
+
     private val _isScanning = MutableStateFlow(false)
     val isScanning: StateFlow<Boolean> = _isScanning.asStateFlow()
-    
+
     private val _duplicateThreshold = MutableStateFlow(0.85f)
     val duplicateThreshold: StateFlow<Float> = _duplicateThreshold.asStateFlow()
 
@@ -39,23 +39,23 @@ class OrganizationViewModel @Inject constructor(
 
     private val _availableLibraries = MutableStateFlow<List<com.universalmedialibrary.data.local.entity.Library>>(emptyList())
     val availableLibraries: StateFlow<List<com.universalmedialibrary.data.local.entity.Library>> = _availableLibraries.asStateFlow()
-    
+
     fun scanForDuplicates() {
         viewModelScope.launch {
             try {
                 _isScanning.value = true
-                
+
                 // Implemented: Allow user to select library or use first available
                 val libraries = libraryDao.getAllLibraries().first()
                 _availableLibraries.value = libraries
-                
+
                 if (libraries.isEmpty()) {
                     _duplicateGroups.value = emptyList()
                     return@launch
                 }
-                
+
                 val selectedLibrary = _selectedLibraryId.value ?: libraries.first().libraryId
-                
+
                 // Collect duplicate scan results
                 duplicateDetectionService.scanLibraryForDuplicates(selectedLibrary)
                     .collect { result ->
@@ -80,18 +80,18 @@ class OrganizationViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun scanForSeries() {
         viewModelScope.launch {
             try {
                 _isScanning.value = true
-                
+
                 // Get all media items
                 val items = mediaItemDao.getAllMediaItems()
-                
+
                 // Find series
                 val suggestions = seriesManagementService.autoDetectSeries(items)
-                
+
                 _seriesSuggestions.value = suggestions
             } catch (e: Exception) {
                 // Handle error
@@ -100,14 +100,14 @@ class OrganizationViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun deleteMediaItem(itemId: String) {
         viewModelScope.launch {
             try {
                 val item = mediaItemDao.getMediaItemById(itemId.toLong())
                 if (item != null) {
                     mediaItemDao.deleteMediaItem(item)
-                    
+
                     // Refresh duplicates
                     scanForDuplicates()
                 }
@@ -116,18 +116,18 @@ class OrganizationViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun keepOneDeleteOthers(keepItemId: String, groupIndex: Int) {
         viewModelScope.launch {
             try {
                 val group = _duplicateGroups.value.getOrNull(groupIndex) ?: return@launch
-                
+
                 group.items.forEach { item ->
                     if (item.itemId.toString() != keepItemId) {
                         mediaItemDao.deleteMediaItem(item)
                     }
                 }
-                
+
                 // Refresh duplicates
                 scanForDuplicates()
             } catch (e: Exception) {
@@ -135,7 +135,7 @@ class OrganizationViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun setThreshold(threshold: Float) {
         _duplicateThreshold.value = threshold
     }
@@ -147,14 +147,14 @@ class OrganizationViewModel @Inject constructor(
     fun createSeries(suggestionIndex: Int) {
         viewModelScope.launch {
             try {
-                val suggestion = _seriesSuggestions.value.getOrNull(suggestionIndex) 
+                val suggestion = _seriesSuggestions.value.getOrNull(suggestionIndex)
                     ?: return@launch
-                
+
                 seriesManagementService.createSeries(
                     seriesName = suggestion.seriesName,
                     books = suggestion.books
                 )
-                
+
                 // Refresh suggestions
                 scanForSeries()
             } catch (e: Exception) {

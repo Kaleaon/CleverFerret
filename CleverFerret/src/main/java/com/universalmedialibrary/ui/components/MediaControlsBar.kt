@@ -137,7 +137,7 @@ fun MediaControlsBar(
                     ) {
                         if (!albumArtUrl.isNullOrBlank()) {
                             AsyncImage(
-                    
+
                                 model = albumArtUrl,
                                 contentDescription = "Media image",
                                 modifier = Modifier.fillMaxSize(),
@@ -247,7 +247,7 @@ class MediaControlsState {
     var isCasting by mutableStateOf(false)
     var castDeviceName by mutableStateOf<String?>(null)
     var albumArtUrl by mutableStateOf<String?>(null)
-    
+
     fun show(
         title: String,
         artist: String? = null,
@@ -264,12 +264,12 @@ class MediaControlsState {
         this.albumArtUrl = albumArtUrl
         this.isVisible = true
     }
-    
+
     fun hide() {
         this.isVisible = false
         this.albumArtUrl = null
     }
-    
+
     fun updatePlaybackState(isPlaying: Boolean) {
         this.isPlaying = isPlaying
     }
@@ -335,7 +335,7 @@ private fun AlbumArtSliverBackground(albumArtUrl: String?) {
     )
 
     AsyncImage(
-                    
+
         model = albumArtUrl,
         contentDescription = "Media image",
         modifier = Modifier
@@ -371,7 +371,7 @@ private fun VisualizerBackground(isPlaying: Boolean) {
 
     val surfaceColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
     val primaryColor = MaterialTheme.colorScheme.primary
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         drawRect(
             color = surfaceColor

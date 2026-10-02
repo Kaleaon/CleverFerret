@@ -5,35 +5,35 @@
     <!-- === Required permissions: core networking === -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
+
     <!-- === Required permissions: legacy and scoped storage === -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
-    
+
     <!-- Android 13+ Granular Media Permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    
+
     <!-- Android 14+ Photo Picker Permission -->
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
-    
+
     <!-- === Required permissions: media playback and device controls === -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO" tools:ignore="ProtectedPermissions" />
-    
+
     <!-- === Required permissions: notifications and foreground services === -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    
+
     <!-- Foreground service permissions for API 34+ -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
-    
+
     <!-- Android Auto - MEDIA_CONTENT_CONTROL removed as it's only granted to system apps -->
 
     <application
@@ -64,7 +64,7 @@
             android:name=".utils.CrashActivity"
             android:exported="false"
             android:theme="@style/Theme.CleverFerretMediaLibrary" />
-        
+
         <!-- New Media-centric Main Activity (Primary Launcher) -->
         <activity
             android:name=".ui.media.MediaMainActivity"
@@ -76,13 +76,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <!-- Legacy MainActivity (for file handling and deep links) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
-            
+
             <!-- File Type Associations for EPUB -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -92,7 +92,7 @@
                 <data android:scheme="content" />
                 <data android:mimeType="application/epub+zip" />
             </intent-filter>
-            
+
             <!-- File Type Associations for PDF -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -102,7 +102,7 @@
                 <data android:scheme="content" />
                 <data android:mimeType="application/pdf" />
             </intent-filter>
-            
+
             <!-- File Type Associations for Text Documents -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -112,7 +112,7 @@
                 <data android:scheme="content" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
-            
+
             <!-- File Type Associations for HTML -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -122,7 +122,7 @@
                 <data android:scheme="content" />
                 <data android:mimeType="text/html" />
             </intent-filter>
-            
+
             <!-- File Type Associations for DOCX -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -132,7 +132,7 @@
                 <data android:scheme="content" />
                 <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
             </intent-filter>
-            
+
             <!-- File Type Associations for CBZ (Comic Book Archive) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -142,7 +142,7 @@
                 <data android:scheme="content" />
                 <data android:mimeType="application/x-cbz" />
             </intent-filter>
-            
+
             <!-- File Type Associations for CBR (Comic Book Archive) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -153,13 +153,13 @@
                 <data android:mimeType="application/x-cbr" />
             </intent-filter>
         </activity>
-        
+
         <!-- Additional file associations merged into the primary MainActivity above -->
         <service
             android:name=".services.CalibreImportForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
-        <service 
+        <service
             android:name=".services.audio.MusicPlaybackService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
@@ -177,7 +177,7 @@
             android:name=".services.MediaScannerService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
-        
+
         <!-- App widgets are declared in src/debug and src/release manifests. -->
 
         <!-- CleverFerret API Receiver for internal broadcast control -->

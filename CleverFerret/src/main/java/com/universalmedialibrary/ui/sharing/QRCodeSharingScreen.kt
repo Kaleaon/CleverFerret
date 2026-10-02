@@ -26,7 +26,7 @@ import com.universalmedialibrary.services.sharing.SharingMode
 
 /**
  * QR Code Sharing Screen for CleverFerret
- * 
+ *
  * Provides UI for sharing media and playlists via QR codes:
  * - QR code generation
  * - Local HTTP server management
@@ -42,7 +42,7 @@ fun QRCodeSharingScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val clipboardManager = LocalClipboardManager.current
-    
+
     LaunchedEffect(Unit) {
         viewModel.initialize()
     }
@@ -114,25 +114,25 @@ private fun IdleSharingScreen(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Text(
             text = "Share Your Media",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = "Generate a QR code to share playlists or individual media items with other devices",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         // Sharing Options
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -146,7 +146,7 @@ private fun IdleSharingScreen(
                     onClick = { onStartSharing(SharingType.PLAYLIST) }
                 )
             }
-            
+
             item {
                 SharingOptionCard(
                     icon = Icons.Default.MusicNote,
@@ -155,7 +155,7 @@ private fun IdleSharingScreen(
                     onClick = { onStartSharing(SharingType.CURRENT_TRACK) }
                 )
             }
-            
+
             item {
                 SharingOptionCard(
                     icon = Icons.Default.Share,
@@ -199,9 +199,9 @@ private fun ActiveSharingScreen(
                         contentDescription = "Media image",
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    
+
                     Spacer(modifier = Modifier.width(8.dp))
-                    
+
                     Column {
                         Text(
                             text = "Sharing Active",
@@ -209,7 +209,7 @@ private fun ActiveSharingScreen(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                        
+
                         Text(
                             text = "${connectedDevices.size} device(s) connected",
                             style = MaterialTheme.typography.bodySmall,
@@ -217,7 +217,7 @@ private fun ActiveSharingScreen(
                         )
                     }
                 }
-                
+
                 OutlinedButton(
                     onClick = onStopSharing,
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -228,9 +228,9 @@ private fun ActiveSharingScreen(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // QR Code and URL
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -260,7 +260,7 @@ private fun ActiveSharingScreen(
                     }
                 }
             }
-            
+
             // URL and Actions
             Column(
                 modifier = Modifier.weight(1f)
@@ -270,18 +270,18 @@ private fun ActiveSharingScreen(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 if (shareUrl != null) {
                     Text(
                         text = shareUrl,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     Button(
                         onClick = { onCopyUrl(shareUrl) },
                         modifier = Modifier.fillMaxWidth()
@@ -291,9 +291,9 @@ private fun ActiveSharingScreen(
                         Text("Copy URL")
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 OutlinedButton(
                     onClick = { /* Share via system */ },
                     modifier = Modifier.fillMaxWidth()
@@ -304,18 +304,18 @@ private fun ActiveSharingScreen(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // Connected Devices
         Text(
             text = "Connected Devices",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         if (connectedDevices.isNotEmpty()) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -353,25 +353,25 @@ private fun ReceivingScreen(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = "Ready to Receive",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = url,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -380,7 +380,7 @@ private fun ReceivingScreen(
                 ) {
                     Text("Receive")
                 }
-                
+
                 OutlinedButton(
                     onClick = onClear
                 ) {
@@ -394,17 +394,17 @@ private fun ReceivingScreen(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = "Scan QR Code",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Scan a QR code to receive shared media or playlists",
                 style = MaterialTheme.typography.bodyMedium,
@@ -437,9 +437,9 @@ private fun SharingOptionCard(
                 contentDescription = "Media image",
                 modifier = Modifier.size(32.dp)
             )
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -448,14 +448,14 @@ private fun SharingOptionCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Media image"
@@ -482,9 +482,9 @@ private fun ConnectedDeviceRow(
                 contentDescription = "Media image",
                 modifier = Modifier.size(20.dp)
             )
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -493,7 +493,7 @@ private fun ConnectedDeviceRow(
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Text(
                     text = "Connected ${formatConnectionTime(device.connectedAt)}",
                     style = MaterialTheme.typography.bodySmall,
@@ -507,7 +507,7 @@ private fun ConnectedDeviceRow(
 private fun formatConnectionTime(timestamp: Long): String {
     val now = System.currentTimeMillis()
     val diff = now - timestamp
-    
+
     return when {
         diff < 60_000 -> "just now"
         diff < 3600_000 -> "${diff / 60_000} min ago"

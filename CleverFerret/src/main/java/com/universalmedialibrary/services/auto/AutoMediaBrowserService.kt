@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 /**
  * Android Auto MediaBrowserService
- * 
+ *
  * Provides media browsing and playback control for Android Auto
  */
 @AndroidEntryPoint
@@ -35,7 +35,7 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var exoPlayerService: ExoPlayerService
-    
+
     @Inject
     lateinit var musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 
@@ -45,7 +45,7 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
 
     companion object {
         private const val TAG = "AutoMediaBrowserService"
-        
+
         // Media IDs
         const val MEDIA_ID_ROOT = "__ROOT__"
         const val MEDIA_ID_MUSIC = "__MUSIC__"
@@ -291,7 +291,7 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
                 onPlay()
                 return
             }
-            
+
             // Search and play matching media
             serviceScope.launch {
                 try {

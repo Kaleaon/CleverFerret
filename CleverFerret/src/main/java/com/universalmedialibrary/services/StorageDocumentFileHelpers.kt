@@ -125,4 +125,3 @@ internal fun copyStream(context: Context, src: Uri, dst: Uri): Boolean {
         true
     } catch (e: Exception) { false }
 }
-

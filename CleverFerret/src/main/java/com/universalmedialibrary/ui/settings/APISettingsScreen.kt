@@ -73,7 +73,7 @@ fun APISettingsScreen(
 
             // === AI & Recommendations ===
             Text("AI & Recommendations", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
-            
+
             // Gemini AI Section
             GeminiAPISection(
                 apiKey = uiState.geminiApiKey ?: "",
@@ -82,7 +82,7 @@ fun APISettingsScreen(
                 isLoading = uiState.isLoading,
                 testResult = uiState.geminiTestResult
             )
-            
+
             // TasteDive Section
             GenericApiKeySection(
                 title = "TasteDive",
@@ -164,7 +164,7 @@ fun APISettingsScreen(
                 getKeyUrl = "https://console.cloud.google.com/apis/credentials",
                 placeholder = "Enter Google Books API Key"
             )
-            
+
             // Open Library
             GenericApiKeySection(
                 title = "Open Library",
@@ -225,7 +225,7 @@ fun APISettingsScreen(
                 placeholder = "key:secret",
                 note = "Format: apiKey:apiSecret"
             )
-            
+
             // Listen Notes
             GenericApiKeySection(
                 title = "Listen Notes",
@@ -284,7 +284,7 @@ fun APISettingsScreen(
             if (com.universalmedialibrary.BuildConfig.DEBUG) {
                 HorizontalDivider()
                 Text("Development & Debugging", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
-                
+
                 // GitHub API Token for Bug Reports
                 GitHubTokenSection(
                     apiKey = uiState.githubApiKey ?: "",
@@ -366,4 +366,3 @@ private fun StatusMessageCard(
         )
     }
 }
-

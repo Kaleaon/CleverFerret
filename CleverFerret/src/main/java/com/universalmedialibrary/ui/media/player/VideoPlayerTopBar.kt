@@ -52,7 +52,7 @@ internal fun VideoPlayerTopBar(
                 tint = Color.White
             )
         }
-        
+
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -75,7 +75,7 @@ internal fun VideoPlayerTopBar(
                 )
             }
         }
-        
+
         Row {
             IconButton(onClick = onCast) {
                 Icon(
@@ -84,7 +84,7 @@ internal fun VideoPlayerTopBar(
                     tint = if (isCasting) MediaColors.AccentPrimary else Color.White
                 )
             }
-            
+
             IconButton(onClick = onPip) {
                 Icon(
                     imageVector = Icons.Default.PictureInPicture,
@@ -92,7 +92,7 @@ internal fun VideoPlayerTopBar(
                     tint = Color.White
                 )
             }
-            
+
             IconButton(onClick = onSettings) {
                 Icon(
                     imageVector = Icons.Default.Settings,

@@ -69,7 +69,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     subreddit = subreddit,
                     autoUpdate = true
                 )
-                
+
                 val result = redditStoryManager.downloadAndAddToLibrary(config)
                 if (!result.success) {
                     publishError(
@@ -135,7 +135,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 val results = redditStoryManager.updateAllStories()
                 val updatedCount = results.count { it.success && it.newChapters > 0 }
                 val totalNewChapters = results.filter { it.success }.sumOf { it.newChapters }
-                
+
                 publishSuccess(
                     if (updatedCount > 0) {
                         "Updated $updatedCount stories with $totalNewChapters new chapters!"

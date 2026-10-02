@@ -15,7 +15,7 @@ import com.universalmedialibrary.services.gallery.*
 
 /**
  * Gallery Settings Screen
- * 
+ *
  * Configures gallery behavior including:
  * - View preferences (grid size, sorting)
  * - Feature toggles (AI features, face detection)
@@ -28,7 +28,7 @@ fun GallerySettingsScreen(
     viewModel: GallerySettingsViewModel = hiltViewModel()
 ) {
     val settings by viewModel.settings.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -52,7 +52,7 @@ fun GallerySettingsScreen(
             item {
                 SettingsSection(title = "View")
             }
-            
+
             item {
                 SettingsListItem(
                     title = "Default View Mode",
@@ -61,7 +61,7 @@ fun GallerySettingsScreen(
                     onClick = { viewModel.showViewModePicker() }
                 )
             }
-            
+
             item {
                 SettingsListItem(
                     title = "Grid Columns",
@@ -70,7 +70,7 @@ fun GallerySettingsScreen(
                     onClick = { viewModel.showGridColumnsPicker() }
                 )
             }
-            
+
             item {
                 SettingsListItem(
                     title = "Default Sort Order",
@@ -79,12 +79,12 @@ fun GallerySettingsScreen(
                     onClick = { viewModel.showSortOrderPicker() }
                 )
             }
-            
+
             // Display Section
             item {
                 SettingsSection(title = "Display")
             }
-            
+
             item {
                 SettingsSwitchItem(
                     title = "Show Hidden Items",
@@ -94,7 +94,7 @@ fun GallerySettingsScreen(
                     onCheckedChange = { viewModel.setShowHidden(it) }
                 )
             }
-            
+
             item {
                 SettingsSwitchItem(
                     title = "Show File Info",
@@ -104,7 +104,7 @@ fun GallerySettingsScreen(
                     onCheckedChange = { viewModel.setShowFileInfo(it) }
                 )
             }
-            
+
             item {
                 SettingsSwitchItem(
                     title = "Show EXIF Data",
@@ -114,12 +114,12 @@ fun GallerySettingsScreen(
                     onCheckedChange = { viewModel.setShowExifData(it) }
                 )
             }
-            
+
             // Video Section
             item {
                 SettingsSection(title = "Video")
             }
-            
+
             item {
                 SettingsSwitchItem(
                     title = "Auto-play Videos",
@@ -129,7 +129,7 @@ fun GallerySettingsScreen(
                     onCheckedChange = { viewModel.setAutoPlayVideos(it) }
                 )
             }
-            
+
             item {
                 SettingsSwitchItem(
                     title = "Loop Videos",
@@ -139,12 +139,12 @@ fun GallerySettingsScreen(
                     onCheckedChange = { viewModel.setLoopVideos(it) }
                 )
             }
-            
+
             // AI Features Section
             item {
                 SettingsSection(title = "AI Features (Beta)")
             }
-            
+
             item {
                 SettingsSwitchItem(
                     title = "Face Detection",
@@ -154,7 +154,7 @@ fun GallerySettingsScreen(
                     onCheckedChange = { viewModel.setEnableFaceDetection(it) }
                 )
             }
-            
+
             item {
                 SettingsSwitchItem(
                     title = "AI Tags",
@@ -164,7 +164,7 @@ fun GallerySettingsScreen(
                     onCheckedChange = { viewModel.setEnableAiTags(it) }
                 )
             }
-            
+
             item {
                 SettingsSwitchItem(
                     title = "Location Grouping",
@@ -174,7 +174,7 @@ fun GallerySettingsScreen(
                     onCheckedChange = { viewModel.setEnableLocationGrouping(it) }
                 )
             }
-            
+
             item {
                 SettingsSwitchItem(
                     title = "Memories",
@@ -184,7 +184,7 @@ fun GallerySettingsScreen(
                     onCheckedChange = { viewModel.setEnableMemories(it) }
                 )
             }
-            
+
             // Privacy Note
             item {
                 Card(

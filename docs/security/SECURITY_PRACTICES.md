@@ -1,6 +1,6 @@
 # Security Best Practices - CleverFerret
 
-**Last Updated:** December 30, 2024  
+**Last Updated:** December 30, 2024
 **Version:** 1.6.5
 
 This document outlines security best practices implemented in CleverFerret and guidelines for maintaining security.
@@ -133,9 +133,9 @@ env:
 ### Current Implementation
 
 ```xml
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
     android:maxSdkVersion="32" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
     android:maxSdkVersion="29" />
 <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 ```
@@ -177,10 +177,10 @@ All dangerous permissions must be requested at runtime:
 
 ```kotlin
 // Example: Request storage permission
-if (ContextCompat.checkSelfPermission(context, 
+if (ContextCompat.checkSelfPermission(context,
     Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-    ActivityCompat.requestPermissions(activity, 
-        arrayOf(Manifest.permission.READ_MEDIA_AUDIO), 
+    ActivityCompat.requestPermissions(activity,
+        arrayOf(Manifest.permission.READ_MEDIA_AUDIO),
         REQUEST_CODE)
 }
 ```
@@ -191,9 +191,9 @@ These permissions are declared but may not be granted:
 
 ```xml
 <!-- System/Signature permissions - may not be granted -->
-<uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO" 
+<uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO"
     tools:ignore="ProtectedPermissions" />
-<uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" 
+<uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT"
     tools:ignore="ProtectedPermissions" />
 ```
 
@@ -404,6 +404,6 @@ If you discover a security vulnerability:
 
 ---
 
-**Last Review**: December 30, 2024  
-**Next Review**: March 30, 2025  
+**Last Review**: December 30, 2024
+**Next Review**: March 30, 2025
 **Reviewer**: Development Team

@@ -6,7 +6,7 @@ internal suspend fun fetchAO3Tags(): Result<List<WebFictionTag>> {
     return withContext(Dispatchers.IO) {
         try {
             val tags = mutableListOf<WebFictionTag>()
-            
+
             // AO3 has well-organized tag system
             val commonTags = listOf(
                 // Fandoms (popular)
@@ -14,23 +14,23 @@ internal suspend fun fetchAO3Tags(): Result<List<WebFictionTag>> {
                 WebFictionTag("hp", "hp", "Harry Potter", TagCategory.GENERAL, 0),
                 WebFictionTag("sw", "sw", "Star Wars", TagCategory.GENERAL, 0),
                 WebFictionTag("supernatural", "supernatural", "Supernatural", TagCategory.GENERAL, 0),
-                
+
                 // Relationships
                 WebFictionTag("gen", "gen", "Gen (No Pairing)", TagCategory.THEME, 0),
                 WebFictionTag("m-m", "m-m", "M/M", TagCategory.THEME, 0),
                 WebFictionTag("f-f", "f-f", "F/F", TagCategory.THEME, 0),
                 WebFictionTag("m-f", "m-f", "M/F", TagCategory.THEME, 0),
-                
+
                 // Ratings
                 WebFictionTag("general", "general", "General Audiences", TagCategory.RATING, 0),
                 WebFictionTag("teen", "teen", "Teen And Up", TagCategory.RATING, 0),
                 WebFictionTag("mature", "mature", "Mature", TagCategory.RATING, 0),
                 WebFictionTag("explicit", "explicit", "Explicit", TagCategory.RATING, 0),
-                
+
                 // Warnings
                 WebFictionTag("no-warnings", "no-warnings", "No Archive Warnings", TagCategory.GENERAL, 0),
                 WebFictionTag("violence", "violence", "Graphic Violence", TagCategory.THEME, 0),
-                
+
                 // Popular tags
                 WebFictionTag("fluff", "fluff", "Fluff", TagCategory.THEME, 0),
                 WebFictionTag("angst", "angst", "Angst", TagCategory.THEME, 0),
@@ -39,7 +39,7 @@ internal suspend fun fetchAO3Tags(): Result<List<WebFictionTag>> {
                 WebFictionTag("enemies-to-lovers", "enemies-to-lovers", "Enemies to Lovers", TagCategory.THEME, 0),
                 WebFictionTag("friends-to-lovers", "friends-to-lovers", "Friends to Lovers", TagCategory.THEME, 0)
             )
-            
+
             tags.addAll(commonTags)
             Result.success(tags)
         } catch (e: Exception) {
@@ -58,7 +58,7 @@ internal suspend fun browseAO3ByTags(criteria: StorySearchCriteria): Result<Stor
                 .get()
 
             val stories = parseAO3SearchResults(doc)
-            
+
             Result.success(
                 StorySearchResult(
                     stories = stories,
@@ -75,48 +75,48 @@ internal suspend fun browseAO3ByTags(criteria: StorySearchCriteria): Result<Stor
 
 internal fun buildAO3SearchUrl(criteria: StorySearchCriteria): String {
     val url = StringBuilder("https://archiveofourown.org/works/search?")
-    
+
     // Tags
     if (criteria.tags.isNotEmpty()) {
         val tagQuery = criteria.tags.joinToString("+")
         url.append("work_search[query]=$tagQuery&")
     }
-    
+
     // Word count
     criteria.minWordCount?.let { url.append("work_search[word_count_from]=$it&") }
     criteria.maxWordCount?.let { url.append("work_search[word_count_to]=$it&") }
-    
+
     // Sort
     url.append("work_search[sort_column]=${criteria.sortBy.name.lowercase()}&")
     url.append("work_search[sort_direction]=${if (criteria.sortOrder == SortOrder.DESCENDING) "desc" else "asc"}&")
-    
+
     // Pagination
     val page = (criteria.offset / criteria.limit) + 1
     url.append("page=$page")
-    
+
     return url.toString()
 }
 
 internal suspend fun parseAO3SearchResults(doc: org.jsoup.nodes.Document): List<WebFictionStory> {
     val stories = mutableListOf<WebFictionStory>()
-    
+
     doc.select("li.work").forEach { work ->
         try {
             val titleLink = work.select("h4.heading a").first()
             val title = titleLink?.text() ?: return@forEach
             val url = "https://archiveofourown.org${titleLink.attr("href")}"
             val storyId = url.substringAfter("/works/").substringBefore("/")
-            
+
             val author = work.select("a[rel=author]").text()
             val summary = work.select("blockquote.summary").text()
             val tags = work.select("li.freeforms a.tag").map { it.text() }
             val rating = work.select("span.rating").text()
             val warnings = work.select("span.warnings").text()
-            
+
             val stats = work.select("dl.stats dd").text()
             val wordCount = Regex("Words:\\s*([0-9,]+)").find(stats)?.groupValues?.getOrNull(1)?.replace(",", "")?.toLongOrNull()
             val chapters = Regex("(\\d+)/(\\d+|\\?)").find(stats)?.groupValues?.getOrNull(1)?.toIntOrNull()
-            
+
             stories.add(
                 WebFictionStory(
                     id = storyId,
@@ -141,7 +141,7 @@ internal suspend fun parseAO3SearchResults(doc: org.jsoup.nodes.Document): List<
             // Skip invalid entries
         }
     }
-    
+
     return stories
 }
 
@@ -158,13 +158,13 @@ internal suspend fun fetchFFNTags(): Result<List<WebFictionTag>> {
             WebFictionTag("mystery", "mystery", "Mystery", TagCategory.GENRE, 0),
             WebFictionTag("sci-fi", "sci-fi", "Sci-Fi", TagCategory.GENRE, 0),
             WebFictionTag("fantasy", "fantasy", "Fantasy", TagCategory.GENRE, 0),
-            
+
             // Ratings
             WebFictionTag("k", "k", "K (General)", TagCategory.RATING, 0),
             WebFictionTag("k+", "k+", "K+ (Some content)", TagCategory.RATING, 0),
             WebFictionTag("t", "t", "T (Teen)", TagCategory.RATING, 0),
             WebFictionTag("m", "m", "M (Mature)", TagCategory.RATING, 0),
-            
+
             // Status
             WebFictionTag("complete", "complete", "Complete", TagCategory.STATUS, 0),
             WebFictionTag("in-progress", "in-progress", "In Progress", TagCategory.STATUS, 0)
@@ -251,19 +251,19 @@ internal suspend fun browseRoyalRoadByTags(criteria: StorySearchCriteria): Resul
 
 internal fun parseRoyalRoadSearchResults(doc: org.jsoup.nodes.Document): List<WebFictionStory> {
     val stories = mutableListOf<WebFictionStory>()
-    
+
     doc.select("div.fiction-list-item").forEach { item ->
         try {
             val titleLink = item.select("h2.fiction-title a").first() ?: return@forEach
             val title = titleLink.text()
             val url = "https://www.royalroad.com${titleLink.attr("href")}"
             val storyId = url.substringAfter("/fiction/").substringBefore("/")
-            
+
             val author = item.select("span.author").text()
             val description = item.select("div.description").text()
             val tags = item.select("span.tag").map { it.text() }
             val stats = item.select("div.stats span").text()
-            
+
             stories.add(
                 WebFictionStory(
                     id = storyId,
@@ -287,7 +287,7 @@ internal fun parseRoyalRoadSearchResults(doc: org.jsoup.nodes.Document): List<We
             // Skip invalid entries
         }
     }
-    
+
     return stories
 }
 
@@ -434,4 +434,3 @@ internal fun buildRoyalRoadSearchUrl(criteria: StorySearchCriteria): String {
 
     return builder.toString()
 }
-

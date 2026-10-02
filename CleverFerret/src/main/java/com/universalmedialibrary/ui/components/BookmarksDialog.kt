@@ -33,7 +33,7 @@ import java.util.Locale
 
 /**
  * Bookmarks Dialog
- * 
+ *
  * Displays a list of bookmarks for a media item, allowing users to:
  * - Jump to a bookmark
  * - Delete bookmarks
@@ -52,7 +52,7 @@ fun BookmarksDialog(
     onDismiss: () -> Unit
 ) {
     val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {

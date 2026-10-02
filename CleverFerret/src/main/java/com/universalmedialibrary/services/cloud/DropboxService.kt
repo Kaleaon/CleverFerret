@@ -22,7 +22,7 @@ import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Dropbox Integration Service for CleverFerret
- * 
+ *
  * Provides comprehensive Dropbox integration including:
  * - File/folder synchronization
  * - Media file upload/download
@@ -34,13 +34,13 @@ class DropboxService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val okHttpClient: OkHttpClient
 ) {
-    
+
     private val _isAuthenticated = MutableStateFlow(false)
     val isAuthenticated: Flow<Boolean> = _isAuthenticated.asStateFlow()
-    
+
     private val _syncProgress = MutableStateFlow(0f)
     val syncProgress: Flow<Float> = _syncProgress.asStateFlow()
-    
+
     private var accessToken: String? = null
 
     private val securePrefs: SharedPreferences by lazy {

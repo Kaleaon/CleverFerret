@@ -102,20 +102,20 @@ class NewsManager @Inject constructor(
             val url = URL(feed.url)
             val factory = XmlPullParserFactory.newInstance()
             val xpp = factory.newPullParser()
-            
+
             url.openStream().use { inputStream ->
                 xpp.setInput(inputStream, "UTF-8")
-                
+
                 val articles = mutableListOf<NewsArticle>()
                 var eventType = xpp.eventType
                 var currentTag = ""
-                
+
                 var title = ""
                 var link = ""
                 var desc = ""
                 var pubDate = ""
                 var insideItem = false
-                
+
                 while (eventType != XmlPullParser.END_DOCUMENT) {
                     if (eventType == XmlPullParser.START_TAG) {
                         currentTag = xpp.name.lowercase()
@@ -147,7 +147,7 @@ class NewsManager @Inject constructor(
                     }
                     eventType = xpp.next()
                 }
-                
+
                 // Limit articles
                 if (recipe.maxArticlesPerFeed > 0) {
                     articles.take(recipe.maxArticlesPerFeed)
@@ -226,7 +226,7 @@ class NewsManager @Inject constructor(
 
             // Extract content
             var contentElement: org.jsoup.nodes.Element? = null
-            
+
             if (recipe.keepOnlyTags.isNotEmpty()) {
                 for (selector in recipe.keepOnlyTags) {
                     contentElement = doc.selectFirst(selector)
@@ -292,7 +292,7 @@ class NewsManager @Inject constructor(
             hasMetadata = true,
             hasThumbnail = false
         )
-        
+
         val itemId = mediaRepository.createMediaItem(mediaItem)
 
         // Add Metadata

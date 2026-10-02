@@ -14,7 +14,7 @@ import javax.inject.Singleton
 class MetadataService @Inject constructor(
     private val metadataSources: Set<@JvmSuppressWildcards MetadataSource>
 ) {
-    
+
     /**
      * Search all metadata sources in parallel
      */
@@ -47,13 +47,13 @@ class MetadataService @Inject constructor(
                     source?.priority ?: 0
                 }
                 .take(maxResults)
-            
+
             Result.success(results)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Search a specific source
      */
@@ -70,13 +70,13 @@ class MetadataService @Inject constructor(
                 ?: return@withContext Result.failure(
                     Exception("Source not found: $sourceName")
                 )
-            
+
             source.search(query, isbn, title, author, maxResults)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Get detailed metadata from multiple sources
      */
@@ -90,13 +90,13 @@ class MetadataService @Inject constructor(
                     source?.getDetails(result.sourceId)?.getOrNull()
                 }
             }.awaitAll().filterNotNull()
-            
+
             if (metadataList.isEmpty()) {
                 return@withContext Result.failure(
                     Exception("No metadata found")
                 )
             }
-            
+
             // Merge metadata from multiple sources
             val merged = mergeMetadata(metadataList)
             Result.success(merged)
@@ -104,7 +104,7 @@ class MetadataService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     /**
      * Get details from a specific source
      */
@@ -117,13 +117,13 @@ class MetadataService @Inject constructor(
                 ?: return@withContext Result.failure(
                     Exception("Source not found: $sourceName")
                 )
-            
+
             source.getDetails(sourceId)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Get list of available metadata sources
      */
@@ -132,16 +132,16 @@ class MetadataService @Inject constructor(
             .sortedByDescending { it.priority }
             .map { it.sourceName }
     }
-    
+
     /**
      * Merge metadata from multiple sources, preferring higher quality data
      */
     private fun mergeMetadata(metadataList: List<EnhancedMetadata>): EnhancedMetadata {
         if (metadataList.size == 1) return metadataList[0]
-        
+
         // Use first as base
         val base = metadataList[0]
-        
+
         return EnhancedMetadata(
             title = metadataList.firstNotNullOfOrNull { it.title } ?: base.title,
             authors = metadataList.flatMap { it.authors }.distinct(),

@@ -22,7 +22,7 @@ import androidx.lifecycle.LifecycleEventObserver
 
 /**
  * Permissions handler for CleverFerret
- * 
+ *
  * Handles runtime permission requests for storage, media, and notifications
  * across different Android versions with proper fallbacks.
  */
@@ -98,7 +98,7 @@ object PermissionsHandler {
             }
         }
     }
-    
+
 
     /**
      * Check if notification permissions are granted

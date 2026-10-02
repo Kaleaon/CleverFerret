@@ -173,7 +173,7 @@ private fun SessionCreatedView(
             style = MaterialTheme.typography.titleMedium
         )
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         qrCode?.let { bitmap ->
             Card(
                 modifier = Modifier.size(280.dp),
@@ -186,13 +186,13 @@ private fun SessionCreatedView(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             "Scan this QR code to join",
             style = MaterialTheme.typography.bodyMedium
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
         Button(
             onClick = onStartSession,
@@ -276,7 +276,7 @@ private fun ActiveSessionView(
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(queue) { item ->
                 QueueItemCard(item)
@@ -460,9 +460,9 @@ private fun CreateSessionDialog(
         },
         confirmButton = {
             Button(
-                onClick = { 
+                onClick = {
                     val pId = playlistId.toLongOrNull() ?: 1L
-                    onCreate(name, pId, selectedType) 
+                    onCreate(name, pId, selectedType)
                 },
                 enabled = name.isNotBlank()
             ) {

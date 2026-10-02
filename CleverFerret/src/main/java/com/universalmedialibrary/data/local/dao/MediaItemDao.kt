@@ -29,7 +29,7 @@ interface MediaItemDao {
 
     @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
     suspend fun getItemCountForLibrary(libraryId: Long): Int
-    
+
     @Query("SELECT COUNT(*) FROM media_items")
     suspend fun getMediaItemCount(): Int
 
@@ -54,7 +54,7 @@ interface MediaItemDao {
 
     @Query("SELECT * FROM media_items WHERE fileName LIKE '%' || :query || '%' OR filePath LIKE '%' || :query || '%' LIMIT :limit")
     suspend fun searchMediaItems(query: String, limit: Int): List<MediaItem>
-    
+
     /**
      * Advanced search with multiple filters for Universal Search Engine
      */
@@ -77,13 +77,13 @@ interface MediaItemDao {
         isFavorite: Boolean?,
         limit: Int
     ): List<MediaItem>
-    
+
     /**
      * Get all media items as a Flow for reactive updates
      */
     @Query("SELECT * FROM media_items ORDER BY dateAdded DESC")
     fun getAllMediaItemsFlow(): Flow<List<MediaItem>>
-    
+
     /**
      * Get media items with tags
      */
@@ -95,7 +95,7 @@ interface MediaItemDao {
         LIMIT :limit
     """)
     suspend fun getMediaItemsWithTags(tagIds: List<Long>, limit: Int): List<MediaItem>
-    
+
     /**
      * Get media items by multiple media types
      */
@@ -150,7 +150,7 @@ interface MediaItemDao {
      */
     @Query("SELECT * FROM media_items ORDER BY dateAdded DESC")
     suspend fun getAllMediaItems(): List<MediaItem>
-    
+
     /**
      * Get books by series name
      */
@@ -162,7 +162,7 @@ interface MediaItemDao {
         ORDER BY mb.seriesIndex ASC
     """)
     suspend fun getBooksBySeries(seriesName: String): List<MediaItem>
-    
+
     /**
      * Get all books that have series information
      */
@@ -173,7 +173,7 @@ interface MediaItemDao {
         ORDER BY mi.dateAdded DESC
     """)
     suspend fun getBooksWithSeries(): List<MediaItem>
-    
+
     /**
      * Get media items by genre
      */
@@ -185,7 +185,7 @@ interface MediaItemDao {
         ORDER BY mi.dateAdded DESC
     """)
     fun getMediaItemsByGenre(genreName: String, mediaType: String): Flow<List<MediaItem>>
-    
+
     /**
      * Get media items by multiple genres (any match)
      */
@@ -197,7 +197,7 @@ interface MediaItemDao {
         ORDER BY mi.dateAdded DESC
     """)
     fun getMediaItemsByGenres(genreNames: List<String>, mediaType: String): Flow<List<MediaItem>>
-    
+
     /**
      * Get media items by author name (for books and audiobooks)
      */
@@ -210,7 +210,7 @@ interface MediaItemDao {
         ORDER BY mi.dateAdded DESC
     """)
     fun getMediaItemsByAuthor(authorName: String): Flow<List<MediaItem>>
-    
+
     /**
      * Get media items by director (for movies and TV shows)
      */
@@ -222,34 +222,34 @@ interface MediaItemDao {
         ORDER BY mi.dateAdded DESC
     """)
     fun getMediaItemsByDirector(directorName: String): Flow<List<MediaItem>>
-    
+
     // ==================== AI Library Browser Support ====================
-    
+
     /**
      * Get items by type with pagination
      */
     @Query("SELECT * FROM media_items WHERE mediaType = :mediaType ORDER BY dateAdded DESC LIMIT :limit OFFSET :offset")
     suspend fun getByType(mediaType: String, limit: Int, offset: Int): List<MediaItem>
-    
+
     /**
      * Get count by type
      */
     @Query("SELECT COUNT(*) FROM media_items WHERE mediaType = :mediaType")
     suspend fun getCountByType(mediaType: String): Int
-    
+
     /**
      * Search by type and query
      */
     @Query("""
         SELECT mi.* FROM media_items mi
         LEFT JOIN metadata_common mc ON mi.itemId = mc.itemId
-        WHERE mi.mediaType = :mediaType 
+        WHERE mi.mediaType = :mediaType
         AND (mi.fileName LIKE :query OR mc.title LIKE :query)
         ORDER BY mi.dateAdded DESC
         LIMIT :limit OFFSET :offset
     """)
     suspend fun searchByTypeAndQuery(mediaType: String, query: String, limit: Int, offset: Int): List<MediaItem>
-    
+
     /**
      * Search by query only
      */
@@ -261,13 +261,13 @@ interface MediaItemDao {
         LIMIT :limit OFFSET :offset
     """)
     suspend fun searchByQuery(query: String, limit: Int, offset: Int): List<MediaItem>
-    
+
     /**
      * Get recent items with pagination
      */
     @Query("SELECT * FROM media_items ORDER BY dateAdded DESC LIMIT :limit OFFSET :offset")
     suspend fun getRecentItems(limit: Int, offset: Int): List<MediaItem>
-    
+
     /**
      * Get items by author/artist name
      */
@@ -280,7 +280,7 @@ interface MediaItemDao {
         LIMIT :limit OFFSET :offset
     """)
     suspend fun getByAuthor(author: String, limit: Int, offset: Int): List<MediaItem>
-    
+
     /**
      * Get items by genre
      */
@@ -293,7 +293,7 @@ interface MediaItemDao {
         LIMIT :limit OFFSET :offset
     """)
     suspend fun getByGenre(genre: String, limit: Int, offset: Int): List<MediaItem>
-    
+
     /**
      * Get highly rated items
      */
@@ -306,7 +306,7 @@ interface MediaItemDao {
         LIMIT :limit OFFSET :offset
     """)
     suspend fun getHighlyRated(mediaType: String?, limit: Int, offset: Int): List<MediaItem>
-    
+
     /**
      * Get items by series ID
      */

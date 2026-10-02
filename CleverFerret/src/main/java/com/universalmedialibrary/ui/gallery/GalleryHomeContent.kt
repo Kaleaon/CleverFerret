@@ -67,7 +67,7 @@ internal fun GalleryHomeContent(
                 )
             }
         }
-        
+
         // Smart Collections
         if (state.smartCollections.isNotEmpty()) {
             item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
@@ -78,7 +78,7 @@ internal fun GalleryHomeContent(
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
-            
+
             item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -92,7 +92,7 @@ internal fun GalleryHomeContent(
                 }
             }
         }
-        
+
         // Albums header
         item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
             Text(
@@ -102,7 +102,7 @@ internal fun GalleryHomeContent(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
-        
+
         // Album grid
         items(
             items = state.albums.filter { !it.isHidden || state.showHidden },

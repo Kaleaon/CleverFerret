@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Enhanced Common Components with Metallic Styling
- * 
+ *
  * Additional UI components that complement the existing CommonCards.kt
  * Note: EmptyStateCard, InfoBanner, SectionHeader, and StatsCard already exist in CommonCards.kt
  */
@@ -32,7 +32,7 @@ fun DismissibleInfoBanner(
     modifier: Modifier = Modifier
 ) {
     var visible by remember { mutableStateOf(true) }
-    
+
     AnimatedVisibility(
         visible = visible,
         enter = expandVertically() + fadeIn(),
@@ -59,16 +59,16 @@ fun DismissibleInfoBanner(
                     tint = type.iconColor,
                     modifier = Modifier.size(24.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.width(12.dp))
-                
+
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium,
                     color = type.textColor,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 if (dismissible) {
                     IconButton(
                         onClick = {

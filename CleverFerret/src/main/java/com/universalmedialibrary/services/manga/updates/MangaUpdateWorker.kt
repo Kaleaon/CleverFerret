@@ -21,7 +21,7 @@ class MangaUpdateWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val updateService: MangaUpdateService
 ) : CoroutineWorker(context, params) {
-    
+
     override suspend fun doWork(): Result {
         JobStatusBus.publish(
             JobStatusEvent(

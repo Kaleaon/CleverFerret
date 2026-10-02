@@ -45,7 +45,7 @@ internal fun SeekPreview(
         ) {
             if (thumbnailUrl != null) {
                 AsyncImage(
-                    
+
                     model = thumbnailUrl,
                     contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
@@ -53,9 +53,9 @@ internal fun SeekPreview(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.XS))
-        
+
         Surface(
             shape = RoundedCornerShape(MediaCorners.XS),
             color = Color.Black.copy(alpha = 0.8f)

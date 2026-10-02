@@ -43,7 +43,7 @@ override fun onDestroy() {
 }
 ```
 
-**Impact:** 
+**Impact:**
 - Prevents memory leaks when services are destroyed
 - Ensures all coroutines are properly cancelled
 - Releases resources held by background tasks
@@ -190,7 +190,7 @@ newFixedLengthResponse(Response.Status.OK, mime, fis, file.length())
 ```kotlin
 class MyService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    
+
     override fun onDestroy() {
         super.onDestroy()
         serviceScope.cancel()  // Critical for preventing leaks
@@ -205,14 +205,14 @@ class MyService : Service() {
 class MyViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
-    
+
     // Use viewModelScope - automatically cancelled in onCleared()
     fun doWork() {
         viewModelScope.launch {
             // Work here
         }
     }
-    
+
     // Only override onCleared if you have custom cleanup
     override fun onCleared() {
         super.onCleared()

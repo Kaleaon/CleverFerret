@@ -28,7 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * MainActivity - File Intent Handler
- * 
+ *
  * This activity ONLY handles external file intents (ACTION_VIEW) for:
  * - EPUB files
  * - PDF files
@@ -36,36 +36,36 @@ import dagger.hilt.android.AndroidEntryPoint
  * - Text documents
  * - HTML files
  * - DOCX files
- * 
+ *
  * The main app UI is handled by [MediaMainActivity] which is the primary launcher.
  * This activity opens the appropriate reader for external files.
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    
+
     lateinit var screenTimeoutManager: ScreenTimeoutManager
         private set
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         screenTimeoutManager = ScreenTimeoutManager(this)
-        
+
         // Check if we have a file to open
         val fileUri = intent?.data
         maybePersistIncomingUriPermission(fileUri)
-        
+
         if (fileUri == null && intent?.action != Intent.ACTION_VIEW) {
             // No file intent - redirect to main app
             redirectToMainApp()
             return
         }
-        
+
         setContent {
             val mainViewModel: MainViewModel = hiltViewModel()
             val selectedTheme by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
             val darkMode by mainViewModel.darkMode.collectAsState(true)
-            
+
             CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -105,21 +105,21 @@ class MainActivity : ComponentActivity() {
             Log.d("MainActivity", "URI permission not persistable for $fileUri")
         }
     }
-    
+
     override fun onUserInteraction() {
         super.onUserInteraction()
         if (::screenTimeoutManager.isInitialized) {
             screenTimeoutManager.onUserInteraction()
         }
     }
-    
+
     override fun onDestroy() {
         super.onDestroy()
         if (::screenTimeoutManager.isInitialized) {
             screenTimeoutManager.cleanup()
         }
     }
-    
+
     private fun redirectToMainApp() {
         val mainIntent = Intent(this, MediaMainActivity::class.java)
         mainIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -141,7 +141,7 @@ private fun FileReaderScreen(
     val fileName = remember(fileUri) {
         fileUri.lastPathSegment ?: "unknown_file"
     }
-    
+
     val mimeType = remember(fileUri) {
         uriString.lowercase().let { path ->
             when {
@@ -156,7 +156,7 @@ private fun FileReaderScreen(
             }
         }
     }
-    
+
     when (mimeType) {
         "application/epub+zip" -> {
             EnhancedEReaderScreen(
@@ -178,7 +178,7 @@ private fun FileReaderScreen(
                 onBack = onClose
             )
         }
-        "text/plain", "text/html", 
+        "text/plain", "text/html",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> {
             DocumentReaderScreen(
                 uriString = uriString,

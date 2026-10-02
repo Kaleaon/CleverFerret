@@ -64,7 +64,7 @@ internal fun ReaderBottomBar(
                     color = MediaColors.TextSecondary,
                     modifier = Modifier.width(40.dp)
                 )
-                
+
                 Slider(
                     value = currentPage.toFloat(),
                     onValueChange = { onPageChange(it.toInt()) },
@@ -76,7 +76,7 @@ internal fun ReaderBottomBar(
                         inactiveTrackColor = MediaColors.ProgressBackground
                     )
                 )
-                
+
                 Text(
                     text = totalPages.toString(),
                     style = MediaTypography.LabelMedium,
@@ -85,9 +85,9 @@ internal fun ReaderBottomBar(
                     textAlign = TextAlign.End
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             // Chapter navigation
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -106,7 +106,7 @@ internal fun ReaderBottomBar(
                     )
                     Text("Prev")
                 }
-                
+
                 // Chapter info
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
@@ -124,7 +124,7 @@ internal fun ReaderBottomBar(
                         trackColor = MediaColors.ProgressBackground
                     )
                 }
-                
+
                 // Next chapter
                 TextButton(
                     onClick = onNextChapter,

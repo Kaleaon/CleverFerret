@@ -11,7 +11,7 @@ import retrofit2.http.Query
  * Documentation: https://developer.themoviedb.org/docs/getting-started
  */
 interface TmdbApi {
-    
+
     @GET("search/movie")
     suspend fun searchMovies(
         @Query("api_key") apiKey: String,
@@ -19,7 +19,7 @@ interface TmdbApi {
         @Query("page") page: Int = 1,
         @Query("language") language: String = "en-US"
     ): TmdbMovieResponse
-    
+
     @GET("search/tv")
     suspend fun searchTvShows(
         @Query("api_key") apiKey: String,
@@ -27,14 +27,14 @@ interface TmdbApi {
         @Query("page") page: Int = 1,
         @Query("language") language: String = "en-US"
     ): TmdbTvResponse
-    
+
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String,
         @Query("language") language: String = "en-US"
     ): TmdbMovie
-    
+
     @GET("tv/{tv_id}")
     suspend fun getTvShowDetails(
         @Path("tv_id") tvId: Int,

@@ -149,7 +149,7 @@ fun PDFSearchDialog(
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
-                        
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable { wholeWord = !wholeWord }
@@ -261,7 +261,7 @@ fun PDFSearchDialog(
                                     modifier = Modifier.padding(12.dp)
                                 )
                             }
-                            
+
                             // Results list
                             LazyColumn(
                                 contentPadding = PaddingValues(16.dp),
@@ -341,7 +341,7 @@ private fun SearchResultItem(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Text(
                 text = result.context,
                 style = MaterialTheme.typography.bodyMedium,

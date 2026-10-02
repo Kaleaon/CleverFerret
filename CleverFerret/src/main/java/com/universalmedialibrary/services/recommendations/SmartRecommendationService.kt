@@ -117,10 +117,10 @@ class SmartRecommendationService @Inject constructor(
 
         // Get all media items and pick some for recommendations
         val allItems = mediaItemDao.getAllMediaItems().take(50)
-        
+
         // Group by media type and recommend from each type
         val itemsByType = allItems.groupBy { it.mediaType }
-        
+
         itemsByType.forEach { (mediaType, items) ->
             val sample = items.take(limit / itemsByType.size.coerceAtLeast(1))
             recommendations.addAll(sample.map { item ->
@@ -175,7 +175,7 @@ class SmartRecommendationService @Inject constructor(
             // Get all media items with their genres
             val allItems = mediaItemDao.getAllMediaItems()
             val itemsWithGenres = mutableListOf<Pair<MediaItem, List<String>>>()
-            
+
             // Collect items with their genres
             for (item in allItems) {
                 val genres = try {
@@ -183,12 +183,12 @@ class SmartRecommendationService @Inject constructor(
                 } catch (e: Exception) {
                     emptyList<String>()
                 }
-                
+
                 if (genres.isNotEmpty()) {
                     itemsWithGenres.add(item to genres)
                 }
             }
-            
+
             if (itemsWithGenres.isEmpty()) {
                 // Fallback to recently added items if no genre data available
                 return allItems
@@ -206,7 +206,7 @@ class SmartRecommendationService @Inject constructor(
                         )
                     }
             }
-            
+
             // Count genre frequency across the library
             val genreFrequency = mutableMapOf<String, Int>()
             for ((_, genres) in itemsWithGenres) {
@@ -214,7 +214,7 @@ class SmartRecommendationService @Inject constructor(
                     genreFrequency[genre] = genreFrequency.getOrDefault(genre, 0) + 1
                 }
             }
-            
+
             // Get the most popular genres, or use selected genres if specified
             val popularGenres = if (options.selectedGenres.isNotEmpty()) {
                 // Use user-selected genres if available
@@ -227,15 +227,15 @@ class SmartRecommendationService @Inject constructor(
                     .take(3) // Top 3 genres
                     .map { it.first }
             }
-            
+
             // Find items in popular genres
             val recommendations = mutableListOf<Recommendation>()
-            
+
             for ((item, genres) in itemsWithGenres) {
                 val itemPopularGenres = genres.intersect(popularGenres.toSet())
                 if (itemPopularGenres.isNotEmpty()) {
                     val confidence = 0.7f + (itemPopularGenres.size * 0.1f) // Higher confidence for more matches
-                    
+
                     recommendations.add(
                         Recommendation(
                             itemId = item.itemId,
@@ -249,12 +249,12 @@ class SmartRecommendationService @Inject constructor(
                     )
                 }
             }
-            
+
             // Sort by confidence and take the requested limit
             return recommendations
                 .sortedByDescending { it.confidence }
                 .take(limit)
-                
+
         } catch (e: Exception) {
             // Fallback to recently added items on error
             val allItems = mediaItemDao.getAllMediaItems()
@@ -380,15 +380,15 @@ class SmartRecommendationService @Inject constructor(
     private suspend fun getTasteDiveRecommendations(limit: Int): List<Recommendation> {
         try {
             val recommendations = mutableListOf<Recommendation>()
-            
+
             // Pick a random favorite item to pivot from
             // In a real scenario, you might rotate through recent favorites or pick media types evenly
             val favorites = mediaItemDao.getAllMediaItems().filter { it.isFavorite }
-            
+
             if (favorites.isEmpty()) return emptyList()
-            
+
             val pivotItem = favorites.random()
-            
+
             // Map internal MediaItem.mediaType to TasteDive types
             // Valid TasteDive types: music, movies, shows, podcasts, books, authors, games
             val type = when (pivotItem.mediaType) {
@@ -400,21 +400,21 @@ class SmartRecommendationService @Inject constructor(
                 "AUDIOBOOK" -> "books"
                 else -> null // Try generic query
             }
-            
+
             val query = pivotItem.fileName.substringBeforeLast('.') // Use filename as title proxy
-            
+
             val similarItems = tasteDiveService.getSimilarItems(
                 query = query,
                 type = type,
                 limit = limit
             )
-            
+
             // Map TasteDiveItem to Recommendation
             // Since these are external items, we use -1 as itemId or handle them specially in UI
-            // However, Recommendation expects itemId: Long. 
+            // However, Recommendation expects itemId: Long.
             // We might need to change Recommendation to support external items or use a placeholder ID.
             // For now, let's use negative IDs to indicate external items
-            
+
             similarItems.forEachIndexed { index, item ->
                 recommendations.add(
                     Recommendation(
@@ -433,7 +433,7 @@ class SmartRecommendationService @Inject constructor(
                     )
                 )
             }
-            
+
             return recommendations
         } catch (e: Exception) {
             AppLogger.error("SmartRecommendationService", "Unhandled exception", e)
@@ -449,7 +449,7 @@ class SmartRecommendationService @Inject constructor(
         val recentItems = mediaItemDao.getAllMediaItems()
             .sortedByDescending { it.dateAdded }
             .take(limit)
-        
+
         return recentItems.map { item ->
             Recommendation(
                 itemId = item.itemId,
@@ -467,7 +467,7 @@ class SmartRecommendationService @Inject constructor(
      */
     suspend fun getSeriesRecommendations(itemId: Long): List<Recommendation> {
         val item = mediaItemDao.getMediaItemById(itemId) ?: return emptyList()
-        
+
         // Find items with similar names (likely same series)
         val baseName = item.fileName
             .replace(Regex("\\d+"), "") // Remove numbers

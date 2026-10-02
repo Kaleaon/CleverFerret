@@ -7,17 +7,17 @@ import kotlin.time.Duration
  */
 interface AudiobookMetadataExtractor {
     val supportedFormats: List<String>
-    
+
     /**
      * Extract metadata from audiobook file
      */
     suspend fun extractMetadata(filePath: String): Result<AudiobookMetadata>
-    
+
     /**
      * Extract chapter information
      */
     suspend fun extractChapters(filePath: String): Result<List<AudioChapter>>
-    
+
     /**
      * Extract cover art
      */
@@ -51,7 +51,7 @@ data class AudiobookMetadata(
         other as AudiobookMetadata
         return title == other.title && author == other.author
     }
-    
+
     override fun hashCode(): Int {
         var result = title.hashCode()
         result = 31 * result + (author?.hashCode() ?: 0)

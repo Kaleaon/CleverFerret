@@ -19,7 +19,7 @@ class RadioScreenViewModel @Inject constructor(
     private val radioBrowserService: com.universalmedialibrary.services.radio.RadioBrowserService
 ) : ViewModel() {
     private var pendingRetryAction: (() -> Unit)? = null
-    
+
     // Expose now playing info from identification service
     val nowPlayingInfo: StateFlow<NowPlayingInfo?> = radioIdentificationService.nowPlaying
     val isIdentifying: StateFlow<Boolean> = radioIdentificationService.isIdentifying
@@ -119,7 +119,7 @@ class RadioScreenViewModel @Inject constructor(
             radioStationDao.updateFavoriteStatus(station.id, !station.isFavorite)
         }
     }
-    
+
     /**
      * Identify currently playing song on radio
      * Uses audio fingerprinting to recognize songs
@@ -155,7 +155,7 @@ class RadioScreenViewModel @Inject constructor(
             // 1. Extracting audio samples from ExoPlayer audio output
             // 2. Sending to identification service (ACRCloud, Shazam, etc.)
             // 3. Receiving metadata about the identified track
-            
+
             // This is a placeholder implementation showing the feature interface
             radioIdentificationService.updateNowPlaying(
                 NowPlayingInfo(
@@ -167,7 +167,7 @@ class RadioScreenViewModel @Inject constructor(
                     timestamp = System.currentTimeMillis()
                 )
             )
-            
+
             // Full implementation would look like:
             // val audioSample = exoPlayerService.captureAudioSample()
             // val result = acrCloudService.identify(audioSample)

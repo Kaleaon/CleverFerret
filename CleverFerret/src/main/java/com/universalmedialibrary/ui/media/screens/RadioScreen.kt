@@ -30,13 +30,13 @@ import kotlinx.coroutines.launch
 
 /**
  * Clean Media-Centric Radio Screen
- * 
+ *
  * Unified radio experience combining:
  * - Internet Radio (Radio Browser directory)
  * - FM Radio (if hardware available)
  * - HD Radio (if hardware available)
  * - Old Time Radio archives
- * 
+ *
  * Features:
  * - Category browsing
  * - Search by name, genre, country
@@ -59,7 +59,7 @@ fun RadioScreen(
     val tabs = listOf("Internet", "FM", "HD", "Old Time")
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -123,7 +123,7 @@ fun RadioScreen(
                     )
                 }
             }
-            
+
             // Content pager
             HorizontalPager(
                 state = pagerState,
@@ -216,7 +216,7 @@ private fun FMRadioPage(
         )
         return
     }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(vertical = MediaSpacing.MD),
         modifier = Modifier.fillMaxSize()
@@ -250,7 +250,7 @@ private fun HDRadioPage(
         )
         return
     }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(vertical = MediaSpacing.MD),
         modifier = Modifier.fillMaxSize()
@@ -283,7 +283,7 @@ private fun OldTimeRadioPage(
         )
         return
     }
-    
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
         contentPadding = PaddingValues(MediaSpacing.MD),

@@ -36,7 +36,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Media Card Components
- * 
+ *
  * A comprehensive set of beautiful media cards inspired by premium media apps's design:
  * - Poster cards (books, movies, TV shows)
  * - Square cards (music albums, podcasts)
@@ -44,7 +44,7 @@ import com.universalmedialibrary.ui.media.theme.*
  * - Hero cards (featured content)
  * - List items (compact views)
  * - Carousel rows
- * 
+ *
  * Features:
  * - Smooth hover/press animations
  * - Progress indicators
@@ -99,14 +99,14 @@ fun MediaHeroCard(
                     )
             )
         }
-        
+
         // Gradient overlays
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MediaColors.Gradients.heroOverlay)
         )
-        
+
         // Content
         Column(
             modifier = Modifier
@@ -137,9 +137,9 @@ fun MediaHeroCard(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             // Title
             Text(
                 text = item.title,
@@ -148,7 +148,7 @@ fun MediaHeroCard(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            
+
             // Metadata row
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -161,7 +161,7 @@ fun MediaHeroCard(
                         color = MediaColors.TextSecondary
                     )
                 }
-                
+
                 item.rating?.let { rating ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -178,7 +178,7 @@ fun MediaHeroCard(
                         )
                     }
                 }
-                
+
                 item.duration?.let { duration ->
                     Text(
                         text = duration,
@@ -187,7 +187,7 @@ fun MediaHeroCard(
                     )
                 }
             }
-            
+
             // Subtitle/Description
             item.subtitle?.let { subtitle ->
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
@@ -199,10 +199,10 @@ fun MediaHeroCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            
+
             // Action buttons
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
-            
+
             Row(horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)) {
                 // Play button
                 if (onPlayClick != null) {
@@ -226,7 +226,7 @@ fun MediaHeroCard(
                         )
                     }
                 }
-                
+
                 // More info button
                 OutlinedButton(
                     onClick = onClick,
@@ -249,7 +249,7 @@ fun MediaHeroCard(
                 }
             }
         }
-        
+
         // Progress bar
         if (item.progress > 0) {
             val (progressColor, progressTrackColor) = mediaProgressColors()

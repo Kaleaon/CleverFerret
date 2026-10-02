@@ -355,4 +355,3 @@ internal fun repeatVector(): ImageVector = materialIcon(name = "Repeat") {
         close()
     }
 }
-

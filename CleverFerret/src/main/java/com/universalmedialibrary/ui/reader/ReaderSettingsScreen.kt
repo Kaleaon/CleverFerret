@@ -566,16 +566,16 @@ private fun EnhancedReadingFeaturesSection(
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             val colorSchemes = listOf(
                 "Classic Day", "Warm Day", "Paper Day", "High Contrast Day",
                 "Sepia", "Dark Sepia",
-                "Classic Night", "Dark Gray", "OLED Black", "Midnight Blue", 
+                "Classic Night", "Dark Gray", "OLED Black", "Midnight Blue",
                 "Dark Green", "Amber Night", "High Contrast Night"
             )
-            
+
             var expandedColorScheme by remember { mutableStateOf(false) }
-            
+
             ExposedDropdownMenuBox(
                 expanded = expandedColorScheme,
                 onExpandedChange = { expandedColorScheme = !expandedColorScheme }
@@ -635,7 +635,7 @@ private fun EnhancedReadingFeaturesSection(
                         steps = 17,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     Text(
                         text = "Ruler Opacity: ${(readerSettings.rulerAlpha * 100).toInt()}%",
                         style = MaterialTheme.typography.bodySmall
@@ -683,7 +683,7 @@ private fun EnhancedReadingFeaturesSection(
                         steps = 49,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     Text(
                         text = "Font Size: ${readerSettings.rsvpFontSize}sp",
                         style = MaterialTheme.typography.bodySmall
@@ -727,7 +727,7 @@ private fun EnhancedReadingFeaturesSection(
                         steps = 48,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween

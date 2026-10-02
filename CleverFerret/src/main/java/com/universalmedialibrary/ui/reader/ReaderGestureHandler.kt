@@ -58,8 +58,8 @@ class ReaderGestureHandler(
             }
 
             // Check for brightness zone (bottom-left corner)
-            if (onBrightnessAdjust != null && 
-                x < brightnessZoneSize && 
+            if (onBrightnessAdjust != null &&
+                x < brightnessZoneSize &&
                 y > screenHeight - brightnessZoneSize) {
                 // Bottom-left corner - could show brightness control
                 return false
@@ -86,8 +86,8 @@ class ReaderGestureHandler(
             val y = e.y
 
             // Check if long press is in brightness zone (bottom-left corner)
-            if (onBrightnessAdjust != null && 
-                x < brightnessZoneSize && 
+            if (onBrightnessAdjust != null &&
+                x < brightnessZoneSize &&
                 y > screenHeight - brightnessZoneSize) {
                 // Start brightness adjustment mode
                 brightnessGestureStartY = y
@@ -122,8 +122,8 @@ class ReaderGestureHandler(
             }
 
             // Bottom-left corner vertical scroll for brightness (Moonreader feature)
-            if (onBrightnessAdjust != null && 
-                startX < brightnessZoneSize && 
+            if (onBrightnessAdjust != null &&
+                startX < brightnessZoneSize &&
                 startY > screenHeight - brightnessZoneSize) {
                 val delta = distanceY / 10f // Positive scroll up = increase brightness
                 onBrightnessAdjust(delta)
@@ -216,8 +216,8 @@ fun ReaderGestureOverlay(
                             return@detectTapGestures
                         }
 
-                        if (onBrightnessAdjust != null && 
-                            x < brightnessZoneSize.toPx() && 
+                        if (onBrightnessAdjust != null &&
+                            x < brightnessZoneSize.toPx() &&
                             y > screenHeight - brightnessZoneSize.toPx()) {
                             // Bottom-left corner - could show brightness indicator
                             return@detectTapGestures
@@ -237,8 +237,8 @@ fun ReaderGestureOverlay(
                         val y = offset.y
 
                         // Check if long press is in brightness zone
-                        if (onBrightnessAdjust != null && 
-                            x < brightnessZoneSize.toPx() && 
+                        if (onBrightnessAdjust != null &&
+                            x < brightnessZoneSize.toPx() &&
                             y > screenHeight - brightnessZoneSize.toPx()) {
                             isBrightnessMode = true
                             brightnessStartY = y

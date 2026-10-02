@@ -12,7 +12,7 @@ object MediaRoutes {
     const val ACTIVITY = "activity"
     const val ROOM_CHAT = "room-chat/{roomName}"
     const val SETTINGS = "settings"
-    
+
     // Library routes
     const val LIBRARY_ROOT = "library"
     const val LIBRARY = "library/{mediaType}"
@@ -26,7 +26,7 @@ object MediaRoutes {
     const val WEB_FICTION = "library/webfiction"
     const val RADIO = "library/radio"
     const val DOCUMENTS = "library/document"
-    
+
     // Detail routes
     const val MEDIA_DETAIL = "detail/{mediaType}/{mediaId}"
     const val BOOK_DETAIL = "detail/book/{mediaId}"
@@ -34,19 +34,19 @@ object MediaRoutes {
     const val ARTIST_DETAIL = "detail/artist/{mediaId}"
     const val PODCAST_DETAIL = "detail/podcast/{mediaId}"
     const val SERIES_DETAIL = "detail/series/{mediaId}"
-    
+
     // Player routes
     const val READER = "reader/{mediaType}/{mediaId}"
     const val AUDIO_PLAYER = "player/audio/{playerType}"
     const val VIDEO_PLAYER = "player/video/{videoId}"
-    
+
     // Discovery routes
     const val DISCOVER = "discover"
     const val OPDS_BROWSER = "opds"
     const val PODCAST_DISCOVER = "discover/podcasts"
     const val WEB_FICTION_BROWSE = "discover/webfiction/{source}"
     const val SEE_ALL = "home/see-all/{section}"
-    
+
     // Collections & Organization
     const val COLLECTIONS = "collections"
     const val COLLECTION_DETAIL = "collection/{collectionId}"
@@ -58,10 +58,10 @@ object MediaRoutes {
     const val SMART_COLLECTION_DETAIL = "smart_collection/{ruleId}"
     const val ENHANCED_SEARCH = "enhanced_search?query={query}&tags={tags}&mediaTypes={mediaTypes}"
     const val UNIVERSAL_SEARCH = "universal_search"
-    
+
     // Helper for smart collection detail
     fun smartCollectionDetailRoute(ruleId: Long) = "smart_collection/$ruleId"
-    
+
     // Helper for enhanced search with parameters
     fun enhancedSearchRoute(query: String? = null, tags: String? = null, mediaTypes: String? = null): String {
         val params = mutableListOf<String>()
@@ -70,7 +70,7 @@ object MediaRoutes {
         mediaTypes?.let { params.add("mediaTypes=$it") }
         return if (params.isEmpty()) "enhanced_search" else "enhanced_search?${params.joinToString("&")}"
     }
-    
+
     // Special features
     const val AMBIENT_SOUNDS = "ambient"
     const val NEWS = "news"
@@ -78,16 +78,16 @@ object MediaRoutes {
     const val SYNC = "sync"
     const val IMPORT_EXPORT = "import-export"
     const val FOLDER_IMPORT = "folder-import"
-    
+
     // AI Entertainment (SynthChat Integration)
     // Removed
 
     // Link to Landseek
     const val LANDSEEK = "landseek"
-    
+
     // Enhanced AI Systems
     const val ENHANCED_FILE_BROWSER = "enhanced-file-browser"
-    
+
     // Settings sub-routes
     const val SETTINGS_API = "settings/api"
     const val SETTINGS_APPEARANCE = "settings/appearance"
@@ -99,14 +99,14 @@ object MediaRoutes {
     // Legacy route compatibility (underscore is the primary route in the legacy settings UI)
     const val SETTINGS_MEDIA_SERVERS = "settings/media_servers"
     const val FILE_BROWSER = "file-browser"
-    
+
     // Onboarding
     const val ONBOARDING = "onboarding"
-    
+
     // Debug (only in debug builds)
     const val DEBUG_MENU = "debug"
     const val NOT_FOUND = "not-found?path={path}"
-    
+
     // Helper functions for navigation
     fun libraryRoute(mediaType: String) = "library/$mediaType"
     fun mediaDetailRoute(mediaType: String, mediaId: String) = "detail/$mediaType/$mediaId"

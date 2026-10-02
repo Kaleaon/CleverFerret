@@ -54,7 +54,7 @@ internal fun GalleryTopBar(
     var showSortMenu by remember { mutableStateOf(false) }
     var showViewMenu by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
-    
+
     TopAppBar(
         title = {
             if (isSearching) {
@@ -106,11 +106,11 @@ internal fun GalleryTopBar(
                 IconButton(onClick = { isSearching = !isSearching }) {
                     Icon(Icons.Default.Search, "Search")
                 }
-                
+
                 IconButton(onClick = { showSortMenu = true }) {
                     Icon(Icons.AutoMirrored.Filled.Sort, "Sort")
                 }
-                
+
                 DropdownMenu(
                     expanded = showSortMenu,
                     onDismissRequest = { showSortMenu = false }
@@ -128,11 +128,11 @@ internal fun GalleryTopBar(
                         )
                     }
                 }
-                
+
                 IconButton(onClick = { showViewMenu = true }) {
                     Icon(Icons.Default.GridView, "View mode")
                 }
-                
+
                 DropdownMenu(
                     expanded = showViewMenu,
                     onDismissRequest = { showViewMenu = false }

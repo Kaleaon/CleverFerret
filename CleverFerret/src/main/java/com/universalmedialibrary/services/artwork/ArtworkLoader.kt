@@ -80,7 +80,7 @@ class ArtworkLoader @Inject constructor(
 
             // Get disk cache directory from cache manager
             val diskCacheDir = cacheManager.getCacheDirectory()
-            
+
             // Try disk cache
             val diskCacheFile = File(diskCacheDir, "${mediaItem.itemId}_${maxWidth}x${maxHeight}.jpg")
             if (diskCacheFile.exists()) {
@@ -97,7 +97,7 @@ class ArtworkLoader @Inject constructor(
 
             // Extract from media file based on type (now async with Readium)
             val bitmap = extractArtworkFromFile(mediaItem.filePath, mediaItem.fileName)
-            
+
             if (bitmap != null) {
                 // Scale if needed
                 val finalBitmap = if (maxWidth > 0 || maxHeight > 0) {
@@ -105,16 +105,16 @@ class ArtworkLoader @Inject constructor(
                 } else {
                     bitmap
                 }
-                
+
                 // Cache in memory
                 memoryCache.put(cacheKey, finalBitmap)
-                
+
                 // Cache to disk
                 saveToDiskCache(diskCacheFile, finalBitmap)
-                
+
                 // Clean cache if needed
                 cacheManager.cleanCacheIfNeeded()
-                
+
                 return@withContext finalBitmap
             }
 
@@ -134,7 +134,7 @@ class ArtworkLoader @Inject constructor(
         if (!file.exists()) return null
 
         val extension = fileName.substringAfterLast('.', "").lowercase()
-        
+
         return when (extension) {
             "epub" -> extractEpubCover(file)
             "pdf" -> extractPdfThumbnail(file)
@@ -154,20 +154,20 @@ class ArtworkLoader @Inject constructor(
         return try {
             val readiumEpubService = com.universalmedialibrary.services.epub.ReadiumEpubService(context)
             val coverBitmap = readiumEpubService.extractCover(file.absolutePath)
-            
+
             if (coverBitmap != null) {
                 Log.d(TAG, "Successfully extracted EPUB cover with Readium: ${file.name}")
             } else {
                 Log.w(TAG, "No cover found in EPUB: ${file.name}")
             }
-            
+
             coverBitmap
         } catch (e: Exception) {
             Log.e(TAG, "Error extracting EPUB cover with Readium: ${e.message}", e)
             null
         }
     }
-    
+
     /**
      * Extract thumbnail from PDF using Readium Kotlin Toolkit
      */
@@ -175,18 +175,18 @@ class ArtworkLoader @Inject constructor(
         return try {
             val readiumPdfService = com.universalmedialibrary.services.epub.ReadiumPdfService(context)
             val thumbnail = readiumPdfService.extractThumbnail(file.absolutePath)
-            
+
             if (thumbnail != null) {
                 Log.d(TAG, "Successfully extracted PDF thumbnail with Readium: ${file.name}")
             }
-            
+
             thumbnail
         } catch (e: Exception) {
             Log.e(TAG, "Error extracting PDF thumbnail with Readium: ${e.message}", e)
             null
         }
     }
-    
+
     /**
      * Extract cover from Readium Audiobook using Readium Kotlin Toolkit
      */
@@ -194,11 +194,11 @@ class ArtworkLoader @Inject constructor(
         return try {
             val readiumAudiobookService = com.universalmedialibrary.services.epub.ReadiumAudiobookService(context)
             val coverBitmap = readiumAudiobookService.extractCover(file.absolutePath)
-            
+
             if (coverBitmap != null) {
                 Log.d(TAG, "Successfully extracted audiobook cover with Readium: ${file.name}")
             }
-            
+
             coverBitmap
         } catch (e: Exception) {
             Log.e(TAG, "Error extracting audiobook cover with Readium: ${e.message}", e)
@@ -215,7 +215,7 @@ class ArtworkLoader @Inject constructor(
         return try {
             retriever = MediaMetadataRetriever()
             retriever.setDataSource(file.absolutePath)
-            
+
             val embeddedPicture = retriever.embeddedPicture
             if (embeddedPicture != null) {
                 BitmapFactory.decodeByteArray(embeddedPicture, 0, embeddedPicture.size)
@@ -244,7 +244,7 @@ class ArtworkLoader @Inject constructor(
             val entries = zipFile.entries().toList()
                 .filter { it.name.matches(Regex(".*\\.(jpg|jpeg|png|webp)", RegexOption.IGNORE_CASE)) }
                 .sortedBy { it.name }
-            
+
             if (entries.isNotEmpty()) {
                 val firstImage = entries.first()
                 val inputStream = zipFile.getInputStream(firstImage)
@@ -286,7 +286,7 @@ class ArtworkLoader @Inject constructor(
 
             // Get disk cache directory from cache manager
             val diskCacheDir = cacheManager.getCacheDirectory()
-            
+
             // Try disk cache
             val diskCacheFile = File(diskCacheDir, "plex_${plexItem.plexRatingKey}_${maxWidth}x${maxHeight}.jpg")
             if (diskCacheFile.exists()) {
@@ -308,7 +308,7 @@ class ArtworkLoader @Inject constructor(
             val bitmap = loadFromUrl(artworkUrl, maxWidth, maxHeight)
 
             // Cache if successful
-            bitmap?.let { 
+            bitmap?.let {
                 memoryCache.put(cacheKey, it)
                 saveToDiskCache(diskCacheFile, it)
             }
@@ -340,11 +340,11 @@ class ArtworkLoader @Inject constructor(
 
             // Get disk cache directory from cache manager
             val diskCacheDir = cacheManager.getCacheDirectory()
-            
+
             // Create disk cache file based on stable URL hash
             val urlHash = generateStableHash(url)
             val diskCacheFile = File(diskCacheDir, "url_${urlHash}_${maxWidth}x${maxHeight}.jpg")
-            
+
             // Try disk cache
             if (diskCacheFile.exists()) {
                 val bitmap = if (maxWidth > 0 || maxHeight > 0) {
@@ -379,7 +379,7 @@ class ArtworkLoader @Inject constructor(
                 }
 
                 // Cache if successful
-                bitmap?.let { 
+                bitmap?.let {
                     memoryCache.put(cacheKey, it)
                     saveToDiskCache(diskCacheFile, it)
                 }
@@ -439,7 +439,7 @@ class ArtworkLoader @Inject constructor(
     suspend fun clearCache() {
         // Clear memory cache
         memoryCache.evictAll()
-        
+
         // Clear disk cache using cache manager
         try {
             cacheManager.clearAllCache()
@@ -509,19 +509,19 @@ class ArtworkLoader @Inject constructor(
      */
     private fun scaleBitmap(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap? {
         if (maxWidth <= 0 && maxHeight <= 0) return bitmap
-        
+
         val width = bitmap.width
         val height = bitmap.height
-        
+
         val targetMaxWidth = if (maxWidth > 0) maxWidth else width
         val targetMaxHeight = if (maxHeight > 0) maxHeight else height
-        
+
         if (width <= targetMaxWidth && height <= targetMaxHeight) {
             return bitmap // Already fits
         }
-        
+
         val aspectRatio = width.toFloat() / height.toFloat()
-        
+
         val (newWidth, newHeight) = if (aspectRatio > 1) {
             // Landscape
             val w = targetMaxWidth
@@ -533,7 +533,7 @@ class ArtworkLoader @Inject constructor(
             val w = (h * aspectRatio).toInt()
             Pair(w, h)
         }
-        
+
         return try {
             Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
         } catch (e: Exception) {

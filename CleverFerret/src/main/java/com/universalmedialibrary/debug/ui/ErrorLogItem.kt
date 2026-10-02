@@ -39,7 +39,7 @@ internal fun ErrorLogItem(
         LogLevel.WARNING -> MediaColors.Warning
         LogLevel.INFO -> MediaColors.AccentPrimary
     }
-    
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()

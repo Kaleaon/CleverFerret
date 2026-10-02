@@ -12,14 +12,14 @@ import javax.inject.Singleton
 
 /**
  * Centralized registry for all tags across the application.
- * 
+ *
  * Provides unified search and discovery of tags from:
  * - UnifiedTag system (user-defined, auto-generated, imported)
  * - WebFiction tags (AO3, FanFiction.net, Royal Road, etc.)
  * - Music tags (ID3 tags, genres, etc.)
  * - Plex tags (imported from Plex servers)
  * - Calibre tags (imported from Calibre libraries)
- * 
+ *
  * All tags are searchable by:
  * - Name
  * - Category
@@ -31,7 +31,7 @@ import javax.inject.Singleton
 class TagRegistry @Inject constructor(
     private val tagRepository: TagRepository
 ) {
-    
+
     /**
      * Unified tag representation from all sources
      */
@@ -47,7 +47,7 @@ class TagRegistry @Inject constructor(
         val parentTag: String? = null,
         val metadata: Map<String, Any> = emptyMap() // Additional metadata
     )
-    
+
     /**
      * Tag source enumeration
      */
@@ -60,7 +60,7 @@ class TagRegistry @Inject constructor(
         JELLYFIN,         // From Jellyfin imports
         USER_DEFINED      // User-created tags
     }
-    
+
     /**
      * Map TagType to TagSource
      */
@@ -71,7 +71,7 @@ class TagRegistry @Inject constructor(
         TagType.IMPORTED_CALIBRE -> TagSource.CALIBRE
         TagType.IMPORTED_JELLYFIN -> TagSource.JELLYFIN
     }
-    
+
     /**
      * Convert UnifiedTag to UnifiedTagInfo
      */
@@ -92,10 +92,10 @@ class TagRegistry @Inject constructor(
             ) else emptyMap()
         )
     }
-    
+
     /**
      * Search tags across all sources
-     * 
+     *
      * @param query Search query (searches name, description)
      * @param category Optional category filter
      * @param source Optional source filter
@@ -109,7 +109,7 @@ class TagRegistry @Inject constructor(
         limit: Int = 100
     ): Flow<List<UnifiedTagInfo>> {
         val lowerQuery = query.lowercase().trim()
-        
+
         return if (lowerQuery.isEmpty()) {
             getAllTags(category, source, limit)
         } else {
@@ -123,7 +123,7 @@ class TagRegistry @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get all tags with optional filters
      */
@@ -141,7 +141,7 @@ class TagRegistry @Inject constructor(
                 .map { it.toUnifiedTagInfo() }
         }
     }
-    
+
     /**
      * Get popular tags
      */
@@ -150,7 +150,7 @@ class TagRegistry @Inject constructor(
             tags.map { it.toUnifiedTagInfo(includeMetadata = false) }
         }
     }
-    
+
     /**
      * Get recent tags
      */
@@ -159,7 +159,7 @@ class TagRegistry @Inject constructor(
             tags.map { it.toUnifiedTagInfo(includeMetadata = false) }
         }
     }
-    
+
     /**
      * Convert WebFictionTag to UnifiedTagInfo
      */
@@ -179,7 +179,7 @@ class TagRegistry @Inject constructor(
             )
         )
     }
-    
+
     /**
      * Convert UnifiedTag to UnifiedTagInfo
      */

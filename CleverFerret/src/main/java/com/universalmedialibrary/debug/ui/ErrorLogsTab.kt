@@ -50,7 +50,7 @@ internal fun ErrorLogsTab(
                 }
             }
         }
-        
+
         if (errors.isEmpty()) {
             EmptyState(
                 icon = Icons.Default.CheckCircle,

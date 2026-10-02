@@ -18,35 +18,35 @@ import javax.inject.Singleton
 
 /**
  * Adapter for Royal Road (royalroad.com)
- * 
+ *
  * Royal Road is a popular web novel platform
  */
 @Singleton
 class RoyalRoadAdapter @Inject constructor(
     private val httpClient: OkHttpClient
 ) : FanfictionSiteAdapter {
-    
+
     override val siteName = "Royal Road"
     override val baseUrl = "https://www.royalroad.com"
-    
+
     private val urlPattern = Regex("https?://(?:www\\.)?royalroad\\.com/fiction/(\\d+)")
-    
+
     override fun canHandle(url: String): Boolean {
         return urlPattern.matches(url)
     }
-    
+
     override fun extractStoryId(url: String): String? {
         return urlPattern.find(url)?.groupValues?.get(1)
     }
-    
+
     override suspend fun extractMetadata(url: String): Result<StoryMetadata> {
         return withContext(Dispatchers.IO) {
             try {
                 val storyId = extractStoryId(url)
                     ?: return@withContext Result.failure(IllegalArgumentException("Invalid Royal Road URL"))
-                
+
                 val doc = fetchDocument("$baseUrl/fiction/$storyId")
-                
+
                 val metadata = StoryMetadata(
                     title = doc.select("h1.font-white").text().trim(),
                     author = doc.select("h4.font-white a").first()?.text() ?: "",
@@ -88,14 +88,14 @@ class RoyalRoadAdapter @Inject constructor(
                     sourceUrl = url,
                     sourceSite = siteName
                 )
-                
+
                 Result.success(metadata)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
     }
-    
+
     override suspend fun downloadChapters(
         url: String,
         progressCallback: (Int, Int, String) -> Unit
@@ -104,25 +104,25 @@ class RoyalRoadAdapter @Inject constructor(
             try {
                 val storyId = extractStoryId(url)
                     ?: return@withContext Result.failure(IllegalArgumentException("Invalid Royal Road URL"))
-                
+
                 val doc = fetchDocument("$baseUrl/fiction/$storyId")
-                val chapterLinks = doc.select("table#chapters tr[data-url] a").map { 
-                    it.attr("abs:href") 
+                val chapterLinks = doc.select("table#chapters tr[data-url] a").map {
+                    it.attr("abs:href")
                 }
-                
+
                 val chapters = mutableListOf<Chapter>()
                 val totalChapters = chapterLinks.size
-                
+
                 chapterLinks.forEachIndexed { index, chapterUrl ->
                     progressCallback(index + 1, totalChapters, "Downloading chapter ${index + 1}...")
-                    
+
                     // Rate limiting
                     if (index > 0) delay(1000)
-                    
+
                     val chapterDoc = fetchDocument(chapterUrl)
                     val title = chapterDoc.select("h1").text().trim()
                     val content = chapterDoc.select("div.chapter-content").html()
-                    
+
                     chapters.add(
                         Chapter(
                             number = index + 1,
@@ -134,14 +134,14 @@ class RoyalRoadAdapter @Inject constructor(
                         )
                     )
                 }
-                
+
                 Result.success(chapters)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
     }
-    
+
     override suspend fun checkForUpdates(
         storyId: String,
         lastChapter: Int
@@ -150,7 +150,7 @@ class RoyalRoadAdapter @Inject constructor(
             try {
                 val doc = fetchDocument("$baseUrl/fiction/$storyId")
                 val currentChapters = doc.select("table#chapters tr[data-url]").size
-                
+
                 val updateInfo = UpdateInfo(
                     hasUpdates = currentChapters > lastChapter,
                     newChapters = (currentChapters - lastChapter).coerceAtLeast(0),
@@ -161,22 +161,22 @@ class RoyalRoadAdapter @Inject constructor(
                         } catch (e: Exception) { null }
                     }
                 )
-                
+
                 Result.success(updateInfo)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
     }
-    
+
     // Helper functions
-    
+
     private suspend fun fetchDocument(url: String): Document {
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", "CleverFerret/1.0 (Android)")
             .build()
-        
+
         return httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw Exception("HTTP error: ${response.code}")
@@ -184,7 +184,7 @@ class RoyalRoadAdapter @Inject constructor(
             Jsoup.parse(response.body?.string() ?: "")
         }
     }
-    
+
     private fun extractStatus(doc: Document): CompletionStatus {
         val statusText = doc.select("span.label-sm").text().lowercase()
         return when {
@@ -194,7 +194,7 @@ class RoyalRoadAdapter @Inject constructor(
             else -> CompletionStatus.IN_PROGRESS
         }
     }
-    
+
     private fun countWords(text: String): Int {
         return text.split(Regex("\\s+")).count { it.isNotBlank() }
     }

@@ -32,7 +32,7 @@ internal fun SpeedPickerDialog(
     onDismiss: () -> Unit
 ) {
     val speeds = listOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 2.5f, 3.0f)
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -52,9 +52,9 @@ internal fun SpeedPickerDialog(
                         Text(
                             text = "${speed}x",
                             style = MediaTypography.BodyMedium,
-                            color = if (speed == currentSpeed) 
-                                MediaColors.AccentPrimary 
-                            else 
+                            color = if (speed == currentSpeed)
+                                MediaColors.AccentPrimary
+                            else
                                 MediaColors.TextPrimary,
                             fontWeight = if (speed == currentSpeed) FontWeight.SemiBold else FontWeight.Normal
                         )

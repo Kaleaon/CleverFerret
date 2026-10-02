@@ -29,7 +29,7 @@ internal val MIGRATION_23_24: Migration = object : Migration(23, 24) {
                 updatedAt INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         // Create opds_downloads table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS opds_downloads (
@@ -59,4 +59,3 @@ internal val MIGRATION_23_24: Migration = object : Migration(23, 24) {
         """.trimIndent())
     }
 }
-

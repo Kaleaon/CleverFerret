@@ -27,18 +27,18 @@ private val Context.updateDataStore: DataStore<Preferences> by preferencesDataSt
 class MangaUpdateRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     companion object {
         private val UPDATES_KEY = stringPreferencesKey("updates")
         private val SEEN_CHAPTERS_PREFIX = "seen_chapters_"
         private val LAST_CHECK_KEY = longPreferencesKey("last_check")
     }
-    
+
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
-    
+
     /**
      * Save updates
      */
@@ -47,7 +47,7 @@ class MangaUpdateRepository @Inject constructor(
             val existing = prefs[UPDATES_KEY]?.let {
                 try { json.decodeFromString<List<MangaUpdate>>(it) } catch (e: Exception) { emptyList() }
             } ?: emptyList()
-            
+
             // Merge and keep recent updates (last 7 days)
             val cutoff = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
             val merged = (updates + existing)
@@ -55,25 +55,25 @@ class MangaUpdateRepository @Inject constructor(
                 .filter { it.timestamp > cutoff }
                 .sortedByDescending { it.timestamp }
                 .take(100)
-            
+
             prefs[UPDATES_KEY] = json.encodeToString(merged)
         }
     }
-    
+
     /**
      * Get all updates
      */
     suspend fun getAllUpdates(): List<MangaUpdate> {
         val prefs = context.updateDataStore.data.first()
         val updatesJson = prefs[UPDATES_KEY] ?: return emptyList()
-        
+
         return try {
             json.decodeFromString<List<MangaUpdate>>(updatesJson)
         } catch (e: Exception) {
             emptyList()
         }
     }
-    
+
     /**
      * Clear all updates
      */
@@ -82,7 +82,7 @@ class MangaUpdateRepository @Inject constructor(
             prefs.remove(UPDATES_KEY)
         }
     }
-    
+
     /**
      * Mark chapters as seen
      */
@@ -93,7 +93,7 @@ class MangaUpdateRepository @Inject constructor(
             prefs[key] = existing + chapterIds.map { it.toString() }
         }
     }
-    
+
     /**
      * Check if chapter is seen
      */
@@ -103,14 +103,14 @@ class MangaUpdateRepository @Inject constructor(
         val seen = prefs[key] ?: return false
         return chapterId.toString() in seen
     }
-    
+
     /**
      * Get unseen update count
      */
     suspend fun getUnseenUpdateCount(): Int {
         val updates = getAllUpdates()
         var count = 0
-        
+
         for (update in updates) {
             for (chapter in update.newChapters) {
                 if (!isChapterSeen(update.manga.id, chapter.id)) {
@@ -118,10 +118,10 @@ class MangaUpdateRepository @Inject constructor(
                 }
             }
         }
-        
+
         return count
     }
-    
+
     /**
      * Set last check time
      */
@@ -130,7 +130,7 @@ class MangaUpdateRepository @Inject constructor(
             prefs[LAST_CHECK_KEY] = time
         }
     }
-    
+
     /**
      * Get last check time
      */

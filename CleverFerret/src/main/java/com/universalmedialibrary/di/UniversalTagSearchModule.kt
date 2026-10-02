@@ -72,9 +72,9 @@ object UniversalTagSearchModule {
             metadataDao
         )
     }
-    
+
     // Search engines for different media types
-    
+
     @Provides
     @Singleton
     fun provideBookSearchEngine(
@@ -83,7 +83,7 @@ object UniversalTagSearchModule {
     ): BookSearchEngine {
         return BookSearchEngine(mediaItemDao, metadataDao)
     }
-    
+
     @Provides
     @Singleton
     fun provideAudioSearchEngine(
@@ -92,7 +92,7 @@ object UniversalTagSearchModule {
     ): AudioSearchEngine {
         return AudioSearchEngine(mediaItemDao, metadataDao)
     }
-    
+
     @Provides
     @Singleton
     fun provideVideoSearchEngine(
@@ -101,7 +101,7 @@ object UniversalTagSearchModule {
     ): VideoSearchEngine {
         return VideoSearchEngine(mediaItemDao, metadataDao)
     }
-    
+
     @Provides
     @Singleton
     fun provideDocumentSearchEngine(
@@ -110,7 +110,7 @@ object UniversalTagSearchModule {
     ): DocumentSearchEngine {
         return DocumentSearchEngine(mediaItemDao, metadataDao)
     }
-    
+
     @Provides
     @Singleton
     fun provideUniversalSearchService(

@@ -18,22 +18,22 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class OPDSViewModel @Inject constructor() : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(OPDSScreenState())
     val uiState: StateFlow<OPDSScreenState> = _uiState.asStateFlow()
-    
+
     private val navigationStack = mutableListOf<String>()
-    
+
     init {
         loadCatalogs()
     }
-    
+
     private fun loadCatalogs() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = false) }
         }
     }
-    
+
     fun openCatalog(catalog: OPDSCatalog) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -47,17 +47,17 @@ class OPDSViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-    
+
     fun navigateBack(): Boolean {
         if (navigationStack.isEmpty()) return false
         navigationStack.removeAt(navigationStack.lastIndex)
-        
+
         if (navigationStack.isEmpty()) {
             loadCatalogs()
         }
         return true
     }
-    
+
     fun search(query: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -65,14 +65,14 @@ class OPDSViewModel @Inject constructor() : ViewModel() {
             _uiState.update { it.copy(isLoading = false) }
         }
     }
-    
+
     fun addCatalog(url: String) {
         viewModelScope.launch {
             // Add catalog
             loadCatalogs()
         }
     }
-    
+
     fun download(entry: OPDSEntry) {
         viewModelScope.launch {
             // Download entry
@@ -85,14 +85,14 @@ class OPDSViewModel @Inject constructor() : ViewModel() {
  */
 @HiltViewModel
 class AmbientViewModel @Inject constructor() : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(AmbientScreenState())
     val uiState: StateFlow<AmbientScreenState> = _uiState.asStateFlow()
-    
+
     init {
         loadAmbientData()
     }
-    
+
     private fun loadAmbientData() {
         val categories = listOf(
             AmbientCategory(
@@ -115,16 +115,16 @@ class AmbientViewModel @Inject constructor() : ViewModel() {
                 )
             )
         )
-        
+
         val presets = listOf(
             AmbientPreset("focus", "Focus", Icons.Default.Psychology, MediaColors.AccentPrimary, emptyList()),
             AmbientPreset("sleep", "Sleep", Icons.Default.Bedtime, MediaColors.AccentSecondary, emptyList()),
             AmbientPreset("relax", "Relax", Icons.Default.Spa, MediaColors.Success, emptyList())
         )
-        
+
         _uiState.update { it.copy(categories = categories, presets = presets) }
     }
-    
+
     fun toggleSound(sound: AmbientSound) {
         viewModelScope.launch {
             val active = _uiState.value.activeSounds.toMutableList()
@@ -136,17 +136,17 @@ class AmbientViewModel @Inject constructor() : ViewModel() {
             _uiState.update { it.copy(activeSounds = active) }
         }
     }
-    
+
     fun setVolume(sound: AmbientSound, volume: Float) {
         // Update volume
     }
-    
+
     fun applyPreset(preset: AmbientPreset) {
         viewModelScope.launch {
             _uiState.update { it.copy(activePreset = preset) }
         }
     }
-    
+
     fun savePreset(name: String) {
         viewModelScope.launch {
             // Save preset
@@ -159,20 +159,20 @@ class AmbientViewModel @Inject constructor() : ViewModel() {
  */
 @HiltViewModel
 class CollectionsViewModel @Inject constructor() : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(CollectionsScreenState())
     val uiState: StateFlow<CollectionsScreenState> = _uiState.asStateFlow()
-    
+
     init {
         loadCollections()
     }
-    
+
     private fun loadCollections() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = false) }
         }
     }
-    
+
     fun createCollection(name: String) {
         viewModelScope.launch {
             val newCollection = Collection(
@@ -181,7 +181,7 @@ class CollectionsViewModel @Inject constructor() : ViewModel() {
                 coverUrls = emptyList(),
                 itemCount = 0
             )
-            _uiState.update { 
+            _uiState.update {
                 it.copy(collections = it.collections + newCollection)
             }
         }
@@ -195,9 +195,9 @@ class CollectionsViewModel @Inject constructor() : ViewModel() {
 class CollectionDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    
+
     private val collectionId: String = savedStateHandle["collectionId"] ?: ""
-    
+
     private val _uiState = MutableStateFlow(
         CollectionDetailState(
             collection = Collection(
@@ -211,19 +211,19 @@ class CollectionDetailViewModel @Inject constructor(
         )
     )
     val uiState: StateFlow<CollectionDetailState> = _uiState.asStateFlow()
-    
+
     init {
         loadCollectionDetail()
     }
-    
+
     private fun loadCollectionDetail() {
         viewModelScope.launch {
-            _uiState.update { 
+            _uiState.update {
                 it.copy(isLoading = false)
             }
         }
     }
-    
+
     fun removeItem(item: MediaItem) {
         viewModelScope.launch {
             _uiState.update { state ->
@@ -238,20 +238,20 @@ class CollectionDetailViewModel @Inject constructor(
  */
 @HiltViewModel
 class MediaSyncViewModel @Inject constructor() : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(SyncScreenState())
     val uiState: StateFlow<SyncScreenState> = _uiState.asStateFlow()
-    
+
     init {
         loadSyncStatus()
     }
-    
+
     private fun loadSyncStatus() {
         viewModelScope.launch {
             // Initial state already set by default constructor
         }
     }
-    
+
     fun syncNow() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSyncing = true) }
@@ -259,7 +259,7 @@ class MediaSyncViewModel @Inject constructor() : ViewModel() {
             _uiState.update { it.copy(isSyncing = false, lastSyncTime = "Just now") }
         }
     }
-    
+
     fun configureService(service: com.universalmedialibrary.ui.media.screens.SyncService) {
         // Configure sync service
     }
@@ -270,10 +270,10 @@ class MediaSyncViewModel @Inject constructor() : ViewModel() {
  */
 @HiltViewModel
 class ImportExportViewModel @Inject constructor() : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(ImportExportScreenState())
     val uiState: StateFlow<ImportExportScreenState> = _uiState.asStateFlow()
-    
+
     fun startImport(type: ImportExportType) {
         viewModelScope.launch {
             _uiState.update { it.copy(isProcessing = true) }
@@ -281,7 +281,7 @@ class ImportExportViewModel @Inject constructor() : ViewModel() {
             _uiState.update { it.copy(isProcessing = false) }
         }
     }
-    
+
     fun startExport(type: ImportExportType) {
         viewModelScope.launch {
             _uiState.update { it.copy(isProcessing = true) }
@@ -298,20 +298,20 @@ class ImportExportViewModel @Inject constructor() : ViewModel() {
 class MediaDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    
+
     private val mediaType: String = savedStateHandle["mediaType"] ?: "book"
     private val mediaId: String = savedStateHandle["mediaId"] ?: ""
-    
+
     private val _uiState = MutableStateFlow(MediaDetailViewState())
     val uiState: StateFlow<MediaDetailViewState> = _uiState.asStateFlow()
-    
+
     init {
         loadMediaDetail()
     }
-    
+
     private fun loadMediaDetail() {
         viewModelScope.launch {
-            _uiState.update { 
+            _uiState.update {
                 it.copy(
                     title = "Sample Title",
                     description = "Sample description for media item",
@@ -320,7 +320,7 @@ class MediaDetailViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun download() {
         viewModelScope.launch {
             _uiState.update { it.copy(isDownloading = true) }
@@ -343,5 +343,5 @@ data class MediaDetailViewState(
     val error: String? = null
 )
 
-// Note: CollectionDetailState, SyncScreenState, SyncService, 
+// Note: CollectionDetailState, SyncScreenState, SyncService,
 // ImportExportScreenState, ImportExportType are defined in MediaScreensData.kt

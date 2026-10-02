@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Media card component with parental controls integration
- * 
+ *
  * Features:
  * - Automatically filters based on parental controls
  * - Shows lock icon for PIN-protected content
@@ -85,7 +85,7 @@ fun FilteredMediaCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
-                    
+
                     if (mediaItem.author != null) {
                         Text(
                             text = mediaItem.author ?: "",
@@ -171,7 +171,7 @@ fun ContentRatingBadge(
     } else {
         MaterialTheme.colorScheme.secondaryContainer
     }
-    
+
     val textColor = if (isRestricted) {
         MaterialTheme.colorScheme.onErrorContainer
     } else {
@@ -281,7 +281,7 @@ fun FilteredMediaGridItem(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
-                    
+
                     if (mediaItem.contentRating != null) {
                         Spacer(modifier = Modifier.height(4.dp))
                         ContentRatingBadge(

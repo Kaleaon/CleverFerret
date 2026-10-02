@@ -54,7 +54,7 @@ internal fun RadioStationListItem(
         ) {
             if (station.logoUrl != null) {
                 AsyncImage(
-                    
+
                     model = station.logoUrl,
                     contentDescription = "${station.name} logo",
                     contentScale = ContentScale.Crop,
@@ -68,7 +68,7 @@ internal fun RadioStationListItem(
                     modifier = Modifier.padding(MediaSpacing.MD)
                 )
             }
-            
+
             // Playing indicator
             if (isPlaying) {
                 Box(
@@ -86,9 +86,9 @@ internal fun RadioStationListItem(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         // Station info
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -99,7 +99,7 @@ internal fun RadioStationListItem(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = if (isPlaying) FontWeight.SemiBold else FontWeight.Normal
             )
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
                 verticalAlignment = Alignment.CenterVertically
@@ -109,7 +109,7 @@ internal fun RadioStationListItem(
                     style = MediaTypography.LabelSmall,
                     color = MediaColors.TextSecondary
                 )
-                
+
                 station.country?.let { country ->
                     Text("•", color = MediaColors.TextTertiary)
                     Text(
@@ -118,7 +118,7 @@ internal fun RadioStationListItem(
                         color = MediaColors.TextTertiary
                     )
                 }
-                
+
                 station.bitrate?.let { bitrate ->
                     Text("•", color = MediaColors.TextTertiary)
                     Text(
@@ -128,7 +128,7 @@ internal fun RadioStationListItem(
                     )
                 }
             }
-            
+
             // Current track info
             station.currentTrack?.let { track ->
                 Spacer(modifier = Modifier.height(2.dp))
@@ -141,7 +141,7 @@ internal fun RadioStationListItem(
                 )
             }
         }
-        
+
         // Favorite button
         IconButton(onClick = onFavorite) {
             Icon(

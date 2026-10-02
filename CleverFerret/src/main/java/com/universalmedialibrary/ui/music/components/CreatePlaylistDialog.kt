@@ -41,7 +41,7 @@ fun CreatePlaylistDialog(
 
                 OutlinedTextField(
                     value = playlistName,
-                    onValueChange = { 
+                    onValueChange = {
                         playlistName = it
                         isError = it.isBlank()
                     },

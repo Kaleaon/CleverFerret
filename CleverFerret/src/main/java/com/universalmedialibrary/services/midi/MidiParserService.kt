@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 /**
  * MIDI parser service using ktmidi library
- * 
+ *
  * Provides MIDI file parsing and metadata extraction:
  * - Standard MIDI File (SMF) reading
  * - Metadata extraction (tempo, time signature, key signature)
@@ -27,7 +27,7 @@ class MidiParserService @Inject constructor(
     companion object {
         private const val TAG = "MidiParserService"
     }
-    
+
     /**
      * Parse MIDI file and extract metadata
      */
@@ -38,12 +38,12 @@ class MidiParserService @Inject constructor(
                 Log.e(TAG, "MIDI file not found or not readable: $filePath")
                 return@withContext null
             }
-            
+
             // Read MIDI file
             val midiData = file.readBytes()
             val music = Midi1Music()
             music.read(midiData.toList())
-            
+
             // Extract metadata
             val title = extractTitle(music, file)
             val composer = extractComposer(music)
@@ -51,7 +51,7 @@ class MidiParserService @Inject constructor(
             val timeSignature = extractTimeSignature(music)
             val keySignature = extractKeySignature(music)
             val duration = calculateDuration(music, tempo)
-            
+
             MidiFile(
                 title = title,
                 filePath = filePath,
@@ -79,27 +79,27 @@ class MidiParserService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Extract tracks from MIDI file
      */
-    suspend fun extractTracks(filePath: String, midiFileId: Long): List<MidiTrackInfo> = 
+    suspend fun extractTracks(filePath: String, midiFileId: Long): List<MidiTrackInfo> =
         withContext(Dispatchers.IO) {
             try {
                 val file = File(filePath)
                 if (!file.exists()) return@withContext emptyList()
-                
+
                 val midiData = file.readBytes()
                 val music = Midi1Music()
                 music.read(midiData.toList())
-                
+
                 music.tracks.mapIndexed { index, track ->
                     val trackName = extractTrackName(track) ?: "Track ${index + 1}"
                     val programNumber = extractProgramNumber(track)
                     val instrument = getInstrumentName(programNumber)
                     val channel = extractChannel(track)
                     val noteCount = countNotes(track)
-                    
+
                     MidiTrackInfo(
                         midiFileId = midiFileId,
                         trackNumber = index,
@@ -117,40 +117,40 @@ class MidiParserService @Inject constructor(
                 emptyList()
             }
         }
-    
+
     /**
      * Extract notes from a track for piano roll display
      */
-    suspend fun extractNotes(filePath: String, trackNumber: Int, trackId: Long): List<MidiNote> = 
+    suspend fun extractNotes(filePath: String, trackNumber: Int, trackId: Long): List<MidiNote> =
         withContext(Dispatchers.IO) {
             try {
                 val file = File(filePath)
                 if (!file.exists()) return@withContext emptyList()
-                
+
                 val midiData = file.readBytes()
                 val music = Midi1Music()
                 music.read(midiData.toList())
-                
+
                 if (trackNumber >= music.tracks.size) return@withContext emptyList()
-                
+
                 val track = music.tracks[trackNumber]
                 val notes = mutableListOf<MidiNote>()
                 val activeNotes = mutableMapOf<Pair<Int, Int>, Long>()
                 var currentTime = 0L
-                
+
                 for (message in track.messages) {
                     currentTime += message.deltaTime
-                    
+
                     val event = message.event
                     val statusByte = event.statusByte.toInt()
                     val status = statusByte and 0xF0
                     val channel = statusByte and 0x0F
-                    
+
                     when (status) {
                         0x90 -> { // Note On
                             val pitch = event.msb.toInt()
                             val velocity = event.lsb.toInt()
-                            
+
                             if (velocity > 0) {
                                 activeNotes[Pair(pitch, channel)] = currentTime
                             } else {
@@ -173,7 +173,7 @@ class MidiParserService @Inject constructor(
                         0x80 -> { // Note Off
                             val pitch = event.msb.toInt()
                             val velocity = event.lsb.toInt()
-                            
+
                             val startTime = activeNotes.remove(Pair(pitch, channel))
                             if (startTime != null) {
                                 notes.add(
@@ -190,56 +190,56 @@ class MidiParserService @Inject constructor(
                         }
                     }
                 }
-                
+
                 notes
             } catch (e: Exception) {
                 Log.e(TAG, "Error extracting notes from track: $trackNumber", e)
                 emptyList()
             }
         }
-    
+
     // Private helper methods
-    
+
     private fun extractTitle(music: Midi1Music, file: File): String {
         // Meta message parsing would go here
         // Simplified for now due to ktmidi API complexity
         return file.nameWithoutExtension
     }
-    
+
     private fun extractComposer(music: Midi1Music): String? {
         // Meta message parsing would go here
         return null
     }
-    
+
     private fun extractTempo(music: Midi1Music): Int {
         // Tempo extraction would go here
         return 120
     }
-    
+
     private fun extractTimeSignature(music: Midi1Music): String {
         // Time signature extraction would go here
         return "4/4"
     }
-    
+
     private fun extractKeySignature(music: Midi1Music): String? {
         // Key signature extraction would go here
         return null
     }
-    
+
     private fun formatKeySignature(sharpsFlats: Int, majorMinor: Int): String {
         val keys = if (majorMinor == 0) {
-            arrayOf("C", "G", "D", "A", "E", "B", "F#", "C#", 
+            arrayOf("C", "G", "D", "A", "E", "B", "F#", "C#",
                    "F", "Bb", "Eb", "Ab", "Db", "Gb", "Cb")
         } else {
             arrayOf("A", "E", "B", "F#", "C#", "G#", "D#", "A#",
                    "D", "G", "C", "F", "Bb", "Eb", "Ab")
         }
-        
+
         val index = if (sharpsFlats >= 0) sharpsFlats else 7 - sharpsFlats
         val suffix = if (majorMinor == 0) " major" else " minor"
         return (keys.getOrNull(index) ?: "C") + suffix
     }
-    
+
     private fun calculateDuration(music: Midi1Music, tempo: Int): Long {
         var maxTicks = 0L
         for (track in music.tracks) {
@@ -249,17 +249,17 @@ class MidiParserService @Inject constructor(
             }
             maxTicks = maxOf(maxTicks, currentTicks)
         }
-        
+
         val microsecondsPerQuarterNote = 60_000_000 / tempo
         val ppqn = music.deltaTimeSpec
         return (maxTicks * microsecondsPerQuarterNote) / (ppqn * 1000)
     }
-    
+
     private fun extractTrackName(track: Midi1Track): String? {
         // Track name extraction would go here
         return null
     }
-    
+
     private fun extractProgramNumber(track: Midi1Track): Int {
         try {
             for (message in track.messages) {
@@ -274,7 +274,7 @@ class MidiParserService @Inject constructor(
         }
         return 0
     }
-    
+
     private fun extractChannel(track: Midi1Track): Int {
         try {
             for (message in track.messages) {
@@ -289,7 +289,7 @@ class MidiParserService @Inject constructor(
         }
         return 0
     }
-    
+
     private fun countNotes(track: Midi1Track): Int {
         var count = 0
         try {
@@ -306,7 +306,7 @@ class MidiParserService @Inject constructor(
         }
         return count
     }
-    
+
     private fun getInstrumentName(programNumber: Int): String {
         val instruments = arrayOf(
             "Acoustic Grand Piano", "Bright Acoustic Piano", "Electric Grand Piano",
@@ -342,7 +342,7 @@ class MidiParserService @Inject constructor(
             "Guitar Fret Noise", "Breath Noise", "Seashore", "Bird Tweet", "Telephone Ring",
             "Helicopter", "Applause", "Gunshot"
         )
-        
+
         return instruments.getOrNull(programNumber.coerceIn(0, 127)) ?: "Unknown"
     }
 }

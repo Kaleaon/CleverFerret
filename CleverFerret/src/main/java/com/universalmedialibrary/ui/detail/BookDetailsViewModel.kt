@@ -31,7 +31,7 @@ class BookDetailsViewModel @Inject constructor(
                     val common = metadataDao.getMetadataCommonByItemId(bookId)
                     val author = metadataDao.getAuthorsByItemId(bookId).firstOrNull()
                     val seriesName = metadataDao.getSeriesByItemId(bookId)
-                    
+
                     if (common != null) {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,

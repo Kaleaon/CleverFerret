@@ -136,44 +136,44 @@ enum class ActionSoundCategory {
     ARROW_FLIGHT,
     PUNCH,
     KICK,
-    
+
     // Sci-Fi
     LIGHTSABER,
     LASER_BLAST,
     SPACESHIP,
     TELEPORT,
     FORCE_POWER,
-    
+
     // Magic/Fantasy
     SPELL_CAST,
     MAGIC_WHOOSH,
     DRAGON_ROAR,
     POTION_BUBBLE,
-    
+
     // Environment
     DOOR_OPEN,
     DOOR_CLOSE,
     FOOTSTEPS,
     GLASS_BREAK,
-    
+
     // Transportation
     HORSE_GALLOP,
     CAR_ENGINE,
     TRAIN_WHISTLE,
     AIRPLANE,
-    
+
     // Nature
     THUNDER,
     WIND_GUST,
     WATER_SPLASH,
     FIRE_CRACKLE,
-    
+
     // Emotional
     HEARTBEAT,
     GASP,
     SCREAM,
     LAUGHTER,
-    
+
     // Other
     GENERIC,
     CUSTOM

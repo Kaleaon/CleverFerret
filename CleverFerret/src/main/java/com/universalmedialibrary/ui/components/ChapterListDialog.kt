@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Chapter List Dialog
- * 
+ *
  * Displays a list of chapters for books/audiobooks, allowing users to jump to specific chapters.
  *
  * @param chapters List of chapter titles

@@ -13,13 +13,13 @@ import javax.inject.Singleton
 
 /**
  * Comprehensive Metadata Service
- * 
+ *
  * Unified service that fetches all available metadata for media items:
  * - Basic metadata (title, description, ratings)
  * - Movie posters and artwork
  * - Movie trailers (YouTube + TMDB)
  * - Movie reviews (Rotten Tomatoes, IMDb, Metacritic, NYT)
- * 
+ *
  * This service demonstrates the complete workflow of API integration
  * and serves as the primary interface for metadata operations.
  */
@@ -36,7 +36,7 @@ class ComprehensiveMetadataService @Inject constructor(
 
     /**
      * Fetch complete movie metadata with trailers and reviews
-     * 
+     *
      * Example usage:
      * ```kotlin
      * val result = service.fetchCompleteMovieMetadata(
@@ -44,16 +44,16 @@ class ComprehensiveMetadataService @Inject constructor(
      *     title = "The Matrix",
      *     year = 1999
      * )
-     * 
+     *
      * // Access trailers
      * result.trailers.forEach { trailer ->
      *     println("${trailer.title}: ${trailer.url}")
      * }
-     * 
+     *
      * // Access reviews
      * println("Rotten Tomatoes: ${result.rottenTomatoesRating}")
      * println("IMDb: ${result.imdbRating}")
-     * 
+     *
      * // Access artwork
      * val poster = result.posterBitmap
      * ```
@@ -69,7 +69,7 @@ class ComprehensiveMetadataService @Inject constructor(
             val basicMetadataDeferred = async {
                 realMetadataService.searchMovieMetadata(title, year, imdbId)
             }
-            
+
             val trailersDeferred = async {
                 try {
                     movieTrailerService.fetchMovieTrailers(title, year)
@@ -77,7 +77,7 @@ class ComprehensiveMetadataService @Inject constructor(
                     TrailerResult(emptyList(), emptyList(), e.message)
                 }
             }
-            
+
             val reviewsDeferred = async {
                 try {
                     movieReviewService.fetchMovieReviews(title, year, imdbId)
@@ -106,11 +106,11 @@ class ComprehensiveMetadataService @Inject constructor(
                 actors = basicMetadata.metadata?.actors,
                 runtime = basicMetadata.metadata?.runtime,
                 genre = basicMetadata.metadata?.genre,
-                
+
                 // Trailers
                 trailers = trailers.trailers,
                 trailerSources = trailers.sources,
-                
+
                 // Reviews and Ratings
                 reviews = reviews.reviews,
                 rottenTomatoesRating = reviews.rottenTomatoesRating,
@@ -118,10 +118,10 @@ class ComprehensiveMetadataService @Inject constructor(
                 metacriticScore = reviews.metacriticScore,
                 imdbRating = reviews.imdbRating,
                 reviewSources = reviews.sources,
-                
+
                 // Metadata sources
                 metadataSources = basicMetadata.sources,
-                
+
                 // Error tracking
                 trailerError = trailers.error,
                 reviewError = reviews.error
@@ -221,11 +221,11 @@ data class CompleteMovieMetadata(
     val actors: String? = null,
     val runtime: String? = null,
     val genre: String? = null,
-    
+
     // Trailers
     val trailers: List<MovieTrailer> = emptyList(),
     val trailerSources: List<String> = emptyList(),
-    
+
     // Reviews and Ratings
     val reviews: List<MovieReview> = emptyList(),
     val rottenTomatoesRating: String? = null,
@@ -233,26 +233,26 @@ data class CompleteMovieMetadata(
     val metacriticScore: String? = null,
     val imdbRating: String? = null,
     val reviewSources: List<String> = emptyList(),
-    
+
     // Sources
     val metadataSources: List<String> = emptyList(),
-    
+
     // Errors
     val trailerError: String? = null,
     val reviewError: String? = null
 ) {
     val hasTrailers: Boolean
         get() = trailers.isNotEmpty()
-    
+
     val hasReviews: Boolean
         get() = reviews.isNotEmpty()
-    
+
     val hasRatings: Boolean
-        get() = rottenTomatoesRating != null || 
-                metacriticScore != null || 
+        get() = rottenTomatoesRating != null ||
+                metacriticScore != null ||
                 imdbRating != null ||
                 voteAverage != null
-    
+
     /**
      * Get official trailer (TMDB or marked as official on YouTube)
      */
@@ -307,16 +307,16 @@ data class APIKeyAvailability(
 ) {
     val canFetchMovieMetadata: Boolean
         get() = hasTMDB || hasOMDb
-    
+
     val canFetchBookMetadata: Boolean
         get() = hasGoogleBooks || hasOpenLibrary
-    
+
     val canFetchMusicMetadata: Boolean
         get() = hasMusicBrainz
-    
+
     val canFetchTrailers: Boolean
         get() = hasYouTube || hasTMDB
-    
+
     val canFetchReviews: Boolean
         get() = hasOMDb || hasNYT
 }

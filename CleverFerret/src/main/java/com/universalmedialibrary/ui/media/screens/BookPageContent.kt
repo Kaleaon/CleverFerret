@@ -58,7 +58,7 @@ internal fun BookPageContent(
             ),
             modifier = Modifier.weight(1f)
         )
-        
+
         // Page number
         if (settings.showPageNumber) {
             Text(

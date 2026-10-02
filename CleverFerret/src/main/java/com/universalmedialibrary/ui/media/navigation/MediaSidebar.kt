@@ -48,9 +48,9 @@ fun MediaSidebar(
         animationSpec = tween(durationMillis = MediaAnimations.Duration.Normal),
         label = "sidebar_width"
     )
-    
+
     val destinationsBySection = remember { MediaNavDestinations.getDestinationsBySection() }
-    
+
     Surface(
         modifier = modifier
             .width(sidebarWidth)
@@ -68,25 +68,25 @@ fun MediaSidebar(
                 isExpanded = isExpanded,
                 onToggleExpanded = onToggleExpanded
             )
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
-            
+
             // User Profile
             SidebarUserProfile(
                 avatarUrl = userAvatarUrl,
                 userName = userName,
                 isExpanded = isExpanded
             )
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
-            
+
             HorizontalDivider(
                 color = MediaColors.Divider,
                 modifier = Modifier.padding(horizontal = MediaSpacing.MD)
             )
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.MD))
-            
+
             // Navigation Items
             LazyColumn(
                 modifier = Modifier
@@ -108,7 +108,7 @@ fun MediaSidebar(
                             )
                         }
                     }
-                    
+
                     // Destinations in this section
                     items(destinations) { destination ->
                         SidebarNavItem(
@@ -120,9 +120,9 @@ fun MediaSidebar(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.MD))
-            
+
             // Quick Actions at bottom
             SidebarQuickActions(
                 isExpanded = isExpanded,
@@ -154,7 +154,7 @@ internal fun SidebarHeader(
                 fontWeight = FontWeight.Bold
             )
         }
-        
+
         // Collapse/Expand button
         IconButton(
             onClick = onToggleExpanded,
@@ -192,7 +192,7 @@ internal fun SidebarUserProfile(
         ) {
             if (avatarUrl != null) {
                 AsyncImage(
-                    
+
                     model = avatarUrl,
                     contentDescription = "User avatar",
                     modifier = Modifier.fillMaxSize(),
@@ -207,7 +207,7 @@ internal fun SidebarUserProfile(
                 )
             }
         }
-        
+
         AnimatedVisibility(
             visible = isExpanded,
             enter = fadeIn() + expandHorizontally(),
@@ -258,7 +258,7 @@ internal fun SidebarNavItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val isEnabled = destination.enabled
-    
+
     val backgroundColor by animateColorAsState(
         targetValue = when {
             isSelected -> MediaColors.AccentPrimary.copy(alpha = 0.15f)
@@ -268,7 +268,7 @@ internal fun SidebarNavItem(
         animationSpec = tween(durationMillis = MediaAnimations.Duration.Fast),
         label = "nav_item_bg"
     )
-    
+
     val iconColor by animateColorAsState(
         targetValue = when {
             !isEnabled -> MediaColors.TextTertiary
@@ -277,7 +277,7 @@ internal fun SidebarNavItem(
         },
         label = "nav_item_icon"
     )
-    
+
     val textColor by animateColorAsState(
         targetValue = when {
             !isEnabled -> MediaColors.TextTertiary
@@ -286,13 +286,13 @@ internal fun SidebarNavItem(
         },
         label = "nav_item_text"
     )
-    
+
     val contentPadding = if (isExpanded) {
         PaddingValues(horizontal = MediaSpacing.MD, vertical = MediaSpacing.SM)
     } else {
         PaddingValues(MediaSpacing.SM)
     }
-    
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -327,7 +327,7 @@ internal fun SidebarNavItem(
                 )
                 Spacer(modifier = Modifier.width(MediaSpacing.SM))
             }
-            
+
             // Icon
             Icon(
                 imageVector = if (isSelected) destination.selectedIcon else destination.icon,
@@ -335,7 +335,7 @@ internal fun SidebarNavItem(
                 tint = iconColor,
                 modifier = Modifier.size(MediaSizes.IconMD)
             )
-            
+
             // Label (only in expanded mode)
             AnimatedVisibility(
                 visible = isExpanded,
@@ -354,7 +354,7 @@ internal fun SidebarNavItem(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
                     )
-                    
+
                     if (!isEnabled) {
                         Spacer(modifier = Modifier.width(MediaSpacing.SM))
                         Text(
@@ -408,7 +408,7 @@ internal fun SidebarQuickActions(
             showLabel = isExpanded,
             onClick = onSearch
         )
-        
+
         if (isExpanded) {
             QuickActionButton(
                 icon = Icons.Default.Notifications,
@@ -446,4 +446,3 @@ internal fun QuickActionButton(
 /**
  * Clean media-centric bottom navigation for mobile
  */
-

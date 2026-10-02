@@ -36,7 +36,7 @@ class DictionaryRepository @Inject constructor(
     suspend fun addCorrection(typo: String, correct: String, bookId: Long? = null) {
         addEntry(word = typo, replacement = correct, bookId = bookId)
     }
-    
+
     suspend fun importDictionary(entries: List<DictionaryEntry>) {
         dictionaryDao.insertAll(entries)
     }

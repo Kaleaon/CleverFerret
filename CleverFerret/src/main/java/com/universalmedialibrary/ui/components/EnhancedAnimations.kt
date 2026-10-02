@@ -47,7 +47,7 @@ fun Modifier.scaleOnPress(
 ) = composed {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
     val scale by animateFloatAsState(
         targetValue = if (isPressed) pressedScale else 1f,
         animationSpec = spring(
@@ -56,7 +56,7 @@ fun Modifier.scaleOnPress(
         ),
         label = "scaleOnPress"
     )
-    
+
     this.scale(scale)
 }
 
@@ -67,7 +67,7 @@ fun Modifier.bounceClick(
     onClick: () -> Unit
 ) = composed {
     var isPressed by remember { mutableStateOf(false) }
-    
+
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.9f else 1f,
         animationSpec = spring(
@@ -76,7 +76,7 @@ fun Modifier.bounceClick(
         ),
         label = "bounceScale"
     )
-    
+
     this
         .scale(scale)
         .pointerInput(Unit) {
@@ -107,7 +107,7 @@ fun Modifier.shimmerEffect() = composed {
         ),
         label = "shimmerTranslate"
     )
-    
+
     this.graphicsLayer {
         translationX = translateX - 500f
     }
@@ -121,18 +121,18 @@ fun Modifier.fadeInOnVisible(
     delayMillis: Int = 0
 ) = composed {
     var visible by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(delayMillis.toLong())
         visible = true
     }
-    
+
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
         animationSpec = tween(durationMillis),
         label = "fadeIn"
     )
-    
+
     this.graphicsLayer { this.alpha = alpha }
 }
 
@@ -172,7 +172,7 @@ fun Modifier.pulseEffect(
         ),
         label = "pulseScale"
     )
-    
+
     this.scale(scale)
 }
 
@@ -191,7 +191,7 @@ fun Modifier.shakeEffect(
         ),
         label = "shake"
     )
-    
+
     this.graphicsLayer {
         translationX = offsetX.toFloat()
     }
@@ -227,21 +227,21 @@ object SlideAnimationSpecs {
             animationSpec = tween(durationMillis, easing = FastOutSlowInEasing)
         ) + fadeIn(animationSpec = tween(durationMillis))
     }
-    
+
     fun slideInFromRight(durationMillis: Int = 400): EnterTransition {
         return slideInHorizontally(
             initialOffsetX = { it },
             animationSpec = tween(durationMillis, easing = FastOutSlowInEasing)
         ) + fadeIn(animationSpec = tween(durationMillis))
     }
-    
+
     fun slideOutToLeft(durationMillis: Int = 400): ExitTransition {
         return slideOutHorizontally(
             targetOffsetX = { -it },
             animationSpec = tween(durationMillis, easing = FastOutSlowInEasing)
         ) + fadeOut(animationSpec = tween(durationMillis))
     }
-    
+
     fun slideOutToRight(durationMillis: Int = 400): ExitTransition {
         return slideOutHorizontally(
             targetOffsetX = { it },
@@ -259,7 +259,7 @@ object ExpandableAnimationSpecs {
             animationSpec = tween(durationMillis, easing = FastOutSlowInEasing)
         ) + fadeIn(animationSpec = tween(durationMillis))
     }
-    
+
     fun collapseVertically(durationMillis: Int = 300): ExitTransition {
         return shrinkVertically(
             animationSpec = tween(durationMillis, easing = FastOutSlowInEasing)

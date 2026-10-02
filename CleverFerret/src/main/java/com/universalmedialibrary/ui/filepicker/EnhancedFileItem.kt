@@ -91,7 +91,7 @@ internal fun EnhancedFileItem(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
-            
+
             // File/Folder icon
             FileIcon(file = file)
 

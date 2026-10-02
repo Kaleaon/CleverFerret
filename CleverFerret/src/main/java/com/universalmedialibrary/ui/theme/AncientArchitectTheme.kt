@@ -12,7 +12,7 @@ import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
 
 /**
  * Ancient Architect Theme - Combining Art Deco, Dwarven, Frank Lloyd Wright, and Stargate Atlantis aesthetics
- * 
+ *
  * This theme creates a unique fusion of:
  * - Art Deco's geometric luxury and metallic accents
  * - Dwarven architecture's stone and metalwork
@@ -44,7 +44,7 @@ object MetallicColors {
     val CopperGlow = Color(0xFFB87333)     // Highlights
     val TarnishedGold = Color(0xFFC5A572)  // Secondary actions
     val PatinaGreen = Color(0xFF4A7C59)    // Success states
-    
+
     // Gradient stops for metallic effects
     val BronzeLight = Color(0xFFE8A87C)
     val BronzeDark = Color(0xFF8B5A2B)
@@ -60,7 +60,7 @@ object CrystalColors {
     val CrystalBlue = Color(0xFF4682B4)    // Secondary glow
     val AmberEnergy = Color(0xFFFFB347)    // Warning/Alert
     val RubyAlert = Color(0xFFE0115F)      // Error states
-    
+
     // Dimmed versions for inactive states
     val CyanDim = Color(0xFF006B6D)
     val BlueDim = Color(0xFF23415A)
@@ -267,7 +267,7 @@ val LocalIsAncientArchitect = compositionLocalOf { false }
 
 /**
  * Ancient Architect Theme
- * 
+ *
  * @param variant The theme variant to use
  * @param enableGeometricPatterns Enable decorative geometric patterns
  * @param enableMetallicShimmer Enable shimmer animation on metallic elements
@@ -287,46 +287,45 @@ fun AncientArchitectTheme(
         AncientArchitectVariant.SILVER_ARCHITECT -> silverArchitectColors()
         AncientArchitectVariant.OBSIDIAN_TECH -> obsidianTechColors()
     }
-    
+
     // Convert to Material 3 ColorScheme
     val materialColorScheme = darkColorScheme(
         primary = ancientColors.metal.primary,
         onPrimary = Color.Black,
         primaryContainer = ancientColors.metal.primaryDark,
         onPrimaryContainer = ancientColors.metal.primaryLight,
-        
+
         secondary = ancientColors.metal.secondary,
         onSecondary = Color.Black,
         secondaryContainer = ancientColors.metal.secondaryDark,
         onSecondaryContainer = ancientColors.metal.secondaryLight,
-        
+
         tertiary = ancientColors.crystal.primary,
         onTertiary = Color.Black,
         tertiaryContainer = ancientColors.crystal.primaryDim,
         onTertiaryContainer = ancientColors.crystal.primary,
-        
+
         background = ancientColors.stone.background,
         onBackground = ancientColors.stone.text,
-        
+
         surface = ancientColors.stone.surface,
         onSurface = ancientColors.stone.text,
         surfaceVariant = ancientColors.stone.elevated,
         onSurfaceVariant = ancientColors.stone.text.copy(alpha = 0.8f),
-        
+
         surfaceTint = ancientColors.crystal.primary,
         inverseSurface = ancientColors.stone.text,
         inverseOnSurface = ancientColors.stone.background,
-        
+
         error = ancientColors.accent.error,
         onError = Color.White,
         errorContainer = ancientColors.crystal.error,
         onErrorContainer = Color.White,
-        
+
         outline = ancientColors.stone.border,
         outlineVariant = ancientColors.stone.border.copy(alpha = 0.5f),
         scrim = ancientColors.stone.shadow.copy(alpha = 0.5f)
     )
-    
     val themeId = variant.name.lowercase().replace('_', '-')
     val kthemeSnapshot = KthemeThemeAdapterV1.KthemeSnapshot(
         id = themeId,

@@ -272,7 +272,7 @@ class ImportExportRepository @Inject constructor(
                 val metadata = if (item.hasMetadata) {
                     metadataDao.getMetadataCommonByItemId(item.itemId)
                 } else null
-                
+
                 // Use cached library lookup
                 val library = libraryMap[item.libraryId]
 

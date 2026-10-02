@@ -26,7 +26,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Settings Screen
- * 
+ *
  * A beautiful, modular settings interface that allows users to:
  * - Configure API providers and their capabilities
  * - Manage integrations (Plex, Jellyfin, Calibre, etc.)
@@ -61,7 +61,7 @@ fun MediaSettingsScreen(
             appVersion = BuildConfig.VERSION_NAME
         )
     }
-    
+
     MediaSettingsScreen(
         state = state,
         onNavigateToSection = { section ->
@@ -120,7 +120,7 @@ fun MediaSettingsScreen(
             title = "Settings",
             onBackClick = onBackClick
         )
-        
+
         // Settings sections
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -131,7 +131,7 @@ fun MediaSettingsScreen(
             item {
                 SettingsSectionHeader(title = "API & Integrations")
             }
-            
+
             item {
                 SettingsCard {
                     SettingsItem(
@@ -167,13 +167,13 @@ fun MediaSettingsScreen(
                     )
                 }
             }
-            
+
             // Library Section
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.LG))
                 SettingsSectionHeader(title = "Library")
             }
-            
+
             item {
                 SettingsCard {
                     SettingsItem(
@@ -201,13 +201,13 @@ fun MediaSettingsScreen(
                     )
                 }
             }
-            
+
             // Appearance Section
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.LG))
                 SettingsSectionHeader(title = "Appearance")
             }
-            
+
             item {
                 SettingsCard {
                     SettingsItem(
@@ -235,13 +235,13 @@ fun MediaSettingsScreen(
                     )
                 }
             }
-            
+
             // Playback Section
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.LG))
                 SettingsSectionHeader(title = "Playback")
             }
-            
+
             item {
                 SettingsCard {
                     SettingsItem(
@@ -277,13 +277,13 @@ fun MediaSettingsScreen(
                     )
                 }
             }
-            
+
             // Privacy & Security Section
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.LG))
                 SettingsSectionHeader(title = "Privacy & Security")
             }
-            
+
             item {
                 SettingsCard {
                     SettingsItem(
@@ -311,13 +311,13 @@ fun MediaSettingsScreen(
                     )
                 }
             }
-            
+
             // Storage Section
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.LG))
                 SettingsSectionHeader(title = "Storage")
             }
-            
+
             item {
                 SettingsCard {
                     SettingsItem(
@@ -345,13 +345,13 @@ fun MediaSettingsScreen(
                     )
                 }
             }
-            
+
             // About Section
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.LG))
                 SettingsSectionHeader(title = "About")
             }
-            
+
             item {
                 SettingsCard {
                     SettingsItem(
@@ -371,14 +371,14 @@ fun MediaSettingsScreen(
                     )
                 }
             }
-            
+
             // Debug Section (only visible in debug builds)
             if (BuildConfig.SHOW_DEBUG_MENU) {
                 item {
                     Spacer(modifier = Modifier.height(MediaSpacing.LG))
                     SettingsSectionHeader(title = "Developer")
                 }
-                
+
                 item {
                     SettingsCard {
                         SettingsItem(
@@ -423,7 +423,7 @@ fun MediaSettingsScreen(
                     }
                 }
             }
-            
+
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.Huge))
             }
@@ -470,14 +470,14 @@ internal fun SettingsTopBar(
                     tint = MediaColors.TextPrimary
                 )
             }
-            
+
             Text(
                 text = title,
                 style = MediaTypography.TitleMedium,
                 color = MediaColors.TextPrimary,
                 modifier = Modifier.weight(1f)
             )
-            
+
             actions()
         }
     }

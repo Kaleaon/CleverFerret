@@ -27,17 +27,17 @@ fun FanfictionLibraryScreen(
     val stories by viewModel.allStories.collectAsState()
     val selectedFilter by viewModel.selectedFilter.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
-    
+
     var showFilterMenu by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
-    
+
     val filteredStories = remember(stories, selectedFilter, searchQuery) {
         stories.filter { story ->
             val matchesSearch = searchQuery.isBlank() ||
                 story.title.contains(searchQuery, ignoreCase = true) ||
                 story.author.contains(searchQuery, ignoreCase = true) ||
                 story.summary.contains(searchQuery, ignoreCase = true)
-            
+
             val matchesFilter = when (selectedFilter) {
                 FilterType.ALL -> true
                 FilterType.IN_PROGRESS -> story.status == "IN_PROGRESS"
@@ -46,15 +46,15 @@ fun FanfictionLibraryScreen(
                 FilterType.FFN -> story.sourceSite == "FanFiction.Net"
                 FilterType.ROYAL_ROAD -> story.sourceSite == "Royal Road"
             }
-            
+
             matchesSearch && matchesFilter
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Column {
                         Text("Fanfiction")
                         if (selectedFilter != FilterType.ALL) {
@@ -75,11 +75,11 @@ fun FanfictionLibraryScreen(
                     IconButton(onClick = { viewModel.checkForUpdates() }) {
                         Icon(Icons.Default.Refresh, "Check Updates")
                     }
-                    
+
                     IconButton(onClick = { showFilterMenu = true }) {
                         Icon(Icons.Default.FilterList, "Filter")
                     }
-                    
+
                     DropdownMenu(
                         expanded = showFilterMenu,
                         onDismissRequest = { showFilterMenu = false }
@@ -99,7 +99,7 @@ fun FanfictionLibraryScreen(
                             )
                         }
                     }
-                    
+
                     IconButton(onClick = onNavigateToDownload) {
                         Icon(PhosphorIcons.Plus, "Download")
                     }
@@ -142,7 +142,7 @@ fun FanfictionLibraryScreen(
                     }
                 }
             }
-            
+
             // Search bar
             OutlinedTextField(
                 value = searchQuery,
@@ -161,7 +161,7 @@ fun FanfictionLibraryScreen(
                     .padding(16.dp),
                 singleLine = true
             )
-            
+
             // Stories list
             if (filteredStories.isEmpty()) {
                 EmptyState(
@@ -208,29 +208,29 @@ private fun EmptyState(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(Modifier.height(16.dp))
-        
+
         Text(
             if (hasStories) "No stories match your filter" else "No stories yet",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(Modifier.height(8.dp))
-        
+
         Text(
-            if (hasStories) 
-                "Try changing your filter or search" 
-            else 
+            if (hasStories)
+                "Try changing your filter or search"
+            else
                 "Download your first fanfiction story",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         if (!hasStories) {
             Spacer(Modifier.height(24.dp))
-            
+
             Button(onClick = onDownloadClick) {
                 Icon(Icons.Filled.Download, "Download")
                 Spacer(Modifier.width(8.dp))
@@ -249,7 +249,7 @@ private fun StoryCard(
     onDeleteClick: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    
+
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()
@@ -272,12 +272,12 @@ private fun StoryCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 Box {
                     IconButton(onClick = { showMenu = true }) {
                         Icon(Icons.Default.MoreVert, "Menu")
                     }
-                    
+
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }
@@ -307,16 +307,16 @@ private fun StoryCard(
                     }
                 }
             }
-            
+
             // Author
             Text(
                 "by ${story.author}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(Modifier.height(8.dp))
-            
+
             // Summary
             Text(
                 story.summary,
@@ -325,9 +325,9 @@ private fun StoryCard(
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(Modifier.height(12.dp))
-            
+
             // Metadata chips
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -336,7 +336,7 @@ private fun StoryCard(
                 // Status chip
                 AssistChip(
                     onClick = {},
-                    label = { 
+                    label = {
                         Text(
                             story.status.replace("_", " "),
                             style = MaterialTheme.typography.labelSmall
@@ -349,11 +349,11 @@ private fun StoryCard(
                             MaterialTheme.colorScheme.secondaryContainer
                     )
                 )
-                
+
                 // Site chip
                 AssistChip(
                     onClick = {},
-                    label = { 
+                    label = {
                         Text(
                             story.sourceSite,
                             style = MaterialTheme.typography.labelSmall
@@ -361,9 +361,9 @@ private fun StoryCard(
                     }
                 )
             }
-            
+
             Spacer(Modifier.height(8.dp))
-            
+
             // Stats
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)

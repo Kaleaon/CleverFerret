@@ -30,13 +30,13 @@ import java.util.Locale
 
 /**
  * Reading Statistics Screen with MPAndroidChart
- * 
+ *
  * Displays comprehensive reading statistics with animated charts:
  * - Bar chart for monthly reading progress
  * - Pie/Donut chart for yearly reading goal
  * - Horizontal bar chart for top publishers
  * - Summary statistics cards
- * 
+ *
  * Uses MPAndroidChart library for beautiful, animated visualizations
  * Adapted from badreads project: https://github.com/fenimore/badreads
  */
@@ -50,11 +50,11 @@ fun ReadingStatisticsWithChartsScreen(
     viewModel: EnhancedReadingStatisticsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     LaunchedEffect(libraryId) {
         viewModel.loadStatistics(libraryId)
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -98,7 +98,7 @@ fun ReadingStatisticsWithChartsScreen(
                     )
                 }
             }
-            
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -118,7 +118,7 @@ fun ReadingStatisticsWithChartsScreen(
                     )
                 }
             }
-            
+
             // Reading goal with donut chart
             item {
                 YearlyGoalChartCard(
@@ -129,14 +129,14 @@ fun ReadingStatisticsWithChartsScreen(
                     }
                 )
             }
-            
+
             // Monthly reading bar chart
             item {
                 MonthlyReadingBarChart(
                     data = uiState.monthlyReadingData
                 )
             }
-            
+
             // Top publishers horizontal bar chart
             if (uiState.topPublishers.isNotEmpty()) {
                 item {
@@ -145,7 +145,7 @@ fun ReadingStatisticsWithChartsScreen(
                     )
                 }
             }
-            
+
             // Shelf breakdown
             item {
                 ShelfBreakdownCard(
@@ -167,7 +167,7 @@ private fun YearlyGoalChartCard(
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val progress = if (goal > 0) (current.toFloat() / goal * 100).coerceIn(0f, 100f) else 0f
-    
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -195,14 +195,14 @@ private fun YearlyGoalChartCard(
                         color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                     )
                 }
-                
+
                 FilledTonalButton(onClick = { showDialog = true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Set Goal")
                 }
             }
-            
+
             // Donut/Pie chart for goal
             AndroidView(
                 factory = { context ->
@@ -213,13 +213,13 @@ private fun YearlyGoalChartCard(
                         setHoleColor(android.graphics.Color.TRANSPARENT)
                         holeRadius = 70f
                         transparentCircleRadius = 75f
-                        
+
                         // Center text
                         setDrawCenterText(true)
                         centerText = "${progress.toInt()}%\nComplete"
                         setCenterTextSize(20f)
                         setCenterTextTypeface(Typeface.DEFAULT_BOLD)
-                        
+
                         // Legend
                         legend.isEnabled = true
                         legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
@@ -235,7 +235,7 @@ private fun YearlyGoalChartCard(
                     if (goal > current) {
                         entries.add(PieEntry((goal - current).toFloat(), "Remaining"))
                     }
-                    
+
                     val dataSet = PieDataSet(entries, "").apply {
                         colors = listOf(
                             Color.rgb(76, 175, 80),  // Green for read
@@ -246,13 +246,13 @@ private fun YearlyGoalChartCard(
                         valueTextSize = 14f
                         valueTypeface = Typeface.DEFAULT_BOLD
                     }
-                    
+
                     val data = PieData(dataSet).apply {
                         setValueFormatter(PercentFormatter(chart))
                         setValueTextSize(14f)
                         setValueTextColor(Color.WHITE)
                     }
-                    
+
                     chart.data = data
                     chart.animateY(1400, Easing.EaseInOutQuad)
                     chart.invalidate()
@@ -263,7 +263,7 @@ private fun YearlyGoalChartCard(
             )
         }
     }
-    
+
     if (showDialog) {
         SetGoalDialog(
             currentGoal = goal,
@@ -300,7 +300,7 @@ private fun MonthlyReadingBarChart(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             if (data.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -324,7 +324,7 @@ private fun MonthlyReadingBarChart(
                             setFitBars(true)
                             setPinchZoom(false)
                             setScaleEnabled(false)
-                            
+
                             // X-axis
                             xAxis.apply {
                                 position = XAxis.XAxisPosition.BOTTOM
@@ -332,7 +332,7 @@ private fun MonthlyReadingBarChart(
                                 granularity = 1f
                                 textSize = 10f
                             }
-                            
+
                             // Y-axis (left)
                             axisLeft.apply {
                                 setDrawGridLines(true)
@@ -340,10 +340,10 @@ private fun MonthlyReadingBarChart(
                                 axisMinimum = 0f
                                 textSize = 10f
                             }
-                            
+
                             // Y-axis (right) - disabled
                             axisRight.isEnabled = false
-                            
+
                             // Legend
                             legend.isEnabled = false
                         }
@@ -352,18 +352,18 @@ private fun MonthlyReadingBarChart(
                         val entries = data.mapIndexed { index, monthData ->
                             BarEntry(index.toFloat(), monthData.count.toFloat())
                         }
-                        
+
                         val dataSet = BarDataSet(entries, "Books Read").apply {
                             color = Color.rgb(33, 150, 243) // Blue
                             valueTextSize = 10f
                             valueTypeface = Typeface.DEFAULT_BOLD
                             setDrawValues(true)
                         }
-                        
+
                         val barData = BarData(dataSet).apply {
                             barWidth = 0.8f
                         }
-                        
+
                         chart.xAxis.valueFormatter = IndexAxisValueFormatter(data.map { it.month })
                         chart.data = barData
                         chart.animateY(1500, Easing.EaseInOutCubic)
@@ -402,7 +402,7 @@ private fun TopPublishersBarChart(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             AndroidView(
                 factory = { context ->
                     HorizontalBarChart(context).apply {
@@ -412,7 +412,7 @@ private fun TopPublishersBarChart(
                         setFitBars(true)
                         setPinchZoom(false)
                         setScaleEnabled(false)
-                        
+
                         // X-axis (top)
                         xAxis.apply {
                             position = XAxis.XAxisPosition.TOP
@@ -420,20 +420,20 @@ private fun TopPublishersBarChart(
                             granularity = 1f
                             textSize = 10f
                         }
-                        
+
                         // Y-axis (left)
                         axisLeft.apply {
                             setDrawGridLines(true)
                             granularity = 1f
                             textSize = 9f
                         }
-                        
+
                         // Y-axis (right) - disabled
                         axisRight.isEnabled = false
-                        
+
                         // Legend
                         legend.isEnabled = false
-                        
+
                         // Extra offset for labels
                         setExtraOffsets(0f, 0f, 0f, 10f)
                     }
@@ -443,7 +443,7 @@ private fun TopPublishersBarChart(
                     val entries = topPublishers.mapIndexed { index, publisher ->
                         BarEntry(index.toFloat(), publisher.count.toFloat())
                     }
-                    
+
                     val dataSet = BarDataSet(entries, "Books").apply {
                         colors = listOf(
                             Color.rgb(255, 152, 0),  // Orange
@@ -458,16 +458,16 @@ private fun TopPublishersBarChart(
                         valueTextSize = 10f
                         valueTypeface = Typeface.DEFAULT_BOLD
                     }
-                    
+
                     val barData = BarData(dataSet).apply {
                         barWidth = 0.85f
                     }
-                    
+
                     // Truncate long publisher names
-                    val labels = topPublishers.map { 
-                        if (it.name.length > 25) "${it.name.take(22)}..." else it.name 
+                    val labels = topPublishers.map {
+                        if (it.name.length > 25) "${it.name.take(22)}..." else it.name
                     }
-                    
+
                     chart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
                     chart.data = barData
                     chart.animateX(1500, Easing.EaseInOutCubic)
@@ -488,7 +488,7 @@ private fun SetGoalDialog(
     onConfirm: (Int) -> Unit
 ) {
     var goalText by remember { mutableStateOf(currentGoal.toString()) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Set Yearly Reading Goal") },
@@ -578,7 +578,7 @@ private fun ShelfBreakdownCard(
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly

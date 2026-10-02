@@ -51,7 +51,7 @@ internal fun TableOfContentsSheet(
                 color = MediaColors.TextPrimary,
                 modifier = Modifier.padding(MediaSpacing.MD)
             )
-            
+
             LazyColumn {
                 items(items = chapters, key = { it.id }) { chapter ->
                     ChapterItem(

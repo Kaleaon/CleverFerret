@@ -19,7 +19,7 @@ import com.universalmedialibrary.ui.theme.*
 
 /**
  * Ancient Architect Card - Enhanced card with geometric patterns and metallic accents
- * 
+ *
  * Features:
  * - Stepped/beveled borders (Art Deco)
  * - Metallic gradient borders
@@ -45,7 +45,7 @@ fun AncientArchitectCard(
     val ancientColors = ancientArchitectColors()
     val shimmerEnabled = metallicShimmerEnabled() && enableShimmer
     val enablePatterns = geometricPatternsEnabled()
-    
+
     // Shimmer animation
     val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
     val shimmerOffset by infiniteTransition.animateFloat(
@@ -57,7 +57,7 @@ fun AncientArchitectCard(
         ),
         label = "shimmerOffset"
     )
-    
+
     Card(
         onClick = onClick ?: {},
         modifier = modifier
@@ -72,7 +72,7 @@ fun AncientArchitectCard(
                         )
                     }
                 }
-                
+
                 // Corner decorations
                 if (showCornerDecorations && enablePatterns) {
                     with(AncientArchitectPatterns) {
@@ -130,7 +130,7 @@ fun AncientArchitectElevatedCard(
 ) {
     val ancientColors = ancientArchitectColors()
     val glowEnabled = crystalGlowEnabled() && showGlow
-    
+
     Box(
         modifier = modifier
             .crystalGlow(

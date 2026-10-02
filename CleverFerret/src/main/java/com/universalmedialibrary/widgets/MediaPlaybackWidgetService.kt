@@ -133,16 +133,16 @@ class MediaPlaybackWidgetService @Inject constructor(
                     try {
                         val cacheDir = context.cacheDir
                         val widgetArtworkFile = File(cacheDir, "widget_artwork_${mediaItem.itemId}.jpg")
-                        
+
                         FileOutputStream(widgetArtworkFile).use { output ->
                             artwork.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, output)
                         }
-                        
+
                         val artworkUri = Uri.fromFile(widgetArtworkFile).toString()
-                        
+
                         // Update widget state with artwork URI
                         _widgetState.value = _widgetState.value.copy(artworkUri = artworkUri)
-                        
+
                         Log.d(TAG, "Artwork saved and URI updated for: ${mediaItem.fileName}")
                     } catch (e: Exception) {
                         if (e is CancellationException) throw e

@@ -36,7 +36,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Media Card Components
- * 
+ *
  * A comprehensive set of beautiful media cards inspired by premium media apps's design:
  * - Poster cards (books, movies, TV shows)
  * - Square cards (music albums, podcasts)
@@ -44,7 +44,7 @@ import com.universalmedialibrary.ui.media.theme.*
  * - Hero cards (featured content)
  * - List items (compact views)
  * - Carousel rows
- * 
+ *
  * Features:
  * - Smooth hover/press animations
  * - Progress indicators
@@ -84,7 +84,7 @@ fun MediaPosterCard(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
     val scale by animateFloatAsState(
         targetValue = when {
             isPressed -> 0.95f
@@ -97,12 +97,12 @@ fun MediaPosterCard(
         ),
         label = "poster_scale"
     )
-    
+
     val elevation by animateDpAsState(
         targetValue = if (isHovered) MediaElevation.LG else MediaElevation.SM,
         label = "poster_elevation"
     )
-    
+
     Column(
         modifier = modifier
             .width(width)
@@ -155,7 +155,7 @@ fun MediaPosterCard(
                     )
                 }
             }
-            
+
             // Hover overlay
             if (isHovered) {
                 Box(
@@ -164,7 +164,7 @@ fun MediaPosterCard(
                         .background(MediaColors.AccentPrimary.copy(alpha = 0.1f))
                 )
             }
-            
+
             // Progress bar
             if (showProgress && item.progress > 0) {
                 val (progressColor, progressTrackColor) = mediaProgressColors()
@@ -178,7 +178,7 @@ fun MediaPosterCard(
                     trackColor = progressTrackColor
                 )
             }
-            
+
             // Badges
             if (item.badges.isNotEmpty() || item.isNew || item.isUnwatched) {
                 CardBadges(
@@ -188,7 +188,7 @@ fun MediaPosterCard(
                         .padding(MediaSpacing.XS)
                 )
             }
-            
+
             // Rating badge
             item.rating?.let { rating ->
                 RatingBadge(
@@ -198,7 +198,7 @@ fun MediaPosterCard(
                         .padding(MediaSpacing.XS)
                 )
             }
-            
+
             // Play button on hover
             if (isHovered) {
                 Box(modifier = Modifier.align(Alignment.Center)) {
@@ -206,11 +206,11 @@ fun MediaPosterCard(
                 }
             }
         }
-        
+
         // Title and subtitle
         if (showTitle) {
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             Text(
                 text = item.title,
                 style = MediaTypography.BodyMedium,
@@ -219,7 +219,7 @@ fun MediaPosterCard(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
             )
-            
+
             if (showSubtitle && item.subtitle != null) {
                 Text(
                     text = item.subtitle,

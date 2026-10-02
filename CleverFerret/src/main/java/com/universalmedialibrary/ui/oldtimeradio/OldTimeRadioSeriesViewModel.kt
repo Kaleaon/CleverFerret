@@ -19,7 +19,7 @@ class OldTimeRadioSeriesViewModel @Inject constructor(
 
     private val _episodes = MutableStateFlow<List<OldTimeRadioEpisode>>(emptyList())
     val episodes: StateFlow<List<OldTimeRadioEpisode>> = _episodes.asStateFlow()
-    
+
     private val _seriesTitle = MutableStateFlow<String>("")
     val seriesTitle: StateFlow<String> = _seriesTitle.asStateFlow()
 

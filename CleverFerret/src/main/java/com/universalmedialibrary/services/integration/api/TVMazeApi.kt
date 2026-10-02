@@ -9,7 +9,7 @@ import retrofit2.http.Query
 /**
  * TVMaze API
  * Documentation: https://www.tvmaze.com/api
- * 
+ *
  * TVMaze is a comprehensive TV show database with:
  * - Detailed show information
  * - Complete episode listings
@@ -19,7 +19,7 @@ import retrofit2.http.Query
  * - No API key required!
  */
 interface TVMazeApi {
-    
+
     /**
      * Search for TV shows by name
      * @param query The search query
@@ -29,7 +29,7 @@ interface TVMazeApi {
     suspend fun searchShows(
         @Query("q") query: String
     ): List<TVMazeSearchResult>
-    
+
     /**
      * Get single show information by TVMaze ID
      * @param showId The TVMaze show ID
@@ -40,7 +40,7 @@ interface TVMazeApi {
         @Path("id") showId: Int,
         @Query("embed[]") embed: List<String>? = null
     ): TVMazeShow
-    
+
     /**
      * Get show information with embedded episodes
      * @param showId The TVMaze show ID
@@ -49,7 +49,7 @@ interface TVMazeApi {
     suspend fun getShowWithEpisodes(
         @Path("id") showId: Int
     ): TVMazeShowWithEpisodes
-    
+
     /**
      * Get show information with embedded cast
      * @param showId The TVMaze show ID
@@ -58,7 +58,7 @@ interface TVMazeApi {
     suspend fun getShowWithCast(
         @Path("id") showId: Int
     ): TVMazeShowWithCast
-    
+
     /**
      * Get all episodes for a show
      * @param showId The TVMaze show ID
@@ -67,7 +67,7 @@ interface TVMazeApi {
     suspend fun getShowEpisodes(
         @Path("id") showId: Int
     ): List<TVMazeEpisode>
-    
+
     /**
      * Get specific episode by season and episode number
      * @param showId The TVMaze show ID
@@ -80,7 +80,7 @@ interface TVMazeApi {
         @Query("season") season: Int,
         @Query("number") episode: Int
     ): TVMazeEpisode
-    
+
     /**
      * Get episodes for a specific season
      * @param seasonId The TVMaze season ID
@@ -89,7 +89,7 @@ interface TVMazeApi {
     suspend fun getSeasonEpisodes(
         @Path("id") seasonId: Int
     ): List<TVMazeEpisode>
-    
+
     /**
      * Get cast for a show
      * @param showId The TVMaze show ID
@@ -98,7 +98,7 @@ interface TVMazeApi {
     suspend fun getShowCast(
         @Path("id") showId: Int
     ): List<TVMazeCastMember>
-    
+
     /**
      * Get crew for a show
      * @param showId The TVMaze show ID
@@ -107,7 +107,7 @@ interface TVMazeApi {
     suspend fun getShowCrew(
         @Path("id") showId: Int
     ): List<TVMazeCrewMember>
-    
+
     /**
      * Get show images
      * @param showId The TVMaze show ID
@@ -116,7 +116,7 @@ interface TVMazeApi {
     suspend fun getShowImages(
         @Path("id") showId: Int
     ): List<TVMazeImage>
-    
+
     /**
      * Get show seasons
      * @param showId The TVMaze show ID
@@ -125,7 +125,7 @@ interface TVMazeApi {
     suspend fun getShowSeasons(
         @Path("id") showId: Int
     ): List<TVMazeSeason>
-    
+
     /**
      * Lookup show by IMDb ID
      * @param imdbId The IMDb ID (e.g., "tt0903747")

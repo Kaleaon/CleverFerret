@@ -22,7 +22,7 @@ fun PlaybackSpeedDialog(
     onDismiss: () -> Unit
 ) {
     val speeds = listOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f)
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Playback Speed") },
@@ -90,7 +90,7 @@ fun EqualizerDialog(
         "Electronic" to "Punchy bass and highs",
         "Acoustic" to "Warm natural sound"
     )
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Equalizer Preset") },
@@ -103,7 +103,7 @@ fun EqualizerDialog(
                         leadingContent = {
                             RadioButton(
                                 selected = currentPreset == name,
-                                onClick = { 
+                                onClick = {
                                     onPresetSelected(name)
                                     onDismiss()
                                 }
@@ -144,25 +144,25 @@ fun VolumeDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Icon(
-                    if (currentVolume > 0.5f) Icons.AutoMirrored.Filled.VolumeUp 
+                    if (currentVolume > 0.5f) Icons.AutoMirrored.Filled.VolumeUp
                     else if (currentVolume > 0f) Icons.Default.VolumeDown
                     else Icons.Default.VolumeOff,
                     contentDescription = "Media image",
                     modifier = Modifier.size(48.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
-                
+
                 Text(
                     text = "${(currentVolume * 100).toInt()}%",
                     style = MaterialTheme.typography.headlineMedium
                 )
-                
+
                 Slider(
                     value = currentVolume,
                     onValueChange = onVolumeChange,
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -193,7 +193,7 @@ fun SleepTimerDialog(
     onDismiss: () -> Unit
 ) {
     val durations = listOf(5, 10, 15, 30, 45, 60, 90, 120)
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Sleep Timer") },
@@ -213,7 +213,7 @@ fun SleepTimerDialog(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = if (minutes >= 60) "${minutes / 60} hour${if (minutes > 60) "s" else ""}" 
+                            text = if (minutes >= 60) "${minutes / 60} hour${if (minutes > 60) "s" else ""}"
                             else "$minutes minutes"
                         )
                     }
@@ -254,10 +254,10 @@ fun AddToPlaylistDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Create New Playlist")
                 }
-                
+
                 if (playlists.isNotEmpty()) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    
+
                     playlists.forEach { playlist ->
                         ListItem(
                             headlineContent = { Text(playlist) },

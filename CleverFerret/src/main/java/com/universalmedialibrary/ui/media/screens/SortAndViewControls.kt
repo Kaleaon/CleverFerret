@@ -65,7 +65,7 @@ internal fun SortAndViewControls(
                 modifier = Modifier.size(18.dp)
             )
         }
-        
+
         // View mode toggle
         Row(
             horizontalArrangement = Arrangement.spacedBy(MediaSpacing.XS)
@@ -78,9 +78,9 @@ internal fun SortAndViewControls(
                     Icon(
                         imageVector = mode.icon,
                         contentDescription = mode.name,
-                        tint = if (currentViewMode == mode) 
-                            MediaColors.AccentPrimary 
-                        else 
+                        tint = if (currentViewMode == mode)
+                            MediaColors.AccentPrimary
+                        else
                             MediaColors.TextTertiary,
                         modifier = Modifier.size(20.dp)
                     )

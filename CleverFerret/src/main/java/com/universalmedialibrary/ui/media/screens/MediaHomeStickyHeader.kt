@@ -183,4 +183,3 @@ private fun formatRemainingTime(totalSeconds: Int): String {
         else -> "<1m"
     }
 }
-

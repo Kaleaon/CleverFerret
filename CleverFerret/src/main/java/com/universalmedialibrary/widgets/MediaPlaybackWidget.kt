@@ -43,12 +43,12 @@ fun MediaPlaybackWidgetContent() {
     // Implemented: Basic state observation for widget
     // In a full implementation, this would use GlanceStateDefinition
     // and observe MediaPlaybackWidgetService.widgetState
-    
+
     // For now, we'll use a simplified approach with default state
     // A complete implementation would include:
     // val widgetState = currentState<WidgetState>()
     // and update UI based on: currentTrack, isPlaying, artwork, position
-    
+
     val currentTrack = "No Media Playing"
     val currentArtist = "Tap play to start"
     val isPlaying = false

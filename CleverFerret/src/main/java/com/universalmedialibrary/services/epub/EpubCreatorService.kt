@@ -16,12 +16,12 @@ import javax.inject.Singleton
 class EpubCreatorService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     data class EpubChapter(
         val title: String,
         val content: String // HTML content
     )
-    
+
     /**
      * Create an EPUB file for a fanfiction story
      */
@@ -34,7 +34,7 @@ class EpubCreatorService @Inject constructor(
     ) {
         val outputFile = File(outputPath)
         outputFile.parentFile?.mkdirs()
-        
+
         ZipOutputStream(FileOutputStream(outputFile)).use { zip ->
             // mimetype (must be first and uncompressed)
             zip.setLevel(0)
@@ -42,53 +42,53 @@ class EpubCreatorService @Inject constructor(
             zip.write("application/epub+zip".toByteArray())
             zip.closeEntry()
             zip.setLevel(9)
-            
+
             // META-INF/container.xml
             zip.putNextEntry(ZipEntry("META-INF/container.xml"))
             zip.write(createContainerXml().toByteArray())
             zip.closeEntry()
-            
+
             // OEBPS/content.opf
             zip.putNextEntry(ZipEntry("OEBPS/content.opf"))
             zip.write(createContentOpf(title, author, chapters, metadata).toByteArray())
             zip.closeEntry()
-            
+
             // OEBPS/toc.ncx
             zip.putNextEntry(ZipEntry("OEBPS/toc.ncx"))
             zip.write(createTocNcx(title, chapters).toByteArray())
             zip.closeEntry()
-            
+
             // OEBPS/toc.xhtml (EPUB 3)
             zip.putNextEntry(ZipEntry("OEBPS/toc.xhtml"))
             zip.write(createTocXhtml(title, chapters).toByteArray())
             zip.closeEntry()
-            
+
             // OEBPS/titlepage.xhtml
             zip.putNextEntry(ZipEntry("OEBPS/titlepage.xhtml"))
             zip.write(createTitlePage(title, author, metadata).toByteArray())
             zip.closeEntry()
-            
+
             // OEBPS/chapter files
             chapters.forEachIndexed { index, chapter ->
                 zip.putNextEntry(ZipEntry("OEBPS/chapter${index + 1}.xhtml"))
                 zip.write(createChapterXhtml(chapter).toByteArray())
                 zip.closeEntry()
             }
-            
+
             // OEBPS/stylesheet.css
             zip.putNextEntry(ZipEntry("OEBPS/stylesheet.css"))
             zip.write(createStylesheet().toByteArray())
             zip.closeEntry()
         }
     }
-    
+
     private fun createContainerXml() = """<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>"""
-    
+
     private fun createContentOpf(
         title: String,
         author: String,
@@ -101,28 +101,28 @@ class EpubCreatorService @Inject constructor(
     <dc:creator>${escapeXml(author)}</dc:creator>
     <dc:language>en</dc:language>
     <dc:identifier id="BookID">${java.util.UUID.randomUUID()}</dc:identifier>
-    ${metadata.entries.joinToString("\n    ") { 
-        "<meta property=\"${it.key}\">${escapeXml(it.value)}</meta>" 
+    ${metadata.entries.joinToString("\n    ") {
+        "<meta property=\"${it.key}\">${escapeXml(it.value)}</meta>"
     }}
   </metadata>
   <manifest>
     <item id="toc" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
     <item id="nav" href="toc.xhtml" properties="nav" media-type="application/xhtml+xml"/>
     <item id="titlepage" href="titlepage.xhtml" media-type="application/xhtml+xml"/>
-    ${chapters.indices.joinToString("\n    ") { 
-        """<item id="chapter${it + 1}" href="chapter${it + 1}.xhtml" media-type="application/xhtml+xml"/>""" 
+    ${chapters.indices.joinToString("\n    ") {
+        """<item id="chapter${it + 1}" href="chapter${it + 1}.xhtml" media-type="application/xhtml+xml"/>"""
     }}
     <item id="css" href="stylesheet.css" media-type="text/css"/>
   </manifest>
   <spine toc="toc">
     <itemref idref="titlepage"/>
-    ${chapters.indices.joinToString("\n    ") { 
-        """<itemref idref="chapter${it + 1}"/>""" 
+    ${chapters.indices.joinToString("\n    ") {
+        """<itemref idref="chapter${it + 1}"/>"""
     }}
   </spine>
 </package>"""
-    
-    private fun createTocNcx(title: String, chapters: List<EpubChapter>) = 
+
+    private fun createTocNcx(title: String, chapters: List<EpubChapter>) =
         """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
@@ -145,8 +145,8 @@ class EpubCreatorService @Inject constructor(
     }.joinToString("")}
   </navMap>
 </ncx>"""
-    
-    private fun createTocXhtml(title: String, chapters: List<EpubChapter>) = 
+
+    private fun createTocXhtml(title: String, chapters: List<EpubChapter>) =
         """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
@@ -159,14 +159,14 @@ class EpubCreatorService @Inject constructor(
     <h1>Contents</h1>
     <ol>
       <li><a href="titlepage.xhtml">Title Page</a></li>
-      ${chapters.mapIndexed { index, chapter -> 
+      ${chapters.mapIndexed { index, chapter ->
           """<li><a href="chapter${index + 1}.xhtml">${escapeXml(chapter.title)}</a></li>"""
       }.joinToString("\n      ")}
     </ol>
   </nav>
 </body>
 </html>"""
-    
+
     private fun createTitlePage(
         title: String,
         author: String,
@@ -181,25 +181,25 @@ class EpubCreatorService @Inject constructor(
 <body class="titlepage">
   <h1>${escapeXml(title)}</h1>
   <h2>by ${escapeXml(author)}</h2>
-  ${metadata["summary"]?.let { 
-      """<div class="summary"><p>${escapeXml(it)}</p></div>""" 
+  ${metadata["summary"]?.let {
+      """<div class="summary"><p>${escapeXml(it)}</p></div>"""
   } ?: ""}
-  ${metadata["source"]?.let { 
-      """<p class="source">Source: ${escapeXml(it)}</p>""" 
+  ${metadata["source"]?.let {
+      """<p class="source">Source: ${escapeXml(it)}</p>"""
   } ?: ""}
-  ${metadata["rating"]?.let { 
-      """<p class="rating">Rating: ${escapeXml(it)}</p>""" 
+  ${metadata["rating"]?.let {
+      """<p class="rating">Rating: ${escapeXml(it)}</p>"""
   } ?: ""}
-  ${metadata["fandoms"]?.let { 
-      """<p class="fandoms">Fandom(s): ${escapeXml(it)}</p>""" 
+  ${metadata["fandoms"]?.let {
+      """<p class="fandoms">Fandom(s): ${escapeXml(it)}</p>"""
   } ?: ""}
-  ${metadata["characters"]?.let { 
-      """<p class="characters">Characters: ${escapeXml(it)}</p>""" 
+  ${metadata["characters"]?.let {
+      """<p class="characters">Characters: ${escapeXml(it)}</p>"""
   } ?: ""}
 </body>
 </html>"""
-    
-    private fun createChapterXhtml(chapter: EpubChapter) = 
+
+    private fun createChapterXhtml(chapter: EpubChapter) =
         """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -214,7 +214,7 @@ class EpubCreatorService @Inject constructor(
   </div>
 </body>
 </html>"""
-    
+
     private fun createStylesheet() = """
 body {
   font-family: Georgia, serif;
@@ -264,7 +264,7 @@ p {
   text-align: justify;
 }
 """
-    
+
     private fun escapeXml(text: String): String {
         return text.replace("&", "&amp;")
             .replace("<", "&lt;")

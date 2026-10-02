@@ -22,7 +22,7 @@
 
 ### Phase 3: Add Navigation Tabs
 - Add visualizer tab to bottom navigation
-- Add ambient tab to bottom navigation  
+- Add ambient tab to bottom navigation
 - Ensure proper icons and routing
 - Update navigation logic
 

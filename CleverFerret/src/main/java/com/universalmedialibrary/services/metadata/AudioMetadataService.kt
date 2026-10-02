@@ -20,18 +20,18 @@ import javax.inject.Singleton
 
 /**
  * Audio metadata service for reading embedded tags and fetching online metadata.
- * 
+ *
  * Architecture inspired by:
  * - Metadator (https://github.com/BobbyESP/Metadator) - ID3 metadata editor
  * - TagLib wrapper (https://github.com/Kyant0/taglib) - Native audio tag reading
  * - MusicBrainz API - Comprehensive music metadata database
- * 
+ *
  * Supports reading:
  * - Embedded ID3v1/ID3v2 tags (MP3)
  * - Vorbis comments (FLAC, OGG)
  * - MP4/M4A atoms
  * - APE tags
- * 
+ *
  * Online sources:
  * - MusicBrainz (primary - open database)
  * - Cover Art Archive (album artwork)
@@ -43,24 +43,24 @@ class AudioMetadataService @Inject constructor(
 ) {
     companion object {
         private const val TAG = "AudioMetadataService"
-        
+
         // MusicBrainz API endpoints
         private const val MUSICBRAINZ_BASE = "https://musicbrainz.org/ws/2"
         private const val MUSICBRAINZ_RECORDING_SEARCH = "$MUSICBRAINZ_BASE/recording"
         private const val MUSICBRAINZ_RELEASE_SEARCH = "$MUSICBRAINZ_BASE/release"
         private const val MUSICBRAINZ_ARTIST_SEARCH = "$MUSICBRAINZ_BASE/artist"
-        
+
         // Cover Art Archive
         private const val COVER_ART_ARCHIVE = "https://coverartarchive.org/release"
-        
+
         // User agent required by MusicBrainz
         private const val USER_AGENT = "CleverFerret/1.0 (Android; Universal Media Library)"
-        
+
         // Rate limiting (MusicBrainz requires max 1 req/sec)
         private const val REQUEST_DELAY_MS = 1100L
-        
+
         private const val TIMEOUT = 15000
-        
+
         // Common audio tag keys (ID3v2 / Vorbis / MP4)
         object TagKeys {
             const val TITLE = "TITLE"
@@ -82,9 +82,9 @@ class AudioMetadataService @Inject constructor(
             const val MUSICBRAINZ_RELEASE_GROUP_ID = "MUSICBRAINZ_RELEASEGROUPID"
         }
     }
-    
+
     private var lastRequestTime = 0L
-    
+
     /**
      * Read embedded metadata from an audio file using Android's MediaMetadataRetriever.
      * This is a fallback when TagLib is not available.
@@ -93,7 +93,7 @@ class AudioMetadataService @Inject constructor(
         val retriever = MediaMetadataRetriever()
         try {
             retriever.setDataSource(context, uri)
-            
+
             val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
             val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
             val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
@@ -107,10 +107,10 @@ class AudioMetadataService @Inject constructor(
             val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toIntOrNull()
             val sampleRate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)?.toIntOrNull()
             val mimeType = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
-            
+
             // Extract embedded album art
             val embeddedArt = retriever.embeddedPicture
-            
+
             AudioMetadata(
                 title = title,
                 artist = artist,
@@ -139,7 +139,7 @@ class AudioMetadataService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Fetch metadata from MusicBrainz by searching for recording (track).
      * Uses indexed search: recording:{title} AND artist:{artist}
@@ -155,21 +155,21 @@ class AudioMetadataService @Inject constructor(
         if (!musicBrainzId.isNullOrBlank()) {
             return@withContext lookupRecordingById(musicBrainzId)
         }
-        
+
         // If we have ISRC, search by that (most accurate)
         if (!isrc.isNullOrBlank()) {
             val result = searchRecordingByIsrc(isrc)
             if (result != null) return@withContext result
         }
-        
+
         // Search by title and artist
         if (!title.isNullOrBlank()) {
             return@withContext searchRecording(title, artist, album)
         }
-        
+
         null
     }
-    
+
     /**
      * Search MusicBrainz for a recording by title and artist.
      */
@@ -180,22 +180,22 @@ class AudioMetadataService @Inject constructor(
     ): AudioMetadata? = withContext(Dispatchers.IO) {
         try {
             enforceRateLimit()
-            
+
             // Build Lucene-style query
             val queryParts = mutableListOf<String>()
             queryParts.add("recording:\"${escapeLucene(title)}\"")
-            
+
             if (!artist.isNullOrBlank()) {
                 queryParts.add("artist:\"${escapeLucene(artist)}\"")
             }
             if (!album.isNullOrBlank()) {
                 queryParts.add("release:\"${escapeLucene(album)}\"")
             }
-            
+
             val query = queryParts.joinToString(" AND ")
             val encodedQuery = URLEncoder.encode(query, "UTF-8")
             val url = "$MUSICBRAINZ_RECORDING_SEARCH?query=$encodedQuery&limit=5&fmt=json"
-            
+
             val response = makeHttpRequest(url)
             if (response != null) {
                 return@withContext parseMusicBrainzRecordingSearch(response)
@@ -205,17 +205,17 @@ class AudioMetadataService @Inject constructor(
         }
         null
     }
-    
+
     /**
      * Search by ISRC (International Standard Recording Code).
      */
     private suspend fun searchRecordingByIsrc(isrc: String): AudioMetadata? = withContext(Dispatchers.IO) {
         try {
             enforceRateLimit()
-            
+
             val url = "$MUSICBRAINZ_RECORDING_SEARCH?query=isrc:$isrc&limit=1&fmt=json"
             val response = makeHttpRequest(url)
-            
+
             if (response != null) {
                 return@withContext parseMusicBrainzRecordingSearch(response)
             }
@@ -224,17 +224,17 @@ class AudioMetadataService @Inject constructor(
         }
         null
     }
-    
+
     /**
      * Direct lookup of a recording by MusicBrainz ID.
      */
     private suspend fun lookupRecordingById(mbid: String): AudioMetadata? = withContext(Dispatchers.IO) {
         try {
             enforceRateLimit()
-            
+
             val url = "$MUSICBRAINZ_BASE/recording/$mbid?inc=artists+releases+isrcs+tags&fmt=json"
             val response = makeHttpRequest(url)
-            
+
             if (response != null) {
                 return@withContext parseMusicBrainzRecordingLookup(response)
             }
@@ -243,22 +243,22 @@ class AudioMetadataService @Inject constructor(
         }
         null
     }
-    
+
     /**
      * Fetch album artwork from Cover Art Archive.
      */
     suspend fun fetchAlbumArtwork(releaseId: String): ByteArray? = withContext(Dispatchers.IO) {
         try {
             enforceRateLimit()
-            
+
             // First, get the cover art info
             val infoUrl = "$COVER_ART_ARCHIVE/$releaseId"
             val infoResponse = makeHttpRequest(infoUrl)
-            
+
             if (infoResponse != null) {
                 val jsonObject = JSONObject(infoResponse)
                 val images = jsonObject.optJSONArray("images")
-                
+
                 if (images != null && images.length() > 0) {
                     // Get the front cover (or first image)
                     for (i in 0 until images.length()) {
@@ -270,7 +270,7 @@ class AudioMetadataService @Inject constructor(
                             }
                         }
                     }
-                    
+
                     // Fallback to first image
                     val firstImage = images.getJSONObject(0)
                     val imageUrl = firstImage.optString("image")
@@ -284,7 +284,7 @@ class AudioMetadataService @Inject constructor(
         }
         null
     }
-    
+
     /**
      * Search for an album/release by title and artist.
      */
@@ -294,18 +294,18 @@ class AudioMetadataService @Inject constructor(
     ): AlbumMetadata? = withContext(Dispatchers.IO) {
         try {
             enforceRateLimit()
-            
+
             val queryParts = mutableListOf<String>()
             queryParts.add("release:\"${escapeLucene(albumTitle)}\"")
-            
+
             if (!artist.isNullOrBlank()) {
                 queryParts.add("artist:\"${escapeLucene(artist)}\"")
             }
-            
+
             val query = queryParts.joinToString(" AND ")
             val encodedQuery = URLEncoder.encode(query, "UTF-8")
             val url = "$MUSICBRAINZ_RELEASE_SEARCH?query=$encodedQuery&limit=5&fmt=json"
-            
+
             val response = makeHttpRequest(url)
             if (response != null) {
                 return@withContext parseMusicBrainzReleaseSearch(response)
@@ -315,19 +315,19 @@ class AudioMetadataService @Inject constructor(
         }
         null
     }
-    
+
     /**
      * Auto-tag an audio file by combining embedded metadata with online lookup.
      */
     suspend fun autoTag(uri: Uri): AudioMetadata? = withContext(Dispatchers.IO) {
         // First, read embedded metadata
         val embedded = readEmbeddedMetadata(uri)
-        
+
         if (embedded == null) {
             Log.w(TAG, "Could not read embedded metadata")
             return@withContext null
         }
-        
+
         // If we have enough embedded data, try to enhance with MusicBrainz
         val mbResult = fetchFromMusicBrainz(
             title = embedded.title,
@@ -336,15 +336,15 @@ class AudioMetadataService @Inject constructor(
             isrc = embedded.isrc,
             musicBrainzId = embedded.musicBrainzRecordingId
         )
-        
+
         // Merge results, preferring MusicBrainz for missing fields
         if (mbResult != null) {
             return@withContext mergeMetadata(embedded, mbResult)
         }
-        
+
         embedded
     }
-    
+
     /**
      * Batch fetch metadata for multiple files.
      */
@@ -354,12 +354,12 @@ class AudioMetadataService @Inject constructor(
             uri to metadata
         }
     }
-    
+
     private fun parseMusicBrainzRecordingSearch(response: String): AudioMetadata? {
         try {
             val jsonObject = JSONObject(response)
             val recordings = jsonObject.optJSONArray("recordings")
-            
+
             if (recordings != null && recordings.length() > 0) {
                 val recording = recordings.getJSONObject(0)
                 return parseRecordingObject(recording)
@@ -369,7 +369,7 @@ class AudioMetadataService @Inject constructor(
         }
         return null
     }
-    
+
     private fun parseMusicBrainzRecordingLookup(response: String): AudioMetadata? {
         try {
             val recording = JSONObject(response)
@@ -379,17 +379,17 @@ class AudioMetadataService @Inject constructor(
         }
         return null
     }
-    
+
     private fun parseRecordingObject(recording: JSONObject): AudioMetadata {
         val id = recording.optString("id")
         val title = recording.optString("title")
         val length = recording.optLong("length", 0) // in milliseconds
-        
+
         // Artists
         val artistCredit = recording.optJSONArray("artist-credit")
         val artists = mutableListOf<String>()
         var primaryArtistId: String? = null
-        
+
         if (artistCredit != null) {
             for (i in 0 until artistCredit.length()) {
                 val credit = artistCredit.getJSONObject(i)
@@ -402,24 +402,24 @@ class AudioMetadataService @Inject constructor(
                 }
             }
         }
-        
+
         // Releases (albums)
         val releases = recording.optJSONArray("releases")
         var albumTitle: String? = null
         var albumId: String? = null
         var releaseYear: Int? = null
         var trackNumber: Int? = null
-        
+
         if (releases != null && releases.length() > 0) {
             val release = releases.getJSONObject(0)
             albumTitle = release.optString("title")
             albumId = release.optString("id")
-            
+
             val date = release.optString("date")
             if (date.isNotBlank()) {
                 releaseYear = date.take(4).toIntOrNull()
             }
-            
+
             // Track number from medium
             val media = release.optJSONArray("media")
             if (media != null && media.length() > 0) {
@@ -431,11 +431,11 @@ class AudioMetadataService @Inject constructor(
                 }
             }
         }
-        
+
         // ISRCs
         val isrcs = recording.optJSONArray("isrcs")
         val isrc = if (isrcs != null && isrcs.length() > 0) isrcs.getString(0) else null
-        
+
         // Tags (genres)
         val tags = recording.optJSONArray("tags")
         val genres = mutableListOf<String>()
@@ -445,7 +445,7 @@ class AudioMetadataService @Inject constructor(
                 genres.add(tag.optString("name"))
             }
         }
-        
+
         return AudioMetadata(
             title = title,
             artist = artists.joinToString(", "),
@@ -463,25 +463,25 @@ class AudioMetadataService @Inject constructor(
             source = AudioMetadataSource.MUSICBRAINZ
         )
     }
-    
+
     private fun parseMusicBrainzReleaseSearch(response: String): AlbumMetadata? {
         try {
             val jsonObject = JSONObject(response)
             val releases = jsonObject.optJSONArray("releases")
-            
+
             if (releases != null && releases.length() > 0) {
                 val release = releases.getJSONObject(0)
-                
+
                 val id = release.optString("id")
                 val title = release.optString("title")
                 val date = release.optString("date")
                 val country = release.optString("country")
                 val trackCount = release.optInt("track-count", 0)
-                
+
                 // Artists
                 val artistCredit = release.optJSONArray("artist-credit")
                 val artists = mutableListOf<String>()
-                
+
                 if (artistCredit != null) {
                     for (i in 0 until artistCredit.length()) {
                         val credit = artistCredit.getJSONObject(i)
@@ -491,7 +491,7 @@ class AudioMetadataService @Inject constructor(
                         }
                     }
                 }
-                
+
                 return AlbumMetadata(
                     title = title,
                     artist = artists.joinToString(", "),
@@ -507,7 +507,7 @@ class AudioMetadataService @Inject constructor(
         }
         return null
     }
-    
+
     private fun mergeMetadata(embedded: AudioMetadata, online: AudioMetadata): AudioMetadata {
         return AudioMetadata(
             title = embedded.title ?: online.title,
@@ -532,15 +532,15 @@ class AudioMetadataService @Inject constructor(
             source = AudioMetadataSource.MERGED
         )
     }
-    
+
     private fun parseTrackNumber(value: String?): Int? {
         if (value.isNullOrBlank()) return null
-        
+
         // Handle "1/12" format
         val parts = value.split("/")
         return parts.firstOrNull()?.trim()?.toIntOrNull()
     }
-    
+
     private fun escapeLucene(input: String): String {
         val specialChars = listOf('+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/')
         var result = input
@@ -549,7 +549,7 @@ class AudioMetadataService @Inject constructor(
         }
         return result
     }
-    
+
     private suspend fun enforceRateLimit() {
         val now = System.currentTimeMillis()
         val elapsed = now - lastRequestTime
@@ -558,7 +558,7 @@ class AudioMetadataService @Inject constructor(
         }
         lastRequestTime = System.currentTimeMillis()
     }
-    
+
     private fun makeHttpRequest(urlString: String): String? {
         var connection: HttpURLConnection? = null
         try {
@@ -569,7 +569,7 @@ class AudioMetadataService @Inject constructor(
             connection.readTimeout = TIMEOUT
             connection.setRequestProperty("User-Agent", USER_AGENT)
             connection.setRequestProperty("Accept", "application/json")
-            
+
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
                 val response = reader.readText()
@@ -583,7 +583,7 @@ class AudioMetadataService @Inject constructor(
         }
         return null
     }
-    
+
     private fun downloadImage(urlString: String): ByteArray? {
         var connection: HttpURLConnection? = null
         try {
@@ -593,7 +593,7 @@ class AudioMetadataService @Inject constructor(
             connection.connectTimeout = TIMEOUT
             connection.readTimeout = TIMEOUT
             connection.setRequestProperty("User-Agent", USER_AGENT)
-            
+
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
                 return connection.inputStream.readBytes()
             }

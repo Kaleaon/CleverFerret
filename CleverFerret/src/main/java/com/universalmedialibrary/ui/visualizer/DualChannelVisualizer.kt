@@ -28,12 +28,12 @@ internal fun DualChannelVisualizer(
     secondaryColor: Color
 ) {
     val waveform = state.waveform.ifEmpty { List(256) { 0f } }
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerY = size.height / 2
         val stepX = size.width / waveform.size
         val amplitude = size.height * 0.2f
-        
+
         // Left channel (top half)
         val leftPath = Path().apply {
             moveTo(0f, centerY / 2)
@@ -43,7 +43,7 @@ internal fun DualChannelVisualizer(
                 lineTo(x, y)
             }
         }
-        
+
         // Right channel (bottom half) - slightly offset
         val rightPath = Path().apply {
             moveTo(0f, centerY + centerY / 2)
@@ -55,7 +55,7 @@ internal fun DualChannelVisualizer(
                 lineTo(x, y)
             }
         }
-        
+
         // Draw center divider
         drawLine(
             color = primaryColor.copy(alpha = 0.2f),
@@ -63,13 +63,13 @@ internal fun DualChannelVisualizer(
             end = Offset(size.width, centerY),
             strokeWidth = 1f
         )
-        
+
         drawPath(
             path = leftPath,
             color = primaryColor,
             style = Stroke(width = 2f, cap = StrokeCap.Round)
         )
-        
+
         drawPath(
             path = rightPath,
             color = secondaryColor,

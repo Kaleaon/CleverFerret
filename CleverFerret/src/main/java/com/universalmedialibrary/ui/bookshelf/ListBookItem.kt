@@ -95,7 +95,7 @@ internal fun ListBookItem(
             ) {
                 if (book.coverUrl != null) {
                     AsyncImage(
-                    
+
                         model = book.coverUrl,
                         contentDescription = book.title,
                         modifier = Modifier.fillMaxSize(),

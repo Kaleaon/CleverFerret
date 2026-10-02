@@ -6,7 +6,7 @@ package com.universalmedialibrary.services.metadata.covers
 interface CoverSource {
     val sourceName: String
     val priority: Int // Higher = try first
-    
+
     /**
      * Search for cover image
      */
@@ -15,12 +15,12 @@ interface CoverSource {
         title: String? = null,
         author: String? = null
     ): Result<CoverResult?>
-    
+
     /**
      * Get direct cover URL from source-specific ID
      */
     suspend fun getCoverUrl(sourceId: String): Result<String?>
-    
+
     /**
      * Download cover image data
      */

@@ -26,7 +26,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Settings Screen
- * 
+ *
  * A beautiful, modular settings interface that allows users to:
  * - Configure API providers and their capabilities
  * - Manage integrations (Plex, Jellyfin, Calibre, etc.)
@@ -62,7 +62,7 @@ internal fun SettingsToggleItem(
                 color = MediaColors.TextSecondary
             )
         }
-        
+
         Switch(
             checked = isChecked,
             onCheckedChange = onCheckedChange,

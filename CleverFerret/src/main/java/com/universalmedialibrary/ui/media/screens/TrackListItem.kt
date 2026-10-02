@@ -66,9 +66,9 @@ internal fun TrackListItem(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.SM))
-        
+
         // Album art
         Surface(
             modifier = Modifier
@@ -78,7 +78,7 @@ internal fun TrackListItem(
         ) {
             if (track.albumArtUrl != null) {
                 AsyncImage(
-                    
+
                     model = track.albumArtUrl,
                     contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
@@ -93,9 +93,9 @@ internal fun TrackListItem(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         // Track info
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -114,14 +114,14 @@ internal fun TrackListItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        
+
         // Duration
         Text(
             text = track.duration,
             style = MediaTypography.LabelSmall,
             color = MediaColors.TextTertiary
         )
-        
+
         // More options
         IconButton(onClick = { /* Show menu */ }) {
             Icon(

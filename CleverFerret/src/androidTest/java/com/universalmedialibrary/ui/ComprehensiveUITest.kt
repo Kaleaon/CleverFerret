@@ -13,7 +13,7 @@ import org.junit.runner.RunWith
 
 /**
  * Comprehensive UI Tests for CleverFerret
- * 
+ *
  * Tests critical user flows and UI components:
  * - Navigation and bottom bar persistence
  * - Media player functionality
@@ -47,7 +47,7 @@ class ComprehensiveUITest {
 
         // Navigate to books screen
         composeTestRule.onNodeWithContentDescription("Books").performClick()
-        
+
         // Verify bottom navigation is still visible
         composeTestRule.onNodeWithContentDescription("Home").assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Books").assertIsDisplayed()
@@ -56,7 +56,7 @@ class ComprehensiveUITest {
 
         // Navigate to music screen
         composeTestRule.onNodeWithContentDescription("Music").performClick()
-        
+
         // Verify bottom navigation persists
         composeTestRule.onNodeWithContentDescription("Home").assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Books").assertIsDisplayed()
@@ -68,13 +68,13 @@ class ComprehensiveUITest {
     fun searchFunctionalityWorks() {
         // Navigate to search screen
         composeTestRule.onNodeWithContentDescription("Search").performClick()
-        
+
         // Verify search input is present
         composeTestRule.onNodeWithText("Search").assertIsDisplayed()
-        
+
         // Enter search query
         composeTestRule.onNodeWithText("Search").performTextInput("test book")
-        
+
         // Verify search results (or empty state) appear
         composeTestRule.waitUntil(5000) {
             composeTestRule.onAllNodesWithText("No results").fetchSemanticsNodes().isNotEmpty() ||
@@ -86,10 +86,10 @@ class ComprehensiveUITest {
     fun settingsNavigationWorks() {
         // Navigate to settings
         composeTestRule.onNodeWithContentDescription("Settings").performClick()
-        
+
         // Verify settings screen loads
         composeTestRule.onNodeWithText("Settings").assertIsDisplayed()
-        
+
         // Test settings categories
         composeTestRule.onNodeWithText("Appearance").assertIsDisplayed()
         composeTestRule.onNodeWithText("Library").assertIsDisplayed()
@@ -98,7 +98,7 @@ class ComprehensiveUITest {
 
         // Navigate to appearance settings
         composeTestRule.onNodeWithText("Appearance").performClick()
-        
+
         // Verify theme options are present
         composeTestRule.onNodeWithText("Theme").assertIsDisplayed()
         composeTestRule.onNodeWithText("Dark Mode").assertIsDisplayed()
@@ -108,10 +108,10 @@ class ComprehensiveUITest {
     fun mediaPlayerControlsWork() {
         // Navigate to music screen
         composeTestRule.onNodeWithContentDescription("Music").performClick()
-        
+
         // Try to find and play first item (if available)
         composeTestRule.onAllNodesWithContentDescription("Play").firstOrNull()?.performClick()
-        
+
         // Verify mini player appears (if media is playing)
         composeTestRule.waitUntil(3000) {
             try {
@@ -133,7 +133,7 @@ class ComprehensiveUITest {
     fun aiEntertainmentAccess() {
         // Look for AI entertainment feature in navigation
         composeTestRule.onAllNodesWithContentDescription("AI").firstOrNull()?.performClick()
-        
+
         // If AI feature is available, verify it loads
         composeTestRule.waitUntil(3000) {
             try {
@@ -150,10 +150,10 @@ class ComprehensiveUITest {
         // Navigate to settings
         composeTestRule.onNodeWithContentDescription("Settings").performClick()
         composeTestRule.onNodeWithText("Appearance").performClick()
-        
+
         // Try to switch themes (if theme switcher is available)
         composeTestRule.onAllNodesWithText("Navy Gold").firstOrNull()?.performClick()
-        
+
         // Verify theme applied (by checking if any color changes occurred)
         // This is a basic check - more sophisticated testing would verify actual color values
     }
@@ -162,7 +162,7 @@ class ComprehensiveUITest {
     fun fileBrowserAccess() {
         // Look for file browser in navigation
         composeTestRule.onAllNodesWithContentDescription("Files").firstOrNull()?.performClick()
-        
+
         // Verify file browser loads
         composeTestRule.waitUntil(3000) {
             try {
@@ -179,10 +179,10 @@ class ComprehensiveUITest {
     fun libraryCategoriesWork() {
         // Test different library categories
         val categories = listOf("Books", "Comics", "Movies", "Documents")
-        
+
         categories.forEach { category ->
             composeTestRule.onNodeWithContentDescription(category).performClick()
-            
+
             // Verify category screen loads
             composeTestRule.waitUntil(2000) {
                 try {
@@ -192,7 +192,7 @@ class ComprehensiveUITest {
                     false
                 }
             }
-            
+
             // Go back to home for next test
             composeTestRule.onNodeWithContentDescription("Home").performClick()
         }
@@ -202,10 +202,10 @@ class ComprehensiveUITest {
     fun appStartupAndBasicFunctionality() {
         // Verify app starts without crash
         composeTestRule.onRoot().assertIsDisplayed()
-        
+
         // Verify main navigation elements are present
         composeTestRule.onNodeWithContentDescription("Home").assertIsDisplayed()
-        
+
         // Verify no crash dialogs or error messages are visible
         composeTestRule.onNodeWithText("Error").assertDoesNotExist()
         composeTestRule.onNodeWithText("Crashed").assertDoesNotExist()
@@ -215,7 +215,7 @@ class ComprehensiveUITest {
     fun systemNavigationIntegrity() {
         // Test that navigation doesn't break after multiple clicks
         val destinations = listOf("Home", "Books", "Music", "Settings")
-        
+
         // Cycle through destinations multiple times
         repeat(3) {
             destinations.forEach { destination ->
@@ -229,12 +229,12 @@ class ComprehensiveUITest {
     fun bottomBarScrollingWorks() {
         // Test bottom bar horizontal scrolling if there are many items
         composeTestRule.onNodeWithContentDescription("Home").assertIsDisplayed()
-        
+
         // Try to scroll the bottom bar (if it's scrollable)
         composeTestRule.onRoot().performTouchInput {
             swipeLeft()
         }
-        
+
         // Verify navigation is still functional after scroll
         composeTestRule.onNodeWithContentDescription("Settings").performClick()
         composeTestRule.onNodeWithText("Settings").assertIsDisplayed()

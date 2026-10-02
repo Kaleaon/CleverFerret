@@ -22,7 +22,7 @@ private val Context.parentalControlsDataStore: DataStore<Preferences> by prefere
 
 /**
  * Parental controls settings manager
- * 
+ *
  * Features:
  * - Enable/disable mature content filtering
  * - PIN protection for settings and adult content
@@ -51,20 +51,20 @@ class ParentalControlsSettings @Inject constructor(
         private val KEY_BOOK_RATING_LIMIT = stringPreferencesKey("rating_limit_book")
         private val KEY_BLOCKED_TAGS = stringSetPreferencesKey("blocked_tags")
         private val KEY_BLOCKED_TAG_CATEGORIES = stringSetPreferencesKey("blocked_tag_categories")
-        
+
         // Rating categories
         const val RATING_GENERAL = "General"
         const val RATING_TEEN = "Teen"
         const val RATING_MATURE = "Mature"
         const val RATING_EXPLICIT = "Explicit"
         const val RATING_ADULT = "Adult"
-        
+
         // AO3 ratings
         const val RATING_AO3_GENERAL = "General Audiences"
         const val RATING_AO3_TEEN = "Teen And Up"
         const val RATING_AO3_MATURE = "Mature"
         const val RATING_AO3_EXPLICIT = "Explicit"
-        
+
         // FFN ratings
         const val RATING_FFN_K = "K"
         const val RATING_FFN_K_PLUS = "K+"
@@ -712,7 +712,7 @@ data class ParentalControlsState(
      */
     val hasRestrictions: Boolean
         get() = enabled && (blockExplicit || blockMature)
-    
+
     /**
      * Get allowed ratings
      */
@@ -722,18 +722,18 @@ data class ParentalControlsState(
             add("General Audiences")
             add("K")
             add("K+")
-            
+
             if ((!blockMature || !enabled) && bookRatingLimit.order >= ParentalControlsSettings.BookRatingLevel.TEEN.order) {
                 add("Teen")
                 add("Teen And Up")
                 add("T")
             }
-            
+
             if ((!blockMature || !enabled) && bookRatingLimit.order >= ParentalControlsSettings.BookRatingLevel.MATURE.order) {
                 add("Mature")
                 add("M")
             }
-            
+
             if ((!blockExplicit || !enabled) && bookRatingLimit.order >= ParentalControlsSettings.BookRatingLevel.EXPLICIT.order) {
                 add("Explicit")
                 add("Adult")

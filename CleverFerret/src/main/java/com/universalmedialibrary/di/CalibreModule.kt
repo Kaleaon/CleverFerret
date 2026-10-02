@@ -41,13 +41,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object CalibreModule {
-    
+
     // ========== Fanfiction Services ==========
     // Note: FanfictionDownloadService uses @Inject constructor, so Hilt provides it automatically
     // Note: EpubCreatorService uses @Inject constructor, so Hilt provides it automatically
-    
+
     // ========== EPUB Tools ==========
-    
+
     @Provides
     @Singleton
     fun provideEpubMergeService(
@@ -56,7 +56,7 @@ object CalibreModule {
     ): EpubMergeService {
         return EpubMergeService(context, epubCreator)
     }
-    
+
     @Provides
     @Singleton
     fun provideEpubSplitService(
@@ -65,18 +65,18 @@ object CalibreModule {
     ): EpubSplitService {
         return EpubSplitService(context, epubCreator)
     }
-    
+
     @Provides
     @Singleton
     fun provideEpubValidationService(): EpubValidationService {
         return EpubValidationService()
     }
-    
+
     // ========== Audiobook Services ==========
     // Note: AudiobookService uses @Inject constructor, so Hilt provides it automatically
-    
+
     // ========== Cover Services ==========
-    
+
     @Provides
     @Singleton
     fun provideAppleBooksCoverSource(
@@ -84,7 +84,7 @@ object CalibreModule {
     ): AppleBooksCoverSource {
         return AppleBooksCoverSource(httpClient)
     }
-    
+
     @Provides
     @Singleton
     fun provideAmazonCoverSource(
@@ -92,7 +92,7 @@ object CalibreModule {
     ): AmazonCoverSource {
         return AmazonCoverSource(httpClient)
     }
-    
+
     @Provides
     @Singleton
     fun provideGoogleBooksCoverSource(
@@ -101,7 +101,7 @@ object CalibreModule {
     ): GoogleBooksCoverSource {
         return GoogleBooksCoverSource(httpClient, apiKeyRepository)
     }
-    
+
     @Provides
     @Singleton
     fun provideCoverService(
@@ -112,9 +112,9 @@ object CalibreModule {
     ): CoverService {
         return CoverService(context, appleBooksCoverSource, amazonCoverSource, googleBooksCoverSource)
     }
-    
+
     // ========== Metadata Service ==========
-    
+
     @Provides
     @Singleton
     fun provideMetadataService(
@@ -122,15 +122,15 @@ object CalibreModule {
     ): MetadataService {
         return MetadataService(metadataSources)
     }
-    
+
     // ========== Comic Services ==========
-    
+
     @Provides
     @Singleton
     fun provideComicInfoHandler(): ComicInfoHandler {
         return ComicInfoHandler()
     }
-    
+
     @Provides
     @Singleton
     fun provideComicvineMetadataSource(
@@ -139,15 +139,15 @@ object CalibreModule {
     ): ComicvineMetadataSource {
         return ComicvineMetadataSource(httpClient, apiKeyRepository)
     }
-    
+
     // ========== Organization Services ==========
-    
+
     @Provides
     @Singleton
     fun provideSimilarityBasedDuplicateDetectionService(): SimilarityBasedDuplicateDetectionService {
         return SimilarityBasedDuplicateDetectionService()
     }
-    
+
     @Provides
     @Singleton
     fun provideSeriesManagementService(
@@ -156,9 +156,9 @@ object CalibreModule {
     ): SeriesManagementService {
         return SeriesManagementService(mediaItemDao, metadataDao)
     }
-    
+
     // ========== AI Services ==========
-    
+
     @Provides
     @Singleton
     fun provideTranslationService(
@@ -167,7 +167,7 @@ object CalibreModule {
     ): TranslationService {
         return TranslationService(httpClient, apiKeyRepository)
     }
-    
+
     @Provides
     @Singleton
     fun provideGrokAnalysisService(
@@ -184,11 +184,11 @@ object CalibreModule {
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class MetadataSourcesModule {
-    
+
     @Binds
     @IntoSet
     abstract fun bindGoodreads(impl: GoodreadsMetadataSource): MetadataSource
-    
+
     @Binds
     @IntoSet
     abstract fun bindOpenLibrary(impl: OpenLibraryMetadataSource): MetadataSource

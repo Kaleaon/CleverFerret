@@ -56,9 +56,9 @@ internal fun PersonCard(person: PersonItem) {
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = person.name,
             style = MediaTypography.LabelMedium,
@@ -66,7 +66,7 @@ internal fun PersonCard(person: PersonItem) {
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         person.role?.let {
             Text(
                 text = it,

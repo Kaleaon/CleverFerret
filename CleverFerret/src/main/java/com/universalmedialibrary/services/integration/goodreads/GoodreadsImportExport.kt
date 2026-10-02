@@ -15,23 +15,23 @@ import javax.inject.Singleton
 
 /**
  * Goodreads CSV Import/Export Service
- * 
+ *
  * Handles importing and exporting book libraries in Goodreads-compatible CSV format.
  * This enables users to:
  * - Import their existing Goodreads library into CleverFerret
  * - Export their CleverFerret library for backup or migration
  * - Maintain compatibility with Goodreads ecosystem
- * 
+ *
  * CSV Format based on Goodreads export standard:
  * https://www.goodreads.com/review/import
- * 
+ *
  * Adapted from badreads project: https://github.com/fenimore/badreads
  */
 @Singleton
 class GoodreadsImportExport @Inject constructor() {
-    
+
     private val csvDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-    
+
     /**
      * Data class representing a book for import/export
      */
@@ -60,43 +60,43 @@ class GoodreadsImportExport @Inject constructor() {
         val dateStarted: Long? = null,
         val customCover: String? = null
     )
-    
+
     /**
      * Import books from Goodreads CSV format
-     * 
+     *
      * @param inputStream CSV input stream
      * @return List of imported books
      */
     fun importFromCSV(inputStream: InputStream): List<GoodreadsBook> {
         val rows = csvReader().readAllWithHeader(inputStream)
         val imports = mutableListOf<GoodreadsBook>()
-        
+
         for (row in rows) {
             val fullTitle = row["Title"] ?: continue
             var title = fullTitle
             var subtitle: String? = null
-            
+
             // Split title and subtitle if colon present
             if (title.contains(":")) {
                 val parts = fullTitle.split(":", limit = 2)
                 title = parts[0].trim()
                 subtitle = parts.getOrNull(1)?.trim()
             }
-            
+
             val additionalAuthors = row["Additional Authors"]?.ifBlank { null }
             val isbn10 = row["ISBN"]?.removeSurrounding("=\"", "\"")?.ifBlank { null }
             val isbn13 = row["ISBN13"]?.removeSurrounding("=\"", "\"")?.ifBlank { null }
-            
+
             // Parse dates
             val startString = row["Date Started"]?.ifBlank { null }
-            val started = startString?.let { 
+            val started = startString?.let {
                 try {
                     LocalDate.parse(it, csvDateFormatter).toEpochDay()
                 } catch (e: Exception) {
                     null
                 }
             }
-            
+
             val readString = row["Date Read"]?.ifBlank { null }
             val read = readString?.let {
                 try {
@@ -105,7 +105,7 @@ class GoodreadsImportExport @Inject constructor() {
                     null
                 }
             }
-            
+
             val addedString = row["Date Added"]?.ifBlank { null }
             val added = addedString?.let {
                 try {
@@ -114,7 +114,7 @@ class GoodreadsImportExport @Inject constructor() {
                     LocalDate.now().toEpochDay()
                 }
             } ?: LocalDate.now().toEpochDay()
-            
+
             val book = GoodreadsBook(
                 title = title,
                 subtitle = subtitle,
@@ -140,16 +140,16 @@ class GoodreadsImportExport @Inject constructor() {
                 dateStarted = started,
                 customCover = row["CustomCover"]?.ifBlank { null }
             )
-            
+
             imports.add(book)
         }
-        
+
         return imports
     }
-    
+
     /**
      * Export books to Goodreads CSV format
-     * 
+     *
      * @param output Output stream
      * @param books List of books to export
      * @return Output stream with CSV data
@@ -167,14 +167,14 @@ class GoodreadsImportExport @Inject constructor() {
             // Library status
             "My Rating", "My Review", "Bookmark", "Exclusive Shelf", "Description"
         )
-        
+
         val rows = books.map { book ->
             val fullTitle = if (book.subtitle != null) {
                 "${book.title}: ${book.subtitle}"
             } else {
                 book.title
             }
-            
+
             listOf(
                 // Basic info
                 fullTitle,
@@ -203,7 +203,7 @@ class GoodreadsImportExport @Inject constructor() {
                 book.description.orEmpty()
             )
         }
-        
+
         csvWriter {
             quote {
                 mode = WriteQuoteMode.ALL
@@ -212,10 +212,10 @@ class GoodreadsImportExport @Inject constructor() {
             writeRow(headers)
             writeRows(rows)
         }
-        
+
         return output
     }
-    
+
     /**
      * Convert GoodreadsBook to CleverFerret entities
      * This is a helper method for integration with CleverFerret's database
@@ -243,7 +243,7 @@ class GoodreadsImportExport @Inject constructor() {
             hasThumbnail = false,
             thumbnailPath = null
         )
-        
+
         // Create MetadataCommon
         val metadataCommon = MetadataCommon(
             itemId = 0, // Will be set after insert
@@ -270,7 +270,7 @@ class GoodreadsImportExport @Inject constructor() {
             isFavorite = book.bookmark,
             isDownloaded = false
         )
-        
+
         // Create MetadataBook
         val metadataBook = MetadataBook(
             itemId = 0, // Will be set after insert
@@ -310,7 +310,7 @@ class GoodreadsImportExport @Inject constructor() {
             purchaseLinksShown = false,
             dateScanned = null
         )
-        
+
         return Triple(mediaItem, metadataCommon, metadataBook)
     }
 }

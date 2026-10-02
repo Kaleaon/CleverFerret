@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 /**
  * Service for enhancing artwork using Fanart.tv and other sources
- * 
+ *
  * This service coordinates fetching high-quality fanart from Fanart.tv
  * and updating the metadata in the database.
  */
@@ -53,7 +53,7 @@ class ArtworkEnhancementService @Inject constructor(
                 }
 
                 val (posterUrl, backdropUrl) = fanart
-                
+
                 // Get existing metadata
                 val existingMetadata = metadataDao.getMetadataCommonByItemId(itemId)
                 if (existingMetadata == null) {
@@ -131,7 +131,7 @@ class ArtworkEnhancementService @Inject constructor(
                 }
 
                 val (posterUrl, backdropUrl) = fanart
-                
+
                 // Get existing metadata
                 val existingMetadata = metadataDao.getMetadataCommonByItemId(itemId)
                 if (existingMetadata == null) {
@@ -209,7 +209,7 @@ class ArtworkEnhancementService @Inject constructor(
                 }
 
                 val (thumbUrl, backgroundUrl) = fanart
-                
+
                 // Get existing metadata
                 val existingMetadata = metadataDao.getMetadataCommonByItemId(itemId)
                 if (existingMetadata == null) {
@@ -338,7 +338,7 @@ class ArtworkEnhancementService @Inject constructor(
                 if (index > 0) {
                     kotlinx.coroutines.delay(600) // 600ms delay = ~1.67 req/sec (safe margin)
                 }
-                
+
                 val success = when (type) {
                     ArtworkType.MOVIE -> enhanceMovieArtwork(itemId, externalId)
                     ArtworkType.TV_SHOW -> enhanceTvArtwork(itemId, externalId)

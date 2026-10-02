@@ -19,7 +19,7 @@ import com.universalmedialibrary.ui.theme.*
 
 /**
  * Ancient Architect Navigation Rail
- * 
+ *
  * Features:
  * - Vertical stone pillar aesthetic
  * - Carved geometric patterns as dividers
@@ -38,7 +38,7 @@ fun AncientArchitectNavigationRail(
 ) {
     val ancientColors = ancientArchitectColors()
     val enablePatterns = geometricPatternsEnabled()
-    
+
     NavigationRail(
         modifier = modifier
             .fillMaxHeight()
@@ -54,7 +54,7 @@ fun AncientArchitectNavigationRail(
                         )
                     )
                 )
-                
+
                 // Carved patterns
                 if (enablePatterns) {
                     with(AncientArchitectPatterns) {
@@ -66,7 +66,7 @@ fun AncientArchitectNavigationRail(
                             height = 30f,
                             yPosition = size.height * 0.2f
                         )
-                        
+
                         drawFriezePattern(
                             color = ancientColors.stone.text,
                             alpha = 0.15f,
@@ -74,7 +74,7 @@ fun AncientArchitectNavigationRail(
                             height = 30f,
                             yPosition = size.height * 0.5f
                         )
-                        
+
                         drawFriezePattern(
                             color = ancientColors.stone.text,
                             alpha = 0.15f,
@@ -107,7 +107,7 @@ fun AncientArchitectNavigationRailItem(
 ) {
     val ancientColors = ancientArchitectColors()
     val enableGlow = crystalGlowEnabled()
-    
+
     // Glow animation for selected item
     val infiniteTransition = rememberInfiniteTransition(label = "itemGlow")
     val glowAlpha by infiniteTransition.animateFloat(
@@ -119,7 +119,7 @@ fun AncientArchitectNavigationRailItem(
         ),
         label = "glowAlpha"
     )
-    
+
     Box(
         modifier = modifier
             .fillMaxWidth()

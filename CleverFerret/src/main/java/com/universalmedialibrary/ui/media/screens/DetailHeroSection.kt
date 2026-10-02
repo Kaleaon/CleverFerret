@@ -34,7 +34,7 @@ internal fun DetailHeroSection(
 ) {
     val configuration = LocalConfiguration.current
     val heroHeight = (configuration.screenHeightDp * 0.5f).dp
-    
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -51,7 +51,7 @@ internal fun DetailHeroSection(
                 contentScale = ContentScale.Crop
             )
         }
-        
+
         // Gradient overlays
         Box(
             modifier = Modifier
@@ -67,7 +67,7 @@ internal fun DetailHeroSection(
                     )
                 )
         )
-        
+
         // Content
         Row(
             modifier = Modifier
@@ -107,9 +107,9 @@ internal fun DetailHeroSection(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             // Info
             Column(modifier = Modifier.weight(1f)) {
                 // Media type badge
@@ -124,9 +124,9 @@ internal fun DetailHeroSection(
                         modifier = Modifier.padding(horizontal = MediaSpacing.SM, vertical = 2.dp)
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                
+
                 // Title
                 Text(
                     text = item.title,
@@ -135,7 +135,7 @@ internal fun DetailHeroSection(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 // Creator (author/artist/director)
                 if (item.creator != null) {
                     Text(
@@ -144,9 +144,9 @@ internal fun DetailHeroSection(
                         color = MediaColors.TextSecondary
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                
+
                 // Metadata row
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
@@ -169,7 +169,7 @@ internal fun DetailHeroSection(
                             )
                         }
                     }
-                    
+
                     // Year
                     item.year?.let { year ->
                         Text(
@@ -178,7 +178,7 @@ internal fun DetailHeroSection(
                             color = MediaColors.TextSecondary
                         )
                     }
-                    
+
                     // Duration/Pages
                     item.duration?.let { duration ->
                         Text(

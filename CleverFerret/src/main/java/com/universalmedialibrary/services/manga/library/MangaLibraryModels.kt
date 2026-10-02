@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Manga Library Models
- * 
+ *
  * Models for manga library, favorites, categories, and reading history
  * Inspired by Futon/Kotatsu library system
  */

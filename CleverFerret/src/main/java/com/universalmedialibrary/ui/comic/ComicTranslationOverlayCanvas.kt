@@ -24,7 +24,7 @@ import com.universalmedialibrary.data.local.entity.TextElement
 
 /**
  * Canvas overlay for drawing translated text on comic pages
- * 
+ *
  * This composable draws the translation overlay on top of the comic page image,
  * rendering text elements with appropriate backgrounds and positioning.
  */
@@ -128,7 +128,7 @@ private fun DrawScope.drawTextElement(
         fontSize = calculateFontSize(scaledHeight),
         color = textColor
     )
-    
+
     val textLayoutResult = textMeasurer.measure(
         text = textElement.translatedText,
         style = textStyle
@@ -163,7 +163,7 @@ when (textElement.shapeType.lowercase(java.util.Locale.ROOT)) {
     // Draw text with rotation if needed
     val centerX = scaledX + scaledWidth / 2
     val centerY = scaledY + scaledHeight / 2
-    
+
     if (textElement.rotationAngle != 0f) {
         rotate(
             degrees = textElement.rotationAngle,

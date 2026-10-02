@@ -14,7 +14,7 @@ object AppSpacing {
     val Large = 24.dp
     val ExtraLarge = 32.dp
     val ExtraExtraLarge = 48.dp
-    
+
     // Specific use cases
     val CardPadding = Medium
     val ScreenPadding = Medium
@@ -22,7 +22,7 @@ object AppSpacing {
     val ItemSpacing = Small
     val ContentPadding = Medium
     val DialogPadding = Large
-    
+
     // List item spacing
     val ListItemVerticalPadding = 12.dp
     val ListItemHorizontalPadding = Medium
@@ -36,27 +36,27 @@ object AppSizes {
     val IconLarge = 32.dp
     val IconExtraLarge = 48.dp
     val IconHuge = 64.dp
-    
+
     // Thumbnail sizes
     val ThumbnailSmall = 56.dp
     val ThumbnailMedium = 80.dp
     val ThumbnailLarge = 120.dp
-    
+
     // Card sizes
     val CardWidth = 160.dp
     val CardHeight = 240.dp
     val CardImageHeight = 200.dp
-    
+
     // Button heights
     val ButtonHeight = 48.dp
     val ButtonHeightSmall = 40.dp
     val ButtonHeightLarge = 56.dp
-    
+
     // Avatar sizes
     val AvatarSmall = 32.dp
     val AvatarMedium = 40.dp
     val AvatarLarge = 56.dp
-    
+
     // FAB sizes
     val FabSmall = 40.dp
     val FabMedium = 56.dp
@@ -88,7 +88,7 @@ object AppAnimations {
     const val Normal = 300
     const val Slow = 500
     const val VerySlow = 800
-    
+
     // Specific animations
     const val FadeIn = Normal
     const val SlideIn = Normal

@@ -26,6 +26,7 @@ import xml.etree.ElementTree as ET
 ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
 MIN_ALLOWED_PERIOD_MILLIS = 1_800_000
 WIDGET_XML_GLOB = "*widget*_info.xml"
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 
 def _android_attr(element: ET.Element, name: str) -> str | None:
@@ -33,15 +34,25 @@ def _android_attr(element: ET.Element, name: str) -> str | None:
 
 
 def main() -> int:
-    root = pathlib.Path("CleverFerret/src/main/res/xml")
-    if not root.exists():
-        print(f"ERROR: widget XML directory not found: {root}")
-        return 1
+    if len(sys.argv) > 1:
+        xml_files = [
+            pathlib.Path(arg).resolve()
+            for arg in sys.argv[1:]
+            if arg.endswith(".xml") and "widget" in arg and pathlib.Path(arg).exists()
+        ]
+        if not xml_files:
+            print("No matching widget provider XML files to validate.")
+            return 0
+    else:
+        root = REPO_ROOT / "CleverFerret/src/main/res/xml"
+        if not root.exists():
+            print(f"ERROR: widget XML directory not found: {root}")
+            return 1
 
-    xml_files = sorted(root.glob(WIDGET_XML_GLOB))
-    if not xml_files:
-        print(f"ERROR: no widget provider XML files matched {WIDGET_XML_GLOB} in {root}")
-        return 1
+        xml_files = sorted(root.glob(WIDGET_XML_GLOB))
+        if not xml_files:
+            print(f"ERROR: no widget provider XML files matched {WIDGET_XML_GLOB} in {root}")
+            return 1
 
     failures: list[str] = []
 

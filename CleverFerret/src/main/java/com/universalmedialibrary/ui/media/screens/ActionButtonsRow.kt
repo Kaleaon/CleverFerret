@@ -66,7 +66,7 @@ internal fun ActionButtonsRow(
                 style = MediaTypography.LabelLarge
             )
         }
-        
+
         // Download button
         FilledTonalIconButton(
             onClick = onDownloadClick,
@@ -80,7 +80,7 @@ internal fun ActionButtonsRow(
                 tint = MediaColors.TextPrimary
             )
         }
-        
+
         // Add to collection
         FilledTonalIconButton(
             onClick = onAddToCollectionClick,
@@ -94,7 +94,7 @@ internal fun ActionButtonsRow(
                 tint = MediaColors.TextPrimary
             )
         }
-        
+
         // Share
         FilledTonalIconButton(
             onClick = onShareClick,

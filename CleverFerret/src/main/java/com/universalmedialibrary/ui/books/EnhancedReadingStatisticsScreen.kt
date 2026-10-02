@@ -20,14 +20,14 @@ import java.util.Locale
 
 /**
  * Enhanced Reading Statistics Screen with Charts
- * 
+ *
  * Displays comprehensive reading statistics including:
  * - Books read over time (monthly/yearly charts)
  * - Reading goal tracking with progress indicator
  * - Publisher statistics
  * - Average/total page counts
  * - Reading streaks
- * 
+ *
  * Adapted from badreads project: https://github.com/fenimore/badreads
  */
 
@@ -40,11 +40,11 @@ fun EnhancedReadingStatisticsScreen(
     viewModel: EnhancedReadingStatisticsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     LaunchedEffect(libraryId) {
         viewModel.loadStatistics(libraryId)
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -84,7 +84,7 @@ fun EnhancedReadingStatisticsScreen(
                     )
                 }
             }
-            
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -104,7 +104,7 @@ fun EnhancedReadingStatisticsScreen(
                     )
                 }
             }
-            
+
             // Reading goal
             item {
                 YearlyGoalCard(
@@ -115,7 +115,7 @@ fun EnhancedReadingStatisticsScreen(
                     }
                 )
             }
-            
+
             // Monthly reading chart
             item {
                 ChartCard(
@@ -129,7 +129,7 @@ fun EnhancedReadingStatisticsScreen(
                     }
                 }
             }
-            
+
             // Top publishers
             if (uiState.topPublishers.isNotEmpty()) {
                 item {
@@ -141,7 +141,7 @@ fun EnhancedReadingStatisticsScreen(
                     }
                 }
             }
-            
+
             // Reading shelf breakdown
             item {
                 ShelfBreakdownCard(
@@ -199,7 +199,7 @@ private fun YearlyGoalCard(
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -227,15 +227,15 @@ private fun YearlyGoalCard(
                         color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                     )
                 }
-                
+
                 FilledTonalButton(onClick = { showDialog = true }) {
                     Text("Set Goal")
                 }
             }
-            
+
             // Progress bar
             val progress = if (goal > 0) (current.toFloat() / goal).coerceIn(0f, 1f) else 0f
-            
+
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 LinearProgressIndicator(
                     progress = { progress },
@@ -244,7 +244,7 @@ private fun YearlyGoalCard(
                         .height(12.dp),
                     strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
                 )
-                
+
                 Text(
                     text = "${(progress * 100).toInt()}% complete",
                     style = MaterialTheme.typography.labelMedium,
@@ -253,7 +253,7 @@ private fun YearlyGoalCard(
             }
         }
     }
-    
+
     if (showDialog) {
         SetGoalDialog(
             currentGoal = goal,
@@ -273,7 +273,7 @@ private fun SetGoalDialog(
     onConfirm: (Int) -> Unit
 ) {
     var goalText by remember { mutableStateOf(currentGoal.toString()) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Set Yearly Reading Goal") },
@@ -333,7 +333,7 @@ private fun ChartCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             content()
         }
     }
@@ -345,7 +345,7 @@ private fun MonthlyReadingChart(
     modifier: Modifier = Modifier
 ) {
     val maxCount = data.maxOfOrNull { it.count } ?: 1
-    
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -437,7 +437,7 @@ private fun ShelfBreakdownCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly

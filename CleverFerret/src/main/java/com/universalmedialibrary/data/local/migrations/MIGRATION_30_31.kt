@@ -28,7 +28,7 @@ internal val MIGRATION_30_31: Migration = object : Migration(30, 31) {
                 updatedAt INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         // Create ambient_playlists table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS ambient_playlists (
@@ -42,7 +42,7 @@ internal val MIGRATION_30_31: Migration = object : Migration(30, 31) {
                 updatedAt INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         // Create ambient_reading_sessions table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS ambient_reading_sessions (
@@ -58,4 +58,3 @@ internal val MIGRATION_30_31: Migration = object : Migration(30, 31) {
         """.trimIndent())
     }
 }
-

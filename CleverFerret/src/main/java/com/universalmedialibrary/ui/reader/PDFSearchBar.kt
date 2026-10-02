@@ -106,7 +106,7 @@ fun PDFSearchBar(
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 searchResults.take(5).forEach { result ->
                     Surface(
                         modifier = Modifier

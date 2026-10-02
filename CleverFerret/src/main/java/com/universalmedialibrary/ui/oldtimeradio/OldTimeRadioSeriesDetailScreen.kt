@@ -27,7 +27,7 @@ fun OldTimeRadioSeriesDetailScreen(
 ) {
     val episodes by viewModel.episodes.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    
+
     LaunchedEffect(seriesTitle) {
         viewModel.loadSeries(seriesTitle)
     }
@@ -35,12 +35,12 @@ fun OldTimeRadioSeriesDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = seriesTitle,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -109,9 +109,9 @@ private fun EpisodeCard(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = episode.displayTitle,
@@ -120,7 +120,7 @@ private fun EpisodeCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -142,7 +142,7 @@ private fun EpisodeCard(
                     )
                 }
             }
-            
+
             if (episode.isComplete) {
                 Icon(
                     Icons.Default.CheckCircle,

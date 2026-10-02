@@ -19,25 +19,25 @@ class BookRepository @Inject constructor(
         const val MEDIA_TYPE_BOOK = "BOOK"
         const val MEDIA_TYPE_EBOOK = "EBOOK"
     }
-    
-    fun getAllBooks(): Flow<List<MediaItem>> = 
+
+    fun getAllBooks(): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(MEDIA_TYPE_BOOK)
-    
-    suspend fun getBookById(id: Long): MediaItem? = 
+
+    suspend fun getBookById(id: Long): MediaItem? =
         mediaItemDao.getMediaItemById(id)
-    
-    fun getRecentlyAddedBooks(limit: Int = 10): Flow<List<MediaItem>> = 
+
+    fun getRecentlyAddedBooks(limit: Int = 10): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(MEDIA_TYPE_BOOK).map { it.take(limit) }
-    
-    suspend fun searchBooks(query: String): List<MediaItem> = 
+
+    suspend fun searchBooks(query: String): List<MediaItem> =
         mediaItemDao.searchMediaItems(query, 100)
             .filter { it.mediaType == MEDIA_TYPE_BOOK || it.mediaType == MEDIA_TYPE_EBOOK }
-    
+
     suspend fun insertBook(book: MediaItem) = mediaItemDao.insertMediaItem(book)
-    
+
     suspend fun updateBook(book: MediaItem) = mediaItemDao.updateMediaItem(book)
-    
+
     suspend fun deleteBook(book: MediaItem) = mediaItemDao.deleteMediaItem(book)
-    
+
     suspend fun getBookCount(): Int = mediaItemDao.getItemCountByType(MEDIA_TYPE_BOOK)
 }

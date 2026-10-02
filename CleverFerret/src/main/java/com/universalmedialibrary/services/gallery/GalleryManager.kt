@@ -22,7 +22,7 @@ import javax.inject.Singleton
 
 /**
  * Gallery Manager
- * 
+ *
  * Handles MediaStore queries for images and videos with caching and metadata extraction.
  * Inspired by GalleryON with Plex-like enhancements for advanced filtering and organization.
  */
@@ -32,7 +32,7 @@ class GalleryManager @Inject constructor(
 ) {
     companion object {
         private const val TAG = "GalleryManager"
-        
+
         // MediaStore projections
         private val MEDIA_PROJECTION = arrayOf(
             MediaStore.Files.FileColumns._ID,
@@ -51,7 +51,7 @@ class GalleryManager @Inject constructor(
             MediaStore.Video.VideoColumns.DURATION,
             MediaStore.Images.ImageColumns.DATE_TAKEN
         )
-        
+
         // Support for location (API 29+)
         private val LOCATION_PROJECTION = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             arrayOf(
@@ -62,42 +62,42 @@ class GalleryManager @Inject constructor(
             emptyArray()
         }
     }
-    
+
     private val contentResolver: ContentResolver = context.contentResolver
-    
+
     // Cached data
     private val _allItems = MutableStateFlow<List<GalleryItem>>(emptyList())
     val allItems: StateFlow<List<GalleryItem>> = _allItems.asStateFlow()
-    
+
     private val _albums = MutableStateFlow<List<GalleryAlbum>>(emptyList())
     val albums: StateFlow<List<GalleryAlbum>> = _albums.asStateFlow()
-    
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    
+
     /**
      * Load all media items from MediaStore
      */
     suspend fun loadAllMedia(): List<GalleryItem> = withContext(Dispatchers.IO) {
         _isLoading.value = true
-        
+
         try {
             Log.d(TAG, "Loading all media from MediaStore...")
-            
+
             val items = mutableListOf<GalleryItem>()
-            
+
             val projection = MEDIA_PROJECTION + LOCATION_PROJECTION
-            
+
             val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE}=? OR ${MediaStore.Files.FileColumns.MEDIA_TYPE}=?"
             val selectionArgs = arrayOf(
                 MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(),
                 MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString()
             )
-            
+
             val sortOrder = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
-            
+
             val queryUri = MediaStore.Files.getContentUri("external")
-            
+
             contentResolver.query(
                 queryUri,
                 projection,
@@ -120,14 +120,14 @@ class GalleryManager @Inject constructor(
                 val relativePathColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RELATIVE_PATH)
                 val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DURATION)
                 val dateTakenColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN)
-                
+
                 val latColumn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     cursor.getColumnIndex(MediaStore.Images.ImageColumns.LATITUDE)
                 } else -1
                 val lonColumn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     cursor.getColumnIndex(MediaStore.Images.ImageColumns.LONGITUDE)
                 } else -1
-                
+
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(idColumn)
                     val name = cursor.getString(nameColumn) ?: "Unknown"
@@ -144,16 +144,16 @@ class GalleryManager @Inject constructor(
                     val relativePath = cursor.getString(relativePathColumn) ?: ""
                     val duration = cursor.getLongOrNull(durationColumn)
                     val dateTaken = cursor.getLongOrNull(dateTakenColumn) ?: dateAdded
-                    
+
                     val latitude = if (latColumn >= 0) cursor.getDoubleOrNull(latColumn) else null
                     val longitude = if (lonColumn >= 0) cursor.getDoubleOrNull(lonColumn) else null
-                    
+
                     val mediaType = when (mediaTypeValue) {
                         MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE -> {
                             when {
                                 mimeType.contains("gif") -> GalleryMediaType.GIF
                                 mimeType.contains("heic") || mimeType.contains("heif") -> GalleryMediaType.HEIC
-                                mimeType.contains("raw") || name.endsWith(".dng", true) || 
+                                mimeType.contains("raw") || name.endsWith(".dng", true) ||
                                     name.endsWith(".cr2", true) || name.endsWith(".nef", true) -> GalleryMediaType.RAW
                                 else -> GalleryMediaType.IMAGE
                             }
@@ -161,7 +161,7 @@ class GalleryManager @Inject constructor(
                         MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO -> GalleryMediaType.VIDEO
                         else -> continue
                     }
-                    
+
                     val contentUri = ContentUris.withAppendedId(
                         if (mediaType == GalleryMediaType.VIDEO) {
                             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
@@ -170,7 +170,7 @@ class GalleryManager @Inject constructor(
                         },
                         id
                     )
-                    
+
                     items.add(
                         GalleryItem(
                             id = id,
@@ -196,13 +196,13 @@ class GalleryManager @Inject constructor(
                     )
                 }
             }
-            
+
             Log.d(TAG, "Loaded ${items.size} media items")
             _allItems.value = items
-            
+
             // Build albums from items
             buildAlbumsFromItems(items)
-            
+
             items
         } catch (e: Exception) {
             Log.e(TAG, "Error loading media: ${e.message}", e)
@@ -211,18 +211,18 @@ class GalleryManager @Inject constructor(
             _isLoading.value = false
         }
     }
-    
+
     /**
      * Build album list from loaded items
      */
     private fun buildAlbumsFromItems(items: List<GalleryItem>) {
         val albumMap = items.groupBy { it.bucketId }
-        
+
         val albums = albumMap.map { (bucketId, albumItems) ->
             val sortedItems = albumItems.sortedByDescending { it.dateTaken }
             val imageCount = albumItems.count { it.mediaType != GalleryMediaType.VIDEO }
             val videoCount = albumItems.count { it.mediaType == GalleryMediaType.VIDEO }
-            
+
             GalleryAlbum(
                 id = bucketId,
                 name = albumItems.firstOrNull()?.bucketName ?: "Unknown",
@@ -236,11 +236,11 @@ class GalleryManager @Inject constructor(
                 oldestTimestamp = sortedItems.lastOrNull()?.dateTaken ?: 0
             )
         }.sortedByDescending { it.latestTimestamp }
-        
+
         _albums.value = albums
         Log.d(TAG, "Built ${albums.size} albums")
     }
-    
+
     /**
      * Get items for a specific album
      */
@@ -251,7 +251,7 @@ class GalleryManager @Inject constructor(
         val items = _allItems.value.filter { it.bucketId == albumId }
         sortItems(items, sortOrder)
     }
-    
+
     /**
      * Get items matching filter rules
      */
@@ -260,36 +260,36 @@ class GalleryManager @Inject constructor(
         sortOrder: GallerySortOrder = GallerySortOrder.DATE_TAKEN_DESC
     ): List<GalleryItem> = withContext(Dispatchers.IO) {
         var items = _allItems.value
-        
+
         // Apply filters
         filter.mediaTypes.takeIf { it.isNotEmpty() && !it.contains(GalleryMediaType.ALL) }?.let { types ->
             items = items.filter { it.mediaType in types }
         }
-        
+
         filter.dateFrom?.let { from ->
             items = items.filter { it.dateTaken >= from }
         }
-        
+
         filter.dateTo?.let { to ->
             items = items.filter { it.dateTaken <= to }
         }
-        
+
         filter.minSize?.let { min ->
             items = items.filter { it.size >= min }
         }
-        
+
         filter.maxSize?.let { max ->
             items = items.filter { it.size <= max }
         }
-        
+
         filter.minDuration?.let { min ->
             items = items.filter { (it.duration ?: 0) >= min }
         }
-        
+
         filter.maxDuration?.let { max ->
             items = items.filter { (it.duration ?: Long.MAX_VALUE) <= max }
         }
-        
+
         filter.orientation?.let { orientation ->
             items = items.filter { item ->
                 when (orientation) {
@@ -299,42 +299,42 @@ class GalleryManager @Inject constructor(
                 }
             }
         }
-        
+
         filter.hasLocation?.let { hasLoc ->
-            items = items.filter { 
-                (it.latitude != null && it.longitude != null) == hasLoc 
+            items = items.filter {
+                (it.latitude != null && it.longitude != null) == hasLoc
             }
         }
-        
+
         filter.isFavorite?.let { isFav ->
             items = items.filter { it.isFavorite == isFav }
         }
-        
+
         filter.minRating?.let { min ->
             items = items.filter { it.userRating >= min }
         }
-        
+
         filter.albumIds.takeIf { it.isNotEmpty() }?.let { albums ->
             items = items.filter { it.bucketId in albums }
         }
-        
+
         filter.excludeAlbumIds.takeIf { it.isNotEmpty() }?.let { exclude ->
             items = items.filter { it.bucketId !in exclude }
         }
-        
+
         filter.isHidden?.let { hidden ->
             items = items.filter { it.isHidden == hidden }
         }
-        
+
         filter.searchQuery?.takeIf { it.isNotBlank() }?.let { query ->
             val lowerQuery = query.lowercase()
-            items = items.filter { 
+            items = items.filter {
                 it.name.lowercase().contains(lowerQuery) ||
                 it.bucketName.lowercase().contains(lowerQuery) ||
                 it.aiTags.any { tag -> tag.lowercase().contains(lowerQuery) }
             }
         }
-        
+
         // Near location filter
         filter.nearLocation?.let { locFilter ->
             items = items.filter { item ->
@@ -345,10 +345,10 @@ class GalleryManager @Inject constructor(
                 ) <= locFilter.radiusMeters
             }
         }
-        
+
         sortItems(items, sortOrder)
     }
-    
+
     /**
      * Sort items by specified order
      */
@@ -371,23 +371,23 @@ class GalleryManager @Inject constructor(
             GallerySortOrder.RANDOM -> items.shuffled()
         }
     }
-    
+
     /**
      * Get images only
      */
     fun getImages(): List<GalleryItem> {
-        return _allItems.value.filter { 
+        return _allItems.value.filter {
             it.mediaType in listOf(GalleryMediaType.IMAGE, GalleryMediaType.GIF, GalleryMediaType.HEIC, GalleryMediaType.RAW)
         }
     }
-    
+
     /**
      * Get videos only
      */
     fun getVideos(): List<GalleryItem> {
         return _allItems.value.filter { it.mediaType == GalleryMediaType.VIDEO }
     }
-    
+
     /**
      * Get items from today
      */
@@ -398,10 +398,10 @@ class GalleryManager @Inject constructor(
             set(java.util.Calendar.SECOND, 0)
             set(java.util.Calendar.MILLISECOND, 0)
         }.timeInMillis
-        
+
         return _allItems.value.filter { it.dateTaken >= todayStart }
     }
-    
+
     /**
      * Get recently added items (last 7 days)
      */
@@ -410,31 +410,31 @@ class GalleryManager @Inject constructor(
         return _allItems.value.filter { it.dateAdded >= cutoff }
             .sortedByDescending { it.dateAdded }
     }
-    
+
     /**
      * Get favorites
      */
     fun getFavorites(): List<GalleryItem> {
         return _allItems.value.filter { it.isFavorite }
     }
-    
+
     /**
      * Get screenshots (detected by folder name)
      */
     fun getScreenshots(): List<GalleryItem> {
-        return _allItems.value.filter { 
+        return _allItems.value.filter {
             it.bucketName.contains("screenshot", ignoreCase = true) ||
             it.relativePath.contains("screenshot", ignoreCase = true)
         }
     }
-    
+
     /**
      * Get items with location data
      */
     fun getItemsWithLocation(): List<GalleryItem> {
         return _allItems.value.filter { it.latitude != null && it.longitude != null }
     }
-    
+
     /**
      * Get large files (> 10MB)
      */
@@ -443,14 +443,14 @@ class GalleryManager @Inject constructor(
         return _allItems.value.filter { it.size > threshold }
             .sortedByDescending { it.size }
     }
-    
+
     /**
      * Get items from "On This Day" (same date in previous years)
      */
     fun getOnThisDay(): List<GalleryItem> {
         val today = java.util.Calendar.getInstance()
         val dayOfYear = today.get(java.util.Calendar.DAY_OF_YEAR)
-        
+
         return _allItems.value.filter { item ->
             val itemDate = java.util.Calendar.getInstance().apply {
                 timeInMillis = item.dateTaken
@@ -459,18 +459,18 @@ class GalleryManager @Inject constructor(
             itemDate.get(java.util.Calendar.YEAR) < today.get(java.util.Calendar.YEAR)
         }.sortedByDescending { it.dateTaken }
     }
-    
+
     /**
      * Extract EXIF data for an item
      */
     suspend fun extractExifData(item: GalleryItem): ExifData? = withContext(Dispatchers.IO) {
         if (item.mediaType == GalleryMediaType.VIDEO) return@withContext null
-        
+
         try {
             val inputStream = contentResolver.openInputStream(Uri.parse(item.uri))
             inputStream?.use { stream ->
                 val exif = ExifInterface(stream)
-                
+
                 ExifData(
                     make = exif.getAttribute(ExifInterface.TAG_MAKE),
                     model = exif.getAttribute(ExifInterface.TAG_MODEL),
@@ -478,8 +478,8 @@ class GalleryManager @Inject constructor(
                     shutterSpeed = exif.getAttribute(ExifInterface.TAG_EXPOSURE_TIME),
                     iso = exif.getAttributeInt(ExifInterface.TAG_ISO_SPEED_RATINGS, -1).takeIf { it > 0 },
                     focalLength = exif.getAttribute(ExifInterface.TAG_FOCAL_LENGTH),
-                    flash = exif.getAttributeInt(ExifInterface.TAG_FLASH, -1).let { 
-                        if (it >= 0) (it and 1) == 1 else null 
+                    flash = exif.getAttributeInt(ExifInterface.TAG_FLASH, -1).let {
+                        if (it >= 0) (it and 1) == 1 else null
                     },
                     whiteBalance = when (exif.getAttributeInt(ExifInterface.TAG_WHITE_BALANCE, -1)) {
                         0 -> "Auto"  // WHITEBALANCE_AUTO
@@ -499,7 +499,7 @@ class GalleryManager @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Clear cache
      */
@@ -507,7 +507,7 @@ class GalleryManager @Inject constructor(
         _allItems.value = emptyList()
         _albums.value = emptyList()
     }
-    
+
     /**
      * Remove items from cache (after deletion)
      */
@@ -515,7 +515,7 @@ class GalleryManager @Inject constructor(
         _allItems.value = _allItems.value.filter { it.id !in itemIds }
         buildAlbumsFromItems(_allItems.value)
     }
-    
+
     /**
      * Calculate distance between two coordinates in meters
      */
@@ -524,28 +524,28 @@ class GalleryManager @Inject constructor(
         lat2: Double, lon2: Double
     ): Double {
         val earthRadius = 6371000.0 // meters
-        
+
         val dLat = Math.toRadians(lat2 - lat1)
         val dLon = Math.toRadians(lon2 - lon1)
-        
+
         val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
                 Math.sin(dLon / 2) * Math.sin(dLon / 2)
-        
+
         val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-        
+
         return earthRadius * c
     }
-    
+
     // Extension functions for Cursor
     private fun Cursor.getLongOrNull(columnIndex: Int): Long? {
         return if (isNull(columnIndex)) null else getLong(columnIndex)
     }
-    
+
     private fun Cursor.getIntOrNull(columnIndex: Int): Int? {
         return if (isNull(columnIndex)) null else getInt(columnIndex)
     }
-    
+
     private fun Cursor.getDoubleOrNull(columnIndex: Int): Double? {
         return if (isNull(columnIndex)) null else getDouble(columnIndex)
     }

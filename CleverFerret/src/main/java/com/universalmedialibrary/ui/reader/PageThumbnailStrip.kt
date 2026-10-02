@@ -65,13 +65,13 @@ fun PageThumbnailStrip(
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    
+
     LaunchedEffect(currentPage) {
         scope.launch {
             listState.animateScrollToItem((currentPage - 1).coerceAtLeast(0))
         }
     }
-    
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
@@ -91,7 +91,7 @@ fun PageThumbnailStrip(
                     Icon(Icons.Default.Close, contentDescription = "Close")
                 }
             }
-            
+
             LazyRow(
                 state = listState,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -100,15 +100,15 @@ fun PageThumbnailStrip(
                 items(totalPages) { index ->
                     val pageNum = index + 1
                     val isSelected = pageNum == currentPage
-                    
+
                     Surface(
                         modifier = Modifier
                             .size(60.dp, 80.dp)
                             .clickable { onPageSelect(pageNum) },
                         shape = RoundedCornerShape(4.dp),
-                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer 
+                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer
                                 else MaterialTheme.colorScheme.surfaceVariant,
-                        border = if (isSelected) 
+                        border = if (isSelected)
                             androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
                         else null
                     ) {

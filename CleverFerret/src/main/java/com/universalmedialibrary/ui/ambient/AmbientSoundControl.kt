@@ -70,7 +70,7 @@ fun AmbientSoundControl(
                         }
                     }
                 }
-                
+
                 Row {
                     if (playingSounds.isNotEmpty()) {
                         IconButton(
@@ -84,7 +84,7 @@ fun AmbientSoundControl(
                             )
                         }
                     }
-                    
+
                     IconButton(
                         onClick = { isExpanded = !isExpanded },
                         modifier = Modifier.size(32.dp)
@@ -97,7 +97,7 @@ fun AmbientSoundControl(
                     }
                 }
             }
-            
+
             // Expandable content
             AnimatedVisibility(
                 visible = isExpanded,
@@ -118,7 +118,7 @@ fun AmbientSoundControl(
                                     .align(Alignment.CenterHorizontally)
                             )
                         }
-                        
+
                         is AmbientSoundUiState.Success -> {
                             if (state.sounds.isEmpty()) {
                                 Text(
@@ -142,7 +142,7 @@ fun AmbientSoundControl(
                                 }
                             }
                         }
-                        
+
                         is AmbientSoundUiState.Error -> {
                             Text(
                                 text = state.message,
@@ -204,9 +204,9 @@ private fun CompactSoundButton(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(4.dp))
-            
+
             Text(
                 text = sound.name.take(6),
                 style = MaterialTheme.typography.labelSmall,

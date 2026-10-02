@@ -86,7 +86,7 @@ internal fun CollectionCard(
                         )
                     )
             )
-            
+
             // Content
             Column(
                 modifier = Modifier
@@ -100,7 +100,7 @@ internal fun CollectionCard(
                     modifier = Modifier.size(MediaSizes.IconLG),
                     tint = MediaColors.TextPrimary
                 )
-                
+
                 Column {
                     Text(
                         text = collection.name,

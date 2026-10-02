@@ -44,7 +44,7 @@ fun MusicLibraryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     if (showSearch) {
                         OutlinedTextField(
                             value = state.searchQuery,
@@ -53,9 +53,9 @@ fun MusicLibraryScreen(
                             placeholder = { Text("Search music...") },
                             singleLine = true,
                             trailingIcon = {
-                                IconButton(onClick = { 
+                                IconButton(onClick = {
                                     viewModel.setSearchQuery("")
-                                    showSearch = false 
+                                    showSearch = false
                                 }) {
                                     Icon(Icons.Default.Close, "Close search")
                                 }
@@ -87,7 +87,7 @@ fun MusicLibraryScreen(
                             IconButton(onClick = viewModel::toggleSortMenu) {
                                 Icon(Icons.AutoMirrored.Filled.Sort, "Sort")
                             }
-                            
+
                             DropdownMenu(
                                 expanded = state.showSortMenu,
                                 onDismissRequest = viewModel::toggleSortMenu
@@ -120,10 +120,10 @@ fun MusicLibraryScreen(
                         // Filter menu
                         Box {
                             IconButton(onClick = viewModel::toggleFilterMenu) {
-                                val hasFilters = state.selectedGenre != null || 
-                                    state.selectedArtist != null || 
+                                val hasFilters = state.selectedGenre != null ||
+                                    state.selectedArtist != null ||
                                     state.selectedAlbum != null
-                                    
+
                                 BadgedBox(
                                     badge = {
                                         if (hasFilters) {
@@ -134,7 +134,7 @@ fun MusicLibraryScreen(
                                     }
                                 ) {
                                     Icon(
-                                        Icons.Default.FilterList, 
+                                        Icons.Default.FilterList,
                                         contentDescription = "Filter",
                                         tint = if (hasFilters) MaterialTheme.colorScheme.primary else LocalContentColor.current
                                     )
@@ -148,7 +148,7 @@ fun MusicLibraryScreen(
                             IconButton(onClick = { showPlayMenu = true }) {
                                 Icon(Icons.Default.MoreVert, "More")
                             }
-                            
+
                             DropdownMenu(
                                 expanded = showPlayMenu,
                                 onDismissRequest = { showPlayMenu = false }
@@ -199,8 +199,8 @@ fun MusicLibraryScreen(
 
             // Filter chips (if any filters applied)
             AnimatedVisibility(
-                visible = state.selectedGenre != null || 
-                         state.selectedArtist != null || 
+                visible = state.selectedGenre != null ||
+                         state.selectedArtist != null ||
                          state.selectedAlbum != null
             ) {
                 Row(
@@ -265,7 +265,7 @@ fun MusicLibraryScreen(
                         )
                     }
                 }
-                
+
                 // Mini player at bottom
                 Column(
                     modifier = Modifier
@@ -276,7 +276,7 @@ fun MusicLibraryScreen(
                         onClick = { navController.navigate("music_player") }
                     )
                 }
-                
+
                 // Now Playing FAB
                 NowPlayingFab(
                     onClick = { navController.navigate("music_player") },
@@ -340,7 +340,7 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(state.tracks) { track ->
-                    TrackGridItem(track = track, onClick = { 
+                    TrackGridItem(track = track, onClick = {
                         viewModel.playTrack(track)
                         navController.navigate("music_player")
                     })
@@ -357,7 +357,7 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
                     TrackListItem(
                         track = track,
                         compact = state.viewMode == MusicViewMode.COMPACT,
-                        onClick = { 
+                        onClick = {
                             viewModel.playTrack(track)
                             navController.navigate("music_player")
                         }
@@ -378,7 +378,7 @@ private fun AlbumsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMod
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(state.albums) { album ->
-            AlbumGridItem(album = album, onClick = { 
+            AlbumGridItem(album = album, onClick = {
                 navController.navigate("album/${album.name}")
             })
         }
@@ -393,7 +393,7 @@ private fun ArtistsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMo
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(state.artists) { artist ->
-            ArtistListItem(artist = artist, onClick = { 
+            ArtistListItem(artist = artist, onClick = {
                 navController.navigate("artist/${artist.name}")
             })
         }
@@ -408,7 +408,7 @@ private fun GenresTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMod
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(state.genres) { genre ->
-            GenreListItem(genre = genre, onClick = { 
+            GenreListItem(genre = genre, onClick = {
                 navController.navigate("genre/${genre.name}")
             })
         }
@@ -425,8 +425,8 @@ private fun GenresTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMod
 private fun ArtistListItem(artist: Artist, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(artist.displayName) },
-        supportingContent = { 
-            Text("${artist.albumCount} albums • ${artist.trackCount} tracks") 
+        supportingContent = {
+            Text("${artist.albumCount} albums • ${artist.trackCount} tracks")
         },
         leadingContent = {
             Surface(

@@ -48,7 +48,7 @@ internal fun ReaderSettingsSheet(
             color = MediaColors.TextPrimary,
             modifier = Modifier.padding(bottom = MediaSpacing.LG)
         )
-        
+
         // Theme selector
         Text(
             text = "Theme",
@@ -56,7 +56,7 @@ internal fun ReaderSettingsSheet(
             color = MediaColors.TextSecondary,
             modifier = Modifier.padding(bottom = MediaSpacing.SM)
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
@@ -70,9 +70,9 @@ internal fun ReaderSettingsSheet(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         // Font size
         Text(
             text = "Font Size",
@@ -80,7 +80,7 @@ internal fun ReaderSettingsSheet(
             color = MediaColors.TextSecondary,
             modifier = Modifier.padding(bottom = MediaSpacing.SM)
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -97,13 +97,13 @@ internal fun ReaderSettingsSheet(
                     tint = MediaColors.TextSecondary
                 )
             }
-            
+
             Text(
                 text = "${typography.fontSize}sp",
                 style = MediaTypography.BodyMedium,
                 color = MediaColors.TextPrimary
             )
-            
+
             IconButton(onClick = {
                 if (typography.fontSize < 32) {
                     onTypographyChange(typography.copy(fontSize = typography.fontSize + 1))
@@ -116,9 +116,9 @@ internal fun ReaderSettingsSheet(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         // Line height
         Text(
             text = "Line Spacing",
@@ -126,7 +126,7 @@ internal fun ReaderSettingsSheet(
             color = MediaColors.TextSecondary,
             modifier = Modifier.padding(bottom = MediaSpacing.SM)
         )
-        
+
         Slider(
             value = typography.lineHeight,
             onValueChange = { onTypographyChange(typography.copy(lineHeight = it)) },
@@ -137,9 +137,9 @@ internal fun ReaderSettingsSheet(
                 activeTrackColor = MediaColors.AccentPrimary
             )
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         // Margins
         Text(
             text = "Margins",
@@ -147,7 +147,7 @@ internal fun ReaderSettingsSheet(
             color = MediaColors.TextSecondary,
             modifier = Modifier.padding(bottom = MediaSpacing.SM)
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
@@ -164,9 +164,9 @@ internal fun ReaderSettingsSheet(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         // Text alignment
         Text(
             text = "Text Align",
@@ -174,7 +174,7 @@ internal fun ReaderSettingsSheet(
             color = MediaColors.TextSecondary,
             modifier = Modifier.padding(bottom = MediaSpacing.SM)
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
@@ -183,7 +183,7 @@ internal fun ReaderSettingsSheet(
                 FilterChip(
                     selected = typography.textAlign == align,
                     onClick = { onTypographyChange(typography.copy(textAlign = align)) },
-                    label = { 
+                    label = {
                         Icon(
                             imageVector = when (align) {
                                 TextAlignment.LEFT -> Icons.Default.FormatAlignLeft
@@ -202,7 +202,7 @@ internal fun ReaderSettingsSheet(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.XL))
     }
 }

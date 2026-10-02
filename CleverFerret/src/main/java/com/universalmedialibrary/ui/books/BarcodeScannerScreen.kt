@@ -21,7 +21,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 
 /**
  * Barcode Scanner Screen
- * 
+ *
  * Allows users to scan book ISBNs using their device camera.
  * After scanning, searches for the book and offers to add it to the library
  * or shows purchase links if not available.
@@ -37,7 +37,7 @@ fun BarcodeScannerScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    
+
     // Barcode scanner launcher
     val scanLauncher = rememberLauncherForActivityResult(
         contract = ScanContract()
@@ -48,7 +48,7 @@ fun BarcodeScannerScreen(
             viewModel.onScanCancelled()
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -70,7 +70,7 @@ fun BarcodeScannerScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Spacer(modifier = Modifier.weight(0.2f))
-            
+
             // Icon
             Icon(
                 imageVector = Icons.Default.QrCodeScanner,
@@ -78,7 +78,7 @@ fun BarcodeScannerScreen(
                 modifier = Modifier.size(120.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             // Title
             Text(
                 text = "Scan ISBN Barcode",
@@ -86,7 +86,7 @@ fun BarcodeScannerScreen(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
-            
+
             // Description
             Text(
                 text = "Point your camera at the barcode on the back of your book. " +
@@ -95,9 +95,9 @@ fun BarcodeScannerScreen(
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Scan button
             Button(
                 onClick = {
@@ -128,7 +128,7 @@ fun BarcodeScannerScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Start Scanning", style = MaterialTheme.typography.titleMedium)
             }
-            
+
             // Status message
             when {
                 uiState.isSearching -> {
@@ -196,9 +196,9 @@ fun BarcodeScannerScreen(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.weight(1f))
-            
+
             // Help text
             Card(
                 colors = CardDefaults.cardColors(

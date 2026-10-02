@@ -237,7 +237,7 @@ private fun AudiobookCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                    
+
                 model = audiobook.coverUrl,
                 contentDescription = "Media image",
                 modifier = Modifier

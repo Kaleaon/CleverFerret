@@ -33,7 +33,7 @@ data class ComicInfo(
 )
 
 object ComicInfoParser {
-    
+
     /**
      * Parse ComicInfo.xml from an input stream
      */
@@ -67,7 +67,7 @@ object ComicInfoParser {
 
             var eventType = parser.eventType
             var currentTag: String? = null
-            
+
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 when (eventType) {
                     XmlPullParser.START_TAG -> {

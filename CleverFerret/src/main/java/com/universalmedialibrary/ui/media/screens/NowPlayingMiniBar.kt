@@ -53,7 +53,7 @@ internal fun NowPlayingMiniBar(
                 color = MediaColors.AccentPrimary,
                 trackColor = MediaColors.ProgressBackground
             )
-            
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -69,7 +69,7 @@ internal fun NowPlayingMiniBar(
                 ) {
                     if (track.albumArtUrl != null) {
                         AsyncImage(
-                    
+
                             model = track.albumArtUrl,
                             contentDescription = "Media image",
                             contentScale = ContentScale.Crop,
@@ -77,9 +77,9 @@ internal fun NowPlayingMiniBar(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                
+
                 // Track info
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -98,7 +98,7 @@ internal fun NowPlayingMiniBar(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 // Playback controls
                 IconButton(onClick = onPreviousClick) {
                     Icon(
@@ -107,7 +107,7 @@ internal fun NowPlayingMiniBar(
                         tint = MediaColors.TextSecondary
                     )
                 }
-                
+
                 IconButton(onClick = onPlayPauseClick) {
                     Surface(
                         shape = CircleShape,
@@ -122,7 +122,7 @@ internal fun NowPlayingMiniBar(
                         )
                     }
                 }
-                
+
                 IconButton(onClick = onNextClick) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,

@@ -50,25 +50,25 @@ class APISettingsViewModel @Inject constructor(
                 val musicBrainzKey = apiKeyRepository.getAPIKeyValue("musicbrainz")
                 val googleBooksKey = apiKeyRepository.getAPIKeyValue("google_books")
                 val openLibraryKey = apiKeyRepository.getAPIKeyValue("open_library")
-                
+
                 // New keys
                 val goodreadsKey = apiKeyRepository.getAPIKeyValue("goodreads")
                 val nytKey = apiKeyRepository.getAPIKeyValue("nyt")
                 val tvdbKey = apiKeyRepository.getAPIKeyValue("tvdb")
                 val omdbKey = apiKeyRepository.getAPIKeyValue("omdb")
                 val discogsKey = apiKeyRepository.getAPIKeyValue("discogs_token")
-                
+
                 // Podcast
                 val podcastIndexKey = apiKeyRepository.getAPIKeyValue("podcast_index")
                 val itunesKey = apiKeyRepository.getAPIKeyValue("itunes")
                 val listenNotesKey = apiKeyRepository.getAPIKeyValue("listen_notes")
-                
+
                 // Debug/Development
                 val githubKey = apiKeyRepository.getAPIKeyValue("github_token")
 
                 // TTS (if we migrate them to Repository, otherwise we might need TtsProviderManager injected here too)
                 // For now, assuming they might be migrated or we just support the ones in repo.
-                
+
                 val imageGeneratorType = apiKeyRepository.getImageGeneratorType()
 
                 _uiState.value = _uiState.value.copy(
@@ -89,7 +89,7 @@ class APISettingsViewModel @Inject constructor(
                     itunesApiKey = itunesKey,
                     listenNotesApiKey = listenNotesKey,
                     githubApiKey = githubKey,
-                    
+
                     imageGeneratorType = imageGeneratorType,
                     geminiEnabled = FeatureFlags.ENABLE_GEMINI,
                     exoPlayerEnabled = FeatureFlags.ENABLE_EXOPLAYER,
@@ -120,9 +120,9 @@ class APISettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 apiKeyRepository.saveAPIKey(provider, apiKey, category, false)
-                
+
                 // Update local state map or individual fields
                 _uiState.value = when(provider) {
                     "comicvine" -> _uiState.value.copy(comicVineApiKey = apiKey)
@@ -160,7 +160,7 @@ class APISettingsViewModel @Inject constructor(
     fun saveComicVineApiKey(apiKey: String) {
         saveApiKey("comicvine", apiKey, "COMICS_MANGA", "ComicVine")
     }
-    
+
     fun saveTasteDiveApiKey(apiKey: String) {
         saveApiKey("tastedive", apiKey, "RECOMMENDATIONS", "TasteDive")
     }
@@ -298,17 +298,17 @@ class APISettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 // Save to database via repository
                 apiKeyRepository.saveAPIKey("github_token", apiKey, "DEVELOPMENT", false)
-                
+
                 // Also save to SharedPreferences for DebugBugReportUI access
                 // (since the UI reads synchronously without suspend function)
                 context.getSharedPreferences("api_settings", Context.MODE_PRIVATE)
                     .edit()
                     .putString("github_token", apiKey)
                     .apply()
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     githubApiKey = apiKey,
@@ -372,13 +372,13 @@ data class APISettingsUiState(
     val tvdbApiKey: String? = null,
     val omdbApiKey: String? = null,
     val discogsApiKey: String? = null,
-    
+
     val podcastIndexApiKey: String? = null,
     val itunesApiKey: String? = null,
     val listenNotesApiKey: String? = null,
-    
+
     val githubApiKey: String? = null,  // GitHub token for debug bug reports
-    
+
     val geminiTestResult: String? = null,
     val imageGeneratorType: ImageGeneratorType = ImageGeneratorType.IMAGEN,
     val geminiEnabled: Boolean = true,

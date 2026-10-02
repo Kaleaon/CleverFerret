@@ -28,7 +28,7 @@ internal fun BreadcrumbNavigation(
     onNavigate: (String) -> Unit
 ) {
     val pathParts = path.split("/").filter { it.isNotEmpty() }
-    
+
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,7 +43,7 @@ internal fun BreadcrumbNavigation(
                 onClick = { onNavigate("/storage") }
             )
         }
-        
+
         // Path parts
         pathParts.forEachIndexed { index, part ->
             item {

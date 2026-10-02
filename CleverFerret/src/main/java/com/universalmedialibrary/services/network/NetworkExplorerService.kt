@@ -19,7 +19,7 @@ import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Network Explorer Service for CleverFerret
- * 
+ *
  * Provides comprehensive network discovery and SMB/CIFS access:
  * - Network device discovery
  * - SMB/CIFS share exploration
@@ -32,38 +32,38 @@ import com.universalmedialibrary.core.logging.AppLogger
 class NetworkExplorerService @Inject constructor(
     @ApplicationContext private val context: Context
 ) : DefaultLifecycleObserver {
-    
+
     private val _discoveredDevices = MutableStateFlow<List<NetworkDevice>>(emptyList())
     val discoveredDevices: Flow<List<NetworkDevice>> = _discoveredDevices.asStateFlow()
-    
+
     private val _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.DISCONNECTED)
     val connectionState: Flow<ConnectionState> = _connectionState.asStateFlow()
-    
+
     private val _currentPath = MutableStateFlow("/")
     val currentPath: Flow<String> = _currentPath.asStateFlow()
-    
+
     private val _currentFiles = MutableStateFlow<List<NetworkFile>>(emptyList())
     val currentFiles: Flow<List<NetworkFile>> = _currentFiles.asStateFlow()
-    
+
     private val _connectedDevice = MutableStateFlow<NetworkDevice?>(null)
     val connectedDevice: Flow<NetworkDevice?> = _connectedDevice.asStateFlow()
-    
+
     private val _browsePath = MutableStateFlow<List<NetworkFile>>(emptyList())
     val browsePath: Flow<List<NetworkFile>> = _browsePath.asStateFlow()
-    
+
     /**
      * Start network discovery
      */
     suspend fun discoverNetworkDevices(): List<NetworkDevice> = withContext(Dispatchers.IO) {
         _connectionState.value = ConnectionState.DISCOVERING
-        
+
         val devices = mutableListOf<NetworkDevice>()
-        
+
         try {
             val localAddress = getLocalIpAddress()
             if (localAddress != null) {
                 val subnet = localAddress.substringBeforeLast(".")
-                
+
                 // Scan common IP range
                 for (i in 1..254) {
                     val hostAddress = "$subnet.$i"
@@ -86,7 +86,7 @@ class NetworkExplorerService @Inject constructor(
         } catch (e: Exception) {
             AppLogger.error("NetworkExplorerService", "Unhandled exception", e)
         }
-        
+
         _discoveredDevices.value = devices
         _connectionState.value = ConnectionState.DISCONNECTED
         devices
@@ -173,7 +173,7 @@ class NetworkExplorerService @Inject constructor(
         }
         return null
     }
-    
+
     /**
      * Check if connected to any share
      */
@@ -189,7 +189,7 @@ class NetworkExplorerService @Inject constructor(
         if (current == "/" || current.isEmpty()) {
             return@withContext false
         }
-        
+
         val parent = current.substringBeforeLast("/", "/")
         _currentPath.value = parent.ifEmpty { "/" }
         listFiles(parent)
@@ -204,12 +204,12 @@ class NetworkExplorerService @Inject constructor(
         listFiles(path)
         true
     }
-    
+
     /**
      * Scan network for devices (alias for discoverNetworkDevices)
      */
     suspend fun scanNetwork(): List<NetworkDevice> = discoverNetworkDevices()
-    
+
     /**
      * Connect to an SMB share
      * Note: Stub - actual SMB support requires smbj library
@@ -217,7 +217,7 @@ class NetworkExplorerService @Inject constructor(
     suspend fun connectSMB(host: String, shareName: String, username: String = "", password: String = ""): Boolean {
         return connectToShare(host, shareName, username, password)
     }
-    
+
     /**
      * Connect to an FTP server
      * Note: Stub - actual FTP support requires additional implementation
@@ -227,7 +227,7 @@ class NetworkExplorerService @Inject constructor(
         _connectionState.value = ConnectionState.CONNECTED
         return true
     }
-    
+
     /**
      * Browse a directory and return its contents
      */

@@ -26,7 +26,7 @@ import javax.inject.Singleton
 
 /**
  * OpenAI Text-to-Speech Service
- * 
+ *
  * High-quality text-to-speech using OpenAI's TTS API
  * Documentation: https://platform.openai.com/docs/guides/text-to-speech
  * Get API key: https://platform.openai.com/api-keys
@@ -40,10 +40,10 @@ class OpenAiTtsService @Inject constructor(
     private var voice: String = "alloy" // Default voice
     private var model: String = "tts-1" // Default model (also: tts-1-hd)
     private var speed: Float = 1.0f
-    
+
     private val _ttsState = MutableStateFlow(TtsServiceState())
     override val ttsState: StateFlow<TtsServiceState> = _ttsState.asStateFlow()
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var mediaPlayer: MediaPlayer? = null
 
@@ -55,7 +55,7 @@ class OpenAiTtsService @Inject constructor(
 
     companion object {
         private const val BASE_URL = "https://api.openai.com/v1"
-        
+
         // Available voices
         const val VOICE_ALLOY = "alloy"
         const val VOICE_ECHO = "echo"
@@ -63,7 +63,7 @@ class OpenAiTtsService @Inject constructor(
         const val VOICE_ONYX = "onyx"
         const val VOICE_NOVA = "nova"
         const val VOICE_SHIMMER = "shimmer"
-        
+
         // Available models
         const val MODEL_TTS_1 = "tts-1" // Faster, lower quality
         const val MODEL_TTS_1_HD = "tts-1-hd" // Higher quality
@@ -94,10 +94,10 @@ class OpenAiTtsService @Inject constructor(
 
             // Request audio from OpenAI API
             val audioBytes = requestTextToSpeech(text)
-            
+
             // Play audio
             playAudio(audioBytes)
-            
+
             _ttsState.value = _ttsState.value.copy(isPlaying = true)
             true
         } catch (e: Exception) {
@@ -118,7 +118,7 @@ class OpenAiTtsService @Inject constructor(
         }
 
         val requestBody = json.toString().toRequestBody("application/json".toMediaType())
-        
+
         val request = Request.Builder()
             .url("$BASE_URL/audio/speech")
             .addHeader("Authorization", "Bearer $apiKey")
@@ -155,9 +155,9 @@ class OpenAiTtsService @Inject constructor(
                     .setUsage(AudioAttributes.USAGE_ASSISTANT)
                     .build()
             )
-            
+
             setDataSource(tempFile.absolutePath)
-            
+
             setOnCompletionListener {
                 _ttsState.value = _ttsState.value.copy(isPlaying = false)
                 tempFile.delete()
@@ -165,7 +165,7 @@ class OpenAiTtsService @Inject constructor(
                 mediaPlayer?.release()
                 mediaPlayer = null
             }
-            
+
             setOnErrorListener { _, what, extra ->
                 _ttsState.value = TtsServiceState(
                     error = "MediaPlayer error: $what, $extra"
@@ -176,7 +176,7 @@ class OpenAiTtsService @Inject constructor(
                 mediaPlayer = null
                 true
             }
-            
+
             prepare()
             start()
         }

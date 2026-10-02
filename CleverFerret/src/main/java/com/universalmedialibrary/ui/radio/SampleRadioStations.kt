@@ -250,7 +250,7 @@ InternetRadioStation("fm238", "Paul in Rio", "https://usa10.fastcast4u.com/pauli
 InternetRadioStation("fm239", "Exotica", "https://solid67.streamupsolutions.com/proxy/repadnom?mp=/;type=mp3", "World", "128 kbps"),
 InternetRadioStation("fm240", "ILoveRio", "https://eu10.fastcast4u.com/iloverio", "World", "128 kbps"),
 InternetRadioStation("fm241", "Salseo", "https://stream.radio.co/s579ede15c/listen", "World", "128 kbps"),
-        
+
         // ==================================================================
         // streamdir.com Collection (190 stations)
         // Source: https://www.streamdir.com/ (filtered for quality)
@@ -445,7 +445,7 @@ InternetRadioStation("fm241", "Salseo", "https://stream.radio.co/s579ede15c/list
         InternetRadioStation("sd1386", "UKG247.com", "http://87.117.201.160:8200/listen.pls", "UK Garage", "128 kbps"),
         InternetRadioStation("sd1387", "ukobsession.fm", "http://108.166.161.210:8991/listen.pls", "Dubstep", "128 kbps"),
         InternetRadioStation("sd1390", "Undercast", "http://s17.myradiostream.com/8562.pls", "Punk", "96 kbps"),
-        
+
         // ==================================================================
         // radioregistry.com Collection (80 stations)
         // Source: https://radioregistry.com/ (from 51,339 total stations)
@@ -490,7 +490,7 @@ InternetRadioStation("fm241", "Salseo", "https://stream.radio.co/s579ede15c/list
         InternetRadioStation("rr38", "1.FM - Slow Jams", "http://sc-slowjam.1.fm:10408/listen.pls", "R&B", "128 kbps"),
         InternetRadioStation("rr39", "1.FM - Soft Rock", "http://sc-softrock.1.fm:7920/listen.pls", "Rock", "128 kbps"),
         InternetRadioStation("rr40", "100 FM The Pike", "http://live-mp3-128.kexp.org/kexp128.mp3", "Alternative", "128 kbps"),
-        
+
         // ==================================================================
         // GitHub internet-radio-streams Collection (45 stations)
         // Source: https://github.com/mikepierce/internet-radio-streams
@@ -777,4 +777,3 @@ InternetRadioStation("gh38", "The Lot Radio NYC", "https://thelot.out.airtime.pr
 InternetRadioStation("gh39", "Worldwide FM", "https://worldwidefm.out.airtime.pro/worldwidefm_a", "Music", "128 kbps")
     )
 }
-

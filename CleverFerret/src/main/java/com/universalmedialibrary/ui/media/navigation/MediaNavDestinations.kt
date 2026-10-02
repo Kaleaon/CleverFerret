@@ -69,7 +69,7 @@ data class NavBadge(
  * Default navigation destinations for CleverFerret
  */
 object MediaNavDestinations {
-    
+
     val home = MediaNavDestination(
         id = "home",
         label = "Home",
@@ -105,7 +105,7 @@ object MediaNavDestinations {
         route = MediaRoutes.LIBRARY_ROOT,
         section = NavSection.LIBRARY
     )
-    
+
     // Library Section
     val books = MediaNavDestination(
         id = "books",
@@ -116,7 +116,7 @@ object MediaNavDestinations {
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Book
     )
-    
+
     val audiobooks = MediaNavDestination(
         id = "audiobooks",
         label = "Audiobooks",
@@ -126,7 +126,7 @@ object MediaNavDestinations {
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Audiobook
     )
-    
+
     val comics = MediaNavDestination(
         id = "comics",
         label = "Comics",
@@ -136,7 +136,7 @@ object MediaNavDestinations {
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Comic
     )
-    
+
     val movies = MediaNavDestination(
         id = "movies",
         label = "Movies",
@@ -146,7 +146,7 @@ object MediaNavDestinations {
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Movie
     )
-    
+
     val tvShows = MediaNavDestination(
         id = "tv_shows",
         label = "TV Shows",
@@ -156,7 +156,7 @@ object MediaNavDestinations {
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.TvShow
     )
-    
+
     val music = MediaNavDestination(
         id = "music",
         label = "Music",
@@ -166,7 +166,7 @@ object MediaNavDestinations {
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Music
     )
-    
+
     val podcasts = MediaNavDestination(
         id = "podcasts",
         label = "Podcasts",
@@ -176,7 +176,7 @@ object MediaNavDestinations {
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Podcast
     )
-    
+
     val radio = MediaNavDestination(
         id = "radio",
         label = "Radio",
@@ -186,7 +186,7 @@ object MediaNavDestinations {
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Radio
     )
-    
+
     val documents = MediaNavDestination(
         id = "documents",
         label = "Documents",
@@ -196,7 +196,7 @@ object MediaNavDestinations {
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Document
     )
-    
+
     // Discover Section
     val webFiction = MediaNavDestination(
         id = "web_fiction",
@@ -207,7 +207,7 @@ object MediaNavDestinations {
         section = NavSection.DISCOVER,
         mediaTypeColor = MediaColors.MediaTypes.Fanfiction
     )
-    
+
     val opds = MediaNavDestination(
         id = "opds",
         label = "OPDS Catalogs",
@@ -216,7 +216,7 @@ object MediaNavDestinations {
         route = MediaRoutes.OPDS_BROWSER,
         section = NavSection.DISCOVER
     )
-    
+
     val freeAudiobooks = MediaNavDestination(
         id = "free_audiobooks",
         label = "Free Audiobooks",
@@ -226,7 +226,7 @@ object MediaNavDestinations {
         section = NavSection.DISCOVER,
         enabled = false
     )
-    
+
     val hivefy = MediaNavDestination(
         id = "hivefy",
         label = "Hivefy Music",
@@ -237,7 +237,7 @@ object MediaNavDestinations {
         mediaTypeColor = MediaColors.MediaTypes.Music,
         enabled = false
     )
-    
+
     val ambient = MediaNavDestination(
         id = "ambient",
         label = "Ambient Sounds",
@@ -255,7 +255,7 @@ object MediaNavDestinations {
         route = MediaRoutes.VISUALIZER,
         section = NavSection.DISCOVER
     )
-    
+
     val landseek = MediaNavDestination(
         id = "landseek",
         label = "Work with Landseek",
@@ -264,7 +264,7 @@ object MediaNavDestinations {
         route = MediaRoutes.LANDSEEK,
         section = NavSection.DISCOVER
     )
-    
+
     // Downloads Section
     val downloads = MediaNavDestination(
         id = "downloads",
@@ -275,7 +275,7 @@ object MediaNavDestinations {
         section = NavSection.DOWNLOADS,
         enabled = false
     )
-    
+
     val storage = MediaNavDestination(
         id = "storage",
         label = "Storage",
@@ -302,7 +302,7 @@ object MediaNavDestinations {
         route = MediaRoutes.IMPORT_EXPORT,
         section = NavSection.DOWNLOADS
     )
-    
+
     // Settings Section
     val collections = MediaNavDestination(
         id = "collections",
@@ -312,7 +312,7 @@ object MediaNavDestinations {
         route = MediaRoutes.COLLECTIONS,
         section = NavSection.SETTINGS
     )
-    
+
     val statistics = MediaNavDestination(
         id = "statistics",
         label = "Statistics",
@@ -322,7 +322,7 @@ object MediaNavDestinations {
         section = NavSection.SETTINGS,
         enabled = false
     )
-    
+
     val settings = MediaNavDestination(
         id = "settings",
         label = "Settings",
@@ -331,7 +331,7 @@ object MediaNavDestinations {
         route = MediaRoutes.SETTINGS,
         section = NavSection.SETTINGS
     )
-    
+
     /**
      * All navigation destinations
      */
@@ -344,7 +344,7 @@ object MediaNavDestinations {
         downloads, storage, sync, importExport,
         collections, statistics, settings
     )
-    
+
     /**
      * Primary destinations shown on bottom bar (mobile)
      */
@@ -363,7 +363,7 @@ object MediaNavDestinations {
         sync,
         importExport
     )
-    
+
     /**
      * Get destinations grouped by section
      */
@@ -372,4 +372,3 @@ object MediaNavDestinations {
             .toSortedMap(compareBy { it.order })
     }
 }
-

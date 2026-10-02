@@ -125,7 +125,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                         isActive = false
                     )
                     val id = mediaServerRepository.insertJellyfinServer(server)
-                    
+
                     // Test connection
                     val result = mediaServerRepository.testJellyfinConnection(server)
                     if (result.isSuccess) {
@@ -148,7 +148,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                         isActive = false
                     )
                     val id = mediaServerRepository.insertPlexServer(server)
-                    
+
                     // Test connection
                     val result = mediaServerRepository.testPlexConnection(server)
                     if (result.isSuccess) {
@@ -171,7 +171,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                         isActive = false
                     )
                     val id = mediaServerRepository.insertEmbyServer(server)
-                    
+
                     // Test connection
                     val result = mediaServerRepository.testEmbyConnection(server)
                     if (result.isSuccess) {
@@ -192,7 +192,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                         isActive = false
                     )
                     val id = mediaServerRepository.insertYaaccServer(server)
-                    
+
                     // Test connection
                     val result = mediaServerRepository.testYaaccConnection(server)
                     if (result.isSuccess) {

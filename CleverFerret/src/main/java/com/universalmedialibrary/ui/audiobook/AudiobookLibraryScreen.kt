@@ -32,9 +32,9 @@ fun AudiobookLibraryScreen(
     val inProgress by viewModel.inProgress.collectAsState()
     val finished by viewModel.finished.collectAsState()
     val selectedFilter by viewModel.selectedFilter.collectAsState()
-    
+
     var showFilterMenu by remember { mutableStateOf(false) }
-    
+
     val displayedAudiobooks = remember(audiobooks, inProgress, finished, selectedFilter) {
         when (selectedFilter) {
             AudiobookFilter.ALL -> audiobooks
@@ -43,11 +43,11 @@ fun AudiobookLibraryScreen(
             else -> audiobooks
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Column {
                         Text("Audiobooks")
                         if (selectedFilter != AudiobookFilter.ALL) {
@@ -71,7 +71,7 @@ fun AudiobookLibraryScreen(
                     IconButton(onClick = { showFilterMenu = true }) {
                         Icon(Icons.Default.FilterList, "Filter")
                     }
-                    
+
                     DropdownMenu(
                         expanded = showFilterMenu,
                         onDismissRequest = { showFilterMenu = false }
@@ -91,7 +91,7 @@ fun AudiobookLibraryScreen(
                             )
                         }
                     }
-                    
+
                     IconButton(onClick = onImportClick) {
                         Icon(PhosphorIcons.Plus, "Import")
                     }
@@ -154,29 +154,29 @@ private fun EmptyState(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(Modifier.height(16.dp))
-        
+
         Text(
             if (hasAudiobooks) "No audiobooks match your filter" else "No audiobooks yet",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(Modifier.height(8.dp))
-        
+
         Text(
-            if (hasAudiobooks) 
-                "Try changing your filter" 
-            else 
+            if (hasAudiobooks)
+                "Try changing your filter"
+            else
                 "Import your first audiobook",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         if (!hasAudiobooks) {
             Spacer(Modifier.height(24.dp))
-            
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -205,7 +205,7 @@ private fun AudiobookCard(
     onDelete: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    
+
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()
@@ -225,7 +225,7 @@ private fun AudiobookCard(
             ) {
                 if (audiobook.coverPath != null) {
                     AsyncImage(
-                    
+
                         model = audiobook.coverPath,
                         contentDescription = "Cover",
                         modifier = Modifier.fillMaxSize()
@@ -244,7 +244,7 @@ private fun AudiobookCard(
                     }
                 }
             }
-            
+
             // Metadata
             Column(
                 modifier = Modifier
@@ -259,7 +259,7 @@ private fun AudiobookCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
-                    
+
                     if (audiobook.author != null) {
                         Text(
                             "by ${audiobook.author}",
@@ -269,7 +269,7 @@ private fun AudiobookCard(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    
+
                     if (audiobook.narrator != null) {
                         Text(
                             "Narrated by: ${audiobook.narrator}",
@@ -280,9 +280,9 @@ private fun AudiobookCard(
                         )
                     }
                 }
-                
+
                 Spacer(Modifier.height(8.dp))
-                
+
                 // Duration and progress
                 Column {
                     Row(
@@ -300,7 +300,7 @@ private fun AudiobookCard(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        
+
                         if (audiobook.chapterCount > 0) {
                             Icon(
                                 Icons.AutoMirrored.Filled.List, // Replace PhosphorIcons.ListBullets
@@ -315,11 +315,11 @@ private fun AudiobookCard(
                             )
                         }
                     }
-                    
+
                     // Progress bar
                     if (audiobook.lastPlayedPosition > 0 && !audiobook.isFinished) {
                         Spacer(Modifier.height(4.dp))
-                        
+
                         LinearProgressIndicator(
                             progress = audiobook.lastPlayedPosition.toFloat() / audiobook.duration,
                             modifier = Modifier.fillMaxWidth()
@@ -327,13 +327,13 @@ private fun AudiobookCard(
                     }
                 }
             }
-            
+
             // Menu
             Box {
                 IconButton(onClick = { showMenu = true }) {
                     Icon(Icons.Default.MoreVert, "Menu")
                 }
-                
+
                 DropdownMenu(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false }
@@ -358,7 +358,7 @@ private fun formatDuration(seconds: Long): String {
     val duration = seconds.seconds
     val hours = duration.inWholeHours
     val minutes = (duration.inWholeMinutes % 60)
-    
+
     return when {
         hours > 0 -> "${hours}h ${minutes}m"
         minutes > 0 -> "${minutes}m"

@@ -10,19 +10,19 @@ import retrofit2.http.Query
  * Documentation: https://openlibrary.org/developers/api
  */
 interface OpenLibraryApi {
-    
+
     @GET("search.json")
     suspend fun searchBooks(
         @Query("q") query: String,
         @Query("limit") limit: Int = 20,
         @Query("page") page: Int = 1
     ): OpenLibrarySearchResponse
-    
+
     @GET("isbn/{isbn}.json")
     suspend fun getBookByIsbn(
         @Path("isbn") isbn: String
     ): OpenLibraryBook
-    
+
     @GET("works/{work_id}.json")
     suspend fun getWorkDetails(
         @Path("work_id") workId: String

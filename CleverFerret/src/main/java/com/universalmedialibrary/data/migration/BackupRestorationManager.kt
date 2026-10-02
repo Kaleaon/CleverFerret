@@ -8,16 +8,16 @@ import javax.inject.Singleton
 
 /**
  * Backup Restoration Manager
- * 
+ *
  * Manages the state of backup restoration requests.
  * Used to communicate between Application and MainActivity for showing restoration dialog.
  */
 @Singleton
 class BackupRestorationManager @Inject constructor() {
-    
+
     private val _restorationRequest = MutableStateFlow<RestorationRequest?>(null)
     val restorationRequest: StateFlow<RestorationRequest?> = _restorationRequest.asStateFlow()
-    
+
     /**
      * Request backup restoration
      */
@@ -27,14 +27,14 @@ class BackupRestorationManager @Inject constructor() {
             errorMessage = errorMessage
         )
     }
-    
+
     /**
      * Clear restoration request
      */
     fun clearRequest() {
         _restorationRequest.value = null
     }
-    
+
     /**
      * Restoration request data
      */

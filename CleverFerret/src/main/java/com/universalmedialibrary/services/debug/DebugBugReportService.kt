@@ -38,13 +38,13 @@ import kotlin.coroutines.resume
 
 /**
  * Debug Bug Report Service
- * 
+ *
  * Provides functionality for capturing bug reports in debug builds:
  * - Screenshot capture from the current screen
  * - Log collection from logcat
  * - Device and app information gathering
  * - GitHub issue creation with auto-assignment to Copilot
- * 
+ *
  * Only active in debug builds via BuildConfig.DEBUG check
  */
 @Singleton
@@ -62,11 +62,11 @@ class DebugBugReportService @Inject constructor(
         private const val MAX_SCREENSHOT_WIDTH = 1080
     }
 
-    private val json = Json { 
-        prettyPrint = true 
+    private val json = Json {
+        prettyPrint = true
         ignoreUnknownKeys = true
     }
-    
+
     // Cached error logs from recent errors
     private val recentErrors = mutableListOf<ErrorLogEntry>()
     private val maxRecentErrors = 20
@@ -82,7 +82,7 @@ class DebugBugReportService @Inject constructor(
     fun logError(tag: String, message: String, throwable: Throwable? = null) {
         if (!isAvailable()) return
         if (throwable is CancellationException) return
-        
+
         synchronized(recentErrors) {
             recentErrors.add(
                 ErrorLogEntry(
@@ -92,7 +92,7 @@ class DebugBugReportService @Inject constructor(
                     stackTrace = throwable?.stackTraceToString()
                 )
             )
-            
+
             // Keep only recent errors
             while (recentErrors.size > maxRecentErrors) {
                 recentErrors.removeAt(0)
@@ -111,10 +111,10 @@ class DebugBugReportService @Inject constructor(
         try {
             val window = activity.window
             val view = window.decorView.rootView
-            
+
             // Use PixelCopy for API 26+ (minimum SDK is 26)
             val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-            
+
             suspendCancellableCoroutine { continuation ->
                 PixelCopy.request(
                     window,
@@ -178,7 +178,7 @@ class DebugBugReportService @Inject constructor(
             )
             val logs = process.inputStream.bufferedReader().readText()
             process.destroy()
-            
+
             // Filter to only include app logs
             logs.lines()
                 .filter { it.contains(context.packageName) || it.contains("CleverFerret") }
@@ -210,7 +210,7 @@ class DebugBugReportService @Inject constructor(
     ): BugReport {
         val timestamp = System.currentTimeMillis()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        
+
         // Capture screenshot
         val screenshot = if (includeScreenshot) {
             captureScreenshot(activity).getOrNull()
@@ -241,7 +241,7 @@ class DebugBugReportService @Inject constructor(
 
     /**
      * Submit bug report to GitHub as an issue
-     * 
+     *
      * @param report The bug report to submit
      * @param githubToken Optional GitHub personal access token for authentication
      * @return Result with the issue URL on success
@@ -288,10 +288,10 @@ class DebugBugReportService @Inject constructor(
                         null
                     }
                 }
-                
-                val issueUrl = issueResponse?.htmlUrl 
+
+                val issueUrl = issueResponse?.htmlUrl
                     ?: "https://github.com/$REPO_OWNER/$REPO_NAME/issues"
-                
+
                 Log.i(TAG, "Bug report submitted successfully: $issueUrl")
                 Result.success(issueUrl)
             } else {
@@ -346,11 +346,11 @@ class DebugBugReportService @Inject constructor(
             appendLine("**Reported:** ${report.formattedDate}")
             appendLine("**Report ID:** ${report.id}")
             appendLine()
-            
+
             appendLine("### User Description")
             appendLine(report.userDescription)
             appendLine()
-            
+
             appendLine("### Device Information")
             appendLine("| Property | Value |")
             appendLine("|----------|-------|")
@@ -367,14 +367,14 @@ class DebugBugReportService @Inject constructor(
                 appendLine("| Free Storage | ${freeStorageMb}MB |")
             }
             appendLine()
-            
+
             if (report.recentErrors.isNotEmpty()) {
                 appendLine("### Recent Errors")
                 appendLine("```")
                 report.recentErrors.forEach { error ->
                     val date = SimpleDateFormat("HH:mm:ss", Locale.US).format(Date(error.timestamp))
                     appendLine("[$date] ${error.tag}: ${error.message}")
-                    error.stackTrace?.let { 
+                    error.stackTrace?.let {
                         appendLine(it.lines().take(10).joinToString("\n"))
                     }
                     appendLine()
@@ -382,7 +382,7 @@ class DebugBugReportService @Inject constructor(
                 appendLine("```")
                 appendLine()
             }
-            
+
             if (report.logs.isNotBlank()) {
                 appendLine("### Recent Logs")
                 appendLine("<details>")
@@ -402,7 +402,7 @@ class DebugBugReportService @Inject constructor(
                 appendLine("*Please ask the user for the screenshot if needed.*")
                 appendLine()
             }
-            
+
             appendLine("---")
             appendLine("*This issue was automatically generated by CleverFerret's debug bug reporter.*")
             appendLine("*Labeled with `copilot-fix-me` for automated fix consideration.*")

@@ -129,7 +129,7 @@ fun WebFictionManagerScreen(
                     ) {
                         Icon(Icons.Default.Link, contentDescription = "Add from URL")
                     }
-                    
+
                     FloatingActionButton(
                         onClick = { showRedditDialog = true },
                         containerColor = MaterialTheme.colorScheme.primary

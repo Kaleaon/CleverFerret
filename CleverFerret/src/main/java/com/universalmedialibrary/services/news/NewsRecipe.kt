@@ -15,17 +15,17 @@ data class NewsRecipe(
     val description: String = "",
     val coverUrl: String? = null,
     val feeds: List<NewsFeed>,
-    
+
     // Fetching rules
     val oldestArticleDays: Int = 7,
     val maxArticlesPerFeed: Int = 30,
     val autoCleanup: Boolean = true, // Use readability mode
-    
+
     // Advanced rules (similar to Calibre)
     val keepOnlyTags: List<String> = emptyList(), // CSS selectors
     val removeTags: List<String> = emptyList(), // CSS selectors
     val userAgent: String = "Mozilla/5.0 (Compatible; CleverFerret/1.0)",
-    
+
     // Scheduling
     val autoDownload: Boolean = false,
     val downloadIntervalHours: Int = 24,

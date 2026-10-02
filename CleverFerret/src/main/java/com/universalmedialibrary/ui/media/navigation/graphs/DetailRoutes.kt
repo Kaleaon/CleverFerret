@@ -54,7 +54,7 @@ fun NavGraphBuilder.detailRoutes(
         val mediaId = backStackEntry.arguments?.getString("mediaId") ?: ""
         val viewModel: MediaDetailViewModel = hiltViewModel()
         val vmState by viewModel.uiState.collectAsState()
-        
+
         // Create screen state from viewmodel state
         val screenState = MediaDetailState(
             item = MediaDetailItem(
@@ -66,7 +66,7 @@ fun NavGraphBuilder.detailRoutes(
             ),
             isLoading = vmState.isLoading
         )
-        
+
         MediaDetailScreen(
             state = screenState,
             onBackClick = { navController.popBackStack() },
@@ -101,6 +101,6 @@ fun NavGraphBuilder.detailRoutes(
             onDownloadClick = { viewModel.download() }
         )
     }
-    
+
     // =====================================================================
 }

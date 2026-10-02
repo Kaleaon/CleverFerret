@@ -24,7 +24,7 @@ This document outlines recommended improvements for the CleverFerret Android app
 fun testMiniPlayerAccessibility() {
     composeTestRule.onNodeWithContentDescription("Album art for")
         .assertExists()
-    
+
     composeTestRule.onNodeWithContentDescription("Play")
         .assertExists()
         .assertIsEnabled()
@@ -58,17 +58,17 @@ object MediaSizes {
     val IconLG = 40.dp
     val IconMD = 32.dp
     val IconSM = 24.dp
-    
+
     // Add missing tokens
     val IconXS = 16.dp
     val BorderThin = 1.dp
     val BorderMedium = 2.dp
     val BorderThick = 4.dp
-    
+
     // Button sizes
     val ButtonHeightMD = 48.dp
     val ButtonHeightSM = 36.dp
-    
+
     // Progress indicators
     val ProgressBarThin = 2.dp
     val ProgressBarMedium = 4.dp
@@ -123,7 +123,7 @@ fun MediaMiniPlayer(
     ) {
         Column {
             LinearProgressIndicator(...)
-            
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -139,13 +139,13 @@ fun MediaMiniPlayer(
                 ) {
                     // Artwork
                     Surface(...) { ... }
-                    
+
                     Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                    
+
                     // Title & subtitle
                     Column(...) { ... }
                 }
-                
+
                 // Controls remain separate (not affected by row click)
                 IconButton(onClick = onPlayPause) { ... }
                 IconButton(onClick = onNext) { ... }
@@ -185,7 +185,7 @@ fun MediaMiniPlayer(
 fun testColorContrast() {
     val backgroundColor = Color(0xFF1E1E1E) // Dark background
     val textColor = Color(0xFFE6E1E5) // Light text
-    
+
     val contrastRatio = calculateContrastRatio(backgroundColor, textColor)
     assertTrue("Text contrast should meet WCAG AA", contrastRatio >= 4.5)
 }
@@ -209,11 +209,11 @@ fun testColorContrast() {
 @Test
 fun testNavigationIconConsistency() {
     MediaNavDestinations.allDestinations.forEach { destination ->
-        assertNotNull("${destination.label} should have outlined icon", 
+        assertNotNull("${destination.label} should have outlined icon",
             destination.icon)
-        assertNotNull("${destination.label} should have filled selected icon", 
+        assertNotNull("${destination.label} should have filled selected icon",
             destination.selectedIcon)
-        assertNotEquals("${destination.label} icons should differ", 
+        assertNotEquals("${destination.label} icons should differ",
             destination.icon, destination.selectedIcon)
     }
 }
@@ -271,7 +271,7 @@ fun MediaCardSkeleton() {
                     .shimmer() // Add shimmer effect
                     .background(Color.Gray.copy(alpha = 0.3f))
             )
-            
+
             Column(modifier = Modifier.padding(16.dp)) {
                 Box(
                     modifier = Modifier
@@ -369,19 +369,19 @@ fun CleverFerretTheme(
 ```kotlin
 /**
  * Mini player component displayed at the bottom of the screen during media playback.
- * 
+ *
  * Features:
  * - Displays current media artwork, title, and artist
  * - Shows playback progress
  * - Provides play/pause and skip controls
  * - Expands to full player on tap
- * 
+ *
  * @param state Current playback state including title, artwork, and progress
  * @param onTap Callback when user taps the player to expand
  * @param onPlayPause Callback for play/pause button
  * @param onNext Callback for next track button
  * @param modifier Optional modifier for the mini player
- * 
+ *
  * @sample MediaMiniPlayerPreview
  */
 @Composable
@@ -443,27 +443,27 @@ private fun MediaMiniPlayerThemePreview() { ... }
 
 ```kotlin
 class MediaPlayerViewModelTest {
-    
+
     @Test
     fun `playPause toggles playback state`() = runTest {
         val viewModel = MediaPlayerViewModel(mockRepository)
-        
+
         viewModel.playPause()
-        
+
         assertEquals(true, viewModel.isPlaying.value)
-        
+
         viewModel.playPause()
-        
+
         assertEquals(false, viewModel.isPlaying.value)
     }
-    
+
     @Test
     fun `skipNext advances to next track`() = runTest {
         val viewModel = MediaPlayerViewModel(mockRepository)
         val initialTrack = viewModel.currentTrack.value
-        
+
         viewModel.skipNext()
-        
+
         assertNotEquals(initialTrack, viewModel.currentTrack.value)
     }
 }
@@ -602,6 +602,6 @@ Prioritize based on your team's capacity and user feedback. The high-priority it
 
 ---
 
-**Document Version:** 1.0  
-**Date:** January 3, 2026  
+**Document Version:** 1.0
+**Date:** January 3, 2026
 **Prepared By:** Manus AI

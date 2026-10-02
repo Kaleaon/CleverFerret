@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * Clean Media-Centric Theme System
- * 
+ *
  * Comprehensive theme system with all CleverFerret themes in Plex styling:
  * - Dark themes (default)
  * - Light themes
@@ -36,20 +36,20 @@ enum class MediaThemePreset(
     MONOKAI("Monokai", "Warm coding-inspired theme", true),
     OCEAN("Ocean", "Deep sea blues", true),
     FOREST("Forest", "Nature-inspired greens", true),
-    
+
     // Light themes
     CLASSIC_LIGHT("Classic Light", "Light theme with orange accent", false),
     PAPER("Paper", "Soft off-white like paper", false),
     CREAM("Cream", "Warm cream background", false),
-    
+
     // Reading themes
     SEPIA("Sepia", "Warm sepia tones for comfortable reading", true),
     NIGHT_RED("Night Red", "Red-shifted for night reading", true),
-    
+
     // E-ink themes
     EINK("E-Ink", "High contrast for e-ink displays", false),
     EINK_DARK("E-Ink Dark", "Inverted e-ink theme", true),
-    
+
     // Accent color themes
     NETFLIX("Netflix Red", "Bold red accent theme", true),
     SPOTIFY("Spotify Green", "Vibrant green accent", true),
@@ -99,7 +99,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFA000),
             isDark = true
         )
-        
+
         MediaThemePreset.MIDNIGHT -> MediaThemeColors(
             background = Color(0xFF0D1117),
             backgroundElevated = Color(0xFF161B22),
@@ -116,7 +116,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFD29922),
             isDark = true
         )
-        
+
         MediaThemePreset.AMOLED -> MediaThemeColors(
             background = Color(0xFF000000),
             backgroundElevated = Color(0xFF0D0D0D),
@@ -133,7 +133,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFA000),
             isDark = true
         )
-        
+
         MediaThemePreset.DRACULA -> MediaThemeColors(
             background = Color(0xFF282A36),
             backgroundElevated = Color(0xFF343746),
@@ -150,7 +150,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFB86C),
             isDark = true
         )
-        
+
         MediaThemePreset.NORD -> MediaThemeColors(
             background = Color(0xFF2E3440),
             backgroundElevated = Color(0xFF3B4252),
@@ -167,7 +167,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFEBCB8B),
             isDark = true
         )
-        
+
         MediaThemePreset.MONOKAI -> MediaThemeColors(
             background = Color(0xFF272822),
             backgroundElevated = Color(0xFF3E3D32),
@@ -184,7 +184,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFE6DB74),
             isDark = true
         )
-        
+
         MediaThemePreset.OCEAN -> MediaThemeColors(
             background = Color(0xFF0A1929),
             backgroundElevated = Color(0xFF132F4C),
@@ -201,7 +201,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFD43B),
             isDark = true
         )
-        
+
         MediaThemePreset.FOREST -> MediaThemeColors(
             background = Color(0xFF1A2F23),
             backgroundElevated = Color(0xFF243D2D),
@@ -218,7 +218,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFD54F),
             isDark = true
         )
-        
+
         // ===================== LIGHT THEMES =====================
         MediaThemePreset.CLASSIC_LIGHT -> MediaThemeColors(
             background = Color(0xFFF5F5F5),
@@ -236,7 +236,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFF8F00),
             isDark = false
         )
-        
+
         MediaThemePreset.PAPER -> MediaThemeColors(
             background = Color(0xFFFAFAFA),
             backgroundElevated = Color(0xFFFFFFFF),
@@ -253,7 +253,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFF57C00),
             isDark = false
         )
-        
+
         MediaThemePreset.CREAM -> MediaThemeColors(
             background = Color(0xFFFFFBF5),
             backgroundElevated = Color(0xFFFFFFFF),
@@ -270,7 +270,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFEF6C00),
             isDark = false
         )
-        
+
         // ===================== READING THEMES =====================
         MediaThemePreset.SEPIA -> MediaThemeColors(
             background = Color(0xFFF4ECD8),
@@ -288,7 +288,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFE65100),
             isDark = false
         )
-        
+
         MediaThemePreset.NIGHT_RED -> MediaThemeColors(
             background = Color(0xFF1A0A0A),
             backgroundElevated = Color(0xFF2A1515),
@@ -305,7 +305,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFAA66),
             isDark = true
         )
-        
+
         // ===================== E-INK THEMES =====================
         MediaThemePreset.EINK -> MediaThemeColors(
             background = Color(0xFFFFFFFF),
@@ -323,7 +323,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFF666666),
             isDark = false
         )
-        
+
         MediaThemePreset.EINK_DARK -> MediaThemeColors(
             background = Color(0xFF000000),
             backgroundElevated = Color(0xFF111111),
@@ -340,7 +340,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFF999999),
             isDark = true
         )
-        
+
         // ===================== ACCENT COLOR THEMES =====================
         MediaThemePreset.NETFLIX -> MediaThemeColors(
             background = Color(0xFF141414),
@@ -358,7 +358,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFF9A825),
             isDark = true
         )
-        
+
         MediaThemePreset.SPOTIFY -> MediaThemeColors(
             background = Color(0xFF121212),
             backgroundElevated = Color(0xFF181818),
@@ -375,7 +375,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFA000),
             isDark = true
         )
-        
+
         MediaThemePreset.PURPLE_HAZE -> MediaThemeColors(
             background = Color(0xFF1A1625),
             backgroundElevated = Color(0xFF251E33),
@@ -392,7 +392,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFCA28),
             isDark = true
         )
-        
+
         MediaThemePreset.TEAL -> MediaThemeColors(
             background = Color(0xFF0D1F22),
             backgroundElevated = Color(0xFF152C30),
@@ -409,7 +409,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFD740),
             isDark = true
         )
-        
+
         MediaThemePreset.PINK -> MediaThemeColors(
             background = Color(0xFF1F1520),
             backgroundElevated = Color(0xFF2A1E2C),
@@ -426,7 +426,7 @@ fun getThemeColors(preset: MediaThemePreset): MediaThemeColors {
             warning = Color(0xFFFFEA00),
             isDark = true
         )
-        
+
         MediaThemePreset.GOLD -> MediaThemeColors(
             background = Color(0xFF1A1814),
             backgroundElevated = Color(0xFF2A261E),
@@ -465,7 +465,7 @@ fun MediaTheme(
     content: @Composable () -> Unit
 ) {
     val colors = customColors ?: getThemeColors(preset)
-    
+
     CompositionLocalProvider(LocalMediaTheme provides colors) {
         MaterialTheme(
             colorScheme = if (colors.isDark) {
@@ -543,39 +543,39 @@ object ReadingThemePresets {
         textColor = Color.Black,
         linkColor = Color(0xFF1976D2)
     )
-    
+
     val SEPIA = ReadingThemeSettings(
         backgroundColor = Color(0xFFF4ECD8),
         textColor = Color(0xFF5B4636),
         linkColor = Color(0xFF8B5A2B),
         warmth = 0.5f
     )
-    
+
     val DARK = ReadingThemeSettings(
         backgroundColor = Color(0xFF1F1F1F),
         textColor = Color(0xFFE0E0E0),
         linkColor = Color(0xFF66B2FF)
     )
-    
+
     val AMOLED = ReadingThemeSettings(
         backgroundColor = Color.Black,
         textColor = Color(0xFFCCCCCC),
         linkColor = Color(0xFF66B2FF)
     )
-    
+
     val NIGHT = ReadingThemeSettings(
         backgroundColor = Color(0xFF1A0A0A),
         textColor = Color(0xFFFFCCCC),
         linkColor = Color(0xFFFF9999),
         warmth = 1f
     )
-    
+
     val MINT = ReadingThemeSettings(
         backgroundColor = Color(0xFFE8F5E9),
         textColor = Color(0xFF1B5E20),
         linkColor = Color(0xFF2E7D32)
     )
-    
+
     val BLUE = ReadingThemeSettings(
         backgroundColor = Color(0xFFE3F2FD),
         textColor = Color(0xFF0D47A1),

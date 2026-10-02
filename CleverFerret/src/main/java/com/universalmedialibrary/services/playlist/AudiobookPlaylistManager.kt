@@ -62,8 +62,8 @@ class AudiobookPlaylistManager @Inject constructor(
     suspend fun addAudiobookToPlaylist(playlistId: Long, audiobookId: Long) {
         val audiobook = mediaItemDao.getMediaItemById(audiobookId)
         require(audiobook != null) { "Audiobook $audiobookId not found" }
-        require(audiobook.mediaType in listOf("BOOK", "AUDIOBOOK")) { 
-            "Media item is not an audiobook" 
+        require(audiobook.mediaType in listOf("BOOK", "AUDIOBOOK")) {
+            "Media item is not an audiobook"
         }
 
         val nextPosition = playlistDao.getMaxPosition(playlistId) + 1
@@ -119,9 +119,9 @@ class AudiobookPlaylistManager @Inject constructor(
             description = description ?: "Book series in reading order",
             isSeries = true
         )
-        
+
         addAudiobooksToPlaylist(seriesId, bookIds)
-        
+
         return seriesId
     }
 
@@ -198,7 +198,7 @@ class AudiobookPlaylistManager @Inject constructor(
     suspend fun markAsFinished(audiobookId: Long) {
         val finishedList = getOrCreateFinishedList()
         addAudiobookToPlaylist(finishedList, audiobookId)
-        
+
         // Remove from currently reading
         val currentList = getOrCreateCurrentlyReadingList()
         removeAudiobookFromPlaylist(currentList, audiobookId)
@@ -214,9 +214,9 @@ class AudiobookPlaylistManager @Inject constructor(
         )
 
         val books = mediaItemDao.getMediaItemsByAuthor(authorName).first()
-        
+
         addAudiobooksToPlaylist(collectionId, books.map { it.itemId })
-        
+
         return collectionId
     }
 
@@ -230,9 +230,9 @@ class AudiobookPlaylistManager @Inject constructor(
         )
 
         val books = mediaItemDao.getMediaItemsByGenre(genre, "BOOK").first()
-        
+
         addAudiobooksToPlaylist(collectionId, books.map { it.itemId })
-        
+
         return collectionId
     }
 
@@ -259,7 +259,7 @@ class AudiobookPlaylistManager @Inject constructor(
         sorted.forEachIndexed { index, (_, item) ->
             playlistDao.insertPlaylistItem(item.copy(position = index))
         }
-        
+
         updatePlaylistTimestamp(playlistId)
     }
 
@@ -270,9 +270,9 @@ class AudiobookPlaylistManager @Inject constructor(
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
             .drop(startPosition)
-        
-        val books = items.mapNotNull { 
-            mediaItemDao.getMediaItemById(it.mediaItemId) 
+
+        val books = items.mapNotNull {
+            mediaItemDao.getMediaItemById(it.mediaItemId)
         }
 
         if (books.isEmpty()) return
@@ -293,7 +293,7 @@ class AudiobookPlaylistManager @Inject constructor(
     suspend fun continueSeries(playlistId: Long) {
         // Get playlist items
         val playlistItems = playlistDao.getPlaylistItemsFlow(playlistId).first()
-        
+
         // Find last read book from progress
         var startIndex = 0
         for ((index, item) in playlistItems.withIndex()) {
@@ -303,7 +303,7 @@ class AudiobookPlaylistManager @Inject constructor(
                 break
             }
         }
-        
+
         startPlaylist(playlistId, startIndex)
     }
 
@@ -312,8 +312,8 @@ class AudiobookPlaylistManager @Inject constructor(
      */
     suspend fun addPlaylistToQueue(playlistId: Long, playNext: Boolean = false) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
-        val books = items.mapNotNull { 
-            mediaItemDao.getMediaItemById(it.mediaItemId) 
+        val books = items.mapNotNull {
+            mediaItemDao.getMediaItemById(it.mediaItemId)
         }
 
         if (books.isEmpty()) return
@@ -335,7 +335,7 @@ class AudiobookPlaylistManager @Inject constructor(
                 mediaItemDao.getMediaItemById(item.mediaItemId)?.let { mediaItem ->
                     val progressData = historyRepository.getReadingProgress(item.mediaItemId).firstOrNull()
                     val bookmarksList = historyRepository.getBookmarks(item.mediaItemId)
-                    
+
                     PlaylistAudiobook(
                         playlistItem = item,
                         mediaItem = mediaItem,
@@ -345,7 +345,7 @@ class AudiobookPlaylistManager @Inject constructor(
                     )
                 }
             }
-            
+
             AudiobookPlaylist(
                 playlistId = playlistId,
                 books = books,
@@ -362,12 +362,12 @@ class AudiobookPlaylistManager @Inject constructor(
     suspend fun getNextInSeries(playlistId: Long, currentBookId: Long): Long? {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
-        
+
         val currentIndex = items.indexOfFirst { it.mediaItemId == currentBookId }
         if (currentIndex < 0 || currentIndex >= items.size - 1) {
             return null
         }
-        
+
         return items[currentIndex + 1].mediaItemId
     }
 
@@ -377,12 +377,12 @@ class AudiobookPlaylistManager @Inject constructor(
     suspend fun getPreviousInSeries(playlistId: Long, currentBookId: Long): Long? {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
-        
+
         val currentIndex = items.indexOfFirst { it.mediaItemId == currentBookId }
         if (currentIndex <= 0) {
             return null
         }
-        
+
         return items[currentIndex - 1].mediaItemId
     }
 
@@ -392,7 +392,7 @@ class AudiobookPlaylistManager @Inject constructor(
     suspend fun deletePlaylist(playlistId: Long) {
         val playlist = playlistDao.getAllPlaylistsFlow().first()
             .find { it.playlistId == playlistId } ?: return
-        
+
         playlistDao.deletePlaylist(playlist)
     }
 
@@ -405,13 +405,13 @@ class AudiobookPlaylistManager @Inject constructor(
             name = newName,
             description = "Copy of playlist"
         )
-        
+
         items.forEach { item ->
             playlistDao.insertPlaylistItem(
                 item.copy(id = 0, playlistId = newPlaylistId)
             )
         }
-        
+
         return newPlaylistId
     }
 
@@ -421,7 +421,7 @@ class AudiobookPlaylistManager @Inject constructor(
     suspend fun getSeriesCompletionPercentage(playlistId: Long): Float {
         val playlist = getPlaylistWithBooks(playlistId).first()
         if (playlist.totalBooks == 0) return 0f
-        
+
         return (playlist.completedBooks.toFloat() / playlist.totalBooks.toFloat()) * 100f
     }
 
@@ -430,21 +430,21 @@ class AudiobookPlaylistManager @Inject constructor(
     private suspend fun getOrCreateDefaultReadingList(): Long {
         val playlists = playlistDao.getAllPlaylistsFlow().first()
         val readingList = playlists.find { it.name == "To Read" }
-        
+
         return readingList?.playlistId ?: createToReadList()
     }
 
     private suspend fun getOrCreateCurrentlyReadingList(): Long {
         val playlists = playlistDao.getAllPlaylistsFlow().first()
         val currentList = playlists.find { it.name == "Currently Reading" }
-        
+
         return currentList?.playlistId ?: createCurrentlyReadingList()
     }
 
     private suspend fun getOrCreateFinishedList(): Long {
         val playlists = playlistDao.getAllPlaylistsFlow().first()
         val finishedList = playlists.find { it.name == "Finished Books" }
-        
+
         return finishedList?.playlistId ?: createFinishedList()
     }
 
@@ -457,7 +457,7 @@ class AudiobookPlaylistManager @Inject constructor(
     private suspend fun reorderPlaylistItems(playlistId: Long) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
-        
+
         items.forEachIndexed { index, item ->
             playlistDao.insertPlaylistItem(item.copy(position = index))
         }

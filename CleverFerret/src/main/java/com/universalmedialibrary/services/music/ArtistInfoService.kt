@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 /**
  * Service for fetching artist biographical information using Gemini AI
- * 
+ *
  * Features:
  * - Artist biography
  * - Formation/career start date
@@ -97,7 +97,7 @@ class ArtistInfoService @Inject constructor(
         try {
             val prompt = """
                 Provide comprehensive information about the music artist/band: "$artistName"
-                
+
                 Return ONLY valid JSON in this exact format:
                 {
                     "name": "official artist/band name",
@@ -118,7 +118,7 @@ class ArtistInfoService @Inject constructor(
                     "website": "official website URL or empty string",
                     "confidence": 0.95
                 }
-                
+
                 Guidelines:
                 - Use accurate, verifiable information from your training data
                 - Keep biography concise but informative (2-3 sentences max)

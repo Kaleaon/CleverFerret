@@ -20,7 +20,7 @@ import com.universalmedialibrary.ui.theme.MetallicThemeVariant
 
 /**
  * Comprehensive Settings Dialog
- * 
+ *
  * 7-tab settings interface with all app configuration options:
  * 1. API Keys
  * 2. E-Reader
@@ -39,7 +39,7 @@ fun SettingsDialog(
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableStateOf(0) }
-    
+
     val tabs = listOf(
         "API Keys",
         "E-Reader",
@@ -49,7 +49,7 @@ fun SettingsDialog(
         "Interface",
         "Import"
     )
-    
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -80,7 +80,7 @@ fun SettingsDialog(
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    
+
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -88,7 +88,7 @@ fun SettingsDialog(
                         )
                     }
                 }
-                
+
                 // Tabs
                 ScrollableTabRow(
                     selectedTabIndex = selectedTab,
@@ -102,9 +102,9 @@ fun SettingsDialog(
                         )
                     }
                 }
-                
+
                 HorizontalDivider()
-                
+
                 // Tab Content
                 Box(
                     modifier = Modifier
@@ -165,35 +165,35 @@ private fun ApiKeysTab(
             label = "TMDB API Key",
             hint = "For movie metadata"
         )
-        
+
         PasswordTextField(
             value = apiKeys.googleBooksKey,
             onValueChange = { onApiKeysChange(apiKeys.copy(googleBooksKey = it)) },
             label = "Google Books API Key",
             hint = "For book metadata"
         )
-        
+
         PasswordTextField(
             value = apiKeys.comicVineKey,
             onValueChange = { onApiKeysChange(apiKeys.copy(comicVineKey = it)) },
             label = "ComicVine API Key",
             hint = "For comic metadata"
         )
-        
+
         PasswordTextField(
             value = apiKeys.spotifyClientId,
             onValueChange = { onApiKeysChange(apiKeys.copy(spotifyClientId = it)) },
             label = "Spotify Client ID",
             hint = "For music metadata"
         )
-        
+
         PasswordTextField(
             value = apiKeys.spotifyClientSecret,
             onValueChange = { onApiKeysChange(apiKeys.copy(spotifyClientSecret = it)) },
             label = "Spotify Client Secret",
             hint = "For music metadata"
         )
-        
+
         OutlinedTextField(
             value = apiKeys.musicBrainzUserAgent,
             onValueChange = { onApiKeysChange(apiKeys.copy(musicBrainzUserAgent = it)) },
@@ -223,7 +223,7 @@ private fun ReaderTab(
             valueRange = 10f..32f,
             steps = 21
         )
-        
+
         DropdownSettingField(
             label = "Font Family",
             value = readerSettings.fontFamily.displayName,
@@ -234,7 +234,7 @@ private fun ReaderTab(
                 }
             }
         )
-        
+
         DropdownSettingField(
             label = "Theme",
             value = readerSettings.theme.displayName,
@@ -245,7 +245,7 @@ private fun ReaderTab(
                 }
             }
         )
-        
+
         DropdownSettingField(
             label = "Page Animation",
             value = readerSettings.pageAnimation.displayName,
@@ -256,19 +256,19 @@ private fun ReaderTab(
                 }
             }
         )
-        
+
         SettingSwitch(
             label = "Hyphenation",
             checked = readerSettings.hyphenation,
             onCheckedChange = { onReaderSettingsChange(readerSettings.copy(hyphenation = it)) }
         )
-        
+
         SettingSwitch(
             label = "Keep Screen On",
             checked = readerSettings.keepScreenOn,
             onCheckedChange = { onReaderSettingsChange(readerSettings.copy(keepScreenOn = it)) }
         )
-        
+
         // Screen Timeout Setting (only show when Keep Screen On is enabled)
         if (readerSettings.keepScreenOn) {
             DropdownSettingField(
@@ -304,7 +304,7 @@ private fun ReaderTab(
                 }
             )
         }
-        
+
         SettingSwitch(
             label = "Volume Keys Navigation",
             checked = readerSettings.volumeKeysNavigation,
@@ -332,10 +332,10 @@ private fun AudiobookTab(
             valueRange = 0.5f..3.0f,
             steps = 24
         )
-        
+
         OutlinedTextField(
             value = audiobookSettings.sleepTimerMinutes.toString(),
-            onValueChange = { 
+            onValueChange = {
                 it.toIntOrNull()?.let { minutes ->
                     onAudiobookSettingsChange(audiobookSettings.copy(sleepTimerMinutes = minutes))
                 }
@@ -343,19 +343,19 @@ private fun AudiobookTab(
             label = { Text("Sleep Timer (minutes)") },
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         SettingSwitch(
             label = "Auto-Play Next Chapter",
             checked = audiobookSettings.autoPlay,
             onCheckedChange = { onAudiobookSettingsChange(audiobookSettings.copy(autoPlay = it)) }
         )
-        
+
         SettingSwitch(
             label = "Skip Silence",
             checked = audiobookSettings.skipSilence,
             onCheckedChange = { onAudiobookSettingsChange(audiobookSettings.copy(skipSilence = it)) }
         )
-        
+
         SettingSwitch(
             label = "Remember Position",
             checked = audiobookSettings.rememberPosition,
@@ -382,32 +382,32 @@ private fun MetadataTab(
             checked = metadataSettings.ocrEnabled,
             onCheckedChange = { onMetadataSettingsChange(metadataSettings.copy(ocrEnabled = it)) }
         )
-        
+
         SettingSwitch(
             label = "Enable NER",
             description = "Named Entity Recognition",
             checked = metadataSettings.nerEnabled,
             onCheckedChange = { onMetadataSettingsChange(metadataSettings.copy(nerEnabled = it)) }
         )
-        
+
         SettingSwitch(
             label = "Auto-Fetch Metadata",
             checked = metadataSettings.autoFetchMetadata,
             onCheckedChange = { onMetadataSettingsChange(metadataSettings.copy(autoFetchMetadata = it)) }
         )
-        
+
         SettingSwitch(
             label = "Auto-Download Covers",
             checked = metadataSettings.autoDownloadCovers,
             onCheckedChange = { onMetadataSettingsChange(metadataSettings.copy(autoDownloadCovers = it)) }
         )
-        
+
         SettingSwitch(
             label = "Comparison View",
             checked = metadataSettings.comparisonViewEnabled,
             onCheckedChange = { onMetadataSettingsChange(metadataSettings.copy(comparisonViewEnabled = it)) }
         )
-        
+
         SettingSwitch(
             label = "Prefer Local Metadata",
             checked = metadataSettings.preferLocalMetadata,
@@ -433,7 +433,7 @@ private fun CloudSyncTab(
             checked = cloudSyncSettings.enabled,
             onCheckedChange = { onCloudSyncSettingsChange(cloudSyncSettings.copy(enabled = it)) }
         )
-        
+
         DropdownSettingField(
             label = "Cloud Provider",
             value = cloudSyncSettings.provider.displayName,
@@ -444,25 +444,25 @@ private fun CloudSyncTab(
                 }
             }
         )
-        
+
         SettingSwitch(
             label = "WiFi Only",
             checked = cloudSyncSettings.syncOnWifiOnly,
             onCheckedChange = { onCloudSyncSettingsChange(cloudSyncSettings.copy(syncOnWifiOnly = it)) }
         )
-        
+
         SettingSwitch(
             label = "Sync Metadata",
             checked = cloudSyncSettings.syncMetadata,
             onCheckedChange = { onCloudSyncSettingsChange(cloudSyncSettings.copy(syncMetadata = it)) }
         )
-        
+
         SettingSwitch(
             label = "Sync Progress",
             checked = cloudSyncSettings.syncProgress,
             onCheckedChange = { onCloudSyncSettingsChange(cloudSyncSettings.copy(syncProgress = it)) }
         )
-        
+
         SettingSwitch(
             label = "Auto Sync",
             checked = cloudSyncSettings.autoSync,
@@ -493,7 +493,7 @@ private fun InterfaceTab(
                 }
             }
         )
-        
+
         Text("Grid Columns: ${interfaceSettings.gridColumns}", style = MaterialTheme.typography.labelLarge)
         Slider(
             value = interfaceSettings.gridColumns.toFloat(),
@@ -501,7 +501,7 @@ private fun InterfaceTab(
             valueRange = 2f..6f,
             steps = 3
         )
-        
+
         DropdownSettingField(
             label = "Metallic Theme",
             value = interfaceSettings.metallicTheme.name.replace("_", " "),
@@ -512,25 +512,25 @@ private fun InterfaceTab(
                 }
             }
         )
-        
+
         SettingSwitch(
             label = "Enable Shimmer Effects",
             checked = interfaceSettings.enableShimmerEffects,
             onCheckedChange = { onInterfaceSettingsChange(interfaceSettings.copy(enableShimmerEffects = it)) }
         )
-        
+
         SettingSwitch(
             label = "Dynamic Colors",
             checked = interfaceSettings.dynamicColors,
             onCheckedChange = { onInterfaceSettingsChange(interfaceSettings.copy(dynamicColors = it)) }
         )
-        
+
         SettingSwitch(
             label = "Dark Mode",
             checked = interfaceSettings.darkMode,
             onCheckedChange = { onInterfaceSettingsChange(interfaceSettings.copy(darkMode = it)) }
         )
-        
+
         SettingSwitch(
             label = "Animations Enabled",
             checked = interfaceSettings.animationsEnabled,
@@ -557,32 +557,32 @@ private fun ImportTab(
             label = { Text("Calibre Database Path") },
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         OutlinedTextField(
             value = importSettings.calibreLibraryRoot,
             onValueChange = { onImportSettingsChange(importSettings.copy(calibreLibraryRoot = it)) },
             label = { Text("Calibre Library Root") },
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         SettingSwitch(
             label = "Import Metadata",
             checked = importSettings.importMetadata,
             onCheckedChange = { onImportSettingsChange(importSettings.copy(importMetadata = it)) }
         )
-        
+
         SettingSwitch(
             label = "Import Covers",
             checked = importSettings.importCovers,
             onCheckedChange = { onImportSettingsChange(importSettings.copy(importCovers = it)) }
         )
-        
+
         SettingSwitch(
             label = "Import Series",
             checked = importSettings.importSeries,
             onCheckedChange = { onImportSettingsChange(importSettings.copy(importSeries = it)) }
         )
-        
+
         SettingSwitch(
             label = "Import Tags",
             checked = importSettings.importTags,
@@ -602,7 +602,7 @@ private fun PasswordTextField(
     modifier: Modifier = Modifier
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
-    
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -639,7 +639,7 @@ private fun SettingSwitch(
                 )
             }
         }
-        
+
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange
@@ -656,7 +656,7 @@ private fun DropdownSettingField(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    
+
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
@@ -672,7 +672,7 @@ private fun DropdownSettingField(
                 .fillMaxWidth()
                 .menuAnchor()
         )
-        
+
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }

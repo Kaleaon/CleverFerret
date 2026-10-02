@@ -39,14 +39,14 @@ class AutoSuggestionService @Inject constructor(
      */
     suspend fun suggestTagsForItem(itemId: Long): List<TagSuggestion> = withContext(Dispatchers.IO) {
         val suggestions = mutableListOf<TagSuggestion>()
-        
+
         // Get item and its metadata
         val item = mediaItemDao.getMediaItemById(itemId) ?: return@withContext emptyList()
         val metadata = metadataDao.getMetadataCommonByItemId(itemId)
-        
+
         // 1. Suggest tags based on genre
         // (Would query genres for this item and suggest matching tags)
-        
+
         // 2. Suggest tags based on title keywords for books
         // Note: Creator would come from People table with AUTHOR role
         // For now, use title-based suggestions
@@ -67,7 +67,7 @@ class AutoSuggestionService @Inject constructor(
                 }
             }
         }
-        
+
         // 3. Suggest tags used on similar items (by media type)
         val popularTags = tagRepository.getPopularTagsForMediaType(item.mediaType, limit = 5)
         popularTags.forEach { tag ->
@@ -82,7 +82,7 @@ class AutoSuggestionService @Inject constructor(
                 )
             }
         }
-        
+
         // 4. Suggest related tags based on any existing tags
         val existingTags = tagRepository.getTagsForItem(itemId).first()
         for (existingTag in existingTags.take(3)) {
@@ -101,7 +101,7 @@ class AutoSuggestionService @Inject constructor(
                 }
             }
         }
-        
+
         // Sort by confidence and limit
         return@withContext suggestions.sortedByDescending { it.confidence }.take(10)
     }
@@ -115,10 +115,10 @@ class AutoSuggestionService @Inject constructor(
         limit: Int = 5
     ): List<UnifiedTag> = withContext(Dispatchers.IO) {
         if (query.length < 2) return@withContext emptyList()
-        
+
         // Search tags including synonyms
         val matchingTags = tagHierarchyDao.searchTagsWithSynonyms(query, limit * 2)
-        
+
         // Filter out already selected tags
         matchingTags
             .filter { it.tagId !in currentTagIds }
@@ -130,7 +130,7 @@ class AutoSuggestionService @Inject constructor(
      */
     suspend fun suggestNewTags(): List<NewTagSuggestion> = withContext(Dispatchers.IO) {
         val suggestions = mutableListOf<NewTagSuggestion>()
-        
+
         // Analyze metadata for common values that aren't tags yet
         // 1. Check for authors without corresponding tags
         val authorCounts = smartCollectionDao.getAuthorItemCounts(minItems = 3)
@@ -148,10 +148,10 @@ class AutoSuggestionService @Inject constructor(
                 )
             }
         }
-        
+
         // 2. Check for series names without tags
         // (Would analyze book metadata for series)
-        
+
         // 3. Check for genre patterns
         val genreCounts = smartCollectionDao.getGenreItemCounts(minItems = 5)
         for (genre in genreCounts.take(5)) {
@@ -168,7 +168,7 @@ class AutoSuggestionService @Inject constructor(
                 )
             }
         }
-        
+
         suggestions
     }
 
@@ -179,12 +179,12 @@ class AutoSuggestionService @Inject constructor(
      */
     suspend fun suggestMusicPlaylists(): List<PlaylistSuggestion> = withContext(Dispatchers.IO) {
         val suggestions = mutableListOf<PlaylistSuggestion>()
-        
+
         // 1. Recently played music
         val oneWeekAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
         val recentMusic = smartCollectionDao.getRecentlyAccessedItems(oneWeekAgo, 30)
             .filter { it.mediaType == "MUSIC_TRACK" }
-        
+
         if (recentMusic.size >= 5) {
             suggestions.add(
                 PlaylistSuggestion(
@@ -197,11 +197,11 @@ class AutoSuggestionService @Inject constructor(
                 )
             )
         }
-        
+
         // 2. Most played tracks
         val mostPlayed = smartCollectionDao.getMostPlayedItems(50)
             .filter { it.mediaType == "MUSIC_TRACK" }
-        
+
         if (mostPlayed.size >= 5) {
             suggestions.add(
                 PlaylistSuggestion(
@@ -214,11 +214,11 @@ class AutoSuggestionService @Inject constructor(
                 )
             )
         }
-        
+
         // 3. Favorite tracks
         val favorites = smartCollectionDao.getFavoriteItems().first()
             .filter { it.mediaType == "MUSIC_TRACK" }
-        
+
         if (favorites.size >= 3) {
             suggestions.add(
                 PlaylistSuggestion(
@@ -231,9 +231,9 @@ class AutoSuggestionService @Inject constructor(
                 )
             )
         }
-        
+
         // 4. Genre-based playlists (would group by genre)
-        
+
         suggestions
     }
 
@@ -244,11 +244,11 @@ class AutoSuggestionService @Inject constructor(
      */
     suspend fun suggestBookSeries(): List<SeriesSuggestion> = withContext(Dispatchers.IO) {
         val suggestions = mutableListOf<SeriesSuggestion>()
-        
+
         // Detect series based on title patterns
         val potentialSeriesBooks = smartCollectionDao.detectPotentialSeriesBooks()
         val seriesGroups = groupBooksBySeries(potentialSeriesBooks)
-        
+
         for ((seriesName, books) in seriesGroups) {
             if (books.size >= 2) {
                 suggestions.add(
@@ -262,7 +262,7 @@ class AutoSuggestionService @Inject constructor(
                 )
             }
         }
-        
+
         return@withContext suggestions.sortedByDescending { it.confidence }
     }
 
@@ -271,10 +271,10 @@ class AutoSuggestionService @Inject constructor(
      */
     suspend fun suggestAuthorCollections(): List<AuthorCollectionSuggestion> = withContext(Dispatchers.IO) {
         val authorCounts = smartCollectionDao.getAuthorItemCounts(minItems = 3)
-        
+
         authorCounts.map { author ->
             val items = smartCollectionDao.getItemsByAuthor(author.creator).first()
-            
+
             AuthorCollectionSuggestion(
                 authorName = author.creator,
                 bookCount = author.itemCount,
@@ -294,11 +294,11 @@ class AutoSuggestionService @Inject constructor(
      */
     suspend fun suggestReadingLists(): List<ReadingListSuggestion> = withContext(Dispatchers.IO) {
         val suggestions = mutableListOf<ReadingListSuggestion>()
-        
+
         // 1. Continue Reading
         val inProgress = smartCollectionDao.getInProgressItems().first()
             .filter { it.mediaType in listOf("BOOK", "AUDIOBOOK", "COMIC") }
-        
+
         if (inProgress.isNotEmpty()) {
             suggestions.add(
                 ReadingListSuggestion(
@@ -310,11 +310,11 @@ class AutoSuggestionService @Inject constructor(
                 )
             )
         }
-        
+
         // 2. Backlog (not started)
         val backlog = smartCollectionDao.getBacklogItems(50)
             .filter { it.mediaType in listOf("BOOK", "AUDIOBOOK", "COMIC") }
-        
+
         if (backlog.size >= 3) {
             suggestions.add(
                 ReadingListSuggestion(
@@ -326,12 +326,12 @@ class AutoSuggestionService @Inject constructor(
                 )
             )
         }
-        
+
         // 3. Recently added books
         val oneWeekAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
         val recentBooks = smartCollectionDao.getRecentlyAddedItems(oneWeekAgo, 30)
             .filter { it.mediaType in listOf("BOOK", "AUDIOBOOK", "COMIC") }
-        
+
         if (recentBooks.size >= 3) {
             suggestions.add(
                 ReadingListSuggestion(
@@ -343,7 +343,7 @@ class AutoSuggestionService @Inject constructor(
                 )
             )
         }
-        
+
         suggestions
     }
 
@@ -354,10 +354,10 @@ class AutoSuggestionService @Inject constructor(
      */
     suspend fun suggestMovieCollections(): List<MovieCollectionSuggestion> = withContext(Dispatchers.IO) {
         val suggestions = mutableListOf<MovieCollectionSuggestion>()
-        
+
         // 1. Director-based collections
         // (Would query movies grouped by director)
-        
+
         // 2. Genre-based collections
         val genreCounts = smartCollectionDao.getGenreItemCounts(minItems = 3)
         for (genre in genreCounts.filter { it.itemCount >= 5 }.take(5)) {
@@ -372,14 +372,14 @@ class AutoSuggestionService @Inject constructor(
                 )
             )
         }
-        
+
         // 3. Year-based collections (decades)
         // (Would group by decade)
-        
+
         // 4. Favorites
         val favorites = smartCollectionDao.getFavoriteItems().first()
             .filter { it.mediaType in listOf("MOVIE", "TV_SHOW") }
-        
+
         if (favorites.size >= 3) {
             suggestions.add(
                 MovieCollectionSuggestion(
@@ -392,7 +392,7 @@ class AutoSuggestionService @Inject constructor(
                 )
             )
         }
-        
+
         suggestions
     }
 
@@ -405,7 +405,7 @@ class AutoSuggestionService @Inject constructor(
             Regex("""^(.+?)[\s:–-]+#\d"""),
             Regex("""^(.+?)[\s:–-]+Part\s*\d""", RegexOption.IGNORE_CASE)
         )
-        
+
         return books.groupBy { book ->
             val title = book.fileName.substringBeforeLast('.')
             for (pattern in seriesPatterns) {
@@ -427,7 +427,7 @@ class AutoSuggestionService @Inject constructor(
     private fun detectSeriesPattern(seriesName: String, books: List<MediaItem>): String {
         // Detect the pattern used (Book N, Vol N, #N, etc.)
         val titles = books.map { it.fileName.substringBeforeLast('.') }
-        
+
         return when {
             titles.any { it.contains(Regex("""Book\s*\d""", RegexOption.IGNORE_CASE)) } -> "Book N"
             titles.any { it.contains(Regex("""Vol(?:ume)?\.?\s*\d""", RegexOption.IGNORE_CASE)) } -> "Volume N"

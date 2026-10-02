@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 /**
  * Media Library Service for CleverFerret
- * 
+ *
  * Core service for managing media files, playlists, and playback:
  * - Media file management
  * - Playlist creation and management
@@ -17,16 +17,16 @@ import javax.inject.Singleton
  */
 @Singleton
 class MediaLibraryService @Inject constructor() {
-    
+
     private val _currentPlaylist = MutableStateFlow<StreamMediaPlaylist?>(null)
     val currentPlaylist: Flow<StreamMediaPlaylist?> = _currentPlaylist.asStateFlow()
-    
+
     private val _currentlyPlaying = MutableStateFlow<StreamMediaItem?>(null)
     val currentlyPlaying: Flow<StreamMediaItem?> = _currentlyPlaying.asStateFlow()
-    
+
     private val _playbackState = MutableStateFlow(MediaPlaybackState.STOPPED)
     val playbackState: Flow<MediaPlaybackState> = _playbackState.asStateFlow()
-    
+
     private val _mediaLibrary = MutableStateFlow<List<StreamMediaItem>>(emptyList())
     val mediaLibrary: Flow<List<StreamMediaItem>> = _mediaLibrary.asStateFlow()
 

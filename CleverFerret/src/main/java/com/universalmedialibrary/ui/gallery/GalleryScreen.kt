@@ -42,7 +42,7 @@ import com.universalmedialibrary.services.gallery.*
 
 /**
  * Gallery Screen
- * 
+ *
  * Main gallery view with albums, smart collections, and media browsing.
  * Provides a Plex-like experience with advanced organization features.
  */
@@ -54,10 +54,10 @@ fun GalleryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    
+
     // Permission handling
     val hasPermission = rememberStoragePermissionState()
-    
+
     // Delete confirmation launcher (Android 11+)
     val deleteLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
@@ -68,7 +68,7 @@ fun GalleryScreen(
             viewModel.onDeleteCancelled()
         }
     }
-    
+
     // Handle pending delete request
     LaunchedEffect(uiState.pendingDeleteRequest) {
         uiState.pendingDeleteRequest?.let { request ->
@@ -77,7 +77,7 @@ fun GalleryScreen(
             )
         }
     }
-    
+
     // Handle share
     LaunchedEffect(uiState.pendingShareItems) {
         uiState.pendingShareItems?.let { items ->
@@ -85,7 +85,7 @@ fun GalleryScreen(
             viewModel.onShareHandled()
         }
     }
-    
+
     Scaffold(
         topBar = {
             GalleryTopBar(
@@ -113,9 +113,9 @@ fun GalleryScreen(
                 GallerySelectionBottomBar(
                     selectedCount = uiState.selectedCount,
                     onShare = { viewModel.onEvent(GalleryEvent.ShareItems(uiState.selectedItemIds)) },
-                    onFavorite = { 
-                        uiState.selectedItemIds.forEach { 
-                            viewModel.onEvent(GalleryEvent.ToggleFavorite(it)) 
+                    onFavorite = {
+                        uiState.selectedItemIds.forEach {
+                            viewModel.onEvent(GalleryEvent.ToggleFavorite(it))
                         }
                     },
                     onHide = { viewModel.onEvent(GalleryEvent.HideItems(uiState.selectedItemIds)) },
@@ -174,7 +174,7 @@ fun GalleryScreen(
                     }
                 }
             }
-            
+
             // Error snackbar
             uiState.error?.let { error ->
                 Snackbar(
@@ -201,19 +201,19 @@ private fun rememberStoragePermissionState(): Boolean {
     } else {
         Manifest.permission.READ_EXTERNAL_STORAGE
     }
-    
+
     var hasPermission by remember { mutableStateOf(false) }
-    
+
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         hasPermission = isGranted
     }
-    
+
     LaunchedEffect(Unit) {
         launcher.launch(permission)
     }
-    
+
     return hasPermission
 }
 
@@ -316,7 +316,7 @@ private fun GalleryMediaContent(
         EmptyStateContent(message = "No items in this album")
         return
     }
-    
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(gridColumns),
         contentPadding = PaddingValues(4.dp),

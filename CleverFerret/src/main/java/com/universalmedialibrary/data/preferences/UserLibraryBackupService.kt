@@ -19,15 +19,15 @@ import javax.inject.Singleton
 
 /**
  * User Library Backup Service
- * 
+ *
  * CRITICAL SERVICE FOR APP UPGRADES
- * 
+ *
  * Ensures user data NEVER gets wiped during app updates by:
  * - Automatic backups before upgrades
  * - Export/import of all user data
  * - Restore functionality
  * - Validation and integrity checks
- * 
+ *
  * Backs up:
  * - Media library (all items, metadata)
  * - Reading progress and bookmarks
@@ -36,12 +36,12 @@ import javax.inject.Singleton
  * - API keys (encrypted)
  * - Reading sessions
  * - Comic panel data and translations
- * 
+ *
  * Usage:
  * ```kotlin
  * // Before upgrade
  * backupService.createAutomaticBackup()
- * 
+ *
  * // After upgrade or on user request
  * backupService.restoreFromBackup(backupFile)
  * ```
@@ -53,7 +53,7 @@ class UserLibraryBackupService @Inject constructor(
     private val preferencesStore: ReadiumPreferencesStore
 ) {
     private val TAG = "UserLibraryBackup"
-    private val json = Json { 
+    private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
     }
@@ -61,28 +61,28 @@ class UserLibraryBackupService @Inject constructor(
     /**
      * Create automatic backup
      * Called before app upgrades to prevent data loss
-     * 
+     *
      * @return File path to backup or null if failed
      */
     suspend fun createAutomaticBackup(): String? = withContext(Dispatchers.IO) {
         try {
             val backupDir = File(context.filesDir, "backups")
             backupDir.mkdirs()
-            
+
             val timestamp = System.currentTimeMillis()
             val backupFile = File(backupDir, "library_backup_$timestamp.json")
-            
+
             val backup = collectAllUserData()
             val jsonString = json.encodeToString(backup)
-            
+
             backupFile.writeText(jsonString)
-            
+
             Log.i(TAG, "Automatic backup created: ${backupFile.absolutePath}")
             Log.i(TAG, "Backup size: ${backupFile.length() / 1024}KB")
-            
+
             // Keep only last 5 backups to save space
             cleanOldBackups(backupDir, keepCount = 5)
-            
+
             backupFile.absolutePath
         } catch (e: Exception) {
             if (e is CancellationException) throw e
@@ -94,7 +94,7 @@ class UserLibraryBackupService @Inject constructor(
     /**
      * Export user library to external storage
      * For manual backups and device transfers
-     * 
+     *
      * @param exportPath Destination path
      * @return Success status
      */
@@ -102,10 +102,10 @@ class UserLibraryBackupService @Inject constructor(
         try {
             val backup = collectAllUserData()
             val jsonString = json.encodeToString(backup)
-            
+
             val exportFile = File(exportPath)
             exportFile.writeText(jsonString)
-            
+
             Log.i(TAG, "Library exported to: $exportPath")
             true
         } catch (e: Exception) {
@@ -117,7 +117,7 @@ class UserLibraryBackupService @Inject constructor(
 
     /**
      * Restore library from backup
-     * 
+     *
      * @param backupPath Path to backup file
      * @param mergeMode If true, merge with existing data; if false, replace
      * @return RestoreResult
@@ -134,7 +134,7 @@ class UserLibraryBackupService @Inject constructor(
 
             val jsonString = backupFile.readText()
             val backup = json.decodeFromString<LibraryBackup>(jsonString)
-            
+
             // Validate backup
             if (!validateBackup(backup)) {
                 return@withContext RestoreResult.Error("Invalid or corrupted backup file")
@@ -252,41 +252,41 @@ class UserLibraryBackupService @Inject constructor(
         return LibraryBackup(
             version = "1.0",
             timestamp = System.currentTimeMillis(),
-            
+
             // Media library
             libraries = database.libraryDao().getAllLibraries().first(),
-            mediaItems = emptyList<MediaItem>().also { 
-                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting mediaItems from backup until DAO is implemented") 
+            mediaItems = emptyList<MediaItem>().also {
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting mediaItems from backup until DAO is implemented")
             },
-            metadataCommon = emptyList<MetadataCommon>().also { 
-                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting metadataCommon from backup until DAO is implemented") 
+            metadataCommon = emptyList<MetadataCommon>().also {
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting metadataCommon from backup until DAO is implemented")
             },
-            
+
             // Reading progress
             readingProgress = database.readingProgressDao().getAllProgress().first(),
-            bookmarks = emptyList<Bookmark>().also { 
-                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting bookmarks from backup until DAO is implemented") 
+            bookmarks = emptyList<Bookmark>().also {
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting bookmarks from backup until DAO is implemented")
             },
             readingSessions = database.comicPanelDao().getAllReadingSessions().first(),
-            
+
             // Playlists and collections
             playlists = database.playlistDao().getAllPlaylistsFlow().first(),
-            playlistItems = emptyList<PlaylistItem>().also { 
-                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting playlistItems from backup until DAO is implemented") 
+            playlistItems = emptyList<PlaylistItem>().also {
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting playlistItems from backup until DAO is implemented")
             },
-            
+
             // Comic data
-            comicPanels = emptyList<ComicPanelData>().also { 
-                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting comicPanels from backup until DAO is implemented") 
+            comicPanels = emptyList<ComicPanelData>().also {
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting comicPanels from backup until DAO is implemented")
             },
-            comicTranslations = emptyList<ComicTranslation>().also { 
-                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting comicTranslations from backup until DAO is implemented") 
+            comicTranslations = emptyList<ComicTranslation>().also {
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting comicTranslations from backup until DAO is implemented")
             },
             comicSessions = database.comicPanelDao().getAllReadingSessions().first(),
-            
+
             // Radio
             radioStations = database.radioStationDao().getAllStations().first(),
-            
+
             // Preferences (serialized)
             preferences = collectPreferences()
         )
@@ -297,20 +297,20 @@ class UserLibraryBackupService @Inject constructor(
      */
     private suspend fun collectPreferences(): Map<String, String> {
         val prefs = mutableMapOf<String, String>()
-        
+
         // Collect all preferences
         val epubPrefs = preferencesStore.epubPreferences.first()
         val pdfPrefs = preferencesStore.pdfPreferences.first()
         val audiobookPrefs = preferencesStore.audiobookPreferences.first()
         val comicPrefs = preferencesStore.comicPreferences.first()
         val globalPrefs = preferencesStore.globalPreferences.first()
-        
+
         prefs["epub"] = json.encodeToString(epubPrefs)
         prefs["pdf"] = json.encodeToString(pdfPrefs)
         prefs["audiobook"] = json.encodeToString(audiobookPrefs)
         prefs["comic"] = json.encodeToString(comicPrefs)
         prefs["global"] = json.encodeToString(globalPrefs)
-        
+
         return prefs
     }
 
@@ -335,7 +335,7 @@ class UserLibraryBackupService @Inject constructor(
             val backups = backupDir.listFiles { file ->
                 file.name.startsWith("library_backup_") && file.extension == "json"
             }?.sortedByDescending { it.lastModified() } ?: return
-            
+
             if (backups.size > keepCount) {
                 backups.drop(keepCount).forEach { file ->
                     file.delete()
@@ -365,29 +365,29 @@ class UserLibraryBackupService @Inject constructor(
 data class LibraryBackup(
     val version: String,
     val timestamp: Long,
-    
+
     // Media library
     val libraries: List<Library>,
     val mediaItems: List<MediaItem>,
     val metadataCommon: List<MetadataCommon>,
-    
+
     // Reading progress
     val readingProgress: List<ReadingProgress>,
     val bookmarks: List<Bookmark>,
     val readingSessions: List<ComicReadingSession>,
-    
+
     // Playlists
     val playlists: List<Playlist>,
     val playlistItems: List<PlaylistItem>,
-    
+
     // Comic data
     val comicPanels: List<ComicPanelData>,
     val comicTranslations: List<ComicTranslation>,
     val comicSessions: List<ComicReadingSession>,
-    
+
     // Radio
     val radioStations: List<RadioStation>,
-    
+
     // Preferences (serialized as map)
     val preferences: Map<String, String>
 )
@@ -401,6 +401,6 @@ sealed class RestoreResult {
         val progressRestored: Int,
         val preferencesRestored: Int
     ) : RestoreResult()
-    
+
     data class Error(val message: String) : RestoreResult()
 }

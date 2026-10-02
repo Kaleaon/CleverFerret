@@ -59,7 +59,7 @@ class EnhancedSearchViewModel @Inject constructor(
 
         // Load search history
         loadSearchHistory()
-        
+
         // Setup search with debounce
         viewModelScope.launch {
             combine(
@@ -202,7 +202,7 @@ class EnhancedSearchViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isSearching = true, error = null)
-                
+
                 val searchQuery = SearchQuery(
                     textQuery = query,
                     filters = filters,

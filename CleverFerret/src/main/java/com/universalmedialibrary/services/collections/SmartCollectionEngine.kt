@@ -30,8 +30,8 @@ class SmartCollectionEngine @Inject constructor(
     private val collectionRepository: UnifiedCollectionRepository
 ) {
 
-    private val json = Json { 
-        ignoreUnknownKeys = true 
+    private val json = Json {
+        ignoreUnknownKeys = true
         encodeDefaults = true
     }
 

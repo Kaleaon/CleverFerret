@@ -28,19 +28,19 @@ private val Context.mangaSourceDataStore: DataStore<Preferences> by preferencesD
 class MangaSourceRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     companion object {
         private val ENABLED_SOURCES = stringSetPreferencesKey("enabled_sources")
         private val PINNED_SOURCES = stringSetPreferencesKey("pinned_sources")
         private val HIDDEN_SOURCES = stringSetPreferencesKey("hidden_sources")
         private val SOURCE_ORDER = stringPreferencesKey("source_order")
     }
-    
+
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
-    
+
     /**
      * Get all configured sources
      */
@@ -49,7 +49,7 @@ class MangaSourceRepository @Inject constructor(
         val enabledIds = prefs[ENABLED_SOURCES] ?: emptySet()
         val pinnedIds = prefs[PINNED_SOURCES] ?: emptySet()
         val hiddenIds = prefs[HIDDEN_SOURCES] ?: emptySet()
-        
+
         return MangaSourceService.BUILTIN_SOURCES
             .filter { it.id !in hiddenIds }
             .map { source ->
@@ -60,7 +60,7 @@ class MangaSourceRepository @Inject constructor(
             }
             .sortedWith(compareByDescending<MangaSource> { it.isPinned }.thenBy { it.name })
     }
-    
+
     /**
      * Set source enabled state
      */
@@ -75,7 +75,7 @@ class MangaSourceRepository @Inject constructor(
             prefs[ENABLED_SOURCES] = current
         }
     }
-    
+
     /**
      * Set source pinned state
      */
@@ -90,7 +90,7 @@ class MangaSourceRepository @Inject constructor(
             prefs[PINNED_SOURCES] = current
         }
     }
-    
+
     /**
      * Hide a source
      */
@@ -105,7 +105,7 @@ class MangaSourceRepository @Inject constructor(
             prefs[HIDDEN_SOURCES] = current
         }
     }
-    
+
     /**
      * Check if source is enabled
      */
@@ -114,7 +114,7 @@ class MangaSourceRepository @Inject constructor(
         val enabledIds = prefs[ENABLED_SOURCES] ?: return true
         return enabledIds.isEmpty() || sourceId in enabledIds
     }
-    
+
     /**
      * Get enabled source IDs
      */
@@ -122,7 +122,7 @@ class MangaSourceRepository @Inject constructor(
         val prefs = context.mangaSourceDataStore.data.first()
         return prefs[ENABLED_SOURCES] ?: emptySet()
     }
-    
+
     /**
      * Get pinned source IDs
      */
@@ -130,7 +130,7 @@ class MangaSourceRepository @Inject constructor(
         val prefs = context.mangaSourceDataStore.data.first()
         return prefs[PINNED_SOURCES] ?: emptySet()
     }
-    
+
     /**
      * Reset all source preferences
      */

@@ -19,7 +19,7 @@ Canonical replacement: docs/INDEX.md
 All Android Services with CoroutineScope now properly cancel their scopes in `onDestroy()`:
 
 1. ✅ CalibreImportForegroundService
-2. ✅ AmbientSoundService  
+2. ✅ AmbientSoundService
 3. ✅ AudiobookService
 4. ✅ FreeAudiobookDownloadService
 5. ✅ MidiPlaybackService

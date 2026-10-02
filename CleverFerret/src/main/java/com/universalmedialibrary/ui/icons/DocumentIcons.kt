@@ -165,4 +165,3 @@ internal fun noteVector(): ImageVector = materialIcon(name = "Note") {
         close()
     }
 }
-

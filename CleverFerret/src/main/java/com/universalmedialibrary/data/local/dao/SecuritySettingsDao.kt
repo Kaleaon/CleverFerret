@@ -9,21 +9,21 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface SecuritySettingsDao {
-    
+
     @Query("SELECT * FROM security_settings WHERE id = 1")
     fun getSettings(): Flow<SecuritySettingsEntity?>
-    
+
     @Query("SELECT * FROM security_settings WHERE id = 1")
     suspend fun getSettingsSync(): SecuritySettingsEntity?
-    
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSettings(settings: SecuritySettingsEntity)
-    
+
     @Update
     suspend fun updateSettings(settings: SecuritySettingsEntity)
-    
+
     @Query("""
-        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes, 
+        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes,
             allowScreenshots, hideInRecents)
         VALUES (
             1,
@@ -34,9 +34,9 @@ interface SecuritySettingsDao {
         )
     """)
     suspend fun setRequireBiometric(enabled: Boolean)
-    
+
     @Query("""
-        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes, 
+        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes,
             allowScreenshots, hideInRecents)
         VALUES (
             1,
@@ -47,9 +47,9 @@ interface SecuritySettingsDao {
         )
     """)
     suspend fun setLockTimeout(minutes: Int)
-    
+
     @Query("""
-        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes, 
+        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes,
             allowScreenshots, hideInRecents)
         VALUES (
             1,
@@ -60,9 +60,9 @@ interface SecuritySettingsDao {
         )
     """)
     suspend fun setAllowScreenshots(allowed: Boolean)
-    
+
     @Query("""
-        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes, 
+        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes,
             allowScreenshots, hideInRecents)
         VALUES (
             1,
@@ -73,7 +73,7 @@ interface SecuritySettingsDao {
         )
     """)
     suspend fun setHideInRecents(hide: Boolean)
-    
+
     @Query("DELETE FROM security_settings")
     suspend fun deleteAll()
 }

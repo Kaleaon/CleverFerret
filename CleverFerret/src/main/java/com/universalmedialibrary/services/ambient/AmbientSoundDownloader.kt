@@ -27,20 +27,20 @@ class AmbientSoundDownloader @Inject constructor(
     suspend fun downloadSound(sound: AmbientSound): Boolean = withContext(Dispatchers.IO) {
         val url = sound.audioUrl
         if (url.isNullOrBlank()) return@withContext false
-        
+
         // Create directory if not exists
         val soundsDir = File(context.filesDir, "ambient_sounds")
         if (!soundsDir.exists()) {
             soundsDir.mkdirs()
         }
-        
+
         // Generate filename from URL or ID
         // Handle query parameters in URL if any
         val urlPath = url.substringBefore("?")
         val extension = urlPath.substringAfterLast(".", "mp3")
         val filename = "sound_${sound.id}.$extension"
         val file = File(soundsDir, filename)
-        
+
         // Check if file already exists and is valid (simple check)
         if (file.exists() && file.length() > 0) {
              // Update DB if not already set
@@ -53,18 +53,18 @@ class AmbientSoundDownloader @Inject constructor(
         try {
             val request = Request.Builder().url(url).build()
             val response = okHttpClient.newCall(request).execute()
-            
+
             if (!response.isSuccessful) {
                 response.close()
                 return@withContext false
             }
-            
+
             response.body?.byteStream()?.use { input ->
                 FileOutputStream(file).use { output ->
                     input.copyTo(output)
                 }
             }
-            
+
             // Update DB
             ambientSoundDao.updateSound(sound.copy(audioResourcePath = file.absolutePath))
             return@withContext true

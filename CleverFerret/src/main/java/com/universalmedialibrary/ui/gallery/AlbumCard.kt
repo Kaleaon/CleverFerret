@@ -52,7 +52,7 @@ internal fun AlbumCard(
     ) {
         Box {
             AsyncImage(
-                    
+
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(album.effectiveCoverUri)
                     .crossfade(true)
@@ -63,7 +63,7 @@ internal fun AlbumCard(
                     .fillMaxWidth()
                     .aspectRatio(1f)
             )
-            
+
             // Gradient overlay
             Box(
                 modifier = Modifier
@@ -79,7 +79,7 @@ internal fun AlbumCard(
                         )
                     )
             )
-            
+
             // Album info
             Column(
                 modifier = Modifier

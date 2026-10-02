@@ -51,7 +51,7 @@ internal fun PodcastMiniPlayer(
                 color = MediaColors.AccentPrimary,
                 trackColor = MediaColors.ProgressBackground
             )
-            
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,7 +67,7 @@ internal fun PodcastMiniPlayer(
                 ) {
                     if (episode.showArtworkUrl != null) {
                         AsyncImage(
-                    
+
                             model = episode.showArtworkUrl,
                             contentDescription = "Media image",
                             contentScale = ContentScale.Crop,
@@ -75,9 +75,9 @@ internal fun PodcastMiniPlayer(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = episode.title,
@@ -95,7 +95,7 @@ internal fun PodcastMiniPlayer(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 // Speed indicator
                 Surface(
                     shape = RoundedCornerShape(MediaCorners.XS),
@@ -108,7 +108,7 @@ internal fun PodcastMiniPlayer(
                         modifier = Modifier.padding(horizontal = MediaSpacing.SM, vertical = MediaSpacing.XS)
                     )
                 }
-                
+
                 IconButton(onClick = onSeekBackward) {
                     Icon(
                         imageVector = Icons.Default.Replay30,
@@ -116,7 +116,7 @@ internal fun PodcastMiniPlayer(
                         tint = MediaColors.TextSecondary
                     )
                 }
-                
+
                 IconButton(onClick = onPlayPause) {
                     Surface(
                         shape = CircleShape,
@@ -131,7 +131,7 @@ internal fun PodcastMiniPlayer(
                         )
                     }
                 }
-                
+
                 IconButton(onClick = onSeekForward) {
                     Icon(
                         imageVector = Icons.Default.Forward30,

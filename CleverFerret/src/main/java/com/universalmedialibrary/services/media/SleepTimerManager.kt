@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 /**
  * Sleep Timer Manager for media playback
- * 
+ *
  * Provides sleep timer functionality for audiobooks, podcasts, and music.
  * Features:
  * - Customizable duration
@@ -27,13 +27,13 @@ import javax.inject.Singleton
  */
 @Singleton
 class SleepTimerManager @Inject constructor() {
-    
+
     private var timerJob: Job? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    
+
     private val _state = MutableStateFlow(SleepTimerState())
     val state: StateFlow<SleepTimerState> = _state.asStateFlow()
-    
+
     /**
      * Start sleep timer
      * @param durationMinutes Timer duration in minutes
@@ -46,7 +46,7 @@ class SleepTimerManager @Inject constructor() {
         onComplete: () -> Unit
     ) {
         stopTimer()
-        
+
         val durationSeconds = durationMinutes * 60L
         _state.value = SleepTimerState(
             isActive = true,
@@ -55,15 +55,15 @@ class SleepTimerManager @Inject constructor() {
             remainingSeconds = durationSeconds,
             fadeOut = fadeOut
         )
-        
+
         timerJob = scope.launch {
             var remaining = durationSeconds
-            
+
             while (remaining > 0 && isActive) {
                 if (!_state.value.isPaused) {
                     delay(1000)
                     remaining--
-                    
+
                     _state.value = _state.value.copy(
                         remainingSeconds = remaining
                     )
@@ -71,7 +71,7 @@ class SleepTimerManager @Inject constructor() {
                     delay(100)
                 }
             }
-            
+
             if (remaining == 0L) {
                 _state.value = _state.value.copy(
                     isActive = false,
@@ -81,7 +81,7 @@ class SleepTimerManager @Inject constructor() {
             }
         }
     }
-    
+
     /**
      * Pause the timer
      */
@@ -90,7 +90,7 @@ class SleepTimerManager @Inject constructor() {
             _state.value = _state.value.copy(isPaused = true)
         }
     }
-    
+
     /**
      * Resume the timer
      */
@@ -99,7 +99,7 @@ class SleepTimerManager @Inject constructor() {
             _state.value = _state.value.copy(isPaused = false)
         }
     }
-    
+
     /**
      * Stop and cancel the timer
      */
@@ -108,7 +108,7 @@ class SleepTimerManager @Inject constructor() {
         timerJob = null
         _state.value = SleepTimerState()
     }
-    
+
     /**
      * Add time to the current timer
      * @param additionalMinutes Minutes to add
@@ -122,7 +122,7 @@ class SleepTimerManager @Inject constructor() {
             )
         }
     }
-    
+
     /**
      * Get formatted time remaining as MM:SS
      */
@@ -132,17 +132,17 @@ class SleepTimerManager @Inject constructor() {
         val secs = seconds % 60
         return String.format(Locale.getDefault(), "%02d:%02d", minutes, secs)
     }
-    
+
     /**
      * Check if timer should trigger fade out
      * Fade out starts in the last 10 seconds
      */
     fun shouldFadeOut(): Boolean {
-        return _state.value.fadeOut && 
-               _state.value.isActive && 
+        return _state.value.fadeOut &&
+               _state.value.isActive &&
                _state.value.remainingSeconds <= 10
     }
-    
+
     /**
      * Get fade out progress (0.0 to 1.0)
      * Returns 1.0 (full volume) to 0.0 (silent) over last 10 seconds
@@ -167,10 +167,10 @@ data class SleepTimerState(
         get() = if (totalSeconds > 0) {
             ((totalSeconds - remainingSeconds).toFloat() / totalSeconds) * 100f
         } else 0f
-    
+
     val minutesRemaining: Int
         get() = (remainingSeconds / 60).toInt()
-    
+
     val secondsRemaining: Int
         get() = (remainingSeconds % 60).toInt()
 }

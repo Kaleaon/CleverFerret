@@ -36,7 +36,7 @@ fun LayeredSoundscapeScreen(
     var animationMode by remember { mutableStateOf(selectedSoundscape.recommendedAnimationMode) }
     var animationSpeed by remember { mutableStateOf(selectedSoundscape.recommendedSpeed) }
     val isAnimating by animator.isAnimating.collectAsState()
-    
+
     DisposableEffect(Unit) {
         onDispose {
             animator.cleanup()
@@ -46,7 +46,7 @@ fun LayeredSoundscapeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = PhosphorIcons.Nature,
@@ -89,7 +89,7 @@ fun LayeredSoundscapeScreen(
                     }
                 }
             )
-            
+
             // Description card
             Card {
                 Column(
@@ -110,7 +110,7 @@ fun LayeredSoundscapeScreen(
                     )
                 }
             }
-            
+
             // Control buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -131,7 +131,7 @@ fun LayeredSoundscapeScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(if (isPlaying) "Stop" else "Play")
                 }
-                
+
                 // Animate button
                 Button(
                     onClick = {
@@ -145,9 +145,9 @@ fun LayeredSoundscapeScreen(
                     },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isAnimating) 
-                            MaterialTheme.colorScheme.secondary 
-                        else 
+                        containerColor = if (isAnimating)
+                            MaterialTheme.colorScheme.secondary
+                        else
                             MaterialTheme.colorScheme.tertiary
                     )
                 ) {
@@ -159,7 +159,7 @@ fun LayeredSoundscapeScreen(
                     Text(if (isAnimating) "Stop Anim" else "Animate")
                 }
             }
-            
+
             // Animation settings (when animating)
             AnimatedVisibility(visible = isAnimating) {
                 Card(
@@ -178,7 +178,7 @@ fun LayeredSoundscapeScreen(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        
+
                         // Animation mode selector
                         Text("Complexity", style = MaterialTheme.typography.labelMedium)
                         Row(
@@ -188,7 +188,7 @@ fun LayeredSoundscapeScreen(
                             AmbientSoundAnimator.AnimationMode.values().forEach { mode ->
                                 FilterChip(
                                     selected = animationMode == mode,
-                                    onClick = { 
+                                    onClick = {
                                         animationMode = mode
                                         animator.stopAnimation()
                                         startAnimation(animator, selectedSoundscape, mode, animationSpeed) { index, volume ->
@@ -200,7 +200,7 @@ fun LayeredSoundscapeScreen(
                                 )
                             }
                         }
-                        
+
                         // Animation speed selector
                         Text("Speed", style = MaterialTheme.typography.labelMedium)
                         Row(
@@ -214,7 +214,7 @@ fun LayeredSoundscapeScreen(
                             ).forEach { (speed, label) ->
                                 FilterChip(
                                     selected = animationSpeed == speed,
-                                    onClick = { 
+                                    onClick = {
                                         animationSpeed = speed
                                         animator.stopAnimation()
                                         startAnimation(animator, selectedSoundscape, animationMode, speed) { index, volume ->
@@ -229,14 +229,14 @@ fun LayeredSoundscapeScreen(
                     }
                 }
             }
-            
+
             // Layer sliders
             Text(
                 text = "Sound Layers",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             selectedSoundscape.layers.forEachIndexed { index, layer ->
                 LayerSlider(
                     layer = layer,
@@ -247,7 +247,7 @@ fun LayeredSoundscapeScreen(
                     isAnimating = isAnimating
                 )
             }
-            
+
             // Info card
             Card(
                 colors = CardDefaults.cardColors(
@@ -347,7 +347,7 @@ private fun LayerSlider(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 if (isAnimating) {
                     Icon(
                         imageVector = Icons.Default.Animation,
@@ -357,9 +357,9 @@ private fun LayerSlider(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -369,14 +369,14 @@ private fun LayerSlider(
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.width(40.dp)
                 )
-                
+
                 Slider(
                     value = volume,
                     onValueChange = onVolumeChange,
                     modifier = Modifier.weight(1f),
                     enabled = !isAnimating // Disable manual control when animating
                 )
-                
+
                 IconButton(
                     onClick = { onVolumeChange(if (volume > 0f) 0f else layer.baseVolume) },
                     modifier = Modifier.size(36.dp)

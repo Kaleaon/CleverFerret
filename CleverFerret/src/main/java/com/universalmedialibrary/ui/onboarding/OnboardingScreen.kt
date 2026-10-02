@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 
 /**
  * Onboarding / First-Run Experience
- * 
+ *
  * Introduces new users to CleverFerret's key features:
  * - Universal media management
  * - Best visualizer on Android
@@ -37,7 +37,7 @@ fun OnboardingScreen(
 ) {
     var currentPage by remember { mutableStateOf(0) }
     val pages = remember { getOnboardingPages() }
-    
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -57,12 +57,12 @@ fun OnboardingScreen(
                     Text("Skip")
                 }
             }
-            
+
             // Current page
             Box(modifier = Modifier.weight(1f)) {
                 OnboardingPage(pages[currentPage])
             }
-            
+
             // Page indicator
             Row(
                 modifier = Modifier
@@ -85,7 +85,7 @@ fun OnboardingScreen(
                     )
                 }
             }
-            
+
             // Next/Get Started button
             Button(
                 onClick = {
@@ -146,9 +146,9 @@ private fun OnboardingPage(page: OnboardingPageData) {
                 tint = page.color
             )
         }
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         // Title
         Text(
             text = page.title,
@@ -157,9 +157,9 @@ private fun OnboardingPage(page: OnboardingPageData) {
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onBackground
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // Description
         Text(
             text = page.description,
@@ -168,10 +168,10 @@ private fun OnboardingPage(page: OnboardingPageData) {
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             lineHeight = 24.sp
         )
-        
+
         if (page.features.isNotEmpty()) {
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Feature bullets
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -223,7 +223,7 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
                 "Free & open source"
             )
         ),
-        
+
         // Audio
         OnboardingPageData(
             title = "Best Visualizer on Android",
@@ -237,7 +237,7 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
                 "USB DAC support with bit-perfect mode"
             )
         ),
-        
+
         // Video
         OnboardingPageData(
             title = "MX Player Video Experience",
@@ -251,7 +251,7 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
                 "All codecs supported"
             )
         ),
-        
+
         // Reading
         OnboardingPageData(
             title = "Moon Reader-Level E-Reader",
@@ -265,7 +265,7 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
                 "Progress tracking & bookmarks"
             )
         ),
-        
+
         // Widgets
         OnboardingPageData(
             title = "13 Professional Widgets",
@@ -279,7 +279,7 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
                 "Video, audiobook, podcast & more"
             )
         ),
-        
+
         // Permissions
         OnboardingPageData(
             title = "Grant Permissions",

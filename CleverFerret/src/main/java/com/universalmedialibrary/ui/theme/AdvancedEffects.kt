@@ -19,7 +19,7 @@ import kotlin.math.sin
 
 /**
  * Advanced Visual Effects System
- * 
+ *
  * Provides sophisticated visual effects that can be applied to ANY theme:
  * - Metallic shimmer and shine
  * - Blur and glassmorphism
@@ -52,16 +52,16 @@ fun Modifier.metallicShimmer(
             ),
             label = "shimmerOffset"
         )
-        
+
         drawWithContent {
             drawContent()
-            
+
             // Calculate shimmer gradient position
             val angleRad = angle * PI / 180f
             val shimmerWidth = size.width * 0.3f
             val shimmerX = shimmerOffset * size.width
             val shimmerY = shimmerOffset * size.height
-            
+
             drawRect(
                 brush = Brush.linearGradient(
                     colors = listOf(
@@ -100,7 +100,7 @@ fun Modifier.crystalGlow(
             ),
             label = "glowAlpha"
         )
-        
+
         drawBehind {
             // Draw a soft radial glow behind the content
             // Use standard alpha blending instead of BlendMode.Plus to avoid "blown out" colors
@@ -131,12 +131,12 @@ fun Modifier.depthShadow(
 ): Modifier = drawBehind {
     val shadowColor = color.copy(alpha = alpha)
     val elevationPx = elevation.toPx()
-    
+
     // Draw multiple shadow layers for depth
     for (i in 0..3) {
         val offset = elevationPx * (i + 1) / 4f
         val layerAlpha = alpha * (1f - i / 4f)
-        
+
         drawRect(
             color = shadowColor.copy(alpha = layerAlpha),
             topLeft = Offset(offset / 2f, offset),
@@ -155,11 +155,11 @@ fun Modifier.gradientOverlay(
     alpha: Float = 0.2f
 ): Modifier = drawWithContent {
     drawContent()
-    
+
     val angleRad = angle * PI / 180f
     val endX = size.width * cos(angleRad).toFloat()
     val endY = size.height * sin(angleRad).toFloat()
-    
+
     drawRect(
         brush = Brush.linearGradient(
             colors = gradient.map { it.copy(alpha = alpha) },
@@ -197,7 +197,7 @@ fun Modifier.metallicGradient(
     val angleRad = angle * PI / 180f
     val endX = size.width * cos(angleRad).toFloat()
     val endY = size.height * sin(angleRad).toFloat()
-    
+
     drawRect(
         brush = Brush.linearGradient(
             colors = listOf(
@@ -222,14 +222,14 @@ fun Modifier.embossedEffect(
     depth: Dp = 2.dp
 ): Modifier = drawBehind {
     val depthPx = depth.toPx()
-    
+
     // Light highlight on top-left
     drawRect(
         color = lightColor,
         topLeft = Offset(-depthPx, -depthPx),
         size = size
     )
-    
+
     // Dark shadow on bottom-right
     drawRect(
         color = shadowColor,
@@ -248,12 +248,12 @@ fun Modifier.advancedLighting(
 ): Modifier = drawBehind {
     // Ambient light
     drawRect(color = ambientColor)
-    
+
     // Radial spotlight
     val spotlightX = size.width * spotlightPosition.x
     val spotlightY = size.height * spotlightPosition.y
     val maxRadius = maxOf(size.width, size.height)
-    
+
         drawCircle(
             brush = Brush.radialGradient(
                 colors = listOf(
@@ -295,7 +295,7 @@ enum class PatternType {
 private fun DrawScope.drawSubtleGrid(color: Color) {
     val gridSize = 40f
     val strokeWidth = 0.5f
-    
+
     // Vertical lines
     var x = 0f
     while (x < size.width) {
@@ -307,7 +307,7 @@ private fun DrawScope.drawSubtleGrid(color: Color) {
         )
         x += gridSize
     }
-    
+
     // Horizontal lines
     var y = 0f
     while (y < size.height) {
@@ -325,7 +325,7 @@ private fun DrawScope.drawDiagonalLines(color: Color) {
     val spacing = 30f
     val strokeWidth = 0.5f
     val numLines = ((size.width + size.height) / spacing).toInt()
-    
+
     for (i in 0..numLines) {
         val offset = i * spacing
         drawLine(
@@ -340,7 +340,7 @@ private fun DrawScope.drawDiagonalLines(color: Color) {
 private fun DrawScope.drawDotPattern(color: Color) {
     val spacing = 20f
     val dotRadius = 1f
-    
+
     var y = 0f
     while (y < size.height) {
         var x = 0f
@@ -361,7 +361,7 @@ private fun DrawScope.drawHexagonPattern(color: Color) {
     val strokeWidth = 0.5f
     val hexWidth = hexSize * 2f
     val hexHeight = hexSize * 1.732f
-    
+
     var row = 0
     var y = 0f
     while (y < size.height + hexHeight) {
@@ -388,7 +388,7 @@ private fun DrawScope.drawHexagon(center: Offset, size: Float, color: Color, str
         }
     }
     path.close()
-    
+
     drawPath(
         path = path,
         color = color,
@@ -404,12 +404,12 @@ fun Modifier.animatedEntrance(
     delayMillis: Int = 0
 ): Modifier = composed {
     var visible by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(delayMillis.toLong())
         visible = true
     }
-    
+
     val scale by animateFloatAsState(
         targetValue = if (visible) 1f else 0.8f,
         animationSpec = spring(
@@ -418,13 +418,13 @@ fun Modifier.animatedEntrance(
         ),
         label = "entranceScale"
     )
-    
+
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
         animationSpec = tween(durationMillis),
         label = "entranceAlpha"
     )
-    
+
     graphicsLayer {
         scaleX = scale
         scaleY = scale
@@ -439,7 +439,7 @@ fun Modifier.springBounce(
     pressedScale: Float = 0.95f
 ): Modifier = composed {
     var isPressed by remember { mutableStateOf(false) }
-    
+
     val scale by animateFloatAsState(
         targetValue = if (isPressed) pressedScale else 1f,
         animationSpec = spring(
@@ -448,7 +448,7 @@ fun Modifier.springBounce(
         ),
         label = "bounceScale"
     )
-    
+
     graphicsLayer {
         scaleX = scale
         scaleY = scale

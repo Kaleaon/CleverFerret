@@ -36,7 +36,7 @@ class TasteDiveService @Inject constructor(
 
             val encodedQuery = URLEncoder.encode(query, "UTF-8")
             var url = "$baseUrl?q=$encodedQuery&k=$apiKey&limit=$limit&info=1"
-            
+
             if (type != null) {
                 url += "&type=$type"
             }
@@ -48,7 +48,7 @@ class TasteDiveService @Inject constructor(
 
             val responseBody = response.body?.string() ?: return@withContext emptyList()
             val result = json.decodeFromString<TasteDiveResponse>(responseBody)
-            
+
             result.similar.results
         } catch (e: Exception) {
             AppLogger.error("TasteDiveService", "Unhandled exception", e)

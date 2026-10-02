@@ -7,7 +7,7 @@ import kotlinx.serialization.decodeFromString
 
 /**
  * Visualizer Preset System
- * 
+ *
  * Allows downloading, creating, and sharing custom visualizer effects
  * Similar to projectM's .milk preset files but using JSON format
  */
@@ -31,32 +31,32 @@ data class VisualizerParameters(
     val sensitivity: Float = 1.0f,
     val smoothing: Float = 0.5f,
     val speed: Float = 1.0f,
-    
+
     // Spectrum bars parameters
     val barCount: Int = 64,
     val barSpacing: Float = 0.1f,
     val barWidth: Float = 0.9f,
-    
+
     // Waveform parameters
     val waveformPoints: Int = 128,
     val waveformThickness: Float = 3.0f,
     val waveformAmplitude: Float = 0.8f,
-    
+
     // Circular parameters
     val circularRadius: Float = 0.2f,
     val circularSpokes: Int = 64,
     val circularRotationSpeed: Float = 1.0f,
-    
+
     // Particles parameters
     val particleCount: Int = 8,
     val particleSize: Float = 1.0f,
     val particleDistance: Float = 150.0f,
-    
+
     // Rings parameters
     val ringCount: Int = 3,
     val ringThickness: Float = 20.0f,
     val ringPulseAmount: Float = 0.2f,
-    
+
     // Advanced parameters
     val bassBoost: Float = 1.0f,
     val midBoost: Float = 1.0f,
@@ -81,12 +81,12 @@ data class ColorScheme(
  * Preset Manager - Handles loading, saving, and managing presets
  */
 class VisualizerPresetManager {
-    
-    private val json = Json { 
+
+    private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
     }
-    
+
     companion object {
         // Built-in presets (now 20+ presets!)
         val DEFAULT_PRESETS = listOf(
@@ -450,14 +450,14 @@ class VisualizerPresetManager {
             )
         )
     }
-    
+
     /**
      * Export preset to JSON string
      */
     fun exportPreset(preset: VisualizerPreset): String {
         return json.encodeToString(preset)
     }
-    
+
     /**
      * Import preset from JSON string
      */
@@ -468,7 +468,7 @@ class VisualizerPresetManager {
             null
         }
     }
-    
+
     /**
      * Create custom preset
      */
@@ -491,23 +491,23 @@ class VisualizerPresetManager {
             tags = listOf("custom", "user-created")
         )
     }
-    
+
     /**
      * Get preset by ID
      */
     fun getPresetById(id: String, customPresets: List<VisualizerPreset> = emptyList()): VisualizerPreset? {
         return (DEFAULT_PRESETS + customPresets).find { it.id == id }
     }
-    
+
     /**
      * Search presets by tag
      */
     fun searchPresetsByTag(tag: String, customPresets: List<VisualizerPreset> = emptyList()): List<VisualizerPreset> {
-        return (DEFAULT_PRESETS + customPresets).filter { 
-            it.tags.any { t -> t.contains(tag, ignoreCase = true) } 
+        return (DEFAULT_PRESETS + customPresets).filter {
+            it.tags.any { t -> t.contains(tag, ignoreCase = true) }
         }
     }
-    
+
     /**
      * Get all presets
      */

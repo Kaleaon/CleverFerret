@@ -60,22 +60,22 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 class UnifiedReaderService {
-    
+
     /**
      * Load and parse a document using the appropriate parser
      */
     suspend fun loadDocument(filePath: String): DocumentContent = withContext(Dispatchers.IO) {
         val file = File(filePath)
-        
+
         // Check if format is supported by new parser system
         if (ParserFactory.isSupported(file.name)) {
             return@withContext loadWithParser(filePath)
         }
-        
+
         // Fall back to existing readers for EPUB, PDF, etc.
         return@withContext loadWithExistingReader(filePath)
     }
-    
+
     /**
      * Load document using new parser system
      */
@@ -83,7 +83,7 @@ class UnifiedReaderService {
         try {
             val parser = ParserFactory.getParser(filePath)
             val parsedDocument = parser.parse(filePath)
-            
+
             return DocumentContent(
                 text = parsedDocument.content,
                 metadata = convertMetadata(parsedDocument.metadata),
@@ -96,7 +96,7 @@ class UnifiedReaderService {
             throw ReaderException("Failed to parse document: ${e.message}", e)
         }
     }
-    
+
     /**
      * Load document using existing reader infrastructure
      */
@@ -109,7 +109,7 @@ class UnifiedReaderService {
             else -> throw ReaderException("Unsupported format")
         }
     }
-    
+
     /**
      * Convert parser metadata to reader metadata
      */
@@ -130,7 +130,7 @@ class UnifiedReaderService {
             customProperties = parserMetadata.customProperties
         )
     }
-    
+
     /**
      * Convert parser structure to reader structure
      */
@@ -138,7 +138,7 @@ class UnifiedReaderService {
         parserStructure: com.universalmedialibrary.parsers.DocumentStructure?
     ): ReaderStructure? {
         if (parserStructure == null) return null
-        
+
         return ReaderStructure(
             chapters = parserStructure.chapters.map { chapter ->
                 ReaderChapter(
@@ -157,13 +157,13 @@ class UnifiedReaderService {
             }
         )
     }
-    
+
     // Existing methods for EPUB, PDF, etc.
     private suspend fun loadEpub(filePath: String): DocumentContent {
         // Existing EPUB loading logic
         TODO("Use existing Readium integration")
     }
-    
+
     private suspend fun loadPdf(filePath: String): DocumentContent {
         // Existing PDF loading logic
         TODO("Use existing PDF reader")
@@ -221,25 +221,25 @@ Add new formats to the file type detection system:
 
 ```kotlin
 object FileTypeDetector {
-    
+
     fun getFileType(fileName: String): FileType {
         val extension = File(fileName).extension.lowercase()
-        
+
         return when {
             // New parser-supported formats
             ParserFactory.isSupported(fileName) -> FileType.DOCUMENT
-            
+
             // Existing formats
             extension in listOf("epub") -> FileType.EPUB
             extension in listOf("pdf") -> FileType.PDF
             extension in listOf("mp3", "m4a", "wav") -> FileType.AUDIO
-            
+
             else -> FileType.UNKNOWN
         }
     }
-    
+
     fun getSupportedFormats(): List<String> {
-        return ParserFactory.getSupportedExtensions() + 
+        return ParserFactory.getSupportedExtensions() +
                listOf("epub", "pdf", "mp3", "m4a", "wav")
     }
 }
@@ -264,11 +264,11 @@ fun DocumentReaderScreen(
     viewModel: DocumentReaderViewModel = hiltViewModel()
 ) {
     val documentState by viewModel.documentState.collectAsState()
-    
+
     LaunchedEffect(filePath) {
         viewModel.loadDocument(filePath)
     }
-    
+
     when (documentState) {
         is DocumentState.Loading -> {
             LoadingIndicator()
@@ -299,7 +299,7 @@ fun DocumentContentView(content: DocumentContent) {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
-        
+
         content.metadata.author?.let { author ->
             Text(
                 text = "By $author",
@@ -307,7 +307,7 @@ fun DocumentContentView(content: DocumentContent) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
         }
-        
+
         // Display content
         Text(
             text = content.text,
@@ -327,14 +327,14 @@ Create or update the ViewModel to handle document loading:
 class DocumentReaderViewModel @Inject constructor(
     private val readerService: UnifiedReaderService
 ) : ViewModel() {
-    
+
     private val _documentState = MutableStateFlow<DocumentState>(DocumentState.Loading)
     val documentState: StateFlow<DocumentState> = _documentState.asStateFlow()
-    
+
     fun loadDocument(filePath: String) {
         viewModelScope.launch {
             _documentState.value = DocumentState.Loading
-            
+
             try {
                 val content = readerService.loadDocument(filePath)
                 _documentState.value = DocumentState.Success(content)
@@ -362,7 +362,7 @@ Configure Hilt to provide parser dependencies:
 @Module
 @InstallIn(SingletonComponent::class)
 object ParserModule {
-    
+
     @Provides
     @Singleton
     fun provideUnifiedReaderService(): UnifiedReaderService {
@@ -381,7 +381,7 @@ fun FileBrowserScreen(
     viewModel: FileBrowserViewModel = hiltViewModel()
 ) {
     val files by viewModel.files.collectAsState()
-    
+
     LazyColumn {
         items(files) { file ->
             FileItem(
@@ -400,7 +400,7 @@ fun FileItem(file: File, onClick: () -> Unit) {
         file.extension == "pdf" -> Icons.Default.PictureAsPdf
         else -> Icons.Default.InsertDriveFile
     }
-    
+
     ListItem(
         headlineContent = { Text(file.name) },
         leadingContent = { Icon(icon, contentDescription = null) },
@@ -418,9 +418,9 @@ fun FileItem(file: File, onClick: () -> Unit) {
 fun testDocxIntegration() = runTest {
     val service = UnifiedReaderService()
     val testFile = "test_files/sample.docx"
-    
+
     val content = service.loadDocument(testFile)
-    
+
     assertNotNull(content)
     assertTrue(content.text.isNotEmpty())
     assertEquals("DOCX", content.format)
@@ -430,7 +430,7 @@ fun testDocxIntegration() = runTest {
 fun testUnsupportedFormat() = runTest {
     val service = UnifiedReaderService()
     val testFile = "test_files/sample.xyz"
-    
+
     assertThrows<ReaderException> {
         service.loadDocument(testFile)
     }
@@ -443,11 +443,11 @@ fun testUnsupportedFormat() = runTest {
 @Test
 fun testEndToEndDocumentLoading() = runTest {
     val viewModel = DocumentReaderViewModel(UnifiedReaderService())
-    
+
     viewModel.loadDocument("test_files/sample.docx")
-    
+
     advanceUntilIdle()
-    
+
     val state = viewModel.documentState.value
     assertTrue(state is DocumentState.Success)
 }
@@ -465,13 +465,13 @@ class CachedReaderService(
     private val cacheSize: Int = 10
 ) {
     private val cache = LruCache<String, DocumentContent>(cacheSize)
-    
+
     suspend fun loadDocument(filePath: String): DocumentContent {
         cache.get(filePath)?.let { return it }
-        
+
         val content = readerService.loadDocument(filePath)
         cache.put(filePath, content)
-        
+
         return content
     }
 }

@@ -76,7 +76,7 @@ class UniversalTagBrowserViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isLoadingTags = true, error = null)
 
             val result = universalTagService.fetchTagsForSite(siteType)
-            
+
             result.onSuccess { tags ->
                 _uiState.value = _uiState.value.copy(
                     tags = tags,
@@ -113,7 +113,7 @@ class UniversalTagBrowserViewModel @Inject constructor(
      */
     fun toggleTag(tagId: String) {
         val currentTags = _uiState.value.selectedTags.toMutableList()
-        
+
         if (tagId in currentTags) {
             currentTags.remove(tagId)
         } else {
@@ -175,7 +175,7 @@ class UniversalTagBrowserViewModel @Inject constructor(
      */
     fun browseStories() {
         val selectedSite = _uiState.value.selectedSite ?: return
-        
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoadingStories = true, error = null)
 

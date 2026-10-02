@@ -87,7 +87,7 @@ internal fun PlexTopBar(
                 color = MediaColors.AccentPrimary,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Row(horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)) {
                 IconButton(onClick = onSearchClick) {
                     Icon(
@@ -96,7 +96,7 @@ internal fun PlexTopBar(
                         tint = MediaColors.TextSecondary
                     )
                 }
-                
+
                 IconButton(onClick = onNotificationClick) {
                     Icon(
                         imageVector = Icons.Default.Notifications,

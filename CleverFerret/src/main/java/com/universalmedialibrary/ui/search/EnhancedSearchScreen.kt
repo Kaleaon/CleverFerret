@@ -446,7 +446,7 @@ private fun SearchResultCard(
         ) {
             // Thumbnail
             AsyncImage(
-                    
+
                 model = result.thumbnailUrl,
                 contentDescription = "Media image",
                 modifier = Modifier
@@ -540,7 +540,7 @@ private fun FilterBottomSheet(
             Text("Media Types", style = MaterialTheme.typography.titleSmall)
             Spacer(modifier = Modifier.height(8.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val types = facets?.mediaTypes?.keys?.toList() 
+                val types = facets?.mediaTypes?.keys?.toList()
                     ?: listOf("BOOK", "AUDIO", "VIDEO", "PDF", "COMIC")
                 items(types) { type ->
                     FilterChip(

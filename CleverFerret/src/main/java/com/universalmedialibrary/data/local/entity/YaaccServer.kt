@@ -15,18 +15,18 @@ import androidx.room.PrimaryKey
 data class YaaccServer(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    
+
     val name: String,
     val host: String,
     val port: Int = 8200, // Default UPnP port
-    
+
     // UPnP/DLNA specific fields
     val deviceType: String? = null, // UPnP device type
     val friendlyName: String? = null, // UPnP friendly name
     val manufacturer: String? = null,
     val modelName: String? = null,
     val udn: String? = null, // Unique Device Name (UUID)
-    
+
     val lastSynced: Long = 0,
     val isActive: Boolean = true,
     val dateAdded: Long = System.currentTimeMillis()

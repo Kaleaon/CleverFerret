@@ -90,9 +90,9 @@ private fun TextReaderView(uri: Uri) {
     LaunchedEffect(uri) {
         text = try {
             context.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) } ?: ""
-        } catch (e: Exception) { 
+        } catch (e: Exception) {
             android.util.Log.w("DocumentReader", "Failed to read text document", e)
-            "" 
+            ""
         }
     }
 
@@ -109,7 +109,7 @@ private fun TextReaderView(uri: Uri) {
 @Composable
 private fun HtmlReaderView(uri: Uri) {
     var webView by remember { mutableStateOf<android.webkit.WebView?>(null) }
-    
+
     // Clean up WebView to prevent memory leaks
     DisposableEffect(Unit) {
         onDispose {
@@ -123,7 +123,7 @@ private fun HtmlReaderView(uri: Uri) {
             webView = null
         }
     }
-    
+
     AndroidView(
         factory = { ctx ->
             android.webkit.WebView(ctx).apply {
@@ -205,20 +205,20 @@ private fun PdfReaderView(uri: Uri) {
     var currentPageIndex by remember { mutableStateOf(0) }
     var pageCount by remember { mutableStateOf(0) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    
+
     // Zoom and pan state
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
     var showControls by remember { mutableStateOf(true) }
-    
+
     // Render quality multiplier for zoom
     var renderScale by remember { mutableFloatStateOf(2f) }
-    
+
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val screenHeight = configuration.screenHeightDp.dp
-    
+
     // Transform state for pinch-to-zoom
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         scale = (scale * zoomChange).coerceIn(0.5f, 5f)
@@ -235,15 +235,15 @@ private fun PdfReaderView(uri: Uri) {
             renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
         }
         onDispose {
-            try { renderer?.close() } catch (e: Exception) { 
+            try { renderer?.close() } catch (e: Exception) {
                 android.util.Log.w("PdfReader", "Error closing PDF renderer", e)
             }
-            try { pfd?.close() } catch (e: Exception) { 
+            try { pfd?.close() } catch (e: Exception) {
                 android.util.Log.w("PdfReader", "Error closing file descriptor", e)
             }
         }
     }
-    
+
     // Re-render at higher quality when zoom increases
     LaunchedEffect(scale) {
         val newRenderScale = when {
@@ -289,12 +289,12 @@ private fun PdfReaderView(uri: Uri) {
                             }
                         },
                         enabled = currentPageIndex > 0
-                    ) { 
+                    ) {
                         Icon(
-                            Icons.AutoMirrored.Filled.NavigateBefore, 
+                            Icons.AutoMirrored.Filled.NavigateBefore,
                             contentDescription = "Previous page",
                             modifier = Modifier.size(28.dp)
-                        ) 
+                        )
                     }
 
                     // Page indicator
@@ -321,12 +321,12 @@ private fun PdfReaderView(uri: Uri) {
                             }
                         },
                         enabled = currentPageIndex < pageCount - 1
-                    ) { 
+                    ) {
                         Icon(
-                            Icons.AutoMirrored.Filled.NavigateNext, 
+                            Icons.AutoMirrored.Filled.NavigateNext,
                             contentDescription = "Next page",
                             modifier = Modifier.size(28.dp)
-                        ) 
+                        )
                     }
                 }
             }
@@ -356,7 +356,7 @@ private fun PdfReaderView(uri: Uri) {
         ) {
             bitmap?.let { bmp ->
                 Image(
-                    bitmap = bmp.asImageBitmap(), 
+                    bitmap = bmp.asImageBitmap(),
                     contentDescription = "PDF page ${currentPageIndex + 1}",
                     modifier = Modifier
                         .fillMaxSize()
@@ -372,7 +372,7 @@ private fun PdfReaderView(uri: Uri) {
                 CircularProgressIndicator()
             }
         }
-        
+
         // Bottom zoom controls - always visible
         AnimatedVisibility(
             visible = showControls,
@@ -398,7 +398,7 @@ private fun PdfReaderView(uri: Uri) {
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(horizontal = 4.dp)
                             )
-                            
+
                             Slider(
                                 value = (currentPageIndex + 1).toFloat(),
                                 onValueChange = { value ->
@@ -415,7 +415,7 @@ private fun PdfReaderView(uri: Uri) {
                                 steps = (pageCount - 2).coerceAtLeast(0),
                                 modifier = Modifier.weight(1f)
                             )
-                            
+
                             Text(
                                 text = pageCount.toString(),
                                 style = MaterialTheme.typography.bodySmall,
@@ -423,7 +423,7 @@ private fun PdfReaderView(uri: Uri) {
                             )
                         }
                     }
-                    
+
                     // Zoom controls
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -437,14 +437,14 @@ private fun PdfReaderView(uri: Uri) {
                             modifier = Modifier.size(44.dp)
                         ) {
                             Icon(
-                                Icons.Default.ZoomOut, 
+                                Icons.Default.ZoomOut,
                                 contentDescription = "Zoom Out",
                                 modifier = Modifier.size(24.dp)
                             )
                         }
-                        
+
                         Spacer(modifier = Modifier.width(8.dp))
-                        
+
                         // Zoom level indicator
                         Surface(
                             shape = RoundedCornerShape(8.dp),
@@ -456,9 +456,9 @@ private fun PdfReaderView(uri: Uri) {
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             )
                         }
-                        
+
                         Spacer(modifier = Modifier.width(8.dp))
-                        
+
                         // Zoom in
                         FilledTonalIconButton(
                             onClick = { scale = (scale + 0.25f).coerceAtMost(5f) },
@@ -466,17 +466,17 @@ private fun PdfReaderView(uri: Uri) {
                             modifier = Modifier.size(44.dp)
                         ) {
                             Icon(
-                                Icons.Default.ZoomIn, 
+                                Icons.Default.ZoomIn,
                                 contentDescription = "Zoom In",
                                 modifier = Modifier.size(24.dp)
                             )
                         }
-                        
+
                         Spacer(modifier = Modifier.width(8.dp))
-                        
+
                         // Reset zoom
                         FilledTonalIconButton(
-                            onClick = { 
+                            onClick = {
                                 scale = 1f
                                 offsetX = 0f
                                 offsetY = 0f
@@ -484,17 +484,17 @@ private fun PdfReaderView(uri: Uri) {
                             modifier = Modifier.size(44.dp)
                         ) {
                             Icon(
-                                Icons.Default.CenterFocusWeak, 
+                                Icons.Default.CenterFocusWeak,
                                 contentDescription = "Reset Zoom",
                                 modifier = Modifier.size(24.dp)
                             )
                         }
-                        
+
                         Spacer(modifier = Modifier.width(8.dp))
-                        
+
                         // Fit width
                         FilledTonalIconButton(
-                            onClick = { 
+                            onClick = {
                                 scale = 1f
                                 offsetX = 0f
                                 offsetY = 0f
@@ -502,7 +502,7 @@ private fun PdfReaderView(uri: Uri) {
                             modifier = Modifier.size(44.dp)
                         ) {
                             Icon(
-                                Icons.Default.FitScreen, 
+                                Icons.Default.FitScreen,
                                 contentDescription = "Fit Width",
                                 modifier = Modifier.size(24.dp)
                             )
@@ -526,9 +526,9 @@ private fun tryOpenPfd(context: android.content.Context, uri: Uri): ParcelFileDe
             val cache = File.createTempFile("cf_tmp_", ".pdf", context.cacheDir)
             FileOutputStream(cache).use { out -> input.copyTo(out) }
             ParcelFileDescriptor.open(cache, ParcelFileDescriptor.MODE_READ_ONLY)
-        } catch (e2: Exception) { 
+        } catch (e2: Exception) {
             android.util.Log.w("PdfReader", "Cache fallback also failed", e2)
-            null 
+            null
         }
     }
 }
@@ -540,9 +540,9 @@ private fun renderToBitmap(renderer: PdfRenderer?, index: Int, onRendered: (Bitm
         page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
         page.close()
         onRendered(bmp)
-    } catch (e: Exception) { 
+    } catch (e: Exception) {
         android.util.Log.w("PdfReader", "Failed to render PDF page $index", e)
-        onRendered(null) 
+        onRendered(null)
     }
 }
 
@@ -551,31 +551,31 @@ private fun renderToBitmap(renderer: PdfRenderer?, index: Int, onRendered: (Bitm
  * @param scaleFactor Multiplier for render resolution (1.0 = native, 2.0 = 2x resolution)
  */
 private fun renderToBitmapHighQuality(
-    renderer: PdfRenderer?, 
-    index: Int, 
+    renderer: PdfRenderer?,
+    index: Int,
     scaleFactor: Float = 2f,
     onRendered: (Bitmap?) -> Unit
 ) {
     try {
         val page = renderer?.openPage(index) ?: return onRendered(null)
-        
+
         // Calculate scaled dimensions for higher quality rendering
         val width = (page.width * scaleFactor).toInt().coerceAtLeast(100)
         val height = (page.height * scaleFactor).toInt().coerceAtLeast(100)
-        
+
         // Create bitmap with scaled dimensions
         val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        
+
         // Create transformation matrix to scale the render
         val matrix = android.graphics.Matrix()
         matrix.setScale(scaleFactor, scaleFactor)
-        
+
         // Render at higher resolution
         page.render(bmp, null, matrix, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
         page.close()
-        
+
         onRendered(bmp)
-    } catch (e: Exception) { 
+    } catch (e: Exception) {
         android.util.Log.w("PdfReader", "Failed to render PDF page $index at scale $scaleFactor", e)
         // Fallback to standard render
         renderToBitmap(renderer, index, onRendered)

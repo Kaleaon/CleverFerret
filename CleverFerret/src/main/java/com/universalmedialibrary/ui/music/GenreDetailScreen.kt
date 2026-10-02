@@ -90,7 +90,7 @@ fun GenreDetailScreen(
                                     tint = MaterialTheme.colorScheme.onTertiaryContainer
                                 )
                             }
-                            
+
                             Text(
                                 text = genreData.displayName,
                                 style = MaterialTheme.typography.headlineMedium,

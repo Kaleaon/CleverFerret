@@ -50,7 +50,7 @@ internal fun CrashReportsTab(
                 }
             }
         }
-        
+
         if (crashes.isEmpty()) {
             EmptyState(
                 icon = Icons.Default.CheckCircle,

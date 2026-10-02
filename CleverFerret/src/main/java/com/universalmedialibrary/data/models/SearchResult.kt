@@ -2,7 +2,7 @@ package com.universalmedialibrary.data.models
 
 /**
  * Data class representing a search result
- * 
+ *
  * Used across PDF, EPUB, and other document search implementations
  */
 data class SearchResult(

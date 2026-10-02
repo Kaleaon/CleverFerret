@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 /**
  * Hilt module providing database-related dependencies
- * 
+ *
  * Provides:
  * - AppDatabase instance (singleton)
  * - All DAO implementations from the database
@@ -308,7 +308,7 @@ object DatabaseModule {
     fun provideUnifiedTagDao(database: AppDatabase): UnifiedTagDao {
         return database.unifiedTagDao()
     }
-    
+
     // Ambient Sound DAO
     @Provides
     fun provideAmbientSoundDao(database: AppDatabase): AmbientSoundDao =
@@ -337,7 +337,7 @@ object DatabaseModule {
     @Provides
     fun provideSyncStatisticsDao(database: AppDatabase): SyncStatisticsDao =
         database.syncStatisticsDao()
-    
+
     // Audio Pack DAO
     @Provides
     fun provideAudioPackDao(database: AppDatabase): AudioPackDao {

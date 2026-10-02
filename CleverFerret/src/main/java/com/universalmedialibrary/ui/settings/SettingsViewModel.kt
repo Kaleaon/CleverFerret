@@ -311,7 +311,7 @@ class SettingsViewModel @Inject constructor(
             generalSettingsDao.insertSettings(settings.toEntity())
         }
     }
-    
+
     /**
      * Convert SecuritySettings to SecuritySettingsEntity for persistence
      */
@@ -324,7 +324,7 @@ class SettingsViewModel @Inject constructor(
         requireAuthForContentChanges = requireAuthForExport,
         lastUpdated = System.currentTimeMillis()
     )
-    
+
     /**
      * Convert GeneralSettings to GeneralSettingsEntity for persistence
      * Now using actual fields from GeneralSettings data class

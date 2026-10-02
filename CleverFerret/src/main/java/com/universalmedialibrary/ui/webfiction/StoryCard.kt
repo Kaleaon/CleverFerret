@@ -33,13 +33,13 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery, download, and management.
- * 
+ *
  * Streamlined experience combining:
  * - Site selection & Tag-based browsing
  * - Direct story download
  * - Library management (My Library)
  * - Update checker
- * 
+ *
  * No more jumping between screens! Reading is handled by the separate eReader.
  */
 
@@ -51,7 +51,7 @@ internal fun StoryCard(
     isDownloading: Boolean
 ) {
     var showDetails by remember { mutableStateOf(false) }
-    
+
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -69,7 +69,7 @@ internal fun StoryCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             // Stats row
             Row(
                 modifier = Modifier
@@ -94,7 +94,7 @@ internal fun StoryCard(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            
+
             // Expandable description
             AnimatedVisibility(visible = showDetails) {
                 Column {
@@ -106,7 +106,7 @@ internal fun StoryCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    
+
                     // Tags
                     if (story.tags.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
@@ -118,7 +118,7 @@ internal fun StoryCard(
                     }
                 }
             }
-            
+
             // Action buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),

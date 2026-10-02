@@ -291,81 +291,81 @@ interface MetadataDao {
      */
     @Query("SELECT * FROM metadata_common ORDER BY itemId")
     suspend fun getAllMetadata(): List<MetadataCommon>
-    
+
     // Alias methods for CalibreExportService compatibility
     @Query("SELECT * FROM metadata_common WHERE itemId = :itemId")
     suspend fun getMetadataCommonById(itemId: Long): MetadataCommon?
-    
+
     @Query("SELECT * FROM metadata_book WHERE itemId = :itemId")
     suspend fun getMetadataBookById(itemId: Long): MetadataBook?
-    
+
     @Query("""
         SELECT p.name FROM people p
         INNER JOIN item_person_role ipr ON p.personId = ipr.personId
         WHERE ipr.itemId = :itemId AND ipr.role = 'AUTHOR'
     """)
     suspend fun getItemAuthors(itemId: Long): List<String>
-    
+
     @Query("""
         SELECT g.name FROM genre g
         INNER JOIN item_genre ig ON g.genreId = ig.genreId
         WHERE ig.itemId = :itemId
     """)
     suspend fun getItemGenres(itemId: Long): List<String>
-    
+
     // ============================================================================
     // PERFORMANCE OPTIMIZATION: Batch query methods to avoid N+1 query problems
     // ============================================================================
-    
+
     /**
      * Batch fetch metadata for multiple items at once.
      * This prevents N+1 queries when loading lists of media items.
-     * 
+     *
      * @param itemIds List of item IDs to fetch metadata for
      * @return List of MetadataCommon objects
      */
     @Query("SELECT * FROM metadata_common WHERE itemId IN (:itemIds)")
     suspend fun getMetadataCommonBatch(itemIds: List<Long>): List<MetadataCommon>
-    
+
     /**
      * Batch fetch book-specific metadata for multiple items at once.
-     * 
+     *
      * @param itemIds List of item IDs to fetch book metadata for
      * @return List of MetadataBook objects
      */
     @Query("SELECT * FROM metadata_book WHERE itemId IN (:itemIds)")
     suspend fun getMetadataBookBatch(itemIds: List<Long>): List<MetadataBook>
-    
+
     /**
      * Batch fetch authors for multiple items at once.
      * Returns a map of itemId to list of author names.
-     * 
+     *
      * @param itemIds List of item IDs to fetch authors for
      * @return Map of itemId to author names
      */
     @Query("""
-        SELECT ipr.itemId, p.name 
+        SELECT ipr.itemId, p.name
         FROM people p
         INNER JOIN item_person_role ipr ON p.personId = ipr.personId
         WHERE ipr.itemId IN (:itemIds) AND ipr.role = 'AUTHOR'
         ORDER BY ipr.itemId
     """)
     suspend fun getAuthorsBatch(itemIds: List<Long>): List<ItemAuthor>
-    
+
     /**
      * Batch fetch series names for multiple items at once.
-     * 
+     *
      * @param itemIds List of item IDs to fetch series for
      * @return Map of itemId to series name
      */
     @Query("""
-        SELECT mb.itemId, s.name 
+        SELECT mb.itemId, s.name
         FROM series s
         INNER JOIN metadata_book mb ON s.seriesId = mb.series
         WHERE mb.itemId IN (:itemIds)
     """)
     suspend fun getSeriesBatch(itemIds: List<Long>): List<ItemSeries>
-    
+
     /**
      * Data class for batch author queries
      */
@@ -373,7 +373,7 @@ interface MetadataDao {
         val itemId: Long,
         val name: String
     )
-    
+
     /**
      * Data class for batch series queries
      */
@@ -381,15 +381,15 @@ interface MetadataDao {
         val itemId: Long,
         val name: String
     )
-    
+
     // ==================== AI Library Browser Support ====================
-    
+
     /**
      * Get common metadata by item ID (alias for consistency)
      */
     @Query("SELECT * FROM metadata_common WHERE itemId = :itemId")
     suspend fun getCommonMetadataByItemId(itemId: Long): MetadataCommon?
-    
+
     /**
      * Get genres for an item
      */
@@ -399,18 +399,18 @@ interface MetadataDao {
         WHERE ig.itemId = :itemId
     """)
     suspend fun getGenresForItem(itemId: Long): List<Genre>
-    
+
     /**
      * Get people (authors, artists, etc.) for an item
      */
     @Query("""
-        SELECT p.personId, p.name, p.sortName, p.photoPath, p.biography, ipr.role 
+        SELECT p.personId, p.name, p.sortName, p.photoPath, p.biography, ipr.role
         FROM people p
         INNER JOIN item_person_role ipr ON p.personId = ipr.personId
         WHERE ipr.itemId = :itemId
     """)
     suspend fun getPeopleForItem(itemId: Long): List<PersonWithRole>
-    
+
     /**
      * Get all unique author names
      */
@@ -421,19 +421,19 @@ interface MetadataDao {
         ORDER BY p.name
     """)
     suspend fun getAllAuthors(): List<String>
-    
+
     /**
      * Get all unique genre names
      */
     @Query("SELECT DISTINCT name FROM genre ORDER BY name")
     suspend fun getAllGenreNames(): List<String>
-    
+
     /**
      * Get series by name
      */
     @Query("SELECT * FROM series WHERE name = :name LIMIT 1")
     suspend fun getSeriesByName(name: String): Series?
-    
+
     /**
      * Data class for person with role
      */

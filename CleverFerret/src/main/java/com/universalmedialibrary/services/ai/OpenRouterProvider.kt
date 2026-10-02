@@ -20,14 +20,14 @@ import javax.inject.Inject
 
 /**
  * OpenRouter Provider - Access 100+ LLM models through a single API
- * 
+ *
  * Inspired by oxproxion's multi-model support, this provider enables:
  * - Access to OpenAI, Anthropic, Google, Meta, Mistral, and many more models
  * - Unified API for all providers
  * - Model-specific features (vision, reasoning, tool use)
  * - Streaming responses
  * - Credit tracking
- * 
+ *
  * @see https://openrouter.ai/docs
  */
 class OpenRouterProvider @Inject constructor(
@@ -38,15 +38,15 @@ class OpenRouterProvider @Inject constructor(
     override val displayName: String = "OpenRouter (Multi-Model)"
 
     private var activeKey: String? = null
-    private val json = Json { 
-        ignoreUnknownKeys = true 
+    private val json = Json {
+        ignoreUnknownKeys = true
         encodeDefaults = true
     }
 
     companion object {
         private const val BASE_URL = "https://openrouter.ai/api/v1"
         private const val DEFAULT_MODEL = "openai/gpt-4o-mini"
-        
+
         // Popular models for quick access
         val POPULAR_MODELS = listOf(
             OpenRouterModel("openai/gpt-4o", "GPT-4o", true, false),
@@ -231,7 +231,7 @@ class OpenRouterProvider @Inject constructor(
                     val chunk = json.decodeFromString<StreamedChatResponse>(data)
                     val content = chunk.choices.firstOrNull()?.delta?.content
                     val reasoning = chunk.choices.firstOrNull()?.delta?.reasoning
-                    
+
                     emit(StreamChunk(
                         content = content,
                         reasoning = reasoning,
@@ -264,7 +264,7 @@ class OpenRouterProvider @Inject constructor(
 
             val responseBody = response.body?.string() ?: return@withContext Result.failure(Exception("Empty response"))
             val parsed = json.decodeFromString<ModelsResponse>(responseBody)
-            
+
             val models = parsed.data.map { modelData ->
                 OpenRouterModel(
                     id = modelData.id,
@@ -273,7 +273,7 @@ class OpenRouterProvider @Inject constructor(
                     isReasoningCapable = modelData.supportedParameters?.contains("reasoning") == true
                 )
             }
-            
+
             Result.success(models)
         } catch (e: Exception) {
             Result.failure(e)
@@ -300,7 +300,7 @@ class OpenRouterProvider @Inject constructor(
 
             val responseBody = response.body?.string() ?: return@withContext Result.failure(Exception("Empty response"))
             val parsed = json.decodeFromString<CreditsResponse>(responseBody)
-            
+
             Result.success(parsed.data.totalCredits - parsed.data.totalUsage)
         } catch (e: Exception) {
             Result.failure(e)

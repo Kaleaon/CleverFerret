@@ -2,7 +2,7 @@ package com.universalmedialibrary.services
 
 /**
  * Raw book data extracted from a Calibre database.
- * 
+ *
  * This data class represents a book entry as read directly from Calibre's metadata.db,
  * before being transformed into CleverFerret's internal MediaItem format.
  *

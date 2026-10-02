@@ -20,7 +20,7 @@ index a06acf1bb..b03d169db 100644
                      }
                  )
              }
- 
+
              item.streamingUrl?.let { streamUrl ->
                  TextButton(onClick = { onOpenLink(streamUrl) }) {
 -                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
@@ -29,7 +29,7 @@ index a06acf1bb..b03d169db 100644
                      Text("Stream")
                  }
 @@ -299,7 +299,7 @@ private fun MediaCard(
- 
+
              item.detailUrl?.let { url ->
                  TextButton(onClick = { onOpenLink(url) }) {
 -                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
@@ -141,7 +141,7 @@ index 0c8326ebe..109bbca7a 100644
                  Text("Discover Servers")
              }
 @@ -483,7 +483,7 @@ private fun ServerListItem(
- 
+
              Icon(
                  imageVector = Icons.Default.ChevronRight,
 -                contentDescription = null
@@ -193,7 +193,7 @@ index 96a685764..bd81b979a 100644
  /**
   * Floating settings button matching mockup design
   * Positioned bottom-left with hover animation
-+ * 
++ *
 + * NOTE: This component is currently unused as settings button is integrated into bottom navigation.
 + * Kept for potential future use.
   */

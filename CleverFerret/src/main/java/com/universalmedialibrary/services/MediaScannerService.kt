@@ -413,7 +413,7 @@ class MediaScannerService : Service() {
             File(Environment.getExternalStorageDirectory(), "Calibre"),
             File(Environment.getExternalStorageDirectory(), "Comics")
         )
-        
+
         // Add DIRECTORY_AUDIOBOOKS only on API 29+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             directories.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_AUDIOBOOKS))

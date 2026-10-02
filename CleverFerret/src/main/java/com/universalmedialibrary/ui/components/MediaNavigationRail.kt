@@ -12,7 +12,7 @@ import com.universalmedialibrary.ui.models.SidebarPosition
 
 /**
  * Media Navigation Rail Component
- * 
+ *
  * Vertical navigation rail for media categories with configurable
  * sidebar positioning (left or right).
  */
@@ -38,7 +38,7 @@ fun MediaNavigationRail(
         }
     ) {
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Media category items
         MediaCategory.values().forEach { category ->
             NavigationRailItem(
@@ -65,9 +65,9 @@ fun MediaNavigationRail(
                 )
             )
         }
-        
+
         Spacer(modifier = Modifier.weight(1f))
-        
+
         // Settings button at bottom
         NavigationRailItem(
             icon = {
@@ -92,7 +92,7 @@ fun MediaNavigationRail(
                 unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
@@ -113,7 +113,7 @@ fun CompactMediaNavigationRail(
         contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // Media category items (icons only)
         MediaCategory.values().forEach { category ->
             NavigationRailItem(
@@ -132,9 +132,9 @@ fun CompactMediaNavigationRail(
                 )
             )
         }
-        
+
         Spacer(modifier = Modifier.weight(1f))
-        
+
         // Settings button at bottom
         NavigationRailItem(
             icon = {
@@ -151,7 +151,7 @@ fun CompactMediaNavigationRail(
                 unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
     }
 }

@@ -43,7 +43,7 @@ class EnhancedSyncService @Inject constructor(
     private val _syncState = MutableStateFlow(EnhancedSyncState())
     val syncState: StateFlow<EnhancedSyncState> = _syncState.asStateFlow()
 
-    private val json = Json { 
+    private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
     }
@@ -81,7 +81,7 @@ class EnhancedSyncService @Inject constructor(
 
             // 5. Apply non-conflicting changes
             updateState(status = "Applying changes...")
-            
+
             // Apply remote changes locally
             for (change in remoteChanges) {
                 if (!conflictPairs.any { it.itemId == change.itemId }) {
@@ -321,7 +321,7 @@ class EnhancedSyncService @Inject constructor(
 
     private suspend fun getLocalChanges(since: Long): List<SyncChange> {
         val changes = mutableListOf<SyncChange>()
-        
+
         try {
             // Get all media items and filter by modification time
             val allItems = mediaItemDao.getAllMediaItems()
@@ -338,7 +338,7 @@ class EnhancedSyncService @Inject constructor(
                     )
                 )
             }
-            
+
             // Get reading progress changes
             val allProgress = readingProgressDao.getAllProgressSnapshot()
             val progressChanges = allProgress.filter { it.lastModified > since }
@@ -354,7 +354,7 @@ class EnhancedSyncService @Inject constructor(
                     )
                 )
             }
-            
+
             // Get bookmark changes (using dateCreated as timestamp fallback)
             val allBookmarks = bookmarkDao.getAllBookmarks()
             val bookmarkChanges = allBookmarks.filter { it.dateCreated > since }
@@ -370,11 +370,11 @@ class EnhancedSyncService @Inject constructor(
                     )
                 )
             }
-            
+
         } catch (e: Exception) {
             updateState(error = "Failed to get local changes: ${e.message}")
         }
-        
+
         return changes.sortedBy { it.timestamp }
     }
 
@@ -450,7 +450,7 @@ class EnhancedSyncService @Inject constructor(
                         }
                     }
                 }
-                
+
                 "READING_PROGRESS" -> {
                     val progress = change.data as? ReadingProgress
                     if (progress != null) {
@@ -469,7 +469,7 @@ class EnhancedSyncService @Inject constructor(
                         }
                     }
                 }
-                
+
                 "BOOKMARK" -> {
                     val bookmark = change.data as? Bookmark
                     if (bookmark != null) {
@@ -489,9 +489,9 @@ class EnhancedSyncService @Inject constructor(
                     }
                 }
             }
-            
+
             updateState(status = "Applied remote change: ${change.itemType} ${change.itemId}")
-            
+
         } catch (e: Exception) {
             updateState(error = "Failed to apply remote change: ${e.message}")
         }
@@ -558,9 +558,9 @@ class EnhancedSyncService @Inject constructor(
                 .putLong("last_sync_timestamp", timestamp)
                 .putLong("last_remote_sync", timestamp)
                 .apply()
-                
+
             updateState(status = "Sync timestamp saved: $timestamp")
-            
+
         } catch (e: Exception) {
             updateState(error = "Failed to save sync timestamp: ${e.message}")
         }
@@ -579,7 +579,7 @@ class EnhancedSyncService @Inject constructor(
             lastSyncTime = lastSyncTime ?: _syncState.value.lastSyncTime
         )
     }
-    
+
     /**
      * Generate checksum for data integrity verification using SHA-256
      */

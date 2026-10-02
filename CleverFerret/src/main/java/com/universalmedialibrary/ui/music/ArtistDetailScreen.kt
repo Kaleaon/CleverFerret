@@ -110,7 +110,7 @@ fun ArtistDetailScreen(
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                             }
-                            
+
                             Text(
                                 text = artistData.displayName,
                                 style = MaterialTheme.typography.headlineMedium,
@@ -399,7 +399,7 @@ class ArtistDetailViewModel @Inject constructor(
             _artist.value = musicRepository.getArtist(artistName)
             _albums.value = musicRepository.getAlbumsByArtist(artistName)
             _isLoading.value = false
-            
+
             // Load enriched artist info from Gemini
             loadArtistInfo(artistName)
         }

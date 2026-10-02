@@ -170,4 +170,3 @@ private fun scanLibrary(libraryId: Long, scanPath: String?) {
         }
     }
 }
-

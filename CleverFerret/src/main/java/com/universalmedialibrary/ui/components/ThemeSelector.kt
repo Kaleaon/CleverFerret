@@ -21,7 +21,7 @@ import com.universalmedialibrary.ui.theme.*
 
 /**
  * Theme Selector Component
- * 
+ *
  * Displays all 15 available themes grouped by category with preview colors
  */
 @Composable
@@ -36,7 +36,7 @@ fun ThemeSelector(
     } else {
         mapOf(ThemeCategory.CLASSIC to CleverFerretTheme.entries)
     }
-    
+
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
@@ -54,7 +54,7 @@ fun ThemeSelector(
                     )
                 }
             }
-            
+
             items(themes) { theme ->
                 ThemeCard(
                     theme = theme,
@@ -78,7 +78,7 @@ private fun ThemeCard(
 ) {
     val config = theme.getConfig()
     val previewColors = getThemePreviewColors(theme)
-    
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -119,7 +119,7 @@ private fun ThemeCard(
                         shape = MaterialTheme.shapes.small
                     )
             )
-            
+
             // Theme info
             Column(
                 modifier = Modifier.weight(1f),
@@ -134,7 +134,7 @@ private fun ThemeCard(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    
+
                     // Feature badges
                     if (config.hasGeometricPatterns) {
                         Icon(
@@ -145,13 +145,13 @@ private fun ThemeCard(
                         )
                     }
                 }
-                
+
                 Text(
                     text = config.description,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 // Feature indicators
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -165,7 +165,7 @@ private fun ThemeCard(
                     }
                 }
             }
-            
+
             // Selected indicator
             if (isSelected) {
                 Icon(
@@ -341,7 +341,7 @@ fun CompactThemeSelector(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    
+
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
@@ -357,7 +357,7 @@ fun CompactThemeSelector(
                 .menuAnchor()
                 .fillMaxWidth()
         )
-        
+
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
@@ -380,7 +380,7 @@ fun CompactThemeSelector(
                                         )
                                     )
                             )
-                            
+
                             Text(theme.getConfig().displayName)
                         }
                     },

@@ -9,7 +9,7 @@ import com.universalmedialibrary.data.local.entity.AmbientSoundType
  * Organizes and manages ambient sound packs inspired by 99sounds.org structure
  */
 object SoundPackManager {
-    
+
     /**
      * Sound Pack metadata
      */
@@ -25,7 +25,7 @@ object SoundPackManager {
         val license: String = "Royalty-Free",
         val sounds: List<AmbientSound>
     )
-    
+
     /**
      * Audio quality specifications
      */
@@ -34,7 +34,7 @@ object SoundPackManager {
         val sampleRate: Int,    // e.g., 96000 Hz
         val format: String = "WAV"
     )
-    
+
     /**
      * Nature Sounds Pack
      * Inspired by 99sounds.org "Nature Sounds" - 83+ audio files, 3GB+
@@ -65,7 +65,7 @@ object SoundPackManager {
                 description = "Lush tropical forest with exotic birds and insects",
                 keywords = listOf("rainforest", "tropical", "jungle", "exotic birds")
             ),
-            
+
             // Water sounds
             AmbientSound(
                 name = "Mountain Stream",
@@ -81,7 +81,7 @@ object SoundPackManager {
                 description = "Peaceful small stream with occasional bird calls",
                 keywords = listOf("brook", "babbling", "stream", "peaceful")
             ),
-            
+
             // Rain sounds
             AmbientSound(
                 name = "Soft Rain on Leaves",
@@ -97,7 +97,7 @@ object SoundPackManager {
                 description = "Distant thunder with increasing rain intensity",
                 keywords = listOf("thunder", "storm", "lightning", "rain")
             ),
-            
+
             // Bird sounds
             AmbientSound(
                 name = "Morning Bird Chorus",
@@ -113,7 +113,7 @@ object SoundPackManager {
                 description = "Various woodland bird calls throughout the day",
                 keywords = listOf("birds", "forest", "chirping", "calls")
             ),
-            
+
             // Wind sounds
             AmbientSound(
                 name = "Gentle Breeze",
@@ -131,7 +131,7 @@ object SoundPackManager {
             )
         )
     )
-    
+
     /**
      * World Sounds Pack
      * Inspired by 99sounds.org "World Sounds" - 4GB of global field recordings
@@ -162,7 +162,7 @@ object SoundPackManager {
                 description = "Vibrant night market with vendors and crowds",
                 keywords = listOf("market", "crowd", "night", "vendors", "busy")
             ),
-            
+
             // Transportation
             AmbientSound(
                 name = "Train Station",
@@ -178,7 +178,7 @@ object SoundPackManager {
                 description = "Inside a moving subway train",
                 keywords = listOf("subway", "metro", "underground", "train")
             ),
-            
+
             // Coastal sounds
             AmbientSound(
                 name = "Seashore Waves",
@@ -196,7 +196,7 @@ object SoundPackManager {
             )
         )
     )
-    
+
     /**
      * Cinematic Textures Pack
      * Inspired by 99sounds.org "Cinematic Textures"
@@ -249,7 +249,7 @@ object SoundPackManager {
             )
         )
     )
-    
+
     /**
      * Indoor Ambience Pack
      * Coffee shops, libraries, and other indoor environments
@@ -294,7 +294,7 @@ object SoundPackManager {
             )
         )
     )
-    
+
     /**
      * Get all available sound packs
      */
@@ -304,17 +304,17 @@ object SoundPackManager {
         getCinematicTexturesPack(),
         getIndoorAmbiencePack()
     )
-    
+
     /**
      * Get total available sound count across all packs
      */
     fun getTotalSoundCount(): Int = getAllPacks().sumOf { it.soundCount }
-    
+
     /**
      * Get total size in MB across all packs
      */
     fun getTotalSizeMB(): Int = getAllPacks().sumOf { it.totalSizeMB }
-    
+
     /**
      * Get sounds by category from all packs
      */
@@ -323,7 +323,7 @@ object SoundPackManager {
             .filter { it.category == category }
             .flatMap { it.sounds }
     }
-    
+
     /**
      * Search sounds across all packs
      */

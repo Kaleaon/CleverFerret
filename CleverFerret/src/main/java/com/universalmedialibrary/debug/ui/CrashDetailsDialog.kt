@@ -54,7 +54,7 @@ internal fun CrashDetailsDialog(
                     fontSize = 12.sp
                 )
                 Text(crash.message, color = MediaColors.TextPrimary)
-                
+
                 Text(
                     "Thread:",
                     fontWeight = FontWeight.Bold,
@@ -62,7 +62,7 @@ internal fun CrashDetailsDialog(
                     fontSize = 12.sp
                 )
                 Text(crash.threadName, color = MediaColors.TextPrimary)
-                
+
                 Text(
                     "Stack Trace:",
                     fontWeight = FontWeight.Bold,
@@ -81,7 +81,7 @@ internal fun CrashDetailsDialog(
                         modifier = Modifier.padding(8.dp)
                     )
                 }
-                
+
                 Text(
                     "Device: ${crash.deviceInfo.manufacturer} ${crash.deviceInfo.model}",
                     fontSize = 10.sp,

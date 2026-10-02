@@ -683,18 +683,18 @@ private fun CurlAnimation(
                     // Create realistic curl by rotating and translating
                     val curlProgress = progress.coerceIn(0f, 1f)
                     val curlWidth = size.width * curlProgress * settings.curlIntensity
-                    
+
                     // Perspective transformation for 3D curl effect
                     val pivotX = size.width
                     val pivotY = size.height / 2f
-                    
+
                     // Rotate the page as it curls
                     rotationY = -curlProgress * 90f
                     transformOrigin = androidx.compose.ui.graphics.TransformOrigin(
                         pivotFractionX = 1f,
                         pivotFractionY = 0.5f
                     )
-                    
+
                     // Add shadow for depth
                     shadowElevation = curlProgress * 8f
                 }

@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 /**
  * OPDS Catalog Browser Screen
- * 
+ *
  * Browse and download books from OPDS catalogs
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,14 +46,14 @@ fun OPDSCatalogBrowserScreen(
     val downloads by viewModel.activeDownloads.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val transientMessage by viewModel.userMessage.collectAsState()
-    
+
     var showAddCatalogDialog by remember { mutableStateOf(false) }
     var showSearchDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = selectedCatalog?.name ?: "OPDS Catalogs",
                         maxLines = 1,
@@ -79,7 +79,7 @@ fun OPDSCatalogBrowserScreen(
                                 Icon(Icons.Default.Search, "Search")
                             }
                         }
-                        
+
                         // Refresh icon
                         IconButton(onClick = { viewModel.refreshFeed() }) {
                             Icon(Icons.Default.Refresh, "Refresh")
@@ -90,7 +90,7 @@ fun OPDSCatalogBrowserScreen(
                             Icon(Icons.Default.Add, "Add Catalog")
                         }
                     }
-                    
+
                     // Downloads icon with badge
                     IconButton(onClick = { }) {
                         BadgedBox(
@@ -121,7 +121,7 @@ fun OPDSCatalogBrowserScreen(
                         onCatalogRemove = { viewModel.removeCatalog(it) }
                     )
                 }
-                
+
                 feedResult != null -> {
                     val result = feedResult!!
                     when {
@@ -148,7 +148,7 @@ fun OPDSCatalogBrowserScreen(
                         }
                     }
                 }
-                
+
                 else -> {
                     // Show loading
                     LoadingView()
@@ -264,7 +264,7 @@ private fun CatalogCard(
                     )
                 }
             }
-            
+
             Row {
                 Icon(
                     Icons.Default.ChevronRight,
@@ -289,7 +289,7 @@ private fun PublicationListView(
     onNavigationClick: (String) -> Unit = {}
 ) {
     // Find next and previous links
-    val nextLink = navigationLinks.find { link -> 
+    val nextLink = navigationLinks.find { link ->
         link.rel.any { it.contains("next") }
     }
     val prevLink = navigationLinks.find { link ->
@@ -314,7 +314,7 @@ private fun PublicationListView(
                 } else {
                     Spacer(modifier = Modifier.width(1.dp))
                 }
-                
+
                 if (nextLink != null) {
                     Button(onClick = { onNavigationClick(nextLink.href) }) {
                         Text("Next")
@@ -357,7 +357,7 @@ private fun PublicationListView(
                 } else {
                     Spacer(modifier = Modifier.width(1.dp))
                 }
-                
+
                 if (nextLink != null) {
                     Button(onClick = { onNavigationClick(nextLink.href) }) {
                         Text("Next")
@@ -390,7 +390,7 @@ private fun PublicationCard(
             // Cover image
             if (entry.coverUrl != null) {
                 AsyncImage(
-                    
+
                     model = entry.coverUrl,
                     contentDescription = "Cover",
                     modifier = Modifier
@@ -400,7 +400,7 @@ private fun PublicationCard(
                 )
                 Spacer(Modifier.width(12.dp))
             }
-            
+
             // Publication info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -409,7 +409,7 @@ private fun PublicationCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 if (entry.authors.isNotEmpty()) {
                     Text(
                         text = entry.authors.joinToString(", "),
@@ -417,7 +417,7 @@ private fun PublicationCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 if (entry.summary != null) {
                     Text(
                         text = entry.summary,
@@ -427,7 +427,7 @@ private fun PublicationCard(
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-                
+
                 // Download formats
                 if (entry.acquisitionLinks.isNotEmpty()) {
                     Text(
@@ -448,7 +448,7 @@ private fun PublicationCard(
                     )
                 }
             }
-            
+
             val isDownloadable = entry.acquisitionLinks.isNotEmpty()
             Icon(
                 imageVector = if (isDownloadable) Icons.Default.Download else Icons.Default.ChevronRight,
@@ -649,7 +649,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
 
     fun refreshFeed() {
         val catalog = _selectedCatalog.value ?: return
-        
+
         viewModelScope.launch {
             _currentFeed.value = null // Show loading
             val result = opdsCatalogService.browseCatalog(catalog)
@@ -671,7 +671,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
     fun searchCatalog(query: String) {
         val catalog = _selectedCatalog.value ?: return
         _searchQuery.value = query
-        
+
         viewModelScope.launch {
             _currentFeed.value = null
             val searchUrl = catalog.searchUrl?.let { opdsCatalogService.buildSearchUrl(it, query) } ?: catalog.url

@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
  * E-Ink Mode Support
  * Optimized reading experience for e-ink displays
  * Inspired by Moonreader's e-ink mode
- * 
+ *
  * Features:
  * - Disable all animations
  * - Pure white background with true black text
@@ -92,7 +92,7 @@ fun EInkModeSettingsPanel(
                 text = "E-Ink Mode",
                 style = MaterialTheme.typography.titleMedium
             )
-            
+
             Text(
                 text = "Optimize reading experience for e-ink displays by disabling animations and using high contrast colors.",
                 style = MaterialTheme.typography.bodySmall,
@@ -108,7 +108,7 @@ fun EInkModeSettingsPanel(
                 Text("Enable E-Ink Mode", style = MaterialTheme.typography.bodyMedium)
                 Switch(
                     checked = settings.enabled,
-                    onCheckedChange = { 
+                    onCheckedChange = {
                         onSettingsChange(settings.copy(enabled = it))
                     }
                 )
@@ -124,7 +124,7 @@ fun EInkModeSettingsPanel(
                     Text("Disable All Animations", style = MaterialTheme.typography.bodyMedium)
                     Switch(
                         checked = settings.disableAnimations,
-                        onCheckedChange = { 
+                        onCheckedChange = {
                             onSettingsChange(settings.copy(disableAnimations = it))
                         }
                     )
@@ -139,7 +139,7 @@ fun EInkModeSettingsPanel(
                     Text("Pure White Background", style = MaterialTheme.typography.bodyMedium)
                     Switch(
                         checked = settings.pureWhiteBackground,
-                        onCheckedChange = { 
+                        onCheckedChange = {
                             onSettingsChange(settings.copy(pureWhiteBackground = it))
                         }
                     )
@@ -154,7 +154,7 @@ fun EInkModeSettingsPanel(
                     Text("True Black Text", style = MaterialTheme.typography.bodyMedium)
                     Switch(
                         checked = settings.trueBlackText,
-                        onCheckedChange = { 
+                        onCheckedChange = {
                             onSettingsChange(settings.copy(trueBlackText = it))
                         }
                     )
@@ -169,7 +169,7 @@ fun EInkModeSettingsPanel(
                     Text("High Contrast Mode", style = MaterialTheme.typography.bodyMedium)
                     Switch(
                         checked = settings.highContrast,
-                        onCheckedChange = { 
+                        onCheckedChange = {
                             onSettingsChange(settings.copy(highContrast = it))
                         }
                     )

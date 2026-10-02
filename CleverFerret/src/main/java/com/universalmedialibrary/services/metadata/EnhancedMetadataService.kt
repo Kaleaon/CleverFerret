@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 /**
  * Enhanced Metadata Service - Extracts comprehensive metadata from audio files
- * 
+ *
  * Inspired by PowerampAPI's comprehensive metadata system
  * Extracts 20+ metadata fields including:
  * - Basic: title, artist, album, genre
@@ -29,11 +29,11 @@ class EnhancedMetadataService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val ffmpegExtractor: FFmpegMetadataExtractor
 ) {
-    
+
     companion object {
         private const val TAG = "EnhancedMetadata"
     }
-    
+
     /**
      * Extract all available metadata from audio file using FFmpeg (faster and more comprehensive)
      */
@@ -41,7 +41,7 @@ class EnhancedMetadataService @Inject constructor(
         try {
             // Use FFmpeg for faster, more comprehensive extraction
             val ffmpegMetadata = ffmpegExtractor.extractMetadata(filePath)
-            
+
             if (ffmpegMetadata.extractionSuccess) {
                 return@withContext EnhancedTrackMetadata(
                     // Basic Info
@@ -49,36 +49,36 @@ class EnhancedMetadataService @Inject constructor(
                     artist = ffmpegMetadata.artist,
                     album = ffmpegMetadata.album,
                     albumArtist = ffmpegMetadata.albumArtist,
-                    
+
                     // Extended Info
                     composer = ffmpegMetadata.composer,
                     writer = null, // Not directly available in FFmpeg metadata
                     genre = ffmpegMetadata.genre,
                     year = ffmpegMetadata.year,
                     date = ffmpegMetadata.date,
-                    
+
                     // Track/Disc Numbers
                     trackNumber = ffmpegMetadata.trackNumber,
                     trackTotal = null,
                     discNumber = ffmpegMetadata.discNumber,
                     discTotal = null,
-                    
+
                     // Audio Properties
                     duration = ffmpegMetadata.duration ?: 0L,
                     bitrate = ffmpegMetadata.bitrate,
                     sampleRate = ffmpegMetadata.sampleRate,
                     channels = ffmpegMetadata.channels,
                     mimeType = ffmpegMetadata.mimeType,
-                    
+
                     // Additional Fields
                     compilation = null,
                     author = ffmpegMetadata.publisher,
                     location = null,
-                    
+
                     // Album Art
                     hasEmbeddedArt = ffmpegExtractor.extractThumbnail(filePath) != null,
                     embeddedArtSize = 0, // Would need to extract to get size
-                    
+
                     // ReplayGain
                     replayGainTrack = ffmpegMetadata.replayGainTrack,
                     replayGainAlbum = ffmpegMetadata.replayGainAlbum
@@ -87,26 +87,26 @@ class EnhancedMetadataService @Inject constructor(
         } catch (e: Exception) {
             Log.w(TAG, "FFmpeg extraction failed, falling back to MediaMetadataRetriever", e)
         }
-        
+
         // Fallback to original MediaMetadataRetriever if FFmpeg fails
         MediaMetadataRetriever().use { retriever ->
             try {
                 retriever.setDataSource(filePath)
-                
+
                 EnhancedTrackMetadata(
                     // Basic Info
                     title = retriever.extractMetadata(METADATA_KEY_TITLE),
                     artist = retriever.extractMetadata(METADATA_KEY_ARTIST),
                     album = retriever.extractMetadata(METADATA_KEY_ALBUM),
                     albumArtist = retriever.extractMetadata(METADATA_KEY_ALBUMARTIST),
-                    
+
                     // Extended Info
                     composer = retriever.extractMetadata(METADATA_KEY_COMPOSER),
                     writer = retriever.extractMetadata(METADATA_KEY_WRITER),
                     genre = retriever.extractMetadata(METADATA_KEY_GENRE),
                     year = retriever.extractMetadata(METADATA_KEY_YEAR)?.toIntOrNull(),
                     date = retriever.extractMetadata(METADATA_KEY_DATE),
-                    
+
                     // Track/Disc Numbers
                     trackNumber = parseTrackNumber(
                         retriever.extractMetadata(METADATA_KEY_CD_TRACK_NUMBER)
@@ -120,7 +120,7 @@ class EnhancedMetadataService @Inject constructor(
                     discTotal = parseDiscTotal(
                         retriever.extractMetadata(METADATA_KEY_DISC_NUMBER)
                     ),
-                    
+
                     // Audio Properties
                     duration = retriever.extractMetadata(METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L,
                     bitrate = retriever.extractMetadata(METADATA_KEY_BITRATE)?.toIntOrNull(),
@@ -129,12 +129,12 @@ class EnhancedMetadataService @Inject constructor(
                     // MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS returns track count, not channels
                     channels = null,
                     mimeType = retriever.extractMetadata(METADATA_KEY_MIMETYPE),
-                    
+
                     // Additional Fields
                     compilation = retriever.extractMetadata(METADATA_KEY_COMPILATION),
                     author = retriever.extractMetadata(METADATA_KEY_AUTHOR),
                     location = retriever.extractMetadata(METADATA_KEY_LOCATION),
-                    
+
                     // Album Art
                     hasEmbeddedArt = retriever.embeddedPicture != null,
                     embeddedArtSize = retriever.embeddedPicture?.size ?: 0
@@ -149,12 +149,12 @@ class EnhancedMetadataService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Extract album art from audio file
      */
     suspend fun extractAlbumArt(
-        filePath: String, 
+        filePath: String,
         size: ImageSize = ImageSize.LARGE
     ): Bitmap? = withContext(Dispatchers.IO) {
         MediaMetadataRetriever().use { retriever ->
@@ -165,18 +165,18 @@ class EnhancedMetadataService @Inject constructor(
                         inJustDecodeBounds = true
                     }
                     BitmapFactory.decodeByteArray(data, 0, data.size, options)
-                    
+
                     // Calculate sample size for memory efficiency
                     val targetSize = when (size) {
                         ImageSize.ORIGINAL -> -1
                         else -> size.pixels
                     }
-                    
+
                     if (targetSize > 0) {
                         options.inSampleSize = calculateInSampleSize(options, targetSize, targetSize)
                     }
                     options.inJustDecodeBounds = false
-                    
+
                     BitmapFactory.decodeByteArray(data, 0, data.size, options)
                 }
             } catch (e: Exception) {
@@ -185,7 +185,7 @@ class EnhancedMetadataService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Extract album art as byte array (for caching/storage)
      */
@@ -200,7 +200,7 @@ class EnhancedMetadataService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Check if file has embedded album art (quick check without full extraction)
      */
@@ -214,23 +214,23 @@ class EnhancedMetadataService @Inject constructor(
             }
         }
     }
-    
+
     private fun parseTrackNumber(trackInfo: String?): Int? {
         return trackInfo?.split('/')?.firstOrNull()?.toIntOrNull()
     }
-    
+
     private fun parseTrackTotal(trackInfo: String?): Int? {
         return trackInfo?.split('/')?.getOrNull(1)?.toIntOrNull()
     }
-    
+
     private fun parseDiscNumber(discInfo: String?): Int? {
         return discInfo?.split('/')?.firstOrNull()?.toIntOrNull()
     }
-    
+
     private fun parseDiscTotal(discInfo: String?): Int? {
         return discInfo?.split('/')?.getOrNull(1)?.toIntOrNull()
     }
-    
+
     private fun getSampleRate(retriever: MediaMetadataRetriever): Int? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return null
         return try {
@@ -240,7 +240,7 @@ class EnhancedMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private fun getChannelCount(retriever: MediaMetadataRetriever): Int? {
         return try {
             // Try to extract channel count from available metadata
@@ -249,29 +249,29 @@ class EnhancedMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private fun calculateInSampleSize(
-        options: BitmapFactory.Options, 
-        reqWidth: Int, 
+        options: BitmapFactory.Options,
+        reqWidth: Int,
         reqHeight: Int
     ): Int {
         val height = options.outHeight
         val width = options.outWidth
         var inSampleSize = 1
-        
+
         if (height > reqHeight || width > reqWidth) {
             val halfHeight = height / 2
             val halfWidth = width / 2
-            
-            while (halfHeight / inSampleSize >= reqHeight && 
+
+            while (halfHeight / inSampleSize >= reqHeight &&
                    halfWidth / inSampleSize >= reqWidth) {
                 inSampleSize *= 2
             }
         }
-        
+
         return inSampleSize
     }
-    
+
     /**
      * Image size options for album art extraction
      */
@@ -285,7 +285,7 @@ class EnhancedMetadataService @Inject constructor(
 
 /**
  * Enhanced Track Metadata - Comprehensive audio file metadata
- * 
+ *
  * Contains 20+ metadata fields extracted from audio files
  */
 data class EnhancedTrackMetadata(
@@ -294,36 +294,36 @@ data class EnhancedTrackMetadata(
     val artist: String? = null,
     val album: String? = null,
     val albumArtist: String? = null,
-    
+
     // Extended Information
     val composer: String? = null,
     val writer: String? = null,
     val genre: String? = null,
     val year: Int? = null,
     val date: String? = null,
-    
+
     // Track Information
     val trackNumber: Int? = null,
     val trackTotal: Int? = null,
     val discNumber: Int? = null,
     val discTotal: Int? = null,
-    
+
     // Audio Properties
     val duration: Long,
     val bitrate: Int? = null,
     val sampleRate: Int? = null,
     val channels: Int? = null,
     val mimeType: String? = null,
-    
+
     // Additional Fields
     val compilation: String? = null,
     val author: String? = null,
     val location: String? = null,
-    
+
     // Album Art Info
     val hasEmbeddedArt: Boolean = false,
     val embeddedArtSize: Int = 0,
-    
+
     // ReplayGain (volume normalization)
     val replayGainTrack: Float? = null, // Track gain in dB
     val replayGainAlbum: Float? = null  // Album gain in dB
@@ -339,7 +339,7 @@ data class EnhancedTrackMetadata(
             bitrate >= 128000 -> "Standard (128-192 kbps)"
             else -> "Low (< 128 kbps)"
         }
-    
+
     /**
      * Display name for artist (prefer album artist for compilations)
      */
@@ -349,19 +349,19 @@ data class EnhancedTrackMetadata(
             !artist.isNullOrBlank() -> artist
             else -> "Unknown Artist"
         }
-    
+
     /**
      * Display name for album
      */
     val displayAlbum: String
         get() = album?.takeIf { it.isNotBlank() } ?: "Unknown Album"
-    
+
     /**
      * Display name for title
      */
     val displayTitle: String
         get() = title?.takeIf { it.isNotBlank() } ?: "Unknown Track"
-    
+
     /**
      * Track position string (e.g., "3/12" or "3")
      */
@@ -371,7 +371,7 @@ data class EnhancedTrackMetadata(
             trackNumber != null -> "$trackNumber"
             else -> null
         }
-    
+
     /**
      * Disc position string (e.g., "1/2" or "1")
      */
@@ -381,7 +381,7 @@ data class EnhancedTrackMetadata(
             discNumber != null -> "$discNumber"
             else -> null
         }
-    
+
     /**
      * Is this a compilation album?
      */

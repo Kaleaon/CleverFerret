@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 /**
  * Hilt module for Gallery feature dependencies
- * 
+ *
  * Provides gallery-related services including:
  * - GalleryManager: MediaStore access and caching
  * - GalleryRepository: Unified gallery operations
@@ -23,7 +23,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object GalleryModule {
-    
+
     @Provides
     @Singleton
     fun provideGalleryManager(
@@ -31,7 +31,7 @@ object GalleryModule {
     ): GalleryManager {
         return GalleryManager(context)
     }
-    
+
     @Provides
     @Singleton
     fun provideGalleryPreferencesStore(
@@ -39,7 +39,7 @@ object GalleryModule {
     ): GalleryPreferencesStore {
         return GalleryPreferencesStore(context)
     }
-    
+
     @Provides
     @Singleton
     fun provideGalleryRepository(

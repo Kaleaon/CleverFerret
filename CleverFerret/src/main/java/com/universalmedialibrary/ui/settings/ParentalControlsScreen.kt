@@ -31,7 +31,7 @@ import java.util.Locale
 
 /**
  * Parental Controls Settings Screen
- * 
+ *
  * Features:
  * - Enable/disable parental controls
  * - Set/change PIN

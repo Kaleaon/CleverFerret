@@ -21,17 +21,17 @@ class DebugMenuViewModel @Inject constructor(
     private val debugReportingService: DebugReportingService,
     private val featureFlagManager: FeatureFlagManager
 ) : ViewModel() {
-    
+
     private val _state = MutableStateFlow(DebugMenuState())
     val state: StateFlow<DebugMenuState> = _state.asStateFlow()
-    
+
     init {
         observeCrashReports()
         observeErrorLogs()
         observePerformanceMetrics()
         observeFeatureFlags()
     }
-    
+
     private fun observeCrashReports() {
         viewModelScope.launch {
             debugReportingService.crashReports.collect { crashes ->
@@ -39,7 +39,7 @@ class DebugMenuViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun observeErrorLogs() {
         viewModelScope.launch {
             debugReportingService.errorLogs.collect { logs ->
@@ -47,7 +47,7 @@ class DebugMenuViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun observePerformanceMetrics() {
         viewModelScope.launch {
             debugReportingService.performanceMetrics.collect { metrics ->
@@ -55,7 +55,7 @@ class DebugMenuViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun observeFeatureFlags() {
         viewModelScope.launch {
             featureFlagManager.flags.collect { flags ->
@@ -63,25 +63,25 @@ class DebugMenuViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun clearCrashReports() {
         debugReportingService.clearCrashReports()
     }
-    
+
     fun clearErrorLogs() {
         debugReportingService.clearErrorLogs()
     }
-    
+
     fun toggleFlag(key: String, value: Boolean) {
         featureFlagManager.setFlag(key, value)
     }
-    
+
     fun triggerTestNotification(type: String) {
         // Log a test notification event
         debugReportingService.logInfo("DebugMenu", "Test notification triggered: $type")
         // The actual notification would be triggered via NotificationService
     }
-    
+
     fun submitBugReport(title: String, description: String, steps: String): Intent {
         val report = debugReportingService.createBugReport(
             title = title,
@@ -91,7 +91,7 @@ class DebugMenuViewModel @Inject constructor(
         )
         return debugReportingService.shareBugReport(report)
     }
-    
+
     fun exportLogs(): Intent {
         val file = debugReportingService.exportAllLogs()
         val uri = FileProvider.getUriForFile(
@@ -107,7 +107,7 @@ class DebugMenuViewModel @Inject constructor(
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
     }
-    
+
     fun simulateCrash() {
         // This will be caught by the crash handler
         throw RuntimeException("Test crash triggered from Debug Menu")

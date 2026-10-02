@@ -37,7 +37,7 @@ class MetabodsTagBrowserViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isLoadingTags = true, error = null)
 
             val result = metabodsTagService.fetchAllTags()
-            
+
             result.onSuccess { tags ->
                 _uiState.value = _uiState.value.copy(
                     tags = tags,
@@ -64,7 +64,7 @@ class MetabodsTagBrowserViewModel @Inject constructor(
      */
     fun toggleTag(tagId: String) {
         val currentTags = _uiState.value.selectedTags.toMutableList()
-        
+
         if (tagId in currentTags) {
             currentTags.remove(tagId)
         } else {

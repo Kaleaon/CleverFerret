@@ -6,14 +6,14 @@ import javax.inject.Singleton
 /**
  * OPDS feed generator for exposing library content via OPDS protocol.
  * Generates Atom XML feeds compatible with OPDS readers.
- * 
+ *
  * OPDS (Open Publication Distribution System) is a syndication format for electronic publications
  * based on Atom and HTTP. It enables the aggregation, distribution, discovery, and acquisition
  * of electronic publications.
  */
 @Singleton
 class OpdsFeedGenerator @Inject constructor() {
-    
+
     /**
      * Generate root catalog feed
      */
@@ -21,7 +21,7 @@ class OpdsFeedGenerator @Inject constructor() {
         val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US).apply {
             timeZone = java.util.TimeZone.getTimeZone("UTC")
         }.format(java.util.Date())
-        
+
         return """
             <?xml version="1.0" encoding="utf-8"?>
             <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
@@ -33,7 +33,7 @@ class OpdsFeedGenerator @Inject constructor() {
               </author>
               <link rel="self" href="/opds/catalog" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
               <link rel="start" href="/opds/catalog" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
-              
+
               <entry>
                 <title>All Books</title>
                 <id>urn:uuid:cleverferret:books</id>
@@ -41,7 +41,7 @@ class OpdsFeedGenerator @Inject constructor() {
                 <link rel="subsection" href="/opds/books" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
                 <content type="text">Browse all books in the library</content>
               </entry>
-              
+
               <entry>
                 <title>Recent Additions</title>
                 <id>urn:uuid:cleverferret:recent</id>
@@ -52,7 +52,7 @@ class OpdsFeedGenerator @Inject constructor() {
             </feed>
         """.trimIndent()
     }
-    
+
     /**
      * Generate acquisition feed for a list of media items
      */
@@ -67,7 +67,7 @@ class OpdsFeedGenerator @Inject constructor() {
         val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US).apply {
             timeZone = java.util.TimeZone.getTimeZone("UTC")
         }.format(java.util.Date())
-        
+
         val entries = items.joinToString("\n") { item ->
             """
               <entry>
@@ -83,7 +83,7 @@ class OpdsFeedGenerator @Inject constructor() {
               </entry>
             """.trimIndent()
         }
-        
+
         val nextLinkXml = if (nextLink != null)
             """<link rel="next" href="$nextLink" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>"""
             else ""
@@ -107,12 +107,12 @@ class OpdsFeedGenerator @Inject constructor() {
               $nextLinkXml
               $prevLinkXml
               $searchLinkXml
-              
+
               $entries
             </feed>
         """.trimIndent()
     }
-    
+
     /**
      * Escape XML special characters
      */
@@ -124,7 +124,7 @@ class OpdsFeedGenerator @Inject constructor() {
             .replace("\"", "&quot;")
             .replace("'", "&apos;")
     }
-    
+
     /**
      * Data class for media item entries in OPDS feeds
      */

@@ -35,7 +35,7 @@ internal fun CircularVisualizer(
         val centerY = size.height / 2
         val baseRadius = min(size.width, size.height) * 0.15f
         val pulseRadius = baseRadius * (1f + bass * 0.3f) // Pulse with bass
-        
+
         // Draw center glow
         drawCircle(
             brush = Brush.radialGradient(
@@ -50,7 +50,7 @@ internal fun CircularVisualizer(
             radius = baseRadius * 2f,
             center = Offset(centerX, centerY)
         )
-        
+
         // Draw inner circle
         drawCircle(
             color = VisualizerColors.neonCyan.copy(alpha = 0.3f),
@@ -104,7 +104,7 @@ internal fun CircularVisualizer(
                 cap = StrokeCap.Round
             )
         }
-        
+
         // Draw outer ring that pulses with mid frequencies
         drawCircle(
             color = VisualizerColors.neonMagenta.copy(alpha = 0.5f * mid),

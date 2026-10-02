@@ -41,7 +41,7 @@ internal fun FileListItem(
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
     val formattedDate = dateFormat.format(Date(item.modifiedDate))
     val formattedSize = formatFileSize(item.size)
-    
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,9 +63,9 @@ internal fun FileListItem(
                 modifier = Modifier.size(48.dp),
                 tint = if (item.isDirectory) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
             )
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
@@ -99,7 +99,7 @@ internal fun FileListItem(
                     }
                 }
             }
-            
+
             if (isSelected) {
                 Icon(
                     Icons.Default.CheckCircle,

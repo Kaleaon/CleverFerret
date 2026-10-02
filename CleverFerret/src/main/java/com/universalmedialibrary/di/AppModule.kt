@@ -15,15 +15,15 @@ import javax.inject.Singleton
 
 /**
  * AppModule - Core dependency injection module
- * 
+ *
  * Provides fundamental application-level dependencies that are
  * shared across the entire app:
  * - Application Context for accessing Android system services
  * - OkHttpClient for all network operations (singleton, configured with timeouts)
  * - CoroutineDispatcher for IO operations (singleton, uses Dispatchers.IO)
- * 
+ *
  * All dependencies are scoped to [SingletonComponent] for app-wide availability.
- * 
+ *
  * @see NetworkModule for additional network-specific dependencies
  */
 @Module

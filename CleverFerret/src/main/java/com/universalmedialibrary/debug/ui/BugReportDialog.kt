@@ -37,7 +37,7 @@ internal fun BugReportDialog(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var steps by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {

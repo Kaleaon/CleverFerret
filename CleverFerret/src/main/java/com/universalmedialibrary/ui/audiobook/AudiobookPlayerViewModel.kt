@@ -46,7 +46,7 @@ class AudiobookPlayerViewModel @Inject constructor(
     val audiobookState: StateFlow<AudiobookState> = audiobookService.audiobookState
 
     // Synchronization state
-    
+
     // UI events for feedback
     private val _uiEvents = MutableSharedFlow<UiEvent>()
     val uiEvents: SharedFlow<UiEvent> = _uiEvents.asSharedFlow()
@@ -244,7 +244,7 @@ class AudiobookPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Create new bookmark at current position
      */

@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 /**
  * ViewModel for Clean media-centric Universal Search
- * 
+ *
  * Searches across:
  * - Local library (all media types)
  * - Uses real EnhancedSearchService for database queries
@@ -29,19 +29,19 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(
     private val searchService: EnhancedSearchService
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(SearchScreenState())
     val uiState: StateFlow<SearchScreenState> = _uiState.asStateFlow()
 
     private val _userMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val userMessages: SharedFlow<String> = _userMessages.asSharedFlow()
-    
+
     private var searchJob: Job? = null
-    
+
     init {
         loadRecentSearches()
     }
-    
+
     private fun loadRecentSearches() {
         viewModelScope.launch {
             try {
@@ -52,10 +52,10 @@ class SearchViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun updateQuery(query: String) {
         _uiState.update { it.copy(query = query) }
-        
+
         // Debounce search
         searchJob?.cancel()
         if (query.length >= 2) {
@@ -67,7 +67,7 @@ class SearchViewModel @Inject constructor(
             _uiState.update { it.copy(results = emptyList(), groupedResults = emptyMap(), allResults = emptyList()) }
         }
     }
-    
+
     fun search(query: String) {
         if (query.isBlank()) return
         searchJob?.cancel()
@@ -75,14 +75,14 @@ class SearchViewModel @Inject constructor(
             performSearch(query)
         }
     }
-    
+
     fun clearSearch() {
         _uiState.update { it.copy(query = "", results = emptyList(), groupedResults = emptyMap(), allResults = emptyList()) }
     }
-    
+
     fun setCategory(category: SearchCategory?) {
         _uiState.update { it.copy(selectedCategory = category) }
-        
+
         // Re-filter results if we have any
         if (_uiState.value.query.isNotBlank()) {
             applyClientSideFilters(category = category)
@@ -96,7 +96,7 @@ class SearchViewModel @Inject constructor(
             applyClientSideFilters(mediaType = mediaType)
         }
     }
-    
+
     fun clearRecentSearches() {
         viewModelScope.launch {
             try {
@@ -107,15 +107,15 @@ class SearchViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun useRecentSearch(query: String) {
         _uiState.update { it.copy(query = query) }
         search(query)
     }
-    
+
     private suspend fun performSearch(query: String) {
         _uiState.update { it.copy(isSearching = true) }
-        
+
         try {
             val selectedCategory = _uiState.value.selectedCategory
             val selectedMediaType = _uiState.value.selectedMediaType
@@ -140,9 +140,9 @@ class SearchViewModel @Inject constructor(
                 filters = SearchFilters(mediaTypes = mediaTypes),
                 sortBy = SortBy.RELEVANCE
             )
-            
+
             val serviceResults = searchService.search(searchQuery)
-            
+
             // Convert service results to UI results
             val uiResults = serviceResults.map { result ->
                 SearchResult(
@@ -155,10 +155,10 @@ class SearchViewModel @Inject constructor(
                     mediaType = mapStringToMediaType(result.mediaType)
                 )
             }
-            
+
             // Group results by category
             val groupedResults = uiResults.groupBy { it.category }
-            
+
             _uiState.update {
                 it.copy(
                     allResults = uiResults,
@@ -168,7 +168,7 @@ class SearchViewModel @Inject constructor(
             }
 
             applyClientSideFilters()
-            
+
             // Refresh recent searches
             loadRecentSearches()
         } catch (e: CancellationException) {
@@ -186,7 +186,7 @@ class SearchViewModel @Inject constructor(
             _userMessages.tryEmit("Search failed. Please try again.")
         }
     }
-    
+
     private fun mapMediaTypeToCategory(mediaType: String): SearchCategory {
         return when (mediaType.uppercase()) {
             "BOOK", "EBOOK" -> SearchCategory.BOOKS
@@ -200,7 +200,7 @@ class SearchViewModel @Inject constructor(
             else -> SearchCategory.BOOKS // Default
         }
     }
-    
+
     private fun mapStringToMediaType(type: String): MediaType {
         return when (type.uppercase()) {
             "BOOK", "EBOOK" -> MediaType.BOOK
@@ -214,7 +214,7 @@ class SearchViewModel @Inject constructor(
             else -> MediaType.BOOK
         }
     }
-    
+
     private fun applyClientSideFilters(
         category: SearchCategory? = _uiState.value.selectedCategory,
         mediaType: MediaType? = _uiState.value.selectedMediaType

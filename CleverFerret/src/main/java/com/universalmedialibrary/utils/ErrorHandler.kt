@@ -9,9 +9,9 @@ import java.net.UnknownHostException
  * Centralized error handling and logging utility
  */
 object ErrorHandler {
-    
+
     private const val TAG = "CleverFerret"
-    
+
     /**
      * Converts exceptions to user-friendly error messages
      */
@@ -25,7 +25,7 @@ object ErrorHandler {
             else -> error.message ?: "An unexpected error occurred"
         }
     }
-    
+
     private fun handleIoException(error: IOException): String {
         return when (error) {
             is UnknownHostException -> "No internet connection. Please check your network."
@@ -34,7 +34,7 @@ object ErrorHandler {
             else -> "Failed to read/write data: ${error.message}"
         }
     }
-    
+
     /**
      * Logs error with appropriate level and context
      */
@@ -50,14 +50,14 @@ object ErrorHandler {
         } else {
             message
         }
-        
+
         if (error != null) {
             Log.e(tag, fullMessage, error)
         } else {
             Log.e(tag, fullMessage)
         }
     }
-    
+
     /**
      * Logs warning
      */
@@ -74,7 +74,7 @@ object ErrorHandler {
         }
         Log.w(tag, fullMessage)
     }
-    
+
     /**
      * Logs info
      */
@@ -91,7 +91,7 @@ object ErrorHandler {
         }
         Log.i(tag, fullMessage)
     }
-    
+
     /**
      * Creates a detailed error report
      */
@@ -114,7 +114,7 @@ object ErrorHandler {
             appendLine(error.stackTraceToString())
         }
     }
-    
+
     /**
      * Handles error with retry logic
      */
@@ -124,7 +124,7 @@ object ErrorHandler {
         block: suspend () -> T
     ): Result<T> {
         var lastException: Exception? = null
-        
+
         repeat(maxAttempts) { attempt ->
             try {
                 return Result.success(block())
@@ -134,13 +134,13 @@ object ErrorHandler {
                     message = "Attempt ${attempt + 1} failed",
                     context = mapOf("maxAttempts" to maxAttempts, "error" to e.message.toString())
                 )
-                
+
                 if (attempt < maxAttempts - 1) {
                     kotlinx.coroutines.delay(delayMs * (attempt + 1))
                 }
             }
         }
-        
+
         return Result.failure(lastException ?: Exception("Operation failed after $maxAttempts attempts"))
     }
 }

@@ -21,11 +21,11 @@ import javax.inject.Singleton
 
 /**
  * Hilt module for podcast-related dependencies
- * 
+ *
  * Provides:
  * - Podcast DAOs (singleton)
  * - PodcastDownloadManager (singleton)
- * 
+ *
  * Note: PodcastRepository and PodcastService use @Inject constructors
  * instead of @Provides to avoid circular dependency issues.
  */

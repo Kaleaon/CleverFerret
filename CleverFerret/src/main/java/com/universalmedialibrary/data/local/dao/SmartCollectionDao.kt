@@ -43,9 +43,9 @@ interface SmartCollectionDao {
      * Get rules that need refreshing
      */
     @Query("""
-        SELECT * FROM smart_collection_rules 
-        WHERE isEnabled = 1 
-          AND refreshInterval > 0 
+        SELECT * FROM smart_collection_rules
+        WHERE isEnabled = 1
+          AND refreshInterval > 0
           AND (lastRefreshed + refreshInterval) < :currentTime
         ORDER BY lastRefreshed ASC
     """)
@@ -55,8 +55,8 @@ interface SmartCollectionDao {
      * Update last refreshed timestamp
      */
     @Query("""
-        UPDATE smart_collection_rules 
-        SET lastRefreshed = :timestamp, currentItemCount = :itemCount 
+        UPDATE smart_collection_rules
+        SET lastRefreshed = :timestamp, currentItemCount = :itemCount
         WHERE ruleId = :ruleId
     """)
     suspend fun updateRefreshStatus(ruleId: Long, timestamp: Long, itemCount: Int)
@@ -122,11 +122,11 @@ interface SmartCollectionDao {
      * Looks for common series indicators like "Book 1", "Vol. 2", "#3", etc.
      */
     @Query("""
-        SELECT * FROM media_items 
-        WHERE mediaType = 'BOOK' 
+        SELECT * FROM media_items
+        WHERE mediaType = 'BOOK'
           AND (
-            fileName LIKE '%Book %' 
-            OR fileName LIKE '%Vol.%' 
+            fileName LIKE '%Book %'
+            OR fileName LIKE '%Vol.%'
             OR fileName LIKE '%Volume %'
             OR fileName LIKE '% #%'
             OR fileName LIKE '%Part %'
@@ -180,7 +180,7 @@ interface SmartCollectionDao {
      * Get recently added items
      */
     @Query("""
-        SELECT * FROM media_items 
+        SELECT * FROM media_items
         WHERE dateAdded >= :sinceTimestamp
         ORDER BY dateAdded DESC
         LIMIT :limit
@@ -191,7 +191,7 @@ interface SmartCollectionDao {
      * Get recently accessed items
      */
     @Query("""
-        SELECT * FROM media_items 
+        SELECT * FROM media_items
         WHERE lastPlayed >= :sinceTimestamp
         ORDER BY lastPlayed DESC
         LIMIT :limit
@@ -202,7 +202,7 @@ interface SmartCollectionDao {
      * Get most played items
      */
     @Query("""
-        SELECT * FROM media_items 
+        SELECT * FROM media_items
         WHERE playCount > 0
         ORDER BY playCount DESC
         LIMIT :limit
@@ -213,7 +213,7 @@ interface SmartCollectionDao {
      * Get favorite items
      */
     @Query("""
-        SELECT * FROM media_items 
+        SELECT * FROM media_items
         WHERE isFavorite = 1
         ORDER BY dateAdded DESC
     """)

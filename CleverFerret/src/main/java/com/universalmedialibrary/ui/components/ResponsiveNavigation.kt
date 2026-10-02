@@ -248,7 +248,7 @@ fun ResponsiveNavigationScaffold(
                 },
                 content = content
             )
-            
+
             // Hamburger menu button in top-left corner - uses FilledTonalIconButton for proper touch handling
             androidx.compose.material3.FilledTonalIconButton(
                 onClick = { scope.launch { drawerState.open() } },
@@ -391,7 +391,7 @@ private fun ScrollableBottomBar(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    
+
     // ===================================================================================
     // Navigation scroll behavior:
     // Start scrolled to the LEFT (beginning) so users see Home and primary items first
@@ -414,7 +414,7 @@ private fun ScrollableBottomBar(
         ) {
             // Debug button on the left side (if provided)
             debugButton?.invoke()
-            
+
             if (gearPosition == BottomGearPosition.LEFT) {
                 ScrollableNavigationBarEntry(
                     navController = navController,
@@ -550,7 +550,7 @@ fun NavigationDrawerContent(
     onItemClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
-    
+
     ModalDrawerSheet(
         modifier = Modifier.width(280.dp)
     ) {
@@ -588,7 +588,7 @@ fun NavigationDrawerContent(
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -634,4 +634,3 @@ private fun currentRouteMatches(navController: NavController, item: NavigationIt
     val destination = navController.currentDestination
     return destination.isDestinationSelected(item)
 }
-

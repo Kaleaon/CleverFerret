@@ -381,4 +381,3 @@ internal fun headphonesVector(): ImageVector = materialIcon(name = "Headphones")
         close()
     }
 }
-

@@ -54,21 +54,21 @@ internal fun LibraryEmptyState(
                 tint = mediaType.color.copy(alpha = 0.5f)
             )
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Text(
             text = if (hasFilter) "No matching items" else "Your library is empty",
             style = MediaTypography.TitleMedium,
             color = MediaColors.TextPrimary
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
-            text = if (hasFilter) 
-                "Try adjusting your filters" 
-            else 
+            text = if (hasFilter)
+                "Try adjusting your filters"
+            else
                 "Add some ${mediaType.name.lowercase().replace("_", " ")}s to get started",
             style = MediaTypography.BodyMedium,
             color = MediaColors.TextSecondary

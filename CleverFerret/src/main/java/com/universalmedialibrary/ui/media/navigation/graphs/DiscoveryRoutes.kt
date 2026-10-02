@@ -47,7 +47,7 @@ fun NavGraphBuilder.discoveryRoutes(
     composable(MediaRoutes.OPDS_BROWSER) {
         val viewModel: OPDSViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         OPDSBrowserScreen(
             state = state,
             onCatalogClick = { catalog -> viewModel.openCatalog(catalog) },
@@ -61,7 +61,7 @@ fun NavGraphBuilder.discoveryRoutes(
             },
             onSearch = { query -> viewModel.search(query) },
             onAddCatalog = { url -> viewModel.addCatalog(url) },
-            onBackClick = { 
+            onBackClick = {
                 if (!viewModel.navigateBack()) {
                     navController.popBackStack()
                 }
@@ -152,11 +152,11 @@ fun NavGraphBuilder.discoveryRoutes(
             }
         }
     }
-    
+
     composable(MediaRoutes.AMBIENT_SOUNDS) {
         val viewModel: AmbientViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         MediaAmbientScreen(
             state = state,
             onSoundToggle = { sound -> viewModel.toggleSound(sound) },
@@ -166,7 +166,7 @@ fun NavGraphBuilder.discoveryRoutes(
             onBackClick = { navController.popBackStack() }
         )
     }
-    
+
     composable(MediaRoutes.NEWS) {
         com.universalmedialibrary.ui.news.NewsScreen(
             onNavigateBack = { navController.popBackStack() },
@@ -181,6 +181,6 @@ fun NavGraphBuilder.discoveryRoutes(
             onBack = { navController.popBackStack() }
         )
     }
-    
+
     // =====================================================================
 }

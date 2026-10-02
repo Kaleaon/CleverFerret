@@ -24,7 +24,7 @@ import com.universalmedialibrary.data.midi.MidiNote
 
 /**
  * Piano Roll Editor
- * 
+ *
  * Interactive MIDI note editor with piano roll interface
  * Features:
  * - Visual piano roll grid
@@ -44,7 +44,7 @@ fun PianoRollEditor(
 ) {
     var selectedNote by remember { mutableStateOf<MidiNote?>(null) }
     var zoomLevel by remember { mutableFloatStateOf(1f) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -77,7 +77,7 @@ fun PianoRollEditor(
                     .width(80.dp)
                     .fillMaxHeight()
             )
-            
+
             // Piano roll grid
             PianoRollGrid(
                 notes = notes,
@@ -99,7 +99,7 @@ fun PianoRollEditor(
 private fun PianoKeyboard(modifier: Modifier = Modifier) {
     val noteNames = listOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
     val blackKeys = setOf(1, 3, 6, 8, 10) // C#, D#, F#, G#, A#
-    
+
     Column(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surface)
@@ -110,7 +110,7 @@ private fun PianoKeyboard(modifier: Modifier = Modifier) {
             val noteIndex = pitch % 12
             val octave = pitch / 12
             val isBlackKey = noteIndex in blackKeys
-            
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -148,7 +148,7 @@ private fun PianoRollGrid(
 ) {
     val horizontalScroll = rememberScrollState()
     val verticalScroll = rememberScrollState()
-    
+
     Box(
         modifier = modifier
             .horizontalScroll(horizontalScroll)
@@ -165,17 +165,17 @@ private fun PianoRollGrid(
                         // Calculate pitch and time from tap position
                         val pitch = 127 - (offset.y / 20f).toInt()
                         val startTime = (offset.x / zoomLevel).toLong()
-                        
+
                         // Check if tapping on existing note
                         val tappedNote = notes.find { note ->
                             val noteX = note.startTime * zoomLevel
                             val noteWidth = note.duration * zoomLevel
                             val noteY = (127 - note.pitch) * 20f
-                            
+
                             offset.x >= noteX && offset.x <= noteX + noteWidth &&
                             offset.y >= noteY && offset.y <= noteY + 20f
                         }
-                        
+
                         if (tappedNote != null) {
                             onNoteClick(tappedNote)
                         } else {
@@ -191,7 +191,7 @@ private fun PianoRollGrid(
                             val newStartTime = note.startTime + (dragAmount.x / zoomLevel).toLong()
                             val pitchChange = -(dragAmount.y / 20f).toInt()
                             val newPitch = (note.pitch + pitchChange).coerceIn(0, 127)
-                            
+
                             onNoteMove(note, newStartTime, newPitch)
                         }
                     }
@@ -199,20 +199,20 @@ private fun PianoRollGrid(
         ) {
             val canvasWidth = size.width
             val canvasHeight = size.height
-            
+
             // Draw grid lines
             // Horizontal lines (pitch)
             for (pitch in 0..127) {
                 val y = (127 - pitch) * 20f
                 val isBlackKey = (pitch % 12) in setOf(1, 3, 6, 8, 10)
-                
+
                 // Draw background
                 drawRect(
                     color = if (isBlackKey) Color(0xFFF5F5F5) else Color.White,
                     topLeft = Offset(0f, y),
                     size = Size(canvasWidth, 20f)
                 )
-                
+
                 // Draw pitch line
                 drawLine(
                     color = Color.LightGray,
@@ -221,7 +221,7 @@ private fun PianoRollGrid(
                     strokeWidth = 0.5f
                 )
             }
-            
+
             // Vertical lines (time)
             val ticksPerBeat = 480
             for (beat in 0..(canvasWidth / (ticksPerBeat * zoomLevel)).toInt()) {
@@ -233,16 +233,16 @@ private fun PianoRollGrid(
                     strokeWidth = if (beat % 4 == 0) 1f else 0.5f
                 )
             }
-            
+
             // Draw notes
             for (note in notes) {
                 val noteX = note.startTime * zoomLevel
                 val noteWidth = note.duration * zoomLevel
                 val noteY = (127 - note.pitch) * 20f
                 val noteHeight = 18f
-                
+
                 val isSelected = note == selectedNote
-                
+
                 // Note rectangle
                 drawRect(
                     color = if (isSelected) {
@@ -253,7 +253,7 @@ private fun PianoRollGrid(
                     topLeft = Offset(noteX, noteY + 1f),
                     size = Size(noteWidth.coerceAtLeast(10f), noteHeight)
                 )
-                
+
                 // Note border
                 drawRect(
                     color = if (isSelected) Color.Blue else Color.DarkGray,

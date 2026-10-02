@@ -12,24 +12,24 @@ import javax.inject.Singleton
 
 /**
  * Broadcast Manager - Sends status updates to external apps
- * 
+ *
  * Inspired by PowerampAPI's broadcast system
  * Enables widgets, automation apps, and external monitoring
- * 
+ *
  * Thread-safe and efficient - designed for frequent updates
  */
 @Singleton
 class BroadcastManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     companion object {
         private const val TAG = "BroadcastManager"
     }
-    
+
     /**
      * Send playback status changed broadcast
-     * 
+     *
      * Called when play/pause/stop state changes
      */
     fun sendStatusChanged(
@@ -46,7 +46,7 @@ class BroadcastManager @Inject constructor(
             isPaused -> CleverFerretBroadcasts.STATE_PAUSED
             else -> CleverFerretBroadcasts.STATE_STOPPED
         }
-        
+
         val intent = Intent(CleverFerretBroadcasts.ACTION_STATUS_CHANGED).apply {
             putExtra(CleverFerretBroadcasts.EXTRA_STATE, state)
             putExtra(CleverFerretBroadcasts.EXTRA_SHUFFLE, convertShuffleMode(shuffle))
@@ -54,11 +54,11 @@ class BroadcastManager @Inject constructor(
             putExtra(CleverFerretBroadcasts.EXTRA_VOLUME, volume)
             putExtra(CleverFerretBroadcasts.EXTRA_POSITION, position)
             putExtra(CleverFerretBroadcasts.EXTRA_DURATION, duration)
-            
+
             // For now, keep broadcasts within app (can be changed for external widgets later)
             setPackage(context.packageName)
         }
-        
+
         try {
             context.sendBroadcast(intent)
             if (BuildConfig.DEBUG) {
@@ -69,10 +69,10 @@ class BroadcastManager @Inject constructor(
             Log.e(TAG, "Error sending status broadcast", e)
         }
     }
-    
+
     /**
      * Send track changed broadcast
-     * 
+     *
      * Called when current track changes
      */
     fun sendTrackChanged(track: TrackInfo?, position: Long = 0L) {
@@ -84,7 +84,7 @@ class BroadcastManager @Inject constructor(
                 putExtra(CleverFerretBroadcasts.EXTRA_TRACK_ALBUM, track.album)
                 putExtra(CleverFerretBroadcasts.EXTRA_TRACK_DURATION, track.duration)
                 putExtra(CleverFerretBroadcasts.EXTRA_TRACK_POSITION, position)
-                
+
                 // Album art URI if available
                 track.albumArtUrl?.let { uri ->
                     putExtra(CleverFerretBroadcasts.EXTRA_ALBUM_ART_URI, uri)
@@ -92,7 +92,7 @@ class BroadcastManager @Inject constructor(
             }
             setPackage(context.packageName)
         }
-        
+
         try {
             context.sendBroadcast(intent)
             if (BuildConfig.DEBUG) {
@@ -102,10 +102,10 @@ class BroadcastManager @Inject constructor(
             Log.e(TAG, "Error sending track changed broadcast", e)
         }
     }
-    
+
     /**
      * Send playing mode changed broadcast
-     * 
+     *
      * Called when shuffle/repeat mode changes
      */
     fun sendPlayingModeChanged(shuffle: PlaylistMode, repeat: PlaylistMode) {
@@ -114,7 +114,7 @@ class BroadcastManager @Inject constructor(
             putExtra(CleverFerretBroadcasts.EXTRA_REPEAT, convertRepeatMode(repeat))
             setPackage(context.packageName)
         }
-        
+
         try {
             context.sendBroadcast(intent)
             if (BuildConfig.DEBUG) {
@@ -125,10 +125,10 @@ class BroadcastManager @Inject constructor(
             Log.e(TAG, "Error sending playing mode broadcast", e)
         }
     }
-    
+
     /**
      * Send queue changed broadcast
-     * 
+     *
      * Called when queue is modified
      */
     fun sendQueueChanged(queueSize: Int, currentPosition: Int) {
@@ -137,7 +137,7 @@ class BroadcastManager @Inject constructor(
             putExtra(CleverFerretBroadcasts.EXTRA_QUEUE_POSITION, currentPosition)
             setPackage(context.packageName)
         }
-        
+
         try {
             context.sendBroadcast(intent)
             if (BuildConfig.DEBUG) {
@@ -147,7 +147,7 @@ class BroadcastManager @Inject constructor(
             Log.e(TAG, "Error sending queue changed broadcast", e)
         }
     }
-    
+
     /**
      * Convert PlaylistMode to broadcast shuffle value
      */
@@ -158,7 +158,7 @@ class BroadcastManager @Inject constructor(
             CleverFerretBroadcasts.SHUFFLE_OFF
         }
     }
-    
+
     /**
      * Convert PlaylistMode to broadcast repeat value
      */

@@ -36,7 +36,7 @@ class AudioVisualizerService @Inject constructor(
 
     private val _isEnabled = MutableStateFlow(false)
     val isEnabled: StateFlow<Boolean> = _isEnabled.asStateFlow()
-    
+
     // Beat detection
     private val beatDetector = BeatDetector()
     private val _beatDetected = MutableStateFlow(false)
@@ -197,7 +197,7 @@ class AudioVisualizerService @Inject constructor(
 
         // Calculate frequency bands for projectM-style visualization
         val bands = calculateFrequencyBands(magnitudes)
-        
+
         // Detect beats
         val isBeat = beatDetector.detectBeat(magnitudes)
         _beatDetected.value = isBeat
@@ -219,7 +219,7 @@ class AudioVisualizerService @Inject constructor(
 
         val bassEnd = (numBands * 0.1).toInt()
         val midEnd = (numBands * 0.5).toInt()
-        
+
         fun avgOrZero(xs: List<Float>) = if (xs.isEmpty()) 0f else xs.average().toFloat()
 
         val bass = avgOrZero(magnitudes.take(bassEnd))
@@ -268,7 +268,7 @@ class AudioVisualizerService @Inject constructor(
         releaseVisualizer()
         currentPlayer = null
     }
-    
+
     /**
      * Get the currently attached player
      */
@@ -305,38 +305,38 @@ private class BeatDetector {
     private var lastBeatTime = 0L
     private val minBeatInterval = 300L // ms between beats
     private val energyThreshold = 1.5f // Beat threshold multiplier
-    
+
     fun detectBeat(spectrum: List<Float>): Boolean {
         if (spectrum.isEmpty()) return false
-        
+
         // Calculate instant energy from bass frequencies (focus on low end)
         val bassRange = spectrum.take((spectrum.size * 0.1).toInt().coerceAtLeast(1))
         val energy = bassRange.average().toFloat()
-        
+
         // Add to history
         energyHistory.addLast(energy)
         if (energyHistory.size > 43) {
             energyHistory.removeFirst()
         }
-        
+
         // Need enough history
         if (energyHistory.size < 10) return false
-        
+
         // Calculate average energy
         val avgEnergy = energyHistory.average().toFloat()
-        
+
         // Detect beat if current energy significantly exceeds average
         val now = System.currentTimeMillis()
         val timeSinceLastBeat = now - lastBeatTime
         val isEnergySpike = energy > avgEnergy * energyThreshold
         val isCooldownExpired = timeSinceLastBeat > minBeatInterval
-        
+
         val isBeat = isEnergySpike && isCooldownExpired && avgEnergy > 0.01f
-        
+
         if (isBeat) {
             lastBeatTime = now
         }
-        
+
         return isBeat
     }
 }

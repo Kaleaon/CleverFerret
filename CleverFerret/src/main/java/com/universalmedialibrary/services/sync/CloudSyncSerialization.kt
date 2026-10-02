@@ -22,4 +22,3 @@ internal fun deserializeFromJson(json: String): Map<String, Any> {
         }
     return entries.toMap()
 }
-

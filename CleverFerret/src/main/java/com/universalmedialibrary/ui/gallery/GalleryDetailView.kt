@@ -49,11 +49,11 @@ internal fun GalleryDetailView(
     onDelete: (Long) -> Unit
 ) {
     var showInfo by remember { mutableStateOf(false) }
-    
+
     Box(modifier = Modifier.fillMaxSize()) {
         // Full screen image/video
         AsyncImage(
-                    
+
             model = ImageRequest.Builder(LocalContext.current)
                 .data(item.uri)
                 .crossfade(true)
@@ -62,7 +62,7 @@ internal fun GalleryDetailView(
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize()
         )
-        
+
         // Top bar
         Surface(
             modifier = Modifier
@@ -80,7 +80,7 @@ internal fun GalleryDetailView(
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
                 }
-                
+
                 Row {
                     IconButton(onClick = { onToggleFavorite(item.id) }) {
                         Icon(
@@ -101,7 +101,7 @@ internal fun GalleryDetailView(
                 }
             }
         }
-        
+
         // Info panel
         AnimatedVisibility(
             visible = showInfo,
@@ -120,18 +120,18 @@ internal fun GalleryDetailView(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     InfoRow("Size", item.formattedSize)
                     InfoRow("Dimensions", "${item.width} × ${item.height}")
                     InfoRow("Date", java.text.SimpleDateFormat("MMM dd, yyyy HH:mm", java.util.Locale.getDefault())
                         .format(java.util.Date(item.dateTaken)))
                     InfoRow("Album", item.bucketName)
                     InfoRow("Type", item.mimeType)
-                    
+
                     if (item.isVideo && item.formattedDuration != null) {
                         InfoRow("Duration", item.formattedDuration!!)
                     }
-                    
+
                     if (item.latitude != null && item.longitude != null) {
                         InfoRow("Location", "${item.latitude}, ${item.longitude}")
                     }

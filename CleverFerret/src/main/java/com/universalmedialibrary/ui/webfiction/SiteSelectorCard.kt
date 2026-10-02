@@ -33,13 +33,13 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery, download, and management.
- * 
+ *
  * Streamlined experience combining:
  * - Site selection & Tag-based browsing
  * - Direct story download
  * - Library management (My Library)
  * - Update checker
- * 
+ *
  * No more jumping between screens! Reading is handled by the separate eReader.
  */
 
@@ -82,7 +82,7 @@ internal fun SiteSelectorCard(
                     )
                 }
             }
-            
+
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -92,7 +92,7 @@ internal fun SiteSelectorCard(
                 ) { siteType ->
                     val isAdult = siteType.isAdultSite()
                     val isEnabled = !isAdult || adultSitesEnabled
-                    
+
                     FilterChip(
                         selected = selectedSite == siteType,
                         onClick = { if (isEnabled) onSiteSelected(siteType) },
@@ -104,7 +104,7 @@ internal fun SiteSelectorCard(
                     )
                 }
             }
-            
+
             if (!adultSitesEnabled) {
                 Text(
                     "Some sites require enabling Adult Content in Parental Controls",

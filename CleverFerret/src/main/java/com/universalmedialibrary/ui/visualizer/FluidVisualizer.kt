@@ -29,28 +29,28 @@ internal fun FluidVisualizer(
     color3: Color
 ) {
     val waveform = state.waveform.ifEmpty { List(128) { 0f } }
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
         val radius = min(size.width, size.height) * 0.4f
-        
+
         val path = Path()
         val points = waveform.size
-        
+
         for (i in 0 until points) {
             val angle = (i.toFloat() / points) * 2 * PI.toFloat()
             val amplitude = waveform[i] * 100f
             val r = radius + amplitude
-            
+
             val x = centerX + cos(angle) * r
             val y = centerY + sin(angle) * r
-            
+
             if (i == 0) path.moveTo(x, y)
             else path.lineTo(x, y)
         }
         path.close()
-        
+
         // Draw filled fluid
         drawPath(
             path = path,
@@ -59,7 +59,7 @@ internal fun FluidVisualizer(
                 center = Offset(centerX, centerY)
             )
         )
-        
+
         // Draw outline
         drawPath(
             path = path,

@@ -50,4 +50,3 @@ internal fun mergeAnnotation(conflict: CloudSyncConflict): SyncItem? {
     // Annotations are merged by keeping both
     return null // Manual resolution needed
 }
-

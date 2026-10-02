@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 /**
  * Movie Review Service
- * 
+ *
  * Fetches movie reviews and ratings from multiple sources:
  * - OMDb (includes Rotten Tomatoes ratings)
  * - New York Times Movie Reviews API
@@ -52,7 +52,7 @@ class MovieReviewService @Inject constructor(
 
     /**
      * Fetch comprehensive reviews and ratings for a movie
-     * 
+     *
      * @param title Movie title
      * @param year Release year (optional)
      * @param imdbId IMDb ID (optional, more accurate)
@@ -78,7 +78,7 @@ class MovieReviewService @Inject constructor(
                 rottenTomatoesMeter = omdbData.rottenTomatoesMeter
                 metacriticScore = omdbData.metacriticScore
                 imdbRating = omdbData.imdbRating
-                
+
                 omdbData.reviews.forEach { reviews.add(it) }
             }
 
@@ -143,7 +143,7 @@ class MovieReviewService @Inject constructor(
 
                 // Extract Rotten Tomatoes from Ratings array
                 val rtRating = response.Ratings?.find { it.Source == "Rotten Tomatoes" }
-                
+
                 OMDbReviewData(
                     reviews = reviews,
                     rottenTomatoesRating = rtRating?.Value,

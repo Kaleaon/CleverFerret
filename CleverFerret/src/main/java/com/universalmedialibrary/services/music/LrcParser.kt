@@ -7,7 +7,7 @@ import javax.inject.Singleton
 
 /**
  * Parser for .lrc (Lyric) files - synced lyrics format
- * 
+ *
  * Supports:
  * - Simple format: [mm:ss.xx]lyrics
  * - Extended format with metadata: [ar:Artist][ti:Title][al:Album]
@@ -15,13 +15,13 @@ import javax.inject.Singleton
  */
 @Singleton
 class LrcParser @Inject constructor() {
-    
+
     private val TAG = "LrcParser"
-    
+
     // Regex patterns
     private val TIME_TAG_PATTERN = Regex("""\[(\d{2,}):(\d{2})\.(\d{2,3})\]""")
     private val METADATA_PATTERN = Regex("""\[([a-z]{2}):(.*?)\]""")
-    
+
     /**
      * Parse .lrc file from path
      */
@@ -29,7 +29,7 @@ class LrcParser @Inject constructor() {
         return try {
             val file = File(filePath)
             if (!file.exists()) return null
-            
+
             val content = file.readText()
             parseContent(content)
         } catch (e: Exception) {
@@ -37,18 +37,18 @@ class LrcParser @Inject constructor() {
             null
         }
     }
-    
+
     /**
      * Parse .lrc content string
      */
     fun parseContent(content: String): LrcData {
         val metadata = mutableMapOf<String, String>()
         val lines = mutableListOf<LrcLine>()
-        
+
         content.lines().forEach { line ->
             val trimmed = line.trim()
             if (trimmed.isEmpty()) return@forEach
-            
+
             // Try to parse metadata tags first
             val metadataMatch = METADATA_PATTERN.find(trimmed)
             if (metadataMatch != null && !trimmed.contains(TIME_TAG_PATTERN)) {
@@ -57,25 +57,25 @@ class LrcParser @Inject constructor() {
                 metadata[tag] = value
                 return@forEach
             }
-            
+
             // Parse time tags and lyrics
             val timestamps = mutableListOf<Long>()
             var lyrics = trimmed
-            
+
             var match = TIME_TAG_PATTERN.find(lyrics)
             while (match != null) {
                 val minutes = match.groupValues[1].toLong()
                 val seconds = match.groupValues[2].toLong()
                 val centiseconds = match.groupValues[3].padEnd(3, '0').take(3).toLong()
-                
+
                 val timeMs = (minutes * 60 * 1000) + (seconds * 1000) + (centiseconds * 10)
                 timestamps.add(timeMs)
-                
+
                 // Remove this timestamp from lyrics
                 lyrics = lyrics.replaceFirst(match.value, "").trim()
                 match = TIME_TAG_PATTERN.find(lyrics)
             }
-            
+
             // Create LrcLine for each timestamp (handles multiple timestamps per line)
             if (timestamps.isNotEmpty() && lyrics.isNotEmpty()) {
                 timestamps.forEach { timestamp ->
@@ -83,16 +83,16 @@ class LrcParser @Inject constructor() {
                 }
             }
         }
-        
+
         // Sort lines by timestamp
         lines.sortBy { it.timestamp }
-        
+
         return LrcData(
             lines = lines,
             metadata = metadata
         )
     }
-    
+
     /**
      * Find .lrc file for audio file
      * Checks:
@@ -103,29 +103,29 @@ class LrcParser @Inject constructor() {
         val audioFile = File(audioFilePath)
         val directory = audioFile.parentFile ?: return null
         val baseName = audioFile.nameWithoutExtension
-        
+
         // Try same name with .lrc extension
         val sameName = File(directory, "$baseName.lrc")
         if (sameName.exists()) return sameName.absolutePath
-        
+
         // Try track name if provided
         if (trackName != null) {
             val trackFile = File(directory, "$trackName.lrc")
             if (trackFile.exists()) return trackFile.absolutePath
         }
-        
+
         return null
     }
-    
+
     /**
      * Get current lyric line for a given timestamp
      */
     fun getCurrentLine(lrcData: LrcData, currentTimeMs: Long): LrcLine? {
         if (lrcData.lines.isEmpty()) return null
-        
+
         // Find the line where timestamp <= currentTime and next line timestamp > currentTime
         var currentLine: LrcLine? = null
-        
+
         for (i in lrcData.lines.indices) {
             val line = lrcData.lines[i]
             if (line.timestamp <= currentTimeMs) {
@@ -134,17 +134,17 @@ class LrcParser @Inject constructor() {
                 break
             }
         }
-        
+
         return currentLine
     }
-    
+
     /**
      * Get next lyric line after current timestamp
      */
     fun getNextLine(lrcData: LrcData, currentTimeMs: Long): LrcLine? {
         return lrcData.lines.firstOrNull { it.timestamp > currentTimeMs }
     }
-    
+
     /**
      * Get all lyrics as plain text (for non-synced display)
      */
@@ -164,22 +164,22 @@ data class LrcData(
 ) {
     val title: String?
         get() = metadata["ti"]
-    
+
     val artist: String?
         get() = metadata["ar"]
-    
+
     val album: String?
         get() = metadata["al"]
-    
+
     val author: String?
         get() = metadata["au"]
-    
+
     val length: String?
         get() = metadata["length"]
-    
+
     val by: String?
         get() = metadata["by"]
-    
+
     val offset: Long
         get() = metadata["offset"]?.toLongOrNull() ?: 0L
 }

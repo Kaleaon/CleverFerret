@@ -87,11 +87,11 @@ fun VisualizerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = "Audio Visualizer",
                         style = MaterialTheme.typography.titleMedium
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -130,7 +130,7 @@ fun VisualizerScreen(
                     ) {
                         Icon(Icons.Default.Dashboard, "Browse Presets")
                     }
-                    
+
                     // Toggle visualizer
                     IconButton(
                         onClick = { viewModel.toggleVisualizer() }
@@ -193,7 +193,7 @@ fun VisualizerScreen(
                     style = currentStyle,
                     modifier = Modifier.fillMaxSize()
                 )
-                
+
                 // Beat indicator
                 if (beatDetected) {
                     Surface(
@@ -233,7 +233,7 @@ fun VisualizerScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            Icons.Default.CastConnected, 
+                            Icons.Default.CastConnected,
                             "Casting",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -282,7 +282,7 @@ fun VisualizerScreen(
                     }
                 }
             }
-            
+
             // Style selector with scrolling support
             Card(
                 modifier = Modifier
@@ -309,18 +309,18 @@ fun VisualizerScreen(
                             Text("${com.universalmedialibrary.services.visualizer.VisualizerPresetManager.DEFAULT_PRESETS.size} Presets")
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(12.dp))
-                    
+
                     Text(
                         text = currentStyle.name.replace("_", " ").lowercase()
                             .replaceFirstChar { it.uppercase() },
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     // Scrollable style chips
                     androidx.compose.foundation.lazy.LazyRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -468,4 +468,3 @@ private fun FrequencyMeter(
         )
     }
 }
-

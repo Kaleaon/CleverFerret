@@ -33,13 +33,13 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery, download, and management.
- * 
+ *
  * Streamlined experience combining:
  * - Site selection & Tag-based browsing
  * - Direct story download
  * - Library management (My Library)
  * - Update checker
- * 
+ *
  * No more jumping between screens! Reading is handled by the separate eReader.
  */
 
@@ -55,7 +55,7 @@ internal fun DownloadTab(
     navController: NavController
 ) {
     var url by remember { mutableStateOf("") }
-    
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -96,7 +96,7 @@ internal fun DownloadTab(
                             )
                         }
                     }
-                    
+
                     OutlinedTextField(
                         value = url,
                         onValueChange = { url = it },
@@ -109,7 +109,7 @@ internal fun DownloadTab(
                         singleLine = true,
                         enabled = !downloadState.isLoading
                     )
-                    
+
                     Button(
                         onClick = {
                             if (url.isNotBlank()) {
@@ -136,7 +136,7 @@ internal fun DownloadTab(
                 }
             }
         }
-        
+
         // Progress Info
         if (downloadState.isLoading) {
             item {
@@ -161,7 +161,7 @@ internal fun DownloadTab(
                 }
             }
         }
-        
+
         // Success Result
         downloadState.result?.let { result ->
             item {
@@ -192,15 +192,15 @@ internal fun DownloadTab(
                                 color = MaterialTheme.colorScheme.onTertiaryContainer
                             )
                         }
-                        
+
                         HorizontalDivider()
-                        
+
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             DownloadInfoRow("Title", result.title)
                             DownloadInfoRow("Author", result.author)
                             DownloadInfoRow("Chapters", result.chapters.toString())
                         }
-                        
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -226,7 +226,7 @@ internal fun DownloadTab(
                 }
             }
         }
-        
+
         // Error Display
         downloadState.error?.let { error ->
             item {
@@ -263,7 +263,7 @@ internal fun DownloadTab(
                 }
             }
         }
-        
+
         // Supported Sites Card
         item {
             Card(modifier = Modifier.fillMaxWidth()) {
@@ -286,7 +286,7 @@ internal fun DownloadTab(
                             fontWeight = FontWeight.Medium
                         )
                     }
-                    
+
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         SupportedSiteRow("Archive of Our Own", "archiveofourown.org", "✓ Full support")
                         SupportedSiteRow("FanFiction.Net", "fanfiction.net", "✓ Multi-chapter")
@@ -301,7 +301,7 @@ internal fun DownloadTab(
                 }
             }
         }
-        
+
         // Tips Card
         item {
             Card(
@@ -340,7 +340,7 @@ internal fun DownloadTab(
                 }
             }
         }
-        
+
         // Web Comics Card
         item {
             Card(

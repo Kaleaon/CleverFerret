@@ -59,7 +59,7 @@ internal fun FileListItem(
                 )
                 Spacer(Modifier.width(MediaSpacing.SM))
             }
-            
+
             // Icon
             Surface(
                 shape = RoundedCornerShape(MediaCorners.SM),
@@ -73,9 +73,9 @@ internal fun FileListItem(
                     modifier = Modifier.padding(MediaSpacing.SM)
                 )
             }
-            
+
             Spacer(Modifier.width(MediaSpacing.MD))
-            
+
             // File info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -86,7 +86,7 @@ internal fun FileListItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
                 ) {
@@ -110,7 +110,7 @@ internal fun FileListItem(
                     )
                 }
             }
-            
+
             // Navigate icon for folders
             if (item.isDirectory) {
                 Icon(

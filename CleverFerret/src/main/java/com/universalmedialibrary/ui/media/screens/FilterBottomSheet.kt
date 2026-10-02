@@ -52,7 +52,7 @@ internal fun FilterBottomSheet(
                 color = MediaColors.TextPrimary,
                 modifier = Modifier.padding(bottom = MediaSpacing.MD)
             )
-            
+
             availableFilters.forEach { group ->
                 Text(
                     text = group.title,
@@ -60,7 +60,7 @@ internal fun FilterBottomSheet(
                     color = MediaColors.TextSecondary,
                     modifier = Modifier.padding(vertical = MediaSpacing.SM)
                 )
-                
+
                 FlowRowWrapper(
                     horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
                     verticalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
@@ -78,7 +78,7 @@ internal fun FilterBottomSheet(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
         }
     }

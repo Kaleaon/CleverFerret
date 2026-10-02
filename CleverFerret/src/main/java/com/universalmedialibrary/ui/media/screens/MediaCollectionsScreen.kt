@@ -25,7 +25,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Collections Screen
- * 
+ *
  * Organize media into custom collections:
  * - User-created collections
  * - Smart collections (auto-populated)
@@ -43,7 +43,7 @@ fun MediaCollectionsScreen(
     modifier: Modifier = Modifier
 ) {
     var showCreateDialog by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -77,7 +77,7 @@ fun MediaCollectionsScreen(
             }
         }
     }
-    
+
     if (showCreateDialog) {
         CreateCollectionDialog(
             onDismiss = { showCreateDialog = false },
@@ -163,7 +163,7 @@ private fun CollectionCard(
                             Row(modifier = Modifier.weight(1f)) {
                                 collection.coverUrls.take(2).forEach { url ->
                                     AsyncImage(
-                    
+
                                         model = url,
                                         contentDescription = "Media image",
                                         contentScale = ContentScale.Crop,
@@ -176,7 +176,7 @@ private fun CollectionCard(
                             Row(modifier = Modifier.weight(1f)) {
                                 collection.coverUrls.drop(2).take(2).forEach { url ->
                                     AsyncImage(
-                    
+
                                         model = url,
                                         contentDescription = "Media image",
                                         contentScale = ContentScale.Crop,
@@ -190,7 +190,7 @@ private fun CollectionCard(
                     }
                     collection.coverUrls.isNotEmpty() -> {
                         AsyncImage(
-                    
+
                             model = collection.coverUrls.first(),
                             contentDescription = "Media image",
                             contentScale = ContentScale.Crop,
@@ -211,7 +211,7 @@ private fun CollectionCard(
                         }
                     }
                 }
-                
+
                 // Smart collection badge
                 if (collection.isSmart) {
                     Surface(
@@ -241,7 +241,7 @@ private fun CollectionCard(
                     }
                 }
             }
-            
+
             // Info
             Column(modifier = Modifier.padding(MediaSpacing.MD)) {
                 Text(
@@ -279,25 +279,25 @@ private fun CollectionsEmptyState(
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(72.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Text(
             text = "No Collections Yet",
             style = MediaTypography.TitleMedium,
             color = MediaColors.TextPrimary
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = "Create collections to organize your media",
             style = MediaTypography.BodyMedium,
             color = MediaColors.TextSecondary
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Button(
             onClick = onCreateClick,
             colors = ButtonDefaults.buttonColors(
@@ -318,7 +318,7 @@ private fun CreateCollectionDialog(
 ) {
     var name by remember { mutableStateOf("") }
     var isSmart by remember { mutableStateOf(false) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Create Collection", color = MediaColors.TextPrimary) },
@@ -334,9 +334,9 @@ private fun CreateCollectionDialog(
                         focusedBorderColor = MediaColors.AccentPrimary
                     )
                 )
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.MD))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically

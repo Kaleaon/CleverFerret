@@ -47,7 +47,7 @@ internal fun PlayerTopBar(
                 tint = MediaColors.TextPrimary
             )
         }
-        
+
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -65,7 +65,7 @@ internal fun PlayerTopBar(
                 )
             }
         }
-        
+
         IconButton(onClick = onCast) {
             Icon(
                 imageVector = if (isCasting) Icons.Filled.Cast else Icons.Outlined.Cast,
@@ -73,7 +73,7 @@ internal fun PlayerTopBar(
                 tint = if (isCasting) MediaColors.AccentPrimary else MediaColors.TextSecondary
             )
         }
-        
+
         IconButton(onClick = onQueue) {
             Icon(
                 imageVector = Icons.Default.MoreVert,

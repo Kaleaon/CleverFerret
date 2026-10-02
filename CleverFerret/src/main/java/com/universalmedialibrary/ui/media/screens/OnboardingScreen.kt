@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Clean Media-Centric Onboarding Screen
- * 
+ *
  * Welcome new users with:
  * - App introduction
  * - Key features showcase
@@ -49,10 +49,10 @@ fun OnboardingScreen(
         OnboardingPage.Theme,
         OnboardingPage.Ready
     )
-    
+
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val coroutineScope = rememberCoroutineScope()
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -79,7 +79,7 @@ fun OnboardingScreen(
                 OnboardingPage.Ready -> ReadyPage()
             }
         }
-        
+
         // Bottom navigation
         Column(
             modifier = Modifier
@@ -106,9 +106,9 @@ fun OnboardingScreen(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
-            
+
             // Navigation buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -133,7 +133,7 @@ fun OnboardingScreen(
                         Text("Skip")
                     }
                 }
-                
+
                 // Next/Done button
                 Button(
                     onClick = {
@@ -235,7 +235,7 @@ private fun FeaturesPage() {
 private fun StoragePage() {
     var hasPermission by remember { mutableStateOf(false) }
     var selectedFolders by remember { mutableStateOf(listOf<String>()) }
-    
+
     OnboardingPageContent(
         icon = Icons.Default.Folder,
         iconColor = MediaColors.Warning,
@@ -279,9 +279,9 @@ private fun StoragePage() {
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.MD))
-                
+
                 OutlinedButton(
                     onClick = { selectedFolders = selectedFolders + "/storage/emulated/0/Books" }
                 ) {
@@ -289,7 +289,7 @@ private fun StoragePage() {
                     Spacer(modifier = Modifier.width(MediaSpacing.SM))
                     Text("Add Library Folder")
                 }
-                
+
                 selectedFolders.forEach { folder ->
                     Surface(
                         shape = RoundedCornerShape(MediaCorners.SM),
@@ -366,7 +366,7 @@ private fun AccountsPage() {
 private fun ThemePage() {
     var selectedTheme by remember { mutableStateOf("dark") }
     var selectedAccent by remember { mutableStateOf("gold") }
-    
+
     OnboardingPageContent(
         icon = Icons.Default.Palette,
         iconColor = MediaColors.MediaTypes.Music,
@@ -382,7 +382,7 @@ private fun ThemePage() {
                 style = MediaTypography.LabelMedium,
                 color = MediaColors.TextSecondary
             )
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
             ) {
@@ -405,16 +405,16 @@ private fun ThemePage() {
                     onClick = { selectedTheme = "amoled" }
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.MD))
-            
+
             // Accent color selection
             Text(
                 text = "Accent Color",
                 style = MediaTypography.LabelMedium,
                 color = MediaColors.TextSecondary
             )
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
             ) {
@@ -497,9 +497,9 @@ private fun OnboardingPageContent(
             tint = iconColor,
             modifier = Modifier.size(48.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Text(
             text = title,
             style = MediaTypography.TitleLarge,
@@ -507,18 +507,18 @@ private fun OnboardingPageContent(
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = description,
             style = MediaTypography.BodyMedium,
             color = MediaColors.TextSecondary,
             textAlign = TextAlign.Center
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.XL))
-        
+
         content()
     }
 }
@@ -545,9 +545,9 @@ private fun FeatureItem(
                 modifier = Modifier.padding(MediaSpacing.SM)
             )
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column {
             Text(
                 text = title,
@@ -571,7 +571,7 @@ private fun AccountOption(
     description: String
 ) {
     var connected by remember { mutableStateOf(false) }
-    
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -588,9 +588,9 @@ private fun AccountOption(
                 contentDescription = "Media image",
                 tint = if (connected) MediaColors.AccentPrimary else MediaColors.TextSecondary
             )
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = name,
@@ -603,7 +603,7 @@ private fun AccountOption(
                     color = MediaColors.TextSecondary
                 )
             }
-            
+
             if (connected) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,

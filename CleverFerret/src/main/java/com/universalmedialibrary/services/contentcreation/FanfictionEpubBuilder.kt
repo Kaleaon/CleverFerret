@@ -152,8 +152,8 @@ internal fun parseFFNetMetadata(text: String): StoryMetadata {
     val commonLanguages = setOf("English", "Spanish", "French", "German", "Italian", "Portuguese", "Russian", "Chinese", "Japanese")
     return StoryMetadata(
         rating = parts.find { it.startsWith("Rated:") }?.removePrefix("Rated: "),
-        language = parts.find { 
-            (it.matches(Regex("[A-Za-z]+")) && it.length == 2) || it in commonLanguages 
+        language = parts.find {
+            (it.matches(Regex("[A-Za-z]+")) && it.length == 2) || it in commonLanguages
         } ?: "English",
         genre = parts.find { it.contains("/") },
         wordCount = parts.find { it.contains("Words:") }
@@ -502,4 +502,3 @@ internal fun getCRC32(data: ByteArray): Long {
     crc.update(data)
     return crc.value
 }
-

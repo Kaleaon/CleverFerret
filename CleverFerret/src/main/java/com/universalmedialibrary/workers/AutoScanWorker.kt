@@ -79,4 +79,3 @@ class AutoScanWorker(
         return ForegroundInfo(NOTIFICATION_ID, notification)
     }
 }
-

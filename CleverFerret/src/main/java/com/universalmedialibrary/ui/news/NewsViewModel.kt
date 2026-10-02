@@ -39,12 +39,12 @@ class NewsScreenViewModel @Inject constructor(
 
         viewModelScope.launch {
             val result = newsManager.downloadRecipe(recipe)
-            
+
             val newStatus = result.fold(
                 onSuccess = { file -> DownloadStatus.Success(file) },
                 onFailure = { DownloadStatus.Error("Could not download news right now. Please try again.") }
             )
-            
+
             _downloadStatus.value = _downloadStatus.value + (recipeId to newStatus)
         }
     }

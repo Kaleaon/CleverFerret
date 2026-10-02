@@ -9,17 +9,17 @@ import javax.inject.Singleton
  * Abstract base class for media search engines
  */
 abstract class MediaSearchEngine {
-    
+
     /**
      * Search for media items based on request
      */
     abstract suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult>
-    
+
     /**
      * Get suggestions for search queries
      */
     abstract suspend fun getSuggestions(query: String): List<String>
-    
+
     /**
      * Get supported media types
      */
@@ -35,11 +35,11 @@ class BookSearchEngine @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao
 ) : MediaSearchEngine() {
-    
+
     override suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult> {
         val query = searchRequest.query
         val mediaTypes = getSupportedMediaTypes()
-        
+
         val items = mediaItemDao.searchMediaItems(
             query = "%$query%",
             mediaTypes = mediaTypes,
@@ -48,7 +48,7 @@ class BookSearchEngine @Inject constructor(
             isFavorite = null,
             limit = searchRequest.limit
         )
-        
+
         return items.map { item ->
             val metadata = metadataDao.getMetadataCommonByItemId(item.itemId)
             UniversalSearchResult(
@@ -67,17 +67,17 @@ class BookSearchEngine @Inject constructor(
             )
         }
     }
-    
+
     override suspend fun getSuggestions(query: String): List<String> {
         if (query.length < 2) return emptyList()
         val results = metadataDao.searchByTitle(query).take(5)
         return results.map { it.title }
     }
-    
+
     override fun getSupportedMediaTypes(): List<String> {
         return listOf("BOOK", "AUDIOBOOK", "COMIC")
     }
-    
+
     private fun calculateRelevanceScore(query: String, title: String): Double {
         val lowerQuery = query.lowercase()
         val lowerTitle = title.lowercase()
@@ -99,11 +99,11 @@ class AudioSearchEngine @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao
 ) : MediaSearchEngine() {
-    
+
     override suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult> {
         val query = searchRequest.query
         val mediaTypes = getSupportedMediaTypes()
-        
+
         val items = mediaItemDao.searchMediaItems(
             query = "%$query%",
             mediaTypes = mediaTypes,
@@ -112,7 +112,7 @@ class AudioSearchEngine @Inject constructor(
             isFavorite = null,
             limit = searchRequest.limit
         )
-        
+
         return items.map { item ->
             val metadata = metadataDao.getMetadataCommonByItemId(item.itemId)
             UniversalSearchResult(
@@ -131,17 +131,17 @@ class AudioSearchEngine @Inject constructor(
             )
         }
     }
-    
+
     override suspend fun getSuggestions(query: String): List<String> {
         if (query.length < 2) return emptyList()
         val results = metadataDao.searchByTitle(query).take(5)
         return results.map { it.title }
     }
-    
+
     override fun getSupportedMediaTypes(): List<String> {
         return listOf("MUSIC_TRACK", "PODCAST_EPISODE", "RADIO")
     }
-    
+
     private fun calculateRelevanceScore(query: String, title: String): Double {
         val lowerQuery = query.lowercase()
         val lowerTitle = title.lowercase()
@@ -163,11 +163,11 @@ class VideoSearchEngine @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao
 ) : MediaSearchEngine() {
-    
+
     override suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult> {
         val query = searchRequest.query
         val mediaTypes = getSupportedMediaTypes()
-        
+
         val items = mediaItemDao.searchMediaItems(
             query = "%$query%",
             mediaTypes = mediaTypes,
@@ -176,7 +176,7 @@ class VideoSearchEngine @Inject constructor(
             isFavorite = null,
             limit = searchRequest.limit
         )
-        
+
         return items.map { item ->
             val metadata = metadataDao.getMetadataCommonByItemId(item.itemId)
             UniversalSearchResult(
@@ -196,17 +196,17 @@ class VideoSearchEngine @Inject constructor(
             )
         }
     }
-    
+
     override suspend fun getSuggestions(query: String): List<String> {
         if (query.length < 2) return emptyList()
         val results = metadataDao.searchByTitle(query).take(5)
         return results.map { it.title }
     }
-    
+
     override fun getSupportedMediaTypes(): List<String> {
         return listOf("MOVIE", "TV_SHOW", "VIDEO")
     }
-    
+
     private fun calculateRelevanceScore(query: String, title: String): Double {
         val lowerQuery = query.lowercase()
         val lowerTitle = title.lowercase()
@@ -228,11 +228,11 @@ class DocumentSearchEngine @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao
 ) : MediaSearchEngine() {
-    
+
     override suspend fun search(searchRequest: SearchRequest): List<UniversalSearchResult> {
         val query = searchRequest.query
         val mediaTypes = getSupportedMediaTypes()
-        
+
         val items = mediaItemDao.searchMediaItems(
             query = "%$query%",
             mediaTypes = mediaTypes,
@@ -241,7 +241,7 @@ class DocumentSearchEngine @Inject constructor(
             isFavorite = null,
             limit = searchRequest.limit
         )
-        
+
         return items.map { item ->
             val metadata = metadataDao.getMetadataCommonByItemId(item.itemId)
             UniversalSearchResult(
@@ -260,17 +260,17 @@ class DocumentSearchEngine @Inject constructor(
             )
         }
     }
-    
+
     override suspend fun getSuggestions(query: String): List<String> {
         if (query.length < 2) return emptyList()
         val results = metadataDao.searchByTitle(query).take(5)
         return results.map { it.title }
     }
-    
+
     override fun getSupportedMediaTypes(): List<String> {
         return listOf("DOCUMENT", "PDF", "TEXT")
     }
-    
+
     private fun calculateRelevanceScore(query: String, title: String): Double {
         val lowerQuery = query.lowercase()
         val lowerTitle = title.lowercase()

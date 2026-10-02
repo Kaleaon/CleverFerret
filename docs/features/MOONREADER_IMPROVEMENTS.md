@@ -48,11 +48,11 @@ ReaderGestureHandler(
     onToggleUI = { /* ... */ },
     onShowMenu = { /* ... */ },
     onTextSelection = { /* ... */ },
-    onFontSizeAdjust = { delta -> 
+    onFontSizeAdjust = { delta ->
         // Adjust font size by delta
         fontSize = (fontSize + delta).coerceIn(12f, 48f)
     },
-    onBrightnessAdjust = { delta -> 
+    onBrightnessAdjust = { delta ->
         // Adjust brightness by delta
         brightness = (brightness + delta).coerceIn(0.1f, 1.0f)
     }

@@ -54,10 +54,10 @@ internal fun MetadataSection(item: MediaDetailItem) {
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.MD))
         }
-        
+
         // Additional metadata grid
         val metadataItems = buildList {
             item.publisher?.let { add("Publisher" to it) }
@@ -67,7 +67,7 @@ internal fun MetadataSection(item: MediaDetailItem) {
             item.isbn?.let { add("ISBN" to it) }
             item.releaseDate?.let { add("Released" to it) }
         }
-        
+
         if (metadataItems.isNotEmpty()) {
             Surface(
                 shape = RoundedCornerShape(MediaCorners.Card),
@@ -90,7 +90,7 @@ internal fun MetadataSection(item: MediaDetailItem) {
                                 color = MediaColors.TextPrimary
                             )
                         }
-                        
+
                         if (index < metadataItems.size - 1) {
                             HorizontalDivider(
                                 color = MediaColors.Divider,

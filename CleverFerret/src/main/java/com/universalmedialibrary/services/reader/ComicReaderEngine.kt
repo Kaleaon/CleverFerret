@@ -251,7 +251,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                         // Extract from RAR
                         val rar = rarArchive ?: return@withContext null
                         var matchingHeader: FileHeader? = null
-                        
+
                         // Find the header for this page
                         val headersList = rar.fileHeaders.toList()
                         for (header in headersList) {
@@ -260,7 +260,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                                 break
                             }
                         }
-                        
+
                         if (matchingHeader != null) {
                             val inputStream = rar.getInputStream(matchingHeader)
                             val bytes = inputStream.readBytes()
@@ -371,17 +371,17 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
 
         return pages
     }
-    
+
     /**
      * Extract image entries from RAR archive
      */
     private fun extractRarImageEntries(file: File): List<ComicPage> {
         val archive = Archive(file)
         rarArchive = archive
-        
+
         val imageExtensions = setOf("jpg", "jpeg", "png", "webp", "bmp", "gif")
         val pages = mutableListOf<ComicPage>()
-        
+
         val headersList = archive.fileHeaders.toList()
         headersList
             .filter { header ->
@@ -401,7 +401,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                     )
                 )
             }
-        
+
         return pages
     }
 

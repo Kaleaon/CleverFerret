@@ -68,7 +68,7 @@ fun MiniPlayerBar(
                 ) {
                     if (coverUrl != null) {
                         AsyncImage(
-                    
+
                             model = coverUrl,
                             contentDescription = "Cover",
                             modifier = Modifier.fillMaxSize(),
@@ -82,7 +82,7 @@ fun MiniPlayerBar(
                             "VIDEO", "MOVIE" -> listOf(Color(0xFF0D47A1), Color(0xFF2196F3))
                             else -> listOf(Color(0xFF37474F), Color(0xFF78909C))
                         }
-                        
+
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()

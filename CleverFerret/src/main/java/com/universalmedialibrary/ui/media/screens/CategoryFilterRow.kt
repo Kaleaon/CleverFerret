@@ -60,7 +60,7 @@ internal fun CategoryFilterRow(
                 )
             )
         }
-        
+
         items(SearchCategory.entries.toTypedArray()) { category ->
             FilterChip(
                 selected = selectedCategory == category,

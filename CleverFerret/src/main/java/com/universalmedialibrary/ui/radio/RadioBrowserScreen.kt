@@ -58,7 +58,7 @@ fun RadioBrowserScreen(
             // Search Bar
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { 
+                onValueChange = {
                     searchQuery = it
                     if (it.length > 2) viewModel.searchStations(it)
                 },
@@ -82,8 +82,8 @@ fun RadioBrowserScreen(
                     items(uiState.stations) { station ->
                         RadioStationCard(
                             station = station,
-                            onAdd = { 
-                                viewModel.addStation(station, context.cacheDir) 
+                            onAdd = {
+                                viewModel.addStation(station, context.cacheDir)
                             }
                         )
                     }
@@ -111,7 +111,7 @@ fun RadioStationCard(
             // Logo
             if (station.logoUrl != null) {
                 AsyncImage(
-                    
+
                     model = station.logoUrl,
                     contentDescription = "Media image",
                     modifier = Modifier

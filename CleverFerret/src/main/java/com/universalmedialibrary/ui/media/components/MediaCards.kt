@@ -36,7 +36,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Media Card Components
- * 
+ *
  * A comprehensive set of beautiful media cards inspired by premium media apps's design:
  * - Poster cards (books, movies, TV shows)
  * - Square cards (music albums, podcasts)
@@ -44,7 +44,7 @@ import com.universalmedialibrary.ui.media.theme.*
  * - Hero cards (featured content)
  * - List items (compact views)
  * - Carousel rows
- * 
+ *
  * Features:
  * - Smooth hover/press animations
  * - Progress indicators
@@ -96,7 +96,7 @@ enum class MediaType(val color: Color, val icon: ImageVector) {
     FANFICTION(MediaColors.MediaTypes.Fanfiction, Icons.Default.Edit),
     NEWS(MediaColors.MediaTypes.News, Icons.Default.Newspaper),
     UNKNOWN(MediaColors.TextTertiary, Icons.Default.QuestionMark);
-    
+
     companion object {
         fun fromRouteName(routeName: String): MediaType = when (routeName) {
             "book" -> BOOK
@@ -149,7 +149,7 @@ fun MediaListItem(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
-    
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -195,10 +195,10 @@ fun MediaListItem(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.width(MediaSpacing.MD))
             }
-            
+
             // Content
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -208,7 +208,7 @@ fun MediaListItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 item.subtitle?.let { subtitle ->
                     Text(
                         text = subtitle,
@@ -218,7 +218,7 @@ fun MediaListItem(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 // Progress bar
                 if (showProgress && item.progress > 0) {
                     val (progressColor, progressTrackColor) = mediaProgressColors()
@@ -233,7 +233,7 @@ fun MediaListItem(
                     )
                 }
             }
-            
+
             // Trailing content
             trailing?.invoke()
         }
@@ -269,7 +269,7 @@ fun <T> MediaCarouselRow(
                 style = MediaTypography.TitleMedium,
                 color = MediaColors.TextPrimary
             )
-            
+
             if (onSeeAllClick != null) {
                 TextButton(onClick = onSeeAllClick) {
                     Text(
@@ -286,9 +286,9 @@ fun <T> MediaCarouselRow(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
-        
+
         // Items
         LazyRow(
             contentPadding = PaddingValues(horizontal = MediaSpacing.ScreenHorizontal),
@@ -318,7 +318,7 @@ internal fun CardBadges(
         if (item.isNew) {
             BadgeChip(text = "NEW", color = MediaColors.AccentPrimary)
         }
-        
+
         if (item.isUnwatched) {
             Box(
                 modifier = Modifier
@@ -327,7 +327,7 @@ internal fun CardBadges(
                     .background(MediaColors.AccentPrimary)
             )
         }
-        
+
         item.badges.forEach { badge ->
             BadgeChip(
                 text = badge.text,
@@ -441,7 +441,7 @@ fun MediaPosterCardSkeleton(
         MediaColors.BackgroundSurface,
         MediaColors.BackgroundElevated
     )
-    
+
     val transition = rememberInfiniteTransition(label = "shimmer")
     val translateAnim by transition.animateFloat(
         initialValue = 0f,
@@ -452,13 +452,13 @@ fun MediaPosterCardSkeleton(
         ),
         label = "shimmer_translate"
     )
-    
+
     val brush = Brush.linearGradient(
         colors = shimmerColors,
         start = androidx.compose.ui.geometry.Offset(translateAnim - 500f, 0f),
         end = androidx.compose.ui.geometry.Offset(translateAnim, 0f)
     )
-    
+
     Column(modifier = modifier.width(width)) {
         // Image placeholder
         Box(
@@ -468,9 +468,9 @@ fun MediaPosterCardSkeleton(
                 .clip(RoundedCornerShape(MediaCorners.Card))
                 .background(brush)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         // Title placeholder
         Box(
             modifier = Modifier
@@ -479,9 +479,9 @@ fun MediaPosterCardSkeleton(
                 .clip(RoundedCornerShape(MediaCorners.XS))
                 .background(brush)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.XS))
-        
+
         // Subtitle placeholder
         Box(
             modifier = Modifier

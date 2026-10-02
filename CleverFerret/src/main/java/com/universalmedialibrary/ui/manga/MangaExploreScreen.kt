@@ -34,10 +34,10 @@ import com.universalmedialibrary.services.manga.source.OnlineManga
 
 /**
  * Manga Explore Screen
- * 
+ *
  * Comprehensive manga discovery and browsing experience
  * Inspired by Futon/Kotatsu explore functionality
- * 
+ *
  * Features:
  * - Browse multiple manga sources
  * - Search across sources
@@ -56,7 +56,7 @@ fun MangaExploreScreen(
     val uiState by viewModel.uiState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var showSourceSelector by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -85,7 +85,7 @@ fun MangaExploreScreen(
             // Search bar
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { 
+                onValueChange = {
                     searchQuery = it
                     if (it.length >= 3) {
                         viewModel.search(it)
@@ -98,7 +98,7 @@ fun MangaExploreScreen(
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             searchQuery = ""
                             viewModel.clearSearch()
                         }) {
@@ -109,7 +109,7 @@ fun MangaExploreScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp)
             )
-            
+
             // Source selector chips
             LazyRow(
                 modifier = Modifier
@@ -128,9 +128,9 @@ fun MangaExploreScreen(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Content
             when {
                 uiState.isLoading && uiState.manga.isEmpty() -> {
@@ -141,7 +141,7 @@ fun MangaExploreScreen(
                         CircularProgressIndicator()
                     }
                 }
-                
+
                 uiState.searchResults.isNotEmpty() -> {
                     SearchResultsGrid(
                         manga = uiState.searchResults,
@@ -150,14 +150,14 @@ fun MangaExploreScreen(
                         isLoading = uiState.isLoading
                     )
                 }
-                
+
                 uiState.error != null -> {
                     ErrorState(
                         error = uiState.error!!,
                         onRetry = { viewModel.refresh() }
                     )
                 }
-                
+
                 else -> {
                     ExploreContent(
                         popularManga = uiState.popularManga,
@@ -170,7 +170,7 @@ fun MangaExploreScreen(
                 }
             }
         }
-        
+
         // Source selector bottom sheet
         if (showSourceSelector) {
             SourceSelectorSheet(
@@ -208,7 +208,7 @@ private fun ExploreContent(
                 onSeeAll = onSeeAllPopular
             )
         }
-        
+
         item {
             if (popularManga.isEmpty() && isLoading) {
                 Box(
@@ -234,9 +234,9 @@ private fun ExploreContent(
                 }
             }
         }
-        
+
         item { Spacer(modifier = Modifier.height(24.dp)) }
-        
+
         // Latest updates section
         item {
             SectionHeader(
@@ -244,7 +244,7 @@ private fun ExploreContent(
                 onSeeAll = onSeeAllLatest
             )
         }
-        
+
         item {
             if (latestManga.isEmpty() && isLoading) {
                 Box(
@@ -292,7 +292,7 @@ private fun SearchResultsGrid(
                 onClick = { onMangaClick(item) }
             )
         }
-        
+
         // Load more indicator
         if (isLoading) {
             item {
@@ -328,13 +328,13 @@ private fun MangaCard(
                     .aspectRatio(0.7f)
             ) {
                 AsyncImage(
-                    
+
                     model = manga.coverUrl,
                     contentDescription = manga.title,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                
+
                 // State badge
                 if (manga.state != com.universalmedialibrary.services.manga.source.MangaState.UNKNOWN) {
                     Surface(
@@ -342,9 +342,9 @@ private fun MangaCard(
                             .align(Alignment.TopEnd)
                             .padding(4.dp),
                         color = when (manga.state) {
-                            com.universalmedialibrary.services.manga.source.MangaState.ONGOING -> 
+                            com.universalmedialibrary.services.manga.source.MangaState.ONGOING ->
                                 Color(0xFF4CAF50)
-                            com.universalmedialibrary.services.manga.source.MangaState.FINISHED -> 
+                            com.universalmedialibrary.services.manga.source.MangaState.FINISHED ->
                                 Color(0xFF2196F3)
                             else -> MaterialTheme.colorScheme.surfaceVariant
                         },
@@ -359,7 +359,7 @@ private fun MangaCard(
                     }
                 }
             }
-            
+
             Text(
                 text = manga.title,
                 modifier = Modifier.padding(8.dp),
@@ -422,21 +422,21 @@ private fun SourceSelectorSheet(
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Text(
                 text = "${enabledSources.size} of ${sources.size} enabled",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             LazyColumn(
                 modifier = Modifier.weight(1f, fill = false)
             ) {
                 items(sources) { source ->
                     val isEnabled = enabledSources.any { it.id == source.id }
-                    
+
                     ListItem(
                         headlineContent = { Text(source.name) },
                         supportingContent = { Text(source.domain) },
@@ -453,9 +453,9 @@ private fun SourceSelectorSheet(
                                 Icon(
                                     if (source.isPinned) Icons.Default.Star else Icons.Default.StarOutline,
                                     contentDescription = if (source.isPinned) "Unpin" else "Pin",
-                                    tint = if (source.isPinned) 
-                                        MaterialTheme.colorScheme.primary 
-                                    else 
+                                    tint = if (source.isPinned)
+                                        MaterialTheme.colorScheme.primary
+                                    else
                                         MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -463,7 +463,7 @@ private fun SourceSelectorSheet(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -487,22 +487,22 @@ private fun ErrorState(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.error
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Text(
             text = "Something went wrong",
             style = MaterialTheme.typography.titleMedium
         )
-        
+
         Text(
             text = error,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Button(onClick = onRetry) {
             Text("Retry")
         }

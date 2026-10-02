@@ -44,7 +44,7 @@ enum class TtsProvider(
 
 /**
  * TTS Provider Settings
- * 
+ *
  * Note: apiKey is moved out of primary constructor to prevent leakage
  * via auto-generated toString() and reflection-based serialization
  */
@@ -58,7 +58,7 @@ data class TtsProviderSettings(
     // API key stored outside primary constructor to prevent leakage
     @Transient
     var apiKey: String? = null
-    
+
     // Override toString to redact sensitive data
     override fun toString(): String {
         return "TtsProviderSettings(provider=$provider, model=$model, voiceId=$voiceId, " +

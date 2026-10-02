@@ -73,10 +73,10 @@ fun EnhancedFileBrowser(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
+
     var currentPath by remember {
         mutableStateOf(
-            initialPath ?: context.getExternalFilesDir(null)?.absolutePath 
+            initialPath ?: context.getExternalFilesDir(null)?.absolutePath
                 ?: context.filesDir.absolutePath
         )
     }
@@ -100,11 +100,11 @@ fun EnhancedFileBrowser(
         }
         return response.await()
     }
-    
+
     val currentDirectory = remember(currentPath) {
         File(currentPath)
     }
-    
+
     // Load file items asynchronously
     LaunchedEffect(currentDirectory, settings) {
         loadingError = null
@@ -120,13 +120,13 @@ fun EnhancedFileBrowser(
             fileItems = emptyList()
         }
     }
-    
+
     Column(modifier = modifier.fillMaxSize()) {
         // Top App Bar
         TopAppBar(
             title = { Text("File Browser") },
             navigationIcon = {
-                IconButton(onClick = { 
+                IconButton(onClick = {
                     val parent = File(currentPath).parent
                     if (parent != null && parent != currentPath) {
                         currentPath = parent
@@ -142,7 +142,7 @@ fun EnhancedFileBrowser(
                 IconButton(onClick = { showSettings = true }) {
                     Icon(Icons.Default.FilterList, "Filter")
                 }
-                IconButton(onClick = { 
+                IconButton(onClick = {
                     settings = settings.copy(
                         viewMode = if (settings.viewMode == ViewMode.LIST) ViewMode.GRID else ViewMode.LIST
                     )
@@ -154,7 +154,7 @@ fun EnhancedFileBrowser(
                 }
             }
         )
-        
+
         // Breadcrumb navigation
         BreadcrumbNavigation(
             currentPath = currentPath,
@@ -165,13 +165,13 @@ fun EnhancedFileBrowser(
                 currentPath = folder
             }
         )
-        
+
         // Sort bar
         SortBar(
             sortMode = settings.sortMode,
             onSortModeChange = { settings = settings.copy(sortMode = it) }
         )
-        
+
         // File list/grid
         Box(modifier = Modifier.weight(1f)) {
             when (settings.viewMode) {
@@ -219,24 +219,24 @@ fun EnhancedFileBrowser(
                 )
             }
         }
-        
+
         // Selection bar (when files are selected)
         if (selectedFiles.isNotEmpty()) {
             SelectionBar(
                 selectedCount = selectedFiles.size,
-                onCopy = { 
+                onCopy = {
                     showFileOpsSheet = true
                 },
-                onMove = { 
+                onMove = {
                     showFileOpsSheet = true
                 },
-                onDelete = { 
+                onDelete = {
                     showDeleteConfirmation = true
                 },
                 onCancel = { selectedFiles = emptySet() }
             )
         }
-        
+
         if (showFileOpsSheet) {
             BottomSheetDialog(
                 onDismissRequest = {
@@ -268,7 +268,7 @@ fun EnhancedFileBrowser(
             FormDialog(
                 onDismissRequest = { showCopyDialog = false },
                 title = { Text("Copy ${selectedFiles.size} file(s)") },
-                text = { 
+                text = {
                     Column {
                         Text("Files will be copied to the current directory:")
                         Text(
@@ -332,13 +332,13 @@ fun EnhancedFileBrowser(
                 }
             )
         }
-        
+
         // Move dialog
         if (showMoveDialog) {
             FormDialog(
                 onDismissRequest = { showMoveDialog = false },
                 title = { Text("Move ${selectedFiles.size} file(s)") },
-                text = { 
+                text = {
                     Column {
                         Text("Files will be moved to the current directory:")
                         Text(
@@ -466,7 +466,7 @@ fun EnhancedFileBrowser(
                 }
             )
         }
-        
+
         // Delete confirmation dialog
         if (showDeleteConfirmation) {
             AlertDialog(
@@ -506,7 +506,7 @@ fun EnhancedFileBrowser(
                 }
             )
         }
-        
+
         // Error display
         loadingError?.let { error ->
             Surface(
@@ -521,7 +521,7 @@ fun EnhancedFileBrowser(
             }
         }
     }
-    
+
     // Settings dialog
     if (showSettings) {
         FileBrowserSettingsDialog(
@@ -530,7 +530,7 @@ fun EnhancedFileBrowser(
             onDismiss = { showSettings = false }
         )
     }
-    
+
     // Favorite folders dialog
     if (showFavoriteFolders) {
         FavoriteFoldersDialog(
