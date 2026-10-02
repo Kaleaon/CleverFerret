@@ -98,7 +98,7 @@ fun SettingsScreen(
 
                 notificationsSection(uiState = uiState, viewModel = viewModel, navController = navController)
                 libraryStorageSection(uiState = uiState, viewModel = viewModel, navController = navController)
-                navigationSection(uiState = uiState, viewModel = viewModel, navController = navController)
+                navigationSection(uiState = uiState, viewModel = viewModel, navController = navController, availableBottomItems = availableBottomItems)
                 apiIntegrationsSection(uiState = uiState, viewModel = viewModel, navController = navController)
                 webContentSection(uiState = uiState, viewModel = viewModel, navController = navController)
                 readingAudioSection(uiState = uiState, viewModel = viewModel, navController = navController)
