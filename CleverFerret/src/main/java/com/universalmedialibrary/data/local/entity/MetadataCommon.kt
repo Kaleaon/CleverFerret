@@ -3,6 +3,7 @@ package com.universalmedialibrary.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
+import androidx.room.Index
 import kotlinx.serialization.Serializable
 
 /**
@@ -21,6 +22,9 @@ import kotlinx.serialization.Serializable
             childColumns = ["itemId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["itemId"])
     ]
 )
 data class MetadataCommon(

@@ -28,6 +28,7 @@ object MigrationRegistry {
     val MIGRATION_38_39: Migration = com.universalmedialibrary.data.local.migrations.MIGRATION_38_39
     val MIGRATION_42_43: Migration = com.universalmedialibrary.data.local.migrations.MIGRATION_42_43
     val MIGRATION_43_44: Migration = com.universalmedialibrary.data.local.migrations.MIGRATION_43_44
+    val MIGRATION_44_45: Migration = com.universalmedialibrary.data.local.migrations.MIGRATION_44_45
 
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_20_21,
@@ -51,5 +52,6 @@ object MigrationRegistry {
         MIGRATION_38_39,
         MIGRATION_42_43,
         MIGRATION_43_44,
+        MIGRATION_44_45,
     )
 }

@@ -43,4 +43,20 @@ class AppDatabaseMigrationsTest {
 
         AppDatabaseMigrations.MIGRATION_22_23.migrate(database)
     }
+
+    @Test
+    fun `migration 44_45 creates expected indexes on metadata tables`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_44_45.migrate(database)
+
+        assertThat(executedSql).hasSize(5)
+        assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_metadata_common_itemId ON metadata_common") }).isTrue()
+        assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_metadata_book_itemId ON metadata_book") }).isTrue()
+        assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_metadata_movie_itemId ON metadata_movie") }).isTrue()
+        assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_metadata_music_track_itemId ON metadata_music_track") }).isTrue()
+        assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_extended_metadata_itemId ON extended_metadata") }).isTrue()
+    }
 }
