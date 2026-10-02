@@ -12,6 +12,7 @@ import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionService.WebFictionRateLimitException
 import com.universalmedialibrary.services.webfiction.WebFictionService.WebFictionSiteChangedException
 import com.universalmedialibrary.services.webfiction.WebFictionService.UnsupportedWebFictionUrlException
+import com.universalmedialibrary.services.webfiction.parseAndValidateSourceUrl
 import com.universalmedialibrary.services.webfiction.WebFictionChapter
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.services.webfiction.parseAndValidateSourceUrl
@@ -229,16 +230,8 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error adding story: ${e.message}")
-                val parentalMsg = mapParentalControlsError(
-                    e,
-                    "Error adding story: ${e.message}"
-                )
-                publishError(message = parentalMsg, retryAction = { addStoryFromUrl(url, bypassPin) })
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = message
-                )
-
+                publishError(message = message, retryAction = { addStoryFromUrl(url, bypassPin) })
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -281,16 +274,8 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
-                val parentalMsg = mapParentalControlsError(
-                    e,
-                    "Error checking for updates: ${e.message}"
-                )
-                publishError(message = parentalMsg, retryAction = { checkForUpdates(story, bypassPin) })
-                _uiState.value = _uiState.value.copy(
-                    isCheckingUpdates = false,
-                    error = message
-                )
-
+                publishError(message = message, retryAction = { checkForUpdates(story, bypassPin) })
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -338,16 +323,8 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
-                val parentalMsg = mapParentalControlsError(
-                    e,
-                    "Error checking for updates: ${e.message}"
-                )
-                publishError(message = parentalMsg, retryAction = { checkAllForUpdates(bypassPin) })
-                _uiState.value = _uiState.value.copy(
-                    isCheckingUpdates = false,
-                    error = message
-                )
-
+                publishError(message = message, retryAction = { checkAllForUpdates(bypassPin) })
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
         }
     }
@@ -384,16 +361,8 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error downloading story: ${e.message}")
-                val parentalMsg = mapParentalControlsError(
-                    e,
-                    "Error downloading story: ${e.message}"
-                )
-                publishError(message = parentalMsg, retryAction = { downloadStory(story, bypassPin) })
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = message
-                )
-
+                publishError(message = message, retryAction = { downloadStory(story, bypassPin) })
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -435,16 +404,8 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error downloading updates: ${e.message}")
-                val parentalMsg = mapParentalControlsError(
-                    e,
-                    "Error downloading updates: ${e.message}"
-                )
-                publishError(message = parentalMsg, retryAction = { downloadAllUpdates(bypassPin) })
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = message
-                )
-
+                publishError(message = message, retryAction = { downloadAllUpdates(bypassPin) })
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }

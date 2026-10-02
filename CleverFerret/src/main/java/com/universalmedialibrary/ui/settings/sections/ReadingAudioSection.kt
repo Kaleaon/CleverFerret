@@ -36,7 +36,7 @@ fun LazyListScope.readingAudioSection(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     navController: androidx.navigation.NavController,
-    onShowMiniPlayerBackgroundDialog: () -> Unit = {}
+    onOpenMiniPlayerBackgroundDialog: () -> Unit = {}
 ) {
     // Reading & Audio Section
     item {
@@ -142,7 +142,7 @@ fun LazyListScope.readingAudioSection(
 
       item {
           MetallicCard(
-              onClick = { onShowMiniPlayerBackgroundDialog() }
+              onClick = onOpenMiniPlayerBackgroundDialog
           ) {
               Row(
                   modifier = Modifier
