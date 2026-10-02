@@ -359,7 +359,7 @@ private fun ComicPageView(
 
 
 @Composable
-private fun ThemeButton(
+internal fun ThemeButton(
     theme: ReaderTheme,
     isSelected: Boolean,
     onClick: () -> Unit,

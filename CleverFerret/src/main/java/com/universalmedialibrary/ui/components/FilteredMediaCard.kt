@@ -191,7 +191,7 @@ fun ContentRatingBadge(
             if (isRestricted) {
                 Icon(
                     Icons.Default.Lock,
-                    contentDescription = "Media image",
+                    contentDescription = "Content restricted",
                     tint = textColor,
                     modifier = Modifier.size(14.dp)
                 )
@@ -259,9 +259,10 @@ fun FilteredMediaGridItem(
             ) {
                 // Lock icon at top
                 if (contentStatus == ContentStatus.Locked || contentStatus == ContentStatus.Blocked) {
+                    val desc = if (contentStatus == ContentStatus.Locked) "Content locked" else "Content restricted"
                     Icon(
                         if (contentStatus == ContentStatus.Locked) Icons.Default.Lock else Icons.Default.VisibilityOff,
-                        contentDescription = "Media image",
+                        contentDescription = desc,
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier
                             .size(32.dp)

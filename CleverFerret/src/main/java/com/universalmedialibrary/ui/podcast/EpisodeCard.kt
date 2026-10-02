@@ -37,10 +37,10 @@ import java.util.*
 @Composable
 fun EpisodeCard(
     episode: PodcastEpisode,
-    downloadStatus: DownloadStatus?,
+    downloadStatus: DownloadStatus? = null,
     onClick: () -> Unit,
     onDownloadClick: () -> Unit,
-    onRetryClick: () -> Unit,
+    onRetryClick: () -> Unit = {},
     onPlayClick: () -> Unit
 ) {
     Card(

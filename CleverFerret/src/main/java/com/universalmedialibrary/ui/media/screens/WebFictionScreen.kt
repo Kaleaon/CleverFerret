@@ -189,7 +189,7 @@ private fun FollowingStoriesPage(
 
 
 @Composable
-private fun StatusBadge(status: StoryStatus) {
+internal fun StatusBadge(status: StoryStatus) {
     Surface(
         shape = RoundedCornerShape(MediaCorners.XS),
         color = when (status) {
@@ -213,7 +213,7 @@ private fun StatusBadge(status: StoryStatus) {
     }
 }
 
-private fun formatWordCount(count: Long): String {
+internal fun formatWordCount(count: Long): String {
     return when {
         count >= 1_000_000 -> "%.1fM words".format(count / 1_000_000.0)
         count >= 1_000 -> "%.1fK words".format(count / 1_000.0)

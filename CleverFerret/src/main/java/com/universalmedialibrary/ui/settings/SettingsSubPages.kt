@@ -322,7 +322,7 @@ class CastingSettingsViewModel @Inject constructor(
 
 
 
-private fun getCacheDirectoryForLocation(
+internal fun getCacheDirectoryForLocation(
     context: android.content.Context,
     location: CacheLocation
 ): File {
@@ -334,11 +334,11 @@ private fun getCacheDirectoryForLocation(
     return File(base, "artwork").apply { if (!exists()) mkdirs() }
 }
 
-private suspend fun calculateCacheSize(context: android.content.Context, location: CacheLocation): Long {
+internal suspend fun calculateCacheSize(context: android.content.Context, location: CacheLocation): Long {
     return directorySize(getCacheDirectoryForLocation(context, location))
 }
 
-private fun directorySize(dir: File): Long {
+internal fun directorySize(dir: File): Long {
     if (!dir.exists()) return 0L
 
     // Iterative traversal to avoid recursion/stack overflow on deep trees.
@@ -378,11 +378,11 @@ private fun directorySize(dir: File): Long {
     return total
 }
 
-private suspend fun clearCache(context: android.content.Context, location: CacheLocation) {
+internal suspend fun clearCache(context: android.content.Context, location: CacheLocation) {
     runCatching { getCacheDirectoryForLocation(context, location).deleteRecursively() }
 }
 
-private fun Long.toHumanReadable(): String {
+internal fun Long.toHumanReadable(): String {
     val kb = 1024.0
     val mb = kb * 1024
     val gb = mb * 1024

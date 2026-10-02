@@ -312,7 +312,7 @@ private fun PodcastDownloadsPage(
 // =============================================================================
 
 @Composable
-private fun PodcastEmptyState(
+internal fun PodcastEmptyState(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     subtitle: String
