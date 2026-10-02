@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemePreviewScreen() {
-    var selectedPalette by remember { mutableStateOf(ThemePalette.NAVY_GOLD) }
+    var selectedPalette by remember { mutableStateOf(CleverFerretTheme.NAVY_GOLD) }
     var showPaletteSelector by remember { mutableStateOf(false) }
 
     CleverFerretTheme(palette = selectedPalette) {
@@ -301,9 +301,9 @@ private fun ColorInfoRow(name: String, color: androidx.compose.ui.graphics.Color
 
 @Composable
 private fun PaletteSelectorDialog(
-    currentPalette: ThemePalette,
+    currentPalette: CleverFerretTheme,
     onDismiss: () -> Unit,
-    onSelect: (ThemePalette) -> Unit
+    onSelect: (CleverFerretTheme) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -312,7 +312,7 @@ private fun PaletteSelectorDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ThemePalette.values().forEach { palette ->
+                CleverFerretTheme.values().forEach { palette ->
                     Card(
                         onClick = { onSelect(palette) },
                         colors = CardDefaults.cardColors(
@@ -360,27 +360,27 @@ private fun PaletteSelectorDialog(
     )
 }
 
-private fun getThemeDescription(palette: ThemePalette): String = when (palette) {
-    ThemePalette.NAVY_GOLD -> "Navy + Metallic Gold • Elegant"
-    ThemePalette.EMERALD_SILVER -> "Emerald Green + Silver • Nature Inspired"
-    ThemePalette.ROYAL_BRONZE -> "Royal Purple + Bronze • Regal"
-    ThemePalette.MIDNIGHT_AMBER -> "Midnight Blue + Amber • Night Mode"
-    ThemePalette.OBSIDIAN_CRIMSON -> "Obsidian Black + Crimson • Dramatic"
-    ThemePalette.SLATE_CYAN -> "Slate Grey + Cyan • Futuristic"
-    ThemePalette.ROYAL_SILVER -> "Royal Purple + Silver • Regal"
-    ThemePalette.FOREST_COPPER -> "Forest Green + Copper • Natural"
-    ThemePalette.BURGUNDY_ROSE_GOLD -> "Burgundy + Rose Gold • Luxurious"
-    ThemePalette.CHARCOAL_CHAMPAGNE -> "Charcoal + Champagne • Sophisticated"
-    ThemePalette.SLATE_GUNMETAL -> "Slate + Gunmetal • Modern"
-    ThemePalette.DEEP_PURPLE_PLATINUM -> "Deep Purple + Platinum • Premium"
-    ThemePalette.PAPER_INK -> "Paper White + Ink Black • Minimalist Reader"
-    ThemePalette.COPPER_BRONZE -> "Copper + Bronze • Warm & Rich"
-    ThemePalette.AMBER_GOLD -> "Amber + Gold • Luminous"
-    ThemePalette.ROSE_BRASS -> "Rose + Brass • Romantic"
-    ThemePalette.STEEL_TITANIUM -> "Steel + Titanium • Industrial"
-    ThemePalette.PLATINUM_SILVER -> "Platinum + Silver • Premium"
-    ThemePalette.COBALT_CHROME -> "Cobalt + Chrome • Bold"
-    ThemePalette.ANCIENT_BRONZE -> "Ancient Bronze • Architectural"
-    ThemePalette.SILVER_ARCHITECT -> "Silver Architect • Modern Classic"
-    ThemePalette.OBSIDIAN_TECH -> "Obsidian Tech • High-Tech"
+private fun getThemeDescription(palette: CleverFerretTheme): String = when (palette) {
+    CleverFerretTheme.NAVY_GOLD -> "Navy + Metallic Gold • Elegant"
+    CleverFerretTheme.EMERALD_SILVER -> "Emerald Green + Silver • Nature Inspired"
+    CleverFerretTheme.ROYAL_BRONZE -> "Royal Purple + Bronze • Regal"
+    CleverFerretTheme.MIDNIGHT_AMBER -> "Midnight Blue + Amber • Night Mode"
+    CleverFerretTheme.OBSIDIAN_CRIMSON -> "Obsidian Black + Crimson • Dramatic"
+    CleverFerretTheme.SLATE_CYAN -> "Slate Grey + Cyan • Futuristic"
+    CleverFerretTheme.ROYAL_SILVER -> "Royal Purple + Silver • Regal"
+    CleverFerretTheme.FOREST_COPPER -> "Forest Green + Copper • Natural"
+    CleverFerretTheme.BURGUNDY_ROSE_GOLD -> "Burgundy + Rose Gold • Luxurious"
+    CleverFerretTheme.CHARCOAL_CHAMPAGNE -> "Charcoal + Champagne • Sophisticated"
+    CleverFerretTheme.SLATE_GUNMETAL -> "Slate + Gunmetal • Modern"
+    CleverFerretTheme.DEEP_PURPLE_PLATINUM -> "Deep Purple + Platinum • Premium"
+    CleverFerretTheme.PAPER_INK -> "Paper White + Ink Black • Minimalist Reader"
+    CleverFerretTheme.COPPER_BRONZE -> "Copper + Bronze • Warm & Rich"
+    CleverFerretTheme.AMBER_GOLD -> "Amber + Gold • Luminous"
+    CleverFerretTheme.ROSE_BRASS -> "Rose + Brass • Romantic"
+    CleverFerretTheme.STEEL_TITANIUM -> "Steel + Titanium • Industrial"
+    CleverFerretTheme.PLATINUM_SILVER -> "Platinum + Silver • Premium"
+    CleverFerretTheme.COBALT_CHROME -> "Cobalt + Chrome • Bold"
+    CleverFerretTheme.ANCIENT_BRONZE -> "Ancient Bronze • Architectural"
+    CleverFerretTheme.SILVER_ARCHITECT -> "Silver Architect • Modern Classic"
+    CleverFerretTheme.OBSIDIAN_TECH -> "Obsidian Tech • High-Tech"
 }

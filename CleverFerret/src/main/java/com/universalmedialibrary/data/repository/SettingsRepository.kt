@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.universalmedialibrary.data.settings.*
-import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -71,12 +71,12 @@ class SettingsRepository @Inject constructor(
         val SHOW_HOME_ONBOARDING_TIPS = booleanPreferencesKey("show_home_onboarding_tips")
     }
 
-    val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
-        val themeName = preferences[PreferencesKeys.THEME] ?: ThemePalette.NAVY_GOLD.name
+    val themeFlow: Flow<CleverFerretTheme> = context.dataStore.data.map { preferences ->
+        val themeName = preferences[PreferencesKeys.THEME] ?: CleverFerretTheme.NAVY_GOLD.name
         try {
-            ThemePalette.valueOf(themeName)
+            CleverFerretTheme.valueOf(themeName)
         } catch (e: IllegalArgumentException) {
-            ThemePalette.NAVY_GOLD
+            CleverFerretTheme.NAVY_GOLD
         }
     }
 
@@ -242,7 +242,7 @@ class SettingsRepository @Inject constructor(
         preferences[PreferencesKeys.SHOW_HOME_ONBOARDING_TIPS] ?: true
     }
 
-    suspend fun setTheme(palette: ThemePalette) {
+    suspend fun setTheme(palette: CleverFerretTheme) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
         }

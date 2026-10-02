@@ -23,7 +23,7 @@ import com.universalmedialibrary.data.settings.SecuritySettings
 import com.universalmedialibrary.data.settings.GeneralSettings
 import com.universalmedialibrary.data.settings.AppTheme
 import com.universalmedialibrary.data.settings.BottomGearPosition
-import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -96,7 +96,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setTheme(palette: ThemePalette) {
+    fun setTheme(palette: CleverFerretTheme) {
         viewModelScope.launch {
             settingsRepository.setTheme(palette)
         }
@@ -351,7 +351,7 @@ class SettingsViewModel @Inject constructor(
 
     @Suppress("UNCHECKED_CAST")
     private fun createSettingsUiState(values: Array<Any?>): SettingsUiState {
-        val theme = values[0] as ThemePalette
+        val theme = values[0] as CleverFerretTheme
         val darkMode = values[1] as Boolean
         val autoDownload = values[2] as Boolean
         val wifiOnly = values[3] as Boolean
@@ -376,7 +376,7 @@ class SettingsViewModel @Inject constructor(
 }
 
 data class SettingsUiState(
-    val selectedTheme: ThemePalette = ThemePalette.NAVY_GOLD,
+    val selectedTheme: CleverFerretTheme = CleverFerretTheme.NAVY_GOLD,
     val darkMode: Boolean = true,
     val autoDownloadPodcasts: Boolean = false,
     val wifiOnlyDownloads: Boolean = true,

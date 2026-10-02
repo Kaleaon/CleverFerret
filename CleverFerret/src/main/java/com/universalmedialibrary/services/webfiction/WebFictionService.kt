@@ -112,6 +112,15 @@ class WebFictionService @Inject constructor(
         }
     }
 
+    fun parseAndValidateSourceUrl(url: String): ValidatedWebFictionUrl {
+        val trimmed = url.trim()
+        val siteType = WebFictionSiteType.fromUrl(trimmed)
+        return ValidatedWebFictionUrl(
+            normalizedUrl = trimmed,
+            siteType = siteType
+        )
+    }
+
     /**
      * Extract story information from a URL
      */

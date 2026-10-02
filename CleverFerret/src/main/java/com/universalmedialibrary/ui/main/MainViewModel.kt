@@ -8,7 +8,7 @@ import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.repository.SettingsRepository
 import com.universalmedialibrary.ui.home.SampleClassic
-import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.BottomBarPreferences
@@ -52,11 +52,11 @@ class MainViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    val selectedTheme: StateFlow<ThemePalette> = settingsRepository.themeFlow
+    val selectedTheme: StateFlow<CleverFerretTheme> = settingsRepository.themeFlow
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = ThemePalette.NAVY_GOLD
+            initialValue = CleverFerretTheme.NAVY_GOLD
         )
 
     val darkMode: StateFlow<Boolean> = settingsRepository.darkModeFlow
@@ -110,7 +110,7 @@ class MainViewModel @Inject constructor(
         }
     }
     
-    fun setTheme(theme: ThemePalette) {
+    fun setTheme(theme: CleverFerretTheme) {
         viewModelScope.launch {
             settingsRepository.setTheme(theme)
         }

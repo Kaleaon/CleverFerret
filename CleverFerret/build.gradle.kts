@@ -435,13 +435,13 @@ afterEvaluate {
 
         classDirectories.setFrom(
             files(
-                fileTree("$buildDir/tmp/kotlin-classes/debug") { exclude(excludes) },
-                fileTree("$buildDir/intermediates/javac/debug/classes") { exclude(excludes) }
+                fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") { exclude(excludes) },
+                fileTree("${layout.buildDirectory.get()}/intermediates/javac/debug/classes") { exclude(excludes) }
             )
         )
         sourceDirectories.setFrom(files("src/main/java"))
         executionData.setFrom(
-            fileTree(buildDir) {
+            fileTree(layout.buildDirectory) {
                 include(
                     "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec",
                     "jacoco/testDebugUnitTest.exec",

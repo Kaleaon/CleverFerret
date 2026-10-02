@@ -227,10 +227,10 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapWebFictionError(e, "Error adding story: ${e.message}")
+                val webMessage = mapWebFictionError(e, "Error adding story: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = message
+                    error = webMessage
                 )
                 val parentalMsg = mapParentalControlsError(
                     e,
@@ -279,10 +279,10 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
+                val webMessage = mapWebFictionError(e, "Error checking for updates: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isCheckingUpdates = false,
-                    error = message
+                    error = webMessage
                 )
                 val parentalMsg = mapParentalControlsError(
                     e,
@@ -336,10 +336,10 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
+                val webMessage = mapWebFictionError(e, "Error checking for updates: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isCheckingUpdates = false,
-                    error = message
+                    error = webMessage
                 )
                 val parentalMsg = mapParentalControlsError(
                     e,
@@ -382,10 +382,10 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapWebFictionError(e, "Error downloading story: ${e.message}")
+                val webMessage = mapWebFictionError(e, "Error downloading story: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = message
+                    error = webMessage
                 )
                 val parentalMsg = mapParentalControlsError(
                     e,
@@ -433,10 +433,10 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                val message = mapWebFictionError(e, "Error downloading updates: ${e.message}")
+                val webMessage = mapWebFictionError(e, "Error downloading updates: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = message
+                    error = webMessage
                 )
                 val parentalMsg = mapParentalControlsError(
                     e,

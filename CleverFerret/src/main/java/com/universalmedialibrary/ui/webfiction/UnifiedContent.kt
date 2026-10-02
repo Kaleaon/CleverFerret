@@ -24,7 +24,6 @@ import androidx.navigation.NavController
 import com.universalmedialibrary.services.webfiction.*
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import java.util.Locale
 import com.universalmedialibrary.ui.fanfiction.FanfictionViewModel
 import com.universalmedialibrary.data.local.entity.FanfictionStoryEntity

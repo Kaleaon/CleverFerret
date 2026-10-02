@@ -22,7 +22,6 @@ import com.universalmedialibrary.ui.reader.EnhancedEReaderScreen
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.ComicReaderScreen
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.utils.ScreenTimeoutManager
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -63,7 +62,7 @@ class MainActivity : ComponentActivity() {
         
         setContent {
             val mainViewModel: MainViewModel = hiltViewModel()
-            val selectedTheme by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
+            val selectedTheme by mainViewModel.selectedTheme.collectAsState(CleverFerretTheme.NAVY_GOLD)
             val darkMode by mainViewModel.darkMode.collectAsState(true)
             
             CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
