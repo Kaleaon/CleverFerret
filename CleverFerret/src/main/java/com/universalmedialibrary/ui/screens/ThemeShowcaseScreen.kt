@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.components.*
-import com.universalmedialibrary.ui.media.components.CanonicalMediaCard
+import com.universalmedialibrary.ui.components.media.*
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -150,9 +150,9 @@ fun ThemeShowcaseScreen(
                 // Card previews
                 item {
                     PreviewSection(title = "Cards") {
-                        CanonicalMediaCard(
-                            title = "Canonical Media Card",
-                            subtitle = "With unified design system tokens and theme integration",
+                        MediaCard(
+                            style = MediaCardStyle.CUSTOM,
+                            decoration = MediaCardDecoration.ART_DECO,
                             onClick = {},
                             modifier = Modifier.fillMaxWidth()
                         )

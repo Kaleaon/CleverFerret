@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.components.*
+import com.universalmedialibrary.ui.components.media.*
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -84,32 +85,10 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .glassEffect(
-                            backgroundColor = MaterialTheme.colorScheme.surface,
-                            alpha = 0.7f,
-                            borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                        )
-                        .then(
-                            if (geometricPatternsEnabled()) {
-                                Modifier.geometricPattern(
-                                    patternColor = MaterialTheme.colorScheme.onSurface,
-                                    patternType = PatternType.SUBTLE_GRID,
-                                    alpha = 0.03f
-                                )
-                            } else {
-                                Modifier
-                            }
-                        ),
-                    colors = CardDefaults.cardColors(
-                        containerColor = androidx.compose.ui.graphics.Color.Transparent
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                    )
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.GLASS,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -133,23 +112,10 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .then(
-                            if (crystalGlowEnabled()) {
-                                Modifier.crystalGlow(
-                                    enabled = true,
-                                    glowColor = MaterialTheme.colorScheme.primary,
-                                    intensity = 0.2f,
-                                    pulseSpeed = 3000
-                                )
-                            } else {
-                                Modifier
-                            }
-                        )
-                        .depthShadow(elevation = 4.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.GLOWING,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -173,14 +139,10 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .advancedLighting(
-                            ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
-                            spotlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                        ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.ELEVATED_LIGHT,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -204,18 +166,10 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                val metallic = metallicColors()
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .embossedEffect(
-                            lightColor = metallic.highlight.copy(alpha = 0.4f),
-                            shadowColor = metallic.shadow.copy(alpha = 0.4f),
-                            depth = 2.dp
-                        ),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.EMBOSSED,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -243,19 +197,10 @@ fun AdvancedEffectsShowcaseScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .then(
-                                if (geometricPatternsEnabled()) {
-                                    Modifier.geometricPattern(
-                                        patternColor = MaterialTheme.colorScheme.onSurface,
-                                        patternType = PatternType.SUBTLE_GRID,
-                                        alpha = 0.05f
-                                    )
-                                } else Modifier
-                            )
-                            .depthShadow(elevation = 4.dp)
+                    MediaCard(
+                        style = MediaCardStyle.CUSTOM,
+                        decoration = MediaCardDecoration.PATTERNED,
+                        modifier = Modifier.weight(1f)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
@@ -266,19 +211,10 @@ fun AdvancedEffectsShowcaseScreen() {
                         }
                     }
                     
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .then(
-                                if (geometricPatternsEnabled()) {
-                                    Modifier.geometricPattern(
-                                        patternColor = MaterialTheme.colorScheme.onSurface,
-                                        patternType = PatternType.DIAGONAL_LINES,
-                                        alpha = 0.05f
-                                    )
-                                } else Modifier
-                            )
-                            .depthShadow(elevation = 4.dp)
+                    MediaCard(
+                        style = MediaCardStyle.CUSTOM,
+                        decoration = MediaCardDecoration.PATTERNED,
+                        modifier = Modifier.weight(1f)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
@@ -296,19 +232,10 @@ fun AdvancedEffectsShowcaseScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .then(
-                                if (geometricPatternsEnabled()) {
-                                    Modifier.geometricPattern(
-                                        patternColor = MaterialTheme.colorScheme.onSurface,
-                                        patternType = PatternType.DOTS,
-                                        alpha = 0.05f
-                                    )
-                                } else Modifier
-                            )
-                            .depthShadow(elevation = 4.dp)
+                    MediaCard(
+                        style = MediaCardStyle.CUSTOM,
+                        decoration = MediaCardDecoration.PATTERNED,
+                        modifier = Modifier.weight(1f)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
@@ -319,19 +246,10 @@ fun AdvancedEffectsShowcaseScreen() {
                         }
                     }
                     
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .then(
-                                if (geometricPatternsEnabled()) {
-                                    Modifier.geometricPattern(
-                                        patternColor = MaterialTheme.colorScheme.onSurface,
-                                        patternType = PatternType.HEXAGONS,
-                                        alpha = 0.05f
-                                    )
-                                } else Modifier
-                            )
-                            .depthShadow(elevation = 4.dp)
+                    MediaCard(
+                        style = MediaCardStyle.CUSTOM,
+                        decoration = MediaCardDecoration.PATTERNED,
+                        modifier = Modifier.weight(1f)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
@@ -350,20 +268,10 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .gradientOverlay(
-                            gradient = listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary,
-                                MaterialTheme.colorScheme.tertiary
-                            ),
-                            angle = 135f,
-                            alpha = 0.15f
-                        )
-                        .depthShadow(elevation = 4.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.GRADIENT_OVERLAY,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(

@@ -21,6 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.components.media.MediaCard
+import com.universalmedialibrary.ui.components.media.MediaCardData
+import com.universalmedialibrary.ui.components.media.MediaCardStyle
 
 /**
  * Media-Centric Media Grid Component
@@ -54,11 +57,14 @@ fun MediaGrid(
     modifier: Modifier = Modifier
 ) {
     if (items.isEmpty()) {
-        EmptyStateCard(
-            icon = Icons.AutoMirrored.Filled.LibraryBooks,
-            title = "No Media Items",
-            description = "Your library is empty. Add some media to get started!",
-            actionLabel = "Scan Library",
+        MediaCard(
+            data = MediaCardData(
+                icon = Icons.AutoMirrored.Filled.LibraryBooks,
+                title = "No Media Items",
+                description = "Your library is empty. Add some media to get started!",
+                actionLabel = "Scan Library"
+            ),
+            style = MediaCardStyle.STATE_EMPTY,
             onActionClick = { /* Trigger library scan */ },
             modifier = modifier
         )
