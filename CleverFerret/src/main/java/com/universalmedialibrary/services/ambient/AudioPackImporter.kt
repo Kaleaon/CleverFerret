@@ -4,6 +4,8 @@ import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Environment
+import androidx.room.withTransaction
+import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.AmbientSoundDao
 import com.universalmedialibrary.data.local.dao.AudioPackDao
 import com.universalmedialibrary.data.local.entity.*
@@ -24,6 +26,7 @@ import javax.inject.Singleton
 @Singleton
 class AudioPackImporter @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val database: AppDatabase,
     private val audioPackDao: AudioPackDao,
     private val ambientSoundDao: AmbientSoundDao
 ) {
@@ -184,40 +187,31 @@ class AudioPackImporter @Inject constructor(
                     averageSampleRate = avgSampleRate
                 )
             )
-            
-            val packId = audioPackDao.insertPack(audioPack)
-            
-            onProgress(80, "Creating sound entries...")
-            
-            // Create AmbientSound entries for each file
-            val soundIds = mutableListOf<Long>()
-            importedFiles.forEachIndexed { index, audioFile ->
-                onProgress(80 + (index * 15 / importedFiles.size), 
-                    "Processing: ${audioFile.fileName}")
-                
-                val ambientSound = AmbientSound(
-                    name = audioFile.fileName.substringBeforeLast(".").replace("_", " "),
-                    category = audioFile.detectedCategory ?: AmbientCategory.CUSTOM,
-                    soundType = audioFile.detectedType ?: AmbientSoundType.CUSTOM,
-                    audioResourcePath = audioFile.filePath,
-                    description = "Imported from ${audioPack.name}",
-                    keywords = audioFile.suggestedKeywords
-                )
-                
-                val soundId = ambientSoundDao.insertSound(ambientSound)
-                soundIds.add(soundId)
+
+            onProgress(80, "Inserting sounds and linking to pack...")
+
+            val packId = database.withTransaction {
+                val pId = audioPackDao.insertPack(audioPack)
+                val ambientSounds = importedFiles.map { audioFile ->
+                    AmbientSound(
+                        name = audioFile.fileName.substringBeforeLast(".").replace("_", " "),
+                        category = audioFile.detectedCategory ?: AmbientCategory.CUSTOM,
+                        soundType = audioFile.detectedType ?: AmbientSoundType.CUSTOM,
+                        audioResourcePath = audioFile.filePath,
+                        description = "Imported from ${audioPack.name}",
+                        keywords = audioFile.suggestedKeywords
+                    )
+                }
+                val soundIds = ambientSoundDao.insertSounds(ambientSounds)
+                val packSounds = soundIds.map { soundId ->
+                    AudioPackSound(packId = pId, soundId = soundId)
+                }
+                audioPackDao.insertPackSounds(packSounds)
+                pId
             }
-            
-            onProgress(95, "Linking sounds to pack...")
-            
-            // Link sounds to pack
-            val packSounds = soundIds.map { soundId ->
-                AudioPackSound(packId = packId, soundId = soundId)
-            }
-            audioPackDao.insertPackSounds(packSounds)
-            
+
             onProgress(100, "Import complete!")
-            
+
             ImportResult(
                 success = true,
                 packId = packId,
@@ -353,18 +347,14 @@ class AudioPackImporter @Inject constructor(
                 packDir.deleteRecursively()
             }
             
-            // Delete sound entries
-            val soundIds = audioPackDao.getSoundIdsForPack(packId)
-            soundIds.forEach { soundId ->
-                val sound = ambientSoundDao.getSoundById(soundId)
-                sound?.let { ambientSoundDao.deleteSound(it) }
+            database.withTransaction {
+                val soundIds = audioPackDao.getSoundIdsForPack(packId)
+                if (soundIds.isNotEmpty()) {
+                    ambientSoundDao.deleteSoundsByIds(soundIds)
+                }
+                audioPackDao.deletePackSounds(packId)
+                audioPackDao.deletePack(pack)
             }
-            
-            // Delete pack-sound links
-            audioPackDao.deletePackSounds(packId)
-            
-            // Delete pack
-            audioPackDao.deletePack(pack)
             
             true
         } catch (e: Exception) {
