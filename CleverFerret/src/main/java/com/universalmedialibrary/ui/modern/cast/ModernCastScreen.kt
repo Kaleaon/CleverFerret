@@ -240,7 +240,7 @@ private fun CastDeviceKind.icon(): ImageVector = when (this) {
     CastDeviceKind.AndroidTv  -> Icons.Default.Tv
     CastDeviceKind.Speaker    -> Icons.Default.Speaker
     CastDeviceKind.Tv         -> Icons.Default.Tv
-    CastDeviceKind.AirPlay    -> Icons.Default.AirplayActive
+    CastDeviceKind.AirPlay    -> Icons.Default.Airplay
     CastDeviceKind.Dlna       -> Icons.Default.DeviceHub
 }
 

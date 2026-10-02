@@ -42,6 +42,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import com.universalmedialibrary.services.listImportLogs
+import com.universalmedialibrary.services.readImportLog
+import com.universalmedialibrary.services.importer.ImportLogInfo
+import com.universalmedialibrary.services.importer.ImportTransactionLog
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportHistoryScreen(
@@ -59,11 +64,11 @@ fun ImportHistoryScreen(
     var reloadToken by remember { mutableStateOf(0) }
     var isUndoing by remember { mutableStateOf(false) }
     var undoingImportId by remember { mutableStateOf<String?>(null) }
-    var selectedImportDetails by remember { mutableStateOf<com.universalmedialibrary.services.importer.ImportTransactionLog?>(null) }
+    var selectedImportDetails by remember { mutableStateOf<ImportTransactionLog?>(null) }
     val df = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
 
-    val logs by produceState(initialValue = emptyList(), key1 = reloadToken) {
-        value = withContext(Dispatchers.IO) { storageService.listImportLogs(context) }
+    val logs by produceState<List<ImportLogInfo>>(initialValue = emptyList(), key1 = reloadToken) {
+        value = withContext(Dispatchers.IO) { listImportLogs(context) }
     }
 
     Scaffold(
@@ -154,7 +159,7 @@ fun ImportHistoryScreen(
                                         selectedImportDetails = null
                                         coroutineScope.launch {
                                             val details = withContext(Dispatchers.IO) {
-                                                storageService.readImportLog(context, log.fileName)
+                                                readImportLog(context, log.fileName)
                                             }
                                             if (details != null) {
                                                 selectedImportDetails = details
@@ -182,7 +187,7 @@ fun ImportHistoryScreen(
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(details.operations.take(20)) { operation ->
                         Text(
-                            "${operation.status.name}: ${operation.sourceUri} → ${operation.destUri}",
+                            "${operation.status.name}: ${operation.sourceUri} → ${operation.destinationUri}",
                             style = androidx.compose.material3.MaterialTheme.typography.bodySmall
                         )
                     }

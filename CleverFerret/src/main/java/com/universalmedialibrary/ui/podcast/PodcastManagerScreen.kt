@@ -279,7 +279,6 @@ fun PodcastSubscriptionsTab(
     onUnsubscribe: (Podcast) -> Unit
 ) {
     if (podcasts.isEmpty()) {
-        // Empty state
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -370,6 +369,7 @@ fun PodcastDownloadsTab(
         }
     }
 }
+
 @Composable
 fun AddPodcastFeedDialog(
     onDismiss: () -> Unit,
@@ -405,7 +405,7 @@ fun AddPodcastFeedDialog(
     )
 }
 
-private fun formatDuration(seconds: Long): String {
+internal fun formatDuration(seconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val secs = seconds % 60

@@ -12,6 +12,7 @@ import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionService.WebFictionRateLimitException
 import com.universalmedialibrary.services.webfiction.WebFictionService.WebFictionSiteChangedException
 import com.universalmedialibrary.services.webfiction.WebFictionService.UnsupportedWebFictionUrlException
+import com.universalmedialibrary.services.webfiction.parseAndValidateSourceUrl
 import com.universalmedialibrary.services.webfiction.WebFictionChapter
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.services.webfiction.StoryStatus
@@ -172,7 +173,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
             var resolvedStory: WebFictionStory? = null
 
             try {
-                val validated = webFictionService.parseAndValidateSourceUrl(url)
+                val validated = parseAndValidateSourceUrl(url)
                 val story = webFictionService.extractStoryFromUrl(validated.normalizedUrl, bypassPin)
                     ?: throw IllegalStateException("Failed to extract story from URL. The source page may have changed.")
                 resolvedStory = story
@@ -228,14 +229,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error adding story: ${e.message}")
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = message
-                )
-                val message = mapParentalControlsError(
-                    e,
-                    "Error adding story: ${e.message}"
-                )
                 publishError(message = message, retryAction = { addStoryFromUrl(url, bypassPin) })
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }
@@ -280,14 +273,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
-                _uiState.value = _uiState.value.copy(
-                    isCheckingUpdates = false,
-                    error = message
-                )
-                val message = mapParentalControlsError(
-                    e,
-                    "Error checking for updates: ${e.message}"
-                )
                 publishError(message = message, retryAction = { checkForUpdates(story, bypassPin) })
                 _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
@@ -337,14 +322,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
-                _uiState.value = _uiState.value.copy(
-                    isCheckingUpdates = false,
-                    error = message
-                )
-                val message = mapParentalControlsError(
-                    e,
-                    "Error checking for updates: ${e.message}"
-                )
                 publishError(message = message, retryAction = { checkAllForUpdates(bypassPin) })
                 _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
             }
@@ -383,14 +360,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error downloading story: ${e.message}")
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = message
-                )
-                val message = mapParentalControlsError(
-                    e,
-                    "Error downloading story: ${e.message}"
-                )
                 publishError(message = message, retryAction = { downloadStory(story, bypassPin) })
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }
@@ -434,14 +403,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error downloading updates: ${e.message}")
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = message
-                )
-                val message = mapParentalControlsError(
-                    e,
-                    "Error downloading updates: ${e.message}"
-                )
                 publishError(message = message, retryAction = { downloadAllUpdates(bypassPin) })
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }
@@ -480,7 +441,7 @@ class WebFictionManagerScreenViewModel @Inject constructor(
     }
 
     fun validateSourceUrl(rawUrl: String): Result<String> = runCatching {
-        webFictionService.parseAndValidateSourceUrl(rawUrl).normalizedUrl
+        parseAndValidateSourceUrl(rawUrl).normalizedUrl
     }
 
     fun dismissPinChallenge() {
