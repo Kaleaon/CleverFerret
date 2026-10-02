@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import com.universalmedialibrary.ui.components.NavigationItems
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 
 internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
@@ -90,22 +89,12 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
 
     composable("theme_showcase") {
         val mainViewModel: MainViewModel = hiltViewModel()
-        val selectedTheme by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
-        val currentUnifiedTheme = selectedTheme.toCleverFerretTheme()
+        val selectedTheme by mainViewModel.selectedTheme.collectAsState(CleverFerretTheme.NAVY_GOLD)
 
         com.universalmedialibrary.ui.screens.ThemeShowcaseScreen(
-            currentTheme = currentUnifiedTheme,
+            currentTheme = selectedTheme,
             onThemeSelected = { newTheme ->
-                val oldPalette = when (newTheme) {
-                    CleverFerretTheme.NAVY_GOLD -> ThemePalette.NAVY_GOLD
-                    CleverFerretTheme.ROYAL_SILVER -> ThemePalette.ROYAL_SILVER
-                    CleverFerretTheme.FOREST_COPPER -> ThemePalette.FOREST_COPPER
-                    CleverFerretTheme.BURGUNDY_ROSE_GOLD -> ThemePalette.BURGUNDY_ROSE_GOLD
-                    CleverFerretTheme.CHARCOAL_CHAMPAGNE -> ThemePalette.CHARCOAL_CHAMPAGNE
-                    CleverFerretTheme.SLATE_GUNMETAL -> ThemePalette.SLATE_GUNMETAL
-                    else -> ThemePalette.NAVY_GOLD
-                }
-                mainViewModel.setTheme(oldPalette)
+                mainViewModel.setTheme(newTheme)
             },
             onNavigateBack = { navController.popBackStack() }
         )

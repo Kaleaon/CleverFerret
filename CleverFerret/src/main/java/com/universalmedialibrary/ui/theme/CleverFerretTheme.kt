@@ -26,73 +26,47 @@ val LocalMetallicGradient = staticCompositionLocalOf { MetallicEffects.Gold }
 /**
  * Get metallic effect for a theme palette
  */
-private fun getMetallicEffectForTheme(palette: ThemePalette): MetallicGradient {
+private fun getMetallicEffectForTheme(palette: CleverFerretTheme): MetallicGradient {
     return when (palette) {
-        ThemePalette.NAVY_GOLD -> MetallicEffects.Gold
-        ThemePalette.EMERALD_SILVER -> MetallicEffects.Silver
-        ThemePalette.ROYAL_BRONZE -> MetallicEffects.Copper
-        ThemePalette.MIDNIGHT_AMBER -> MetallicEffects.Gold
-        ThemePalette.OBSIDIAN_CRIMSON -> MetallicEffects.Copper
-        ThemePalette.SLATE_CYAN -> MetallicEffects.Gunmetal
-        ThemePalette.ROYAL_SILVER -> MetallicEffects.Silver
-        ThemePalette.FOREST_COPPER -> MetallicEffects.Copper
-        ThemePalette.BURGUNDY_ROSE_GOLD -> MetallicEffects.RoseGold
-        ThemePalette.CHARCOAL_CHAMPAGNE -> MetallicEffects.Champagne
-        ThemePalette.SLATE_GUNMETAL -> MetallicEffects.Gunmetal
-        ThemePalette.DEEP_PURPLE_PLATINUM -> MetallicEffects.Silver
-        ThemePalette.PAPER_INK -> MetallicGradient(
+        CleverFerretTheme.NAVY_GOLD -> MetallicEffects.Gold
+        CleverFerretTheme.EMERALD_SILVER -> MetallicEffects.Silver
+        CleverFerretTheme.ROYAL_BRONZE -> MetallicEffects.Copper
+        CleverFerretTheme.MIDNIGHT_AMBER -> MetallicEffects.Gold
+        CleverFerretTheme.OBSIDIAN_CRIMSON -> MetallicEffects.Copper
+        CleverFerretTheme.SLATE_CYAN -> MetallicEffects.Gunmetal
+        CleverFerretTheme.ROYAL_SILVER -> MetallicEffects.Silver
+        CleverFerretTheme.FOREST_COPPER -> MetallicEffects.Copper
+        CleverFerretTheme.BURGUNDY_ROSE_GOLD -> MetallicEffects.RoseGold
+        CleverFerretTheme.CHARCOAL_CHAMPAGNE -> MetallicEffects.Champagne
+        CleverFerretTheme.SLATE_GUNMETAL -> MetallicEffects.Gunmetal
+        CleverFerretTheme.DEEP_PURPLE_PLATINUM -> MetallicEffects.Silver
+        CleverFerretTheme.PAPER_INK -> MetallicGradient(
             base = Color(0xFF2C2C2C),
             highlight = Color(0xFF454545),
             shadow = Color(0xFF1A1A1A),
             shimmer = Color(0xFFF0F0EB)
         )
-        ThemePalette.COPPER_BRONZE -> MetallicEffects.Copper
-        ThemePalette.AMBER_GOLD -> MetallicEffects.Gold
-        ThemePalette.ROSE_BRASS -> MetallicEffects.RoseGold
-        ThemePalette.STEEL_TITANIUM -> MetallicEffects.Silver
-        ThemePalette.PLATINUM_SILVER -> MetallicEffects.Silver
-        ThemePalette.COBALT_CHROME -> MetallicEffects.Silver
-        ThemePalette.ANCIENT_BRONZE -> MetallicEffects.Copper
-        ThemePalette.SILVER_ARCHITECT -> MetallicEffects.Silver
-        ThemePalette.OBSIDIAN_TECH -> MetallicEffects.Gunmetal
+        CleverFerretTheme.COPPER_BRONZE -> MetallicEffects.Copper
+        CleverFerretTheme.AMBER_GOLD -> MetallicEffects.Gold
+        CleverFerretTheme.ROSE_BRASS -> MetallicEffects.RoseGold
+        CleverFerretTheme.STEEL_TITANIUM -> MetallicEffects.Silver
+        CleverFerretTheme.PLATINUM_SILVER -> MetallicEffects.Silver
+        CleverFerretTheme.COBALT_CHROME -> MetallicEffects.Silver
+        CleverFerretTheme.ANCIENT_BRONZE -> MetallicEffects.Copper
+        CleverFerretTheme.SILVER_ARCHITECT -> MetallicEffects.Silver
+        CleverFerretTheme.OBSIDIAN_TECH -> MetallicEffects.Gunmetal
     }
 }
 
 @Composable
 fun CleverFerretTheme(
-    palette: ThemePalette = ThemePalette.NAVY_GOLD,
+    palette: CleverFerretTheme = CleverFerretTheme.NAVY_GOLD,
     darkTheme: Boolean = true,
     dynamicColor: Boolean = false, // Disable to maintain custom branding
     content: @Composable () -> Unit
 ) {
-    // Map old enum to new unified theme system
-    val theme = when (palette) {
-        ThemePalette.NAVY_GOLD -> CleverFerretTheme.NAVY_GOLD
-        ThemePalette.EMERALD_SILVER -> CleverFerretTheme.EMERALD_SILVER
-        ThemePalette.ROYAL_BRONZE -> CleverFerretTheme.ROYAL_BRONZE
-        ThemePalette.MIDNIGHT_AMBER -> CleverFerretTheme.MIDNIGHT_AMBER
-        ThemePalette.OBSIDIAN_CRIMSON -> CleverFerretTheme.OBSIDIAN_CRIMSON
-        ThemePalette.SLATE_CYAN -> CleverFerretTheme.SLATE_CYAN
-        ThemePalette.ROYAL_SILVER -> CleverFerretTheme.ROYAL_SILVER
-        ThemePalette.FOREST_COPPER -> CleverFerretTheme.FOREST_COPPER
-        ThemePalette.BURGUNDY_ROSE_GOLD -> CleverFerretTheme.BURGUNDY_ROSE_GOLD
-        ThemePalette.CHARCOAL_CHAMPAGNE -> CleverFerretTheme.CHARCOAL_CHAMPAGNE
-        ThemePalette.SLATE_GUNMETAL -> CleverFerretTheme.SLATE_GUNMETAL
-        ThemePalette.DEEP_PURPLE_PLATINUM -> CleverFerretTheme.DEEP_PURPLE_PLATINUM
-        ThemePalette.PAPER_INK -> CleverFerretTheme.PAPER_INK
-        ThemePalette.COPPER_BRONZE -> CleverFerretTheme.COPPER_BRONZE
-        ThemePalette.AMBER_GOLD -> CleverFerretTheme.AMBER_GOLD
-        ThemePalette.ROSE_BRASS -> CleverFerretTheme.ROSE_BRASS
-        ThemePalette.STEEL_TITANIUM -> CleverFerretTheme.STEEL_TITANIUM
-        ThemePalette.PLATINUM_SILVER -> CleverFerretTheme.PLATINUM_SILVER
-        ThemePalette.COBALT_CHROME -> CleverFerretTheme.COBALT_CHROME
-        ThemePalette.ANCIENT_BRONZE -> CleverFerretTheme.ANCIENT_BRONZE
-        ThemePalette.SILVER_ARCHITECT -> CleverFerretTheme.SILVER_ARCHITECT
-        ThemePalette.OBSIDIAN_TECH -> CleverFerretTheme.OBSIDIAN_TECH
-    }
-
     UnifiedCleverFerretTheme(
-        theme = theme,
+        theme = palette,
         darkTheme = darkTheme,
         content = content
     )
