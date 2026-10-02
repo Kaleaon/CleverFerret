@@ -87,13 +87,7 @@ class SeriesManagementService @Inject constructor(
         // "The Lord of the Rings:"
         // "Foundation #1"
         
-        val patterns = listOf(
-            Regex("^(.+?)(?:\\s+and\\s+the|:\\s+|\\s+#\\d+|\\s+\\d+$)"),
-            Regex("^(The\\s+.+?)(?:\\s+Book\\s+\\d+|\\s+-\\s+Part\\s+\\d+)"),
-            Regex("^(.+?)(?:\\s+Volume\\s+\\d+|\\s+Vol\\.\\s+\\d+)")
-        )
-        
-        patterns.forEach { pattern ->
+        SERIES_PREFIX_PATTERNS.forEach { pattern ->
             pattern.find(title)?.groupValues?.get(1)?.let { prefix ->
                 if (prefix.length > 3) return prefix.trim()
             }
@@ -110,7 +104,7 @@ class SeriesManagementService @Inject constructor(
         
         // Sequential numbering in titles
         val hasNumbering = books.count { item ->
-            item.title.contains(Regex("\\d+|#\\d+|Book \\d+|Vol\\.? \\d+"))
+            item.title.contains(NUMBERING_REGEX)
         } > books.size * 0.5
         if (hasNumbering) score += 0.5f
         
@@ -127,6 +121,16 @@ class SeriesManagementService @Inject constructor(
         if (sameType) score += 0.2f
         
         return score.coerceIn(0f, 1f)
+    }
+
+    private companion object {
+        val SERIES_PREFIX_PATTERNS = listOf(
+            Regex("^(.+?)(?:\\s+and\\s+the|:\\s+|\\s+#\\d+|\\s+\\d+$)"),
+            Regex("^(The\\s+.+?)(?:\\s+Book\\s+\\d+|\\s+-\\s+Part\\s+\\d+)"),
+            Regex("^(.+?)(?:\\s+Volume\\s+\\d+|\\s+Vol\\.\\s+\\d+)")
+        )
+
+        val NUMBERING_REGEX = Regex("\\d+|#\\d+|Book \\d+|Vol\\.? \\d+")
     }
     
     /**
