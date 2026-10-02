@@ -519,7 +519,49 @@ interface MusicBrainzApi {
         @Query("fmt") format: String = "json",
         @Query("limit") limit: Int = 10
     ): MusicBrainzResponse
+
+    @GET("recording")
+    suspend fun searchRecordings(
+        @Query("query") query: String,
+        @Query("fmt") format: String = "json",
+        @Query("limit") limit: Int = 10
+    ): MusicBrainzRecordingResponse
+
+    @GET("recording/{mbid}")
+    suspend fun getRecordingById(
+        @Path("mbid") mbid: String,
+        @Query("fmt") format: String = "json",
+        @Query("inc") inc: String = "artists+releases+isrcs+tags"
+    ): MusicBrainzRecordingDetail
 }
+
+data class MusicBrainzRecordingResponse(
+    val recordings: List<MusicBrainzRecording>? = null
+)
+
+data class MusicBrainzRecording(
+    val id: String,
+    val title: String? = null,
+    val length: Long? = null,
+    val isrcs: List<String>? = null,
+    val artistCredit: List<MusicBrainzArtistCredit>? = null,
+    val releases: List<MusicBrainzRelease>? = null
+)
+
+data class MusicBrainzRecordingDetail(
+    val id: String,
+    val title: String? = null,
+    val length: Long? = null,
+    val isrcs: List<String>? = null,
+    val artistCredit: List<MusicBrainzArtistCredit>? = null,
+    val releases: List<MusicBrainzRelease>? = null,
+    val tags: List<MusicBrainzTag>? = null
+)
+
+data class MusicBrainzTag(
+    val name: String? = null,
+    val count: Int? = null
+)
 
 // Radio Browser API - Free radio station directory
 interface RadioBrowserApi {

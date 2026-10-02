@@ -3,12 +3,11 @@ package com.universalmedialibrary.data.repository
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MetadataCommon
-import com.universalmedialibrary.services.metadata.RealMetadataService
+import com.universalmedialibrary.services.metadata.UnifiedMetadataFacade
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
@@ -20,7 +19,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class MetadataFetchRepository @Inject constructor(
-    private val realMetadataService: RealMetadataService,
+    private val unifiedMetadataFacade: UnifiedMetadataFacade,
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao
 ) {
@@ -40,7 +39,7 @@ class MetadataFetchRepository @Inject constructor(
                 ?: return@withContext MetadataFetchResult.Error("Media item not found")
 
             // Fetch metadata from APIs
-            val result = realMetadataService.searchBookMetadata(
+            val result = unifiedMetadataFacade.searchBookMetadata(
                 title = title ?: mediaItem.fileName.substringBeforeLast('.'),
                 author = author,
                 isbn = isbn
@@ -118,7 +117,7 @@ class MetadataFetchRepository @Inject constructor(
             val mediaItem = mediaItemDao.getMediaItemById(itemId)
                 ?: return@withContext MetadataFetchResult.Error("Media item not found")
 
-            val result = realMetadataService.searchMovieMetadata(
+            val result = unifiedMetadataFacade.searchMovieMetadata(
                 title = title ?: mediaItem.fileName.substringBeforeLast('.'),
                 year = year,
                 imdbId = imdbId
@@ -191,7 +190,7 @@ class MetadataFetchRepository @Inject constructor(
             val mediaItem = mediaItemDao.getMediaItemById(itemId)
                 ?: return@withContext MetadataFetchResult.Error("Media item not found")
 
-            val result = realMetadataService.searchMusicMetadata(
+            val result = unifiedMetadataFacade.searchMusicMetadata(
                 artist = artist,
                 album = album,
                 track = track ?: mediaItem.fileName.substringBeforeLast('.')

@@ -457,7 +457,7 @@ private fun TopComicControls(
 
 
 @Composable
-private fun SettingToggleRow(
+internal fun SettingToggleRow(
     title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit

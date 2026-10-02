@@ -137,19 +137,19 @@ fun SettingsScreen(
 
 
 
-private data class BottomBarEditorItem(
+internal data class BottomBarEditorItem(
     val item: NavigationItem,
     val visible: Boolean
 )
 
-private fun <T> MutableList<T>.move(fromIndex: Int, toIndex: Int) {
+internal fun <T> MutableList<T>.move(fromIndex: Int, toIndex: Int) {
     if (fromIndex == toIndex) return
     val element = removeAt(fromIndex)
     val targetIndex = if (toIndex > fromIndex) toIndex - 1 else toIndex
     add(targetIndex.coerceIn(0, size), element)
 }
 
-private fun persistPreferences(
+internal fun persistPreferences(
     items: List<BottomBarEditorItem>,
     onOrderChanged: (List<String>, Set<String>) -> Unit
 ) {
@@ -160,7 +160,7 @@ private fun persistPreferences(
 
 
 @Composable
-private fun GearPositionOption(
+internal fun GearPositionOption(
     label: String,
     position: BottomGearPosition,
     current: BottomGearPosition,

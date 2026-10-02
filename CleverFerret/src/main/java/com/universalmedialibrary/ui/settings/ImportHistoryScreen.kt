@@ -22,6 +22,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import com.universalmedialibrary.services.listImportLogs
+import com.universalmedialibrary.services.readImportLog
+import com.universalmedialibrary.services.importer.ImportLogInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -62,8 +65,8 @@ fun ImportHistoryScreen(
     var selectedImportDetails by remember { mutableStateOf<com.universalmedialibrary.services.importer.ImportTransactionLog?>(null) }
     val df = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
 
-    val logs by produceState(initialValue = emptyList(), key1 = reloadToken) {
-        value = withContext(Dispatchers.IO) { storageService.listImportLogs(context) }
+    val logs by produceState<List<ImportLogInfo>>(initialValue = emptyList(), key1 = reloadToken) {
+        value = withContext(Dispatchers.IO) { listImportLogs(context) }
     }
 
     Scaffold(
@@ -154,7 +157,7 @@ fun ImportHistoryScreen(
                                         selectedImportDetails = null
                                         coroutineScope.launch {
                                             val details = withContext(Dispatchers.IO) {
-                                                storageService.readImportLog(context, log.fileName)
+                                                readImportLog(context, log.fileName)
                                             }
                                             if (details != null) {
                                                 selectedImportDetails = details

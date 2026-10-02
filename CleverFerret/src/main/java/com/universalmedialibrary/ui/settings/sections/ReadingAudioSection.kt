@@ -141,7 +141,7 @@ fun LazyListScope.readingAudioSection(
 
       item {
           MetallicCard(
-              onClick = { showMiniPlayerBackgroundDialog = true }
+              onClick = { }
           ) {
               Row(
                   modifier = Modifier

@@ -484,7 +484,7 @@ private fun SettingsTopBar(
 }
 
 @Composable
-private fun SettingsSectionHeader(title: String) {
+internal fun SettingsSectionHeader(title: String) {
     Text(
         text = title.uppercase(),
         style = MediaTypography.LabelSmall,
@@ -496,7 +496,7 @@ private fun SettingsSectionHeader(title: String) {
 }
 
 @Composable
-private fun SettingsCard(
+internal fun SettingsCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Surface(
@@ -510,7 +510,7 @@ private fun SettingsCard(
 
 
 @Composable
-private fun SettingsDivider() {
+internal fun SettingsDivider() {
     HorizontalDivider(
         color = MediaColors.Divider,
         modifier = Modifier.padding(start = 72.dp)
