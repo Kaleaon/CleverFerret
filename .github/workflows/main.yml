@@ -21,7 +21,7 @@ jobs:
     permissions:
       contents: read
     env:
-      COMPILE_LOG: compile_output.txt
+      COMPILE_LOG: compile_output_${{ github.sha }}_${{ github.run_attempt }}.txt
     
     steps:
     - name: Checkout code
@@ -109,8 +109,10 @@ jobs:
           if [ -n "${COMPILE_LOG:-}" ] && [ -f "$COMPILE_LOG" ]; then
             echo "Compilation log saved for debugging."
           fi
-        else
+        elif [ "${{ steps.compile.outcome }}" == "success" ]; then
           echo "::notice::Compilation succeeded!"
+        else
+          echo "::warning::Compilation was skipped or cancelled."
         fi
     
     - name: Upload compilation log artifact
@@ -168,6 +170,7 @@ jobs:
           CleverFerret/build/reports/lint-results-debug.xml
           CleverFerret/build/reports/lint-results-debug.txt
           CleverFerret/lint-baseline.xml
+        if-no-files-found: ignore
 
   build:
     name: Build APK
@@ -178,7 +181,7 @@ jobs:
       contents: read
       id-token: write # required for GitHub OIDC provenance attestations
     env:
-      BUILD_LOG: build_output.txt
+      BUILD_LOG: build_output_${{ github.sha }}_${{ github.run_attempt }}.txt
     
     outputs:
       version-name: ${{ steps.version.outputs.version-name }}
@@ -515,7 +518,7 @@ jobs:
         fetch-depth: 0
         
     - name: Download all APKs
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v4
       with:
         path: apks
 
