@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.components.*
+import com.universalmedialibrary.ui.components.media.*
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -63,7 +64,9 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                GlassCard(
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.GLASS,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -86,9 +89,10 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                GlowingCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    glowColor = MaterialTheme.colorScheme.primary
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.GLOWING,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         "Glowing Card",
@@ -110,7 +114,9 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                ElevatedLightCard(
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.ELEVATED_LIGHT,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -133,7 +139,9 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                EmbossedCard(
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.EMBOSSED,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -160,9 +168,10 @@ fun AdvancedEffectsShowcaseScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    PatternedCard(
-                        modifier = Modifier.weight(1f),
-                        patternType = PatternType.SUBTLE_GRID
+                    MediaCard(
+                        style = MediaCardStyle.CUSTOM,
+                        decoration = MediaCardDecoration.PATTERNED,
+                        modifier = Modifier.weight(1f)
                     ) {
                         Text(
                             "Grid",
@@ -171,9 +180,10 @@ fun AdvancedEffectsShowcaseScreen() {
                         )
                     }
                     
-                    PatternedCard(
-                        modifier = Modifier.weight(1f),
-                        patternType = PatternType.DIAGONAL_LINES
+                    MediaCard(
+                        style = MediaCardStyle.CUSTOM,
+                        decoration = MediaCardDecoration.PATTERNED,
+                        modifier = Modifier.weight(1f)
                     ) {
                         Text(
                             "Diagonal",
@@ -189,9 +199,10 @@ fun AdvancedEffectsShowcaseScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    PatternedCard(
-                        modifier = Modifier.weight(1f),
-                        patternType = PatternType.DOTS
+                    MediaCard(
+                        style = MediaCardStyle.CUSTOM,
+                        decoration = MediaCardDecoration.PATTERNED,
+                        modifier = Modifier.weight(1f)
                     ) {
                         Text(
                             "Dots",
@@ -200,9 +211,10 @@ fun AdvancedEffectsShowcaseScreen() {
                         )
                     }
                     
-                    PatternedCard(
-                        modifier = Modifier.weight(1f),
-                        patternType = PatternType.HEXAGONS
+                    MediaCard(
+                        style = MediaCardStyle.CUSTOM,
+                        decoration = MediaCardDecoration.PATTERNED,
+                        modifier = Modifier.weight(1f)
                     ) {
                         Text(
                             "Hexagons",
@@ -219,13 +231,10 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                GradientOverlayCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    gradientColors = listOf(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.secondary,
-                        MaterialTheme.colorScheme.tertiary
-                    )
+                MediaCard(
+                    style = MediaCardStyle.CUSTOM,
+                    decoration = MediaCardDecoration.GRADIENT_OVERLAY,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         "Gradient Overlay Card",

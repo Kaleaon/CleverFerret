@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.components.*
+import com.universalmedialibrary.ui.components.media.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
@@ -80,7 +81,10 @@ fun ImprovedLibraryListScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        LoadingStateCard(message = "Loading your libraries...")
+                        MediaCard(
+                            data = MediaCardData(description = "Loading your libraries..."),
+                            style = MediaCardStyle.STATE_LOADING
+                        )
                     }
                 }
 
@@ -90,9 +94,10 @@ fun ImprovedLibraryListScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        ErrorStateCard(
-                            message = uiState.error ?: "An unknown error occurred",
-                            onRetry = { viewModel.refresh() }
+                        MediaCard(
+                            data = MediaCardData(description = uiState.error ?: "An unknown error occurred"),
+                            style = MediaCardStyle.STATE_ERROR,
+                            onActionClick = { viewModel.refresh() }
                         )
                     }
                 }
@@ -104,17 +109,23 @@ fun ImprovedLibraryListScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        EmptyStateCard(
-                            icon = Icons.Default.BookmarkBorder,
-                            title = "No Libraries Yet",
-                            description = "Create your first library to start organizing your media collection",
-                            actionLabel = "Create Library",
+                        MediaCard(
+                            data = MediaCardData(
+                                icon = Icons.Default.BookmarkBorder,
+                                title = "No Libraries Yet",
+                                description = "Create your first library to start organizing your media collection",
+                                actionLabel = "Create Library"
+                            ),
+                            style = MediaCardStyle.STATE_EMPTY,
                             onActionClick = { showCreateDialog = true }
                         )
 
-                        InfoBanner(
-                            message = "You can also import an existing Calibre library from the settings menu",
-                            icon = Icons.Default.Info
+                        MediaCard(
+                            data = MediaCardData(
+                                description = "You can also import an existing Calibre library from the settings menu",
+                                icon = Icons.Default.Info
+                            ),
+                            style = MediaCardStyle.BANNER
                         )
                     }
                 }
@@ -125,8 +136,9 @@ fun ImprovedLibraryListScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         // Header
-                        SectionHeader(
-                            title = "Your Libraries",
+                        MediaCard(
+                            data = MediaCardData(title = "Your Libraries"),
+                            style = MediaCardStyle.SECTION_HEADER,
                             modifier = Modifier.padding(top = 8.dp)
                         )
 
@@ -137,17 +149,23 @@ fun ImprovedLibraryListScreen(
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            StatsCard(
-                                icon = Icons.AutoMirrored.Filled.LibraryBooks,
-                                label = "Libraries",
-                                value = uiState.libraries.size.toString(),
+                            MediaCard(
+                                data = MediaCardData(
+                                    icon = Icons.AutoMirrored.Filled.LibraryBooks,
+                                    label = "Libraries",
+                                    value = uiState.libraries.size.toString()
+                                ),
+                                style = MediaCardStyle.STATS,
                                 modifier = Modifier.weight(1f)
                             )
 
-                            StatsCard(
-                                icon = Icons.AutoMirrored.Filled.Article,
-                                label = "Total Items",
-                                value = uiState.libraries.sumOf { it.itemCount }.toString(),
+                            MediaCard(
+                                data = MediaCardData(
+                                    icon = Icons.AutoMirrored.Filled.Article,
+                                    label = "Total Items",
+                                    value = uiState.libraries.sumOf { it.itemCount }.toString()
+                                ),
+                                style = MediaCardStyle.STATS,
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -163,7 +181,7 @@ fun ImprovedLibraryListScreen(
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             items(uiState.libraries) { libraryWithCount ->
-                                LibraryCard(
+                                MediaCard(
                                     library = libraryWithCount.toLibraryItem(),
                                     onClick = {
                                         onNavigateToLibrary(libraryWithCount.library.libraryId.toInt())
