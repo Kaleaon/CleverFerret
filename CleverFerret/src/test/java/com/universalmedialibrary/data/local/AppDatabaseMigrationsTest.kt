@@ -72,4 +72,16 @@ class AppDatabaseMigrationsTest {
         assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_metadata_music_track_itemId ON metadata_music_track") }).isTrue()
         assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_extended_metadata_itemId ON extended_metadata") }).isTrue()
     }
+
+    @Test
+    fun `migration 46_47 creates media_fts table and triggers`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_46_47.migrate(database)
+
+        assertThat(executedSql.any { it.contains("CREATE VIRTUAL TABLE IF NOT EXISTS `media_fts`") }).isTrue()
+        assertThat(executedSql.any { it.contains("media_items_ai") }).isTrue()
+    }
 }

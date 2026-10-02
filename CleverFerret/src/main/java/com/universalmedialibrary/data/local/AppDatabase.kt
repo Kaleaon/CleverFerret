@@ -189,10 +189,13 @@ import com.universalmedialibrary.data.Tag
         DismissedSuggestion::class,
 
         // Staged Metadata Candidates
-        StagedMetadataCandidate::class
+        StagedMetadataCandidate::class,
+
+        // FTS Virtual Table
+        MediaFtsEntity::class
 
     ],
-    version = 46,
+    version = 47,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 44, to = 45),
@@ -209,6 +212,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun libraryScanSettingsDao(): LibraryScanSettingsDao
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun mediaItemDao(): MediaItemDao
+    abstract fun mediaFtsDao(): MediaFtsDao
     abstract fun metadataDao(): MetadataDao
     abstract fun stagedMetadataCandidateDao(): StagedMetadataCandidateDao
     abstract fun extendedMetadataDao(): ExtendedMetadataDao
@@ -341,7 +345,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_42_43,
                         AppDatabaseMigrations.MIGRATION_43_44,
                         AppDatabaseMigrations.MIGRATION_44_45,
-                        AppDatabaseMigrations.MIGRATION_45_46
+                        AppDatabaseMigrations.MIGRATION_45_46,
+                        AppDatabaseMigrations.MIGRATION_46_47
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
