@@ -102,7 +102,7 @@ afterEvaluate {
         source(project.fileTree(kspJavaDir))
         classpath += project.files(kspJavaDir)
         options.compilerArgs.add("-proc:none")
-        val kspTaskName = "ksp${variant.replaceFirstChar { it.uppercase() }}Kotlin"
+        val kspTaskName = "ksp${variant.replaceFirstChar { it.uppercase() }}"
         if (tasks.names.contains(kspTaskName)) {
             dependsOn(kspTaskName)
         }
