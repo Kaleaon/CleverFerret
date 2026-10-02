@@ -38,7 +38,7 @@ if [[ -f "$DETEKT_JAR" ]]; then
   echo "✓ Detekt CLI runner cached at $DETEKT_JAR"
 fi
 
-if [[ "$(git config --get core.hooksPath || true)" == "/dev/null" ]]; then
+if git config --get core.hooksPath >/dev/null 2>&1; then
   git config --unset-all core.hooksPath || true
 fi
 
