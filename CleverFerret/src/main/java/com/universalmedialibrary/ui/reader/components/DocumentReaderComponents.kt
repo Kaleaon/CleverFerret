@@ -63,8 +63,8 @@ data class TableOfContentsItem(
     val children: List<TableOfContentsItem> = emptyList()
 )
 
-private const val ENABLED_ALPHA = 1f
-private const val DISABLED_ALPHA = 0.4f
+internal const val ENABLED_ALPHA = 1f
+internal const val DISABLED_ALPHA = 0.4f
 
 @Composable
 fun TopReaderControls(
@@ -169,7 +169,7 @@ fun TopReaderControls(
 
 
 @Composable
-private fun SettingsCard(
+internal fun SettingsCard(
     title: String,
     content: @Composable () -> Unit
 ) {
@@ -195,7 +195,7 @@ private fun SettingsCard(
 
 
 @Composable
-private fun SearchResultItem(
+internal fun SearchResultItem(
     result: SearchResult,
     isSelected: Boolean,
     onClick: () -> Unit

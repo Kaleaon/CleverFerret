@@ -272,56 +272,7 @@ fun PodcastManagerScreen(
     }
 }
 
-@Composable
-fun PodcastSubscriptionsTab(
-    podcasts: List<Podcast>,
-    onPodcastClick: (Podcast) -> Unit,
-    onUnsubscribe: (Podcast) -> Unit
-) {
-    if (podcasts.isEmpty()) {
-        // Empty state
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                Icons.Default.Podcasts,
-                contentDescription = "Media image",
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "No Podcast Subscriptions",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Medium
-            )
-            Text(
-                text = "Search for podcasts or add RSS feeds to get started",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
-    } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(podcasts, key = { it.id }) { podcast ->
-                PodcastCard(
-                    podcast = podcast,
-                    onClick = { onPodcastClick(podcast) },
-                    onUnsubscribe = { onUnsubscribe(podcast) }
-                )
-            }
-        }
-    }
-}
+
 
 @Composable
 fun PodcastEpisodesTab(
@@ -405,7 +356,7 @@ fun AddPodcastFeedDialog(
     )
 }
 
-private fun formatDuration(seconds: Long): String {
+internal fun formatDuration(seconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val secs = seconds % 60

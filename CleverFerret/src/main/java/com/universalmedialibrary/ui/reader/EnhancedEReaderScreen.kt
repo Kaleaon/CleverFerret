@@ -490,7 +490,7 @@ fun EnhancedEReaderScreen(
 
 
 @Composable
-private fun InsightCard(title: String, content: String) {
+internal fun InsightCard(title: String, content: String) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -558,7 +558,7 @@ private fun LoadingView() {
 
 
 @Composable
-private fun ThemeButton(
+internal fun ThemeButton(
     name: String,
     backgroundColor: Color,
     textColor: Color,

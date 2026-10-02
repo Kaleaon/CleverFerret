@@ -554,7 +554,7 @@ private fun formatTime(ms: Long): String {
     }
 }
 
-private fun formatOffset(offsetMs: Int): String {
+internal fun formatOffset(offsetMs: Int): String {
     return if (offsetMs >= 0) {
         "+${offsetMs} ms"
     } else {
