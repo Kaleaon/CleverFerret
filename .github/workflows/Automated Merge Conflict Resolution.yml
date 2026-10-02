@@ -2,6 +2,8 @@ on:
   pull_request:
     types: [opened, synchronize, labeled, unlabeled, reopened, ready_for_review]
 
+permissions: {}
+
 jobs:
   resolve-conflicts:
     runs-on: ubuntu-latest
