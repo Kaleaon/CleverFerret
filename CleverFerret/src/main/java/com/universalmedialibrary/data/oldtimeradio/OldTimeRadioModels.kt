@@ -196,6 +196,9 @@ interface OldTimeRadioDao {
     
     @Query("SELECT * FROM old_time_radio_episodes WHERE uri = :uri LIMIT 1")
     suspend fun getEpisodeByUri(uri: String): OldTimeRadioEpisode?
+
+    @Query("SELECT uri FROM old_time_radio_episodes WHERE uri IN (:uris)")
+    suspend fun getExistingUris(uris: List<String>): List<String>
     
     @Query("""
         SELECT DISTINCT series_title, 
