@@ -73,6 +73,7 @@ jobs:
             CleverFerret/build/reports/lint-results-*.xml
             CleverFerret/build/reports/lint-results-*.txt
             CleverFerret/lint-baseline.xml
+          if-no-files-found: ignore
 
       - name: Comment Lint Results on PR
         if: github.event_name == 'pull_request' && always()

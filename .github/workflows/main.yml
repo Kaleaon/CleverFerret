@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      COMPILE_LOG: compile_output_${{ github.sha }}_${{ github.run_attempt }}.txt
     
     steps:
     - name: Checkout code
@@ -107,8 +109,10 @@ jobs:
           if [ -n "${COMPILE_LOG:-}" ] && [ -f "$COMPILE_LOG" ]; then
             echo "Compilation log saved for debugging."
           fi
-        else
+        elif [ "${{ steps.compile.outcome }}" == "success" ]; then
           echo "::notice::Compilation succeeded!"
+        else
+          echo "::warning::Compilation was skipped or cancelled."
         fi
     
     - name: Upload compilation log artifact
@@ -166,6 +170,7 @@ jobs:
           CleverFerret/build/reports/lint-results-debug.xml
           CleverFerret/build/reports/lint-results-debug.txt
           CleverFerret/lint-baseline.xml
+        if-no-files-found: ignore
 
   build:
     name: Build APK
@@ -174,6 +179,8 @@ jobs:
     if: always()  # Run even if test job fails to provide build diagnostics
     permissions:
       contents: read
+    env:
+      BUILD_LOG: build_output_${{ github.sha }}_${{ github.run_attempt }}.txt
     
     outputs:
       version-name: ${{ steps.version.outputs.version-name }}
@@ -373,6 +380,7 @@ jobs:
         path: |
           CleverFerret/build/outputs/apk/debug/CleverFerret-v${{ steps.version.outputs.version-name }}-debug.apk
           CleverFerret/build/outputs/apk/debug/*.sha256
+        if-no-files-found: ignore
         
     - name: Upload release APK
       if: steps.build-debug.outcome == 'success'
@@ -383,6 +391,7 @@ jobs:
           CleverFerret/build/outputs/apk/release/CleverFerret-v${{ steps.version.outputs.version-name }}-release*.apk
           CleverFerret/build/outputs/apk/release/*.sha256
           CleverFerret/build/outputs/apk/checksums.sha256
+        if-no-files-found: ignore
 
 
   clean-checkout-matrix:
@@ -508,7 +517,7 @@ jobs:
         fetch-depth: 0
         
     - name: Download all APKs
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v4
       with:
         path: apks
 

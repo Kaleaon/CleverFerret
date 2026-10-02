@@ -118,4 +118,5 @@ jobs:
         with:
           name: instrumentation-test-api${{ matrix.config.api }}-${{ matrix.config.arch }}
           path: '**/build/reports/androidTests/'
+          if-no-files-found: ignore
           retention-days: 14
