@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaxLineLength:MetadataAiArtifacts.kt$InMemoryMetadataAiArtifactRepository$override</ID>
+    <ID>MaxLineLength:MetadataAiArtifacts.kt$MetadataAiArtifactRepository$fun saveNext(mediaId: String, contract: MetadataAiContract, provider: AiProviderId, payload: String, generatedAt: Instant): MetadataAiArtifact</ID>
+    <ID>MaxLineLength:MetadataAiPromptFactory.kt$MetadataAiPromptFactory$MetadataAiContract.MIND_MAP_GRAPH -&gt; "{\"nodes\":[{\"id\":string,\"label\":string}],\"edges\":[{\"from\":string,\"to\":string,\"relation\":string}]}"</ID>
+  </CurrentIssues>
+</SmellBaseline>

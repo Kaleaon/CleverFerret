@@ -200,3 +200,20 @@ gradle.projectsEvaluated {
     }
 }
 
+subprojects {
+    plugins.withId("io.gitlab.arturbosch.detekt") {
+        configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
+            buildUponDefaultConfig = true
+            config.setFrom(files("${rootProject.rootDir}/config/detekt/detekt.yml"))
+            baseline = file("detekt-baseline.xml")
+        }
+        tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+            reports {
+                html.required.set(true)
+                xml.required.set(true)
+                sarif.required.set(true)
+                md.required.set(false)
+            }
+        }
+    }
+}
