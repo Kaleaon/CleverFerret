@@ -137,12 +137,12 @@ private fun Stepper(label: String, value: String, onMinus: () -> Unit, onPlus: (
             .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = onMinus, modifier = Modifier.size(32.dp)) { Icon(Icons.Default.Remove, contentDescription = "Decrease $label", modifier = Modifier.size(16.dp)) }
+        IconButton(onClick = onMinus, modifier = Modifier.minimumInteractiveComponentSize()) { Icon(Icons.Default.Remove, contentDescription = "Decrease $label", modifier = Modifier.size(16.dp)) }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(value, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black)
             Text(label, style = MaterialTheme.typography.labelSmall, color = cs.onSurfaceVariant)
         }
-        IconButton(onClick = onPlus, modifier = Modifier.size(32.dp)) { Icon(Icons.Default.Add, contentDescription = "Increase $label", modifier = Modifier.size(16.dp)) }
+        IconButton(onClick = onPlus, modifier = Modifier.minimumInteractiveComponentSize()) { Icon(Icons.Default.Add, contentDescription = "Increase $label", modifier = Modifier.size(16.dp)) }
     }
 }
 

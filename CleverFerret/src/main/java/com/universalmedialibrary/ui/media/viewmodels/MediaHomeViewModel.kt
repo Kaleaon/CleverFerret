@@ -165,7 +165,9 @@ class MediaHomeViewModel @Inject constructor(
                 val fanfictionDeferred = async { loadRecentFanfiction() }
                 val collectionsDeferred = async { loadCollections() }
                 val statsDeferred = async { loadLibraryStats() }
-                val hasConfiguredContentSourceDeferred = async { false }
+                val hasConfiguredContentSourceDeferred = async {
+                    true
+                }
                 
                 val recentBooks = booksDeferred.await()
                 val recentMusic = musicDeferred.await()

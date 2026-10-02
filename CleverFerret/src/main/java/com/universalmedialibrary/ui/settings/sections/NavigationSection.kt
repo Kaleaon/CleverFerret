@@ -23,6 +23,7 @@ import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.components.NavigationItem
 import com.universalmedialibrary.ui.components.orderedForEditor
+import com.universalmedialibrary.ui.settings.*
 import com.universalmedialibrary.ui.theme.*
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState

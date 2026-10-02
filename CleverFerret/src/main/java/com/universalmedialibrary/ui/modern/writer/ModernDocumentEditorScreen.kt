@@ -148,7 +148,7 @@ private fun FormatBar(onFormat: (FormatAction) -> Unit) {
 
 @Composable
 private fun FormatBtn(icon: ImageVector, contentDescription: String, onClick: () -> Unit) {
-    IconButton(onClick = onClick, modifier = Modifier.size(36.dp)) {
+    IconButton(onClick = onClick, modifier = Modifier.minimumInteractiveComponentSize()) {
         Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(18.dp))
     }
 }

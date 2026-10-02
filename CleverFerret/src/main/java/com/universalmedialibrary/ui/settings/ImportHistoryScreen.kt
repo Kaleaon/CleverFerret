@@ -185,7 +185,7 @@ fun ImportHistoryScreen(
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(details.operations.take(20)) { operation ->
                         Text(
-                            "${operation.status.name}: ${operation.sourceUri} → ${operation.destUri}",
+                            "${operation.status.name}: ${operation.sourceUri} → ${operation.destinationUri}",
                             style = androidx.compose.material3.MaterialTheme.typography.bodySmall
                         )
                     }

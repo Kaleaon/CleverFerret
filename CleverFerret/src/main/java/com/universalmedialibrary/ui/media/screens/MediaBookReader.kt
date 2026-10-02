@@ -267,7 +267,7 @@ fun MediaBookReader(
 
 
 @Composable
-private fun ReaderActionButton(
+internal fun ReaderActionButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     onClick: () -> Unit
@@ -324,7 +324,7 @@ private fun TTSIndicator(modifier: Modifier = Modifier) {
 
 
 @Composable
-private fun SettingSection(
+internal fun SettingSection(
     title: String,
     content: @Composable () -> Unit
 ) {
@@ -340,7 +340,7 @@ private fun SettingSection(
 }
 
 @Composable
-private fun SettingToggle(
+internal fun SettingToggle(
     title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
@@ -366,7 +366,7 @@ private fun SettingToggle(
 }
 
 @Composable
-private fun ThemePresetChip(
+internal fun ThemePresetChip(
     preset: ReaderThemePreset,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -406,7 +406,7 @@ private fun ThemePresetChip(
 
 
 @Composable
-private fun SearchResultItem(
+internal fun SearchResultItem(
     result: ReaderSearchResult,
     onClick: () -> Unit
 ) {
@@ -445,7 +445,7 @@ private fun SearchResultItem(
 // HELPER FUNCTIONS
 // =============================================================================
 
-private fun getFontFamily(font: ReaderFontFamily): FontFamily {
+internal fun getFontFamily(font: ReaderFontFamily): FontFamily {
     return when (font) {
         ReaderFontFamily.SYSTEM -> FontFamily.Default
         ReaderFontFamily.SERIF -> FontFamily.Serif

@@ -96,7 +96,7 @@ internal fun StickyContentLibraryHeader(
                             modifier = Modifier.size(MediaSizes.IconSM)
                         )
                         Text(
-                            text = stringResource(id = R.string.search_hint),
+                            text = "Search library",
                             style = MediaTypography.BodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -134,12 +134,11 @@ internal fun StickyContentLibraryHeader(
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 titleContentColor = MaterialTheme.colorScheme.onBackground
-            ),
-            titleHorizontalAlignment = Alignment.CenterHorizontally
+            )
         )
     }
 }
-private fun MediaItem.remainingLabel(): String {
+internal fun MediaItem.remainingLabel(): String {
     val clampedProgress = progress.coerceIn(0f, 1f)
     if (clampedProgress <= 0f || clampedProgress >= 1f) {
         return subtitle ?: duration.orEmpty()

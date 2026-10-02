@@ -447,7 +447,7 @@ fun MediaSettingsScreen(
 // =============================================================================
 
 @Composable
-private fun SettingsTopBar(
+internal fun SettingsTopBar(
     title: String,
     onBackClick: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {}
