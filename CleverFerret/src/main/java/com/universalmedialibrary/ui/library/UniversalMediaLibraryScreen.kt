@@ -366,6 +366,7 @@ fun MediaType.displayName(): String {
         MediaType.MIDI -> "MIDI Files"
         MediaType.MUSIC_SCORE -> "Music Scores"
         MediaType.UNKNOWN -> "Unknown"
+        else -> name.lowercase().replaceFirstChar { it.uppercase() }
     }
 }
 
@@ -378,18 +379,10 @@ fun MediaType.getIcon(): ImageVector {
         MediaType.MUSIC, MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM -> Icons.Default.MusicNote
         MediaType.PODCAST, MediaType.PODCAST_EPISODE, MediaType.PODCAST_SERIES -> Icons.Default.MusicNote
         MediaType.RADIO -> Icons.Default.Radio
-        MediaType.COMIC, MediaType.MANGA -> Icons.Default.AutoStories
-        MediaType.MAGAZINE, MediaType.NEWSPAPER -> Icons.AutoMirrored.Filled.Article
-        MediaType.JOURNAL -> Icons.Default.Book
-        MediaType.NEWS_ARTICLE -> Icons.AutoMirrored.Filled.Article
-        MediaType.ACADEMIC_PAPER -> Icons.Default.School
-        MediaType.REPORT -> Icons.Default.Assessment
-        MediaType.PRESENTATION -> Icons.Default.Slideshow
-        MediaType.DOCUMENT -> Icons.Default.Description
-        MediaType.WEB_FICTION -> Icons.Default.AutoStories
         MediaType.MIDI -> Icons.Default.Piano
         MediaType.MUSIC_SCORE -> Icons.Default.MusicNote
         MediaType.UNKNOWN -> Icons.Default.QuestionMark
+        else -> Icons.Default.PermMedia
     }
 }
 
