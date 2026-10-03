@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/INDEX.md
+---
+
 # Comprehensive Bug Fix Report - CleverFerret
 
 **Date:** November 21, 2024  

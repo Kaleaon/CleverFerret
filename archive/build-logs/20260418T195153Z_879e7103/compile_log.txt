@@ -1,0 +1,713 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+Configuration on demand is an incubating feature.
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources NO-SOURCE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+
+> Configure project :CleverFerret
+⚠️  Release signing not configured. Set KEYSTORE_* env vars for update-compatible releases.
+
+> Task :CleverFerret:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :CleverFerret:preBuild UP-TO-DATE
+> Task :CleverFerret:preDebugBuild UP-TO-DATE
+> Task :CleverFerret:generateDebugBuildConfig
+> Task :CleverFerret:checkDebugAarMetadata
+WARNING: [Processor] Library '/home/jules/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-session/1.8.0/e28b8a1b7941dd4c4da264d5e622274e7c8e6488/media3-session-1.8.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
+ Example of androidX reference: 'androidx/media3/session/legacy/LegacyParcelableUtil'
+ Example of support library reference: 'android/support/v4/media/MediaDescriptionCompat'
+WARNING: [Processor] Library '/home/jules/.gradle/caches/modules-2/files-2.1/com.google.android.gms/play-services-cast-framework/22.2.0/93ff90a694b3cda2f82b44948f5e2a296afdd62a/play-services-cast-framework-22.2.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
+ Example of androidX reference: 'androidx/annotation/Nullable'
+ Example of support library reference: 'android/support/v4/media/session/MediaSessionCompat$Token'
+
+> Task :CleverFerret:processDebugNavigationResources
+> Task :CleverFerret:generateDebugResValues
+> Task :CleverFerret:compileDebugNavigationResources
+> Task :CleverFerret:mapDebugSourceSetPaths
+> Task :CleverFerret:generateDebugResources
+> Task :CleverFerret:packageDebugResources
+> Task :CleverFerret:mergeDebugResources
+> Task :CleverFerret:createDebugCompatibleScreenManifests
+> Task :CleverFerret:extractDeepLinksDebug
+> Task :CleverFerret:parseDebugLocalResources
+
+> Task :CleverFerret:processDebugMainManifest
+[com.github.wseemann:FFmpegMediaMetadataRetriever-core:1.0.21] /home/jules/.gradle/caches/8.13/transforms/bb5249e0d04ee5202a99ca8230652f85/transformed/jetified-FFmpegMediaMetadataRetriever-core-1.0.21/AndroidManifest.xml Warning:
+	Namespace 'wseemann.media' is used in multiple modules and/or libraries: com.github.wseemann:FFmpegMediaMetadataRetriever-core:1.0.21, com.github.wseemann:FFmpegMediaMetadataRetriever-native:1.0.21. Please ensure that all modules and libraries have a unique namespace. For more information, See https://developer.android.com/studio/build/configure-app-module#set-namespace
+
+> Task :CleverFerret:processDebugManifest
+> Task :CleverFerret:processDebugManifestForPackage
+> Task :CleverFerret:processDebugResources
+> Task :CleverFerret:kspDebugKotlin
+w: [ksp] /app/CleverFerret/src/main/java/com/universalmedialibrary/data/local/dao/UnifiedTagDao.kt:188: The query returns some columns [itemCount] which are not used by com.universalmedialibrary.`data`.local.entity.UnifiedTag. You can use @ColumnInfo annotation on the properties to specify the mapping. You can annotate the function with @RewriteQueriesToDropUnusedColumns to direct Room to rewrite your query to avoid fetching unused columns.  You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: tagId, name, type, color, description, createdAt, lastUsed, usageCount, externalId, itemCount.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.debug.ui.DebugMenuViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.debug.ui.DebugMenuViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.collections.CollectionsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.collections.CollectionsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.collections.SmartCollectionsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.collections.SmartCollectionsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.collections.CollectionDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.collections.CollectionDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.books.BarcodeScannerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.books.BarcodeScannerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.books.EnhancedReadingStatisticsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.books.EnhancedReadingStatisticsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.books.BookSourceViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.books.BookSourceViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.metadata.EnhancedMetadataViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.metadata.EnhancedMetadataViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.metadata.MetadataEditorViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.metadata.MetadataEditorViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.library.UniversalMediaLibraryViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.library.UniversalMediaLibraryViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.library.LibraryListViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.library.LibraryListViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.library.LibraryDetailsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.library.LibraryDetailsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.library.LibraryManagementViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.library.LibraryManagementViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.audiobook.FreeAudiobookViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.audiobook.FreeAudiobookViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.audiobook.AudiobookPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.audiobook.AudiobookPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.audiobook.AudiobookViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.audiobook.AudiobookViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.bookshelf.BookshelfViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.bookshelf.BookshelfViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.home.ContinueReadingViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.home.ContinueReadingViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.maintenance.MaintenanceViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.maintenance.MaintenanceViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.MusicLibraryViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.MusicLibraryViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.hivefy.HivefyMusicViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.hivefy.HivefyMusicViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.FreeMusicViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.FreeMusicViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.MusicPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.MusicPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.GenreDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.GenreDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.LyricsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.LyricsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.TagManagementViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.TagManagementViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.ArtistDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.ArtistDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.AlbumDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.music.AlbumDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.detail.MediaItemDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.detail.MediaItemDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.gallery.GallerySettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.gallery.GallerySettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.gallery.GalleryViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.gallery.GalleryViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.RadioBrowserViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.RadioBrowserViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.FMRadioViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.FMRadioViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.EnhancedRadioViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.EnhancedRadioViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.InternetRadioViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.InternetRadioViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.HDRadioViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.HDRadioViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.RadioViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.radio.RadioViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.webfiction.UniversalTagBrowserViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.webfiction.UniversalTagBrowserViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.webfiction.MetabodsTagBrowserViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.webfiction.MetabodsTagBrowserViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.webfiction.FanfictionDownloaderViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.webfiction.FanfictionDownloaderViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.webfiction.WebFictionViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.webfiction.WebFictionViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.filepicker.StorageBrowserViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.filepicker.StorageBrowserViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.comic.WebComicDownloaderViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.comic.WebComicDownloaderViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.comic.ComicReaderTranslationViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.comic.ComicReaderTranslationViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.comic.ComicTranslationSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.comic.ComicTranslationSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.organization.OrganizationViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.organization.OrganizationViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.video.VideoLibraryViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.video.VideoLibraryViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.selection.GlobalSelectionViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.selection.GlobalSelectionViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.cloud.CloudStorageViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.cloud.CloudStorageViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.sharing.QRCodeSharingViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.sharing.QRCodeSharingViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.QueueViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.QueueViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.ModernAudioPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.ModernAudioPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.AdvancedVideoPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.AdvancedVideoPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.UniversalVideoPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.UniversalVideoPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.AudioPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.AudioPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.SyncedLyricsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.SyncedLyricsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.VideoPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.VideoPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.ModernVideoPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.player.ModernVideoPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.news.NewsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.news.NewsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.MediaSyncViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.MediaSyncViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.NowPlayingViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.NowPlayingViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaSyncViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaSyncViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.ReaderViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.ReaderViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaHomeViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaHomeViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.CollectionsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.CollectionsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.NewsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.NewsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.PodcastViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.PodcastViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaServerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaServerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaLibraryViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MediaLibraryViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.AmbientViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.AmbientViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.SearchViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.SearchViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.AudioPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.AudioPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.EnhancedRadioViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.EnhancedRadioViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.CollectionDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.CollectionDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.RadioViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.RadioViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.WebFictionViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.WebFictionViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.ImportExportViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.ImportExportViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.OPDSViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.OPDSViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MusicViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.MusicViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.VideoPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.viewmodels.VideoPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.MediaAuthViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.MediaAuthViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.FreeMediaViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.FreeMediaViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.MediaIntegrationViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.media.MediaIntegrationViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.tags.UniversalTagExplorerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.tags.UniversalTagExplorerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.tags.UniversalTagManagerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.tags.UniversalTagManagerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.opds.OPDSCatalogBrowserViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.opds.OPDSCatalogBrowserViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.integration.MediaIntegrationViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.integration.MediaIntegrationViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.integration.ServerIntegrationViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.integration.ServerIntegrationViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioSeriesViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioSeriesViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.details.LibraryDetailsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.details.LibraryDetailsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.details.BookDetailsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.details.BookDetailsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ai.AIBackupSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ai.AIBackupSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ai.AIRateLimitViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ai.AIRateLimitViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ai.AIContentCacheViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ai.AIContentCacheViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.PDFReaderViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.PDFReaderViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.EnhancedEReaderViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.EnhancedEReaderViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.ComicReaderViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.ComicReaderViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.SearchViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.SearchViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.AdvancedComicReaderViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.AdvancedComicReaderViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.ReadingStatisticsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.ReadingStatisticsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.EReaderViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.EReaderViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.OcrViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.OcrViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.AdvancedDocumentReaderViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.AdvancedDocumentReaderViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.ReaderSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.ReaderSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.BookmarkViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.reader.BookmarkViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.open.MediaOpenViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.open.MediaOpenViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.visualizer.PresetBrowserViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.visualizer.PresetBrowserViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.visualizer.VisualizerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.visualizer.VisualizerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.audio.MultiRoomAudioViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.audio.MultiRoomAudioViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.network.NetworkExplorerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.network.NetworkExplorerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.series.SeriesDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.series.SeriesDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.search.SearchViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.search.SearchViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.search.EnhancedSearchViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.search.EnhancedSearchViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.search.UniversalSearchViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.search.UniversalSearchViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.manga.MangaExploreViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.manga.MangaExploreViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.manga.MangaLibraryViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.manga.MangaLibraryViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.PrivacySettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.PrivacySettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.MetadataSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.MetadataSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.OpdsSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.OpdsSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.MediaServerSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.MediaServerSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ImportSorterViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ImportSorterViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.TtsProviderSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.TtsProviderSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ParentalControlsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ParentalControlsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.NetworkStorageSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.NetworkStorageSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.AudioProfilesViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.AudioProfilesViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.AutoScanSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.AutoScanSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ReadingPreferencesViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ReadingPreferencesViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.AudioEffectsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.AudioEffectsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.SettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.SettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.LastFmSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.LastFmSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.SecuritySettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.SecuritySettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.APIKeysViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.APIKeysViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ApiSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ApiSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.APISettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.APISettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.AISettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.AISettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.CastingSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.CastingSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.FeedbackViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.FeedbackViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ImportExportViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.ImportExportViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.CacheSettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.settings.CacheSettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.fanfiction.FanfictionViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.fanfiction.FanfictionViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.folderimport.FolderImportViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.folderimport.FolderImportViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.collaborative.CollaborativeSessionViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.collaborative.CollaborativeSessionViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ambient.ThemeManagerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ambient.ThemeManagerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ambient.AmbientSoundViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ambient.AmbientSoundViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ambient.AudioPackImportViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.ambient.AudioPackImportViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.main.MainViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.main.MainViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.sync.SyncViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.sync.SyncViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.podcast.PodcastViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.podcast.PodcastViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.podcast.PodcastDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.podcast.PodcastDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.podcast.PodcastPlayerViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.podcast.PodcastPlayerViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.playback.NowPlayingViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.playback.NowPlayingViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.recommendations.RecommendationsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+w: [ksp] No dependencies reported for generated source com.universalmedialibrary.ui.recommendations.RecommendationsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.java which willprevent incremental compilation.
+Please file a bug at https://issuetracker.google.com/issues/new?component=413107.
+e: [ksp] InjectProcessingStep was unable to process 'AIBackupAutomationService(android.content.Context,error.NonExistentClass,error.NonExistentClass,error.NonExistentClass)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (CLASS): com.universalmedialibrary.services.ai.AIBackupAutomationService
+    => element (CONSTRUCTOR): AIBackupAutomationService(android.content.Context,error.NonExistentClass,error.NonExistentClass,error.NonExistentClass)
+    => type (EXECUTABLE constructor): (android.content.Context,error.NonExistentClass,error.NonExistentClass,error.NonExistentClass)void
+    => type (ERROR parameter type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] InjectProcessingStep was unable to process 'AIBookDiscussionService(android.content.Context,com.universalmedialibrary.services.ai.AIReadingProgressService,com.universalmedialibrary.data.local.dao.ReadingAnalyticsDao,error.NonExistentClass)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (CLASS): com.universalmedialibrary.services.ai.AIBookDiscussionService
+    => element (CONSTRUCTOR): AIBookDiscussionService(android.content.Context,com.universalmedialibrary.services.ai.AIReadingProgressService,com.universalmedialibrary.data.local.dao.ReadingAnalyticsDao,error.NonExistentClass)
+    => type (EXECUTABLE constructor): (android.content.Context,com.universalmedialibrary.services.ai.AIReadingProgressService,com.universalmedialibrary.data.local.dao.ReadingAnalyticsDao,error.NonExistentClass)void
+    => type (ERROR parameter type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] InjectProcessingStep was unable to process 'AIReadingAgentService(android.content.Context,com.universalmedialibrary.services.ai.AIReadingProgressService,com.universalmedialibrary.services.ai.AIBookDiscussionService,com.universalmedialibrary.services.ai.AILibraryBrowserService,error.NonExistentClass)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (CLASS): com.universalmedialibrary.services.ai.AIReadingAgentService
+    => element (CONSTRUCTOR): AIReadingAgentService(android.content.Context,com.universalmedialibrary.services.ai.AIReadingProgressService,com.universalmedialibrary.services.ai.AIBookDiscussionService,com.universalmedialibrary.services.ai.AILibraryBrowserService,error.NonExistentClass)
+    => type (EXECUTABLE constructor): (android.content.Context,com.universalmedialibrary.services.ai.AIReadingProgressService,com.universalmedialibrary.services.ai.AIBookDiscussionService,com.universalmedialibrary.services.ai.AILibraryBrowserService,error.NonExistentClass)void
+    => type (ERROR parameter type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: Error occurred in KSP, check log for detail
+
+> Task :CleverFerret:kspDebugKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':CleverFerret:kspDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 6m 20s
+20 actionable tasks: 17 executed, 3 up-to-date

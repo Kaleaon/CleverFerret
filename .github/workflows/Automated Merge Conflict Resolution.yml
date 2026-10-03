@@ -1,49 +1,83 @@
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, labeled, unlabeled, reopened, ready_for_review]
 
 jobs:
   resolve-conflicts:
     runs-on: ubuntu-latest
-    # BUG FIX 1: Grant write permissions to the job for pushing changes.
     permissions:
       contents: write
-      
+      pull-requests: read
+
     steps:
-    - name: Checkout code
-      # BUG FIX 2: Updated to the latest major version for security and features.
-      uses: actions/checkout@v6 
-      with:
-        # Checkout the head of the PR, not the merge commit.
-        ref: ${{ github.head_ref }}
-        # Fetch all history to enable merging.
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
 
-    - name: Configure Git user
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Configure Git user
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-    - name: Attempt to merge the base branch
-      # BUG FIX 3: Added an ID and continue-on-error for robust conditional logic.
-      id: merge
-      continue-on-error: true
-      run: |
-        git merge origin/${{ github.base_ref }}
+      - name: Attempt to merge the base branch
+        id: merge
+        continue-on-error: true
+        run: |
+          git merge origin/${{ github.base_ref }}
 
-    - name: Resolve conflicts
-      id: resolve
-      # This step now runs only if the previous 'merge' step specifically failed.
-      if: steps.merge.outcome == 'failure'
-      run: |
-        echo "Merge conflict detected. Attempting to resolve..."
-        # Ensure your resolution script is executable in your repository, e.g., by running `git update-index --chmod=+x tooling/scripts/resolve-merge-conflicts.sh`.
-        ./tooling/scripts/resolve-merge-conflicts.sh
+      - name: Check automation safety gates (label + approval)
+        id: gates
+        if: steps.merge.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const labels = (pr.labels || []).map(l => l.name);
+            const hasLabel = labels.includes('conflict-auto-resolve-ok');
 
-    - name: Commit and push changes
-      # BUG FIX 4: Corrected conditional logic to run only after a successful resolution.
-      if: steps.merge.outcome == 'failure' && steps.resolve.outcome == 'success'
-      run: |
-        git add .
-        git commit -m "chore: Automatically resolved merge conflicts"
-        git push
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            });
+
+            const latestByUser = new Map();
+            for (const review of reviews) {
+              latestByUser.set(review.user.login, review.state);
+            }
+            const approved = Array.from(latestByUser.values()).includes('APPROVED');
+
+            core.info(`Label present: ${hasLabel}`);
+            core.info(`Approved review present: ${approved}`);
+            core.setOutput('label_ok', String(hasLabel));
+            core.setOutput('approved_ok', String(approved));
+
+      - name: Resolve conflicts (protected report-only)
+        id: resolve_protected
+        if: steps.merge.outcome == 'failure' && (steps.gates.outputs.label_ok != 'true' || steps.gates.outputs.approved_ok != 'true')
+        run: |
+          echo "Merge conflict detected but automation gates failed."
+          echo "Required: PR label 'conflict-auto-resolve-ok' and at least one APPROVED review."
+          ./tooling/scripts/resolve-merge-conflicts.sh --mode=protected
+
+      - name: Resolve conflicts (allowlisted automation)
+        id: resolve_auto
+        if: steps.merge.outcome == 'failure' && steps.gates.outputs.label_ok == 'true' && steps.gates.outputs.approved_ok == 'true'
+        env:
+          REQUIRE_AUTOMATION_APPROVAL: "true"
+        run: |
+          echo "Merge conflict detected. Running allowlisted automation with approval gates satisfied."
+          ./tooling/scripts/resolve-merge-conflicts.sh --mode=allowlisted-auto
+
+      - name: Commit and push changes
+        if: steps.merge.outcome == 'failure' && steps.resolve_auto.outcome == 'success'
+        run: |
+          if git diff --cached --quiet; then
+            echo "No staged changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: resolve allowlisted merge conflicts with validation"
+          git push

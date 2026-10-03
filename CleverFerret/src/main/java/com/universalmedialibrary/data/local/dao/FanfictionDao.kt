@@ -15,6 +15,9 @@ interface FanfictionDao {
     
     @Query("SELECT * FROM fanfiction_stories WHERE id = :id")
     suspend fun getStoryById(id: String): FanfictionStoryEntity?
+
+    @Query("SELECT * FROM fanfiction_stories WHERE sourceUrl = :sourceUrl LIMIT 1")
+    suspend fun getStoryBySourceUrl(sourceUrl: String): FanfictionStoryEntity?
     
     @Query("SELECT * FROM fanfiction_stories WHERE sourceSite = :site ORDER BY dateAdded DESC")
     fun getStoriesBySite(site: String): Flow<List<FanfictionStoryEntity>>

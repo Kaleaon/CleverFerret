@@ -135,32 +135,6 @@ fun MediaSyncScreen(
 }
 
 @Composable
-private fun SectionHeader(
-    title: String,
-    icon: ImageVector
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = MediaSpacing.SM),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = "Media image",
-            tint = MediaColors.AccentPrimary,
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.width(MediaSpacing.SM))
-        Text(
-            text = title,
-            style = MediaTypography.TitleSmall,
-            color = MediaColors.TextSecondary
-        )
-    }
-}
-
-@Composable
 private fun SyncStatusCard(
     lastSyncTime: String?,
     isSyncing: Boolean,

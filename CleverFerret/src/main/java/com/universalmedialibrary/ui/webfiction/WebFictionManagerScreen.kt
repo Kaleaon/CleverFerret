@@ -34,6 +34,10 @@ import com.universalmedialibrary.services.webfiction.WebFictionSiteType
 import com.universalmedialibrary.services.webfiction.isAdultSite
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.services.webfiction.StoryStatus
+import com.universalmedialibrary.ui.components.UserFeedbackMessage
+import com.universalmedialibrary.ui.components.UserFeedbackSeverity
+import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
+import com.universalmedialibrary.ui.components.showUserFeedback
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
@@ -47,12 +51,47 @@ fun WebFictionManagerScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
     var showAddDialog by remember { mutableStateOf(false) }
     var showRedditDialog by remember { mutableStateOf(false) }
     var showSiteInfoDialog by remember { mutableStateOf(false) }
     var selectedSite by remember { mutableStateOf<WebFictionSite?>(null) }
 
+    LaunchedEffect(uiState.error, uiState.canRetry) {
+        val error = uiState.error ?: return@LaunchedEffect
+        val result = snackbarHostState.showUserFeedback(
+            UserFeedbackMessage(
+                title = "Web fiction action failed",
+                body = error,
+                severity = UserFeedbackSeverity.ERROR,
+                actionLabel = if (uiState.canRetry) "Retry" else null
+            )
+        )
+        if (result == SnackbarResult.ActionPerformed && uiState.canRetry) {
+            viewModel.retryLastAction()
+        } else {
+            viewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(uiState.successMessage) {
+        val success = uiState.successMessage ?: return@LaunchedEffect
+        snackbarHostState.showUserFeedback(
+            UserFeedbackMessage(
+                title = "Completed",
+                body = success,
+                severity = UserFeedbackSeverity.SUCCESS,
+                withDismissAction = false,
+                duration = SnackbarDuration.Short
+            )
+        )
+        viewModel.clearSuccessMessage()
+    }
+
     Scaffold(
+        snackbarHost = {
+            UserFeedbackSnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                     title = {
@@ -170,14 +209,53 @@ fun WebFictionManagerScreen(
                                 tint = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = error,
-                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.weight(1f)
-                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = error.lineSequence().firstOrNull() ?: error,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                                if ("Try:" in error) {
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = error.substringAfter("Try:", missingDelimiterValue = "")
+                                            .trim()
+                                            .prependIndent("Try:\n"),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+                                }
+                            }
                             IconButton(onClick = { viewModel.clearError() }) {
                                 Icon(Icons.Default.Close, contentDescription = "Dismiss")
                             }
+                        }
+                    }
+                }
+
+                uiState.successMessage?.let { success ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Success",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = success,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                     }
                 }
@@ -266,7 +344,10 @@ fun WebFictionManagerScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(uiState.stories) { story ->
+                        items(
+                            items = uiState.stories,
+                            key = { story -> story.id }
+                        ) { story ->
                             WebFictionStoryCard(
                                 story = story,
                                 hasUpdates = story.id in uiState.storiesWithUpdates.map { it.id },
@@ -300,6 +381,7 @@ fun WebFictionManagerScreen(
         if (showAddDialog) {
             AddWebFictionDialog(
                 onDismiss = { showAddDialog = false },
+                validateUrl = viewModel::validateSourceUrl,
                 onAdd = { url ->
                     viewModel.addStoryFromUrl(url)
                     showAddDialog = false
@@ -328,391 +410,12 @@ fun WebFictionManagerScreen(
     }
 }
 
-@Composable
-fun WebFictionStoryCard(
-    story: WebFictionStory,
-    hasUpdates: Boolean,
-    onStoryClick: () -> Unit,
-    onUpdateClick: () -> Unit,
-    onDownloadClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onStoryClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            // Cover image
-            AsyncImage(
-                    
-                model = story.coverUrl ?: "https://via.placeholder.com/80x120/2d3136/e5a00d?text=📖",
-                contentDescription = "Story Cover",
-                modifier = Modifier
-                    .size(60.dp, 90.dp)
-                    .clip(MaterialTheme.shapes.small)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentScale = ContentScale.Crop
-            )
 
-            Spacer(modifier = Modifier.width(16.dp))
 
-            // Story info
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = story.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
 
-                    if (hasUpdates) {
-                        Icon(
-                            Icons.Default.NewReleases,
-                            contentDescription = "Has Updates",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = story.author ?: "Unknown Author",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Site badge
-                    story.site?.let { siteName ->
-                        Surface(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = MaterialTheme.shapes.small
-                        ) {
-                            Text(
-                                text = siteName,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-
-                    // Chapter count
-                    Text(
-                        text = "${story.chapters.size}/${story.totalChapters} chapters",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // Status
-                    Text(
-                        text = story.status.name,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = when (story.status) {
-                            StoryStatus.COMPLETED -> MaterialTheme.colorScheme.primary
-                            StoryStatus.ONGOING -> Color(0xFF4CAF50)
-                            StoryStatus.HIATUS -> Color(0xFFFF9800)
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                        }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Tags
-                if (story.tags.isNotEmpty()) {
-                    Row {
-                        story.tags.take(3).forEach { tag ->
-                            Surface(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = MaterialTheme.shapes.small
-                            ) {
-                                Text(
-                                    text = tag,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Action buttons
-                Row {
-                    OutlinedButton(
-                        onClick = onUpdateClick,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            Icons.Default.Refresh,
-                            contentDescription = "Media image",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Update")
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Button(
-                        onClick = onDownloadClick,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            Icons.Default.Download,
-                            contentDescription = "Media image",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Download")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun AddRedditSeriesDialog(
-    onDismiss: () -> Unit,
-    onAdd: (subreddit: String, seriesName: String, author: String) -> Unit
-) {
-    var subreddit by remember { mutableStateOf("HFY") }
-    var seriesName by remember { mutableStateOf("") }
-    var author by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Add Reddit Series") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = subreddit,
-                    onValueChange = { subreddit = it.trim() },
-                    label = { Text("Subreddit (e.g. HFY)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = seriesName,
-                    onValueChange = { seriesName = it },
-                    label = { Text("Series Name (Search Query)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = author,
-                    onValueChange = { author = it.trim() },
-                    label = { Text("Author (Optional)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                Text(
-                    "Use exact series title for best results.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onAdd(subreddit, seriesName, author) },
-                enabled = subreddit.isNotBlank() && seriesName.isNotBlank()
-            ) {
-                Text("Download")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
-fun AddWebFictionDialog(
-    onDismiss: () -> Unit,
-    onAdd: (String) -> Unit
-) {
-    var url by remember { mutableStateOf("") }
-    var isValidUrl by remember { mutableStateOf(true) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                "Add Web Fiction Story",
-                fontWeight = FontWeight.Medium
-            )
-        },
-        text = {
-            Column {
-                Text(
-                    text = "Enter the URL of a story from a supported fanfiction site:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                OutlinedTextField(
-                    value = url,
-                    onValueChange = {
-                        url = it
-                        isValidUrl = it.isBlank() || it.startsWith("http")
-                    },
-                    label = { Text("Story URL") },
-                    placeholder = { Text("https://archiveofourown.org/works/12345") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = !isValidUrl,
-                    supportingText = if (!isValidUrl) {
-                        { Text("Please enter a valid URL") }
-                    } else null,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Supported sites: AO3, FFN, Royal Road, WebNovel, Wattpad, and more",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onAdd(url) },
-                enabled = url.isNotBlank() && isValidUrl
-            ) {
-                Text("Add Story")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
-fun SupportedSitesDialog(
-    adultSitesEnabled: Boolean,
-    onDismiss: () -> Unit,
-    onSiteClick: (WebFictionSite) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                "Supported Web Fiction Sites",
-                fontWeight = FontWeight.Medium
-            )
-        },
-        text = {
-            LazyColumn(
-                modifier = Modifier.height(400.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC }) { siteType ->
-                    val enabled = adultSitesEnabled || !siteType.isAdultSite()
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .alpha(if (enabled) 1f else 0.6f)
-                            .clickable(enabled = enabled) { onSiteClick(createWebFictionSiteFromType(siteType)) },
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Language,
-                                contentDescription = "Media image",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = getSiteDisplayName(siteType),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Text(
-                                    text = getSiteBaseUrl(siteType),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                if (siteType.isAdultSite()) {
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    AssistChip(
-                                        onClick = {},
-                                        enabled = false,
-                                        label = { Text("Adult Source") },
-                                        leadingIcon = {
-                                            Icon(
-                                                Icons.Default.Warning,
-                                                contentDescription = "Media image",
-                                                tint = MaterialTheme.colorScheme.tertiary
-                                            )
-                                        },
-                                        colors = AssistChipDefaults.assistChipColors(
-                                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                            labelColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                    )
-                                }
-                                if (!enabled && siteType.isAdultSite()) {
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    Text(
-                                        text = "Enable in Parental Controls to view.",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
-            }
-        }
-    )
-}
 
 // Helper functions for WebFictionSiteType
-private fun getSiteDisplayName(siteType: WebFictionSiteType): String {
+internal fun getSiteDisplayName(siteType: WebFictionSiteType): String {
     return when (siteType) {
         WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> "Archive of Our Own"
         WebFictionSiteType.FANFICTION_NET -> "FanFiction.Net"
@@ -734,7 +437,7 @@ private fun getSiteDisplayName(siteType: WebFictionSiteType): String {
     }
 }
 
-private fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
+internal fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
     return when (siteType) {
         WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> "archiveofourown.org"
         WebFictionSiteType.FANFICTION_NET -> "fanfiction.net"
@@ -756,7 +459,7 @@ private fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
     }
 }
 
-private fun createWebFictionSiteFromType(siteType: WebFictionSiteType): WebFictionSite {
+internal fun createWebFictionSiteFromType(siteType: WebFictionSiteType): WebFictionSite {
     return WebFictionSite(
         id = siteType.name.lowercase(),
         name = getSiteDisplayName(siteType),

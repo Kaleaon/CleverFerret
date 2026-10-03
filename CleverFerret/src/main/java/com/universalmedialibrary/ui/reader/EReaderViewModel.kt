@@ -3,6 +3,8 @@ package com.universalmedialibrary.ui.reader
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.repository.ReadingProgressRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,13 +22,18 @@ import javax.inject.Inject
  * Supports: TXT, MD, HTML files and basic EPUB parsing
  */
 @HiltViewModel
-class EReaderViewModel @Inject constructor() : ViewModel() {
+class EReaderViewModel @Inject constructor(
+    private val readingProgressRepository: ReadingProgressRepository,
+    private val mediaItemDao: MediaItemDao
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EReaderUiState())
     val uiState: StateFlow<EReaderUiState> = _uiState.asStateFlow()
 
     private var chapters: List<String> = emptyList()
+    private var chapterTitles: List<String> = emptyList()
     private var currentChapterIndex = 0
+    private var currentItemId: Long? = null
 
     /**
      * Load a book file for reading
@@ -58,6 +65,13 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                     }
                 }
 
+                currentItemId = try {
+                    mediaItemDao.getMediaItemByFilePath(filePath)?.itemId
+                        ?: mediaItemDao.getItemByPath(filePath)?.itemId
+                } catch (_: Exception) {
+                    null
+                }
+
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -80,6 +94,10 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
 
         chapters = content.split(chapterPattern)
             .filter { it.isNotBlank() }
+        chapterTitles = chapters.mapIndexed { index, chapter ->
+            chapter.lineSequence().firstOrNull { it.isNotBlank() }?.trim()?.take(64)
+                ?: "Chapter ${index + 1}"
+        }
 
         if (chapters.isEmpty()) {
             chapters = listOf(content)
@@ -93,7 +111,8 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
             bookTitle = file.nameWithoutExtension,
             totalChapters = chapters.size,
             currentChapterIndex = 0,
-            currentChapterContent = chapters[0]
+            currentChapterContent = chapters[0],
+            chapterTitles = chapterTitles
         )
     }
 
@@ -102,6 +121,7 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
         val strippedContent = stripHtmlWithJsoup(content)
 
         chapters = listOf(strippedContent)
+        chapterTitles = listOf(file.nameWithoutExtension)
         currentChapterIndex = 0
 
         _uiState.value = _uiState.value.copy(
@@ -110,7 +130,8 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
             bookTitle = file.nameWithoutExtension,
             totalChapters = 1,
             currentChapterIndex = 0,
-            currentChapterContent = strippedContent
+            currentChapterContent = strippedContent,
+            chapterTitles = chapterTitles
         )
     }
 
@@ -182,6 +203,9 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                     null
                 }
             }.filter { it.isNotBlank() }
+            chapterTitles = contentEntries.mapIndexed { index, entry ->
+                entry.name.substringAfterLast("/").substringBeforeLast(".").ifBlank { "Chapter ${index + 1}" }
+            }.take(chapters.size)
 
             zipFile.close()
 
@@ -217,7 +241,8 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                 bookTitle = file.nameWithoutExtension,
                 totalChapters = chapters.size,
                 currentChapterIndex = 0,
-                currentChapterContent = chapters[0]
+                currentChapterContent = chapters[0],
+                chapterTitles = chapterTitles
             )
         } catch (e: Exception) {
             _uiState.value = _uiState.value.copy(
@@ -293,6 +318,7 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
         """.trimIndent()
         
         chapters = listOf(content)
+        chapterTitles = listOf("PDF Info")
         currentChapterIndex = 0
         
         _uiState.value = _uiState.value.copy(
@@ -301,7 +327,8 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
             bookTitle = file.nameWithoutExtension,
             totalChapters = 1,
             currentChapterIndex = 0,
-            currentChapterContent = content
+            currentChapterContent = content,
+            chapterTitles = chapterTitles
         )
     }
 
@@ -315,6 +342,7 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                 currentChapterIndex = currentChapterIndex,
                 currentChapterContent = chapters[currentChapterIndex]
             )
+            persistProgress()
         }
     }
 
@@ -328,6 +356,7 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                 currentChapterIndex = currentChapterIndex,
                 currentChapterContent = chapters[currentChapterIndex]
             )
+            persistProgress()
         }
     }
 
@@ -340,6 +369,29 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
             _uiState.value = _uiState.value.copy(
                 currentChapterIndex = currentChapterIndex,
                 currentChapterContent = chapters[currentChapterIndex]
+            )
+            persistProgress()
+        }
+    }
+
+    fun setTheme(themeMode: ReaderThemeMode) {
+        _uiState.value = _uiState.value.copy(themeMode = themeMode)
+    }
+
+    fun adjustFontSize(deltaSp: Int) {
+        _uiState.value = _uiState.value.copy(fontSizeSp = (_uiState.value.fontSizeSp + deltaSp).coerceIn(12, 32))
+    }
+
+    private fun persistProgress() {
+        val itemId = currentItemId ?: return
+        val state = _uiState.value
+        viewModelScope.launch {
+            readingProgressRepository.updateProgress(
+                itemId = itemId,
+                currentPage = state.currentChapterIndex + 1,
+                percentage = if (state.totalChapters > 0) ((state.currentChapterIndex + 1).toFloat() / state.totalChapters) * 100f else 0f,
+                currentChapter = state.currentChapterIndex + 1,
+                currentPosition = state.currentChapterIndex.toLong()
             )
         }
     }
@@ -369,5 +421,12 @@ data class EReaderUiState(
     val totalChapters: Int = 0,
     val currentChapterIndex: Int = 0,
     val currentChapterContent: String = "",
+    val chapterTitles: List<String> = emptyList(),
+    val fontSizeSp: Int = 18,
+    val themeMode: ReaderThemeMode = ReaderThemeMode.SYSTEM,
     val error: String? = null
 )
+
+enum class ReaderThemeMode {
+    SYSTEM, LIGHT, DARK, SEPIA
+}

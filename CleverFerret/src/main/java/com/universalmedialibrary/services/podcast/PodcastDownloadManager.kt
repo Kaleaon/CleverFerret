@@ -18,9 +18,13 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import com.universalmedialibrary.utils.FileNameSanitizer
+import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,16 +36,34 @@ import javax.inject.Singleton
 class PodcastDownloadManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val episodeDao: PodcastEpisodeDao,
-    private val fileNameSanitizer: FileNameSanitizer
+    private val fileNameSanitizer: FileNameSanitizer,
+    private val telemetry: PodcastDownloadTelemetry
 ) {
+    private data class QueuedDownload(
+        val episodeId: Long,
+        val audioUrl: String,
+        val episodeTitle: String,
+        val podcastTitle: String,
+        val attempt: Int = 0
+    )
+
     private val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val queueMutex = Mutex()
+    private val pendingDownloads = ArrayDeque<QueuedDownload>()
+    private val retryCounts = mutableMapOf<Long, Int>()
 
     // Map of download ID to episode ID
     private val activeDownloads = mutableMapOf<Long, Long>()
+    private val activeEpisodes = mutableSetOf<Long>()
+    private val downloadRequestMap = mutableMapOf<Long, QueuedDownload>()
 
     private val _downloadProgress = MutableStateFlow<Map<Long, DownloadStatus>>(emptyMap())
     val downloadProgress: StateFlow<Map<Long, DownloadStatus>> = _downloadProgress.asStateFlow()
+
+    private val maxConcurrentDownloads = 2
+    private val maxRetriesPerEpisode = 2
+    private val maxDownloadedEpisodesToKeep = 250
 
     private val downloadCompleteReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -60,6 +82,9 @@ class PodcastDownloadManager @Inject constructor(
             IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
             androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
         )
+        scope.launch {
+            reconcileDownloadedEpisodesOnStartup()
+        }
     }
 
     /**
@@ -71,25 +96,56 @@ class PodcastDownloadManager @Inject constructor(
         episodeTitle: String,
         podcastTitle: String
     ): Long {
+        val queuedDownload = QueuedDownload(
+            episodeId = episodeId,
+            audioUrl = audioUrl,
+            episodeTitle = episodeTitle,
+            podcastTitle = podcastTitle
+        )
+        scope.launch {
+            queueMutex.withLock {
+                val alreadyQueued = pendingDownloads.any { it.episodeId == episodeId }
+                if (activeEpisodes.contains(episodeId) || alreadyQueued) {
+                    return@withLock
+                }
+                pendingDownloads.addLast(queuedDownload)
+                _downloadProgress.value = _downloadProgress.value +
+                    (episodeId to DownloadStatus.Queued(pendingDownloads.size))
+            }
+            processQueue()
+        }
+        return -1L
+    }
+
+    private suspend fun processQueue() {
+        queueMutex.withLock {
+            while (activeDownloads.size < maxConcurrentDownloads && pendingDownloads.isNotEmpty()) {
+                val next = pendingDownloads.removeFirst()
+                startDownload(next)
+            }
+        }
+    }
+
+    private fun startDownload(download: QueuedDownload): Long {
         // Create download directory
         val downloadDir = File(
             context.getExternalFilesDir(Environment.DIRECTORY_PODCASTS),
-            sanitizeFileName(podcastTitle)
+            sanitizeFileName(download.podcastTitle)
         )
         downloadDir.mkdirs()
 
         // Generate filename
-        val fileName = "${sanitizeFileName(episodeTitle)}.${getFileExtension(audioUrl)}"
+        val fileName = "${sanitizeFileName(download.episodeTitle)}.${getFileExtension(download.audioUrl)}"
 
         // Create download request
-        val request = DownloadManager.Request(Uri.parse(audioUrl))
-            .setTitle(episodeTitle)
-            .setDescription("Downloading from $podcastTitle")
+        val request = DownloadManager.Request(Uri.parse(download.audioUrl))
+            .setTitle(download.episodeTitle)
+            .setDescription("Downloading from ${download.podcastTitle}")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setDestinationInExternalFilesDir(
                 context,
                 Environment.DIRECTORY_PODCASTS,
-                "${sanitizeFileName(podcastTitle)}/$fileName"
+                "${sanitizeFileName(download.podcastTitle)}/$fileName"
             )
             .setAllowedOverMetered(false) // WiFi only by default
             .setAllowedOverRoaming(false)
@@ -98,11 +154,13 @@ class PodcastDownloadManager @Inject constructor(
         val downloadId = downloadManager.enqueue(request)
 
         // Track download
-        activeDownloads[downloadId] = episodeId
-        _downloadProgress.value = _downloadProgress.value + (episodeId to DownloadStatus.Downloading(0f))
+        activeDownloads[downloadId] = download.episodeId
+        activeEpisodes.add(download.episodeId)
+        downloadRequestMap[downloadId] = download
+        _downloadProgress.value = _downloadProgress.value + (download.episodeId to DownloadStatus.Downloading(0f))
 
         // Start progress monitoring
-        monitorDownload(downloadId, episodeId)
+        monitorDownload(downloadId, download.episodeId)
 
         return downloadId
     }
@@ -111,11 +169,35 @@ class PodcastDownloadManager @Inject constructor(
      * Cancel a download
      */
     fun cancelDownload(episodeId: Long) {
+        val iterator = pendingDownloads.iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next().episodeId == episodeId) {
+                iterator.remove()
+            }
+        }
         activeDownloads.entries.find { it.value == episodeId }?.key?.let { downloadId ->
             downloadManager.remove(downloadId)
             activeDownloads.remove(downloadId)
+            activeEpisodes.remove(episodeId)
+            downloadRequestMap.remove(downloadId)
             _downloadProgress.value = _downloadProgress.value - episodeId
         }
+    }
+
+    fun retryDownload(
+        episodeId: Long,
+        audioUrl: String,
+        episodeTitle: String,
+        podcastTitle: String
+    ) {
+        cancelDownload(episodeId)
+        retryCounts.remove(episodeId)
+        downloadEpisode(
+            episodeId = episodeId,
+            audioUrl = audioUrl,
+            episodeTitle = episodeTitle,
+            podcastTitle = podcastTitle
+        )
     }
 
     /**
@@ -158,12 +240,11 @@ class PodcastDownloadManager @Inject constructor(
                                 isComplete = true
                                 _downloadProgress.value = _downloadProgress.value +
                                     (episodeId to DownloadStatus.Completed)
+                                retryCounts.remove(episodeId)
                             }
                             DownloadManager.STATUS_FAILED -> {
                                 isComplete = true
-                                _downloadProgress.value = _downloadProgress.value +
-                                    (episodeId to DownloadStatus.Failed)
-                                activeDownloads.remove(downloadId)
+                                scheduleRetryOrFail(downloadId, episodeId)
                             }
                         }
                     }
@@ -175,6 +256,37 @@ class PodcastDownloadManager @Inject constructor(
                     kotlinx.coroutines.delay(1000) // Update every second
                 }
             }
+            queueMutex.withLock {
+                activeDownloads.remove(downloadId)
+                activeEpisodes.remove(episodeId)
+                downloadRequestMap.remove(downloadId)
+            }
+            processQueue()
+        }
+    }
+
+    private suspend fun scheduleRetryOrFail(downloadId: Long, episodeId: Long) {
+        val download = queueMutex.withLock {
+            downloadRequestMap[downloadId]
+        }
+        if (download == null) {
+            _downloadProgress.value = _downloadProgress.value +
+                (episodeId to DownloadStatus.Failed("Download failed"))
+            return
+        }
+
+        val nextAttempt = (retryCounts[episodeId] ?: 0) + 1
+        if (nextAttempt <= maxRetriesPerEpisode) {
+            retryCounts[episodeId] = nextAttempt
+            queueMutex.withLock {
+                pendingDownloads.addFirst(download.copy(attempt = nextAttempt))
+                _downloadProgress.value = _downloadProgress.value +
+                    (episodeId to DownloadStatus.Retrying(nextAttempt, maxRetriesPerEpisode))
+            }
+        } else {
+            retryCounts.remove(episodeId)
+            _downloadProgress.value = _downloadProgress.value +
+                (episodeId to DownloadStatus.Failed("Download failed after $maxRetriesPerEpisode retries"))
         }
     }
 
@@ -191,19 +303,114 @@ class PodcastDownloadManager @Inject constructor(
                     val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
                     val localUri = cursor.getString(uriIndex)
 
-                    // Update episode in database
-                    episodeDao.updateDownloadStatus(
-                        id = episodeId,
-                        downloaded = true,
-                        filePath = localUri,
-                        timestamp = System.currentTimeMillis()
-                    )
+                    persistEpisodeCompletion(episodeId, localUri)
+                    cleanupStorageIfNeeded()
                 }
             } finally {
                 cursor.close()
                 activeDownloads.remove(downloadId)
+                activeEpisodes.remove(episodeId)
+                downloadRequestMap.remove(downloadId)
             }
         }
+    }
+
+    internal suspend fun persistEpisodeCompletion(episodeId: Long, localUri: String?) {
+        val resolvedFilePath = resolveLocalFilePath(localUri)
+        if (resolvedFilePath.isNullOrBlank()) {
+            _downloadProgress.value = _downloadProgress.value +
+                (episodeId to DownloadStatus.Failed("Download completed but file path was unavailable"))
+            return
+        }
+        val file = File(resolvedFilePath)
+        if (!file.exists()) {
+            _downloadProgress.value = _downloadProgress.value +
+                (episodeId to DownloadStatus.Failed("Download completed but file is missing"))
+            telemetry.recordMissingFileMismatch(episodeId, resolvedFilePath)
+            return
+        }
+        val checksum = computeSha256(file)
+        episodeDao.markDownloadCompletedAtomically(
+            episodeId = episodeId,
+            filePath = resolvedFilePath,
+            checksum = checksum,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    internal suspend fun reconcileDownloadedEpisodesOnStartup() {
+        episodeDao.getDownloadedEpisodesOnce().forEach { episode ->
+            val localPath = resolveLocalFilePath(episode.localFilePath)
+            val file = localPath?.let(::File)
+            val fileExists = file?.exists() == true
+            if (!fileExists) {
+                telemetry.recordMissingFileMismatch(episode.id, episode.localFilePath)
+                episodeDao.clearDownloadedState(episode.id)
+                return@forEach
+            }
+
+            val existingFile = file ?: return@forEach
+            val storedChecksum = episode.localFileChecksum
+            if (!storedChecksum.isNullOrBlank()) {
+                val checksum = computeSha256(existingFile)
+                if (checksum != storedChecksum) {
+                    telemetry.recordChecksumMismatch(episode.id, storedChecksum, checksum)
+                    episodeDao.clearDownloadedState(episode.id)
+                }
+            }
+        }
+    }
+
+    private fun resolveLocalFilePath(localPathOrUri: String?): String? {
+        if (localPathOrUri.isNullOrBlank()) return null
+        return if (localPathOrUri.startsWith("file://")) {
+            Uri.parse(localPathOrUri).path
+        } else {
+            localPathOrUri
+        }
+    }
+
+    private suspend fun cleanupStorageIfNeeded() {
+        val episodes = episodeDao.getDownloadedEpisodes().firstOrNull().orEmpty()
+        if (episodes.size <= maxDownloadedEpisodesToKeep) return
+
+        val staleEpisodes = episodes
+            .sortedBy { it.downloadedAt ?: 0L }
+            .take(episodes.size - maxDownloadedEpisodesToKeep)
+
+        staleEpisodes.forEach { episode ->
+            val localPath = episode.localFilePath ?: return@forEach
+            runCatching {
+                val file = if (localPath.startsWith("file://")) {
+                    File(Uri.parse(localPath).path.orEmpty())
+                } else {
+                    File(localPath)
+                }
+                if (file.exists()) {
+                    file.delete()
+                }
+            }
+            episodeDao.updateDownloadStatus(
+                id = episode.id,
+                downloaded = false,
+                filePath = null,
+                checksum = null,
+                timestamp = null
+            )
+        }
+    }
+
+    private fun computeSha256(file: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (true) {
+                val read = input.read(buffer)
+                if (read <= 0) break
+                digest.update(buffer, 0, read)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
     private fun sanitizeFileName(name: String): String {
@@ -238,8 +445,10 @@ class PodcastDownloadManager @Inject constructor(
 
 sealed class DownloadStatus {
     object NotDownloaded : DownloadStatus()
+    data class Queued(val position: Int) : DownloadStatus()
     data class Downloading(val progress: Float) : DownloadStatus()
+    data class Retrying(val attempt: Int, val maxRetries: Int) : DownloadStatus()
     object Completed : DownloadStatus()
-    object Failed : DownloadStatus()
+    data class Failed(val reason: String) : DownloadStatus()
     object Paused : DownloadStatus()
 }

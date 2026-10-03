@@ -70,6 +70,25 @@ goto fail
 
 set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
 
+@rem Validate supported Gradle runtime JDK range (AGP 8.13.x + Kotlin 2.1.x)
+for /f "tokens=3 delims="" %%v in ('"%JAVA_EXE%" -version 2^>^&1 ^| findstr /i "version"') do set JAVA_VERSION_FULL=%%v
+for /f "tokens=1 delims=." %%m in ("%JAVA_VERSION_FULL%") do set JAVA_VERSION_MAJOR=%%m
+if "%JAVA_VERSION_MAJOR%"=="" (
+  echo ERROR: Unable to determine Java major version from %JAVA_VERSION_FULL% 1>&2
+  goto fail
+)
+if %JAVA_VERSION_MAJOR% LSS 17 (
+  echo ERROR: Unsupported Java runtime detected (%JAVA_VERSION_FULL%). 1>&2
+  echo This build requires JDK 17 through JDK 21 for the current AGP/Kotlin toolchain. 1>&2
+  echo Set JAVA_HOME to a supported JDK and retry ^(see docs/BUILD_TOOLCHAIN_VERSIONS.md^). 1>&2
+  goto fail
+)
+if %JAVA_VERSION_MAJOR% GTR 21 (
+  echo ERROR: Unsupported Java runtime detected (%JAVA_VERSION_FULL%). 1>&2
+  echo This build requires JDK 17 through JDK 21 for the current AGP/Kotlin toolchain. 1>&2
+  echo Set JAVA_HOME to a supported JDK and retry ^(see docs/BUILD_TOOLCHAIN_VERSIONS.md^). 1>&2
+  goto fail
+)
 
 @rem Execute Gradle
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*

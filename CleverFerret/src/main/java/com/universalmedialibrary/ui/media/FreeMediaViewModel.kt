@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.media
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.core.logging.AppLogger
 import com.universalmedialibrary.services.media.free.FreeMediaItem
 import com.universalmedialibrary.services.media.free.FreeMediaService
 import com.universalmedialibrary.services.media.free.FreeMediaType
@@ -84,6 +85,15 @@ class FreeMediaViewModel @Inject constructor(
                 // Job was cancelled (e.g., by user switching tabs), don't update state
                 throw e
             } catch (e: Exception) {
+                AppLogger.error(
+                    tag = "FreeMediaViewModel",
+                    message = "Failed to load free media catalog",
+                    throwable = e,
+                    context = mapOf(
+                        "activeType" to currentType.name,
+                        "query" to currentQuery.ifBlank { "<blank>" }
+                    )
+                )
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Failed to load media items"

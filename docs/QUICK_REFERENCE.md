@@ -101,6 +101,20 @@ CleverFerret/
 
 ---
 
+## 🧭 Workstream Separation
+
+### ACTIVE_ANDROID (default)
+- Primary planning source: [planning/ANDROID_ACTIVE_BACKLOG.md](planning/ANDROID_ACTIVE_BACKLOG.md)
+- Detailed issue sequencing: [planning/APP_ISSUES_FIX_PLAN.md](planning/APP_ISSUES_FIX_PLAN.md)
+- Build reproducibility queue: [planning/ACTIVE_BUILD_BACKLOG.md](planning/ACTIVE_BUILD_BACKLOG.md)
+- Scope: Android app module (`CleverFerret/`) and current V2 implementation.
+
+### ARCHIVED_PWA (reference only)
+- Archived planning: [archive/ARCHIVED_IMPROVEMENTS_NEEDED.md](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md)
+- Scope: historical PWA/frontend planning; do not treat as active delivery backlog.
+
+---
+
 ## 📚 Key Documentation
 
 | Document | Purpose |
@@ -108,8 +122,10 @@ CleverFerret/
 | [FEATURES_STATUS](FEATURES_STATUS.md) | What's enabled/disabled |
 | [CODE_REVIEW](CODE_REVIEW.md) | Code quality & recommendations |
 | [SECURITY_PRACTICES](security/SECURITY_PRACTICES.md) | Security guidelines |
-| [ROADMAP](ROADMAP.md) | Planned features |
+| [planning/ANDROID_ACTIVE_BACKLOG](planning/ANDROID_ACTIVE_BACKLOG.md) | Active Android backlog |
+| [ROADMAP](ROADMAP.md) | Product direction |
 | [ARCHITECTURE](ARCHITECTURE.md) | System design |
+| [DOC_LIFECYCLE_POLICY](governance/DOC_LIFECYCLE_POLICY.md) | Doc lifecycle, owners, SLA, archive policy |
 
 ---
 
@@ -147,6 +163,7 @@ Before committing:
 - [ ] Network requests use HTTPS
 - [ ] Sensitive data properly encrypted
 - [ ] Permissions properly requested
+- [ ] Link validity checked for `docs/**/*.md` (no missing local links)
 
 See [SECURITY_PRACTICES.md](security/SECURITY_PRACTICES.md) for details.
 
@@ -203,6 +220,7 @@ adb logcat -c
 2. Run tests: `./gradlew test`
 3. Update documentation if needed
 4. Check security best practices
+5. If status changed, update canonical + index + quick reference
 
 ### Documentation
 - Update feature status if adding features

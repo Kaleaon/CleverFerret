@@ -13,8 +13,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
@@ -30,6 +32,7 @@ fun EReaderScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    var showChapterMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(bookFilePath) {
         viewModel.loadBook(context, bookFilePath)
@@ -39,14 +42,37 @@ fun EReaderScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = uiState.bookTitle,
-                        maxLines = 1
-                    )
+                    Column {
+                        Text(text = uiState.bookTitle, maxLines = 1)
+                        if (uiState.totalChapters > 0) {
+                            Text(
+                                text = "Progress ${(100f * (uiState.currentChapterIndex + 1) / uiState.totalChapters).toInt()}%",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    Box {
+                        TextButton(onClick = { showChapterMenu = true }) {
+                            Text("Chapters")
+                        }
+                        DropdownMenu(expanded = showChapterMenu, onDismissRequest = { showChapterMenu = false }) {
+                            uiState.chapterTitles.forEachIndexed { index, title ->
+                                DropdownMenuItem(
+                                    text = { Text(title, maxLines = 1) },
+                                    onClick = {
+                                        viewModel.jumpToChapter(index)
+                                        showChapterMenu = false
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             )
@@ -116,10 +142,43 @@ fun EReaderScreen(
                 }
 
                 uiState.isLoaded -> {
-                    ReaderContent(
-                        content = uiState.currentChapterContent,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        LinearProgressIndicator(
+                            progress = { if (uiState.totalChapters > 0) (uiState.currentChapterIndex + 1f) / uiState.totalChapters else 0f },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("A", fontSize = 14.sp)
+                                Slider(
+                                    value = uiState.fontSizeSp.toFloat(),
+                                    onValueChange = { viewModel.adjustFontSize((it - uiState.fontSizeSp).toInt()) },
+                                    valueRange = 12f..32f,
+                                    modifier = Modifier.width(120.dp)
+                                )
+                                Text("A", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Row {
+                                ReaderThemeMode.entries.forEach { mode ->
+                                    FilterChip(
+                                        selected = uiState.themeMode == mode,
+                                        onClick = { viewModel.setTheme(mode) },
+                                        label = { Text(mode.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                                    )
+                                }
+                            }
+                        }
+                        ReaderContent(
+                            content = uiState.currentChapterContent,
+                            modifier = Modifier.fillMaxSize(),
+                            fontSizeSp = uiState.fontSizeSp,
+                            theme = uiState.themeMode
+                        )
+                    }
                 }
 
                 else -> {
@@ -140,11 +199,23 @@ fun EReaderScreen(
 @Composable
 private fun ReaderContent(
     content: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fontSizeSp: Int = 18,
+    theme: ReaderThemeMode = ReaderThemeMode.SYSTEM
 ) {
+    val backgroundColor = when (theme) {
+        ReaderThemeMode.SEPIA -> Color(0xFFF8F1D9)
+        ReaderThemeMode.DARK -> Color(0xFF121212)
+        else -> MaterialTheme.colorScheme.surface
+    }
+    val contentColor = when (theme) {
+        ReaderThemeMode.SEPIA -> Color(0xFF5B4636)
+        ReaderThemeMode.DARK -> Color(0xFFECECEC)
+        else -> MaterialTheme.colorScheme.onSurface
+    }
     Column(
         modifier = modifier
-            .background(MaterialTheme.colorScheme.surface)
+            .background(backgroundColor)
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -152,8 +223,9 @@ private fun ReaderContent(
         // In a production app, you'd want to render the HTML properly
         Text(
             text = content,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = fontSizeSp.sp),
             lineHeight = MaterialTheme.typography.bodyLarge.lineHeight,
+            color = contentColor,
             modifier = Modifier.fillMaxWidth()
         )
     }

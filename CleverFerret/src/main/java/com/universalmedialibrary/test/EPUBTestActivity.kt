@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import com.universalmedialibrary.services.epub.EPUBReaderService
+import com.universalmedialibrary.services.epub.EpubReaderService
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -31,7 +31,7 @@ import com.universalmedialibrary.utils.ErrorLogger
 class EPUBTestActivity : ComponentActivity() {
 
     @Inject
-    lateinit var epubReaderService: EPUBReaderService
+    lateinit var epubReaderService: EpubReaderService
 
     private var selectedEpubUri by mutableStateOf<Uri?>(null)
     private var testResults by mutableStateOf("")

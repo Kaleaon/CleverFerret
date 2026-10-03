@@ -8,28 +8,18 @@ set -e
 echo "🚀 CleverFerret Build Environment Setup - Permanent Fix Edition"
 echo "=============================================================="
 
+# Load canonical Android SDK version configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/android-sdk-versions.sh"
+
 # Configuration with permanent fixes
-export BUILD_TOOLS_VERSION="33.0.2"
-export COMPILE_SDK_VERSION="34"
-
-# Auto-detect Android SDK location
-# Priority: 1) Pre-set ANDROID_HOME, 2) Workspace/container, 3) Standard Android Studio
-if [ -z "$ANDROID_HOME" ]; then
-    if [ -d "/workspace/android-sdk" ]; then
-        # Workspace/container environment
-        export ANDROID_HOME="/workspace/android-sdk"
-    elif [ -d "$HOME/Android/Sdk" ]; then
-        # Standard Android Studio location
-        export ANDROID_HOME="$HOME/Android/Sdk"
-    else
-        # Fallback to default path to let the build system provide a clear error
-        export ANDROID_HOME="$HOME/Android/Sdk"
-    fi
-fi
-
-export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export BUILD_TOOLS_VERSION="$CF_BUILD_TOOLS_VERSION"
+export COMPILE_SDK_VERSION="$CF_COMPILE_SDK"
 
 export JAVA_VERSION="17"
+export SETUP_TIMESTAMP="$(date +%Y%m%d%H%M%S)"
+export SETUP_GRADLE_OVERRIDES_FILE="gradle.setup-generated.properties"
 
 # Colors for output
 RED='\033[0;31m'
@@ -52,6 +42,101 @@ log_warning() {
 
 log_error() {
     echo -e "${RED}❌ $1${NC}"
+}
+
+backup_file() {
+    local file_path="$1"
+    if [ -f "$file_path" ]; then
+        local backup_path="${file_path}.${SETUP_TIMESTAMP}.bak"
+        cp "$file_path" "$backup_path"
+        log_info "Backed up $file_path to $backup_path"
+    fi
+}
+
+get_property_value() {
+    local file_path="$1"
+    local key="$2"
+    awk -F'=' -v k="$key" '$1==k {print substr($0, index($0, "=")+1)}' "$file_path" 2>/dev/null | tail -n1
+}
+
+ensure_property() {
+    local file_path="$1"
+    local key="$2"
+    local desired_value="$3"
+    local reason="$4"
+    local existing_value=""
+
+    if [ -f "$file_path" ]; then
+        existing_value="$(get_property_value "$file_path" "$key")"
+    fi
+
+    if [ -n "$existing_value" ]; then
+        if [ "$existing_value" = "$desired_value" ]; then
+            log_info "$file_path already has $key=$desired_value"
+            return 0
+        fi
+        local backup_path="${file_path}.${SETUP_TIMESTAMP}.bak"
+        cp "$file_path" "$backup_path"
+        log_info "Backed up $file_path to $backup_path"
+        if sed -i "s|^${key}=.*|${key}=${desired_value}|" "$file_path"; then
+            log_info "Updated $file_path: $key from '$existing_value' to '$desired_value' ($reason)"
+        else
+            cp "$backup_path" "$file_path"
+            log_error "Failed to update $file_path for key $key; restored from $backup_path"
+            return 1
+        fi
+        return 0
+    fi
+
+    if [ ! -f "$file_path" ]; then
+        touch "$file_path"
+    fi
+    printf "%s=%s\n" "$key" "$desired_value" >> "$file_path"
+    log_info "Added $key=$desired_value to $file_path ($reason)"
+resolve_repo_root() {
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    cd "$script_dir/../.." && pwd
+}
+
+resolve_os_default_sdk() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "$HOME/Library/Android/sdk"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "${LOCALAPPDATA:-$HOME/AppData/Local}/Android/Sdk"
+    else
+        echo "$HOME/Android/Sdk"
+    fi
+}
+
+resolve_android_sdk_root() {
+    local repo_root os_default
+    repo_root="$(resolve_repo_root)"
+    os_default="$(resolve_os_default_sdk)"
+
+    if [ -n "$ANDROID_HOME" ]; then
+        echo "$ANDROID_HOME"
+    elif [ -n "$ANDROID_SDK_ROOT" ]; then
+        echo "$ANDROID_SDK_ROOT"
+    elif [ -d "$repo_root/android-sdk" ]; then
+        echo "$repo_root/android-sdk"
+    else
+        echo "$os_default"
+    fi
+}
+
+select_build_tools_version() {
+    local sdk_root="$1"
+    local preferred_version="$BUILD_TOOLS_VERSION"
+    local selected_version=""
+
+    if [ -d "$sdk_root/build-tools/$preferred_version" ]; then
+        selected_version="$preferred_version"
+    elif [ -d "$sdk_root/build-tools" ]; then
+        selected_version="$(ls -1 "$sdk_root/build-tools" 2>/dev/null | sort -V | tail -n1)"
+    fi
+
+    echo "${selected_version:-$preferred_version}"
 }
 
 # Detect operating system
@@ -141,14 +226,13 @@ install_android_sdk() {
     fi
     
     # Set up PATH
-    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+    SELECTED_BUILD_TOOLS_VERSION="$(select_build_tools_version "$ANDROID_HOME")"
+    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/$SELECTED_BUILD_TOOLS_VERSION:$PATH"
     
     # PERMANENT FIX: Install specific compatible versions
     log_info "Installing Android SDK components with permanent fixes..."
     
-    yes | sdkmanager --install "platforms;android-$COMPILE_SDK_VERSION" --sdk_root="$ANDROID_HOME"
-    yes | sdkmanager --install "build-tools;$BUILD_TOOLS_VERSION" --sdk_root="$ANDROID_HOME"
-    yes | sdkmanager --install "platform-tools" --sdk_root="$ANDROID_HOME"
+    yes | sdkmanager --install "platforms;android-$COMPILE_SDK_VERSION" "build-tools;$BUILD_TOOLS_VERSION" "platform-tools" --sdk_root="$ANDROID_HOME"
     
     # PERMANENT FIX: Ensure AAPT2 is executable
     if [ -f "$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/aapt2" ]; then
@@ -165,46 +249,38 @@ install_android_sdk() {
     fi
 }
 
-# Create optimized gradle.properties
+# Create idempotent gradle configuration
 create_gradle_properties() {
-    log_info "Creating optimized gradle.properties..."
-    
-    cat > gradle.properties << EOF
-# CleverFerret Gradle Properties - Permanent Fix Edition
-# This configuration includes all permanent fixes for reliable builds
+    log_info "Ensuring root gradle.properties has only required keys..."
+    ensure_property "gradle.properties" "android.useAndroidX" "true" "AndroidX requirement"
+    ensure_property "gradle.properties" "android.nonTransitiveRClass" "true" "Recommended Android setting"
 
-# This property is required for any modern Android project using AndroidX.
-android.useAndroidX=true
-
-# This property is recommended for better build performance and correctness.
-android.nonTransitiveRClass=true
-
-# PERMANENT FIX: Optimized Gradle configuration for CleverFerret
+    log_info "Writing setup-owned Gradle keys to $SETUP_GRADLE_OVERRIDES_FILE..."
+    backup_file "$SETUP_GRADLE_OVERRIDES_FILE"
+    local tmp_override_file
+    tmp_override_file="$(mktemp)"
+    cat > "$tmp_override_file" << EOF
+# Generated by tooling/build-scripts/setup-build-environment.sh at $SETUP_TIMESTAMP
 org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=2g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError
 org.gradle.parallel=true
 org.gradle.caching=true
 org.gradle.configureondemand=true
 org.gradle.daemon=false
-
-# Android optimizations
 android.enableJetifier=true
 android.incremental=true
 android.builder.sdkDownload=false
 EOF
-    
-    log_success "gradle.properties created with optimizations"
+    mv "$tmp_override_file" "$SETUP_GRADLE_OVERRIDES_FILE"
+    log_info "Rewrote $SETUP_GRADLE_OVERRIDES_FILE with setup-owned optimization keys"
+    log_success "Gradle configuration updated idempotently"
 }
 
-# Create local.properties
+# Create local.properties idempotently
 create_local_properties() {
-    log_info "Creating local.properties..."
-    
-    cat > local.properties << EOF
-sdk.dir=$ANDROID_HOME
-android.builder.sdkDownload=false
-EOF
-    
-    log_success "local.properties created"
+    log_info "Ensuring local.properties contains required keys..."
+    ensure_property "local.properties" "sdk.dir" "$ANDROID_HOME" "Android SDK location"
+    ensure_property "local.properties" "android.builder.sdkDownload" "false" "Disable automatic SDK download"
+    log_success "local.properties updated idempotently"
 }
 
 # Create debug keystore
@@ -264,6 +340,32 @@ verify_environment() {
         fi
     fi
     
+    # Check required project keys in gradle.properties
+    if [ -f "gradle.properties" ] && \
+       grep -q "^android.useAndroidX=" "gradle.properties" && \
+       grep -q "^android.nonTransitiveRClass=" "gradle.properties"; then
+        log_success "gradle.properties contains required keys"
+    else
+        log_error "gradle.properties missing required keys"
+        return 1
+    fi
+
+    # Check generated setup override file
+    if [ -f "$SETUP_GRADLE_OVERRIDES_FILE" ] && grep -q "^org.gradle.jvmargs=" "$SETUP_GRADLE_OVERRIDES_FILE"; then
+        log_success "$SETUP_GRADLE_OVERRIDES_FILE contains setup-owned keys"
+    else
+        log_error "$SETUP_GRADLE_OVERRIDES_FILE missing required setup-owned keys"
+        return 1
+    fi
+
+    # Check local.properties required key
+    if [ -f "local.properties" ] && grep -q "^sdk.dir=" "local.properties"; then
+        log_success "local.properties contains sdk.dir"
+    else
+        log_error "local.properties missing sdk.dir"
+        return 1
+    fi
+
     log_success "Build environment verification complete"
 }
 
@@ -275,12 +377,80 @@ create_build_wrapper() {
 #!/bin/bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tooling/build-scripts/android-sdk-versions.sh
+source "$SCRIPT_DIR/tooling/build-scripts/android-sdk-versions.sh"
+
 echo "🔨 Building CleverFerret with Permanent Fixes"
 echo "============================================"
 
 # Set environment
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2:$ANDROID_HOME/platform-tools:$PATH"
+GRADLE_OVERRIDE_ARGS=()
+
+# Load setup-owned Gradle overrides from generated file
+if [ -f "gradle.setup-generated.properties" ]; then
+    while IFS='=' read -r key value; do
+        if [[ -z "$key" || "$key" =~ ^# ]]; then
+            continue
+        fi
+        GRADLE_OVERRIDE_ARGS+=("-D${key}=${value}")
+    done < "gradle.setup-generated.properties"
+    echo "⚙️ Loaded setup overrides from gradle.setup-generated.properties"
+fi
+resolve_repo_root() {
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    cd "$script_dir/../.." && pwd
+}
+
+resolve_os_default_sdk() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "$HOME/Library/Android/sdk"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "${LOCALAPPDATA:-$HOME/AppData/Local}/Android/Sdk"
+    else
+        echo "$HOME/Android/Sdk"
+    fi
+}
+
+resolve_android_sdk_root() {
+    local repo_root os_default
+    repo_root="$(resolve_repo_root)"
+    os_default="$(resolve_os_default_sdk)"
+
+    if [ -n "$ANDROID_HOME" ]; then
+        echo "$ANDROID_HOME"
+    elif [ -n "$ANDROID_SDK_ROOT" ]; then
+        echo "$ANDROID_SDK_ROOT"
+    elif [ -d "$repo_root/android-sdk" ]; then
+        echo "$repo_root/android-sdk"
+    else
+        echo "$os_default"
+    fi
+}
+
+select_build_tools_version() {
+    local sdk_root="$1"
+    local preferred_version="33.0.2"
+    local selected_version=""
+
+    if [ -d "$sdk_root/build-tools/$preferred_version" ]; then
+        selected_version="$preferred_version"
+    elif [ -d "$sdk_root/build-tools" ]; then
+        selected_version="$(ls -1 "$sdk_root/build-tools" 2>/dev/null | sort -V | tail -n1)"
+    fi
+
+    echo "${selected_version:-$preferred_version}"
+}
+
+export ANDROID_HOME="$(resolve_android_sdk_root)"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+BUILD_TOOLS_VERSION="$(select_build_tools_version "$ANDROID_HOME")"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION:$PATH"
+echo "📍 Resolved Android SDK: $ANDROID_HOME"
+echo "🧰 Using build-tools: $BUILD_TOOLS_VERSION"
 
 # PERMANENT FIX: Use minimal dependencies for reliable build
 if [ -f "CleverFerret/build.gradle.kts.minimal" ]; then
@@ -288,6 +458,8 @@ if [ -f "CleverFerret/build.gradle.kts.minimal" ]; then
     cp CleverFerret/build.gradle.kts CleverFerret/build.gradle.kts.full 2>/dev/null || true
     cp CleverFerret/build.gradle.kts.minimal CleverFerret/build.gradle.kts
 fi
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION:$ANDROID_HOME/platform-tools:$PATH"
 
 # Clean build
 echo "🧹 Cleaning build environment..."
@@ -295,7 +467,7 @@ echo "🧹 Cleaning build environment..."
 
 # Build with all optimizations
 echo "🔨 Building APK..."
-./gradlew --no-daemon --parallel --build-cache --stacktrace assembleDebug
+./gradlew --no-daemon --parallel --build-cache --stacktrace "${GRADLE_OVERRIDE_ARGS[@]}" assembleDebug
 
 # Sign APK
 if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
@@ -307,7 +479,8 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
     mkdir -p builds
     cp "$APK_PATH" "$SIGNED_APK"
     
-    "$ANDROID_HOME/build-tools/33.0.2/apksigner" sign \
+    "$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner" sign \
+    "$ANDROID_HOME/build-tools/$CF_BUILD_TOOLS_VERSION/apksigner" sign \
         --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android \
         "$SIGNED_APK"
     
@@ -317,12 +490,6 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
 else
     echo "❌ APK build failed"
     exit 1
-fi
-
-# Restore full dependencies
-if [ -f "CleverFerret/build.gradle.kts.full" ]; then
-    echo "🔄 Restoring full dependencies..."
-    cp CleverFerret/build.gradle.kts.full CleverFerret/build.gradle.kts
 fi
 
 echo "🎉 Build completed successfully!"
@@ -336,6 +503,10 @@ EOF
 main() {
     echo
     log_info "Starting CleverFerret build environment setup..."
+    export ANDROID_HOME="$(resolve_android_sdk_root)"
+    export ANDROID_SDK_ROOT="$ANDROID_HOME"
+    export SELECTED_BUILD_TOOLS_VERSION="$BUILD_TOOLS_VERSION"
+    log_info "Resolved Android SDK path: $ANDROID_HOME"
     echo
     
     detect_os

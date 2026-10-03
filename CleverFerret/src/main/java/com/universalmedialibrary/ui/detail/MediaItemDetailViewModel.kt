@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.net.Uri
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.ReadingProgressDao
@@ -15,6 +16,7 @@ import com.universalmedialibrary.data.repository.MetadataFetchResult
 import com.universalmedialibrary.data.repository.CollectionRepository
 import com.universalmedialibrary.data.repository.TagRepository
 import com.universalmedialibrary.services.ai.AIMetadataService
+import com.universalmedialibrary.services.thumbnails.ThumbnailService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -35,7 +38,8 @@ class MediaItemDetailViewModel @Inject constructor(
     private val metadataFetchRepository: MetadataFetchRepository,
     private val collectionRepository: CollectionRepository,
     private val tagRepository: TagRepository,
-    private val aiMetadataService: AIMetadataService
+    private val aiMetadataService: AIMetadataService,
+    private val thumbnailService: ThumbnailService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MediaItemDetailUiState())
@@ -109,8 +113,14 @@ class MediaItemDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val mediaItem = _uiState.value.mediaItem ?: return@launch
-                
-                _uiState.value = _uiState.value.copy(isFetchingMetadata = true, metadataFetchError = null)
+                _uiState.value = _uiState.value.copy(
+                    isFetchingMetadata = true,
+                    metadataFetchError = null,
+                    metadataRefreshTask = BackgroundTaskState.queued("Metadata refresh")
+                )
+                _uiState.value = _uiState.value.copy(
+                    metadataRefreshTask = BackgroundTaskState.running("Metadata refresh", progress = 0.2f)
+                )
                 
                 val result = metadataFetchRepository.fetchMetadataForItem(mediaItem.itemId)
                 
@@ -120,7 +130,12 @@ class MediaItemDetailViewModel @Inject constructor(
                             isFetchingMetadata = false,
                             metadata = result.metadata,
                             metadataFetchError = null,
-                            metadataFetchSuccess = "Metadata fetched from: ${result.sources.joinToString(", ")}"
+                            metadataFetchSuccess = "Metadata fetched from: ${result.sources.joinToString(", ")}",
+                            imageCacheVersion = System.currentTimeMillis(),
+                            metadataRefreshTask = BackgroundTaskState.success(
+                                "Metadata refresh",
+                                "Metadata updated from ${result.sources.joinToString(", ")}"
+                            )
                         )
                         // Reload item to get updated hasMetadata flag
                         loadMediaItem(mediaItem.itemId)
@@ -129,7 +144,8 @@ class MediaItemDetailViewModel @Inject constructor(
                         _uiState.value = _uiState.value.copy(
                             isFetchingMetadata = false,
                             metadataFetchError = result.message,
-                            metadataFetchSuccess = null
+                            metadataFetchSuccess = null,
+                            metadataRefreshTask = BackgroundTaskState.failed("Metadata refresh", result.message)
                         )
                     }
                 }
@@ -137,8 +153,106 @@ class MediaItemDetailViewModel @Inject constructor(
                 if (e is CancellationException) throw e
                 _uiState.value = _uiState.value.copy(
                     isFetchingMetadata = false,
-                    metadataFetchError = e.message ?: "Failed to fetch metadata"
+                    metadataFetchError = e.message ?: "Failed to fetch metadata",
+                    metadataRefreshTask = BackgroundTaskState.failed(
+                        "Metadata refresh",
+                        e.message ?: "Failed to fetch metadata"
+                    )
                 )
+            }
+        }
+    }
+
+    fun regenerateThumbnail() {
+        viewModelScope.launch {
+            val mediaItem = _uiState.value.mediaItem ?: return@launch
+            val metadata = _uiState.value.metadata
+            val oldCoverPath = metadata?.coverImagePath
+            val oldThumbnailPath = mediaItem.thumbnailPath
+            try {
+                _uiState.value = _uiState.value.copy(
+                    thumbnailTask = BackgroundTaskState.queued("Thumbnail regeneration")
+                )
+                _uiState.value = _uiState.value.copy(
+                    thumbnailTask = BackgroundTaskState.running("Thumbnail regeneration", progress = 0.2f)
+                )
+
+                val sourceUri = when {
+                    mediaItem.filePath.startsWith("content://") || mediaItem.filePath.startsWith("file://") ->
+                        Uri.parse(mediaItem.filePath)
+                    else -> Uri.fromFile(File(mediaItem.filePath))
+                }
+
+                val thumbnailFile = when (mediaItem.fileExtension.lowercase()) {
+                    "epub" -> thumbnailService.extractCoverFromEpub(sourceUri)
+                    "cbz" -> thumbnailService.extractCoverFromCbz(sourceUri)
+                    else -> null
+                } ?: thumbnailService.generatePlaceholder(
+                    title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.')
+                )
+
+                _uiState.value = _uiState.value.copy(
+                    thumbnailTask = BackgroundTaskState.running("Thumbnail regeneration", progress = 0.85f)
+                )
+
+                val timestamp = System.currentTimeMillis()
+                val thumbnailPath = thumbnailFile.absolutePath
+                mediaItemDao.updateMediaItem(
+                    mediaItem.copy(
+                        hasThumbnail = true,
+                        thumbnailPath = thumbnailPath,
+                        lastScanned = timestamp
+                    )
+                )
+
+                val updatedMetadata = (metadata ?: MetadataCommon(
+                    itemId = mediaItem.itemId,
+                    title = mediaItem.fileName.substringBeforeLast('.')
+                )).copy(
+                    coverImagePath = thumbnailPath,
+                    lastUpdated = timestamp
+                )
+                metadataDao.insertMetadataCommon(updatedMetadata)
+                cleanupStaleCacheFile(oldCoverPath, thumbnailPath)
+                cleanupStaleCacheFile(oldThumbnailPath, thumbnailPath)
+
+                _uiState.value = _uiState.value.copy(
+                    mediaItem = mediaItem.copy(
+                        hasThumbnail = true,
+                        thumbnailPath = thumbnailPath,
+                        lastScanned = timestamp
+                    ),
+                    metadata = updatedMetadata,
+                    imageCacheVersion = timestamp,
+                    thumbnailTask = BackgroundTaskState.success(
+                        "Thumbnail regeneration",
+                        "Thumbnail regenerated successfully"
+                    )
+                )
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _uiState.value = _uiState.value.copy(
+                    thumbnailTask = BackgroundTaskState.failed(
+                        "Thumbnail regeneration",
+                        e.message ?: "Failed to regenerate thumbnail"
+                    )
+                )
+            }
+        }
+    }
+
+    fun clearBackgroundTask(taskType: BackgroundTaskType) {
+        when (taskType) {
+            BackgroundTaskType.METADATA -> _uiState.value = _uiState.value.copy(metadataRefreshTask = null)
+            BackgroundTaskType.THUMBNAIL -> _uiState.value = _uiState.value.copy(thumbnailTask = null)
+        }
+    }
+
+    private fun cleanupStaleCacheFile(oldPath: String?, newPath: String?) {
+        if (oldPath.isNullOrBlank() || oldPath == newPath) return
+        runCatching {
+            if (!oldPath.startsWith("http://") && !oldPath.startsWith("https://")) {
+                File(oldPath).takeIf { it.exists() }?.delete()
             }
         }
     }
@@ -275,6 +389,9 @@ data class MediaItemDetailUiState(
     val isFetchingMetadata: Boolean = false,
     val metadataFetchError: String? = null,
     val metadataFetchSuccess: String? = null,
+    val metadataRefreshTask: BackgroundTaskState? = null,
+    val thumbnailTask: BackgroundTaskState? = null,
+    val imageCacheVersion: Long = 0L,
     
     val showAddToCollectionDialog: Boolean = false,
     val availableCollections: List<UnifiedCollection> = emptyList(),
@@ -285,3 +402,29 @@ data class MediaItemDetailUiState(
     val suggestedTags: List<String> = emptyList(),
     val tagSuggestionError: String? = null
 )
+
+enum class BackgroundTaskStatus {
+    QUEUED,
+    RUNNING,
+    FAILED,
+    SUCCESS
+}
+
+enum class BackgroundTaskType {
+    METADATA,
+    THUMBNAIL
+}
+
+data class BackgroundTaskState(
+    val label: String,
+    val status: BackgroundTaskStatus,
+    val progress: Float,
+    val message: String? = null
+) {
+    companion object {
+        fun queued(label: String) = BackgroundTaskState(label, BackgroundTaskStatus.QUEUED, progress = 0f)
+        fun running(label: String, progress: Float) = BackgroundTaskState(label, BackgroundTaskStatus.RUNNING, progress = progress)
+        fun failed(label: String, message: String) = BackgroundTaskState(label, BackgroundTaskStatus.FAILED, progress = 1f, message = message)
+        fun success(label: String, message: String) = BackgroundTaskState(label, BackgroundTaskStatus.SUCCESS, progress = 1f, message = message)
+    }
+}
