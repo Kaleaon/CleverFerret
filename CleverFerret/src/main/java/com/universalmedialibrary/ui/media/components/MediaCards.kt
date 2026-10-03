@@ -78,7 +78,7 @@ data class MediaItem(
 )
 
 @Composable
-private fun mediaProgressColors(): Pair<Color, Color> {
+internal fun mediaProgressColors(): Pair<Color, Color> {
     val scheme = MaterialTheme.colorScheme
     return scheme.primary to scheme.surfaceContainerHighest
 }
@@ -306,7 +306,7 @@ fun <T> MediaCarouselRow(
 // =============================================================================
 
 @Composable
-private fun CardBadges(
+internal fun CardBadges(
     item: MediaItem,
     modifier: Modifier = Modifier
 ) {
@@ -371,7 +371,7 @@ private fun BadgeChip(
 }
 
 @Composable
-private fun RatingBadge(
+internal fun RatingBadge(
     rating: Float,
     modifier: Modifier = Modifier
 ) {
@@ -401,7 +401,7 @@ private fun RatingBadge(
 }
 
 @Composable
-private fun PlayButton(
+internal fun PlayButton(
     onClick: () -> Unit,
     size: Dp = 48.dp
 ) {
