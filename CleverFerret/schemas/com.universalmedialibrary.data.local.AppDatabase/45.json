@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 45,
-    "identityHash": "39e4833eb43e8cc1bd4159b628118e04",
+    "identityHash": "ba21ae5a337e0960b36c103053858c93",
     "entities": [
       {
         "tableName": "libraries",
@@ -337,7 +337,7 @@
       },
       {
         "tableName": "metadata_common",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER NOT NULL, `title` TEXT NOT NULL, `sortTitle` TEXT, `originalTitle` TEXT, `year` INTEGER, `releaseDate` INTEGER, `rating` REAL, `userRating` REAL, `communityRating` REAL, `summary` TEXT, `plot` TEXT, `tagline` TEXT, `coverImagePath` TEXT, `backdropImagePath` TEXT, `language` TEXT, `country` TEXT, `lastUpdated` INTEGER NOT NULL, `metadataSource` TEXT, `externalId` TEXT, `isFavorite` INTEGER NOT NULL, `isDownloaded` INTEGER NOT NULL, PRIMARY KEY(`itemId`), FOREIGN KEY(`itemId`) REFERENCES `media_items`(`itemId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER NOT NULL, `title` TEXT NOT NULL, `sortTitle` TEXT, `originalTitle` TEXT, `year` INTEGER, `releaseDate` INTEGER, `rating` REAL, `userRating` REAL, `communityRating` REAL, `summary` TEXT, `plot` TEXT, `tagline` TEXT, `coverImagePath` TEXT, `backdropImagePath` TEXT, `language` TEXT, `country` TEXT, `lastUpdated` INTEGER NOT NULL, `metadataSource` TEXT, `externalId` TEXT, `isFavorite` INTEGER NOT NULL, `isDownloaded` INTEGER NOT NULL, `isVerified` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`itemId`), FOREIGN KEY(`itemId`) REFERENCES `media_items`(`itemId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "itemId",
@@ -448,6 +448,13 @@
             "columnName": "isDownloaded",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "isVerified",
+            "columnName": "isVerified",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -11113,11 +11120,164 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_dismissed_suggestions_dismissedAt` ON `${TABLE_NAME}` (`dismissedAt`)"
           }
         ]
+      },
+      {
+        "tableName": "staged_metadata_candidates",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`candidateId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `itemId` INTEGER NOT NULL, `title` TEXT, `sortTitle` TEXT, `originalTitle` TEXT, `year` INTEGER, `releaseDate` INTEGER, `rating` REAL, `summary` TEXT, `plot` TEXT, `tagline` TEXT, `coverImagePath` TEXT, `backdropImagePath` TEXT, `language` TEXT, `country` TEXT, `tags` TEXT, `confidenceScore` REAL NOT NULL, `source` TEXT NOT NULL, `status` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `expiresAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "candidateId",
+            "columnName": "candidateId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemId",
+            "columnName": "itemId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sortTitle",
+            "columnName": "sortTitle",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "originalTitle",
+            "columnName": "originalTitle",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "year",
+            "columnName": "year",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "releaseDate",
+            "columnName": "releaseDate",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "rating",
+            "columnName": "rating",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "summary",
+            "columnName": "summary",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "plot",
+            "columnName": "plot",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tagline",
+            "columnName": "tagline",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "coverImagePath",
+            "columnName": "coverImagePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "backdropImagePath",
+            "columnName": "backdropImagePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "country",
+            "columnName": "country",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tags",
+            "columnName": "tags",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "confidenceScore",
+            "columnName": "confidenceScore",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expiresAt",
+            "columnName": "expiresAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "candidateId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_staged_metadata_candidates_itemId",
+            "unique": false,
+            "columnNames": [
+              "itemId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_staged_metadata_candidates_itemId` ON `${TABLE_NAME}` (`itemId`)"
+          },
+          {
+            "name": "index_staged_metadata_candidates_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_staged_metadata_candidates_status` ON `${TABLE_NAME}` (`status`)"
+          },
+          {
+            "name": "index_staged_metadata_candidates_expiresAt",
+            "unique": false,
+            "columnNames": [
+              "expiresAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_staged_metadata_candidates_expiresAt` ON `${TABLE_NAME}` (`expiresAt`)"
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '39e4833eb43e8cc1bd4159b628118e04')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ba21ae5a337e0960b36c103053858c93')"
     ]
   }
 }
