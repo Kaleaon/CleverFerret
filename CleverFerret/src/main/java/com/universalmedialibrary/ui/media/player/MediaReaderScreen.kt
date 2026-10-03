@@ -214,7 +214,7 @@ fun MediaReaderScreen(
 
 
 @Composable
-private fun HtmlReaderContent(
+internal fun HtmlReaderContent(
     htmlContent: String,
     theme: ReaderTheme,
     typography: ReaderTypography
@@ -316,7 +316,7 @@ private fun Color.toHexColor(): String {
 }
 
 @Composable
-private fun ComicPageView(
+internal fun ComicPageView(
     imageUrl: String?,
     modifier: Modifier = Modifier
 ) {

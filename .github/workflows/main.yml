@@ -16,6 +16,8 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    env:
+      COMPILE_LOG: compile_output.txt
     
     steps:
     - name: Checkout code
@@ -112,7 +114,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: compile-log-${{ github.sha }}-${{ github.run_attempt }}
-        path: ${{ env.COMPILE_LOG }}
+        path: ${{ env.COMPILE_LOG || 'compile_output.txt' }}
         if-no-files-found: ignore
     
     - name: Run unit tests
@@ -168,6 +170,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     if: always()  # Run even if test job fails to provide build diagnostics
+    env:
+      BUILD_LOG: build_output.txt
     
     outputs:
       version-name: ${{ steps.version.outputs.version-name }}
@@ -275,7 +279,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-log-${{ github.sha }}-${{ github.run_attempt }}
-        path: ${{ env.BUILD_LOG }}
+        path: ${{ env.BUILD_LOG || 'build_output.txt' }}
         if-no-files-found: ignore
       
     - name: Build release APK (unsigned)

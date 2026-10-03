@@ -304,7 +304,7 @@ fun MediaNavigationScaffold(
     }
 }
 
-private fun isDestinationSelected(currentRoute: String, destinationRoute: String): Boolean {
+internal fun isDestinationSelected(currentRoute: String, destinationRoute: String): Boolean {
     // Exact match, plus nested sub-routes (e.g. settings/* should select settings)
     return currentRoute == destinationRoute || currentRoute.startsWith("$destinationRoute/")
 }

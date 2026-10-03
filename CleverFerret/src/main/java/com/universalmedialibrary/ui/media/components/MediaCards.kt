@@ -78,7 +78,7 @@ data class MediaItem(
 )
 
 @Composable
-private fun mediaProgressColors(): Pair<Color, Color> {
+internal fun mediaProgressColors(): Pair<Color, Color> {
     val scheme = MaterialTheme.colorScheme
     return scheme.primary to scheme.surfaceContainerHighest
 }
@@ -96,7 +96,23 @@ enum class MediaType(val color: Color, val icon: ImageVector) {
     FANFICTION(MediaColors.MediaTypes.Fanfiction, Icons.Default.Edit),
     NEWS(MediaColors.MediaTypes.News, Icons.Default.Newspaper),
     UNKNOWN(MediaColors.TextTertiary, Icons.Default.QuestionMark);
-    
+
+    val routeName: String
+        get() = when (this) {
+            BOOK -> "book"
+            AUDIOBOOK -> "audiobook"
+            COMIC -> "comic"
+            MUSIC -> "music"
+            PODCAST -> "podcast"
+            MOVIE -> "movie"
+            TV_SHOW -> "tv_show"
+            RADIO -> "radio"
+            DOCUMENT -> "document"
+            FANFICTION -> "webfiction"
+            NEWS -> "news"
+            UNKNOWN -> "unknown"
+        }
+
     companion object {
         fun fromRouteName(routeName: String): MediaType = when (routeName) {
             "book" -> BOOK
@@ -306,7 +322,7 @@ fun <T> MediaCarouselRow(
 // =============================================================================
 
 @Composable
-private fun CardBadges(
+internal fun CardBadges(
     item: MediaItem,
     modifier: Modifier = Modifier
 ) {
@@ -339,7 +355,7 @@ private fun CardBadges(
 }
 
 @Composable
-private fun BadgeChip(
+internal fun BadgeChip(
     text: String,
     color: Color,
     icon: ImageVector? = null
@@ -371,7 +387,7 @@ private fun BadgeChip(
 }
 
 @Composable
-private fun RatingBadge(
+internal fun RatingBadge(
     rating: Float,
     modifier: Modifier = Modifier
 ) {
@@ -401,7 +417,7 @@ private fun RatingBadge(
 }
 
 @Composable
-private fun PlayButton(
+internal fun PlayButton(
     onClick: () -> Unit,
     size: Dp = 48.dp
 ) {
