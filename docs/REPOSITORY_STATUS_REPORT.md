@@ -41,7 +41,7 @@ This report summarizes repository-level readiness using the canonical V2 feature
 | DOC/RTF/ODT/CHM/FB2 support | Partial | V2.1 | Requires further validation/integration. |
 | Chromecast validation hardening | Partial | V2.1 | Needs cross-device hardening coverage. |
 | MOBI/AZW/AZW3 integration | Partial | V2.1 | Parser + integration hardening still required. |
-| OPDS wiring (catalog + download backend) | Partial | V2.1 | End-to-end backend wiring incomplete. |
+| OPDS wiring (catalog + download backend) | Ready | V2.1 | End-to-end catalog and download flow ready. |
 | DJVU support completion | Partial | V2.2 | Decoder/rendering completion pending. |
 | Plex auth/sync hardening | Partial | V2.2 | Auth/sync resilience work remains. |
 | Cloud sync providers (Google Drive/Dropbox/progress sync) | Stub | V2.2 | Provider scaffolds exist; implementation incomplete. |

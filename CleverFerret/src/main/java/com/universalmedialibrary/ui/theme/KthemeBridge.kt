@@ -13,25 +13,56 @@ import com.ktheme.models.MetallicGradient as KthemeMetallicGradient
 import com.ktheme.models.Theme
 import com.ktheme.models.ThemeMetadata
 import com.ktheme.models.VisualEffects
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Bridge adapter that replaces the legacy in-app theme registry with Ktheme's API.
  */
 object KthemeBridge {
     private val engine = ThemeEngine().apply { registerBuiltInThemes() }
+    private val colorSchemeCache = ConcurrentHashMap<Pair<CleverFerretTheme, Boolean>, ColorScheme>()
+    private val metallicGradientCache = ConcurrentHashMap<CleverFerretTheme, MetallicGradient>()
+
+    init {
+        precalculateCaches()
+    }
+
+    fun invalidateCache() {
+        colorSchemeCache.clear()
+        metallicGradientCache.clear()
+        precalculateCaches()
+    }
+
+    private fun precalculateCaches() {
+        CleverFerretTheme.entries.forEach { theme ->
+            colorSchemeCache[Pair(theme, true)] = computeColorScheme(theme, darkTheme = true)
+            colorSchemeCache[Pair(theme, false)] = computeColorScheme(theme, darkTheme = false)
+            metallicGradientCache[theme] = computeMetallicGradient(theme)
+        }
+    }
 
     fun resolveColorScheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme {
-        val themeId = theme.toKthemeId()
-        engine.setActiveTheme(themeId)
-        val activeTheme = engine.getActiveTheme() ?: return legacyColorScheme(theme, darkTheme)
-        return activeTheme.colorScheme.toComposeColorScheme(darkTheme)
+        return colorSchemeCache.getOrPut(Pair(theme, darkTheme)) {
+            computeColorScheme(theme, darkTheme)
+        }
     }
 
     fun resolveMetallicGradient(theme: CleverFerretTheme): com.universalmedialibrary.ui.theme.MetallicGradient {
+        return metallicGradientCache.getOrPut(theme) {
+            computeMetallicGradient(theme)
+        }
+    }
+
+    private fun computeColorScheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme {
         val themeId = theme.toKthemeId()
-        engine.setActiveTheme(themeId)
-        val activeTheme = engine.getActiveTheme()
-        val metallic = activeTheme?.effects?.metallic?.gradient ?: return legacyMetallicGradient(theme)
+        val themeObj = engine.getTheme(themeId) ?: return legacyColorScheme(theme, darkTheme)
+        return themeObj.colorScheme.toComposeColorScheme(darkTheme)
+    }
+
+    private fun computeMetallicGradient(theme: CleverFerretTheme): com.universalmedialibrary.ui.theme.MetallicGradient {
+        val themeId = theme.toKthemeId()
+        val themeObj = engine.getTheme(themeId)
+        val metallic = themeObj?.effects?.metallic?.gradient ?: return legacyMetallicGradient(theme)
 
         return com.universalmedialibrary.ui.theme.MetallicGradient(
             base = metallic.base.toComposeColor(),

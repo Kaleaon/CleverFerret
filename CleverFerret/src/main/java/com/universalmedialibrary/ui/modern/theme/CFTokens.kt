@@ -25,9 +25,11 @@ data class CFMetal(
     val highlight: Color,
     val shimmer: Color,
 ) {
-    fun brush(): Brush = Brush.linearGradient(
+    private val cachedBrush: Brush = Brush.linearGradient(
         0f to shadow, 0.45f to base, 0.85f to highlight, 1f to shimmer
     )
+
+    fun brush(): Brush = cachedBrush
 }
 
 // ─── LCARS-only swatches ──────────────────────────────────────────────────
