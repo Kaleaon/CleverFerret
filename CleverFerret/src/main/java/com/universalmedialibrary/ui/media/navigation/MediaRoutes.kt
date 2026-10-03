@@ -78,6 +78,7 @@ object MediaRoutes {
     const val SYNC = "sync"
     const val IMPORT_EXPORT = "import-export"
     const val FOLDER_IMPORT = "folder-import"
+    const val METADATA_REVIEW_QUEUE = "metadata-review-queue"
     
     // AI Entertainment (SynthChat Integration)
     // Removed

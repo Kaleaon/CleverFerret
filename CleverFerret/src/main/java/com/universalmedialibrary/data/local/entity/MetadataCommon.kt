@@ -54,5 +54,6 @@ data class MetadataCommon(
 
     // User interaction metadata
     val isFavorite: Boolean = false,
-    val isDownloaded: Boolean = false
+    val isDownloaded: Boolean = false,
+    val isVerified: Boolean = false
 )

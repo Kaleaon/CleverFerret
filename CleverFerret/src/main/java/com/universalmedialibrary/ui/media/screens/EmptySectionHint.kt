@@ -58,10 +58,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-internal const val MEDIA_HOME_TOP_BAR_TAG = "media_home_top_bar"
-internal const val MEDIA_HOME_TOP_BAR_NAV_TAG = "media_home_top_bar_nav_icon"
-internal const val MEDIA_HOME_TOP_BAR_SEARCH_TAG = "media_home_top_bar_search"
-internal const val MEDIA_HOME_TOP_BAR_NOTIFICATIONS_TAG = "media_home_top_bar_notifications"
+private const val HERO_CAROUSEL_AUTO_ADVANCE_INTERVAL_MS = 5000L
+private const val HERO_CAROUSEL_IDLE_RESUME_DELAY_MS = 10000L
+
+
 
 internal data class EmptySectionHint(
     val name: String,

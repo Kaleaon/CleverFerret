@@ -315,7 +315,7 @@ private fun AdditionalSettingsCard(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun <T : Enum<T>> RatingLimitSelector(
+internal fun <T : Enum<T>> RatingLimitSelector(
     icon: ImageVector,
     title: String,
     subtitle: String,

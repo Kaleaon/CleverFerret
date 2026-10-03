@@ -115,10 +115,10 @@ fun ModernBookSourceManagerScreen(
                         AuthBadge(source.authState)
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                        IconButton(onClick = { onPriorityUp(source) }, modifier = Modifier.size(28.dp)) {
+                        IconButton(onClick = { onPriorityUp(source) }, modifier = Modifier.minimumInteractiveComponentSize()) {
                             Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Higher priority", modifier = Modifier.size(18.dp))
                         }
-                        IconButton(onClick = { onPriorityDown(source) }, modifier = Modifier.size(28.dp)) {
+                        IconButton(onClick = { onPriorityDown(source) }, modifier = Modifier.minimumInteractiveComponentSize()) {
                             Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Lower priority", modifier = Modifier.size(18.dp))
                         }
                     }

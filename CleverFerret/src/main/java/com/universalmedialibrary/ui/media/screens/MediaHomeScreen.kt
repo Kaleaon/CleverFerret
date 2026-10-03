@@ -11,7 +11,10 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import com.universalmedialibrary.ui.media.components.MediaCarouselRow
+import com.universalmedialibrary.ui.media.components.MediaPosterCard
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -351,36 +354,6 @@ fun MediaHomeScreen(
                     onNotificationClick = onNotificationClick
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun ErrorStateContent(
-    error: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .padding(MediaSpacing.ScreenHorizontal)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
-    ) {
-        Text(
-            text = "We couldn’t load your library",
-            style = MediaTypography.TitleLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = error,
-            style = MediaTypography.BodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Button(onClick = onRetry) {
-            Text("Try again")
         }
     }
 }

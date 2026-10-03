@@ -497,7 +497,7 @@ fun FolderImportScreen(
 
 
 @Composable
-private fun FormatRow(
+internal fun FormatRow(
     icon: ImageVector,
     label: String,
     formats: String

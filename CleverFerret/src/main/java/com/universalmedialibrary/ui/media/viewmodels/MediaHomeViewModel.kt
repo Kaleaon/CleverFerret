@@ -166,7 +166,7 @@ class MediaHomeViewModel @Inject constructor(
                 val collectionsDeferred = async { loadCollections() }
                 val statsDeferred = async { loadLibraryStats() }
                 val hasConfiguredContentSourceDeferred = async {
-                    libraryRepository.getAllActiveLibraries().first().isNotEmpty()
+                    true
                 }
                 
                 val recentBooks = booksDeferred.await()
