@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.music
 
 import android.content.Context
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.services.metadata.CentralizedMetadataApiClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,7 +25,8 @@ import javax.inject.Singleton
 @Singleton
 class MusicMetadataService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val apiKeyRepository: APIKeyRepository
+    private val apiKeyRepository: APIKeyRepository,
+    private val centralizedApiClient: CentralizedMetadataApiClient
 ) {
 
     private val httpClient = OkHttpClient()
@@ -201,23 +203,18 @@ class MusicMetadataService @Inject constructor(
                     append(" AND release:\"$album\"")
                 }
             }
-            val encodedQuery = URLEncoder.encode(query, "UTF-8")
-            val url = "https://musicbrainz.org/ws/2/recording/?query=$encodedQuery&fmt=json&limit=1"
-
-            val request = Request.Builder()
-                .url(url)
-                .header("User-Agent", "CleverFerret/1.0 (contact@example.com)")
-                .build()
-
-            httpClient.newCall(request).execute().use { response ->
-                val responseBody = response.body?.string()
-
-                if (response.isSuccessful && responseBody != null) {
-                    parseMusicBrainzTrackResponse(responseBody)
-                } else {
-                    null
-                }
-            }
+            val response = centralizedApiClient.musicBrainzApi.searchRecordings(query = query, limit = 1)
+            val recording = response.recordings?.firstOrNull() ?: return null
+            val rel = recording.releases?.firstOrNull()
+            val artistName = recording.artistCredit?.joinToString(", ") { it.name ?: "" }?.takeIf { it.isNotBlank() } ?: artist
+            MusicBrainzTrackInfo(
+                mbid = recording.id,
+                artist = artistName,
+                title = recording.title ?: title,
+                album = rel?.title ?: album,
+                releaseDate = rel?.date,
+                duration = recording.length
+            )
         } catch (e: Exception) {
             null
         }

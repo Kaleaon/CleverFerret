@@ -1,6 +1,21 @@
 package com.universalmedialibrary.services.webfiction
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import java.net.URLEncoder
+
+internal const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
+internal const val REQUEST_TIMEOUT = 30000
+
+internal fun buildSearchResult(criteria: StorySearchCriteria, stories: List<StorySearchResultItem>): StorySearchResult {
+    return StorySearchResult(
+        stories = stories,
+        page = criteria.page,
+        hasMore = stories.size >= criteria.limit,
+        totalCount = stories.size
+    )
+}
 
 internal suspend fun fetchAO3Tags(): Result<List<WebFictionTag>> {
     return withContext(Dispatchers.IO) {

@@ -261,3 +261,10 @@ data class SyncStatistics(
     val lastSyncTime: Long,
     val activeProviders: Int
 )
+
+data class SyncResult(
+    val success: Boolean,
+    val error: String? = null,
+    val uploadedCount: Int = 0,
+    val downloadedCount: Int = 0
+)

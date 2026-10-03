@@ -1,6 +1,6 @@
 package com.universalmedialibrary.ui.media.navigation
 
-private fun sanitizeRouteParamForDisplay(input: String, maxLen: Int = 60): String {
+internal fun sanitizeRouteParamForDisplay(input: String, maxLen: Int = 60): String {
     // Defensive: route params may come from deep links; keep UI strings printable and bounded.
     return input
         .replace(Regex("[\\p{Cc}\\p{Cf}]"), "")

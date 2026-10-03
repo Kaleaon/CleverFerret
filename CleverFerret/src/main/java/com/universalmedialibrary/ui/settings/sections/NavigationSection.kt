@@ -29,14 +29,19 @@ import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
+import com.universalmedialibrary.ui.settings.BottomBarPreferencesCard
+import com.universalmedialibrary.ui.settings.GearPositionOption
 import com.universalmedialibrary.ui.settings.SettingsUiState
 import com.universalmedialibrary.ui.settings.SettingsViewModel
 import androidx.compose.foundation.lazy.LazyListScope
+
+import com.universalmedialibrary.ui.components.NavigationItems
 
 fun LazyListScope.navigationSection(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     navController: androidx.navigation.NavController,
+    availableBottomItems: List<NavigationItem> = NavigationItems.items
 ) {
       // Navigation Section
       item {

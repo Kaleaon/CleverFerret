@@ -90,7 +90,7 @@ fun MediaSyncScreen(
             
             // Progress sync section
             item {
-                SectionHeader(title = "Reading Progress", icon = Icons.Default.MenuBook)
+                SyncSectionHeader(title = "Reading Progress", icon = Icons.Default.MenuBook)
             }
             item {
                 SyncServiceCard(
@@ -101,7 +101,7 @@ fun MediaSyncScreen(
             
             // Library sync section
             item {
-                SectionHeader(title = "Library Sync", icon = Icons.Default.LibraryBooks)
+                SyncSectionHeader(title = "Library Sync", icon = Icons.Default.LibraryBooks)
             }
             items(state.librarySyncServices) { service ->
                 SyncServiceCard(
@@ -112,7 +112,7 @@ fun MediaSyncScreen(
             
             // Cloud backup section
             item {
-                SectionHeader(title = "Cloud Backup", icon = Icons.Default.Cloud)
+                SyncSectionHeader(title = "Cloud Backup", icon = Icons.Default.Cloud)
             }
             items(state.cloudServices) { service ->
                 SyncServiceCard(
@@ -124,7 +124,7 @@ fun MediaSyncScreen(
             // Sync history
             if (state.syncHistory.isNotEmpty()) {
                 item {
-                    SectionHeader(title = "Recent Activity", icon = Icons.Default.History)
+                    SyncSectionHeader(title = "Recent Activity", icon = Icons.Default.History)
                 }
                 items(state.syncHistory.take(5)) { entry ->
                     SyncHistoryItem(entry = entry)
@@ -135,7 +135,7 @@ fun MediaSyncScreen(
 }
 
 @Composable
-private fun SectionHeader(
+private fun SyncSectionHeader(
     title: String,
     icon: ImageVector
 ) {
