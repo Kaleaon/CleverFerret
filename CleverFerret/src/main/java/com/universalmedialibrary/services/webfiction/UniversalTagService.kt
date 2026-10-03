@@ -135,7 +135,7 @@ class UniversalTagService @Inject constructor(
 
 
 
-    private suspend fun buildSearchResult(
+    internal suspend fun buildSearchResult(
         criteria: StorySearchCriteria,
         stories: List<WebFictionStory>
     ): StorySearchResult {

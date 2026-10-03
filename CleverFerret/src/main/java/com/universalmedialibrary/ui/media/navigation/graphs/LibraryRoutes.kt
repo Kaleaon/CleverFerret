@@ -23,6 +23,7 @@ import androidx.navigation.compose.*
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
+import com.universalmedialibrary.ui.media.navigation.HomeSectionRouteContract
 import com.universalmedialibrary.ui.media.player.*
 import com.universalmedialibrary.ui.media.screens.*
 import com.universalmedialibrary.ui.media.viewmodels.*
@@ -30,7 +31,6 @@ import com.universalmedialibrary.debug.ui.DebugMenuScreen
 import com.universalmedialibrary.ui.components.NavigationItems
 import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.main.MainViewModel
-import com.universalmedialibrary.ui.media.navigation.HomeSectionRouteContract
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme

@@ -2,7 +2,10 @@ package com.universalmedialibrary.services
 
 import android.content.Context
 import android.net.Uri
+import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
+import com.universalmedialibrary.services.StorageAccessService.CopyResult
+import com.universalmedialibrary.utils.ErrorLogger
 
 internal fun getOrCreateChildDir(context: Context, parent: DocumentFile, name: String): DocumentFile {
     parent.listFiles().firstOrNull { it.isDirectory && it.name == name }?.let { return it }
@@ -12,7 +15,7 @@ internal fun getOrCreateChildDir(context: Context, parent: DocumentFile, name: S
 internal fun getOrCreateNestedDirs(context: Context, root: DocumentFile, pathSegments: List<String>): DocumentFile {
     var current = root
     for (segment in pathSegments) {
-        val cleaned = fileNameSanitizer.sanitizePath(segment).ifBlank { "Unknown" }
+        val cleaned = segment.replace(Regex("[^a-zA-Z0-9._-]"), "_").ifBlank { "Unknown" }
         current = getOrCreateChildDir(context, current, cleaned)
     }
     return current

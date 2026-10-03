@@ -2,19 +2,26 @@ package com.universalmedialibrary.services
 
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
-import com.universalmedialibrary.services.metadata.MusicTrackInfo
+import android.util.Log
+import com.universalmedialibrary.services.MediaScannerService.MusicTrackInfo
+import com.universalmedialibrary.utils.media.AudioMetadataUtils
 import com.universalmedialibrary.data.local.entity.LibraryScanSettings
 import java.io.File
 import java.security.MessageDigest
+import kotlin.math.max
+import kotlin.math.roundToInt
+
+import com.universalmedialibrary.services.storage.StorageImportClassifier
 
 internal fun determineMediaType(file: File): String? {
     val extension = file.extension.lowercase()
+    val imageExtensions = setOf("jpg", "jpeg", "png", "gif", "webp", "bmp")
     return when {
-        extension in BOOK_EXTENSIONS -> "BOOK"
-        extension in AUDIO_EXTENSIONS -> "MUSIC"
-        extension in VIDEO_EXTENSIONS -> "MOVIE"
-        extension in COMIC_EXTENSIONS -> "COMIC"
-        extension in IMAGE_EXTENSIONS && file.length() > 100000 -> "DOCUMENT"
+        extension in StorageImportClassifier.BOOK_EXTENSIONS -> "BOOK"
+        extension in StorageImportClassifier.AUDIO_EXTENSIONS -> "MUSIC"
+        extension in StorageImportClassifier.VIDEO_EXTENSIONS -> "MOVIE"
+        extension in StorageImportClassifier.COMIC_EXTENSIONS -> "COMIC"
+        extension in imageExtensions && file.length() > 100000 -> "DOCUMENT"
         else -> null
     }
 }
@@ -144,30 +151,4 @@ internal fun String.normalizeMatcher(): String? {
 
 internal fun File.normalizedPath(): String =
     absolutePath.normalizeMatcher() ?: absolutePath.lowercase()
-
-private fun scanLibrary(libraryId: Long, scanPath: String?) {
-    scanJob?.cancel()
-    scanJob = serviceScope.launch {
-        try {
-            val library = libraryDao.getLibraryById(libraryId)
-            if (library != null) {
-                val path = scanPath ?: library.path
-                val directory = File(path)
-                if (directory.exists() && directory.isDirectory) {
-                    val resolvedSettings = getCachedScanSettings(library)
-                    updateNotification("Scanning ${library.name}...")
-                    scanDirectory(directory, resolvedSettings, library)
-                    updateNotification("Library scan complete!")
-                }
-            }
-            delay(2000)
-            stopSelf()
-        } catch (e: Exception) {
-            ErrorLogger.logMediaScanError("Library scan failed", e)
-            updateNotification("Scan failed: ${e.message}")
-            delay(2000)
-            stopSelf()
-        }
-    }
-}
 
