@@ -39,7 +39,9 @@ import kotlinx.coroutines.launch
 import java.io.File
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.navigation.NotFoundRouteScreen
+import com.universalmedialibrary.ui.media.navigation.addSettingsRoutes
 import com.universalmedialibrary.ui.media.navigation.resolveRouteOrFallback
+import com.universalmedialibrary.ui.media.navigation.sanitizeRouteParamForDisplay
 
 fun NavGraphBuilder.mainSectionRoutes(
     navController: NavHostController,

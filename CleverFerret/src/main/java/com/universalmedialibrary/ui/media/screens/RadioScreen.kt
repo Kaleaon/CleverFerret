@@ -169,7 +169,7 @@ fun RadioScreen(
 
 
 @Composable
-private fun SectionHeader(
+internal fun SectionHeader(
     title: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector
 ) {

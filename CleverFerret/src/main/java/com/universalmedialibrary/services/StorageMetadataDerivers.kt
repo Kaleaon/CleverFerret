@@ -1,7 +1,21 @@
 package com.universalmedialibrary.services
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.util.Xml
+import org.xmlpull.v1.XmlPullParser
+import java.io.ByteArrayOutputStream
+import java.util.zip.ZipInputStream
+import com.universalmedialibrary.data.MediaType
+import com.universalmedialibrary.services.StorageAccessService.DerivedMetadata
+import com.universalmedialibrary.services.StorageAccessService.OpfParsed
+import com.universalmedialibrary.utils.ComicArchiveUtils
+import com.universalmedialibrary.utils.ComicInfoParser
+import com.universalmedialibrary.utils.FilebotDataService
+
+private val importClassifier = com.universalmedialibrary.services.storage.StorageImportClassifier()
+private val filebotDataService = FilebotDataService()
 
 internal fun determineMediaType(fileName: String): MediaType? {
     return importClassifier.determineMediaType(fileName)

@@ -161,7 +161,7 @@ interface GPodderApi {
 
 
 
-private data class PodcastIndexCredentials(
+internal data class PodcastIndexCredentials(
     val apiKey: String,
     val apiSecret: String
 )

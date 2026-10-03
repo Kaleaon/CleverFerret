@@ -1,6 +1,10 @@
 package com.universalmedialibrary.services.webfiction
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import java.net.URLEncoder
+import java.util.Locale
 
 internal suspend fun fetchWattpadTags(): Result<List<WebFictionTag>> {
     return Result.success(
@@ -402,5 +406,22 @@ internal suspend fun browseMcstoriesByTags(criteria: StorySearchCriteria): Resul
             Result.failure(e)
         }
     }
+}
+
+internal fun buildSearchResult(
+    criteria: StorySearchCriteria,
+    stories: List<WebFictionStory>
+): StorySearchResult {
+    val sliced = stories.drop(criteria.offset)
+    val limited = sliced.take(criteria.limit)
+    val consumed = criteria.offset + limited.size
+    val hasMore = stories.size > consumed
+    val nextOffset = if (hasMore) consumed else null
+    return StorySearchResult(
+        stories = limited,
+        totalCount = stories.size,
+        hasMore = hasMore,
+        nextOffset = nextOffset
+    )
 }
 

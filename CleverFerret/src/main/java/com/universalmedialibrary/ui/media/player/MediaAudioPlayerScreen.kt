@@ -510,7 +510,7 @@ fun MediaAudioPlayerScreen(
 // HELPERS
 // =============================================================================
 
-private fun formatTime(ms: Long): String {
+internal fun formatTime(ms: Long): String {
     val seconds = (ms / 1000) % 60
     val minutes = (ms / (1000 * 60)) % 60
     val hours = ms / (1000 * 60 * 60)
