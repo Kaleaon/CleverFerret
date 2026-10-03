@@ -156,7 +156,10 @@ fun StoryManagerScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(stories) { story ->
+                    items(
+                        items = stories,
+                        key = { story -> story.id }
+                    ) { story ->
                         StoryCard(
                             story = story,
                             onCheckUpdates = {

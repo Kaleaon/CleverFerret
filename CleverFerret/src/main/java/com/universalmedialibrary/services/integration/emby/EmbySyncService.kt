@@ -223,10 +223,11 @@ class EmbySyncService @Inject constructor(
                             ?.firstOrNull()
                             ?.get("Path") as? String
                     val size = (item["Size"] as? Number)?.toLong()
-                        ?: (item["MediaSources"] as? List<Map<String, Any>>)
-                            ?.firstOrNull()
-                            ?.get("Size") as? Number
-                            ?.toLong()
+                        ?: (
+                            (item["MediaSources"] as? List<Map<String, Any>>)
+                                ?.firstOrNull()
+                                ?.get("Size") as? Number
+                            )?.toLong()
                         ?: 0L
                     val fileExtension = path?.substringAfterLast('.', "")?.lowercase().orEmpty()
                     val fileName = path?.substringAfterLast('/')?.ifBlank { name } ?: name

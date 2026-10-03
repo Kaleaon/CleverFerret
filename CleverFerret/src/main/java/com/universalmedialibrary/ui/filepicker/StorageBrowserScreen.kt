@@ -29,6 +29,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.ui.components.UserFeedbackMessage
+import com.universalmedialibrary.ui.components.UserFeedbackSeverity
+import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
+import com.universalmedialibrary.ui.components.showUserFeedback
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -48,8 +52,28 @@ fun StorageBrowserScreen(
     viewModel: StorageBrowserViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.error) {
+        val error = uiState.error ?: return@LaunchedEffect
+        val result = snackbarHostState.showUserFeedback(
+            UserFeedbackMessage(
+                title = "Unable to open folder",
+                body = error,
+                severity = UserFeedbackSeverity.ERROR,
+                actionLabel = "Retry"
+            )
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            viewModel.refresh()
+        }
+        viewModel.clearError()
+    }
 
     Scaffold(
+        snackbarHost = {
+            UserFeedbackSnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                 title = {
@@ -147,12 +171,6 @@ fun StorageBrowserScreen(
                         CircularProgressIndicator()
                     }
                 }
-                uiState.error != null -> {
-                    ErrorView(
-                        message = uiState.error!!,
-                        onRetry = { viewModel.refresh() }
-                    )
-                }
                 uiState.files.isEmpty() -> {
                     EmptyFolderView()
                 }
@@ -187,61 +205,7 @@ fun StorageBrowserScreen(
 }
 
 @Composable
-private fun QuickAccessBar(
-    onPathSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    // Retrieve standard external storage paths via Android APIs
-    val externalStorage = Environment.getExternalStorageDirectory().absolutePath
-    val downloadsDir = Environment
-        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        .absolutePath
-    val documentsDir = Environment
-        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-        .absolutePath
-    val dcimDir = Environment
-        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
-        .absolutePath
-    val musicDir = Environment
-        .getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
-        .absolutePath
-
-    Row(
-        modifier = modifier
-            .padding(8.dp)
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        QuickAccessChip(
-            label = "Internal",
-            icon = Icons.Default.PhoneAndroid,
-            onClick = { onPathSelected(externalStorage) }
-        )
-        QuickAccessChip(
-            label = "Downloads",
-            icon = Icons.Default.Download,
-            onClick = { onPathSelected(downloadsDir) }
-        )
-        QuickAccessChip(
-            label = "Documents",
-            icon = Icons.Default.Folder,
-            onClick = { onPathSelected(documentsDir) }
-        )
-        QuickAccessChip(
-            label = "DCIM",
-            icon = Icons.Default.PhotoLibrary,
-            onClick = { onPathSelected(dcimDir) }
-        )
-        QuickAccessChip(
-            label = "Music",
-            icon = Icons.Default.MusicNote,
-            onClick = { onPathSelected(musicDir) }
-        )
-    }
-}
-
-@Composable
-private fun QuickAccessChip(
+internal fun QuickAccessChip(
     label: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit
@@ -334,39 +298,6 @@ private fun FileItem(
 }
 
 @Composable
-private fun FileIcon(file: File) {
-    val (icon, gradient) = when {
-        file.isDirectory -> Icons.Default.Folder to listOf(Color(0xFFFFA726), Color(0xFFFF6F00))
-        file.extension.lowercase() in listOf("epub", "pdf", "txt", "mobi") -> 
-            Icons.Default.Book to listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))
-        file.extension.lowercase() in listOf("mp3", "m4a", "flac", "wav") -> 
-            Icons.Default.MusicNote to listOf(Color(0xFF4A148C), Color(0xFF9C27B0))
-        file.extension.lowercase() in listOf("mp4", "mkv", "avi", "mov") -> 
-            Icons.Default.Movie to listOf(Color(0xFF0D47A1), Color(0xFF2196F3))
-        file.extension.lowercase() in listOf("cbz", "cbr", "cb7") -> 
-            Icons.Default.AutoStories to listOf(Color(0xFFE65100), Color(0xFFFF9800))
-        file.extension.lowercase() in listOf("jpg", "jpeg", "png", "gif") -> 
-            Icons.Default.Image to listOf(Color(0xFF006064), Color(0xFF00BCD4))
-        else -> Icons.AutoMirrored.Filled.InsertDriveFile to listOf(Color(0xFF37474F), Color(0xFF78909C))
-    }
-
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .clip(CircleShape)
-            .background(Brush.linearGradient(gradient)),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            icon,
-            contentDescription = "Media image",
-            tint = Color.White,
-            modifier = Modifier.size(24.dp)
-        )
-    }
-}
-
-@Composable
 private fun EmptyFolderView() {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -439,78 +370,6 @@ private fun ErrorView(
                 Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Retry")
-            }
-        }
-    }
-}
-
-@Composable
-private fun StoragePermissionCard(
-    onRequestPermission: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier
-                .padding(24.dp)
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(
-                    Icons.Default.Folder,
-                    contentDescription = "Media image",
-                    modifier = Modifier.size(72.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                
-                Text(
-                    text = "Storage Access Required",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-                
-                Text(
-                    text = "To browse and open ebooks, documents, and other files from your device storage, CleverFerret needs 'All Files Access' permission.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-                
-                Text(
-                    text = "This permission allows the app to read files like EPUB, PDF, MOBI, and other document formats stored on your device.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Button(
-                    onClick = onRequestPermission,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Security, contentDescription = "Security")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Grant Access")
-                }
-                
-                Text(
-                    text = "You'll be taken to system settings. Find 'CleverFerret' and enable 'Allow access to manage all files'.",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    textAlign = TextAlign.Center
-                )
             }
         }
     }

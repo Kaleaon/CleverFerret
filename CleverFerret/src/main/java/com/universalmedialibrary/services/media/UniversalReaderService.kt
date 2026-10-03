@@ -5,6 +5,7 @@ import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Bookmark
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.epub.EpubReaderService
+import com.universalmedialibrary.services.epub.toDocumentContent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,7 +92,7 @@ class UniversalReaderService @Inject constructor(
         return try {
             val success = epubReaderService.loadEPUB(file)
             if (success) {
-                epubReaderService.getDocumentContent()
+                epubReaderService.readerState.value.toDocumentContent()
             } else {
                 // Fallback to old method if new service fails
                 loadEpubContent(file)

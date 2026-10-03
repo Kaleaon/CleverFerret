@@ -90,8 +90,23 @@ data class IngestionOutcome<T>(
 @Singleton
 class IngestionPipeline @Inject constructor(
     private val sourceHealthMonitor: SourceHealthMonitor,
-    private val incrementalStateStore: InMemoryIncrementalStateStore
+    private val incrementalStateStore: InMemoryIncrementalStateStore,
+    private val metadataStagingRepository: com.universalmedialibrary.data.repository.MetadataStagingRepository
 ) {
+    suspend fun stageCandidateMetadata(
+        itemId: Long,
+        metadata: com.universalmedialibrary.data.local.entity.MetadataCommon,
+        sourceId: String,
+        confidenceScore: Float = 0.80f
+    ): Long {
+        return metadataStagingRepository.stageMetadataCommon(
+            itemId = itemId,
+            metadata = metadata,
+            source = "IngestionPipeline:$sourceId",
+            confidenceScore = confidenceScore
+        )
+    }
+
     suspend fun <Auth, FetchPage, Parsed, Deduped, Enriched, Persisted> execute(
         sourceId: String,
         authenticate: suspend () -> Auth,
@@ -111,6 +126,19 @@ class IngestionPipeline @Inject constructor(
             val parsed = parse(fetched)
             val deduped = deduplicate(parsed)
             val enriched = enrichMetadata(deduped)
+
+            // If enriched object is MetadataCommon, route exclusively to staged_metadata_candidates
+            if (enriched is com.universalmedialibrary.data.local.entity.MetadataCommon) {
+                stageCandidateMetadata(
+                    itemId = enriched.itemId,
+                    metadata = enriched,
+                    sourceId = sourceId,
+                    confidenceScore = 0.80f
+                )
+            } else if (enriched is com.universalmedialibrary.data.local.entity.StagedMetadataCandidate) {
+                metadataStagingRepository.stageCandidate(enriched)
+            }
+
             val persisted = persist(enriched)
             val token = nextIncrementalToken(persisted)
             if (!token.isNullOrBlank()) {

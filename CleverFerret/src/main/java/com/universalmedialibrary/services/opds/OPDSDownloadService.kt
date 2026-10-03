@@ -77,7 +77,7 @@ class OPDSDownloadService @Inject constructor(
         }
         
         // Determine file extension and MIME type
-        val (extension, mimeType) = determineFileType(downloadLink.href)
+        val (extension, mimeType) = determineFileType(downloadLink)
         
         // Create download record
         val download = OPDSDownload(
@@ -201,7 +201,7 @@ class OPDSDownloadService @Inject constructor(
                 }
                 
                 // Mark download complete
-                catalogDao.markDownloadComplete(downloadId, outputFile.absolutePath)
+                persistCompletedDownload(downloadId, outputFile.absolutePath)
                 updateActiveDownload(downloadId, title, 1f, DownloadStatus.COMPLETED)
                 
                 // Import to library
@@ -229,6 +229,11 @@ class OPDSDownloadService @Inject constructor(
                 }
             }
         }
+    }
+
+    internal suspend fun persistCompletedDownload(downloadId: Long, localPath: String) {
+        require(localPath.isNotBlank()) { "localPath must not be blank when marking a download complete" }
+        catalogDao.markDownloadCompleteAtomically(downloadId, localPath)
     }
     
     /**
@@ -278,16 +283,29 @@ class OPDSDownloadService @Inject constructor(
      */
     private fun findBestDownloadLink(links: List<OPDSLink>): OPDSLink? {
         if (links.isEmpty()) return null
-        
-        // Priority order for formats
-        val formatPriority = listOf("epub", "pdf", "mobi", "azw", "fb2", "cbz")
-        
-        for (format in formatPriority) {
-            val link = links.find { 
-                val urlPath = it.href.substringBefore("?").lowercase()
+
+        // Priority order for formats (MIME first, then extension fallback)
+        val mimePriority = listOf(
+            "application/epub+zip",
+            "application/pdf",
+            "application/x-mobipocket-ebook",
+            "application/vnd.amazon.ebook",
+            "application/x-fictionbook+xml",
+            "application/x-cbz",
+            "application/x-cbr"
+        )
+        for (preferredMime in mimePriority) {
+            val byMime = links.find { normalizeMimeType(it.type) == preferredMime }
+            if (byMime != null) return byMime
+        }
+
+        val extensionPriority = listOf("epub", "pdf", "mobi", "azw3", "azw", "fb2", "cbz", "cbr")
+        for (format in extensionPriority) {
+            val byExtension = links.find {
+                val urlPath = it.href.substringBefore("?").substringBefore("#").lowercase()
                 urlPath.endsWith(".$format")
             }
-            if (link != null) return link
+            if (byExtension != null) return byExtension
         }
         
         // Return any acquisition link if no preferred format found
@@ -301,7 +319,22 @@ class OPDSDownloadService @Inject constructor(
      * Determine file type from URL
      * Extracts extension from the URL path, ignoring query parameters
      */
-    private fun determineFileType(url: String): Pair<String, String> {
+    private fun determineFileType(link: OPDSLink): Pair<String, String> {
+        val normalizedType = normalizeMimeType(link.type)
+        if (normalizedType != null) {
+            return when (normalizedType) {
+                "application/epub+zip" -> "epub" to normalizedType
+                "application/pdf" -> "pdf" to normalizedType
+                "application/x-mobipocket-ebook" -> "mobi" to normalizedType
+                "application/vnd.amazon.ebook" -> "azw" to normalizedType
+                "application/x-fictionbook+xml" -> "fb2" to normalizedType
+                "application/x-cbz" -> "cbz" to normalizedType
+                "application/x-cbr" -> "cbr" to normalizedType
+                else -> normalizedType.substringAfterLast("/") to normalizedType
+            }
+        }
+
+        val url = link.href
         // Extract path without query parameters and get the extension
         val urlPath = url.substringBefore("?").substringBefore("#")
         val extension = urlPath.substringAfterLast(".").lowercase()
@@ -316,6 +349,11 @@ class OPDSDownloadService @Inject constructor(
             "cbr" -> "cbr" to "application/x-cbr"
             else -> "epub" to "application/epub+zip" // Default to EPUB
         }
+    }
+
+    private fun normalizeMimeType(mimeType: String?): String? {
+        if (mimeType.isNullOrBlank()) return null
+        return mimeType.substringBefore(";").trim().lowercase().ifBlank { null }
     }
     
     /**
@@ -375,7 +413,7 @@ class OPDSDownloadService @Inject constructor(
         val download = catalogDao.getDownloadById(downloadId) ?: return
         if (download.status != DownloadStatus.FAILED) return
         
-        val (extension, _) = determineFileType(download.downloadUrl)
+        val (extension, _) = determineFileType(OPDSLink(href = download.downloadUrl, type = download.mimeType))
         startDownload(downloadId, download.title, download.downloadUrl, extension)
     }
     

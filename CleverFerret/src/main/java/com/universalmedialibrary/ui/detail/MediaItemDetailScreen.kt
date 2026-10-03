@@ -23,9 +23,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.universalmedialibrary.data.local.entity.UnifiedTag
 import java.text.DecimalFormat
 import kotlin.math.log10
@@ -76,6 +78,19 @@ fun MediaItemDetailScreen(
                             )
                         } else {
                             Icon(Icons.Default.CloudDownload, contentDescription = "Fetch Metadata")
+                        }
+                    }
+                    IconButton(
+                        onClick = { viewModel.regenerateThumbnail() },
+                        enabled = uiState.thumbnailTask?.status != BackgroundTaskStatus.RUNNING
+                    ) {
+                        if (uiState.thumbnailTask?.status == BackgroundTaskStatus.RUNNING) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(Icons.Default.Refresh, contentDescription = "Regenerate Thumbnail")
                         }
                     }
                     IconButton(
@@ -181,6 +196,20 @@ fun MediaItemDetailScreen(
                             ErrorMessage(message = error, onDismiss = { viewModel.clearMetadataFetchStatus() })
                         }
 
+                        uiState.metadataRefreshTask?.let { task ->
+                            BackgroundTaskCard(
+                                task = task,
+                                onDismiss = { viewModel.clearBackgroundTask(BackgroundTaskType.METADATA) }
+                            )
+                        }
+
+                        uiState.thumbnailTask?.let { task ->
+                            BackgroundTaskCard(
+                                task = task,
+                                onDismiss = { viewModel.clearBackgroundTask(BackgroundTaskType.THUMBNAIL) }
+                            )
+                        }
+
                         // Tag suggestion error
                         uiState.tagSuggestionError?.let { error ->
                             ErrorMessage(message = error, onDismiss = { viewModel.dismissTagSuggestions() })
@@ -189,7 +218,8 @@ fun MediaItemDetailScreen(
                         // Cover/Thumbnail Section
                         CoverSection(
                             coverPath = uiState.metadata?.coverImagePath,
-                            mediaType = uiState.mediaItem?.mediaType ?: "UNKNOWN"
+                            mediaType = uiState.mediaItem?.mediaType ?: "UNKNOWN",
+                            cacheVersion = uiState.imageCacheVersion
                         )
 
                         // Title and Basic Info
@@ -285,230 +315,10 @@ private fun TagsSection(tags: List<UnifiedTag>) {
     }
 }
 
-@Composable
-fun TagSuggestionDialog(
-    suggestedTags: List<String>,
-    onDismiss: () -> Unit,
-    onSave: (List<String>) -> Unit
-) {
-    val selectedTags = remember { mutableStateListOf<String>().apply { addAll(suggestedTags) } }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(Icons.Default.AutoAwesome, contentDescription = "AI")
-                Text("AI Suggested Tags")
-            }
-        },
-        text = {
-            Column {
-                Text("Select tags to add:", style = MaterialTheme.typography.bodyMedium)
-                Spacer(modifier = Modifier.height(8.dp))
-                LazyColumn(
-                    modifier = Modifier.heightIn(max = 300.dp)
-                ) {
-                    items(suggestedTags) { tag ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    if (selectedTags.contains(tag)) {
-                                        selectedTags.remove(tag)
-                                    } else {
-                                        selectedTags.add(tag)
-                                    }
-                                }
-                                .padding(vertical = 4.dp)
-                        ) {
-                            Checkbox(
-                                checked = selectedTags.contains(tag),
-                                onCheckedChange = { checked ->
-                                    if (checked) selectedTags.add(tag) else selectedTags.remove(tag)
-                                }
-                            )
-                            Text(
-                                text = tag,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = { onSave(selectedTags) }) {
-                Text("Add Selected")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
 
-@Composable
-private fun CoverSection(
-    coverPath: String?,
-    mediaType: String
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            if (coverPath != null) {
-                AsyncImage(
-                    
-                    model = coverPath,
-                    contentDescription = "Cover",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                // Placeholder with gradient based on media type
-                val colors = when (mediaType) {
-                    "BOOK" -> listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))
-                    "MUSIC" -> listOf(Color(0xFF4A148C), Color(0xFF9C27B0))
-                    "MOVIE" -> listOf(Color(0xFF0D47A1), Color(0xFF2196F3))
-                    else -> listOf(Color(0xFF37474F), Color(0xFF78909C))
-                }
-                
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Brush.linearGradient(colors)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = when (mediaType) {
-                            "BOOK" -> Icons.Default.Book
-                            "MUSIC" -> Icons.Default.MusicNote
-                            "MOVIE" -> Icons.Default.Movie
-                            else -> Icons.Default.InsertDriveFile
-                        },
-                        contentDescription = "Media image",
-                        modifier = Modifier.size(80.dp),
-                        tint = Color.White.copy(alpha = 0.7f)
-                    )
-                }
-            }
-        }
-    }
-}
 
-@Composable
-private fun TitleSection(
-    title: String,
-    subtitle: String?,
-    mediaType: String,
-    rating: Float?
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-        
-        if (subtitle != null) {
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Chip(text = mediaType.lowercase().replaceFirstChar { it.uppercase() })
-            
-            rating?.let {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.Star,
-                        contentDescription = "Media image",
-                        tint = Color(0xFFFFD700),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Text(
-                        text = String.format(java.util.Locale.US, "%.1f", it),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-        }
-    }
-}
 
-@Composable
-private fun ProgressSection(
-    progress: Float,
-    lastPosition: Long,
-    totalDuration: Long?
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Progress",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "${(progress * 100).toInt()}%",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-            
-            LinearProgressIndicator(
-                progress = progress,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp))
-            )
-            
-            totalDuration?.let { duration ->
-                Text(
-                    text = "${formatTime(lastPosition)} / ${formatTime(duration)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun SummarySection(summary: String) {
@@ -674,169 +484,5 @@ private fun formatDate(timestamp: Long): String {
     return sdf.format(java.util.Date(timestamp))
 }
 
-@Composable
-private fun SuccessMessage(message: String, onDismiss: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF2E7D32)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    Icons.Default.CheckCircle,
-                    contentDescription = "Media image",
-                    tint = Color.White
-                )
-                Text(
-                    text = message,
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            IconButton(onClick = onDismiss) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = "Dismiss",
-                    tint = Color.White
-                )
-            }
-        }
-    }
-}
 
-@Composable
-private fun ErrorMessage(message: String, onDismiss: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    Icons.Default.Error,
-                    contentDescription = "Media image",
-                    tint = MaterialTheme.colorScheme.onErrorContainer
-                )
-                Text(
-                    text = message,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            IconButton(onClick = onDismiss) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = "Dismiss",
-                    tint = MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
-        }
-    }
-}
 
-@Composable
-fun AddToCollectionDialog(
-    collections: List<com.universalmedialibrary.data.local.entity.UnifiedCollection>,
-    onDismiss: () -> Unit,
-    onAddToCollection: (Long) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(Icons.Default.PlaylistAdd, contentDescription = "Add to playlist")
-                Text("Add to Collection")
-            }
-        },
-        text = {
-            if (collections.isEmpty()) {
-                Text("No collections found. Create a collection first.")
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp)
-                ) {
-                    items(collections) { collection ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .clickable {
-                                    onAddToCollection(collection.collectionId)
-                                    onDismiss()
-                                },
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = when (collection.type) {
-                                        com.universalmedialibrary.data.local.entity.CollectionType.PLAYLIST -> Icons.Default.PlaylistPlay
-                                        com.universalmedialibrary.data.local.entity.CollectionType.SERIES -> Icons.Default.ViewList
-                                        com.universalmedialibrary.data.local.entity.CollectionType.READING_LIST -> Icons.AutoMirrored.Filled.MenuBook
-                                        com.universalmedialibrary.data.local.entity.CollectionType.WATCH_LIST -> Icons.Default.Visibility
-                                        com.universalmedialibrary.data.local.entity.CollectionType.USER_DEFINED -> Icons.Default.Folder
-                                        com.universalmedialibrary.data.local.entity.CollectionType.SMART -> Icons.Default.AutoAwesome
-                                    },
-                                    contentDescription = "Media image"
-                                )
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = collection.name,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Text(
-                                        text = "${collection.type.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }} • ${collection.itemCount} items",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}

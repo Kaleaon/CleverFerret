@@ -44,6 +44,8 @@ fun LibraryManagementScreen(
     val libraries by viewModel.libraries.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val libraryItemCounts by viewModel.libraryItemCounts.collectAsState()
+    val bulkMetadataTask by viewModel.bulkMetadataTask.collectAsState()
+    val bulkThumbnailTask by viewModel.bulkThumbnailTask.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -82,6 +84,28 @@ fun LibraryManagementScreen(
                                 }
                             )
                             DropdownMenuItem(
+                                text = { Text("Refresh All Metadata") },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.refreshAllMetadata()
+                                },
+                                enabled = bulkMetadataTask?.status != LibraryBackgroundTaskStatus.RUNNING,
+                                leadingIcon = {
+                                    Icon(Icons.Default.CloudDownload, contentDescription = "Refresh metadata")
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Regenerate Thumbnails") },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.regenerateAllThumbnails()
+                                },
+                                enabled = bulkThumbnailTask?.status != LibraryBackgroundTaskStatus.RUNNING,
+                                leadingIcon = {
+                                    Icon(Icons.Default.Refresh, contentDescription = "Regenerate thumbnails")
+                                }
+                            )
+                            DropdownMenuItem(
                                 text = { Text("Import Calibre Library") },
                                 onClick = {
                                     showMenu = false
@@ -114,6 +138,19 @@ fun LibraryManagementScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            bulkMetadataTask?.let { task ->
+                LibraryBackgroundTaskCard(
+                    task = task,
+                    onDismiss = { viewModel.clearBulkTask(LibraryBackgroundTaskType.METADATA) }
+                )
+            }
+            bulkThumbnailTask?.let { task ->
+                LibraryBackgroundTaskCard(
+                    task = task,
+                    onDismiss = { viewModel.clearBulkTask(LibraryBackgroundTaskType.THUMBNAIL) }
+                )
+            }
+
             if (libraries.isEmpty()) {
                 WelcomeScreen(
                     onCreateLibrary = { showCreateDialog = true },
@@ -185,6 +222,51 @@ fun LibraryManagementScreen(
         }
         is LibraryManagementUiState.Success -> {
             // Content already shown above
+        }
+    }
+}
+
+@Composable
+private fun LibraryBackgroundTaskCard(
+    task: LibraryBackgroundTaskState,
+    onDismiss: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = when (task.status) {
+                LibraryBackgroundTaskStatus.FAILED -> MaterialTheme.colorScheme.errorContainer
+                LibraryBackgroundTaskStatus.SUCCESS -> MaterialTheme.colorScheme.primaryContainer
+                else -> MaterialTheme.colorScheme.surfaceVariant
+            }
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = task.label,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                TextButton(onClick = onDismiss) { Text("Dismiss") }
+            }
+            LinearProgressIndicator(
+                progress = task.progress,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = task.message ?: task.status.name.lowercase().replaceFirstChar { it.uppercase() },
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }

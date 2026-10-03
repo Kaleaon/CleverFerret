@@ -25,10 +25,12 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import com.universalmedialibrary.services.podcast.PodcastSearchResult
+import com.universalmedialibrary.services.podcast.DownloadStatus
+import com.universalmedialibrary.ui.components.ConfirmationDialog
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.MetallicFAB
 import com.universalmedialibrary.ui.theme.MetallicTopAppBar
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,10 +41,20 @@ fun PodcastManagerScreen(
     viewModel: PodcastViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val downloadStatuses by viewModel.downloadProgress.collectAsState()
     val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
     var showSearchDialog by remember { mutableStateOf(false) }
     var showAddFeedDialog by remember { mutableStateOf(false) }
+    var pendingDeleteEpisode by remember { mutableStateOf<PodcastEpisode?>(null) }
+    var pendingUnsubscribePodcast by remember { mutableStateOf<Podcast?>(null) }
     var selectedTab by remember { mutableIntStateOf(0) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel) {
+        viewModel.userMessages.collectLatest { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -78,7 +90,10 @@ fun PodcastManagerScreen(
                     Icon(Icons.Default.Add, contentDescription = "Add Podcast")
                 }
             )
-        }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -152,16 +167,24 @@ fun PodcastManagerScreen(
                             navController.navigate("podcast_detail/${podcast.id}")
                         },
                         onUnsubscribe = { podcast ->
-                            viewModel.unsubscribeFromPodcast(podcast)
+                            pendingUnsubscribePodcast = podcast
                         }
                     )
                     1 -> PodcastEpisodesTab(
                         episodes = uiState.allEpisodes,
+                        downloadStatuses = downloadStatuses,
                         onEpisodeClick = { episode ->
                             navController.navigate("podcast_player/${episode.id}")
                         },
                         onDownloadClick = { episode ->
                             viewModel.downloadEpisode(episode)
+                        },
+                        onRetryClick = { episode ->
+                            if (episode.recoveryActionLabel != null) {
+                                viewModel.recoverMissingDownload(episode)
+                            } else {
+                                viewModel.retryDownload(episode)
+                            }
                         },
                         onPlayClick = { episode ->
                             navController.navigate("podcast_player/${episode.id}")
@@ -173,7 +196,7 @@ fun PodcastManagerScreen(
                             navController.navigate("podcast_player/${episode.id}")
                         },
                         onDeleteClick = { episode ->
-                            viewModel.deleteDownloadedEpisode(episode)
+                            pendingDeleteEpisode = episode
                         }
                     )
                 }
@@ -189,8 +212,11 @@ fun PodcastManagerScreen(
                 viewModel.searchPodcasts(query)
             },
             onSubscribe = { podcast ->
-                viewModel.subscribeFromSearchResult(podcast)
-                showSearchDialog = false
+                viewModel.subscribeFromSearchResult(podcast) { subscribed ->
+                    if (subscribed) {
+                        showSearchDialog = false
+                    }
+                }
             }
         )
     }
@@ -214,64 +240,47 @@ fun PodcastManagerScreen(
             verifyPin = viewModel::verifyPin
         )
     }
-}
 
-@Composable
-fun PodcastSubscriptionsTab(
-    podcasts: List<Podcast>,
-    onPodcastClick: (Podcast) -> Unit,
-    onUnsubscribe: (Podcast) -> Unit
-) {
-    if (podcasts.isEmpty()) {
-        // Empty state
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                Icons.Default.Podcasts,
-                contentDescription = "Media image",
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "No Podcast Subscriptions",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Medium
-            )
-            Text(
-                text = "Search for podcasts or add RSS feeds to get started",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
-    } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(podcasts) { podcast ->
-                PodcastCard(
-                    podcast = podcast,
-                    onClick = { onPodcastClick(podcast) },
-                    onUnsubscribe = { onUnsubscribe(podcast) }
-                )
-            }
-        }
+    pendingDeleteEpisode?.let { episode ->
+        ConfirmationDialog(
+            title = "Remove downloaded episode?",
+            message = "This will remove the local file and reset download metadata for \"${episode.title}\".",
+            confirmLabel = "Delete",
+            dismissLabel = "Cancel",
+            warningTint = MaterialTheme.colorScheme.tertiary,
+            onConfirm = {
+                viewModel.deleteDownloadedEpisode(episode)
+                pendingDeleteEpisode = null
+            },
+            onDismiss = { pendingDeleteEpisode = null }
+        )
+    }
+
+    pendingUnsubscribePodcast?.let { podcast ->
+        ConfirmationDialog(
+            title = "Unsubscribe from podcast?",
+            message = "This removes \"${podcast.title}\" from subscriptions.",
+            confirmLabel = "Unsubscribe",
+            dismissLabel = "Cancel",
+            warningTint = MaterialTheme.colorScheme.tertiary,
+            onConfirm = {
+                viewModel.unsubscribeFromPodcast(podcast)
+                pendingUnsubscribePodcast = null
+            },
+            onDismiss = { pendingUnsubscribePodcast = null }
+        )
     }
 }
+
+
 
 @Composable
 fun PodcastEpisodesTab(
     episodes: List<PodcastEpisode>,
+    downloadStatuses: Map<Long, DownloadStatus>,
     onEpisodeClick: (PodcastEpisode) -> Unit,
     onDownloadClick: (PodcastEpisode) -> Unit,
+    onRetryClick: (PodcastEpisode) -> Unit,
     onPlayClick: (PodcastEpisode) -> Unit
 ) {
     LazyColumn(
@@ -279,11 +288,13 @@ fun PodcastEpisodesTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(episodes) { episode ->
+        items(episodes, key = { it.id }) { episode ->
             EpisodeCard(
                 episode = episode,
+                downloadStatus = downloadStatuses[episode.id],
                 onClick = { onEpisodeClick(episode) },
                 onDownloadClick = { onDownloadClick(episode) },
+                onRetryClick = { onRetryClick(episode) },
                 onPlayClick = { onPlayClick(episode) }
             )
         }
@@ -301,7 +312,7 @@ fun PodcastDownloadsTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(downloads) { episode ->
+        items(downloads, key = { it.id }) { episode ->
             DownloadedEpisodeCard(
                 episode = episode,
                 onClick = { onEpisodeClick(episode) },
@@ -310,342 +321,6 @@ fun PodcastDownloadsTab(
         }
     }
 }
-
-@Composable
-fun PodcastCard(
-    podcast: Podcast,
-    onClick: () -> Unit,
-    onUnsubscribe: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Podcast artwork
-            AsyncImage(
-                    
-                model = podcast.imageUrl ?: null, // Will show podcast icon if no image
-                contentDescription = "Podcast Artwork",
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Podcast info
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = podcast.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = podcast.author ?: "Unknown Author",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "${podcast.totalEpisodes} episodes",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    if (podcast.explicit) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Surface(
-                            color = MaterialTheme.colorScheme.error,
-                            shape = MaterialTheme.shapes.small
-                        ) {
-                            Text(
-                                text = "E",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onError,
-                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = podcast.description ?: "No description available",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            // Actions
-            Column {
-                IconButton(onClick = onUnsubscribe) {
-                    Icon(
-                        Icons.Default.Unsubscribe,
-                        contentDescription = "Unsubscribe",
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun EpisodeCard(
-    episode: PodcastEpisode,
-    onClick: () -> Unit,
-    onDownloadClick: () -> Unit,
-    onPlayClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Play button
-            Surface(
-                modifier = Modifier.size(48.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primary
-            ) {
-                IconButton(onClick = onPlayClick) {
-                    Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = "Play",
-                        tint = Color.Black
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            // Episode info
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = episode.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = formatDuration(episode.duration),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = SimpleDateFormat("MMM dd", Locale.getDefault()).format(episode.publishDate),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    if (episode.isDownloaded) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(
-                            Icons.Default.DownloadDone,
-                            contentDescription = "Downloaded",
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-            }
-
-            // Download button
-            if (!episode.isDownloaded) {
-                IconButton(onClick = onDownloadClick) {
-                    Icon(
-                        Icons.Default.Download,
-                        contentDescription = "Download"
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun DownloadedEpisodeCard(
-    episode: PodcastEpisode,
-    onClick: () -> Unit,
-    onDeleteClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Default.DownloadDone,
-                contentDescription = "Downloaded",
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = episode.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Text(
-                    text = formatDuration(episode.duration),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            IconButton(onClick = onDeleteClick) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "Delete",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun PodcastSearchDialog(
-    searchResults: List<PodcastSearchResult>,
-    isSearching: Boolean,
-    onDismiss: () -> Unit,
-    onSearch: (String) -> Unit,
-    onSubscribe: (PodcastSearchResult) -> Unit
-) {
-    var query by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Search Podcasts") },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Text("Search") },
-                    placeholder = { Text("Enter podcast name or topic...") },
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        IconButton(onClick = { onSearch(query) }) {
-                            if (isSearching) {
-                                CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                            } else {
-                                Icon(Icons.Default.Search, contentDescription = "Search")
-                            }
-                        }
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                LazyColumn(
-                    modifier = Modifier.height(300.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(searchResults) { result ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onSubscribe(result) }
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                AsyncImage(
-                    
-                                    model = result.imageUrl,
-                                    contentDescription = "Media image",
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(MaterialTheme.shapes.small),
-                                    contentScale = ContentScale.Crop
-                                )
-
-                                Spacer(modifier = Modifier.width(12.dp))
-
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = result.title,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    Text(
-                                        text = result.author ?: "Unknown Author",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
-            }
-        }
-    )
-}
-
 @Composable
 fun AddPodcastFeedDialog(
     onDismiss: () -> Unit,
@@ -681,7 +356,7 @@ fun AddPodcastFeedDialog(
     )
 }
 
-private fun formatDuration(seconds: Long): String {
+internal fun formatDuration(seconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val secs = seconds % 60

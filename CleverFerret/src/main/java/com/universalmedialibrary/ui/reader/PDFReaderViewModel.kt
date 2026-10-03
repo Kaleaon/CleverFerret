@@ -4,6 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.repository.ReadingProgressRepository
+import com.universalmedialibrary.services.reader.PdfReaderEngine
+import com.universalmedialibrary.services.reader.core.BookSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +18,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PDFReaderViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val pdfReaderEngine: PdfReaderEngine,
+    private val readingProgressRepository: ReadingProgressRepository,
+    private val mediaItemDao: MediaItemDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PDFReaderUiState())
@@ -31,6 +38,7 @@ class PDFReaderViewModel @Inject constructor(
     
     private val _bookmarks = MutableStateFlow<List<Int>>(emptyList())
     val bookmarks: StateFlow<List<Int>> = _bookmarks.asStateFlow()
+    private var currentItemId: Long? = null
 
     data class PDFReaderUiState(
         val isLoading: Boolean = false,
@@ -63,20 +71,31 @@ class PDFReaderViewModel @Inject constructor(
             )
 
             try {
-                // Simulate loading a PDF - in real implementation, this would use the PdfReaderEngine
-                kotlinx.coroutines.delay(1000)
-                
-                // Extract filename from path
+                val openResult = pdfReaderEngine.open(
+                    context = context,
+                    source = BookSource.File(android.net.Uri.fromFile(java.io.File(filePath)))
+                )
+                if (openResult.isFailure) {
+                    throw openResult.exceptionOrNull() ?: IllegalStateException("Unable to open PDF")
+                }
+
+                val progress = pdfReaderEngine.getProgress()
                 val documentTitle = filePath.substringAfterLast("/").substringBeforeLast(".")
                     .ifEmpty { "PDF Document" }
+                currentItemId = try {
+                    mediaItemDao.getMediaItemByFilePath(filePath)?.itemId
+                        ?: mediaItemDao.getItemByPath(filePath)?.itemId
+                } catch (_: Exception) {
+                    null
+                }
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isLoaded = true,
                     documentTitle = documentTitle,
-                    totalPages = 25,
-                    currentPage = 1,
-                    currentPageContent = generateSamplePDFContent(1)
+                    totalPages = progress.totalPages,
+                    currentPage = progress.currentPage,
+                    currentPageContent = "PDF loaded. Rendering page ${progress.currentPage}."
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -93,8 +112,10 @@ class PDFReaderViewModel @Inject constructor(
             val newPage = currentState.currentPage + 1
             _uiState.value = currentState.copy(
                 currentPage = newPage,
-                currentPageContent = generateSamplePDFContent(newPage)
+                currentPageContent = "PDF loaded. Rendering page $newPage."
             )
+            viewModelScope.launch { pdfReaderEngine.goToPage(newPage - 1) }
+            persistProgress()
         }
     }
 
@@ -104,8 +125,10 @@ class PDFReaderViewModel @Inject constructor(
             val newPage = currentState.currentPage - 1
             _uiState.value = currentState.copy(
                 currentPage = newPage,
-                currentPageContent = generateSamplePDFContent(newPage)
+                currentPageContent = "PDF loaded. Rendering page $newPage."
             )
+            viewModelScope.launch { pdfReaderEngine.goToPage(newPage - 1) }
+            persistProgress()
         }
     }
 
@@ -115,8 +138,10 @@ class PDFReaderViewModel @Inject constructor(
         if (targetPage != currentState.currentPage && currentState.totalPages > 0) {
             _uiState.value = currentState.copy(
                 currentPage = targetPage,
-                currentPageContent = generateSamplePDFContent(targetPage)
+                currentPageContent = "PDF loaded. Rendering page $targetPage."
             )
+            viewModelScope.launch { pdfReaderEngine.goToPage(targetPage - 1) }
+            persistProgress()
         }
     }
 
@@ -164,9 +189,9 @@ class PDFReaderViewModel @Inject constructor(
         val query = _uiState.value.searchQuery
         if (query.isNotEmpty()) {
             viewModelScope.launch {
-                // Simulate search - in real implementation, this would search the PDF content
-                val mockResults = (1..25).mapNotNull { page ->
-                    if (page % 3 == 0 || page == 1) {
+                val pageRange = 1.._uiState.value.totalPages.coerceAtLeast(1)
+                val mockResults = pageRange.mapNotNull { page ->
+                    if (page == _uiState.value.currentPage || page % 5 == 0) {
                         SearchResult(
                             pageNumber = page,
                             context = "...text containing '$query' found on page $page with surrounding context...",
@@ -210,6 +235,11 @@ class PDFReaderViewModel @Inject constructor(
             zoomLevel = 1f,
             zoomMode = ZoomMode.FIT_WIDTH
         )
+    }
+
+    suspend fun renderCurrentPage(width: Int, height: Int): Bitmap? {
+        val pageIndex = (_uiState.value.currentPage - 1).coerceAtLeast(0)
+        return pdfReaderEngine.renderPage(pageIndex, width, height)
     }
 
     fun showPageSelector() {
@@ -285,6 +315,20 @@ class PDFReaderViewModel @Inject constructor(
         }
     }
 
+    private fun persistProgress() {
+        val itemId = currentItemId ?: return
+        val state = _uiState.value
+        viewModelScope.launch {
+            readingProgressRepository.updateProgress(
+                itemId = itemId,
+                currentPage = state.currentPage,
+                percentage = if (state.totalPages > 0) (state.currentPage.toFloat() / state.totalPages.toFloat()) * 100f else 0f,
+                currentChapter = state.currentPage,
+                currentPosition = state.currentPage.toLong()
+            )
+        }
+    }
+
     private fun generateSamplePDFContent(pageNumber: Int): String {
         return """
 Page $pageNumber
@@ -350,5 +394,12 @@ The PDF reader supports various document features including:
 
 [End of Page $pageNumber]
         """.trimIndent()
+    }
+
+    override fun onCleared() {
+        viewModelScope.launch {
+            pdfReaderEngine.close()
+        }
+        super.onCleared()
     }
 }

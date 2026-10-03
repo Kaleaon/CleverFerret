@@ -2,6 +2,7 @@ package com.universalmedialibrary.utils
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CancellationException
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -29,6 +30,10 @@ object ErrorLogger {
      * Log an error with exception
      */
     fun logError(tag: String = DEFAULT_TAG, message: String, throwable: Throwable? = null) {
+        if (throwable is CancellationException) {
+            logDebug(tag, "Ignoring cancellation exception: ${throwable.message ?: "cancelled"}")
+            return
+        }
         Log.e(tag, message, throwable)
 
         // Report to crash analytics if available
@@ -68,6 +73,10 @@ object ErrorLogger {
         onError: ((Throwable) -> Unit)? = null
     ): CoroutineExceptionHandler {
         return CoroutineExceptionHandler { context, throwable ->
+            if (throwable is CancellationException) {
+                logDebug(tag, "Coroutine cancelled (suppressed): ${throwable.message ?: "cancelled"}")
+                return@CoroutineExceptionHandler
+            }
             logError(
                 tag = tag,
                 message = "Uncaught coroutine exception in context: $context",

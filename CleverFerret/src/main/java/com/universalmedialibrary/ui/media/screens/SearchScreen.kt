@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.components.TagChip
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
 
@@ -58,6 +59,8 @@ fun MediaSearchScreen(
     onRecentSearchClick: (String) -> Unit,
     onClearRecentSearches: () -> Unit,
     onCategoryFilterChange: (SearchCategory?) -> Unit,
+    onMediaTypeFilterChange: (com.universalmedialibrary.ui.media.components.MediaType?) -> Unit = {},
+    onCategoryNavigate: (SearchCategory) -> Unit = {},
     onVoiceSearch: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -97,6 +100,16 @@ fun MediaSearchScreen(
                 selectedCategory = state.selectedCategory,
                 onCategoryChange = onCategoryFilterChange
             )
+            MediaTypeFilterRow(
+                selectedMediaType = state.selectedMediaType,
+                onMediaTypeChange = onMediaTypeFilterChange
+            )
+            ActiveFilterTags(
+                selectedCategory = state.selectedCategory,
+                selectedMediaType = state.selectedMediaType,
+                onCategoryClear = { onCategoryFilterChange(null) },
+                onMediaTypeClear = { onMediaTypeFilterChange(null) }
+            )
             
             when {
                 state.isSearching -> {
@@ -122,6 +135,7 @@ fun MediaSearchScreen(
                         groupedResults = state.groupedResults,
                         onResultClick = onResultClick,
                         onCategoryFilterChange = onCategoryFilterChange,
+                        onCategoryNavigate = onCategoryNavigate,
                         showGrouped = state.selectedCategory == null
                     )
                 }
@@ -134,154 +148,42 @@ fun MediaSearchScreen(
 // TOP BAR WITH SEARCH
 // =============================================================================
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SearchTopBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit,
-    onClear: () -> Unit,
-    onVoiceSearch: () -> Unit,
-    onBackClick: () -> Unit,
-    focusRequester: FocusRequester
-) {
-    Surface(
-        color = MediaColors.BackgroundElevated,
-        tonalElevation = MediaElevation.SM
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = MediaSpacing.SM,
-                    vertical = MediaSpacing.SM
-                ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = MediaColors.TextSecondary
-                )
-            }
-            
-            OutlinedTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                modifier = Modifier
-                    .weight(1f)
-                    .focusRequester(focusRequester),
-                placeholder = {
-                    Text(
-                        text = "Search library & more...",
-                        color = MediaColors.TextTertiary
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Media image",
-                        tint = MediaColors.TextTertiary
-                    )
-                },
-                trailingIcon = {
-                    Row {
-                        if (query.isNotEmpty()) {
-                            IconButton(onClick = onClear) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Clear",
-                                    tint = MediaColors.TextSecondary
-                                )
-                            }
-                        }
-                        IconButton(onClick = onVoiceSearch) {
-                            Icon(
-                                imageVector = Icons.Default.Mic,
-                                contentDescription = "Voice search",
-                                tint = MediaColors.TextSecondary
-                            )
-                        }
-                    }
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Search
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = { onSearch() }
-                ),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MediaColors.AccentPrimary,
-                    unfocusedBorderColor = MediaColors.Border,
-                    focusedTextColor = MediaColors.TextPrimary,
-                    unfocusedTextColor = MediaColors.TextPrimary,
-                    cursorColor = MediaColors.AccentPrimary
-                ),
-                shape = RoundedCornerShape(MediaCorners.Full)
-            )
-        }
-    }
-}
 
 // =============================================================================
 // CATEGORY FILTERS
 // =============================================================================
 
+
+
 @Composable
-private fun CategoryFilterRow(
+private fun ActiveFilterTags(
     selectedCategory: SearchCategory?,
-    onCategoryChange: (SearchCategory?) -> Unit
+    selectedMediaType: MediaType?,
+    onCategoryClear: () -> Unit,
+    onMediaTypeClear: () -> Unit
 ) {
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = MediaSpacing.MD, vertical = MediaSpacing.SM),
+    if (selectedCategory == null && selectedMediaType == null) return
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.MD, vertical = MediaSpacing.XS),
         horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
     ) {
-        item {
-            FilterChip(
-                selected = selectedCategory == null,
-                onClick = { onCategoryChange(null) },
-                label = { Text("All") },
-                leadingIcon = if (selectedCategory == null) {
-                    {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Media image",
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                } else null,
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MediaColors.AccentPrimary.copy(alpha = 0.2f),
-                    selectedLabelColor = MediaColors.AccentPrimary,
-                    containerColor = MediaColors.BackgroundElevated
-                )
+        selectedCategory?.let {
+            TagChip(
+                label = "Category: ${it.displayName}",
+                color = MaterialTheme.colorScheme.primaryContainer,
+                onTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                onRemove = onCategoryClear
             )
         }
-        
-        items(SearchCategory.entries.toTypedArray()) { category ->
-            FilterChip(
-                selected = selectedCategory == category,
-                onClick = { onCategoryChange(category) },
-                label = { Text(category.displayName) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = category.icon,
-                        contentDescription = "Media image",
-                        modifier = Modifier.size(18.dp),
-                        tint = if (selectedCategory == category)
-                            category.color
-                        else
-                            MediaColors.TextSecondary
-                    )
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = category.color.copy(alpha = 0.2f),
-                    selectedLabelColor = category.color,
-                    selectedLeadingIconColor = category.color,
-                    containerColor = MediaColors.BackgroundElevated
-                )
+        selectedMediaType?.let {
+            TagChip(
+                label = "Type: ${it.name.replace('_', ' ')}",
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                onTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                onRemove = onMediaTypeClear
             )
         }
     }
@@ -291,148 +193,13 @@ private fun CategoryFilterRow(
 // RECENT SEARCHES
 // =============================================================================
 
-@Composable
-private fun RecentSearchesSection(
-    recentSearches: List<String>,
-    onRecentSearchClick: (String) -> Unit,
-    onClearAll: () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MediaSpacing.MD, vertical = MediaSpacing.SM),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Recent Searches",
-                style = MediaTypography.TitleSmall,
-                color = MediaColors.TextSecondary
-            )
-            
-            TextButton(onClick = onClearAll) {
-                Text(
-                    text = "Clear",
-                    color = MediaColors.AccentSecondary
-                )
-            }
-        }
-        
-        recentSearches.forEach { search ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onRecentSearchClick(search) }
-                    .padding(horizontal = MediaSpacing.MD, vertical = MediaSpacing.SM),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.History,
-                    contentDescription = "Media image",
-                    tint = MediaColors.TextTertiary,
-                    modifier = Modifier.size(20.dp)
-                )
-                
-                Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                
-                Text(
-                    text = search,
-                    style = MediaTypography.BodyMedium,
-                    color = MediaColors.TextPrimary,
-                    modifier = Modifier.weight(1f)
-                )
-                
-                Icon(
-                    imageVector = Icons.Default.NorthWest,
-                    contentDescription = "Use this search",
-                    tint = MediaColors.TextTertiary,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-        }
-    }
-}
 
 // =============================================================================
 // SEARCH RESULTS
 // =============================================================================
 
 @Composable
-private fun SearchResultsList(
-    results: List<SearchResult>,
-    groupedResults: Map<SearchCategory, List<SearchResult>>,
-    onResultClick: (SearchResult) -> Unit,
-    onCategoryFilterChange: (SearchCategory?) -> Unit,
-    showGrouped: Boolean
-) {
-    if (showGrouped && groupedResults.isNotEmpty()) {
-        // Grouped by category
-        LazyColumn(
-            contentPadding = PaddingValues(bottom = MediaSpacing.XL),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            groupedResults.forEach { (category, categoryResults) ->
-                item {
-                    ResultCategoryHeader(
-                        category = category,
-                        count = categoryResults.size
-                    )
-                }
-                
-                items(categoryResults.take(5)) { result ->
-                    SearchResultItem(
-                        result = result,
-                        onClick = { onResultClick(result) }
-                    )
-                }
-                
-                if (categoryResults.size > 5) {
-                    item {
-                        TextButton(
-                            onClick = { 
-                                // Filter results to show only this category
-                                onCategoryFilterChange(category)
-                            },
-                            modifier = Modifier.padding(
-                                horizontal = MediaSpacing.MD,
-                                vertical = MediaSpacing.SM
-                            )
-                        ) {
-                            Text(
-                                text = "See all ${categoryResults.size} ${category.displayName.lowercase()}",
-                                color = MediaColors.AccentPrimary
-                            )
-                        }
-                    }
-                }
-                
-                item {
-                    HorizontalDivider(
-                        color = MediaColors.Border,
-                        modifier = Modifier.padding(vertical = MediaSpacing.SM)
-                    )
-                }
-            }
-        }
-    } else {
-        // Flat list
-        LazyColumn(
-            contentPadding = PaddingValues(bottom = MediaSpacing.XL),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(results) { result ->
-                SearchResultItem(
-                    result = result,
-                    onClick = { onResultClick(result) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ResultCategoryHeader(
+internal fun ResultCategoryHeader(
     category: SearchCategory,
     count: Int
 ) {
@@ -474,108 +241,6 @@ private fun ResultCategoryHeader(
     }
 }
 
-@Composable
-private fun SearchResultItem(
-    result: SearchResult,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = MediaSpacing.MD, vertical = MediaSpacing.SM),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Thumbnail
-        Surface(
-            modifier = Modifier
-                .size(
-                    width = when (result.category) {
-                        SearchCategory.MUSIC, SearchCategory.PODCASTS -> 56.dp
-                        else -> 42.dp
-                    },
-                    height = when (result.category) {
-                        SearchCategory.MOVIES, SearchCategory.TV_SHOWS -> 63.dp
-                        SearchCategory.MUSIC, SearchCategory.PODCASTS -> 56.dp
-                        else -> 63.dp
-                    }
-                )
-                .clip(
-                    when (result.category) {
-                        SearchCategory.MUSIC -> RoundedCornerShape(MediaCorners.SM)
-                        else -> RoundedCornerShape(MediaCorners.XS)
-                    }
-                ),
-            color = MediaColors.BackgroundSurface
-        ) {
-            if (result.imageUrl != null) {
-                AsyncImage(
-                    
-                    model = result.imageUrl,
-                    contentDescription = "Media image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = result.category.icon,
-                        contentDescription = "Media image",
-                        tint = result.category.color.copy(alpha = 0.5f),
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-        }
-        
-        Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = result.title,
-                style = MediaTypography.BodyMedium,
-                color = MediaColors.TextPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.Medium
-            )
-            
-            if (result.subtitle != null) {
-                Text(
-                    text = result.subtitle,
-                    style = MediaTypography.LabelSmall,
-                    color = MediaColors.TextSecondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            
-            // Source badge for external results
-            if (result.source != null && result.source != "Local") {
-                Spacer(modifier = Modifier.height(2.dp))
-                Surface(
-                    shape = RoundedCornerShape(MediaCorners.XS),
-                    color = MediaColors.BackgroundElevated
-                ) {
-                    Text(
-                        text = result.source,
-                        style = MediaTypography.LabelSmall,
-                        color = MediaColors.TextTertiary,
-                        modifier = Modifier.padding(horizontal = MediaSpacing.XS, vertical = 1.dp)
-                    )
-                }
-            }
-        }
-        
-        // Category indicator
-        Icon(
-            imageVector = result.category.icon,
-            contentDescription = "Media image",
-            tint = result.category.color,
-            modifier = Modifier.size(16.dp)
-        )
-    }
-}
 
 // =============================================================================
 // STATES
@@ -679,10 +344,12 @@ private fun NoResultsState(query: String) {
 
 data class SearchScreenState(
     val query: String = "",
+    val allResults: List<SearchResult> = emptyList(),
     val results: List<SearchResult> = emptyList(),
     val groupedResults: Map<SearchCategory, List<SearchResult>> = emptyMap(),
     val recentSearches: List<String> = emptyList(),
     val selectedCategory: SearchCategory? = null,
+    val selectedMediaType: MediaType? = null,
     val isSearching: Boolean = false
 )
 

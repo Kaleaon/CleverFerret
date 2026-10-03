@@ -23,6 +23,8 @@ import retrofit2.http.Query
 import kotlin.text.Charsets
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URI
+import java.net.URISyntaxException
 import java.net.URL
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -34,38 +36,9 @@ import javax.inject.Singleton
 
 // Podcast, PodcastEpisode, PodcastSearchResult models are defined in PodcastModels.kt
 
-data class ChapterMark(
-    val title: String,
-    val startTime: Long, // in seconds
-    val url: String? = null
-)
 
 // RSS/XML parsing models
-data class RSSFeed(
-    val title: String,
-    val description: String,
-    val link: String,
-    val imageUrl: String?,
-    val language: String?,
-    val author: String?,
-    val category: String?,
-    val explicit: Boolean,
-    val items: List<RSSItem>
-)
 
-data class RSSItem(
-    val title: String,
-    val description: String,
-    val link: String?,
-    val audioUrl: String?,
-    val duration: String?,
-    val fileSize: Long?,
-    val pubDate: String?,
-    val guid: String?,
-    val episodeNumber: Int?,
-    val seasonNumber: Int?,
-    val imageUrl: String?
-)
 
 // Comprehensive Podcast APIs - covering all major services
 interface PodcastIndexApi {
@@ -128,11 +101,6 @@ interface GPodderApi {
 }
 
 // PodcastIndex.org API responses
-data class PodcastSearchResponse(
-    val status: String,
-    val feeds: List<PodcastSearchFeed>,
-    val count: Int
-)
 
     data class PodcastSearchFeed(
         val id: Long,
@@ -177,117 +145,21 @@ data class PodcastSearchResponse(
         val fee: Boolean? = null
     )
 
-data class EpisodeSearchResponse(
-    val status: String,
-    val items: List<PodcastSearchEpisode>,
-    val count: Int
-)
 
-data class PodcastSearchEpisode(
-    val id: Long,
-    val title: String,
-    val link: String,
-    val description: String,
-    val guid: String,
-    val datePublished: Long,
-    val enclosureUrl: String,
-    val enclosureType: String,
-    val enclosureLength: Long,
-    val duration: Int,
-    val explicit: Int,
-    val episode: Int?,
-    val season: Int?,
-    val image: String,
-    val feedImage: String
-)
 
 // Listen Notes API responses
-data class ListenNotesResponse(
-    val results: List<ListenNotesPodcast>,
-    val count: Int,
-    val total: Int,
-    val next_offset: Int?
-)
 
-data class ListenNotesPodcast(
-    val id: String,
-    val title: String,
-    val publisher: String,
-    val description: String,
-    val image: String,
-    val website: String?,
-    val rss: String,
-    val total_episodes: Int,
-    val explicit_content: Boolean,
-    val language: String,
-    val genres: List<ListenNotesGenre>
-)
 
-data class ListenNotesGenre(
-    val id: Int,
-    val name: String
-)
 
 // Spotify API responses
-data class SpotifySearchResponse(
-    val shows: SpotifyShowsPage
-)
 
-data class SpotifyShowsPage(
-    val items: List<SpotifyPodcast>,
-    val limit: Int,
-    val offset: Int,
-    val total: Int
-)
 
-data class SpotifyPodcast(
-    val id: String,
-    val name: String,
-    val publisher: String,
-    val description: String,
-    val images: List<SpotifyImage>,
-    val external_urls: SpotifyExternalUrls,
-    val total_episodes: Int,
-    val explicit: Boolean,
-    val languages: List<String>
-)
 
-data class SpotifyImage(
-    val url: String,
-    val height: Int?,
-    val width: Int?
-)
 
-data class SpotifyExternalUrls(
-    val spotify: String
-)
 
 // Taddy API responses
-data class TaddySearchResponse(
-    val results: List<TaddyPodcast>,
-    val count: Int
-)
 
-data class TaddyPodcast(
-    val uuid: String,
-    val name: String,
-    val author: String,
-    val description: String,
-    val imageUrl: String,
-    val feedUrl: String,
-    val episodeCount: Int,
-    val categories: List<String>
-)
 
-data class GPodderSearchResult(
-    val title: String?,
-    val url: String?,
-    val description: String?,
-    val website: String?,
-    val subscribers: Int?,
-    @SerializedName("subscribers_last_week")
-    val subscribersLastWeek: Int?
-)
 
 private data class PodcastIndexCredentials(
     val apiKey: String,
@@ -391,7 +263,7 @@ class PodcastService @Inject constructor(
                     try { resolvedApiKeys["spotify_token"]?.let { allResults.addAll(searchSpotifyPodcasts(query, it)) } } catch (_: Exception) {}
                     try { resolvedApiKeys["taddy"]?.let { allResults.addAll(searchTaddyPodcasts(query, it)) } } catch (_: Exception) {}
                     try { allResults.addAll(searchGPodderPodcasts(query)) } catch (_: Exception) {}
-                    allResults
+                    allResults.filter { hasValidFeedUrl(it.feedUrl) }
                 },
                 parse = { it },
                 deduplicate = { results -> deduplicatePodcastResults(results) },
@@ -432,17 +304,6 @@ class PodcastService @Inject constructor(
         }
     }
 
-    private fun parsePodcastIndexCredentialsString(raw: String?): PodcastIndexCredentials? {
-        if (raw.isNullOrBlank()) return null
-        val tokens = raw.split(':', '|', ';', ',', '\n', '\r', '\t', ' ')
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-        return if (tokens.size >= 2) {
-            PodcastIndexCredentials(tokens[0], tokens[1])
-        } else {
-            null
-        }
-    }
 
     private fun buildPodcastIndexApi(credentials: PodcastIndexCredentials?): PodcastIndexApi {
         val client = httpClient.newBuilder()
@@ -472,18 +333,7 @@ class PodcastService @Inject constructor(
             .create(PodcastIndexApi::class.java)
     }
 
-    private fun createPodcastIndexAuthorizationSignature(
-        credentials: PodcastIndexCredentials,
-        epochSeconds: String
-    ): String {
-        return sha1(credentials.apiKey + credentials.apiSecret + epochSeconds)
-    }
 
-    private fun sha1(input: String): String {
-        val digest = MessageDigest.getInstance("SHA-1")
-        val hash = digest.digest(input.toByteArray(Charsets.UTF_8))
-        return hash.joinToString("") { "%02x".format(it) }
-    }
 
     private suspend fun searchPodcastIndex(
         query: String,
@@ -491,7 +341,8 @@ class PodcastService @Inject constructor(
     ): List<PodcastSearchResult> {
         val api = credentials?.let { buildPodcastIndexApi(it) } ?: podcastIndexApi
         val response = api.searchPodcasts(query)
-        return response.feeds.map { feed ->
+        return response.feeds.mapNotNull { feed ->
+            val feedUrl = firstValidFeedUrl(feed.url, feed.originalUrl) ?: return@mapNotNull null
             val newestEpisodeDate = feed.newestItemPubdate?.let { it * 1000 }
             val funding = feed.funding.orEmpty().mapNotNull { fundingItem ->
                 val url = fundingItem.url?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
@@ -524,7 +375,7 @@ class PodcastService @Inject constructor(
                 title = feed.title,
                 author = feed.author.ifEmpty { feed.ownerName },
                 description = feed.description,
-                feedUrl = feed.url,
+                feedUrl = feedUrl,
                 imageUrl = feed.image.ifEmpty { feed.artwork },
                 episodeCount = feed.episodeCount,
                 category = feed.categories.values.firstOrNull(),
@@ -540,13 +391,14 @@ class PodcastService @Inject constructor(
 
     private suspend fun searchiTunesPodcasts(query: String): List<PodcastSearchResult> {
         val response = applePodcastsApi.searchPodcasts(query)
-        return response.results.map { podcast ->
+        return response.results.mapNotNull { podcast ->
+            val feedUrl = podcast.feedUrl.toValidFeedUrlOrNull() ?: return@mapNotNull null
             PodcastSearchResult(
                 id = "itunes_${podcast.trackId}",
                 title = podcast.trackName,
                 author = podcast.artistName,
                 description = podcast.collectionName ?: "",
-                feedUrl = podcast.feedUrl,
+                feedUrl = feedUrl,
                 imageUrl = podcast.artworkUrl600
                     ?: podcast.artworkUrl100
                     ?: podcast.artworkUrl60
@@ -577,13 +429,14 @@ class PodcastService @Inject constructor(
             .create(ListenNotesApi::class.java)
 
         val response = apiWithAuth.searchPodcasts(query)
-        return response.results.map { podcast ->
+        return response.results.mapNotNull { podcast ->
+            val feedUrl = podcast.rss.toValidFeedUrlOrNull() ?: return@mapNotNull null
             PodcastSearchResult(
                 id = "ln_${podcast.id}",
                 title = podcast.title,
                 author = podcast.publisher,
                 description = podcast.description,
-                feedUrl = podcast.rss,
+                feedUrl = feedUrl,
                 imageUrl = podcast.image,
                 episodeCount = podcast.total_episodes,
                 category = podcast.genres.firstOrNull()?.name,
@@ -594,32 +447,20 @@ class PodcastService @Inject constructor(
     }
 
     private suspend fun searchSpotifyPodcasts(query: String, token: String): List<PodcastSearchResult> {
-        val response = spotifyApi.searchPodcasts(query, authorization = "Bearer $token")
-        return response.shows.items.map { show ->
-            PodcastSearchResult(
-                id = "spotify_${show.id}",
-                title = show.name,
-                author = show.publisher,
-                description = show.description,
-                feedUrl = "", // Spotify doesn't provide RSS feeds
-                imageUrl = show.images.firstOrNull()?.url,
-                episodeCount = show.total_episodes,
-                category = null,
-                lastEpisodeDate = null,
-                source = "spotify"
-            )
-        }
+        spotifyApi.searchPodcasts(query, authorization = "Bearer $token")
+        return emptyList() // Spotify doesn't expose RSS feeds for direct subscription.
     }
 
     private suspend fun searchTaddyPodcasts(query: String, apiKey: String): List<PodcastSearchResult> {
         val response = taddyApi.searchPodcasts(query, apiKey = apiKey)
-        return response.results.map { podcast ->
+        return response.results.mapNotNull { podcast ->
+            val feedUrl = podcast.feedUrl.toValidFeedUrlOrNull() ?: return@mapNotNull null
             PodcastSearchResult(
                 id = "taddy_${podcast.uuid}",
                 title = podcast.name,
                 author = podcast.author,
                 description = podcast.description,
-                feedUrl = podcast.feedUrl,
+                feedUrl = feedUrl,
                 imageUrl = podcast.imageUrl,
                 episodeCount = podcast.episodeCount,
                 category = podcast.categories.firstOrNull(),
@@ -632,7 +473,7 @@ class PodcastService @Inject constructor(
     private suspend fun searchGPodderPodcasts(query: String): List<PodcastSearchResult> {
         val response = gPodderApi.searchPodcasts(query)
         return response.mapNotNull { podcast ->
-            val feedUrl = podcast.url?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val feedUrl = podcast.url.toValidFeedUrlOrNull() ?: return@mapNotNull null
             val descriptionBuilder = StringBuilder()
             if (!podcast.description.isNullOrBlank()) {
                 descriptionBuilder.append(podcast.description.trim())
@@ -659,30 +500,8 @@ class PodcastService @Inject constructor(
         }
     }
 
-    private fun deduplicatePodcastResults(results: List<PodcastSearchResult>): List<PodcastSearchResult> {
-        // Group by feed URL first (most accurate)
-        val byFeedUrl = results.groupBy { it.feedUrl.lowercase() }
-        val deduplicated = mutableListOf<PodcastSearchResult>()
 
-        byFeedUrl.forEach { (feedUrl, podcasts) ->
-            if (feedUrl.isNotEmpty()) {
-                // Take the result with most complete information
-                val best = podcasts.maxByOrNull {
-                    (if (it.description?.isNotEmpty() == true) 1 else 0) +
-                    (if (it.imageUrl != null) 1 else 0) +
-                    (if (it.category != null) 1 else 0) +
-                    (it.episodeCount ?: 0)
-                }
-                best?.let { deduplicated.add(it) }
-            } else {
-                // For results without feed URLs (like Spotify), add all
-                deduplicated.addAll(podcasts)
-            }
-        }
 
-        // Additional deduplication by title similarity for remaining items
-        return deduplicated.distinctBy { it.title.lowercase().trim() }
-    }
 
     /**
      * Subscribe to a podcast by RSS feed URL
@@ -819,21 +638,32 @@ class PodcastService @Inject constructor(
         val explicit = channel.select("itunes|explicit").text().equals("yes", true)
 
         // Parse episodes
-        val items = channel.select("item").map { item ->
+        val parsedItems = channel.select("item").mapIndexed { index, item ->
+            val rawTitle = item.select("title").text().ifBlank { "Episode ${index + 1}" }
+            val normalizedTitle = rawTitle.trim().replace("\\s+".toRegex(), " ")
+            val link = item.select("link").text().ifBlank { null }
+            val enclosure = item.select("enclosure").first()
+            val enclosureUrl = enclosure?.attr("url").orEmpty()
+            val audioUrl = resolveUrl(feedUrl, enclosureUrl)?.takeIf { it.isNotBlank() }
+            val guid = item.select("guid").text().ifBlank {
+                link ?: audioUrl ?: "${feedUrl}#$index"
+            }
             RSSItem(
-                title = item.select("title").text(),
-                description = item.select("description").text(),
-                link = item.select("link").text(),
-                audioUrl = item.select("enclosure").attr("url"),
+                title = normalizedTitle,
+                description = item.select("description").text().trim(),
+                link = resolveUrl(feedUrl, link),
+                audioUrl = audioUrl,
                 duration = item.select("itunes|duration").text(),
-                fileSize = item.select("enclosure").attr("length").toLongOrNull(),
+                fileSize = enclosure?.attr("length")?.toLongOrNull(),
                 pubDate = item.select("pubDate").text(),
-                guid = item.select("guid").text().ifEmpty { item.select("link").text() },
+                guid = guid,
                 episodeNumber = item.select("itunes|episode").text().toIntOrNull(),
                 seasonNumber = item.select("itunes|season").text().toIntOrNull(),
                 imageUrl = item.select("itunes|image").attr("href")
             )
-        }.filter { !it.audioUrl.isNullOrEmpty() } // Only include items with audio
+        }
+
+        val items = normalizeEpisodeList(parsedItems, feedUrl)
 
         return RSSFeed(
             title = title,
@@ -848,37 +678,12 @@ class PodcastService @Inject constructor(
         )
     }
 
+
+
+
     /**
      * Convert RSS items to podcast episodes
      */
-    private fun convertRSSItemsToEpisodes(items: List<RSSItem>, podcastId: Long): List<PodcastEpisode> {
-        val dateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
-
-        return items.mapIndexed { index, item ->
-            val publishDate = try {
-                dateFormat.parse(item.pubDate ?: "")?.time
-            } catch (e: Exception) {
-                System.currentTimeMillis() // Fallback to current time
-            } ?: System.currentTimeMillis()
-
-            val duration = parseDuration(item.duration)
-
-            PodcastEpisode(
-                id = 0, // Auto-generated by database
-                podcastId = podcastId,
-                guid = item.guid ?: "${podcastId}_$index",
-                title = item.title,
-                description = item.description,
-                audioUrl = item.audioUrl ?: "",
-                duration = duration,
-                fileSize = item.fileSize ?: 0,
-                publishDate = publishDate,
-                episodeNumber = item.episodeNumber,
-                seasonNumber = item.seasonNumber,
-                imageUrl = item.imageUrl
-            )
-        }
-    }
 
     /**
      * Search podcasts by RSS discovery (fallback method)
@@ -892,65 +697,18 @@ class PodcastService @Inject constructor(
     /**
      * Parse duration string (HH:MM:SS or seconds)
      */
-    private fun parseDuration(durationStr: String?): Long {
-        if (durationStr.isNullOrEmpty()) return 0L
-
-        return try {
-            if (durationStr.contains(":")) {
-                val parts = durationStr.split(":")
-                when (parts.size) {
-                    3 -> { // HH:MM:SS
-                        val hours = parts[0].toLong()
-                        val minutes = parts[1].toLong()
-                        val seconds = parts[2].toLong()
-                        hours * 3600 + minutes * 60 + seconds
-                    }
-                    2 -> { // MM:SS
-                        val minutes = parts[0].toLong()
-                        val seconds = parts[1].toLong()
-                        minutes * 60 + seconds
-                    }
-                    else -> 0L
-                }
-            } else {
-                // Assume it's seconds
-                durationStr.toLongOrNull() ?: 0L
-            }
-        } catch (e: Exception) {
-            0L
-        }
-    }
 
     /**
      * Generate podcast ID from feed URL
      */
-    private fun generatePodcastId(feedUrl: String): Long {
-        return feedUrl.hashCode().toLong().let { if (it < 0) -it else it }
-    }
 
     /**
      * Sanitize filename for file system
      */
-    private fun sanitizeFileName(name: String): String {
-        return fileNameSanitizer.sanitizeFileName(name)
-    }
 
     /**
      * Get file extension from URL
      */
-    private fun getFileExtension(url: String): String {
-        return try {
-            val path = URL(url).path
-            val lastDot = path.lastIndexOf('.')
-            if (lastDot > 0 && lastDot < path.length - 1) {
-                path.substring(lastDot + 1).lowercase()
-            } else {
-                "mp3" // Default to mp3
-            }
-        } catch (e: Exception) {
-            "mp3"
-        }
-    }
 
     /**
      * Import OPML file (podcast subscription list)

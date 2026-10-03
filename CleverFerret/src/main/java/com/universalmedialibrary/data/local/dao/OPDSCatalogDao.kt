@@ -110,6 +110,11 @@ interface OPDSCatalogDao {
     
     @Query("UPDATE opds_downloads SET status = 'COMPLETED', progress = 100, localPath = :localPath, completedAt = :timestamp WHERE id = :downloadId")
     suspend fun markDownloadComplete(downloadId: Long, localPath: String, timestamp: Long = System.currentTimeMillis())
+
+    @Transaction
+    suspend fun markDownloadCompleteAtomically(downloadId: Long, localPath: String, timestamp: Long = System.currentTimeMillis()) {
+        markDownloadComplete(downloadId, localPath, timestamp)
+    }
     
     @Query("UPDATE opds_downloads SET status = 'FAILED', errorMessage = :errorMessage WHERE id = :downloadId")
     suspend fun markDownloadFailed(downloadId: Long, errorMessage: String)
