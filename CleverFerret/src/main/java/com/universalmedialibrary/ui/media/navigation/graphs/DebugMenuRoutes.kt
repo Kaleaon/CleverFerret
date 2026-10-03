@@ -53,7 +53,7 @@ fun NavGraphBuilder.debugMenuRoutes(
 }
 
 // Extension to get route name from MediaType
-val MediaType.routeName: String
+internal val MediaType.routeName: String
     get() = when (this) {
         MediaType.BOOK -> "book"
         MediaType.AUDIOBOOK -> "audiobook"

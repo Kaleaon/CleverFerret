@@ -160,11 +160,11 @@ class WebDavService @Inject constructor(
             if (!isConfigured()) return@withContext emptyList()
             webDavClient.listFiles(remotePath).getOrElse { emptyList() }.map { file ->
                 WebDavFile(
-                    name = file.displayName,
+                    name = file.name,
                     path = file.path,
                     isDirectory = file.isDirectory,
                     size = file.size,
-                    lastModified = file.lastModified
+                    modifiedTime = 0L
                 )
             }
         }

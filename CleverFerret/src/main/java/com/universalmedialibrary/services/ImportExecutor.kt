@@ -3,9 +3,16 @@ package com.universalmedialibrary.services
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.local.entity.People
+import com.universalmedialibrary.data.local.entity.ItemPersonRole
+import com.universalmedialibrary.data.local.entity.Series
+import com.universalmedialibrary.data.local.entity.MetadataBook
+import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
+import com.universalmedialibrary.services.StorageAccessService.CopyResult
 import com.universalmedialibrary.services.importer.ImportOperationLog
 import com.universalmedialibrary.services.importer.ImportOperationStatus
 import com.universalmedialibrary.services.importer.ImportTransactionLog
@@ -42,7 +49,7 @@ internal suspend fun getOrCreateLibraryForTypeImpl(libraryDao: com.universalmedi
     return library
 }
 
-internal suspend fun importRecursivelyImpl(
+internal suspend fun StorageAccessService.importRecursivelyImpl(
     context: Context,
     input: DocumentFile,
     outputRoot: DocumentFile,
@@ -299,6 +306,7 @@ internal suspend fun executeImportPlanAdvancedImpl(
     checkpointCallback: ((Int) -> Unit)? = null,
     mediaItemDao: com.universalmedialibrary.data.local.dao.MediaItemDao,
     metadataDao: com.universalmedialibrary.data.local.dao.MetadataDao,
+    libraryDao: com.universalmedialibrary.data.local.dao.LibraryDao
 ): ImportSortSummary = withContext(Dispatchers.IO) {
     var summary = ImportSortSummary()
     val startedAt = System.currentTimeMillis()
@@ -425,10 +433,11 @@ internal suspend fun executeImportPlanAdvancedImpl(
                 continue
             }
 
-            val library = getOrCreateLibraryForType(
-                rootName = outputRoot.name ?: "Output",
-                rootPath = plan.outputTreeUri,
-                type = item.mediaType
+            val library = getOrCreateLibraryForTypeImpl(
+                libraryDao,
+                outputRoot.name ?: "Output",
+                plan.outputTreeUri,
+                item.mediaType
             )
 
             val computedHash = if (options.preventDuplicates || options.storeContentHash) {

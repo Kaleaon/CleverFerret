@@ -366,7 +366,7 @@ fun MediaType.displayName(): String {
         MediaType.MIDI -> "MIDI Files"
         MediaType.MUSIC_SCORE -> "Music Scores"
         MediaType.UNKNOWN -> "Unknown"
-        else -> "Media"
+        else -> name
     }
 }
 

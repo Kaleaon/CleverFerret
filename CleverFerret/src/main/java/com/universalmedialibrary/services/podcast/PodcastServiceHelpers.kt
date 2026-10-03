@@ -61,9 +61,6 @@ internal fun deduplicatePodcastResults(results: List<PodcastSearchResult>): List
 
 internal fun hasValidFeedUrl(feedUrl: String?): Boolean = feedUrl.toValidFeedUrlOrNull() != null
 
-private fun firstValidFeedUrl(vararg candidates: String?): String? =
-    candidates.firstNotNullOfOrNull { it.toValidFeedUrlOrNull() }
-
 internal fun firstValidFeedUrl(vararg candidates: String?): String? =
     candidates.firstNotNullOfOrNull { it.toValidFeedUrlOrNull() }
 
@@ -130,8 +127,8 @@ internal fun generatePodcastId(feedUrl: String): Long {
     return feedUrl.hashCode().toLong().let { if (it < 0) -it else it }
 }
 
-internal fun sanitizeFileName(name: String): String {
-    return fileNameSanitizer.sanitizeFileName(name)
+internal fun sanitizeFileName(name: String, sanitizer: com.universalmedialibrary.utils.FileNameSanitizer? = null): String {
+    return sanitizer?.sanitizeFileName(name) ?: name.replace(Regex("[^a-zA-Z0-9._-]"), "_")
 }
 
 internal fun getFileExtension(url: String): String {

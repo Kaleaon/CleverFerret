@@ -423,9 +423,6 @@ private fun PermissionRequestContent() {
     }
 }
 
-// Extension functions
-
-
 private fun SmartGalleryCollectionType.toIcon(): androidx.compose.ui.graphics.vector.ImageVector = when (this) {
     SmartGalleryCollectionType.FAVORITES -> Icons.Default.Favorite
     SmartGalleryCollectionType.RECENTLY_ADDED -> Icons.Default.Schedule
