@@ -176,7 +176,10 @@ tasks.register<Exec>("checkDocLinks") {
 // Auto-install Git hooks during build initialization / evaluation if .git exists
 gradle.projectsEvaluated {
     val gitHooksDir = rootProject.file(".git/hooks")
-    if (rootProject.file(".git").exists() && gitHooksDir.exists()) {
+    if (rootProject.file(".git").exists()) {
+        if (!gitHooksDir.exists()) {
+            gitHooksDir.mkdirs()
+        }
         val preCommitFile = File(gitHooksDir, "pre-commit")
         if (!preCommitFile.exists() || preCommitFile.readText().trim() != hookContent.trim()) {
             preCommitFile.writeText(hookContent + "\n")
