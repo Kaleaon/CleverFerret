@@ -117,7 +117,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 85
+        versionCode = 86
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -436,13 +436,13 @@ afterEvaluate {
 
         classDirectories.setFrom(
             files(
-                fileTree("$buildDir/tmp/kotlin-classes/debug") { exclude(excludes) },
-                fileTree("$buildDir/intermediates/javac/debug/classes") { exclude(excludes) }
+                fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") { exclude(excludes) },
+                fileTree("${layout.buildDirectory.get()}/intermediates/javac/debug/classes") { exclude(excludes) }
             )
         )
         sourceDirectories.setFrom(files("src/main/java"))
         executionData.setFrom(
-            fileTree(buildDir) {
+            fileTree(layout.buildDirectory) {
                 include(
                     "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec",
                     "jacoco/testDebugUnitTest.exec",
