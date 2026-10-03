@@ -40,6 +40,7 @@ fi
 
 if git config --get core.hooksPath >/dev/null 2>&1; then
   git config --unset-all core.hooksPath || true
+  git config --global --unset-all core.hooksPath || true
 fi
 
 echo "Installing pre-commit hooks into .git/hooks/pre-commit..."
