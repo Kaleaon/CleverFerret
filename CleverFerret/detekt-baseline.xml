@@ -108,6 +108,7 @@
     <ID>CyclomaticComplexMethod:BookContentAnalyzer.kt$BookContentAnalyzer$private fun mapGenreFromString(genre: String): BookGenre</ID>
     <ID>CyclomaticComplexMethod:BookItem.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun EnhancedBookshelfScreenDemo( navController: NavController, libraryId: Long, modifier: Modifier = Modifier )</ID>
     <ID>CyclomaticComplexMethod:CalibreExportService.kt$CalibreExportService$private suspend fun exportBookToCalibre( db: SQLiteDatabase, item: MediaItem, exportDir: File )</ID>
+    <ID>CyclomaticComplexMethod:CalibreImportService.kt$CalibreImportService$suspend fun importCalibreDatabase( calibreDbPath: String, libraryRootPath: String, libraryId: Long, chunkSize: Int = 250, onProgress: (imported: Int, total: Int) -&gt; Unit = { _, _ -&gt; } )</ID>
     <ID>CyclomaticComplexMethod:CleverFerretAPIReceiver.kt$CleverFerretAPIReceiver$override fun onReceive(context: Context, intent: Intent)</ID>
     <ID>CyclomaticComplexMethod:CleverFerretTheme.kt$@Composable fun CleverFerretTheme( palette: ThemePalette = ThemePalette.NAVY_GOLD, darkTheme: Boolean = true, dynamicColor: Boolean = false, // Disable to maintain custom branding content: @Composable () -&gt; Unit )</ID>
     <ID>CyclomaticComplexMethod:CleverFerretTheme.kt$@Composable fun CleverFerretUnifiedTheme( palette: UnifiedThemePalette = UnifiedThemePalette.NAVY_GOLD, darkTheme: Boolean = true, dynamicColor: Boolean = false, content: @Composable () -&gt; Unit )</ID>
@@ -123,7 +124,7 @@
     <ID>CyclomaticComplexMethod:DocumentReaderScreen.kt$@Composable private fun PdfReaderView(uri: Uri)</ID>
     <ID>CyclomaticComplexMethod:EPUBReaderScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EPUBReaderScreen( navController: NavController, bookUri: String, viewModel: EPUBReaderViewModel = hiltViewModel() )</ID>
     <ID>CyclomaticComplexMethod:EmbySyncService.kt$EmbySyncService$suspend fun syncLibraries(server: EmbyServer): Result&lt;List&lt;Library&gt;&gt;</ID>
-    <ID>CyclomaticComplexMethod:EmbySyncService.kt$EmbySyncService$suspend fun syncMediaItems( server: EmbyServer, embyLibraryId: String, localLibraryId: Long ): Result&lt;Int&gt;</ID>
+    <ID>CyclomaticComplexMethod:EmbySyncService.kt$EmbySyncService$suspend fun syncMediaItems( server: EmbyServer, embyLibraryId: String, localLibraryId: Long, chunkSize: Int = 250, onProgress: (syncedCount: Int, totalCount: Int) -&gt; Unit = { _, _ -&gt; } ): Result&lt;Int&gt;</ID>
     <ID>CyclomaticComplexMethod:EnhancedBookshelfScreen.kt$private fun getBookComparator(sortOption: SortOption): Comparator&lt;BookItem&gt;</ID>
     <ID>CyclomaticComplexMethod:EnhancedEReaderScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EnhancedEReaderScreen( bookFilePath: String, onBack: () -&gt; Unit, viewModel: EnhancedEReaderViewModel = hiltViewModel() )</ID>
     <ID>CyclomaticComplexMethod:EnhancedEReaderViewModel.kt$EnhancedEReaderViewModel$private fun determineFormat(extension: String): BookFormat</ID>
@@ -166,6 +167,7 @@
     <ID>CyclomaticComplexMethod:InternetArchiveAudiobookClient.kt$InternetArchiveAudiobookClient$suspend fun search(query: String?, limit: Int): List&lt;FreeAudiobook&gt;</ID>
     <ID>CyclomaticComplexMethod:InternetArchiveMediaClient.kt$InternetArchiveMediaClient$private suspend fun parseMediaDocument( element: JsonElement, preferredFormats: Set&lt;String&gt;, fallbackFormats: Set&lt;String&gt;, type: FreeMediaType ): FreeMediaItem?</ID>
     <ID>CyclomaticComplexMethod:JellyfinSyncService.kt$JellyfinSyncService$suspend fun syncLibraries(server: JellyfinServer): Result&lt;List&lt;Library&gt;&gt;</ID>
+    <ID>CyclomaticComplexMethod:JellyfinSyncService.kt$JellyfinSyncService$suspend fun syncMediaItems( server: JellyfinServer, jellyfinLibraryId: String, localLibraryId: Long, chunkSize: Int = 250, onProgress: (syncedCount: Int, totalCount: Int) -&gt; Unit = { _, _ -&gt; } ): Result&lt;Int&gt;</ID>
     <ID>CyclomaticComplexMethod:KthemeBridge.kt$KthemeBridge$private fun legacyColorScheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme</ID>
     <ID>CyclomaticComplexMethod:KthemeBridge.kt$KthemeBridge$private fun legacyMetallicGradient(theme: CleverFerretTheme): com.universalmedialibrary.ui.theme.MetallicGradient</ID>
     <ID>CyclomaticComplexMethod:LayeredSoundscapeScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LayeredSoundscapeScreen( onBack: () -&gt; Unit )</ID>
@@ -1990,7 +1992,7 @@
     <ID>LongMethod:CalibreDatabaseReader.kt$CalibreDatabaseReader$fun readBooks(calibreDbPath: String): Map&lt;Long, RawCalibreBook&gt;</ID>
     <ID>LongMethod:CalibreExportService.kt$CalibreExportService$private fun createCalibreDatabase(dbPath: String)</ID>
     <ID>LongMethod:CalibreExportService.kt$CalibreExportService$private suspend fun exportBookToCalibre( db: SQLiteDatabase, item: MediaItem, exportDir: File )</ID>
-    <ID>LongMethod:CalibreImportService.kt$CalibreImportService$suspend fun importCalibreDatabase(calibreDbPath: String, libraryRootPath: String, libraryId: Long)</ID>
+    <ID>LongMethod:CalibreImportService.kt$CalibreImportService$suspend fun importCalibreDatabase( calibreDbPath: String, libraryRootPath: String, libraryId: Long, chunkSize: Int = 250, onProgress: (imported: Int, total: Int) -&gt; Unit = { _, _ -&gt; } )</ID>
     <ID>LongMethod:CenterControls.kt$@Composable internal fun CenterControls( isPlaying: Boolean, isBuffering: Boolean, hasNext: Boolean, hasPrevious: Boolean, onPlayPause: () -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onRewind: () -&gt; Unit, onFastForward: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:ChapterListDialog.kt$@Composable fun ChapterListDialog( chapters: List&lt;String&gt;, currentChapter: Int, onChapterSelect: (Int) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>LongMethod:ChapterListItem.kt$@Composable internal fun ChapterListItem( chapter: ChapterItem, onClick: () -&gt; Unit )</ID>
@@ -2049,7 +2051,7 @@
     <ID>LongMethod:EReaderScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EReaderScreen( bookFilePath: String, onBack: () -&gt; Unit, viewModel: EReaderViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:EReaderViewModel.kt$EReaderViewModel$private suspend fun loadEpubFile(file: File)</ID>
     <ID>LongMethod:EbookReaderScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EbookReaderScreen( bookId: Long, navController: NavController )</ID>
-    <ID>LongMethod:EmbySyncService.kt$EmbySyncService$suspend fun syncMediaItems( server: EmbyServer, embyLibraryId: String, localLibraryId: Long ): Result&lt;Int&gt;</ID>
+    <ID>LongMethod:EmbySyncService.kt$EmbySyncService$suspend fun syncMediaItems( server: EmbyServer, embyLibraryId: String, localLibraryId: Long, chunkSize: Int = 250, onProgress: (syncedCount: Int, totalCount: Int) -&gt; Unit = { _, _ -&gt; } ): Result&lt;Int&gt;</ID>
     <ID>LongMethod:EnhancedAutoScroll.kt$@Composable fun EnhancedAutoScrollControls( isScrolling: Boolean, scrollSpeed: Float, onScrollToggle: () -&gt; Unit, onSpeedChange: (Float) -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:EnhancedBookshelfScreen.kt$@Composable private fun FilterSheet( filterOptions: FilterOptions, onFilterChange: (FilterOptions) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>LongMethod:EnhancedBookshelfScreen.kt$@Composable private fun GridBookItem( book: BookItem, isSelected: Boolean, isSelectionMode: Boolean, onClick: () -&gt; Unit, onLongClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
@@ -2170,6 +2172,7 @@
     <ID>LongMethod:InternetRadioScreen.kt$@Composable private fun NowPlayingCard( station: InternetRadioStation, isPlaying: Boolean, showVisualizer: Boolean, visualizerState: com.universalmedialibrary.services.visualizer.VisualizerState, onTogglePlayback: () -&gt; Unit, onToggleVisualizer: () -&gt; Unit )</ID>
     <ID>LongMethod:InternetRadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun InternetRadioScreen( onNavigateBack: () -&gt; Unit, onNavigateToRadioBrowser: () -&gt; Unit = {}, viewModel: InternetRadioViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:InternetRadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun AddStationDialog( onDismiss: () -&gt; Unit, onAdd: (String, String, String) -&gt; Unit, availableGenres: List&lt;String&gt; = emptyList() )</ID>
+    <ID>LongMethod:JellyfinSyncService.kt$JellyfinSyncService$suspend fun syncMediaItems( server: JellyfinServer, jellyfinLibraryId: String, localLibraryId: Long, chunkSize: Int = 250, onProgress: (syncedCount: Int, totalCount: Int) -&gt; Unit = { _, _ -&gt; } ): Result&lt;Int&gt;</ID>
     <ID>LongMethod:KthemeBridge.kt$KthemeBridge$private fun KthemeColorScheme.toComposeColorScheme(darkTheme: Boolean): ColorScheme</ID>
     <ID>LongMethod:LastFmSettingsScreen.kt$@Composable fun LastFmApiKeyDialog( apiKey: String, apiSecret: String, sessionKey: String?, onDismiss: () -&gt; Unit, onSave: (String, String, String?) -&gt; Unit )</ID>
     <ID>LongMethod:LastFmSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LastFmSettingsScreen( onNavigateBack: () -&gt; Unit, viewModel: LastFmSettingsViewModel = hiltViewModel() )</ID>
@@ -2335,7 +2338,7 @@
     <ID>LongMethod:MusicPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MusicPlayerScreen( onNavigateBack: () -&gt; Unit, onNavigateToQueue: () -&gt; Unit, onNavigateToAlbum: (String) -&gt; Unit, onNavigateToVisualizer: () -&gt; Unit = {}, viewModel: MusicPlayerViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:MusicRepository.kt$MusicRepository$private fun scanMusicFromMediaStore(): List&lt;Track&gt;</ID>
     <ID>LongMethod:MusicTagService.kt$MusicTagService$suspend fun suggestTagsForTrack(track: Track): TagSuggestionResult</ID>
-    <ID>LongMethod:NavigationSection.kt$fun LazyListScope.navigationSection( uiState: SettingsUiState, viewModel: SettingsViewModel, navController: androidx.navigation.NavController, availableBottomItems: List&lt;NavigationItem&gt; = com.universalmedialibrary.ui.components.NavigationItems.items, )</ID>
+    <ID>LongMethod:NavigationSection.kt$fun LazyListScope.navigationSection( uiState: SettingsUiState, viewModel: SettingsViewModel, navController: androidx.navigation.NavController, availableBottomItems: List&lt;NavigationItem&gt; = NavigationItems.items )</ID>
     <ID>LongMethod:NetworkExplorerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NetworkExplorerScreen( onNavigateBack: () -&gt; Unit, onOpenMedia: (NetworkFile) -&gt; Unit, viewModel: NetworkExplorerViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:NetworkStorageSettingsScreen.kt$@Composable private fun NetworkStorageCard( storageName: String, storageUrl: String, storageType: String, isConnected: Boolean, onTest: () -&gt; Unit, onBrowse: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
     <ID>LongMethod:NetworkStorageSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NetworkStorageSettingsScreen( onBack: () -&gt; Unit, viewModel: NetworkStorageSettingsViewModel = hiltViewModel() )</ID>
@@ -2360,7 +2363,7 @@
     <ID>LongMethod:OPDSDownloadService.kt$OPDSDownloadService$private fun startDownload(downloadId: Long, title: String, url: String, extension: String)</ID>
     <ID>LongMethod:OcrOverlay.kt$@Composable fun OcrResultDialog( text: String, onDismiss: () -&gt; Unit, onCopy: () -&gt; Unit )</ID>
     <ID>LongMethod:OcrOverlay.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OcrOverlay( bitmap: Bitmap?, onRecognizeText: () -&gt; Unit, ocrResult: String?, isProcessing: Boolean, onDismiss: () -&gt; Unit, modifier: Modifier = Modifier, onSpeakText: ((String) -&gt; Unit)? = null, onStopSpeaking: (() -&gt; Unit)? = null, isSpeaking: Boolean = false, currentLanguage: com.universalmedialibrary.services.ocr.OcrLanguage? = null, availableLanguages: List&lt;com.universalmedialibrary.services.ocr.OcrLanguage&gt;? = null, onLanguageChange: ((com.universalmedialibrary.services.ocr.OcrLanguage) -&gt; Unit)? = null )</ID>
-    <ID>LongMethod:OldTimeRadioImportService.kt$OldTimeRadioImportService$suspend fun importFeaturedEpisodes(limit: Int = 40): ImportResult</ID>
+    <ID>LongMethod:OldTimeRadioImportService.kt$OldTimeRadioImportService$suspend fun importFeaturedEpisodes( limit: Int = 40, chunkSize: Int = 250, onProgress: (inserted: Int, total: Int) -&gt; Unit = { _, _ -&gt; } ): ImportResult</ID>
     <ID>LongMethod:OldTimeRadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OldTimeRadioScreen( onNavigateBack: () -&gt; Unit, onNavigateToSeries: (String) -&gt; Unit, onNavigateToEpisode: (Long) -&gt; Unit, viewModel: OldTimeRadioViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:OldTimeRadioSeriesDetailScreen.kt$@Composable private fun EpisodeCard( episode: OldTimeRadioEpisode, onClick: () -&gt; Unit )</ID>
     <ID>LongMethod:OnboardingScreen.kt$@Composable private fun OnboardingPage(page: OnboardingPageData)</ID>
@@ -2813,7 +2816,7 @@
     <ID>LongParameterList:PlexIntegrationScreen.kt$( connectedServers: List&lt;String&gt;, onSyncLibraries: () -&gt; Unit, selectedConflictPolicy: PlexIntegrationService.SyncConflictPolicy, onSyncConflictPolicyChanged: (PlexIntegrationService.SyncConflictPolicy) -&gt; Unit, onEnhanceMetadata: (String) -&gt; Unit, onFindDuplicates: (String) -&gt; Unit, onCreateCollections: (String) -&gt; Unit, isSyncing: Boolean, isEnhancingMetadata: Boolean, isAnalyzingDuplicates: Boolean, isCreatingCollections: Boolean )</ID>
     <ID>LongParameterList:PlexIntegrationScreen.kt$( isAuthenticated: Boolean, authenticatedUsername: String?, authStatus: String, pendingPinCode: String?, discoveredServers: List&lt;String&gt;, onStartPinAuth: () -&gt; Unit, onDiscoverServers: () -&gt; Unit, onConnectDiscoveredServers: () -&gt; Unit, onSignOut: () -&gt; Unit )</ID>
     <ID>LongParameterList:PlexIntegrationScreen.kt$( serverName: String, onEnhanceMetadata: () -&gt; Unit, onFindDuplicates: () -&gt; Unit, onCreateCollections: () -&gt; Unit, isEnhancingMetadata: Boolean, isAnalyzingDuplicates: Boolean, isCreatingCollections: Boolean )</ID>
-    <ID>LongParameterList:PlexSyncService.kt$PlexSyncService$( @ApplicationContext private val context: Context, private val plexServerDao: PlexServerDao, private val plexMediaItemDao: PlexMediaItemDao, private val plexSyncDao: PlexSyncDao, private val mediaItemDao: MediaItemDao, private val libraryDao: LibraryDao, private val authService: PlexAuthService, private val ingestionPipeline: IngestionPipeline )</ID>
+    <ID>LongParameterList:PlexSyncService.kt$PlexSyncService$( @ApplicationContext private val context: Context, private val database: AppDatabase, private val plexServerDao: PlexServerDao, private val plexMediaItemDao: PlexMediaItemDao, private val plexSyncDao: PlexSyncDao, private val mediaItemDao: MediaItemDao, private val libraryDao: LibraryDao, private val authService: PlexAuthService, private val ingestionPipeline: IngestionPipeline )</ID>
     <ID>LongParameterList:PodcastManagerScreen.kt$( episodes: List&lt;PodcastEpisode&gt;, downloadStatuses: Map&lt;Long, DownloadStatus&gt;, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onDownloadClick: (PodcastEpisode) -&gt; Unit, onRetryClick: (PodcastEpisode) -&gt; Unit, onPlayClick: (PodcastEpisode) -&gt; Unit )</ID>
     <ID>LongParameterList:PodcastScreen.kt$( state: PodcastScreenState, onShowClick: (PodcastShow) -&gt; Unit, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit, onDownloadEpisode: (PodcastEpisode) -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportOPML: () -&gt; Unit, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onOpenNowPlaying: () -&gt; Unit = {}, onPlayPause: () -&gt; Unit = {}, onSeekForward: () -&gt; Unit = {}, onSeekBackward: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:ProviderConfigurationScreen.kt$( provider: ApiProvider, configuration: ApiConfiguration?, onSave: (ApiConfiguration) -&gt; Unit, onDelete: () -&gt; Unit, onBackClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
@@ -2895,9 +2898,11 @@
     <ID>LoopWithTooManyJumpStatements:AdvancedComicReaderViewModel.kt$AdvancedComicReaderViewModel$while</ID>
     <ID>LoopWithTooManyJumpStatements:AudioMetadataUtils.kt$AudioMetadataUtils$for</ID>
     <ID>LoopWithTooManyJumpStatements:CalibreImportService.kt$CalibreImportService$for</ID>
+    <ID>LoopWithTooManyJumpStatements:EmbySyncService.kt$EmbySyncService$for</ID>
     <ID>LoopWithTooManyJumpStatements:EmptySectionHint.kt$while</ID>
     <ID>LoopWithTooManyJumpStatements:FanfictionMetadataService.kt$FanfictionMetadataService$for</ID>
     <ID>LoopWithTooManyJumpStatements:ImportExecutor.kt$for</ID>
+    <ID>LoopWithTooManyJumpStatements:JellyfinSyncService.kt$JellyfinSyncService$for</ID>
     <ID>LoopWithTooManyJumpStatements:LocalLLMProvider.kt$LocalLLMProvider$while</ID>
     <ID>LoopWithTooManyJumpStatements:MangaTrackingManager.kt$MangaTrackingManager$for</ID>
     <ID>LoopWithTooManyJumpStatements:MediaScanningService.kt$MediaScanningService$for</ID>
@@ -3443,7 +3448,6 @@
     <ID>MagicNumber:AudioPackImporter.kt$AudioPackImporter$70</ID>
     <ID>MagicNumber:AudioPackImporter.kt$AudioPackImporter$8</ID>
     <ID>MagicNumber:AudioPackImporter.kt$AudioPackImporter$80</ID>
-    <ID>MagicNumber:AudioPackImporter.kt$AudioPackImporter$95</ID>
     <ID>MagicNumber:AudioPlaybackManager.kt$AudioPlaybackManager$10</ID>
     <ID>MagicNumber:AudioPlaybackManager.kt$AudioPlaybackManager$20</ID>
     <ID>MagicNumber:AudioPlaybackManager.kt$AudioPlaybackManager$3000</ID>
@@ -6236,6 +6240,7 @@
     <ID>MaxLineLength:ScannedFileItem.kt$if</ID>
     <ID>MaxLineLength:SecurityAndAboutScreens.kt$text = "A comprehensive media library application supporting books, audiobooks, comics, movies, TV shows, and music with advanced reading features and metadata management."</ID>
     <ID>MaxLineLength:SecurityAndAboutScreens.kt$text = "All your reading data and settings are stored locally on your device. No personal information is sent to external servers without your explicit consent."</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$navigationSection(uiState = uiState, viewModel = viewModel, navController = navController, availableBottomItems = availableBottomItems)</ID>
     <ID>MaxLineLength:SharedLinkDao.kt$SharedLinkDao$@Query("SELECT * FROM shared_links WHERE token = :token AND enabled = 1 AND (expiresAt IS NULL OR expiresAt &gt; strftime('%s','now')*1000)")</ID>
     <ID>MaxLineLength:StatusComponents.kt$Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = state.content(MaterialTheme.colorScheme.onSurface))</ID>
     <ID>MaxLineLength:StorageAccessServiceTest.kt$StorageAccessServiceTest$verify { resolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }</ID>
@@ -7248,7 +7253,6 @@
     <ID>UnusedParameter:ServerIntegrationViewModel.kt$ServerIntegrationViewModel$serverId: Long</ID>
     <ID>UnusedParameter:ServerIntegrationViewModel.kt$ServerIntegrationViewModel$url: String</ID>
     <ID>UnusedParameter:ServerIntegrationViewModel.kt$ServerIntegrationViewModel$username: String</ID>
-    <ID>UnusedParameter:SettingsScreen.kt$availableBottomItems: List&lt;NavigationItem&gt;</ID>
     <ID>UnusedParameter:SharingService.kt$SharingService$text: String</ID>
     <ID>UnusedParameter:SinglePageView.kt$onPageChanged: (Int) -&gt; Unit</ID>
     <ID>UnusedParameter:SleepTimerDialog.kt$currentTimerMinutes: Int?</ID>
@@ -7440,7 +7444,6 @@
     <ID>UnusedPrivateProperty:ImportSorterScreen.kt$val p: ImportPlan = runtime.plan!!</ID>
     <ID>UnusedPrivateProperty:IntegrationManager.kt$IntegrationManager$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:JellyfinClient.kt$JellyfinClient$private val okHttpClient: OkHttpClient</ID>
-    <ID>UnusedPrivateProperty:JellyfinSyncService.kt$JellyfinSyncService$val thumbnailUrl = getJellyfinImageUrl(serverUrl, itemId, server.apiKey ?: "")</ID>
     <ID>UnusedPrivateProperty:LegacyContentRoutes.kt$val context = LocalContext.current</ID>
     <ID>UnusedPrivateProperty:LegacyContentRoutes.kt$val storyId = backStackEntry.arguments?.getString("storyId") ?: ""</ID>
     <ID>UnusedPrivateProperty:LegacyEbookParsers.kt$LegacyEbookParser$private val tika = Tika()</ID>
@@ -8096,6 +8099,7 @@
     <ID>WildcardImport:ChipInputs.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ChipInputs.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ChmParser.kt$import com.universalmedialibrary.parsers.*</ID>
+    <ID>WildcardImport:ChunkedBatchIngestionTest.kt$import io.mockk.*</ID>
     <ID>WildcardImport:CircularVisualizer.kt$import androidx.compose.animation.core.*</ID>
     <ID>WildcardImport:CircularVisualizer.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:CircularVisualizer.kt$import androidx.compose.runtime.*</ID>

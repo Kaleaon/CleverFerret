@@ -25,8 +25,30 @@ object TelemetryEventFactory {
     )
 
     fun success(params: SuccessParams): TelemetryEvent =
-        TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, params.eventName, params.integration, params.operation, params.requestId, Instant.now(), true, null, null, params.attributes)
+        TelemetryEvent(
+            version = TelemetryEvent.SCHEMA_VERSION,
+            eventName = params.eventName,
+            integration = params.integration,
+            operation = params.operation,
+            requestId = params.requestId,
+            timestamp = Instant.now(),
+            success = true,
+            errorCode = null,
+            userState = null,
+            attributes = params.attributes
+        )
 
     fun failure(params: FailureParams): TelemetryEvent =
-        TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, params.eventName, params.integration, params.operation, params.requestId, Instant.now(), false, params.error::class.simpleName, params.state.name, params.attributes)
+        TelemetryEvent(
+            version = TelemetryEvent.SCHEMA_VERSION,
+            eventName = params.eventName,
+            integration = params.integration,
+            operation = params.operation,
+            requestId = params.requestId,
+            timestamp = Instant.now(),
+            success = false,
+            errorCode = params.error::class.simpleName,
+            userState = params.state.name,
+            attributes = params.attributes
+        )
 }
