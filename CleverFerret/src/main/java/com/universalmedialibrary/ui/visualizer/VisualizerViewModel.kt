@@ -10,6 +10,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,9 +29,11 @@ class VisualizerViewModel @Inject constructor(
 
     companion object {
         private const val PLAYER_CHECK_INTERVAL_MS = 100L
+        private const val UNSUBSCRIBE_GRACE_PERIOD_MS = 5000L
     }
 
     val visualizerState = audioVisualizerService.visualizerState
+    val subscriptionCount = audioVisualizerService.subscriptionCount
     val castState = chromecastManager.castState
     val isVisualizerEnabled = audioVisualizerService.isEnabled
     val beatDetected = audioVisualizerService.beatDetected
@@ -51,44 +57,69 @@ class VisualizerViewModel @Inject constructor(
         audioVisualizerService.attachToPlayer(activePlayer)
         audioVisualizerService.setEnabled(true)
 
-        // Monitor all players and reattach when active player changes
+        // Monitor all players and reattach when active player changes,
+        // gated on active UI subscriptions (visualizerState.subscriptionCount > 0)
         viewModelScope.launch {
-            while (isActive) {
-                // Check if we need to switch players
-                val advancedPlayer = advancedMusicPlayerService.getExoPlayer()  // Music + Radio
-                val musicPlayer = exoPlayerService.getPlayer()
-                val audioPlayer = audioPlaybackManager.exoPlayer
-                val currentPlayer = audioVisualizerService.getCurrentPlayer()
+            val isObserved = flow {
+                var wasSubscribed = false
+                subscriptionCount
+                    .map { it > 0 }
+                    .distinctUntilChanged()
+                    .collectLatest { hasSubscribers ->
+                        if (hasSubscribers) {
+                            wasSubscribed = true
+                            emit(true)
+                        } else {
+                            if (wasSubscribed) {
+                                delay(UNSUBSCRIBE_GRACE_PERIOD_MS)
+                            }
+                            emit(false)
+                        }
+                    }
+            }.distinctUntilChanged()
 
-                delay(500L) // Prevent busy-loop CPU/battery drain
+            isObserved.collectLatest { observed ->
+                if (observed) {
+                    while (isActive) {
+                        // Check if we need to switch players
+                        val advancedPlayer = advancedMusicPlayerService.getExoPlayer()  // Music + Radio
+                        val musicPlayer = exoPlayerService.getPlayer()
+                        val audioPlayer = audioPlaybackManager.exoPlayer
+                        val currentPlayer = audioVisualizerService.getCurrentPlayer()
 
-                // Prefer the player that's actually playing
-                val targetPlayer = when {
-                    advancedPlayer?.isPlaying == true -> advancedPlayer  // Highest priority - music/radio
-                    musicPlayer?.isPlaying == true -> musicPlayer
-                    audioPlayer.isPlaying -> audioPlayer
-                    advancedPlayer != null -> advancedPlayer
-                    musicPlayer != null -> musicPlayer
-                    else -> audioPlayer
-                }
+                        delay(500L) // Prevent busy-loop CPU/battery drain
 
-                // Reattach if player changed (with null-safety check)
-                if (currentPlayer != targetPlayer && targetPlayer != null) {
-                    audioVisualizerService.attachToPlayer(targetPlayer)
-                    if (isVisualizerEnabled.value) {
-                        audioVisualizerService.setEnabled(true)
+                        // Prefer the player that's actually playing
+                        val targetPlayer = when {
+                            advancedPlayer?.isPlaying == true -> advancedPlayer  // Highest priority - music/radio
+                            musicPlayer?.isPlaying == true -> musicPlayer
+                            audioPlayer.isPlaying -> audioPlayer
+                            advancedPlayer != null -> advancedPlayer
+                            musicPlayer != null -> musicPlayer
+                            else -> audioPlayer
+                        }
+
+                        // Reattach if player changed (with null-safety check)
+                        if (currentPlayer != targetPlayer && targetPlayer != null) {
+                            audioVisualizerService.attachToPlayer(targetPlayer)
+                            if (isVisualizerEnabled.value) {
+                                audioVisualizerService.setEnabled(true)
+                            }
+                        }
+
+                        // Update cast with visualizer data ONLY when Chromecast is connected
+                        if (castState.value.isConnected) {
+                            val state = visualizerState.value
+                            chromecastManager.updateVisualizerData(
+                                bass = state.frequencyBands.bass,
+                                mid = state.frequencyBands.mid,
+                                treble = state.frequencyBands.treble,
+                                spectrum = state.frequencyBands.spectrum
+                            )
+                        }
+                        delay(PLAYER_CHECK_INTERVAL_MS)
                     }
                 }
-
-                // Update cast with visualizer data
-                val state = visualizerState.value
-                chromecastManager.updateVisualizerData(
-                    bass = state.frequencyBands.bass,
-                    mid = state.frequencyBands.mid,
-                    treble = state.frequencyBands.treble,
-                    spectrum = state.frequencyBands.spectrum
-                )
-                delay(PLAYER_CHECK_INTERVAL_MS)
             }
         }
     }

@@ -49,8 +49,32 @@ class DebugReportingService @Inject constructor(
     private val _errorLogs = MutableStateFlow<List<ErrorLog>>(emptyList())
     val errorLogs: StateFlow<List<ErrorLog>> = _errorLogs.asStateFlow()
     
-    private val _performanceMetrics = MutableStateFlow<PerformanceMetrics>(PerformanceMetrics())
-    val performanceMetrics: StateFlow<PerformanceMetrics> = _performanceMetrics.asStateFlow()
+    /**
+     * Get a current snapshot of performance metrics on demand.
+     */
+    fun getPerformanceSnapshot(): PerformanceMetrics {
+        val runtime = Runtime.getRuntime()
+        val usedMemory = runtime.totalMemory() - runtime.freeMemory()
+        val maxMemory = runtime.maxMemory()
+        
+        return PerformanceMetrics(
+            memoryUsedMB = usedMemory / (1024 * 1024),
+            memoryMaxMB = maxMemory / (1024 * 1024),
+            memoryPercentUsed = if (maxMemory > 0) (usedMemory.toFloat() / maxMemory * 100).toInt() else 0,
+            lastUpdated = System.currentTimeMillis()
+        )
+    }
+
+    val performanceMetrics: StateFlow<PerformanceMetrics> = flow {
+        while (true) {
+            emit(getPerformanceSnapshot())
+            kotlinx.coroutines.delay(5000)
+        }
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = PerformanceMetrics()
+    )
     
     private val _notifications = MutableSharedFlow<DebugNotification>()
     val notifications: SharedFlow<DebugNotification> = _notifications.asSharedFlow()
@@ -82,9 +106,6 @@ class DebugReportingService @Inject constructor(
         
         // Load existing reports
         loadExistingReports()
-        
-        // Start performance monitoring
-        startPerformanceMonitoring()
         
         Log.i(TAG, "Debug reporting service initialized")
     }
@@ -148,27 +169,6 @@ class DebugReportingService @Inject constructor(
                 _crashReports.value = crashes
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading existing reports", e)
-            }
-        }
-    }
-    
-    private fun startPerformanceMonitoring() {
-        scope.launch {
-            while (true) {
-                val runtime = Runtime.getRuntime()
-                val usedMemory = runtime.totalMemory() - runtime.freeMemory()
-                val maxMemory = runtime.maxMemory()
-                
-                _performanceMetrics.update { current ->
-                    current.copy(
-                        memoryUsedMB = usedMemory / (1024 * 1024),
-                        memoryMaxMB = maxMemory / (1024 * 1024),
-                        memoryPercentUsed = (usedMemory.toFloat() / maxMemory * 100).toInt(),
-                        lastUpdated = System.currentTimeMillis()
-                    )
-                }
-                
-                kotlinx.coroutines.delay(5000)
             }
         }
     }
@@ -259,7 +259,7 @@ class DebugReportingService @Inject constructor(
             appInfo = getAppInfo(),
             recentErrors = if (includeLogs) _errorLogs.value.takeLast(50) else emptyList(),
             recentCrashes = if (includeLogs) _crashReports.value.takeLast(5) else emptyList(),
-            performanceSnapshot = _performanceMetrics.value,
+            performanceSnapshot = getPerformanceSnapshot(),
             screenshotPath = screenshotUri?.toString()
         )
     }
@@ -339,7 +339,7 @@ class DebugReportingService @Inject constructor(
                 appInfo = getAppInfo(),
                 crashes = _crashReports.value,
                 errors = _errorLogs.value,
-                performance = _performanceMetrics.value
+                performance = getPerformanceSnapshot()
             )
             
             file.writeText(json.encodeToString(export))
