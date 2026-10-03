@@ -24,6 +24,9 @@ interface MediaItemDao {
     @Query("SELECT * FROM media_items WHERE filePath = :filePath")
     suspend fun getMediaItemByFilePath(filePath: String): MediaItem?
 
+    @Query("SELECT filePath FROM media_items WHERE filePath IN (:filePaths)")
+    suspend fun getExistingFilePaths(filePaths: List<String>): List<String>
+
     @Query("SELECT * FROM media_items WHERE filePath = :path LIMIT 1")
     suspend fun getItemByPath(path: String): MediaItem?
 

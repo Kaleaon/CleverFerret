@@ -1,8 +1,10 @@
 package com.universalmedialibrary.services.oldtimeradio
 
+import androidx.room.withTransaction
 import com.universalmedialibrary.data.oldtimeradio.AudioQuality
 import com.universalmedialibrary.data.oldtimeradio.OTRCategory
 import com.universalmedialibrary.data.oldtimeradio.OldTimeRadioDao
+import com.universalmedialibrary.data.oldtimeradio.OldTimeRadioDatabase
 import com.universalmedialibrary.data.oldtimeradio.OldTimeRadioEpisode
 import com.universalmedialibrary.services.media.free.InternetArchiveMediaClient
 import com.universalmedialibrary.services.media.free.FreeMediaType
@@ -15,11 +17,16 @@ import javax.inject.Singleton
 
 @Singleton
 class OldTimeRadioImportService @Inject constructor(
+    private val radioDatabase: OldTimeRadioDatabase,
     private val oldTimeRadioDao: OldTimeRadioDao,
     private val internetArchiveMediaClient: InternetArchiveMediaClient
 ) {
 
-    suspend fun importFeaturedEpisodes(limit: Int = 40): ImportResult = withContext(Dispatchers.IO) {
+    suspend fun importFeaturedEpisodes(
+        limit: Int = 40,
+        chunkSize: Int = 250,
+        onProgress: (inserted: Int, total: Int) -> Unit = { _, _ -> }
+    ): ImportResult = withContext(Dispatchers.IO) {
         val mediaItems = internetArchiveMediaClient.fetchMedia(
             collections = listOf("oldtimeradio"),
             query = null,
@@ -29,59 +36,66 @@ class OldTimeRadioImportService @Inject constructor(
             limit = limit
         )
 
-        var inserted = 0
-        val newEpisodes = mutableListOf<OldTimeRadioEpisode>()
-
-        val existingUris = mutableSetOf<String>()
+        val candidateEpisodes = mutableListOf<OldTimeRadioEpisode>()
+        val seenUrisInBatch = mutableSetOf<String>()
 
         for (item in mediaItems) {
             item.downloadOptions.forEach { option ->
                 val uri = option.url
-                if (existingUris.add(uri)) {
-                    val already = oldTimeRadioDao.getEpisodeByUri(uri)
-                    if (already == null) {
-                        newEpisodes.add(
-                            OldTimeRadioEpisode(
-                                seriesTitle = item.title,
-                                episodeTitle = option.label,
-                                episodeNumber = null,
-                                seasonNumber = null,
-                                originalAirDate = item.year,
-                                broadcastNetwork = null,
-                                duration = (item.runtimeSeconds ?: 1800) * 1000,
-                                category = inferCategory(item.tags),
-                                genre = item.tags.firstOrNull(),
-                                cast = null,
-                                director = null,
-                                writer = null,
-                                sponsor = null,
-                                description = item.description,
-                                uri = uri,
-                                filePath = null,
-                                fileSize = option.sizeBytes ?: 0,
-                                quality = AudioQuality.UNKNOWN,
-                                lastPlayed = null,
-                                playbackPosition = 0,
-                                isComplete = false,
-                                isFavorite = false,
-                                playCount = 0,
-                                tags = item.tags.joinToString(", "),
-                                addedDate = System.currentTimeMillis()
-                            )
+                if (seenUrisInBatch.add(uri)) {
+                    candidateEpisodes.add(
+                        OldTimeRadioEpisode(
+                            seriesTitle = item.title,
+                            episodeTitle = option.label,
+                            episodeNumber = null,
+                            seasonNumber = null,
+                            originalAirDate = item.year,
+                            broadcastNetwork = null,
+                            duration = (item.runtimeSeconds ?: 1800) * 1000,
+                            category = inferCategory(item.tags),
+                            genre = item.tags.firstOrNull(),
+                            cast = null,
+                            director = null,
+                            writer = null,
+                            sponsor = null,
+                            description = item.description,
+                            uri = uri,
+                            filePath = null,
+                            fileSize = option.sizeBytes ?: 0,
+                            quality = AudioQuality.UNKNOWN,
+                            lastPlayed = null,
+                            playbackPosition = 0,
+                            isComplete = false,
+                            isFavorite = false,
+                            playCount = 0,
+                            tags = item.tags.joinToString(", "),
+                            addedDate = System.currentTimeMillis()
                         )
-                    }
+                    )
                 }
             }
         }
 
-        if (newEpisodes.isNotEmpty()) {
-            oldTimeRadioDao.insertEpisodes(newEpisodes)
-            inserted = newEpisodes.size
+        var totalInserted = 0
+
+        for (chunk in candidateEpisodes.chunked(chunkSize.coerceAtLeast(1))) {
+            val chunkUris = chunk.map { it.uri }
+            val existingUris = oldTimeRadioDao.getExistingUris(chunkUris).toSet()
+
+            val newEpisodes = chunk.filter { !existingUris.contains(it.uri) }
+
+            if (newEpisodes.isNotEmpty()) {
+                radioDatabase.withTransaction {
+                    oldTimeRadioDao.insertEpisodes(newEpisodes)
+                }
+                totalInserted += newEpisodes.size
+            }
+            onProgress(totalInserted, candidateEpisodes.size)
         }
 
         ImportResult(
             totalFetched = mediaItems.size,
-            inserted = inserted
+            inserted = totalInserted
         )
     }
 

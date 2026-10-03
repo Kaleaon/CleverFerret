@@ -1,5 +1,7 @@
 package com.universalmedialibrary.services
 
+import androidx.room.withTransaction
+import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.*
@@ -12,16 +14,10 @@ import javax.inject.Singleton
 
 /**
  * Service for importing book libraries from Calibre metadata.db files
- *
- * RECENT CHANGES FROM MAIN:
- * - Fixed MediaItem constructor to use correct entity parameters
- * - Changed from bookRecord.path/format to file.name/extension
- * - Fixed fileSize from 0L to file.length()
- * - Commented out Person/Series/Genre DAO methods (not yet implemented)
- * - These changes ensure compatibility with the Room entity definitions
  */
 @Singleton
 class CalibreImportService @Inject constructor(
+    private val database: AppDatabase,
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao,
     private val calibreReader: CalibreDatabaseReader
@@ -33,8 +29,15 @@ class CalibreImportService @Inject constructor(
         const val EXTRA_CALIBRE_PATH = "calibre_path"
     }
 
-    suspend fun importCalibreDatabase(calibreDbPath: String, libraryRootPath: String, libraryId: Long) {
+    suspend fun importCalibreDatabase(
+        calibreDbPath: String,
+        libraryRootPath: String,
+        libraryId: Long,
+        chunkSize: Int = 250,
+        onProgress: (imported: Int, total: Int) -> Unit = { _, _ -> }
+    ) {
         val rawBooks = calibreReader.readBooks(calibreDbPath)
+        val validItems = mutableListOf<Pair<String, RawCalibreBook>>()
 
         for ((_, rawBook) in rawBooks) {
             val resolvedPath = resolveFullPath(libraryRootPath, rawBook.path) ?: continue
@@ -42,96 +45,110 @@ class CalibreImportService @Inject constructor(
             if (!file.exists()) {
                 continue
             }
-            val fullPath = file.absolutePath
+            validItems.add(file.absolutePath to rawBook)
+        }
 
-            // Conflict resolution: Skip if file already exists in database
-            val existingMediaItem = mediaItemDao.getMediaItemByFilePath(fullPath)
-            if (existingMediaItem != null) {
-                continue // Skip duplicate
+        val totalCount = validItems.size
+        var importedCount = 0
+
+        for (chunk in validItems.chunked(chunkSize.coerceAtLeast(1))) {
+            val chunkPaths = chunk.map { it.first }
+            val existingPathsSet = mediaItemDao.getExistingFilePaths(chunkPaths).toSet()
+
+            database.withTransaction {
+                for ((fullPath, rawBook) in chunk) {
+                    if (existingPathsSet.contains(fullPath)) {
+                        continue // Skip duplicate
+                    }
+
+                    val file = File(fullPath)
+                    if (!file.exists()) continue
+
+                    val cleanedTitle = cleanTitle(rawBook.title)
+                    val sortTitle = createSortTitle(cleanedTitle)
+                    val fileExtension = file.extension.lowercase()
+
+                    val mediaItem = MediaItem(
+                        libraryId = libraryId,
+                        filePath = fullPath,
+                        fileName = file.name,
+                        fileExtension = fileExtension,
+                        fileSize = file.length(),
+                        fileHash = calculateMD5(file),
+                        dateAdded = System.currentTimeMillis(),
+                        lastScanned = System.currentTimeMillis(),
+                        lastModified = file.lastModified(),
+                        mediaType = "BOOK",
+                        mimeType = null,
+                        isAvailable = true,
+                        hasMetadata = false,
+                        hasThumbnail = false,
+                        thumbnailPath = null
+                    )
+                    val newId = mediaItemDao.insertMediaItem(mediaItem)
+
+                    val metadataCommon = MetadataCommon(
+                        itemId = newId,
+                        title = cleanedTitle,
+                        sortTitle = sortTitle,
+                        originalTitle = null,
+                        year = null,
+                        releaseDate = null,
+                        rating = null,
+                        userRating = null,
+                        communityRating = null,
+                        summary = rawBook.comments,
+                        plot = null,
+                        tagline = null,
+                        coverImagePath = null,
+                        backdropImagePath = null,
+                        language = null,
+                        country = null,
+                        lastUpdated = System.currentTimeMillis(),
+                        metadataSource = "Calibre",
+                        externalId = null
+                    )
+                    metadataDao.insertMetadataCommon(metadataCommon)
+
+                    // Insert Book-specific metadata
+                    val metadataBook = MetadataBook(
+                        itemId = newId,
+                        subtitle = null, // Not available from Calibre easily
+                        publisher = rawBook.publisher,
+                        isbn = rawBook.isbn,
+                        pageCount = null, // Not available from Calibre easily
+                        series = null, // Will be set separately if series exists
+                        seriesIndex = null
+                    )
+                    metadataDao.insertMetadataBook(metadataBook)
+
+                    // Handle Authors
+                    for (authorName in rawBook.authorNames) {
+                        val cleanedAuthor = cleanAuthorName(authorName)
+                        val personId = metadataDao.findPersonByName(cleanedAuthor.name)
+                            ?: metadataDao.insertPerson(cleanedAuthor)
+                        val itemPersonRole = ItemPersonRole(itemId = newId, personId = personId, role = "AUTHOR")
+                        metadataDao.insertItemPersonRole(itemPersonRole)
+                    }
+
+                    // Handle Series
+                    rawBook.seriesName?.let { seriesName ->
+                        val seriesId = metadataDao.findSeriesByName(seriesName)
+                            ?: metadataDao.insertSeries(Series(name = seriesName, mediaType = "BOOK"))
+                        metadataDao.updateBookWithSeries(newId, seriesId)
+                    }
+
+                    // Handle Genres (from Tags)
+                    for (tagName in rawBook.tags) {
+                        val genreId = metadataDao.findGenreByName(tagName)
+                            ?: metadataDao.insertGenre(Genre(name = tagName))
+                        metadataDao.insertItemGenre(ItemGenre(itemId = newId, genreId = genreId))
+                    }
+                }
             }
 
-            val cleanedTitle = cleanTitle(rawBook.title)
-            val sortTitle = createSortTitle(cleanedTitle)
-            val fileExtension = file.extension.lowercase()
-
-            val mediaItem = MediaItem(
-                libraryId = libraryId,
-                filePath = fullPath,
-                fileName = file.name,
-                fileExtension = fileExtension,
-                fileSize = file.length(),
-                fileHash = calculateMD5(file),
-                dateAdded = System.currentTimeMillis(),
-                lastScanned = System.currentTimeMillis(),
-                lastModified = file.lastModified(),
-                mediaType = "BOOK",
-                mimeType = null,
-                isAvailable = true,
-                hasMetadata = false,
-                hasThumbnail = false,
-                thumbnailPath = null
-            )
-            val newId = mediaItemDao.insertMediaItem(mediaItem)
-
-            val metadataCommon = MetadataCommon(
-                itemId = newId,
-                title = cleanedTitle,
-                sortTitle = sortTitle,
-                originalTitle = null,
-                year = null,
-                releaseDate = null,
-                rating = null,
-                userRating = null,
-                communityRating = null,
-                summary = rawBook.comments,
-                plot = null,
-                tagline = null,
-                coverImagePath = null,
-                backdropImagePath = null,
-                language = null,
-                country = null,
-                lastUpdated = System.currentTimeMillis(),
-                metadataSource = "Calibre",
-                externalId = null
-            )
-            metadataDao.insertMetadataCommon(metadataCommon)
-
-            // Insert Book-specific metadata
-            val metadataBook = MetadataBook(
-                itemId = newId,
-                subtitle = null, // Not available from Calibre easily
-                publisher = rawBook.publisher,
-                isbn = rawBook.isbn,
-                pageCount = null, // Not available from Calibre easily
-                series = null, // Will be set separately if series exists
-                seriesIndex = null
-            )
-            metadataDao.insertMetadataBook(metadataBook)
-
-
-            // Handle Authors
-            for (authorName in rawBook.authorNames) {
-                val cleanedAuthor = cleanAuthorName(authorName)
-                val personId = metadataDao.findPersonByName(cleanedAuthor.name)
-                    ?: metadataDao.insertPerson(cleanedAuthor)
-                val itemPersonRole = ItemPersonRole(itemId = newId, personId = personId, role = "AUTHOR")
-                metadataDao.insertItemPersonRole(itemPersonRole)
-            }
-
-            // Handle Series
-            rawBook.seriesName?.let { seriesName ->
-                val seriesId = metadataDao.findSeriesByName(seriesName)
-                    ?: metadataDao.insertSeries(Series(name = seriesName, mediaType = "BOOK"))
-                metadataDao.updateBookWithSeries(newId, seriesId)
-            }
-
-            // Handle Genres (from Tags)
-            for (tagName in rawBook.tags) {
-                val genreId = metadataDao.findGenreByName(tagName)
-                    ?: metadataDao.insertGenre(Genre(name = tagName))
-                metadataDao.insertItemGenre(ItemGenre(itemId = newId, genreId = genreId))
-            }
-
+            importedCount += chunk.size
+            onProgress(importedCount, totalCount)
         }
     }
 

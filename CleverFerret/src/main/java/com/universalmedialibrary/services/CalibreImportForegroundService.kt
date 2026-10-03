@@ -38,7 +38,9 @@ class CalibreImportForegroundService : Service() {
 
         serviceScope.launch {
             try {
-                calibreImportService.importCalibreDatabase(calibreDbPath, libraryRootPath, libraryId)
+                calibreImportService.importCalibreDatabase(calibreDbPath, libraryRootPath, libraryId) { imported, total ->
+                    updateNotification("Importing Calibre library", "Processed $imported of $total items")
+                }
                 updateNotification("Import complete!", "Successfully imported your Calibre library.")
             } catch (e: Exception) {
                 updateNotification("Import failed", e.message ?: "An unknown error occurred.")
