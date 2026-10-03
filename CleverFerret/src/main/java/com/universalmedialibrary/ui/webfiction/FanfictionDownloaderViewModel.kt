@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.DownloadedStoryDao
 import com.universalmedialibrary.data.local.entity.DownloadedStory
-import com.universalmedialibrary.services.contentcreation.FanfictionToEPUBConverter
+import com.universalmedialibrary.services.contentcreation.FanfictionEpubConversionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +22,7 @@ import com.universalmedialibrary.core.logging.AppLogger
 
 @HiltViewModel
 class FanfictionDownloaderViewModel @Inject constructor(
-    private val fanfictionConverter: FanfictionToEPUBConverter,
+    private val fanfictionConverter: FanfictionEpubConversionService,
     private val downloadedStoryDao: DownloadedStoryDao,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -72,7 +72,7 @@ class FanfictionDownloaderViewModel @Inject constructor(
                     progressMessage = "Fetching story metadata..."
                 )
 
-                val result = fanfictionConverter.convertStoryToEPUBWithDetails(
+                val result = fanfictionConverter.convertStoryToEpubWithDetails(
                     storyUrl = url,
                     outputFileName = null
                 )
@@ -85,7 +85,7 @@ class FanfictionDownloaderViewModel @Inject constructor(
                         url = url,
                         title = result.story.title,
                         author = result.story.author,
-                        site = FanfictionToEPUBConverter.FanfictionSite.fromUrl(url)?.name ?: "UNKNOWN",
+                        site = FanfictionEpubConversionService.FanfictionSite.fromUrl(url)?.name ?: "UNKNOWN",
                         siteStoryId = extractStoryId(url) ?: storyId,
                         totalChapters = result.story.chapters.size,
                         lastKnownChapters = result.story.chapters.size,

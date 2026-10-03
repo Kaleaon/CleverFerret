@@ -121,4 +121,30 @@ class FanfictionViewModelTest {
         assertThat(challenge?.title).isEqualTo("My Story")
         assertThat(viewModel.downloadState.value).isEqualTo(DownloadState.Idle)
     }
+    @Test
+    fun `downloadStory with blank URL returns immediate validation error`() = runTest {
+        viewModel.downloadStory("")
+
+        val state = viewModel.downloadState.value
+        assertThat(state).isInstanceOf(DownloadState.Error::class.java)
+        assertThat((state as DownloadState.Error).message).isEqualTo("Please enter a URL")
+    }
+
+    @Test
+    fun `onPinUnlockGranted retries pending download with bypass enabled`() = runTest {
+        val exception = ContentPinRequiredException(contentTitle = "Locked Story", contentRating = "Explicit")
+        coEvery { fanfictionService.downloadStory("https://example.com/locked", false, any()) } returns Result.failure(exception)
+        coEvery { fanfictionService.downloadStory("https://example.com/locked", true, any()) } returns Result.failure(Exception("still blocked"))
+
+        viewModel.downloadStory("https://example.com/locked")
+        advanceUntilIdle()
+
+        viewModel.onPinUnlockGranted()
+        advanceUntilIdle()
+
+        io.mockk.coVerify(exactly = 1) { fanfictionService.downloadStory("https://example.com/locked", true, any()) }
+        val state = viewModel.downloadState.value
+        assertThat(state).isInstanceOf(DownloadState.Error::class.java)
+    }
+
 }

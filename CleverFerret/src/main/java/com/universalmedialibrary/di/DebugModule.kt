@@ -1,7 +1,9 @@
 package com.universalmedialibrary.di
 
 import android.content.Context
+import com.universalmedialibrary.debug.DebugCrashReporter
 import com.universalmedialibrary.debug.DebugReportingService
+import com.universalmedialibrary.utils.CrashReporter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,4 +28,10 @@ object DebugModule {
     ): DebugReportingService {
         return DebugReportingService(context)
     }
+
+    @Provides
+    @Singleton
+    fun provideCrashReporter(
+        debugCrashReporter: DebugCrashReporter
+    ): CrashReporter = debugCrashReporter
 }

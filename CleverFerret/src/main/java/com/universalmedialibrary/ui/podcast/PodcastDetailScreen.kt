@@ -105,7 +105,7 @@ fun PodcastDetailScreen(
                     }
                     
                     // Episodes
-                    items(uiState.episodes) { episode ->
+                    items(uiState.episodes, key = { it.id }) { episode ->
                         EpisodeCard(
                             episode = episode,
                             onClick = { navController.navigate("podcast_player/${episode.id}") },

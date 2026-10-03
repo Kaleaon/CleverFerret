@@ -10,6 +10,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.universalmedialibrary.R
+import com.universalmedialibrary.jobs.JobContractType
+import com.universalmedialibrary.jobs.JobExecutionState
+import com.universalmedialibrary.jobs.JobStatusBus
+import com.universalmedialibrary.jobs.JobStatusEvent
 import com.universalmedialibrary.services.MediaScannerService
 
 /**
@@ -29,12 +33,28 @@ class AutoScanWorker(
     }
 
     override suspend fun doWork(): Result {
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.PERIODIC_METADATA_REFRESH,
+                state = JobExecutionState.RUNNING,
+                jobId = id.toString(),
+                message = "Metadata refresh scan started"
+            )
+        )
         setForeground(createForegroundInfo("Scanning for media…"))
         val intent = Intent(applicationContext, MediaScannerService::class.java).apply {
             action = MediaScannerService.ACTION_SCAN_ALL
         }
         // Android 8.0+ requires foreground service start from background.
         ContextCompat.startForegroundService(applicationContext, intent)
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.PERIODIC_METADATA_REFRESH,
+                state = JobExecutionState.SUCCEEDED,
+                jobId = id.toString(),
+                message = "Metadata refresh scan dispatched"
+            )
+        )
         return Result.success()
     }
 

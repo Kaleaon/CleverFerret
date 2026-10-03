@@ -40,6 +40,7 @@ import com.universalmedialibrary.services.ImportPlan
 import com.universalmedialibrary.services.ImportPlanItem
 import com.universalmedialibrary.services.ImportConflictStrategy
 import com.universalmedialibrary.services.ImportSortProfile
+import com.universalmedialibrary.jobs.WorkScheduler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,8 +154,7 @@ fun ImportSorterScreen(
                     Button(
                         enabled = runtime.backgroundStatus != null,
                         onClick = {
-                            // Cancel background import (WorkManager tag)
-                            androidx.work.WorkManager.getInstance(appContext).cancelAllWorkByTag("import_sorter")
+                            WorkScheduler.cancelOneOffImport(appContext)
                         }
                     ) {
                         Text("Cancel background import")
@@ -424,4 +424,3 @@ fun ImportSorterScreen(
         }
     }
 }
-

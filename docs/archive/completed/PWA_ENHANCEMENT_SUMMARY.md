@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/INDEX.md
+---
+
 # CleverFerret PWA Enhancement Summary
 
 **Date:** November 21, 2024  

@@ -185,33 +185,6 @@ fun MediaDiscoverScreen(
 }
 
 @Composable
-private fun SectionHeader(
-    title: String,
-    icon: ImageVector
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = MediaSpacing.MD, bottom = MediaSpacing.XS),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = "Media image",
-            tint = MediaColors.TextSecondary,
-            modifier = Modifier.size(18.dp)
-        )
-        Spacer(modifier = Modifier.width(MediaSpacing.SM))
-        Text(
-            text = title.uppercase(),
-            style = MediaTypography.LabelSmall,
-            color = MediaColors.TextTertiary,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-}
-
-@Composable
 private fun FeatureCard(
     title: String,
     subtitle: String,

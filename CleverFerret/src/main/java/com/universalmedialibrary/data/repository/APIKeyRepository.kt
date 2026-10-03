@@ -23,8 +23,6 @@ class APIKeyRepository @Inject constructor(
     suspend fun getAPIKeysByCategory(category: String): List<APIKey> =
         apiKeyDao.getAPIKeysByCategory(category)
 
-    // Deprecated duplicate helper kept for backward compatibility
-    @Deprecated("Use getAPIKeyValue(\"gemini\") or the defined helper below")
     suspend fun getGeminiApiKey(): String? = getAPIKeyValue("gemini")
 
     suspend fun saveAPIKey(provider: String, keyValue: String, category: String, isRequired: Boolean = false) {
@@ -35,7 +33,7 @@ class APIKeyRepository @Inject constructor(
             val updatedKey = existingKey.copy(
                 keyValue = keyValue,
                 lastUsed = System.currentTimeMillis(),
-                validationStatus = if (keyValue.isBlank()) "UNKNOWN" else "UNKNOWN" // Reset validation status
+                validationStatus = if (keyValue.isBlank()) "UNKNOWN" else "PENDING_VALIDATION"
             )
             apiKeyDao.updateAPIKey(updatedKey)
         } else {
@@ -45,7 +43,7 @@ class APIKeyRepository @Inject constructor(
                 keyValue = keyValue,
                 provider = provider,
                 category = category,
-                validationStatus = if (keyValue.isBlank()) "UNKNOWN" else "UNKNOWN"
+                validationStatus = if (keyValue.isBlank()) "UNKNOWN" else "PENDING_VALIDATION"
             )
             apiKeyDao.insertAPIKey(newKey)
         }
@@ -174,7 +172,7 @@ class APIKeyRepository @Inject constructor(
     // Gemini API key convenience methods
 
     suspend fun setGeminiApiKey(apiKey: String) {
-        saveAPIKey("gemini", apiKey, "AI", false)
+        saveAPIKey("gemini", apiKey, "AI_SERVICES", false)
     }
 
     // Last.fm API key convenience methods

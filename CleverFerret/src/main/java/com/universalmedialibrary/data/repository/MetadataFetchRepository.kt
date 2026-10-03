@@ -4,6 +4,7 @@ import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.services.metadata.RealMetadataService
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -21,7 +22,8 @@ import javax.inject.Singleton
 class MetadataFetchRepository @Inject constructor(
     private val realMetadataService: RealMetadataService,
     private val mediaItemDao: MediaItemDao,
-    private val metadataDao: MetadataDao
+    private val metadataDao: MetadataDao,
+    private val metadataStagingRepository: MetadataStagingRepository
 ) {
 
     /**
@@ -88,17 +90,20 @@ class MetadataFetchRepository @Inject constructor(
                 )
             }
 
-            // Save to database
-            metadataDao.insertMetadataCommon(updatedMetadata)
-
-            // Update media item to mark it has metadata
-            mediaItemDao.updateMediaItem(mediaItem.copy(hasMetadata = true))
+            // Save candidate to staged metadata table for user review
+            metadataStagingRepository.stageMetadataCommon(
+                itemId = itemId,
+                metadata = updatedMetadata,
+                source = result.sources.joinToString(", ").ifBlank { "BOOK_API" },
+                confidenceScore = 0.85f
+            )
 
             MetadataFetchResult.Success(
                 sources = result.sources,
                 metadata = updatedMetadata
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             MetadataFetchResult.Error(e.message ?: "Failed to fetch metadata")
         }
     }
@@ -163,14 +168,19 @@ class MetadataFetchRepository @Inject constructor(
                 )
             }
 
-            metadataDao.insertMetadataCommon(updatedMetadata)
-            mediaItemDao.updateMediaItem(mediaItem.copy(hasMetadata = true))
+            metadataStagingRepository.stageMetadataCommon(
+                itemId = itemId,
+                metadata = updatedMetadata,
+                source = result.sources.joinToString(", ").ifBlank { "MOVIE_API" },
+                confidenceScore = 0.85f
+            )
 
             MetadataFetchResult.Success(
                 sources = result.sources,
                 metadata = updatedMetadata
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             MetadataFetchResult.Error(e.message ?: "Failed to fetch metadata")
         }
     }
@@ -233,14 +243,19 @@ class MetadataFetchRepository @Inject constructor(
                 )
             }
 
-            metadataDao.insertMetadataCommon(updatedMetadata)
-            mediaItemDao.updateMediaItem(mediaItem.copy(hasMetadata = true))
+            metadataStagingRepository.stageMetadataCommon(
+                itemId = itemId,
+                metadata = updatedMetadata,
+                source = result.sources.joinToString(", ").ifBlank { "MUSIC_API" },
+                confidenceScore = 0.85f
+            )
 
             MetadataFetchResult.Success(
                 sources = result.sources,
                 metadata = updatedMetadata
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             MetadataFetchResult.Error(e.message ?: "Failed to fetch metadata")
         }
     }

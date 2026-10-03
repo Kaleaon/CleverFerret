@@ -45,37 +45,69 @@ object KthemeBridge {
         colorScheme.toComposeColorScheme(darkTheme)
 
     private fun KthemeColorScheme.toComposeColorScheme(darkTheme: Boolean): ColorScheme {
-        val builder = if (darkTheme) ::darkColorScheme else ::lightColorScheme
-        return builder(
-            primary = primary.toComposeColor(),
-            onPrimary = onPrimary.toComposeColor(),
-            primaryContainer = primaryContainer.toComposeColor(),
-            onPrimaryContainer = onPrimaryContainer.toComposeColor(),
-            secondary = secondary.toComposeColor(),
-            onSecondary = onSecondary.toComposeColor(),
-            secondaryContainer = secondaryContainer.toComposeColor(),
-            onSecondaryContainer = onSecondaryContainer.toComposeColor(),
-            tertiary = tertiary.toComposeColor(),
-            onTertiary = onTertiary.toComposeColor(),
-            tertiaryContainer = tertiaryContainer.toComposeColor(),
-            onTertiaryContainer = onTertiaryContainer.toComposeColor(),
-            error = error.toComposeColor(),
-            onError = onError.toComposeColor(),
-            errorContainer = errorContainer.toComposeColor(),
-            onErrorContainer = onErrorContainer.toComposeColor(),
-            background = background.toComposeColor(),
-            onBackground = onBackground.toComposeColor(),
-            surface = surface.toComposeColor(),
-            onSurface = onSurface.toComposeColor(),
-            surfaceVariant = surfaceVariant.toComposeColor(),
-            onSurfaceVariant = onSurfaceVariant.toComposeColor(),
-            outline = outline.toComposeColor(),
-            outlineVariant = outlineVariant.toComposeColor(),
-            scrim = scrim.toComposeColor(),
-            inverseSurface = inverseSurface.toComposeColor(),
-            inverseOnSurface = inverseOnSurface.toComposeColor(),
-            inversePrimary = inversePrimary.toComposeColor()
-        )
+        return if (darkTheme) {
+            darkColorScheme(
+                primary = primary.toComposeColor(),
+                onPrimary = onPrimary.toComposeColor(),
+                primaryContainer = primaryContainer.toComposeColor(),
+                onPrimaryContainer = onPrimaryContainer.toComposeColor(),
+                secondary = secondary.toComposeColor(),
+                onSecondary = onSecondary.toComposeColor(),
+                secondaryContainer = secondaryContainer.toComposeColor(),
+                onSecondaryContainer = onSecondaryContainer.toComposeColor(),
+                tertiary = tertiary.toComposeColor(),
+                onTertiary = onTertiary.toComposeColor(),
+                tertiaryContainer = tertiaryContainer.toComposeColor(),
+                onTertiaryContainer = onTertiaryContainer.toComposeColor(),
+                error = error.toComposeColor(),
+                onError = onError.toComposeColor(),
+                errorContainer = errorContainer.toComposeColor(),
+                onErrorContainer = onErrorContainer.toComposeColor(),
+                background = background.toComposeColor(),
+                onBackground = onBackground.toComposeColor(),
+                surface = surface.toComposeColor(),
+                onSurface = onSurface.toComposeColor(),
+                surfaceVariant = surfaceVariant.toComposeColor(),
+                onSurfaceVariant = onSurfaceVariant.toComposeColor(),
+                outline = outline.toComposeColor(),
+                outlineVariant = outlineVariant.toComposeColor(),
+                scrim = scrim.toComposeColor(),
+                inverseSurface = inverseSurface.toComposeColor(),
+                inverseOnSurface = inverseOnSurface.toComposeColor(),
+                inversePrimary = inversePrimary.toComposeColor()
+            )
+        } else {
+            lightColorScheme(
+                primary = primary.toComposeColor(),
+                onPrimary = onPrimary.toComposeColor(),
+                primaryContainer = primaryContainer.toComposeColor(),
+                onPrimaryContainer = onPrimaryContainer.toComposeColor(),
+                secondary = secondary.toComposeColor(),
+                onSecondary = onSecondary.toComposeColor(),
+                secondaryContainer = secondaryContainer.toComposeColor(),
+                onSecondaryContainer = onSecondaryContainer.toComposeColor(),
+                tertiary = tertiary.toComposeColor(),
+                onTertiary = onTertiary.toComposeColor(),
+                tertiaryContainer = tertiaryContainer.toComposeColor(),
+                onTertiaryContainer = onTertiaryContainer.toComposeColor(),
+                error = error.toComposeColor(),
+                onError = onError.toComposeColor(),
+                errorContainer = errorContainer.toComposeColor(),
+                onErrorContainer = onErrorContainer.toComposeColor(),
+                background = background.toComposeColor(),
+                onBackground = onBackground.toComposeColor(),
+                surface = surface.toComposeColor(),
+                onSurface = onSurface.toComposeColor(),
+                surfaceVariant = surfaceVariant.toComposeColor(),
+                onSurfaceVariant = onSurfaceVariant.toComposeColor(),
+                outline = outline.toComposeColor(),
+                outlineVariant = outlineVariant.toComposeColor(),
+                scrim = scrim.toComposeColor(),
+                inverseSurface = inverseSurface.toComposeColor(),
+                inverseOnSurface = inverseOnSurface.toComposeColor(),
+                inversePrimary = inversePrimary.toComposeColor()
+            )
+        }
     }
 
     private fun registerBuiltInThemes() {

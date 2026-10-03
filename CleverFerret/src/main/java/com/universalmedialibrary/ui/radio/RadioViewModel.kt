@@ -12,12 +12,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RadioViewModel @Inject constructor(
+class RadioScreenViewModel @Inject constructor(
     private val radioStationDao: RadioStationDao,
     private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService,
     private val radioIdentificationService: RadioIdentificationService,
     private val radioBrowserService: com.universalmedialibrary.services.radio.RadioBrowserService
 ) : ViewModel() {
+    private var pendingRetryAction: (() -> Unit)? = null
     
     // Expose now playing info from identification service
     val nowPlayingInfo: StateFlow<NowPlayingInfo?> = radioIdentificationService.nowPlaying
@@ -127,8 +128,9 @@ class RadioViewModel @Inject constructor(
         viewModelScope.launch {
             val station = _currentStation.value
             if (station == null) {
-                _uiState.value = _uiState.value.copy(
-                    error = "No station is currently playing"
+                publishError(
+                    title = "Song identification unavailable",
+                    detail = "Start a station first, then try identify again."
                 )
                 return@launch
             }
@@ -190,12 +192,19 @@ class RadioViewModel @Inject constructor(
                 radioStationDao.insertStation(station)
 
                 _uiState.value = _uiState.value.copy(
-                    error = null,
-                    showAddStationDialog = false
+                    showAddStationDialog = false,
+                    errorTitle = null,
+                    errorDetail = null,
+                    canRetry = false
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    error = "Failed to add station: ${e.message}"
+                    showAddStationDialog = true
+                )
+                publishError(
+                    title = "Could not add station",
+                    detail = e.message ?: "Please review the stream URL and try again.",
+                    retryAction = { addCustomStation(name, streamUrl, description, genre) }
                 )
             }
         }
@@ -212,7 +221,19 @@ class RadioViewModel @Inject constructor(
     }
 
     fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
+        pendingRetryAction = null
+        _uiState.value = _uiState.value.copy(
+            errorTitle = null,
+            errorDetail = null,
+            canRetry = false
+        )
+    }
+
+    fun retryLastAction() {
+        val action = pendingRetryAction ?: return
+        pendingRetryAction = null
+        _uiState.value = _uiState.value.copy(errorTitle = null, errorDetail = null, canRetry = false)
+        action.invoke()
     }
 
     private suspend fun startStationPlayback(station: RadioStation) {
@@ -238,10 +259,25 @@ class RadioViewModel @Inject constructor(
 
             updateStationNowPlayingMetadata(station)
         } catch (e: Exception) {
-            _uiState.value = _uiState.value.copy(
-                error = "Failed to play station: ${e.message}"
+            publishError(
+                title = "Playback failed",
+                detail = e.message ?: "The station stream could not be opened.",
+                retryAction = { playStation(station) }
             )
         }
+    }
+
+    private fun publishError(
+        title: String,
+        detail: String,
+        retryAction: (() -> Unit)? = null
+    ) {
+        pendingRetryAction = retryAction
+        _uiState.value = _uiState.value.copy(
+            errorTitle = title,
+            errorDetail = detail,
+            canRetry = retryAction != null
+        )
     }
 
     private fun updateStationNowPlayingMetadata(station: RadioStation) {
@@ -337,6 +373,8 @@ class RadioViewModel @Inject constructor(
 }
 
 data class RadioUiState(
-    val error: String? = null,
+    val errorTitle: String? = null,
+    val errorDetail: String? = null,
+    val canRetry: Boolean = false,
     val showAddStationDialog: Boolean = false
 )

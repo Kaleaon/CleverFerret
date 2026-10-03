@@ -25,6 +25,7 @@ fun AdvancedMetallicButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     icon: ImageVector? = null,
+    contentDescription: String? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     content: @Composable RowScope.() -> Unit
 ) {
@@ -68,7 +69,7 @@ fun AdvancedMetallicButton(
             if (icon != null) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = "Media image",
+                    contentDescription = contentDescription,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -130,6 +131,7 @@ fun GradientButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     icon: ImageVector? = null,
+    contentDescription: String? = null,
     content: @Composable RowScope.() -> Unit
 ) {
     val metallicColors = metallicColors()
@@ -164,7 +166,7 @@ fun GradientButton(
             if (icon != null) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = "Media image",
+                    contentDescription = contentDescription,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -210,6 +212,7 @@ fun GlowingFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector,
+    contentDescription: String? = null,
     pulseGlow: Boolean = true
 ) {
     val glowEnabled = crystalGlowEnabled()
@@ -233,7 +236,7 @@ fun GlowingFab(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = "Media image"
+            contentDescription = contentDescription
         )
     }
 }

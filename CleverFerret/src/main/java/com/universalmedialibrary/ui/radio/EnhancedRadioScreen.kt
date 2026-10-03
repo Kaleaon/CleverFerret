@@ -17,17 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.services.radio.FMRadioService
 import com.universalmedialibrary.services.radio.NowPlayingInfo
-import com.universalmedialibrary.services.radio.RadioIdentificationService
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Enhanced radio screen with:
@@ -279,37 +269,3 @@ private fun RadioCategoryCard(
     }
 }
 
-@HiltViewModel
-class EnhancedRadioViewModel @Inject constructor(
-    private val radioIdentificationService: RadioIdentificationService,
-    private val fmRadioService: FMRadioService
-) : ViewModel() {
-
-    val nowPlaying = radioIdentificationService.nowPlaying
-    val isIdentifying = radioIdentificationService.isIdentifying
-    val fmRadioAvailable = fmRadioService.isAvailable
-
-    init {
-        viewModelScope.launch {
-            radioIdentificationService.initialize()
-        }
-    }
-
-    fun identifySong() {
-        viewModelScope.launch {
-            // This would capture audio and identify it
-            // Requires ACRCloud or similar SDK
-            
-            // For now, just simulate
-            radioIdentificationService.updateNowPlaying(
-                NowPlayingInfo(
-                    artist = "Identifying...",
-                    title = "Please wait",
-                    source = "Processing",
-                    confidence = 0.0f,
-                    timestamp = System.currentTimeMillis()
-                )
-            )
-        }
-    }
-}

@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.opds
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
@@ -8,6 +9,7 @@ import okhttp3.Request
 import okhttp3.Response
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
+import java.io.IOException
 import java.io.InputStream
 import java.io.StringReader
 import java.net.URLEncoder
@@ -35,19 +37,79 @@ class OPDSClient @Inject constructor(
             .header("User-Agent", USER_AGENT)
             .build()
 
-        okHttpClient.newCall(request).execute().use { response ->
-            ensureSuccess(response)
-            response.body?.byteStream()?.use { stream ->
-                parseFeed(stream, url)
-            } ?: throw IllegalStateException("Empty OPDS response body")
+        executeWithRetry(url) {
+            okHttpClient.newCall(request).execute().use { response ->
+                ensureSuccess(response)
+                response.body?.byteStream()?.use { stream ->
+                    try {
+                        parseFeed(stream, url)
+                    } catch (parseError: IllegalStateException) {
+                        throw parseError
+                    } catch (parseError: Exception) {
+                        throw IllegalStateException(
+                            "Malformed OPDS feed at '$url': ${parseError.message ?: "unable to parse XML"}",
+                            parseError
+                        )
+                    }
+                } ?: throw IllegalStateException("Empty OPDS response body")
+            }
         }
+    }
+
+    private suspend fun <T> executeWithRetry(url: String, block: () -> T): T {
+        var attempt = 0
+        var lastError: Throwable? = null
+
+        while (attempt < MAX_RETRY_ATTEMPTS) {
+            attempt += 1
+            try {
+                return block()
+            } catch (error: Throwable) {
+                lastError = error
+                val shouldRetry = shouldRetryTransient(error) && attempt < MAX_RETRY_ATTEMPTS
+                if (!shouldRetry) {
+                    throw when (error) {
+                        is IOException -> IllegalStateException(
+                            "Unable to reach OPDS server after $attempt attempt(s): $url",
+                            error
+                        )
+                        else -> error
+                    }
+                }
+
+                delay(calculateBackoffMillis(attempt))
+            }
+        }
+
+        throw IllegalStateException("Unable to reach OPDS server: $url", lastError)
+    }
+
+    private fun shouldRetryTransient(error: Throwable): Boolean {
+        return when (error) {
+            is TransientHttpException -> true
+            is IOException -> true
+            else -> false
+        }
+    }
+
+    private fun calculateBackoffMillis(attempt: Int): Long {
+        val exponent = (attempt - 1).coerceAtLeast(0)
+        return INITIAL_BACKOFF_MS * (1L shl exponent)
     }
 
     private fun ensureSuccess(response: Response) {
         if (!response.isSuccessful) {
-            throw IllegalStateException(
-                "OPDS request failed: HTTP ${response.code} ${response.message}"
-            )
+            val reason = when (response.code) {
+                401 -> "Authentication required (HTTP 401)."
+                403 -> "Access forbidden (HTTP 403). Check OPDS credentials/permissions."
+                404 -> "Catalog/feed not found (HTTP 404)."
+                else -> "OPDS request failed: HTTP ${response.code} ${response.message}"
+            }
+
+            if (response.code in RETRYABLE_HTTP_CODES) {
+                throw TransientHttpException(response.code, reason)
+            }
+            throw IllegalStateException(reason)
         }
     }
 
@@ -56,7 +118,7 @@ class OPDSClient @Inject constructor(
         // (e.g., unescaped & characters in Internet Archive feeds)
         val rawContent = stream.bufferedReader().use { it.readText() }
         val sanitizedContent = sanitizeXmlEntities(rawContent)
-        
+
         val parser = XmlPullParserFactory.newInstance().apply {
             isNamespaceAware = true
         }.newPullParser().apply {
@@ -66,6 +128,7 @@ class OPDSClient @Inject constructor(
         val baseUrl = requestUrl.toHttpUrlOrNull()
         var eventType = parser.eventType
 
+        var sawFeedRoot = false
         var feedTitle = ""
         val feedLinks = mutableListOf<OPDSLink>()
         val entries = mutableListOf<OPDSEntry>()
@@ -78,7 +141,7 @@ class OPDSClient @Inject constructor(
                 XmlPullParser.START_TAG -> {
                     when (parser.name) {
                         "feed" -> {
-                            // no-op
+                            sawFeedRoot = true
                         }
                         "title" -> {
                             val text = parser.nextTextOrEmpty()
@@ -122,12 +185,17 @@ class OPDSClient @Inject constructor(
                             val link = OPDSLink(
                                 href = resolvedHref,
                                 title = titleAttr,
-                                rel = relList
+                                rel = relList,
+                                type = typeAttr
                             )
 
                             if (currentEntry != null) {
                                 if (relList.any { it.contains("acquisition") }) {
                                     currentEntry.acquisitionLinks.add(link)
+                                } else if (relList.any { it.contains("subsection") || it.contains("collection") } ||
+                                    typeAttr?.contains("application/atom+xml", ignoreCase = true) == true
+                                ) {
+                                    currentEntry.navigationLinks.add(link)
                                 }
                                 if (relList.any { it.contains("image") } ||
                                     typeAttr?.startsWith("image") == true
@@ -153,6 +221,13 @@ class OPDSClient @Inject constructor(
             }
 
             eventType = parser.next()
+        }
+
+        if (!sawFeedRoot) {
+            throw IllegalStateException("Malformed OPDS feed: missing <feed> root element.")
+        }
+        if (feedTitle.isBlank() && entries.isEmpty() && feedLinks.isEmpty()) {
+            throw IllegalStateException("Malformed OPDS feed: no title, entries, or navigation links were found.")
         }
 
         return OPDSFeed(
@@ -213,7 +288,8 @@ class OPDSClient @Inject constructor(
         var language: String? = null,
         var coverUrl: String? = null,
         val authors: MutableList<String> = mutableListOf(),
-        val acquisitionLinks: MutableList<OPDSLink> = mutableListOf()
+        val acquisitionLinks: MutableList<OPDSLink> = mutableListOf(),
+        val navigationLinks: MutableList<OPDSLink> = mutableListOf()
     ) {
         fun build(): OPDSEntry {
             return OPDSEntry(
@@ -224,14 +300,20 @@ class OPDSClient @Inject constructor(
                 updated = updated?.takeIf { it.isNotBlank() },
                 language = language?.takeIf { it.isNotBlank() },
                 coverUrl = coverUrl?.takeIf { it.isNotBlank() },
-                acquisitionLinks = acquisitionLinks.toList()
+                acquisitionLinks = acquisitionLinks.toList(),
+                navigationLinks = navigationLinks.toList()
             )
         }
     }
 
+    private class TransientHttpException(val statusCode: Int, message: String) : IOException(message)
+
     companion object {
         private const val USER_AGENT = "CleverFerret/1.0 (OPDSClient)"
-        
+        private const val MAX_RETRY_ATTEMPTS = 3
+        private const val INITIAL_BACKOFF_MS = 250L
+        private val RETRYABLE_HTTP_CODES = setOf(408, 429, 500, 502, 503, 504)
+
         /**
          * Regex to match ampersands that are NOT part of valid XML entity references.
          * Valid entities are: &amp; &lt; &gt; &quot; &apos; or numeric refs like &#123; or &#x1F;
@@ -240,16 +322,21 @@ class OPDSClient @Inject constructor(
         private val INVALID_AMPERSAND_REGEX = Regex(
             "&(?!(amp|lt|gt|quot|apos|#\\d+|#x[0-9a-fA-F]+);)"
         )
+        private val INVALID_NUMERIC_ENTITY_REGEX = Regex("&#(?!\\d+;|x[0-9a-fA-F]+;)")
+        private val INVALID_NAMED_ENTITY_REGEX = Regex("&([A-Za-z]+)(?!;)")
     }
-    
+
     /**
-     * Sanitizes XML content by escaping unescaped ampersands and other problematic characters.
-     * 
+     * Sanitizes XML content by escaping unescaped ampersands and malformed entity-like tokens.
+     *
      * Some OPDS feeds (notably Internet Archive) contain malformed XML with unescaped
-     * ampersands in URLs or text content, causing "unterminated entity reference" errors.
-     * This function replaces bare '&' characters (not part of valid entities) with '&amp;'.
+     * ampersands in URLs or text content, causing parser failures.
      */
     private fun sanitizeXmlEntities(xmlContent: String): String {
-        return xmlContent.replace(INVALID_AMPERSAND_REGEX, "&amp;")
+        val escapedAmpersands = xmlContent.replace(INVALID_AMPERSAND_REGEX, "&amp;")
+        val fixedNumericEntityPrefixes = escapedAmpersands.replace(INVALID_NUMERIC_ENTITY_REGEX, "&amp;#")
+        return fixedNumericEntityPrefixes.replace(INVALID_NAMED_ENTITY_REGEX) { match ->
+            "&amp;${match.groupValues[1]}"
+        }
     }
 }

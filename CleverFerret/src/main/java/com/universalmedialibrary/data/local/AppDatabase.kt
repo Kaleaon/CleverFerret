@@ -185,10 +185,13 @@ import com.universalmedialibrary.data.Tag
         // Smart Collections
         SmartCollectionRule::class,
         SmartCollectionCache::class,
-        DismissedSuggestion::class
+        DismissedSuggestion::class,
+
+        // Staged Metadata Candidates
+        StagedMetadataCandidate::class
 
     ],
-    version = 43,
+    version = 45,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -202,6 +205,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun metadataDao(): MetadataDao
+    abstract fun stagedMetadataCandidateDao(): StagedMetadataCandidateDao
     abstract fun extendedMetadataDao(): ExtendedMetadataDao
     abstract fun listenHistoryDao(): ListenHistoryDao
     abstract fun bookmarkDao(): BookmarkDao
@@ -329,7 +333,9 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_36_37,
                         AppDatabaseMigrations.MIGRATION_37_38,
                         AppDatabaseMigrations.MIGRATION_38_39,
-                        AppDatabaseMigrations.MIGRATION_42_43
+                        AppDatabaseMigrations.MIGRATION_42_43,
+                        AppDatabaseMigrations.MIGRATION_43_44,
+                        AppDatabaseMigrations.MIGRATION_44_45
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

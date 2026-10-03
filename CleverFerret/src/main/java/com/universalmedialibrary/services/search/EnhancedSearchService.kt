@@ -34,6 +34,9 @@ class EnhancedSearchService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val database: AppDatabase
 ) {
+    private companion object {
+        private const val MAX_HISTORY_ENTRIES = 100
+    }
 
     private val mediaItemDao = database.mediaItemDao()
     private val metadataDao = database.metadataDao()
@@ -367,6 +370,7 @@ class EnhancedSearchService @Inject constructor(
             filterCriteria = encodeFilters(query.filters)
         )
         searchHistoryDao.insertSearch(searchHistory)
+        searchHistoryDao.enforceMaxEntries(MAX_HISTORY_ENTRIES)
     }
 
     private fun encodeFilters(filters: SearchFilters): String? {

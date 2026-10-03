@@ -60,8 +60,7 @@ data class MediaItem(
     // Computed properties for compatibility with UI - these need to be fetched from metadata tables
     val creator: String? get() = null // Should be fetched from MetadataCommon
     val rating: Float? get() = null // Should be fetched from MetadataCommon
-    val lastViewed: Long? get() = null // Should be fetched from ReadingProgress or viewing history
-    
+
     // Compatibility properties for legacy code
     val id: Long get() = itemId // Alias for itemId for compatibility
     val title: String get() = fileName.substringBeforeLast('.')

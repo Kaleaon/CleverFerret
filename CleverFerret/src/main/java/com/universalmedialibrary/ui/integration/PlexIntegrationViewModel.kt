@@ -8,6 +8,7 @@ import com.universalmedialibrary.services.integration.plex.MetadataEnhancementRe
 import com.universalmedialibrary.services.integration.plex.DuplicateAnalysisResult
 import com.universalmedialibrary.services.integration.plex.SmartCollectionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,6 +17,7 @@ import javax.inject.Inject
 class MediaIntegrationViewModel @Inject constructor(
     private val plexService: PlexIntegrationService
 ) : ViewModel() {
+    private var authPollingJob: Job? = null
 
     val plexState: StateFlow<com.universalmedialibrary.services.integration.plex.PlexIntegrationState> =
         plexService.plexState
@@ -89,8 +91,49 @@ class MediaIntegrationViewModel @Inject constructor(
      */
     fun syncAllLibraries() {
         viewModelScope.launch {
-            val result = plexService.syncAllLibraries()
+            val result = plexService.syncAllLibraries(plexState.value.syncConflictPolicy)
             // Result is handled in PlexIntegrationService and reflected in state
+        }
+    }
+
+    fun setSyncConflictPolicy(policy: PlexIntegrationService.SyncConflictPolicy) {
+        plexService.setSyncConflictPolicy(policy)
+    }
+
+    fun startPinAuth() {
+        authPollingJob?.cancel()
+        viewModelScope.launch {
+            plexService.requestPIN()
+                .onSuccess { pinData ->
+                    authPollingJob = launch {
+                        plexService.pollForAuth(pinData.pinId)
+                        plexService.discoverServers()
+                    }
+                }
+        }
+    }
+
+    fun discoverServers() {
+        viewModelScope.launch {
+            plexService.discoverServers()
+        }
+    }
+
+    fun connectDiscoveredServers() {
+        viewModelScope.launch {
+            plexService.discoverServers()
+                .onSuccess { servers ->
+                    servers.forEach { server ->
+                        plexService.connectToDiscoveredServer(server)
+                    }
+                }
+        }
+    }
+
+    fun signOut() {
+        authPollingJob?.cancel()
+        viewModelScope.launch {
+            plexService.signOut()
         }
     }
 
@@ -108,7 +151,6 @@ class MediaIntegrationViewModel @Inject constructor(
      * Clear any error state
      */
     fun clearError() {
-        // The error clearing would need to be implemented in PlexIntegrationService
-        // For now, this is a placeholder for future implementation
+        plexService.clearError()
     }
 }

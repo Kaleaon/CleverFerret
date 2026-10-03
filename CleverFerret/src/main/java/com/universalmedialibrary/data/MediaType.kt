@@ -27,7 +27,45 @@ enum class MediaType {
     PRESENTATION,  // Presentation files
     ACADEMIC_PAPER,
     WEB_FICTION,
+    STORY,  // Web fiction / fanfiction story
+    IMAGE,  // Image file
+    VIDEO,  // Generic video file
+    AUDIO,  // Generic audio file
     UNKNOWN
+}
+
+fun String.toMediaTypeOrUnknown(): MediaType {
+    val normalized = trim().uppercase()
+    return when (normalized) {
+        "TV_EPISODE" -> MediaType.TV_SHOW
+        else -> MediaType.entries.firstOrNull { it.name == normalized } ?: MediaType.UNKNOWN
+    }
+}
+
+fun MediaType.isAudioType(): Boolean {
+    return when (this) {
+        MediaType.AUDIO,
+        MediaType.AUDIOBOOK,
+        MediaType.MUSIC,
+        MediaType.MUSIC_TRACK,
+        MediaType.MUSIC_ALBUM,
+        MediaType.PODCAST,
+        MediaType.PODCAST_EPISODE,
+        MediaType.PODCAST_SERIES,
+        MediaType.RADIO,
+        MediaType.MIDI -> true
+        else -> false
+    }
+}
+
+fun MediaType.isVideoType(): Boolean {
+    return when (this) {
+        MediaType.MOVIE,
+        MediaType.TV_SHOW,
+        MediaType.DOCUMENTARY,
+        MediaType.VIDEO -> true
+        else -> false
+    }
 }
 
 // Extension functions for MediaType
@@ -59,6 +97,10 @@ fun MediaType.getDisplayName(): String {
         MediaType.PRESENTATION -> "Presentation"
         MediaType.ACADEMIC_PAPER -> "Academic Paper"
         MediaType.WEB_FICTION -> "Web Fiction"
+        MediaType.STORY -> "Story"
+        MediaType.IMAGE -> "Image"
+        MediaType.VIDEO -> "Video"
+        MediaType.AUDIO -> "Audio"
         MediaType.UNKNOWN -> "Unknown"
     }
 }
@@ -91,6 +133,10 @@ fun MediaType.getIcon(): String {
         MediaType.PRESENTATION -> "📽️"
         MediaType.ACADEMIC_PAPER -> "📊"
         MediaType.WEB_FICTION -> "🌐"
+        MediaType.STORY -> "📝"
+        MediaType.IMAGE -> "🖼️"
+        MediaType.VIDEO -> "🎞️"
+        MediaType.AUDIO -> "🔊"
         MediaType.UNKNOWN -> "❓"
     }
 }

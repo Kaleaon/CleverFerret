@@ -3,6 +3,11 @@ package com.universalmedialibrary.services.sync
 import android.content.Context
 import android.util.Log
 import androidx.work.*
+import com.universalmedialibrary.jobs.JobContractType
+import com.universalmedialibrary.jobs.JobExecutionState
+import com.universalmedialibrary.jobs.JobStatusBus
+import com.universalmedialibrary.jobs.JobStatusEvent
+import com.universalmedialibrary.jobs.WorkScheduler
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -16,87 +21,13 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.io.File
-import java.util.concurrent.TimeUnit
 
-/**
- * Cloud Sync Service
- * Features:
- * - Reading position sync across devices
- * - Annotations and highlights sync
- * - Settings synchronization
- * - Conflict resolution (last-write-wins, manual, merge)
- * - Selective sync (choose what to sync)
- * - Auto-sync and manual sync
- * - Sync status tracking
- * - Delta sync for efficiency
- */
 
-enum class SyncProvider {
-    GOOGLE_DRIVE,
-    DROPBOX,
-    ONEDRIVE,
-    CUSTOM_SERVER,
-    LOCAL_NETWORK
-}
 
-enum class SyncStatus {
-    IDLE,
-    SYNCING,
-    SYNCED,
-    ERROR,
-    CONFLICT
-}
 
-enum class ConflictResolution {
-    LAST_WRITE_WINS,    // Automatic: newest wins
-    MANUAL,             // User chooses
-    MERGE,              // Attempt to merge changes
-    LOCAL_WINS,         // Always prefer local
-    REMOTE_WINS         // Always prefer remote
-}
 
-data class SyncSettings(
-    val enabled: Boolean = false,
-    val provider: SyncProvider = SyncProvider.GOOGLE_DRIVE,
-    val autoSync: Boolean = true,
-    val syncInterval: Long = 30,           // minutes
-    val syncOnWifiOnly: Boolean = true,
-    val syncReadingPosition: Boolean = true,
-    val syncAnnotations: Boolean = true,
-    val syncSettings: Boolean = true,
-    val syncLibraries: Boolean = false,    // Only metadata, not files
-    val syncBookCovers: Boolean = false,
-    val conflictResolution: ConflictResolution = ConflictResolution.LAST_WRITE_WINS,
-    val encryptData: Boolean = true
-)
 
-data class SyncState(
-    val status: SyncStatus = SyncStatus.IDLE,
-    val lastSyncTime: Long? = null,
-    val nextSyncTime: Long? = null,
-    val progress: Float = 0f,
-    val itemsSynced: Int = 0,
-    val totalItems: Int = 0,
-    val conflictsCount: Int = 0,
-    val errorMessage: String? = null
-)
 
-data class CloudSyncConflict(
-    val itemId: String,
-    val itemType: String,          // "reading_position", "annotation", "setting"
-    val localData: Any,
-    val remoteData: Any,
-    val localTimestamp: Long,
-    val remoteTimestamp: Long
-)
-
-data class SyncItem(
-    val id: String,
-    val type: String,
-    val data: Map<String, Any>,
-    val timestamp: Long,
-    val deviceId: String
-)
 
 /**
  * Main Cloud Sync Service
@@ -521,33 +452,6 @@ class CloudSyncService @Inject constructor(
     /**
      * Identify conflicts between local and remote changes
      */
-    private fun identifyConflicts(
-        localItems: List<SyncItem>,
-        remoteItems: List<SyncItem>
-    ): List<CloudSyncConflict> {
-        val conflicts = mutableListOf<CloudSyncConflict>()
-
-        val remoteMap = remoteItems.associateBy { it.id }
-
-        localItems.forEach { local ->
-            val remote = remoteMap[local.id]
-            if (remote != null && remote.timestamp != local.timestamp) {
-                // Conflict detected
-                conflicts.add(
-                    CloudSyncConflict(
-                        itemId = local.id,
-                        itemType = local.type,
-                        localData = local.data,
-                        remoteData = remote.data,
-                        localTimestamp = local.timestamp,
-                        remoteTimestamp = remote.timestamp
-                    )
-                )
-            }
-        }
-
-        return conflicts
-    }
 
     /**
      * Resolve conflicts automatically using last-write-wins
@@ -623,28 +527,7 @@ class CloudSyncService @Inject constructor(
         }
     }
 
-    private fun mergeReadingPosition(conflict: CloudSyncConflict): SyncItem? {
-        // Use the furthest reading position
-        val localProgress = (conflict.localData as Map<*, *>)["progress"] as? Float ?: 0f
-        val remoteProgress = (conflict.remoteData as Map<*, *>)["progress"] as? Float ?: 0f
 
-        return if (remoteProgress > localProgress) {
-            SyncItem(
-                id = conflict.itemId,
-                type = conflict.itemType,
-                data = conflict.remoteData as Map<String, Any>,
-                timestamp = conflict.remoteTimestamp,
-                deviceId = ""
-            )
-        } else {
-            null // Keep local
-        }
-    }
-
-    private fun mergeAnnotation(conflict: CloudSyncConflict): SyncItem? {
-        // Annotations are merged by keeping both
-        return null // Manual resolution needed
-    }
 
     private fun mergeSettings(conflict: CloudSyncConflict): SyncItem? {
         // Merge settings by combining non-conflicting values
@@ -716,26 +599,10 @@ class CloudSyncService @Inject constructor(
      * Schedule periodic background sync
      */
     private fun schedulePeriodicSync() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(
-                if (_settings.value.syncOnWifiOnly)
-                    NetworkType.UNMETERED
-                else
-                    NetworkType.CONNECTED
-            )
-            .build()
-
-        val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-            _settings.value.syncInterval,
-            TimeUnit.MINUTES
-        )
-            .setConstraints(constraints)
-            .build()
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "cloud_sync",
-            ExistingPeriodicWorkPolicy.REPLACE,
-            syncRequest
+        WorkScheduler.scheduleFeedCatalogSync(
+            context = context,
+            intervalMinutes = _settings.value.syncInterval,
+            wifiOnly = _settings.value.syncOnWifiOnly
         )
     }
 
@@ -743,7 +610,7 @@ class CloudSyncService @Inject constructor(
      * Cancel scheduled sync
      */
     fun cancelScheduledSync() {
-        WorkManager.getInstance(context).cancelUniqueWork("cloud_sync")
+        WorkScheduler.cancelFeedCatalogSync(context)
     }
 
     /**
@@ -772,114 +639,11 @@ class CloudSyncService @Inject constructor(
         return newDeviceId
     }
 
-    private fun encryptData(item: SyncItem): SyncItem {
-        try {
-            // Serialize data to JSON
-            val jsonData = serializeToJson(item.data)
 
-            // Encrypt using AES-GCM
-            val cipher = getCipher()
-            val secretKey = getOrCreateSecretKey()
-            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKey)
 
-            val iv = cipher.iv
-            val encrypted = cipher.doFinal(jsonData.toByteArray())
-            val combined = iv + encrypted
-            val encryptedString = android.util.Base64.encodeToString(combined, android.util.Base64.DEFAULT)
 
-            // Return item with encrypted data
-            return item.copy(
-                data = mapOf("encrypted" to encryptedString)
-            )
-        } catch (e: Exception) {
-            // Fallback to unencrypted if encryption fails
-            return item
-        }
-    }
 
-    private fun decryptData(item: SyncItem): SyncItem {
-        try {
-            val encryptedString = item.data["encrypted"] as? String ?: return item
 
-            // Decrypt using AES-GCM
-            val cipher = getCipher()
-            val secretKey = getOrCreateSecretKey()
-
-            val decoded = android.util.Base64.decode(encryptedString, android.util.Base64.DEFAULT)
-            val iv = decoded.copyOfRange(0, 12)
-            val ciphertext = decoded.copyOfRange(12, decoded.size)
-
-            val gcmSpec = javax.crypto.spec.GCMParameterSpec(128, iv)
-            cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKey, gcmSpec)
-
-            val decrypted = cipher.doFinal(ciphertext)
-            val jsonData = String(decrypted)
-
-            // Deserialize JSON back to map
-            val originalData = deserializeFromJson(jsonData)
-
-            return item.copy(data = originalData)
-        } catch (e: Exception) {
-            // Return original if decryption fails
-            return item
-        }
-    }
-
-    private fun getOrCreateSecretKey(): javax.crypto.SecretKey {
-        val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")
-        keyStore.load(null)
-
-        val alias = "cleverferret_sync_key"
-
-        if (!keyStore.containsAlias(alias)) {
-            val keyGenerator = javax.crypto.KeyGenerator.getInstance(
-                android.security.keystore.KeyProperties.KEY_ALGORITHM_AES,
-                "AndroidKeyStore"
-            )
-
-            val keyGenParameterSpec = android.security.keystore.KeyGenParameterSpec.Builder(
-                alias,
-                android.security.keystore.KeyProperties.PURPOSE_ENCRYPT or
-                android.security.keystore.KeyProperties.PURPOSE_DECRYPT
-            )
-                .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE)
-                .build()
-
-            keyGenerator.init(keyGenParameterSpec)
-            return keyGenerator.generateKey()
-        }
-
-        return keyStore.getKey(alias, null) as javax.crypto.SecretKey
-    }
-
-    private fun getCipher(): javax.crypto.Cipher {
-        return javax.crypto.Cipher.getInstance(
-            android.security.keystore.KeyProperties.KEY_ALGORITHM_AES + "/" +
-            android.security.keystore.KeyProperties.BLOCK_MODE_GCM + "/" +
-            android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE
-        )
-    }
-
-    private fun serializeToJson(data: Map<String, Any>): String {
-        // Simple JSON serialization
-        return data.entries.joinToString(",", "{", "}") { (key, value) ->
-            "\"$key\":\"$value\""
-        }
-    }
-
-    private fun deserializeFromJson(json: String): Map<String, Any> {
-        // Simple JSON deserialization
-        val entries = json.removeSurrounding("{", "}")
-            .split(",")
-            .mapNotNull {
-                val parts = it.split(":")
-                if (parts.size == 2) {
-                    parts[0].removeSurrounding("\"") to parts[1].removeSurrounding("\"")
-                } else null
-            }
-        return entries.toMap()
-    }
 
     private val prefs by lazy {
         context.getSharedPreferences("cloud_sync_prefs", Context.MODE_PRIVATE)
@@ -909,6 +673,14 @@ class SyncWorker(
 
     override suspend fun doWork(): Result {
         Log.d(TAG, "SyncWorker executing: periodic sync triggered at ${System.currentTimeMillis()}")
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.FEED_CATALOG_SYNC,
+                state = JobExecutionState.RUNNING,
+                jobId = id.toString(),
+                message = "Feed/catalog sync started"
+            )
+        )
         return try {
             // Attempt to get the CloudSyncService via Hilt entry point
             val entryPoint = EntryPointAccessors.fromApplication(
@@ -919,13 +691,38 @@ class SyncWorker(
             val result = syncService.syncNow()
             if (result.isSuccess) {
                 Log.d(TAG, "SyncWorker completed successfully")
+                JobStatusBus.publish(
+                    JobStatusEvent(
+                        contractType = JobContractType.FEED_CATALOG_SYNC,
+                        state = JobExecutionState.SUCCEEDED,
+                        jobId = id.toString(),
+                        message = "Feed/catalog sync completed"
+                    )
+                )
                 Result.success()
             } else {
-                Log.w(TAG, "SyncWorker sync failed: ${result.exceptionOrNull()?.message}")
+                val errorMessage = result.exceptionOrNull()?.message
+                Log.w(TAG, "SyncWorker sync failed: $errorMessage")
+                JobStatusBus.publish(
+                    JobStatusEvent(
+                        contractType = JobContractType.FEED_CATALOG_SYNC,
+                        state = JobExecutionState.FAILED,
+                        jobId = id.toString(),
+                        message = errorMessage ?: "Feed/catalog sync failed"
+                    )
+                )
                 Result.retry()
             }
         } catch (e: Exception) {
             Log.e(TAG, "SyncWorker failed with exception: ${e.message}")
+            JobStatusBus.publish(
+                JobStatusEvent(
+                    contractType = JobContractType.FEED_CATALOG_SYNC,
+                    state = JobExecutionState.FAILED,
+                    jobId = id.toString(),
+                    message = e.message ?: "Feed/catalog sync threw an exception"
+                )
+            )
             Result.retry()
         }
     }

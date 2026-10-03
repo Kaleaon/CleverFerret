@@ -6,6 +6,7 @@ import android.util.Log
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.services.SettingsBackupService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -93,6 +94,7 @@ class AppUpgradeManager @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e(TAG, "Error checking app upgrade: ${e.message}", e)
             UpgradeStatus.Error(e.message ?: "Unknown error")
         }
@@ -136,6 +138,7 @@ class AppUpgradeManager @Inject constructor(
                 database.mediaItemDao().getMediaItemCount()
                 Log.i(TAG, "✅ Database migrations complete")
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(TAG, "❌ Database migration failed: ${e.message}", e)
                 
                 // If we have a backup, we can recover
@@ -177,6 +180,7 @@ class AppUpgradeManager @Inject constructor(
                 backupPath = backupPath
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e(TAG, "❌ Upgrade failed: ${e.message}", e)
             return UpgradeStatus.Error(e.message ?: "Unknown error")
         }

@@ -122,20 +122,3 @@ data class LyricsApiSettings(
     val priority: List<String> = listOf("Musixmatch", "Genius")
 )
 
-enum class MediaType {
-    BOOKS,
-    COMICS,
-    AUDIOBOOKS,
-    MOVIES_TV,
-    MUSIC
-}
-
-data class ApiProvider(
-    val name: String,
-    val description: String,
-    val requiresApiKey: Boolean,
-    val isEnabled: Boolean,
-    val apiKey: String = "",
-    val website: String = "",
-    val mediaType: MediaType
-)

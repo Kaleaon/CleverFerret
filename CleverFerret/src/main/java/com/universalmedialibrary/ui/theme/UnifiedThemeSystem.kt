@@ -6,6 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
+import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
 
 /**
  * Unified Theme System for CleverFerret
@@ -247,11 +250,28 @@ fun UnifiedCleverFerretTheme(
         // Use traditional unified theme system WITH advanced effects
         val colorScheme = getColorSchemeForTheme(theme, darkTheme)
         val metallicColors = getMetallicColorsForTheme(theme)
+
+        val themeId = theme.name.lowercase().replace('_', '-')
+        val kthemeSnapshot = KthemeThemeAdapterV1.KthemeSnapshot(
+            id = themeId,
+            darkMode = darkTheme,
+            primary = String.format("#%08X", colorScheme.primary.toArgb()),
+            onPrimary = String.format("#%08X", colorScheme.onPrimary.toArgb()),
+            background = String.format("#%08X", colorScheme.background.toArgb()),
+            onBackground = String.format("#%08X", colorScheme.onBackground.toArgb()),
+            surface = String.format("#%08X", colorScheme.surface.toArgb()),
+            onSurface = String.format("#%08X", colorScheme.onSurface.toArgb()),
+            outline = String.format("#%08X", colorScheme.outline.toArgb()),
+            error = String.format("#%08X", colorScheme.error.toArgb()),
+            onError = String.format("#%08X", colorScheme.onError.toArgb())
+        )
+        val semanticTheme = KthemeThemeAdapterV1.adapt(kthemeSnapshot)
         
         // Provide advanced effects context for all themes
         // Note: LocalEnable* composition locals are defined in AncientArchitectTheme.kt
         // and shared across all themes (same package, no import needed)
         CompositionLocalProvider(
+            LocalSemanticTheme provides semanticTheme,
             LocalMetallicColors provides metallicColors,
             LocalEnableGeometricPatterns provides enableGeometricPatterns,
             LocalEnableMetallicShimmer provides enableMetallicShimmer,

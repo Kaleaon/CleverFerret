@@ -76,6 +76,20 @@ interface SearchHistoryDao {
      */
     @Query("DELETE FROM search_history WHERE timestamp < :timestamp")
     suspend fun clearOldHistory(timestamp: Long)
+
+    /**
+     * Keep only the newest [maxEntries] search history records.
+     */
+    @Query("""
+        DELETE FROM search_history
+        WHERE historyId NOT IN (
+            SELECT historyId
+            FROM search_history
+            ORDER BY timestamp DESC
+            LIMIT :maxEntries
+        )
+    """)
+    suspend fun enforceMaxEntries(maxEntries: Int)
     
     /**
      * Delete a specific search from history

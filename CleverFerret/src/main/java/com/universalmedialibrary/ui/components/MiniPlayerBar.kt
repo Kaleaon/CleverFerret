@@ -97,7 +97,7 @@ fun MiniPlayerBar(
                                     "VIDEO", "MOVIE" -> Icons.Default.Movie
                                     else -> Icons.Default.PlayArrow
                                 },
-                                contentDescription = "Media image",
+                                contentDescription = null,
                                 tint = Color.White.copy(alpha = 0.6f),
                                 modifier = Modifier.size(24.dp)
                             )
@@ -220,7 +220,7 @@ fun CompactMiniPlayer(
             ) {
                 Icon(
                     Icons.Default.MusicNote,
-                    contentDescription = "Media image",
+                    contentDescription = null,
                     modifier = Modifier.size(24.dp)
                 )
                 Text(

@@ -14,7 +14,7 @@ import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class NewsViewModel @Inject constructor(
+class NewsScreenViewModel @Inject constructor(
     private val newsManager: NewsManager,
     private val recipeRegistry: NewsRecipeRegistry
 ) : ViewModel() {

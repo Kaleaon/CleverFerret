@@ -19,27 +19,60 @@ import java.io.File
  * Confirmed: Apache POI and Tika dependencies are integrated for these parsers.
  */
 object ParserFactory {
-    
-    private val parsers: List<DocumentParser> by lazy {
+    data class ParserCapability(
+        val parserId: String,
+        val extensions: Set<String>,
+        val supportsHeadings: Boolean,
+        val supportsParagraphs: Boolean,
+        val supportsTables: Boolean,
+        val baselineConfidence: Float
+    )
+
+    data class ParserRegistration(
+        val parser: DocumentParser,
+        val capability: ParserCapability
+    )
+
+    data class ParserSelection(
+        val parser: DocumentParser,
+        val capability: ParserCapability
+    )
+
+    private val registrations: List<ParserRegistration> by lazy {
         listOf(
-            // Pure Java/Kotlin parsers (fully implemented)
-            DocxParser(),
-            DocParser(),
-            RtfParser(),
-            ChmParser(),
-            OdtParser(),
-            MobiParser(),  // Pure Java using lib-mobi
-            
-            // Legacy format parsers (Apache Tika-based)
-            LitParser(),
-            SnbParser(),
-            RbParser(),
-            PdbParser(),
-            
-            // DJVU parser (limited support, requires native libs for full functionality)
-            DjvuParser()
+            register(DocxParser(), "docx-parser", setOf("docx"), headings = true, paragraphs = true, tables = true, baselineConfidence = 0.95f),
+            register(DocParser(), "doc-parser", setOf("doc"), headings = true, paragraphs = true, tables = true, baselineConfidence = 0.90f),
+            register(RtfParser(), "rtf-parser", setOf("rtf"), headings = true, paragraphs = true, tables = false, baselineConfidence = 0.82f),
+            register(ChmParser(), "chm-parser", setOf("chm"), headings = true, paragraphs = true, tables = false, baselineConfidence = 0.76f),
+            register(OdtParser(), "odt-parser", setOf("odt"), headings = true, paragraphs = true, tables = true, baselineConfidence = 0.88f),
+            register(MobiParser(), "mobi-parser", setOf("mobi", "prc", "azw", "azw3"), headings = false, paragraphs = true, tables = false, baselineConfidence = 0.70f),
+            register(LitParser(), "lit-parser", setOf("lit"), headings = false, paragraphs = true, tables = false, baselineConfidence = 0.58f),
+            register(SnbParser(), "snb-parser", setOf("snb"), headings = false, paragraphs = true, tables = false, baselineConfidence = 0.56f),
+            register(RbParser(), "rb-parser", setOf("rb"), headings = false, paragraphs = true, tables = false, baselineConfidence = 0.54f),
+            register(PdbParser(), "pdb-parser", setOf("pdb"), headings = false, paragraphs = true, tables = false, baselineConfidence = 0.52f),
+            register(DjvuParser(), "djvu-parser", setOf("djvu", "djv"), headings = false, paragraphs = true, tables = false, baselineConfidence = 0.50f)
         )
     }
+
+    private fun register(
+        parser: DocumentParser,
+        parserId: String,
+        extensions: Set<String>,
+        headings: Boolean,
+        paragraphs: Boolean,
+        tables: Boolean,
+        baselineConfidence: Float
+    ): ParserRegistration = ParserRegistration(
+        parser = parser,
+        capability = ParserCapability(
+            parserId = parserId,
+            extensions = extensions,
+            supportsHeadings = headings,
+            supportsParagraphs = paragraphs,
+            supportsTables = tables,
+            baselineConfidence = baselineConfidence
+        )
+    )
     
     /**
      * Get the appropriate parser for a given file
@@ -61,8 +94,13 @@ object ParserFactory {
      * @throws UnsupportedFormatException if no parser supports the format
      */
     fun getParserForFileName(fileName: String): DocumentParser {
-        return parsers.firstOrNull { it.supports(fileName) }
+        return selectParser(fileName).parser
+    }
+
+    fun selectParser(fileName: String): ParserSelection {
+        val registration = registrations.firstOrNull { it.parser.supports(fileName) }
             ?: throw UnsupportedFormatException("No parser found for file: $fileName")
+        return ParserSelection(registration.parser, registration.capability)
     }
     
     /**
@@ -72,7 +110,7 @@ object ParserFactory {
      * @return true if the format is supported
      */
     fun isSupported(fileName: String): Boolean {
-        return parsers.any { it.supports(fileName) }
+        return registrations.any { it.parser.supports(fileName) }
     }
     
     /**
@@ -81,7 +119,7 @@ object ParserFactory {
      * @return List of all supported extensions (without the dot)
      */
     fun getSupportedExtensions(): List<String> {
-        return parsers.flatMap { it.getSupportedExtensions() }.distinct()
+        return registrations.flatMap { it.parser.getSupportedExtensions() }.distinct()
     }
     
     /**
@@ -90,12 +128,14 @@ object ParserFactory {
      * @return Map of extension to parser class name
      */
     fun getExtensionParserMap(): Map<String, String> {
-        return parsers.flatMap { parser ->
-            parser.getSupportedExtensions().map { ext ->
-                ext to parser::class.simpleName.orEmpty()
+        return registrations.flatMap { registration ->
+            registration.parser.getSupportedExtensions().map { ext ->
+                ext to registration.capability.parserId
             }
         }.toMap()
     }
+
+    fun getCapabilities(): List<ParserCapability> = registrations.map { it.capability }
 }
 
 /**

@@ -1,6 +1,7 @@
 package com.universalmedialibrary.data.models
 
 import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.MediaType
 
 /**
  * Unified media model using sealed classes for type-safe media handling
@@ -200,42 +201,6 @@ sealed class UnifiedMediaItem {
     ) : UnifiedMediaItem()
 }
 
-/**
- * Enum for all supported media types
- */
-enum class MediaType(val displayName: String, val extensions: List<String>) {
-    BOOK("Book", listOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt")),
-    MOVIE("Movie", listOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm")),
-    TV_SHOW("TV Show", listOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm")),
-    MUSIC_TRACK("Music", listOf("mp3", "flac", "wav", "aac", "ogg", "m4a", "wma")),
-    AUDIOBOOK("Audiobook", listOf("mp3", "m4a", "m4b", "aac", "flac", "ogg")),
-    PODCAST("Podcast", listOf("mp3", "m4a", "aac", "ogg")),
-    COMIC("Comic", listOf("cbz", "cbr", "cb7", "cbt", "pdf")),
-    MAGAZINE("Magazine", listOf("pdf", "epub", "cbz", "cbr")),
-    DOCUMENT("Document", listOf("pdf", "doc", "docx", "txt", "rtf", "odt")),
-    IMAGE("Image", listOf("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp")),
-    VIDEO("Video", listOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm")),
-    AUDIO("Audio", listOf("mp3", "flac", "wav", "aac", "ogg", "m4a", "wma"));
-
-    companion object {
-        fun fromExtension(extension: String): MediaType {
-            val ext = extension.lowercase()
-            return values().find { type ->
-                type.extensions.contains(ext)
-            } ?: when {
-                ext in listOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm") -> VIDEO
-                ext in listOf("mp3", "flac", "wav", "aac", "ogg", "m4a", "wma") -> AUDIO
-                ext in listOf("pdf", "doc", "docx", "txt", "rtf", "odt") -> DOCUMENT
-                ext in listOf("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp") -> IMAGE
-                else -> DOCUMENT
-            }
-        }
-
-        fun fromString(typeString: String): MediaType {
-            return values().find { it.name.equals(typeString, ignoreCase = true) } ?: DOCUMENT
-        }
-    }
-}
 
 /**
  * Extension functions for converting between entities and unified model
@@ -246,7 +211,11 @@ fun MediaItem.toUnifiedMediaItem(
     movieMetadata: MetadataMovie? = null,
     musicMetadata: MetadataMusicTrack? = null
 ): UnifiedMediaItem {
-    val mediaType = MediaType.fromString(this.mediaType)
+    val mediaType = try {
+        MediaType.valueOf(this.mediaType)
+    } catch (_: IllegalArgumentException) {
+        MediaType.UNKNOWN
+    }
 
     return when (mediaType) {
         MediaType.BOOK -> UnifiedMediaItem.Book(
