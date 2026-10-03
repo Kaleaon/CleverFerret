@@ -78,6 +78,24 @@ fun NavGraphBuilder.syncImportRoutes(
         )
     }
 
+    // Interactive Metadata Review Queue
+    composable(MediaRoutes.METADATA_REVIEW_QUEUE) {
+        val viewModel: com.universalmedialibrary.ui.metadata.review.MetadataReviewQueueViewModel = hiltViewModel()
+        val state by viewModel.uiState.collectAsState()
+
+        com.universalmedialibrary.ui.metadata.review.MetadataReviewQueueScreen(
+            state = state,
+            onBackClick = { navController.popBackStack() },
+            onFilterChange = { filter -> viewModel.setFilter(filter) },
+            onApproveCandidate = { id -> viewModel.approveCandidate(id) },
+            onApproveAll = { viewModel.approveAllVisible() },
+            onDiscardCandidate = { id -> viewModel.discardCandidate(id) },
+            onDiscardAll = { viewModel.discardAllVisible() },
+            onSelectCandidateForEdit = { candidate -> viewModel.selectCandidateForEdit(candidate) },
+            onSaveAndApproveEdited = { candidate -> viewModel.saveAndApproveEditedCandidate(candidate) }
+        )
+    }
+
     composable(MediaRoutes.FILE_BROWSER) {
         val scope = rememberCoroutineScope()
         val context = LocalContext.current

@@ -28,7 +28,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         with:
           cmdline-tools-version: 11076708
 
@@ -52,6 +52,8 @@ jobs:
       - name: Validate Android 14 widget background-update constraints
         run: ./scripts/ci/validate_android14_widget_background_updates.py
 
+      - name: Validate markdown links and canonical status docs
+        run: python3 scripts/ci/validate_docs_consistency.py
       - name: Check docs local links
         run: ./scripts/ci/check_doc_links.py
 

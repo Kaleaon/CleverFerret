@@ -3,6 +3,7 @@ package com.universalmedialibrary.services.ai
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.ReaderAIInsightType
+import com.universalmedialibrary.data.repository.MetadataStagingRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,21 +12,17 @@ import javax.inject.Singleton
  */
 @Singleton
 class AIMetadataService @Inject constructor(
-    private val aiServiceManager: AIServiceManager
+    private val aiServiceManager: AIServiceManager,
+    private val metadataStagingRepository: MetadataStagingRepository
 ) {
 
     /**
-     * Suggest tags for a media item based on its metadata.
+     * Suggest tags for a media item based on its metadata and stage them as pending candidates.
      */
     suspend fun suggestTags(mediaItem: MediaItem, metadata: MetadataCommon?): Result<List<String>> {
         val provider = aiServiceManager.getActiveProvider() ?: return Result.failure(Exception("No AI provider configured"))
 
         val prompt = buildTagSuggestionPrompt(mediaItem, metadata)
-        
-        // We use SUMMARY type as a generic "generate text" request since we don't have a dedicated TAGS type yet,
-        // or we could add one. For now, repurposing an existing type or adding a new one is fine.
-        // Let's assume the provider can handle this prompt regardless of the "type" enum if we format the prompt well.
-        // Ideally, we should add a TAGS type to ReaderAIInsightType, but for now we can use THEMES or SUMMARY.
         
         val result = provider.generateInsight(
             prompt = prompt,
@@ -34,7 +31,16 @@ class AIMetadataService @Inject constructor(
         )
 
         return result.map { response ->
-            parseTags(response)
+            val tags = parseTags(response)
+            if (tags.isNotEmpty()) {
+                metadataStagingRepository.stageAITagSuggestions(
+                    itemId = mediaItem.itemId,
+                    tags = tags,
+                    confidenceScore = 0.85f,
+                    source = "AI:TagSuggestion"
+                )
+            }
+            tags
         }
     }
 
