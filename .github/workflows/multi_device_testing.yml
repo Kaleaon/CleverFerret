@@ -15,9 +15,9 @@ on:
         default: 'standard'
         type: choice
         options:
-        - quick
-        - standard
-        - comprehensive
+          - quick
+          - standard
+          - comprehensive
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,7 +34,7 @@ jobs:
     outputs:
       test-matrix: ${{ steps.config.outputs.matrix }}
       test-level: ${{ steps.config.outputs.level }}
-    
+
     steps:
       - name: Configure test matrix
         id: config
@@ -61,10 +61,10 @@ jobs:
             ]'
             level="standard"
           fi
-          
+
           echo "matrix=$(echo "${matrix}" | jq -c .)" >> $GITHUB_OUTPUT
           echo "level=${level}" >> $GITHUB_OUTPUT
-          
+
           echo "## Test Configuration: ${level}" >> $GITHUB_STEP_SUMMARY
           echo "${matrix}" | jq -r '.[] | "- API \(.api) (\(.arch))"' >> $GITHUB_STEP_SUMMARY
 
@@ -72,12 +72,12 @@ jobs:
     name: API ${{ matrix.config.api }} (${{ matrix.config.arch }})
     runs-on: macos-14
     needs: [test-config]
-    
+
     strategy:
       fail-fast: false
       matrix:
         config: ${{ fromJson(needs.test-config.outputs.test-matrix) }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6

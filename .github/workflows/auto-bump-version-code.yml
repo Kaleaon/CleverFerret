@@ -39,7 +39,7 @@ jobs:
           import re, subprocess, sys
           txt = subprocess.check_output(["git","show","${{ github.base_ref }}:CleverFerret/build.gradle.kts"], text=True)
           m = re.search(r"(?m)^\s*versionCode\s*=\s*(\d+)\s*$", txt)
-          if not m: 
+          if not m:
               print("0")
               sys.exit(0)
           print(m.group(1))

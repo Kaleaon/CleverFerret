@@ -1,3 +1,5 @@
+name: Automated Merge Conflict Resolution
+
 on:
   pull_request:
     types: [opened, synchronize, labeled, unlabeled, reopened, ready_for_review]

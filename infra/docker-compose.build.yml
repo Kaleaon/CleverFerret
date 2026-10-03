@@ -13,7 +13,7 @@ services:
         COMPILE_SDK_VERSION: "34"
     image: cleverferret-builder:latest
     container_name: cleverferret-build-container
-    
+
     # PERMANENT FIX: Optimized resource allocation
     deploy:
       resources:
@@ -23,13 +23,13 @@ services:
         reservations:
           memory: 6G
           cpus: '2.0'
-    
+
     # Mount source code
     volumes:
       - .:/app
       - gradle-cache:/root/.gradle
       - android-sdk-cache:/opt/android-sdk
-    
+
     # PERMANENT FIX: Environment variables with all fixes
     environment:
       - ANDROID_HOME=/opt/android-sdk
@@ -39,17 +39,17 @@ services:
       - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
       - GRADLE_OPTS=-Xmx6144m -XX:MaxMetaspaceSize=2g -XX:+UseG1GC
       - _JAVA_OPTIONS=-Xmx6144m -XX:MaxMetaspaceSize=2g
-      
+
     # Working directory
     working_dir: /app
-    
+
     # Keep container running for interactive builds
     tty: true
     stdin_open: true
-    
+
     # Default build command
     command: ["./build_enhanced_permanent.sh"]
-    
+
     # Health check to ensure build environment is ready
     healthcheck:
       test: ["CMD", "java", "-version"]
@@ -65,15 +65,15 @@ services:
       dockerfile: Dockerfile.build
     image: cleverferret-builder:latest
     container_name: cleverferret-quick-build
-    
+
     volumes:
       - .:/app
       - gradle-cache:/root/.gradle
-    
+
     environment:
       - USE_MINIMAL_DEPS=true
       - GRADLE_OPTS=-Xmx4096m -XX:MaxMetaspaceSize=1g
-      
+
     working_dir: /app
     command: ["./gradlew", "--no-daemon", "assembleDebug"]
 
@@ -85,7 +85,7 @@ volumes:
     driver: local
 
 # Usage Instructions:
-# 
+#
 # Full build with all fixes:
 # docker-compose -f docker-compose.build.yml up cleverferret-builder
 #
