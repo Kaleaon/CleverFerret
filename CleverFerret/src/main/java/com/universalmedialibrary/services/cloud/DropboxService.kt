@@ -230,16 +230,16 @@ class DropboxService @Inject constructor(
     /**
      * Sync media with Dropbox
      */
-    suspend fun syncMedia(): DropboxSyncResult {
+    suspend fun syncMedia(): SyncResult {
         return withContext(Dispatchers.IO) {
             if (accessToken == null) {
-                return@withContext DropboxSyncResult(
+                return@withContext SyncResult(
                     success = false,
                     error = "Dropbox access token not configured."
                 )
             }
             val remoteFiles = listFiles(APP_FOLDER)
-            DropboxSyncResult(success = remoteFiles.isNotEmpty() || accessToken != null, error = null)
+            SyncResult(success = remoteFiles.isNotEmpty() || accessToken != null, error = null)
         }
     }
 
@@ -357,6 +357,8 @@ data class StorageUsage(
     val totalBytes: Long,
     val usedBytes: Long
 ) {
+    val used: Long get() = usedBytes
+    val limit: Long get() = totalBytes
     val usagePercentage: Float
         get() = if (totalBytes > 0) (usedBytes.toFloat() / totalBytes.toFloat()) * 100f else 0f
 }
@@ -364,6 +366,15 @@ data class StorageUsage(
 /**
  * Data class for sync results
  */
+data class SyncResult(
+    val success: Boolean,
+    val uploadedCount: Int = 0,
+    val downloadedCount: Int = 0,
+    val conflictCount: Int = 0,
+    val duration: Long = 0,
+    val error: String? = null
+)
+
 data class DropboxSyncResult(
     val success: Boolean,
     val uploadedCount: Int = 0,

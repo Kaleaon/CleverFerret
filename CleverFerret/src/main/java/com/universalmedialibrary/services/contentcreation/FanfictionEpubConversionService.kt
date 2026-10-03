@@ -18,6 +18,32 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import com.universalmedialibrary.utils.ErrorLogger
 
+data class Story(
+    val title: String,
+    val author: String,
+    val summary: String,
+    val chapters: List<Chapter>,
+    val metadata: StoryMetadata
+)
+
+data class Chapter(
+    val number: Int,
+    val title: String,
+    val content: String
+)
+
+data class StoryMetadata(
+    val fandom: String? = null,
+    val characters: List<String> = emptyList(),
+    val rating: String? = null,
+    val genre: String? = null,
+    val wordCount: Int = 0,
+    val publishDate: String? = null,
+    val updateDate: String? = null,
+    val language: String = "en",
+    val status: String? = null
+)
+
 /**
  * Service for converting fanfiction stories to EPUB format
  * Supports multiple fanfiction platforms
@@ -32,32 +58,6 @@ class FanfictionEpubConversionService @Inject constructor(
         .build()
 
     private val ficHubApiUrl = "https://fichub.net/api/v0/epub"
-
-    data class Story(
-        val title: String,
-        val author: String,
-        val summary: String,
-        val chapters: List<Chapter>,
-        val metadata: StoryMetadata
-    )
-
-    data class Chapter(
-        val number: Int,
-        val title: String,
-        val content: String
-    )
-
-    data class StoryMetadata(
-        val fandom: String? = null,
-        val characters: List<String> = emptyList(),
-        val rating: String? = null,
-        val genre: String? = null,
-        val wordCount: Int = 0,
-        val publishDate: String? = null,
-        val updateDate: String? = null,
-        val language: String = "en",
-        val status: String? = null
-    )
 
     enum class FanfictionSite(val domain: String) {
         FANFICTION_NET("fanfiction.net"),
@@ -269,6 +269,17 @@ class FanfictionEpubConversionService @Inject constructor(
     /**
      * Fetch a single chapter from FanFiction.Net
      */
+    private suspend fun fetchFFNetChapter(url: String, number: Int): Chapter? = withContext(Dispatchers.IO) {
+        try {
+            val doc = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(15000).get()
+            val title = doc.select("select#chap_select option[selected]").text().ifEmpty { "Chapter $number" }
+            val content = doc.select("#storytext").first()?.html() ?: ""
+            if (content.isNotEmpty()) Chapter(number = number, title = title, content = cleanHtml(content)) else null
+        } catch (e: Exception) {
+            ErrorLogger.logError("FanfictionEpubConversionService", "Error fetching FFNet chapter", e)
+            null
+        }
+    }
 
     /**
      * Fetch story from Archive of Our Own
@@ -378,6 +389,17 @@ class FanfictionEpubConversionService @Inject constructor(
     /**
      * Fetch a single chapter from Wattpad
      */
+    private suspend fun fetchWattpadChapter(url: String, number: Int): Chapter? = withContext(Dispatchers.IO) {
+        try {
+            val doc = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(15000).get()
+            val title = doc.select("h1").first()?.text() ?: "Chapter $number"
+            val content = doc.select("pre, .story-text").first()?.html() ?: ""
+            if (content.isNotEmpty()) Chapter(number = number, title = title, content = cleanHtml(content)) else null
+        } catch (e: Exception) {
+            ErrorLogger.logError("FanfictionEpubConversionService", "Error fetching Wattpad chapter", e)
+            null
+        }
+    }
 
     /**
      * Fetch story from Royal Road
@@ -477,14 +499,48 @@ class FanfictionEpubConversionService @Inject constructor(
     /**
      * Fetch a single chapter from Royal Road
      */
+    private suspend fun fetchRoyalRoadChapter(url: String, number: Int): Chapter? = withContext(Dispatchers.IO) {
+        try {
+            val doc = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(15000).get()
+            val title = doc.select("h1").first()?.text() ?: "Chapter $number"
+            val content = doc.select(".chapter-content").first()?.html() ?: ""
+            if (content.isNotEmpty()) Chapter(number = number, title = title, content = cleanHtml(content)) else null
+        } catch (e: Exception) {
+            ErrorLogger.logError("FanfictionEpubConversionService", "Error fetching Royal Road chapter", e)
+            null
+        }
+    }
 
     /**
      * Parse FanFiction.Net metadata
      */
+    private fun parseFFNetMetadata(text: String): StoryMetadata {
+        val fandom = text.substringBefore(" - ").takeIf { it.isNotBlank() }
+        val rating = Regex("Rated:\\s*([A-Za-z0-9+]+)").find(text)?.groupValues?.get(1)
+        val wordCount = Regex("Words:\\s*([\\d,]+)").find(text)?.groupValues?.get(1)?.replace(",", "")?.toIntOrNull() ?: 0
+        return StoryMetadata(
+            fandom = fandom,
+            rating = rating,
+            wordCount = wordCount
+        )
+    }
 
     /**
      * Parse Archive of Our Own metadata
      */
+    private fun parseAO3Metadata(doc: org.jsoup.nodes.Document): StoryMetadata {
+        val fandom = doc.select("dd.fandom a").map { it.text() }.joinToString(", ").ifEmpty { null }
+        val rating = doc.select("dd.rating a").first()?.text()
+        val wordCountText = doc.select("dd.words").first()?.text()?.replace(",", "") ?: "0"
+        val wordCount = wordCountText.toIntOrNull() ?: 0
+        val characters = doc.select("dd.character a").map { it.text() }
+        return StoryMetadata(
+            fandom = fandom,
+            rating = rating,
+            wordCount = wordCount,
+            characters = characters
+        )
+    }
 
     /**
      * Create EPUB file from story content

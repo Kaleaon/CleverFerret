@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import java.security.MessageDigest
+import java.util.Locale
 
 internal fun computeSha256(context: Context, uri: Uri): String? {
     return try {
@@ -46,7 +47,7 @@ internal fun deleteEmptyDirectories(
     return deleted
 }
 
-internal fun buildPlanRecursively(
+internal fun StorageAccessService.buildPlanRecursively(
     context: Context,
     input: DocumentFile,
     out: MutableList<ImportPlanItem>,

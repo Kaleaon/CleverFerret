@@ -1,17 +1,27 @@
 package com.universalmedialibrary.services
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.util.Xml
+import org.xmlpull.v1.XmlPullParser
+import java.io.ByteArrayOutputStream
+import java.util.zip.ZipInputStream
+import com.universalmedialibrary.data.MediaType
+import com.universalmedialibrary.services.StorageAccessService.DerivedMetadata
+import com.universalmedialibrary.services.StorageAccessService.OpfParsed
+import com.universalmedialibrary.utils.ComicArchiveUtils
+import com.universalmedialibrary.utils.ComicInfoParser
 
-internal fun determineMediaType(fileName: String): MediaType? {
+internal fun StorageAccessService.determineMediaType(fileName: String): MediaType? {
     return importClassifier.determineMediaType(fileName)
 }
 
-internal fun determineMediaTypeName(fileName: String): String {
+internal fun StorageAccessService.determineMediaTypeName(fileName: String): String {
     return importClassifier.determineMediaTypeName(fileName)
 }
 
-internal fun deriveMetadataFromName(fileName: String): DerivedMetadata {
+internal fun StorageAccessService.deriveMetadataFromName(fileName: String): DerivedMetadata {
     val base = fileName.substringBeforeLast('.').trim()
     val cleanedByFilebot = filebotDataService.stripFilebotNoise(base)
     val normalized = cleanedByFilebot
@@ -83,7 +93,7 @@ internal fun scoreAsTitle(value: String): Int {
     return score
 }
 
-internal fun deriveMetadataForAudio(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
+internal fun StorageAccessService.deriveMetadataForAudio(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
     val retriever = MediaMetadataRetriever()
     return try {
         retriever.setDataSource(context, uri)
@@ -105,7 +115,7 @@ internal fun deriveMetadataForAudio(context: Context, uri: Uri, fallbackName: St
     }
 }
 
-internal fun deriveMetadataForBook(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
+internal fun StorageAccessService.deriveMetadataForBook(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
     val lower = fallbackName.lowercase()
     return when {
         lower.endsWith(".epub") -> deriveMetadataForEpub(context, uri, fallbackName)
@@ -114,7 +124,7 @@ internal fun deriveMetadataForBook(context: Context, uri: Uri, fallbackName: Str
     }
 }
 
-internal fun deriveMetadataForEpub(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
+internal fun StorageAccessService.deriveMetadataForEpub(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
     // Parse META-INF/container.xml -> OPF -> dc:title + dc:creator + calibre series
     return try {
         val entries = mutableMapOf<String, ByteArray>()
@@ -228,7 +238,7 @@ internal fun parseOpfMetadata(opfXml: ByteArray): OpfParsed {
     }
 }
 
-internal fun deriveMetadataForPdf(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
+internal fun StorageAccessService.deriveMetadataForPdf(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
     // Best-effort: PDFs often store /Title(...) and /Author(...) in the info dictionary.
     // This is not guaranteed (may be compressed/encoded), but it's a useful heuristic.
     return try {
@@ -271,7 +281,7 @@ internal fun extractPdfInfoField(pdfText: String, key: String): String? {
         .takeIf { it.isNotBlank() }
 }
 
-internal fun deriveMetadataForComicArchive(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
+internal fun StorageAccessService.deriveMetadataForComicArchive(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
     // Prefer shared utility which supports CBZ and CBR.
     val info = runCatching { ComicArchiveUtils.extractComicInfo(context, uri, fallbackName) }.getOrNull()
     if (info != null) {

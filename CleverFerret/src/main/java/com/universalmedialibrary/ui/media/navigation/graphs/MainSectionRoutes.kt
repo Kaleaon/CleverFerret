@@ -28,6 +28,8 @@ import com.universalmedialibrary.ui.media.screens.*
 import com.universalmedialibrary.ui.media.viewmodels.*
 import com.universalmedialibrary.debug.ui.DebugMenuScreen
 import com.universalmedialibrary.ui.components.NavigationItems
+import com.universalmedialibrary.ui.media.navigation.addSettingsRoutes
+import com.universalmedialibrary.ui.media.navigation.sanitizeRouteParamForDisplay
 import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme

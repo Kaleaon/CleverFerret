@@ -112,6 +112,22 @@ class MediaScannerService : Service() {
         return START_NOT_STICKY
     }
 
+    private fun scanLibrary(libraryId: Long, scanPath: String?) {
+        scanJob?.cancel()
+        scanJob = serviceScope.launch {
+            try {
+                val path = scanPath?.let { File(it) } ?: return@launch
+                updateNotification("Scanning ${path.name}...")
+                scanDirectory(path)
+            } catch (e: Exception) {
+                ErrorLogger.logError("MediaScannerService", "Error scanning library", e)
+            } finally {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
+            }
+        }
+    }
+
     private fun scanAllMedia() {
         scanJob?.cancel()
         scanJob = serviceScope.launch {
@@ -648,7 +664,7 @@ class MediaScannerService : Service() {
 
 
 
-    private data class MusicTrackInfo(
+    internal data class MusicTrackInfo(
         val title: String? = null,
         val artist: String? = null,
         val album: String? = null,
