@@ -18,6 +18,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [Build Toolchain Versions](BUILD_TOOLCHAIN_VERSIONS.md) - Canonical AGP/Kotlin/KSP/Gradle version sources and upgrade steps
 - [Post-Recovery State](POST_RECOVERY_STATE.md) - Branch source-of-truth and safe contribution workflow
 - [Branch Protection Guide](governance/BRANCH_PROTECTION.md) - Protection rules and CODEOWNERS governance
+- [Documentation Lifecycle Policy](governance/DOC_LIFECYCLE_POLICY.md) - Canonical/derived docs, ownership, archive triggers, and SLA
 
 ---
 
@@ -88,22 +89,31 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ---
 
-## 📋 Planning & Roadmap
+## 📋 Planning Workstreams
 
-- [TODO](planning/TODO.md) - Detailed task list and roadmap
-- [Kotlin Conversion TODO](planning/KOTLIN_CONVERSION_TODO.md) - Pure Kotlin conversion plan
-- [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - PWA and app improvements list
+### Active Android (current)
+- [Android Active Backlog](planning/ANDROID_ACTIVE_BACKLOG.md) - Canonical active backlog for app-module and V2 scope
+- [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Prioritized Android issue triage and sequencing
+- [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Currently reproducible build/toolchain issues
+- [ROADMAP](ROADMAP.md) - Forward-looking product direction
+- [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Current prioritized build and stability tasks
+- [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Active issue remediation plan
+- [Parser Implementation Summary](implementation/PARSER_IMPLEMENTATION_SUMMARY.md) - Current parser implementation status
+- [Parser Integration Guide](implementation/PARSER_INTEGRATION_GUIDE.md) - Active parser integration roadmap
+- [Roadmap](ROADMAP.md) - Product roadmap and milestone sequencing
+- [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - App improvement opportunities
+
+### Archived PWA / Historical planning
+- [Archived Improvements Needed](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md) - Former PWA-focused improvement plan (archived)
+
+## 🔍 Analysis & Research References
+
+- [Calibre Droid Analysis](archive/CALIBRE_DROID_ANALYSIS.md) - Historical reference for Calibre integration analysis
+- [Radio APK Analysis](archive/RADIO_APK_ANALYSIS.md) - Historical reference for FM Radio APK analysis
 
 ---
 
-## 🔍 Analysis & Research
-
-- [Calibre Droid Analysis](archive/CALIBRE_DROID_ANALYSIS.md) - Analysis of Calibre integration
-- [Radio APK Analysis](archive/RADIO_APK_ANALYSIS.md) - FM Radio APK analysis
-
----
-
-## 📦 Completed Work (Archive)
+## 📦 Completed Work References (Archive)
 
 ### Bug Fixes & Reviews
 - [Comprehensive Bugfix Report](archive/completed/COMPREHENSIVE_BUGFIX_REPORT.md) - Major bug fixes
@@ -123,15 +133,23 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [PWA Enhancement Summary](archive/completed/PWA_ENHANCEMENT_SUMMARY.md) - Progressive Web App improvements
 
 ### Historical Archives
-- [Advanced Features](archive/ADVANCED_FEATURES.md) - Deep dive into complex capabilities
-- [Audio Improvements Summary](archive/AUDIO_IMPROVEMENTS_SUMMARY.md) - Audio feature improvements
-- [Bugfix Summary](archive/BUGFIX_SUMMARY.md) - Historical bug fixes
-- [Debugging Analysis](archive/DEBUGGING_ANALYSIS.md) - Debugging notes and findings
-- [Design Improvements Summary](archive/DESIGN_IMPROVEMENTS_SUMMARY.md) - UI/UX improvements
-- [Fixes Summary](archive/FIXES_SUMMARY.md) - General fixes
-- [Implementation Guide](archive/IMPLEMENTATION_GUIDE.md) - Historical implementation notes
-- [Implementation Summary](archive/IMPLEMENTATION_SUMMARY.md) - Historical implementation summary
-- [Memory Leak Fixes Changelog](archive/MEMORY_LEAK_FIXES_CHANGELOG.md) - Memory leak resolutions
+- [Advanced Features](archive/ADVANCED_FEATURES.md) - Historical reference on complex capabilities
+- [Audio Improvements Summary](archive/AUDIO_IMPROVEMENTS_SUMMARY.md) - Historical reference on audio feature work
+- [Bugfix Summary](archive/BUGFIX_SUMMARY.md) - Historical bug-fix reference
+- [Debugging Analysis](archive/DEBUGGING_ANALYSIS.md) - Historical debugging notes and findings
+- [Design Improvements Summary](archive/DESIGN_IMPROVEMENTS_SUMMARY.md) - Historical UI/UX reference
+- [Fixes Summary](archive/FIXES_SUMMARY.md) - Historical general-fixes reference
+- [Implementation Guide](archive/IMPLEMENTATION_GUIDE.md) - Historical implementation reference
+- [Implementation Summary](archive/IMPLEMENTATION_SUMMARY.md) - Historical implementation reference
+- [Memory Leak Fixes Changelog](archive/MEMORY_LEAK_FIXES_CHANGELOG.md) - Historical memory-leak fix reference
+
+### Review Package (Historical References)
+- [Review Package README](reviews/README.md) - Historical review package index
+- [Executive Summary](reviews/EXECUTIVE_SUMMARY.md) - Historical review summary
+- [UI Design Review](reviews/ui_design_review.md) - Historical UI audit reference
+- [Fixes Applied](reviews/fixes_applied.md) - Historical record of applied review fixes
+- [Recommendations](reviews/recommendations.md) - Historical recommendation set
+- [Dimension Token Audit](reviews/dimension-token-audit.md) - Historical design token audit
 
 ---
 
@@ -149,9 +167,8 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ## 📱 Related Projects
 
-### PWA Demo
-- [PWA Demo Theming Guide](../pwa-demo/THEMING_GUIDE.md) - PWA theming documentation
-- [PWA Demo Code Review Summary](../pwa-demo/CODE_REVIEW_SUMMARY.md) - PWA code review
+### Frontend Archive (Inactive)
+- [Archived Frontend README](../archive/frontend/README.md) - Historical frontend workspace notes (inactive)
 
 ---
 
@@ -159,14 +176,14 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ### By Status
 - **Active Features**: See [FEATURES_STATUS](FEATURES_STATUS.md)
-- **In Development**: See [ROADMAP](ROADMAP.md) and [planning/TODO](planning/TODO.md)
+- **In Development**: See [ROADMAP](ROADMAP.md), [ACTIVE_BUILD_BACKLOG](planning/ACTIVE_BUILD_BACKLOG.md), and [APP_ISSUES_FIX_PLAN](planning/APP_ISSUES_FIX_PLAN.md)
 - **Completed**: See [archive/completed/](archive/completed/)
-- **Research**: See [archive/](archive/)
+- **Historical References**: See [archive/](archive/) and [reviews/](reviews/)
 
 ### By Category
 - **User Documentation**: README, FEATURES, FEATURES_STATUS
 - **Developer Documentation**: ARCHITECTURE, implementation guides
-- **Planning**: ROADMAP, TODO, planning documents
+- **Planning**: ROADMAP, active backlog/fix plans, and planning documents
 - **Historical**: archive/ directory
 
 ---
@@ -176,6 +193,14 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - **Repository**: https://github.com/Kaleaon/CleverFerret
 - **Issues**: Track bugs and feature requests on GitHub
 - **Pull Requests**: Contribute improvements
+
+---
+
+## 🏛️ Status Governance
+
+- `CleverFerretV2/docs/v2/feature-matrix.md` is the canonical active planning status source.
+- Any PR that changes capability status/target/ownership must update the matrix and every impacted summary document in the same PR (for example: `docs/FEATURES_STATUS.md`, `docs/ROADMAP.md`, `docs/REPOSITORY_STATUS_REPORT.md`, and parser summaries).
+- Status terms in planning/status docs must use the shared taxonomy verbatim: `Ready`, `Partial`, `Stub`, `Planned`, `Archived`.
 
 ---
 

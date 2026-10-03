@@ -1,4 +1,4 @@
-# 🗺️ CleverFerret Roadmap
+# CleverFerret Roadmap (Matrix-Aligned)
 
 ## Planning rules (required)
 
@@ -7,63 +7,50 @@
   * `Path hint(s)` that state whether implementation belongs in `CleverFerret/` or `CleverFerretV2/`.
 * Reviewer requirement: reject feature tasks without module mapping.
 
-## 🚀 High Priority (Next Release)
+**Canonical source:** `CleverFerretV2/docs/v2/feature-matrix.md`  
+**Last verified date:** 2026-04-19  
+**Verifier:** GPT-5.3-Codex
 
-* **Owner module(s):** `feature/navigation`, `core/sync`, `feature/ai`
-* **Path hint(s):** `CleverFerret/` (current roadmap items); flag `CleverFerretV2/` only for explicit V2 migration tasks.
+## Status taxonomy (verbatim)
 
-*   **Navigation Integration**:
-    *   [x] Implement `OldTimeRadio` Series navigation (`MainActivity.kt` TODO).
-    *   [x] Implement `OldTimeRadio` Episode navigation (`MainActivity.kt` TODO).
-*   **Cloud Synchronization**:
-    *   [ ] Implement `GoogleDriveSyncService` (Backend stub exists).
-    *   [ ] Implement `DropboxSyncService`.
-    *   [ ] Connect `EnhancedSyncService` to real cloud providers.
-*   **AI Features**:
-    *   [ ] Connect `ReadingAnalyticsService` to an actual LLM provider (OpenAI/Gemini/Ollama).
-    *   [ ] Implement real "Mind Map" generation.
+Use this taxonomy exactly (spelling/case) in all status and planning documents:
 
-## 🛠️ Medium Priority (Planned)
+- `Ready` — Implemented and validated for the listed target release.
+- `Partial` — Implemented in part; additional integration, validation, or hardening is still required.
+- `Stub` — Placeholder or scaffold exists, but production implementation is not complete.
+- `Planned` — Not implemented yet; explicitly scheduled for future work.
+- `Archived` — Not active; retained for historical reference only.
 
-* **Owner module(s):** `feature/search`, `feature/playlists`, `feature/audio`, `feature/webfiction`
-* **Path hint(s):** default to `CleverFerret/`; add explicit `CleverFerretV2/` prefix for V2-specific work items.
+## V2.0 (Ready)
 
-*   **Search History**: Implement UI and persistence for search queries.
-*   **Playlist Enhancements**:
-    *   [ ] Duration calculation for Movie playlists.
-    *   [ ] Play count tracking for Music playlists.
-*   **Multi-Room Audio**:
-    *   [ ] Implement Snapcast network protocol in `MultiRoomAudioService`.
-*   **Web Fiction**:
-    *   [ ] Fanfiction tag browsing UI.
-    *   [ ] Improved "Book Source" scraping engine (XPath/Regex builder).
+- EPUB reading
+- PDF reading
+- Comic reading (CBZ/CBR/CBT/CB7)
+- Audiobook/music playback
+- Podcast playback/management
+- Radio (FM simulation + internet radio)
+- Library management/search/scanning
+- Widgets (media/reading/stats)
 
-## 🧊 Low Priority (Future)
+## V2.1 (Partial)
 
-* **Owner module(s):** `core/media-detection`, `feature/audio-id`, `feature/recommendations`
-* **Path hint(s):** declare target root per ticket to avoid cross-branch path mistakes (`CleverFerret/` vs `CleverFerretV2/`).
+- DOC/RTF/ODT/CHM/FB2 support
+- Chromecast validation hardening
+- MOBI/AZW/AZW3 integration
+- OPDS wiring (catalog + download backend)
 
-*   **Apache Tika**: Integrate for robust MIME type detection (currently disabled for APK size).
-*   **Audio Fingerprinting**: Integrate ACRCloud or similar for automatic song identification.
-*   **Smart Recommendations**: Expand genre-based and ML-based recommendation algorithms.
+## V2.2 (Partial + Stub)
 
-## ✅ Recently Completed
+- DJVU support completion (`Partial`)
+- Plex auth/sync hardening (`Partial`)
+- Cloud sync providers (Google Drive/Dropbox/progress sync) (`Stub`)
 
-* **Owner module(s):** `feature/ui`, `feature/readers`, `core/data`, `feature/radio`
-* **Path hint(s):** completed items tracked under `CleverFerret/` unless otherwise noted in linked PR.
+## V2.3 (Planned)
 
-*   **UI/UX**:
-    *   Added `BookSourceManager` screen.
-    *   Added `MultiRoomAudio` screen.
-    *   Unified "Now Playing" queue management.
-    *   Added "Add to Playlist" dialog.
-*   **Reader**:
-    *   Expanded format support (PDF, CBZ, CBR, etc.).
-    *   Implemented "Reddit Thread Continuation" for better HFY support.
-*   **Core**:
-    *   Database schema updates (`lastModified` fields).
-    *   Navigation graph updates.
-*   **Radio**:
-    *   Integrated RadioDNS for FM metadata (Logos/Names via SRV lookup).
-    *   Implemented Radio Browser Directory UI (Search & Add Stations).
-    *   Simulated FM radio tuning with PI code support.
+- Advanced AI features (insights/mind maps/recommendations)
+- Multi-room audio
+
+## Roadmap governance
+
+- Roadmap status values must use the taxonomy above verbatim.
+- Status/release changes must be reflected in the matrix and all impacted summaries in the same PR.

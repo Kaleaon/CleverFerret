@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/CODE_REVIEW.md
+---
+
 # CleverFerret - Fixes Applied
 
 ## Summary
@@ -262,7 +267,7 @@ The following issues from the review were **not fixed** in this pass but are doc
 
 ### Medium Priority
 1. **Hardcoded dimensions** - Replace direct `.dp` values with design system tokens throughout the codebase
-2. **TODO comments** - Implement or remove incomplete features
+2. **TODO comments** - Implement or remove incomplete features (tracked in [TODO Register](../planning/TODO_REGISTER.md#open-items))
 
 ### Low Priority
 1. **Mini player tap area** - Refine clickable areas to prevent accidental full player opens

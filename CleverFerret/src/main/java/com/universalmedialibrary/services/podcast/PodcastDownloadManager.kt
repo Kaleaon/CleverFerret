@@ -24,6 +24,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
 import com.universalmedialibrary.utils.FileNameSanitizer
+import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,7 +36,8 @@ import javax.inject.Singleton
 class PodcastDownloadManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val episodeDao: PodcastEpisodeDao,
-    private val fileNameSanitizer: FileNameSanitizer
+    private val fileNameSanitizer: FileNameSanitizer,
+    private val telemetry: PodcastDownloadTelemetry
 ) {
     private data class QueuedDownload(
         val episodeId: Long,
@@ -320,9 +322,18 @@ class PodcastDownloadManager @Inject constructor(
                 (episodeId to DownloadStatus.Failed("Download completed but file path was unavailable"))
             return
         }
+        val file = File(resolvedFilePath)
+        if (!file.exists()) {
+            _downloadProgress.value = _downloadProgress.value +
+                (episodeId to DownloadStatus.Failed("Download completed but file is missing"))
+            telemetry.recordMissingFileMismatch(episodeId, resolvedFilePath)
+            return
+        }
+        val checksum = computeSha256(file)
         episodeDao.markDownloadCompletedAtomically(
             episodeId = episodeId,
             filePath = resolvedFilePath,
+            checksum = checksum,
             timestamp = System.currentTimeMillis()
         )
     }
@@ -330,9 +341,22 @@ class PodcastDownloadManager @Inject constructor(
     internal suspend fun reconcileDownloadedEpisodesOnStartup() {
         episodeDao.getDownloadedEpisodesOnce().forEach { episode ->
             val localPath = resolveLocalFilePath(episode.localFilePath)
-            val fileExists = !localPath.isNullOrBlank() && File(localPath).exists()
+            val file = localPath?.let(::File)
+            val fileExists = file?.exists() == true
             if (!fileExists) {
+                telemetry.recordMissingFileMismatch(episode.id, episode.localFilePath)
                 episodeDao.clearDownloadedState(episode.id)
+                return@forEach
+            }
+
+            val existingFile = file ?: return@forEach
+            val storedChecksum = episode.localFileChecksum
+            if (!storedChecksum.isNullOrBlank()) {
+                val checksum = computeSha256(existingFile)
+                if (checksum != storedChecksum) {
+                    telemetry.recordChecksumMismatch(episode.id, storedChecksum, checksum)
+                    episodeDao.clearDownloadedState(episode.id)
+                }
             }
         }
     }
@@ -370,9 +394,23 @@ class PodcastDownloadManager @Inject constructor(
                 id = episode.id,
                 downloaded = false,
                 filePath = null,
+                checksum = null,
                 timestamp = null
             )
         }
+    }
+
+    private fun computeSha256(file: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (true) {
+                val read = input.read(buffer)
+                if (read <= 0) break
+                digest.update(buffer, 0, read)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
     private fun sanitizeFileName(name: String): String {

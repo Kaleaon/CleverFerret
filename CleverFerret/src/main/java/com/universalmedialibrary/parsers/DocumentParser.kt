@@ -52,7 +52,12 @@ interface DocumentParser {
 data class ParsedDocument(
     val content: String,
     val metadata: DocumentMetadata,
-    val structure: DocumentStructure? = null
+    val structure: DocumentStructure? = null,
+    val extractedHeadings: List<Heading> = emptyList(),
+    val extractedParagraphs: List<String> = emptyList(),
+    val extractedTables: List<TableInfo> = emptyList(),
+    val parserConfidence: Float = 1.0f,
+    val warnings: List<String> = emptyList()
 )
 
 /**

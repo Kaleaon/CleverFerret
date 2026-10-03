@@ -58,6 +58,7 @@ data class PodcastEpisodeEntity(
     // Download status
     val downloaded: Boolean = false,
     val localFilePath: String? = null,
+    val localFileChecksum: String? = null,
     val downloadProgress: Float = 0f, // 0.0 to 1.0
     val downloadedAt: Long? = null,
     val downloadError: String? = null,

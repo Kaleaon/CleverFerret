@@ -81,13 +81,13 @@ interface PodcastEpisodeDao {
     @Query("DELETE FROM podcast_episodes WHERE podcastId = :podcastId")
     suspend fun deleteEpisodesByPodcast(podcastId: Long)
 
-    @Query("UPDATE podcast_episodes SET downloaded = :downloaded, localFilePath = :filePath, downloadedAt = :timestamp WHERE id = :id")
-    suspend fun updateDownloadStatus(id: Long, downloaded: Boolean, filePath: String?, timestamp: Long?)
+    @Query("UPDATE podcast_episodes SET downloaded = :downloaded, localFilePath = :filePath, localFileChecksum = :checksum, downloadedAt = :timestamp WHERE id = :id")
+    suspend fun updateDownloadStatus(id: Long, downloaded: Boolean, filePath: String?, checksum: String?, timestamp: Long?)
 
-    @Query("UPDATE podcast_episodes SET downloaded = 1, localFilePath = :filePath, downloadedAt = :timestamp WHERE id = :id")
-    suspend fun setDownloadedWithFilePath(id: Long, filePath: String, timestamp: Long)
+    @Query("UPDATE podcast_episodes SET downloaded = 1, localFilePath = :filePath, localFileChecksum = :checksum, downloadedAt = :timestamp WHERE id = :id")
+    suspend fun setDownloadedWithFilePath(id: Long, filePath: String, checksum: String, timestamp: Long)
 
-    @Query("UPDATE podcast_episodes SET downloaded = 0, localFilePath = NULL, downloadedAt = NULL WHERE id = :id")
+    @Query("UPDATE podcast_episodes SET downloaded = 0, localFilePath = NULL, localFileChecksum = NULL, downloadedAt = NULL WHERE id = :id")
     suspend fun clearDownloadedState(id: Long)
 
     @Query("UPDATE podcast_episodes SET downloadProgress = :progress WHERE id = :id")
@@ -144,7 +144,12 @@ interface PodcastEpisodeDao {
     }
 
     @Transaction
-    suspend fun markDownloadCompletedAtomically(episodeId: Long, filePath: String, timestamp: Long = System.currentTimeMillis()) {
-        setDownloadedWithFilePath(episodeId, filePath, timestamp)
+    suspend fun markDownloadCompletedAtomically(
+        episodeId: Long,
+        filePath: String,
+        checksum: String,
+        timestamp: Long = System.currentTimeMillis()
+    ) {
+        setDownloadedWithFilePath(episodeId, filePath, checksum, timestamp)
     }
 }

@@ -2,6 +2,8 @@
 
 This guide defines the minimum GitHub protections needed to prevent accidental overwrite of `main`.
 
+Related postmortem and audit procedure: [CI Bypass Postmortem](./ci-bypass-postmortem.md).
+
 ## Protected branches
 
 Configure branch protection rules for:

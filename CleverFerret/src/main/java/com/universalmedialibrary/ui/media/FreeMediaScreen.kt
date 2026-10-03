@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -54,6 +55,7 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.services.media.free.FreeMediaDownloadOption
 import com.universalmedialibrary.services.media.free.FreeMediaItem
 import com.universalmedialibrary.services.media.free.FreeMediaType
+import com.universalmedialibrary.ui.media.components.MediaImageModels
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,10 +225,12 @@ private fun MediaCard(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AsyncImage(
-                model = uiModel.thumbnailUrl,
+                model = MediaImageModels.resolve(uiModel.thumbnailUrl),
                 contentDescription = "${item.title} thumbnail",
                 modifier = Modifier
-                    .size(width = 120.dp, height = 90.dp)
+                    .size(width = 120.dp, height = 90.dp),
+                placeholder = painterResource(MediaImageModels.PlaceholderRes),
+                error = painterResource(MediaImageModels.ErrorRes)
             )
 
             Column(

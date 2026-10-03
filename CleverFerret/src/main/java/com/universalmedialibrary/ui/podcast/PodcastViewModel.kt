@@ -283,7 +283,8 @@ class PodcastViewModel @Inject constructor(
                 // Update episode status in database
                 val updatedEpisode = episode.copy(
                     downloaded = false,
-                    localFilePath = null
+                    localFilePath = null,
+                    localFileChecksum = null
                 )
                 repository.updateEpisode(updatedEpisode)
                 // Episodes will be reloaded automatically via Flow

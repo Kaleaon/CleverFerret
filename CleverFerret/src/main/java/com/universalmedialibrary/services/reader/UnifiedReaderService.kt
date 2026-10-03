@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import com.universalmedialibrary.core.FormatRegistry
+import com.universalmedialibrary.parsers.ParsedDocumentNormalizer
 import com.universalmedialibrary.parsers.ParserFactory
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.epub.ReadiumAudiobookService
@@ -120,11 +121,17 @@ class UnifiedReaderService @Inject constructor(
             // 2. Document Parsers via ParserFactory
             if (ParserFactory.isSupported(file.name)) {
                 try {
-                    val parser = ParserFactory.getParser(filePath)
-                    val parsedDoc = parser.parse(filePath)
+                    val selection = ParserFactory.selectParser(file.name)
+                    val parsedDoc = ParsedDocumentNormalizer.normalize(
+                        document = selection.parser.parse(filePath),
+                        capability = selection.capability
+                    )
                     return@withContext ReaderType.Text(
                         filePath = filePath,
-                        content = parsedDoc.content
+                        content = parsedDoc.content,
+                        parserId = selection.capability.parserId,
+                        parserConfidence = parsedDoc.parserConfidence,
+                        warnings = parsedDoc.warnings
                     )
                 } catch (e: Exception) {
                     return@withContext ReaderType.Error("Failed to parse with ParserFactory: ${e.message}")
@@ -363,7 +370,10 @@ sealed class ReaderType {
     
     data class Text(
         val filePath: String,
-        val content: String
+        val content: String,
+        val parserId: String? = null,
+        val parserConfidence: Float = 1.0f,
+        val warnings: List<String> = emptyList()
     ) : ReaderType()
     
     data class Error(

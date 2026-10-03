@@ -20,6 +20,12 @@ class SearchHistoryRepository @Inject constructor(
     
     suspend fun insertSearch(search: SearchHistory): Long =
         searchHistoryDao.insertSearch(search)
+
+    suspend fun deleteSearch(historyId: Long) =
+        searchHistoryDao.deleteSearch(historyId)
+
+    suspend fun searchHistory(queryText: String, limit: Int = 10): List<SearchHistory> =
+        searchHistoryDao.searchHistory(queryText, limit)
     
     suspend fun clearSearchHistory() =
         searchHistoryDao.clearHistory()

@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/CODE_REVIEW.md
+---
+
 # CleverFerret UI/Design Review Package
 
 This package contains a comprehensive review of the CleverFerret Android app's user interface and design, along with applied fixes and recommendations for future improvements.
@@ -84,7 +89,7 @@ Git diff file containing all code changes.
 ### Short-term (Next Sprint)
 - Replace hardcoded dimensions
 - Add accessibility tests
-- Complete TODO features
+- Complete TODO features (tracked in [TODO Register](../planning/TODO_REGISTER.md#open-items))
 
 ### Long-term (Next Quarter)
 - Color contrast audit

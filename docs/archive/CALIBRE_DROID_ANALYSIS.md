@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/INDEX.md
+---
+
 # Calibre-Droid Code Analysis and Integration
 
 ## Repository Overview

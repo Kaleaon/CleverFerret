@@ -3,15 +3,13 @@ package com.universalmedialibrary.ui.podcast
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.DownloadSafetyChecker
+import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastDownloadManager
+import com.universalmedialibrary.services.podcast.PodcastEpisode
 import com.universalmedialibrary.services.podcast.PodcastSearchResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import com.universalmedialibrary.services.podcast.Podcast
-import com.universalmedialibrary.services.podcast.PodcastEpisode
-import com.universalmedialibrary.services.podcast.PodcastDownloadManager
-import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +17,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -98,18 +95,7 @@ class PodcastViewModelTest {
         coVerify(exactly = 0) { repository.subscribeToPodcast(any()) }
     }
 
-    private fun searchResult(id: String, feedUrl: String) = PodcastSearchResult(
-        id = id,
-        title = "Podcast $id",
-        description = null,
-        author = null,
-        imageUrl = null,
-        feedUrl = feedUrl,
-        category = null,
-        episodeCount = null,
-        lastEpisodeDate = null,
-        source = "test"
-    )
+    @Test
     fun `missing local file exposes re-download recovery action`() = runTest {
         val podcast = Podcast(id = 7L, title = "Podcast", feedUrl = "https://example.com/feed")
         val episode = PodcastEpisode(
@@ -127,12 +113,25 @@ class PodcastViewModelTest {
         every { repository.getEpisodesByPodcast(7L) } returns flowOf(listOf(episode))
         every { downloadManager.downloadProgress } returns MutableStateFlow(emptyMap())
 
-        val viewModel = PodcastViewModel(repository, downloadManager, downloadSafetyChecker)
+        val localViewModel = PodcastViewModel(repository, downloadManager, downloadSafetyChecker)
         advanceUntilIdle()
 
-        val recoveredEpisode = viewModel.uiState.value.allEpisodes.first { it.id == 17L }
+        val recoveredEpisode = localViewModel.uiState.value.allEpisodes.first { it.id == 17L }
         assertThat(recoveredEpisode.playbackReady).isFalse()
         assertThat(recoveredEpisode.playbackFailureReason).contains("Re-download")
         assertThat(recoveredEpisode.recoveryActionLabel).isEqualTo("Re-download")
     }
+
+    private fun searchResult(id: String, feedUrl: String) = PodcastSearchResult(
+        id = id,
+        title = "Podcast $id",
+        description = null,
+        author = null,
+        imageUrl = null,
+        feedUrl = feedUrl,
+        category = null,
+        episodeCount = null,
+        lastEpisodeDate = null,
+        source = "test"
+    )
 }

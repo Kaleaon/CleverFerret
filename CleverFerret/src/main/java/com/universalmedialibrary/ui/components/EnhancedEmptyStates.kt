@@ -116,6 +116,8 @@ fun EnhancedErrorState(
     message: String,
     onRetry: (() -> Unit)? = null,
     onDismiss: (() -> Unit)? = null,
+    retryLabel: String = "Retry",
+    dismissLabel: String = "Dismiss",
     modifier: Modifier = Modifier
 ) {
     var visible by remember { mutableStateOf(false) }
@@ -151,7 +153,7 @@ fun EnhancedErrorState(
                 ) {
                     Icon(
                         Icons.Default.ErrorOutline,
-                        contentDescription = "Media image",
+                        contentDescription = "Error icon",
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.error
                     )
@@ -182,7 +184,7 @@ fun EnhancedErrorState(
                                     contentColor = MaterialTheme.colorScheme.error
                                 )
                             ) {
-                                Text("Dismiss")
+                                Text(dismissLabel)
                             }
                         }
                         
@@ -197,7 +199,7 @@ fun EnhancedErrorState(
                             ) {
                                 Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Retry")
+                                Text(retryLabel)
                             }
                         }
                     }

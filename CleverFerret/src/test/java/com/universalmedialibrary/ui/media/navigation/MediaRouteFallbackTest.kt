@@ -33,4 +33,15 @@ class MediaRouteFallbackTest {
         assertTrue(resolved.startsWith("not-found?path="))
         assertTrue(resolved.contains("totally%2Funknown%2Froute"))
     }
+
+    @Test
+    fun sectionSeeAllDetail_contract_isStable() {
+        val section = HomeSectionRouteContract.BOOKS
+        val seeAllRoute = section.seeAllRoute()
+        val detailRoute = MediaRoutes.mediaDetailRoute(section.mediaTypeRoute, "42")
+
+        assertEquals("home/see-all/books", seeAllRoute)
+        assertEquals("detail/book/42", detailRoute)
+    }
+
 }

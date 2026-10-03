@@ -43,4 +43,17 @@ class AppDatabaseMigrationsTest {
 
         AppDatabaseMigrations.MIGRATION_22_23.migrate(database)
     }
+
+    @Test
+    fun `migration 44_45 creates staged_metadata_candidates table and alters metadata_common`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_44_45.migrate(database)
+
+        assertThat(executedSql.any { it.contains("staged_metadata_candidates") }).isTrue()
+        assertThat(executedSql.any { it.contains("index_staged_metadata_candidates_itemId") }).isTrue()
+        assertThat(executedSql.any { it.contains("ALTER TABLE `metadata_common` ADD COLUMN `isVerified`") }).isTrue()
+    }
 }

@@ -4,6 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.services.search.EnhancedSearchService
 import com.universalmedialibrary.services.search.SearchQuery
 import com.universalmedialibrary.services.search.SearchResult
+import com.universalmedialibrary.ui.media.components.MediaType
+import com.universalmedialibrary.ui.media.screens.SearchCategory
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -86,8 +88,27 @@ class SearchViewModelTest {
         advanceUntilIdle()
 
         assertThat(emittedMessages).isEmpty()
+        assertThat(viewModel.uiState.value.isSearching).isFalse()
 
         collector.cancel()
+    }
+
+    @Test
+    fun filterSelections_persistAcrossQueryUpdates() = runTest {
+        val searchService = mockk<EnhancedSearchService>()
+        coEvery { searchService.getSearchHistory(any()) } returns emptyList()
+        coEvery { searchService.search(any()) } returns emptyList()
+
+        val viewModel = SearchViewModel(searchService)
+
+        viewModel.setCategory(SearchCategory.BOOKS)
+        viewModel.setMediaType(MediaType.BOOK)
+        viewModel.updateQuery("harry")
+        advanceTimeBy(300)
+        advanceUntilIdle()
+
+        assertThat(viewModel.uiState.value.selectedCategory).isEqualTo(SearchCategory.BOOKS)
+        assertThat(viewModel.uiState.value.selectedMediaType).isEqualTo(MediaType.BOOK)
     }
 }
 

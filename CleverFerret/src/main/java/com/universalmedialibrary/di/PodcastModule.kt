@@ -8,7 +8,9 @@ import com.universalmedialibrary.data.local.dao.PodcastEpisodeDao
 import com.universalmedialibrary.data.local.dao.PodcastSubscriptionDao
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.podcast.PodcastDownloadManager
+import com.universalmedialibrary.services.podcast.PodcastDownloadTelemetry
 import com.universalmedialibrary.services.podcast.PodcastService
+import com.universalmedialibrary.services.podcast.LogcatPodcastDownloadTelemetry
 import com.universalmedialibrary.utils.FileNameSanitizer
 import dagger.Module
 import dagger.Provides
@@ -74,8 +76,15 @@ object PodcastModule {
     fun providePodcastDownloadManager(
         @ApplicationContext context: Context,
         episodeDao: PodcastEpisodeDao,
-        fileNameSanitizer: FileNameSanitizer
+        fileNameSanitizer: FileNameSanitizer,
+        telemetry: PodcastDownloadTelemetry
     ): PodcastDownloadManager {
-        return PodcastDownloadManager(context, episodeDao, fileNameSanitizer)
+        return PodcastDownloadManager(context, episodeDao, fileNameSanitizer, telemetry)
+    }
+
+    @Provides
+    @Singleton
+    fun providePodcastDownloadTelemetry(): PodcastDownloadTelemetry {
+        return LogcatPodcastDownloadTelemetry()
     }
 }

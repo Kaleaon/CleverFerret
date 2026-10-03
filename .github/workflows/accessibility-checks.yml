@@ -42,6 +42,13 @@ jobs:
       - name: Enforce no accessibility lint issues
         run: python3 scripts/ci/check_accessibility_lint.py CleverFerret/build/reports/lint-results-debug.xml
 
+
+      - name: Enforce Compose semantic token usage in feature UI
+        run: python3 scripts/ci/check_compose_semantic_tokens.py CleverFerretV2/feature
+
+      - name: Validate V2 accessibility/theme contract tests (release-blocking)
+        run: ./gradlew -p CleverFerretV2 :core:ui:test --stacktrace
+
       - name: Run contrast + navigation contract tests
         run: |
           ./gradlew :CleverFerret:testDebugUnitTest \
