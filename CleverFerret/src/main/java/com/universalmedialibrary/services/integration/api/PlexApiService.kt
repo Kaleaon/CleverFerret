@@ -11,28 +11,28 @@ import retrofit2.http.Query
  * Documentation: https://developer.plex.tv/
  */
 interface PlexApiService {
-    
+
     @GET("/")
     suspend fun getServerInfo(): PlexServerInfoResponse
-    
+
     @GET("library/sections")
     suspend fun getLibrarySections(): PlexLibrarySectionsResponse
-    
+
     @GET("library/sections/{key}/all")
     suspend fun getLibraryItems(
         @Path("key") sectionKey: String,
         @Query("X-Plex-Container-Start") start: Int = 0,
         @Query("X-Plex-Container-Size") size: Int = 50
     ): PlexLibraryItemsResponse
-    
+
     @GET("library/metadata/{key}")
     suspend fun getItemMetadata(
         @Path("key") ratingKey: String
     ): PlexMetadataResponse
-    
+
     @GET("library/recentlyAdded")
     suspend fun getRecentlyAdded(): PlexLibraryItemsResponse
-    
+
     @GET("library/onDeck")
     suspend fun getOnDeck(): PlexLibraryItemsResponse
 }

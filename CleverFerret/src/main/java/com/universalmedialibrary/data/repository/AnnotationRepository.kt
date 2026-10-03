@@ -15,25 +15,25 @@ class AnnotationRepository @Inject constructor(
 ) {
     fun getAnnotationsForBook(itemId: Long): Flow<List<TextAnnotation>> =
         annotationDao.getAnnotationsForBook(itemId)
-    
+
     fun getAnnotationsForChapter(itemId: Long, chapterIndex: Int): Flow<List<TextAnnotation>> =
         annotationDao.getAnnotationsForChapter(itemId, chapterIndex)
-    
+
     fun getAnnotationsByType(type: String): Flow<List<TextAnnotation>> =
         annotationDao.getAnnotationsByType(type)
-    
+
     fun getAnnotationsWithNotes(): Flow<List<TextAnnotation>> =
         annotationDao.getAnnotationsWithNotes()
-    
+
     suspend fun insertAnnotation(annotation: TextAnnotation): Long =
         annotationDao.insertAnnotation(annotation)
-    
+
     suspend fun updateAnnotation(annotation: TextAnnotation) =
         annotationDao.updateAnnotation(annotation)
-    
+
     suspend fun deleteAnnotation(annotationId: Long) =
         annotationDao.deleteAnnotation(annotationId)
-    
+
     suspend fun deleteAllAnnotationsForBook(itemId: Long) =
         annotationDao.deleteAllAnnotationsForBook(itemId)
 }

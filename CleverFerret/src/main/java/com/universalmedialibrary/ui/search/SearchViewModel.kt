@@ -30,7 +30,7 @@ class SearchViewModel @Inject constructor(
     init {
         // Load filter options
         loadFilterOptions()
-        
+
         // Setup search with debounce
         viewModelScope.launch {
             _searchQuery
@@ -97,7 +97,7 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isSearching = true, error = null)
-                
+
                 val results = searchRepository.searchMedia(
                     query = query,
                     mediaTypes = _filters.value.mediaTypes,

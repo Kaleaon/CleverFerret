@@ -49,7 +49,7 @@ internal fun LibraryListItem(
         ) {
             if (item.imageUrl != null) {
                 AsyncImage(
-                    
+
                     model = item.imageUrl,
                     contentDescription = "Media image",
                     modifier = Modifier.fillMaxSize(),
@@ -68,7 +68,7 @@ internal fun LibraryListItem(
                     )
                 }
             }
-            
+
             // Progress overlay
             if (item.progress > 0) {
                 Box(
@@ -89,9 +89,9 @@ internal fun LibraryListItem(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         // Info
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -102,7 +102,7 @@ internal fun LibraryListItem(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
             )
-            
+
             item.subtitle?.let { subtitle ->
                 Text(
                     text = subtitle,
@@ -112,9 +112,9 @@ internal fun LibraryListItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.XS))
-            
+
             // Metadata row
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
@@ -136,7 +136,7 @@ internal fun LibraryListItem(
                         )
                     }
                 }
-                
+
                 item.year?.let { year ->
                     Text(
                         text = year.toString(),
@@ -144,7 +144,7 @@ internal fun LibraryListItem(
                         color = MediaColors.TextTertiary
                     )
                 }
-                
+
                 item.duration?.let { duration ->
                     Text(
                         text = duration,
@@ -154,7 +154,7 @@ internal fun LibraryListItem(
                 }
             }
         }
-        
+
         // Action button
         IconButton(onClick = onClick) {
             Icon(

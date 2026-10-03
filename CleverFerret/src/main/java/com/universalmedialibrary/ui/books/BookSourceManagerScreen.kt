@@ -154,12 +154,12 @@ fun BookSourceItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            
+
             Switch(
                 checked = source.enabled,
                 onCheckedChange = { onToggle() }
             )
-            
+
             IconButton(onClick = onDelete) {
                 Icon(Icons.Default.Delete, "Delete")
             }

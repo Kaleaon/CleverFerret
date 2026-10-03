@@ -35,23 +35,23 @@ internal val MIGRATION_27_28: Migration = object : Migration(27, 28) {
                 has_updates INTEGER NOT NULL DEFAULT 0
             )
         """.trimIndent())
-        
+
         // Create indices for fanfiction_stories
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_fanfiction_stories_site_name 
+            CREATE INDEX IF NOT EXISTS index_fanfiction_stories_site_name
             ON fanfiction_stories(site_name)
         """.trimIndent())
-        
+
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_fanfiction_stories_completion_status 
+            CREATE INDEX IF NOT EXISTS index_fanfiction_stories_completion_status
             ON fanfiction_stories(completion_status)
         """.trimIndent())
-        
+
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_fanfiction_stories_date_updated 
+            CREATE INDEX IF NOT EXISTS index_fanfiction_stories_date_updated
             ON fanfiction_stories(date_updated)
         """.trimIndent())
-        
+
         // Create audiobooks table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS audiobooks (
@@ -78,27 +78,26 @@ internal val MIGRATION_27_28: Migration = object : Migration(27, 28) {
                 lastPlayed INTEGER
             )
         """.trimIndent())
-        
+
         // Create indices for audiobooks
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_audiobooks_author 
+            CREATE INDEX IF NOT EXISTS index_audiobooks_author
             ON audiobooks(author)
         """.trimIndent())
-        
+
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_audiobooks_genre 
+            CREATE INDEX IF NOT EXISTS index_audiobooks_genre
             ON audiobooks(genre)
         """.trimIndent())
-        
+
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_audiobooks_dateAdded 
+            CREATE INDEX IF NOT EXISTS index_audiobooks_dateAdded
             ON audiobooks(dateAdded)
         """.trimIndent())
-        
+
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_audiobooks_isFinished 
+            CREATE INDEX IF NOT EXISTS index_audiobooks_isFinished
             ON audiobooks(isFinished)
         """.trimIndent())
     }
 }
-

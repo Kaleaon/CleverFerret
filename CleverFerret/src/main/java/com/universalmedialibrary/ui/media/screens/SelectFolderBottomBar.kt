@@ -47,7 +47,7 @@ internal fun SelectFolderBottomBar(
                 Spacer(Modifier.width(MediaSpacing.SM))
                 Text("Add as Library")
             }
-            
+
             Button(
                 onClick = onSelect,
                 modifier = Modifier.weight(1f),

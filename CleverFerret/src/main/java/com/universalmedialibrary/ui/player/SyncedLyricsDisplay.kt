@@ -33,7 +33,7 @@ import javax.inject.Inject
 
 /**
  * Synced Lyrics Display Component
- * 
+ *
  * Displays time-synced lyrics with karaoke-style highlighting
  * Features:
  * - Auto-scrolling to current line
@@ -51,7 +51,7 @@ fun SyncedLyricsDisplay(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
-    
+
     LaunchedEffect(track?.id) {
         if (track != null) {
             viewModel.loadLyrics(track)
@@ -59,7 +59,7 @@ fun SyncedLyricsDisplay(
             viewModel.clearLyrics()
         }
     }
-    
+
     LaunchedEffect(currentPositionMs, uiState.lyrics, uiState.isSynced) {
         val lyrics = uiState.lyrics
         if (uiState.isSynced && !lyrics.isNullOrEmpty()) {
@@ -67,7 +67,7 @@ fun SyncedLyricsDisplay(
             val currentIndex = lyrics.indexOfLast {
                 it.timestampMs <= currentPositionMs
             }.coerceAtLeast(0)
-            
+
             // Auto-scroll to current line (keep it centered)
             if (currentIndex >= 0) {
                 listState.animateScrollToItem(
@@ -77,7 +77,7 @@ fun SyncedLyricsDisplay(
             }
         }
     }
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -103,7 +103,7 @@ fun SyncedLyricsDisplay(
                     }
                 }
             }
-            
+
             uiState.error != null -> {
                 // Error state
                 Box(
@@ -165,7 +165,7 @@ fun SyncedLyricsDisplay(
                     }
                 }
             }
-            
+
             else -> {
                 // Lyrics display
                 val lyrics = uiState.lyrics ?: emptyList()
@@ -258,7 +258,7 @@ data class LyricsUiState(
 class SyncedLyricsViewModel @Inject constructor(
     private val lyricsService: LyricsService
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(LyricsUiState())
     val uiState: StateFlow<LyricsUiState> = _uiState.asStateFlow()
 

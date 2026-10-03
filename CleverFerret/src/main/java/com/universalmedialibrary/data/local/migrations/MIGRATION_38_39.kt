@@ -302,4 +302,3 @@ internal val MIGRATION_38_39: Migration = object : Migration(38, 39) {
         database.execSQL("CREATE INDEX IF NOT EXISTS index_sync_statistics_timestamp ON sync_statistics(timestamp)")
     }
 }
-

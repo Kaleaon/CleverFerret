@@ -64,7 +64,7 @@ fun GoToPageDialog(
     onDismiss: () -> Unit
 ) {
     var pageInput by remember { mutableStateOf(currentPage.toString()) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Go to Page") },
@@ -74,7 +74,7 @@ fun GoToPageDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     value = pageInput,
-                    onValueChange = { 
+                    onValueChange = {
                         if (it.all { char -> char.isDigit() }) {
                             pageInput = it
                         }

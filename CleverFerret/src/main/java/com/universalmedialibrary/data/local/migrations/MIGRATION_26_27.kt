@@ -26,12 +26,11 @@ internal val MIGRATION_26_27: Migration = object : Migration(26, 27) {
                 dateAdded INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         // Create unique index for host and port combination
         database.execSQL("""
-            CREATE UNIQUE INDEX IF NOT EXISTS index_yaacc_servers_host_port 
+            CREATE UNIQUE INDEX IF NOT EXISTS index_yaacc_servers_host_port
             ON yaacc_servers (host, port)
         """.trimIndent())
     }
 }
-

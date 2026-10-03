@@ -22,7 +22,7 @@ import com.universalmedialibrary.services.cloud.*
 
 /**
  * Cloud Storage Screen for CleverFerret
- * 
+ *
  * Provides UI for managing cloud storage providers:
  * - Google Drive integration
  * - Dropbox integration
@@ -37,7 +37,7 @@ fun CloudStorageScreen(
     viewModel: CloudStorageViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     LaunchedEffect(Unit) {
         viewModel.initialize()
     }
@@ -78,18 +78,18 @@ fun CloudStorageScreen(
                 progress = uiState.syncProgress,
                 results = uiState.lastSyncResults
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Cloud Providers
             Text(
                 text = "Cloud Providers",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -137,7 +137,7 @@ private fun SyncStatusCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Icon(
                     imageVector = when (status) {
                         SyncStatus.IDLE -> Icons.Default.Cloud
@@ -153,7 +153,7 @@ private fun SyncStatusCard(
                     }
                 )
             }
-            
+
             if (status == SyncStatus.SYNCING) {
                 Spacer(modifier = Modifier.height(8.dp))
                 LinearProgressIndicator(
@@ -161,7 +161,7 @@ private fun SyncStatusCard(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            
+
             if (results.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 results.forEach { (provider, result) ->
@@ -186,7 +186,7 @@ private fun SyncResultRow(
             text = getProviderName(provider),
             style = MaterialTheme.typography.bodySmall
         )
-        
+
         if (result.success) {
             Text(
                 text = "↑${result.uploadedCount} ↓${result.downloadedCount}",
@@ -237,16 +237,16 @@ private fun CloudProviderCard(
                         contentDescription = "Media image",
                         modifier = Modifier.size(24.dp)
                     )
-                    
+
                     Spacer(modifier = Modifier.width(12.dp))
-                    
+
                     Column {
                         Text(
                             text = getProviderName(provider),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        
+
                         Text(
                             text = if (isAuthenticated) "Connected" else "Not connected",
                             style = MaterialTheme.typography.bodySmall,
@@ -254,16 +254,16 @@ private fun CloudProviderCard(
                         )
                     }
                 }
-                
+
                 Switch(
                     checked = isEnabled,
                     onCheckedChange = onToggle
                 )
             }
-            
+
             if (isAuthenticated && storageUsage != null) {
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 LinearProgressIndicator(
                     progress = storageUsage.usagePercentage / 100f,
                     modifier = Modifier
@@ -271,17 +271,17 @@ private fun CloudProviderCard(
                         .height(4.dp)
                         .clip(RoundedCornerShape(2.dp))
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 Text(
                     text = "${formatFileSize(storageUsage.used)} used of ${formatFileSize(storageUsage.limit)}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -300,7 +300,7 @@ private fun CloudProviderCard(
                         Text("Manage")
                     }
                 }
-                
+
                 Button(
                     onClick = { /* Sync individual provider */ },
                     modifier = Modifier.weight(1f)

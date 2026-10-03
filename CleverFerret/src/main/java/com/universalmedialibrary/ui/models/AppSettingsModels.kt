@@ -5,7 +5,7 @@ import com.universalmedialibrary.ui.theme.UnifiedThemePalette
 
 /**
  * Comprehensive Settings Models for CleverFerret
- * 
+ *
  * These models represent all configurable app settings that can be
  * persisted using DataStore or Room database.
  */

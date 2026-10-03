@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 /**
  * Helper service for filtering content based on parental controls
- * 
+ *
  * Provides utilities to:
  * - Filter lists of media items
  * - Check if content should be hidden
@@ -27,7 +27,7 @@ class ContentFilterHelper @Inject constructor(
      */
     suspend fun filterMediaItems(items: List<MediaItem>): List<MediaItem> {
         val state = parentalControlsSettings.currentState()
-        
+
         if (!state.enabled) {
             return items // No filtering
         }
@@ -48,7 +48,7 @@ class ContentFilterHelper @Inject constructor(
     fun filterMediaItemsFlow(itemsFlow: Flow<List<MediaItem>>): Flow<List<MediaItem>> {
         return itemsFlow.map { items ->
             val state = parentalControlsSettings.currentState()
-            
+
             if (!state.enabled) {
                 items
             } else {
@@ -68,7 +68,7 @@ class ContentFilterHelper @Inject constructor(
      */
     suspend fun filterStories(stories: List<WebFictionStory>): List<WebFictionStory> {
         val state = parentalControlsSettings.currentState()
-        
+
         if (!state.enabled) {
             return stories
         }
@@ -137,7 +137,7 @@ class ContentFilterHelper @Inject constructor(
         tags: Collection<String> = emptyList()
     ): ContentStatus {
         val state = parentalControlsSettings.currentState()
-        
+
         if (!state.enabled) {
             return ContentStatus.Allowed
         }
@@ -164,13 +164,13 @@ class ContentFilterHelper @Inject constructor(
 enum class ContentStatus {
     /** Content is fully accessible */
     Allowed,
-    
+
     /** Content is blocked but visible (show blocked message) */
     Blocked,
-    
+
     /** Content requires PIN to access (show lock icon) */
     Locked,
-    
+
     /** Content is completely hidden (don't show at all) */
     Hidden
 }

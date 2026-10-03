@@ -49,7 +49,7 @@ internal fun DownloadedEpisodeItem(
         ) {
             if (episode.showArtworkUrl != null) {
                 AsyncImage(
-                    
+
                     model = episode.showArtworkUrl,
                     contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
@@ -57,9 +57,9 @@ internal fun DownloadedEpisodeItem(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = episode.title,
@@ -68,9 +68,9 @@ internal fun DownloadedEpisodeItem(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            
+
             Spacer(modifier = Modifier.height(2.dp))
-            
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
@@ -94,7 +94,7 @@ internal fun DownloadedEpisodeItem(
                     color = MediaColors.TextTertiary
                 )
             }
-            
+
             if (episode.progress > 0) {
                 Spacer(modifier = Modifier.height(MediaSpacing.XS))
                 LinearProgressIndicator(
@@ -108,7 +108,7 @@ internal fun DownloadedEpisodeItem(
                 )
             }
         }
-        
+
         IconButton(onClick = onPlay) {
             Surface(
                 shape = CircleShape,

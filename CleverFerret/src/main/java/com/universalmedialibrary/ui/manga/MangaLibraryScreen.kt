@@ -28,7 +28,7 @@ import com.universalmedialibrary.services.manga.library.LibrarySortOrder
 
 /**
  * Manga Library Screen
- * 
+ *
  * User's manga collection with categories, favorites, and reading progress
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,11 +42,11 @@ fun MangaLibraryScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showSortMenu by remember { mutableStateOf(false) }
     var showCategoryDialog by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Column {
                         Text("Library")
                         if (uiState.selectedCategory != null) {
@@ -64,7 +64,7 @@ fun MangaLibraryScreen(
                     IconButton(onClick = onExplore) {
                         Icon(Icons.Default.Explore, contentDescription = "Explore")
                     }
-                    
+
                     DropdownMenu(
                         expanded = showSortMenu,
                         onDismissRequest = { showSortMenu = false }
@@ -99,8 +99,8 @@ fun MangaLibraryScreen(
             // Category tabs
             if (uiState.categories.isNotEmpty()) {
                 ScrollableTabRow(
-                    selectedTabIndex = uiState.categories.indexOfFirst { 
-                        it.id == uiState.selectedCategory?.id 
+                    selectedTabIndex = uiState.categories.indexOfFirst {
+                        it.id == uiState.selectedCategory?.id
                     }.coerceAtLeast(0),
                     edgePadding = 16.dp
                 ) {
@@ -110,7 +110,7 @@ fun MangaLibraryScreen(
                         onClick = { viewModel.selectCategory(null) },
                         text = { Text("All (${uiState.library.size})") }
                     )
-                    
+
                     // Category tabs
                     uiState.categories.forEach { category ->
                         Tab(
@@ -121,7 +121,7 @@ fun MangaLibraryScreen(
                     }
                 }
             }
-            
+
             // Library content
             when {
                 uiState.isLoading -> {
@@ -132,11 +132,11 @@ fun MangaLibraryScreen(
                         CircularProgressIndicator()
                     }
                 }
-                
+
                 uiState.filteredLibrary.isEmpty() -> {
                     EmptyLibraryState(onExplore = onExplore)
                 }
-                
+
                 else -> {
                     LibraryGrid(
                         manga = uiState.filteredLibrary,
@@ -192,13 +192,13 @@ private fun LibraryMangaCard(
                     .aspectRatio(0.7f)
             ) {
                 AsyncImage(
-                    
+
                     model = manga.coverUrl,
                     contentDescription = manga.title,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                
+
                 // Unread badge
                 if (manga.unreadCount > 0) {
                     Surface(
@@ -216,7 +216,7 @@ private fun LibraryMangaCard(
                         )
                     }
                 }
-                
+
                 // Favorite indicator
                 if (manga.isFavorite) {
                     Icon(
@@ -229,7 +229,7 @@ private fun LibraryMangaCard(
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
-                
+
                 // Progress indicator
                 if (manga.chaptersRead > 0 && manga.totalChapters > 0) {
                     LinearProgressIndicator(
@@ -241,7 +241,7 @@ private fun LibraryMangaCard(
                     )
                 }
             }
-            
+
             Text(
                 text = manga.title,
                 modifier = Modifier.padding(8.dp),
@@ -271,22 +271,22 @@ private fun EmptyLibraryState(
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Text(
             text = "Your library is empty",
             style = MaterialTheme.typography.titleMedium
         )
-        
+
         Text(
             text = "Add manga from the explore tab to start reading",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Button(onClick = onExplore) {
             Icon(Icons.Default.Explore, contentDescription = "Explore")
             Spacer(modifier = Modifier.width(8.dp))

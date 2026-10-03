@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * Enhanced Theme System for CleverFerret
- * 
+ *
  * Combines existing metallic effects with comprehensive Material You support
  * and media-type-specific colors.
  */
@@ -42,7 +42,7 @@ object CleverFerretColors {
     val MagazineIndigo = Color(0xFF3F51B5)
     val NewsAmber = Color(0xFFFFC107)
     val FanfictionPink = Color(0xFFE91E63)
-    
+
     // Metallic Theme Colors
     val Silver = Color(0xFFC0C0C0)
     val Gold = Color(0xFFD4AF37)
@@ -54,7 +54,7 @@ object CleverFerretColors {
     val Titanium = Color(0xFF878681)
     val Chrome = Color(0xFFE8E8E8)
     val Cobalt = Color(0xFF0047AB)
-    
+
     // Metallic Highlights (shimmer effects)
     val SilverHighlight = Color(0xFFF5F5F5)
     val GoldHighlight = Color(0xFFFFD700)

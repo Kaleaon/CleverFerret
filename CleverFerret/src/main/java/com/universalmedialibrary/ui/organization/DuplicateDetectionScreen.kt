@@ -26,13 +26,13 @@ fun DuplicateDetectionScreen(
     val duplicateGroups by viewModel.duplicateGroups.collectAsState()
     val isScanning by viewModel.isScanning.collectAsState()
     val threshold by viewModel.duplicateThreshold.collectAsState()
-    
+
     var showThresholdDialog by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Column {
                         Text("Duplicate Detection")
                         if (duplicateGroups.isNotEmpty()) {
@@ -76,7 +76,7 @@ fun DuplicateDetectionScreen(
                         Text("Scanning for duplicates...")
                     }
                 }
-                
+
                 duplicateGroups.isEmpty() -> {
                     EmptyState(
                         onScanClick = { viewModel.scanForDuplicates() }
@@ -86,7 +86,7 @@ fun DuplicateDetectionScreen(
                     DuplicateList(
                         duplicateGroups = duplicateGroups,
                         onDeleteBook = { viewModel.deleteMediaItem(it) },
-                        onKeepBook = { bookId, groupIndex -> 
+                        onKeepBook = { bookId, groupIndex ->
                             viewModel.keepOneDeleteOthers(bookId, groupIndex)
                         }
                     )
@@ -94,7 +94,7 @@ fun DuplicateDetectionScreen(
             }
         }
     }
-    
+
     if (showThresholdDialog) {
         ThresholdDialog(
             currentThreshold = threshold,
@@ -125,25 +125,25 @@ private fun EmptyState(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(Modifier.height(16.dp))
-        
+
         Text(
             "No scan performed yet",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(Modifier.height(8.dp))
-        
+
         Text(
             "Scan your library to find duplicate books",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(Modifier.height(24.dp))
-        
+
         Button(onClick = onScanClick) {
             Icon(PhosphorIcons.MagnifyingGlass, "Scan")
             Spacer(Modifier.width(8.dp))
@@ -185,7 +185,7 @@ private fun DuplicateGroupCard(
     onKeepBook: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    
+
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -210,7 +210,7 @@ private fun DuplicateGroupCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
                         if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -218,10 +218,10 @@ private fun DuplicateGroupCard(
                     )
                 }
             }
-            
+
             if (expanded) {
                 Spacer(Modifier.height(16.dp))
-                
+
                 group.items.forEachIndexed { index, item ->
                     DuplicateBookItem(
                         item = item,
@@ -230,7 +230,7 @@ private fun DuplicateGroupCard(
                         onDelete = { onDeleteBook(item.itemId.toString()) },
                         onKeep = { onKeepBook(item.itemId.toString()) }
                     )
-                    
+
                     if (index != group.items.lastIndex) {
                         Spacer(Modifier.height(12.dp))
                         HorizontalDivider()
@@ -263,7 +263,7 @@ private fun DuplicateBookItem(
         ) {
             if (item.thumbnailPath != null) {
                 AsyncImage(
-                    
+
                     model = item.thumbnailPath,
                     contentDescription = "Cover",
                     modifier = Modifier.fillMaxSize()
@@ -282,7 +282,7 @@ private fun DuplicateBookItem(
                 }
             }
         }
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 item.title,
@@ -290,7 +290,7 @@ private fun DuplicateBookItem(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            
+
             if (item.author != null) {
                 Text(
                     item.author!!,
@@ -298,13 +298,13 @@ private fun DuplicateBookItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Text(
                 reasons.joinToString(" • "),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary
             )
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(top = 8.dp)
@@ -317,7 +317,7 @@ private fun DuplicateBookItem(
                     Spacer(Modifier.width(4.dp))
                     Text("Keep Only This")
                 }
-                
+
                 OutlinedButton(
                     onClick = onDelete,
                     modifier = Modifier.weight(1f),
@@ -341,7 +341,7 @@ private fun ThresholdDialog(
     onConfirm: (Float) -> Unit
 ) {
     var threshold by remember { mutableStateOf(currentThreshold) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Similarity Threshold") },
@@ -351,21 +351,21 @@ private fun ThresholdDialog(
                     "Adjust how similar books must be to be considered duplicates",
                     style = MaterialTheme.typography.bodyMedium
                 )
-                
+
                 Spacer(Modifier.height(16.dp))
-                
+
                 Text(
                     "${(threshold * 100).toInt()}% similar",
                     style = MaterialTheme.typography.labelLarge
                 )
-                
+
                 Slider(
                     value = threshold,
                     onValueChange = { threshold = it },
                     valueRange = 0.5f..1.0f,
                     steps = 9
                 )
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween

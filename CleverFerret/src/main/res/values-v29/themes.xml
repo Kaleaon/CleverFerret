@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 
+    <!--
         CleverFerret Material 3 Theme (API 29+)
         Uses NoActionBar since we use Compose TopAppBar for navigation.
         This theme extends AppCompat for consistent behavior with Compose.
@@ -20,7 +20,7 @@
         <!-- Background colors -->
         <item name="android:colorBackground">@color/background</item>
         <item name="android:windowBackground">@color/background</item>
-        
+
         <!-- Edge-to-edge support for API 29+ -->
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>

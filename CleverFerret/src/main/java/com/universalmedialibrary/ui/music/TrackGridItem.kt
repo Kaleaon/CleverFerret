@@ -46,7 +46,7 @@ internal fun TrackGridItem(track: Track, onClick: () -> Unit) {
                 val albumArt = track.albumArtUri
                 if (albumArt != null) {
                     AsyncImage(
-                    
+
                         model = albumArt,
                         contentDescription = "${track.displayAlbum} artwork",
                         modifier = Modifier.fillMaxSize(),

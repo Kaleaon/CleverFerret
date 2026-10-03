@@ -18,10 +18,10 @@ class CharacterVoiceService @Inject constructor(
     private val geminiTtsService: GeminiTTSService,
     private val ttsProviderManager: TtsProviderManager
 ) {
-    
+
     // Cache of character voices
     private val characterVoices = mutableMapOf<String, CharacterVoiceProfile>()
-    
+
     /**
      * Generate a voice profile for a character using AI
      */
@@ -32,14 +32,14 @@ class CharacterVoiceService @Inject constructor(
         try {
             // Check cache first
             characterVoices[character.id]?.let { return@withContext it }
-            
+
             // Use Gemini TTS to generate voice profile
             val geminiProfile = geminiTtsService.generateVoiceProfile(
                 characterName = character.name,
                 characterDescription = character.description,
                 sampleDialogue = character.sampleDialogue
             )
-            
+
             // Convert to our CharacterVoiceProfile format
             val voiceProfile = CharacterVoiceProfile(
                 characterId = character.id,
@@ -54,15 +54,15 @@ class CharacterVoiceService @Inject constructor(
                 description = geminiProfile.description,
                 aiGenerated = true
             )
-            
+
             // Apply genre-specific adjustments
             val adjustedProfile = applyGenreAdjustments(voiceProfile, bookGenre)
-            
+
             // Cache the profile
             characterVoices[character.id] = adjustedProfile
-            
+
             adjustedProfile
-            
+
         } catch (e: Exception) {
             // Fallback to default profile
             val defaultProfile = createDefaultVoiceProfile(character, bookGenre)
@@ -70,21 +70,21 @@ class CharacterVoiceService @Inject constructor(
             defaultProfile
         }
     }
-    
+
     /**
      * Get a cached voice profile for a character
      */
     fun getVoiceProfile(characterId: String): CharacterVoiceProfile? {
         return characterVoices[characterId]
     }
-    
+
     /**
      * Update a voice profile
      */
     fun updateVoiceProfile(profile: CharacterVoiceProfile) {
         characterVoices[profile.characterId] = profile
     }
-    
+
     /**
      * Create narrator voice profile
      */
@@ -102,7 +102,7 @@ class CharacterVoiceService @Inject constructor(
             description = "Professional narrator voice"
         )
     }
-    
+
     /**
      * Apply genre-specific voice adjustments
      */
@@ -115,28 +115,28 @@ class CharacterVoiceService @Inject constructor(
                 // Fantasy often has more dramatic voices
                 tone = if (profile.tone == VoiceTone.NEUTRAL) VoiceTone.WARM else profile.tone
             )
-            
+
             BookGenre.SCIENCE_FICTION -> profile.copy(
                 // Sci-fi can have slightly more mechanical delivery
                 emotion = if (profile.emotion == EmotionStyle.VARIABLE) EmotionStyle.CALM else profile.emotion
             )
-            
+
             BookGenre.HORROR -> profile.copy(
                 // Horror often has more tense delivery
                 emotion = EmotionStyle.ANXIOUS,
                 speed = profile.speed * 0.95f // Slightly slower for tension
             )
-            
+
             BookGenre.ROMANCE -> profile.copy(
                 // Romance often has warmer tones
                 tone = VoiceTone.WARM,
                 emotion = EmotionStyle.CHEERFUL
             )
-            
+
             else -> profile
         }
     }
-    
+
     /**
      * Create a default voice profile based on character traits
      */
@@ -146,25 +146,25 @@ class CharacterVoiceService @Inject constructor(
     ): CharacterVoiceProfile {
         // Basic heuristics based on role and name
         val (gender, age) = inferCharacterTraits(character)
-        
+
         val pitch = when (gender) {
             VoiceGender.MALE -> 0.9f
             VoiceGender.FEMALE -> 1.1f
             else -> 1.0f
         }
-        
+
         val voiceType = when (gender) {
             VoiceGender.MALE -> VoiceType.BASS
             VoiceGender.FEMALE -> VoiceType.ALTO
             else -> VoiceType.MEDIUM
         }
-        
+
         val tone = when (character.role) {
             CharacterRole.PROTAGONIST -> VoiceTone.WARM
             CharacterRole.ANTAGONIST -> VoiceTone.COLD
             else -> VoiceTone.NEUTRAL
         }
-        
+
         return CharacterVoiceProfile(
             characterId = character.id,
             characterName = character.name,
@@ -178,21 +178,21 @@ class CharacterVoiceService @Inject constructor(
             aiGenerated = false
         )
     }
-    
+
     /**
      * Infer character traits from name and description
      */
     private fun inferCharacterTraits(character: BookCharacter): Pair<VoiceGender, VoiceAge> {
         val lowerName = character.name.lowercase()
         val lowerDesc = character.description.lowercase()
-        
+
         // Gender inference (basic heuristics)
         val gender = when {
             lowerDesc.contains("he ") || lowerDesc.contains(" him ") -> VoiceGender.MALE
             lowerDesc.contains("she ") || lowerDesc.contains(" her ") -> VoiceGender.FEMALE
             else -> VoiceGender.NEUTRAL
         }
-        
+
         // Age inference
         val age = when {
             lowerDesc.contains("child") || lowerDesc.contains("kid") -> VoiceAge.CHILD
@@ -201,10 +201,10 @@ class CharacterVoiceService @Inject constructor(
             lowerDesc.contains("middle-aged") -> VoiceAge.MIDDLE_AGED
             else -> VoiceAge.ADULT
         }
-        
+
         return Pair(gender, age)
     }
-    
+
     /**
      * Infer gender from name and description
      */
@@ -216,7 +216,7 @@ class CharacterVoiceService @Inject constructor(
             else -> VoiceGender.NEUTRAL
         }
     }
-    
+
     /**
      * Infer age from description
      */
@@ -230,7 +230,7 @@ class CharacterVoiceService @Inject constructor(
             else -> VoiceAge.ADULT
         }
     }
-    
+
     /**
      * Map Gemini tone to our VoiceTone enum
      */
@@ -246,7 +246,7 @@ class CharacterVoiceService @Inject constructor(
             else -> VoiceTone.NEUTRAL
         }
     }
-    
+
     /**
      * Map Gemini emotion to our EmotionStyle enum
      */
@@ -263,7 +263,7 @@ class CharacterVoiceService @Inject constructor(
             else -> EmotionStyle.CALM
         }
     }
-    
+
     /**
      * Map Gemini voice type to our VoiceType enum
      */
@@ -278,42 +278,42 @@ class CharacterVoiceService @Inject constructor(
             else -> VoiceType.MEDIUM
         }
     }
-    
+
     /**
      * Clear cached voices
      */
     fun clearCache() {
         characterVoices.clear()
     }
-    
+
     /**
      * Get all cached voice profiles
      */
     fun getAllVoiceProfiles(): List<CharacterVoiceProfile> {
         return characterVoices.values.toList()
     }
-    
+
     /**
      * Get available TTS providers
      */
     fun getAvailableProviders(): List<TtsProvider> {
         return TtsProvider.values().toList()
     }
-    
+
     /**
      * Get the current TTS provider
      */
     suspend fun getCurrentProvider(): TtsProvider = withContext(Dispatchers.IO) {
         return@withContext TtsProvider.GEMINI // Default to Gemini for audiobook maker
     }
-    
+
     /**
      * Set the TTS provider for audiobook generation
      */
     suspend fun setTtsProvider(provider: TtsProvider) {
         ttsProviderManager.setProvider(provider)
     }
-    
+
     /**
      * Check if a TTS provider is properly configured
      */

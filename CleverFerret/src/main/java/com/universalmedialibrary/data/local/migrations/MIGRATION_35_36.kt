@@ -47,4 +47,3 @@ internal val MIGRATION_35_36: Migration = object : Migration(35, 36) {
           database.execSQL("CREATE INDEX IF NOT EXISTS index_listen_history_completedAt ON listen_history(completedAt)")
     }
 }
-

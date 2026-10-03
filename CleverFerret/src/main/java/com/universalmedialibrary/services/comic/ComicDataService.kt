@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 /**
  * Comic Data Service
- * 
+ *
  * Manages saving and loading comic panel data and translations
  * Exports data as JSON files that can be distributed with comics
  */
@@ -26,18 +26,18 @@ class ComicDataService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val comicPanelDao: ComicPanelDao
 ) {
-    
+
     companion object {
         private const val TAG = "ComicDataService"
         private const val PANEL_DATA_SUFFIX = ".panels.json"
         private const val TRANSLATION_DATA_SUFFIX = ".translations.json"
     }
-    
+
     private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
     }
-    
+
     /**
      * Save panel data to database
      */
@@ -64,20 +64,20 @@ class ComicDataService @Inject constructor(
                         readingOrder = panel.readingOrder
                     )
                 }
-                
+
                 // Delete existing panels for this page
                 comicPanelDao.deletePanelsForPage(comicId, detectionResult.pageNumber)
-                
+
                 // Insert new panels
                 comicPanelDao.insertPanels(panelEntities)
-                
+
                 Log.d(TAG, "Saved ${panelEntities.size} panels for page ${detectionResult.pageNumber}")
             } catch (e: Exception) {
                 Log.e(TAG, "Error saving panel data: ${e.message}", e)
             }
         }
     }
-    
+
     /**
      * Save translation data to database
      */
@@ -88,19 +88,19 @@ class ComicDataService @Inject constructor(
         withContext(Dispatchers.IO) {
             try {
                 val translationEntities = mutableListOf<ComicTranslation>()
-                
+
                 for (panelTranslation in pageTranslation.panels) {
                     // Get panel ID from database
                     val panels = comicPanelDao.getPanelsForPage(comicId, pageTranslation.pageNumber)
                     val panelEntity = panels.find { it.panelIndex == panelTranslation.panelIndex }
-                    
+
                     if (panelEntity != null) {
                         for (bubbleTranslation in panelTranslation.bubbles) {
                             // Skip bubbles without translation
                             if (bubbleTranslation.translatedText == null || bubbleTranslation.translatedText.isBlank()) {
                                 continue
                             }
-                            
+
                             val entity = ComicTranslation(
                                 panelId = panelEntity.id,
                                 comicId = comicId,
@@ -119,7 +119,7 @@ class ComicDataService @Inject constructor(
                         }
                     }
                 }
-                
+
                 // Insert translations
                 if (translationEntities.isNotEmpty()) {
                     comicPanelDao.insertTranslations(translationEntities)
@@ -130,7 +130,7 @@ class ComicDataService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Export panel data to JSON file
      * Saved alongside the comic file for portability
@@ -146,11 +146,11 @@ class ComicDataService @Inject constructor(
                 // Load all panels from database
                 val panels = comicPanelDao.getAllPanelsForComic(comicId)
                 val translations = comicPanelDao.getAllTranslationsForComic(comicId)
-                
+
                 // Group by page
                 val pageData = panels.groupBy { it.pageNumber }.map { (pageNumber, pagePanels) ->
                     val pageTranslations = translations.filter { it.pageNumber == pageNumber }
-                    
+
                     ComicPanelDataExport.PageData(
                         pageNumber = pageNumber,
                         panels = pagePanels.map { panel ->
@@ -182,7 +182,7 @@ class ComicDataService @Inject constructor(
                         }
                     )
                 }.sortedBy { it.pageNumber }
-                
+
                 // Create export object
                 val export = ComicPanelDataExport(
                     comicFilePath = comicFilePath,
@@ -190,14 +190,14 @@ class ComicDataService @Inject constructor(
                     totalPages = totalPages,
                     pages = pageData
                 )
-                
+
                 // Serialize to JSON
                 val jsonString = json.encodeToString(export)
-                
+
                 // Save to file
                 val exportFile = File(comicFilePath + PANEL_DATA_SUFFIX)
                 exportFile.writeText(jsonString)
-                
+
                 Log.d(TAG, "Exported panel data to ${exportFile.absolutePath}")
                 exportFile
             } catch (e: Exception) {
@@ -206,7 +206,7 @@ class ComicDataService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Import panel data from JSON file
      */
@@ -217,24 +217,24 @@ class ComicDataService @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val importFile = File(comicFilePath + PANEL_DATA_SUFFIX)
-                
+
                 if (!importFile.exists()) {
                     Log.d(TAG, "No panel data file found at ${importFile.absolutePath}")
                     return@withContext false
                 }
-                
+
                 // Read and parse JSON
                 val jsonString = importFile.readText()
                 val export = json.decodeFromString<ComicPanelDataExport>(jsonString)
-                
+
                 // Clear existing data
                 comicPanelDao.deleteAllPanelsForComic(comicId)
                 comicPanelDao.deleteAllTranslationsForComic(comicId)
-                
+
                 // Import panels
                 val panelEntities = mutableListOf<ComicPanelData>()
                 val translationEntities = mutableListOf<ComicTranslation>()
-                
+
                 for (pageData in export.pages) {
                     for (panelData in pageData.panels) {
                         val panelEntity = ComicPanelData(
@@ -253,17 +253,17 @@ class ComicDataService @Inject constructor(
                         panelEntities.add(panelEntity)
                     }
                 }
-                
+
                 // Insert panels first
                 comicPanelDao.insertPanels(panelEntities)
-                
+
                 // Get inserted panel IDs and create translations
                 for (pageData in export.pages) {
                     val pagePanels = comicPanelDao.getPanelsForPage(comicId, pageData.pageNumber)
-                    
+
                     for (translationData in pageData.translations) {
                         val panelEntity = pagePanels.find { it.panelIndex == translationData.panelIndex }
-                        
+
                         if (panelEntity != null) {
                             val translationEntity = ComicTranslation(
                                 panelId = panelEntity.id,
@@ -285,12 +285,12 @@ class ComicDataService @Inject constructor(
                         }
                     }
                 }
-                
+
                 // Insert translations
                 if (translationEntities.isNotEmpty()) {
                     comicPanelDao.insertTranslations(translationEntities)
                 }
-                
+
                 Log.d(TAG, "Imported ${panelEntities.size} panels and ${translationEntities.size} translations")
                 true
             } catch (e: Exception) {
@@ -299,7 +299,7 @@ class ComicDataService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Check if panel data exists for a comic
      */
@@ -313,7 +313,7 @@ class ComicDataService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get panel data for a specific page
      */
@@ -322,7 +322,7 @@ class ComicDataService @Inject constructor(
             comicPanelDao.getPanelsForPage(comicId, pageNumber)
         }
     }
-    
+
     /**
      * Get translations for a specific page
      */

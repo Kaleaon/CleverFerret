@@ -56,7 +56,7 @@ internal fun TrackListItem(track: Track, compact: Boolean = false, onClick: () -
                 val albumArt = track.albumArtUri
                 if (albumArt != null) {
                     AsyncImage(
-                    
+
                         model = albumArt,
                         contentDescription = "${track.displayAlbum} artwork",
                         modifier = Modifier.fillMaxSize(),

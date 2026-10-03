@@ -396,7 +396,7 @@ class EpubReaderEngine @Inject constructor(
                 if (entry != null) {
                     val title = tocItems.find { it.href.contains(manifestItem.href) }?.title
                         ?: "Chapter ${index + 1}"
-                    
+
                     // Read chapter content from zip entry
                     val content = try {
                         zipFile.getInputStream(entry).bufferedReader(Charsets.UTF_8).use { it.readText() }

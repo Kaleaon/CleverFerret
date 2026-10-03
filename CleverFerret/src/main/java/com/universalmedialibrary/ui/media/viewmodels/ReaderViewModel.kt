@@ -32,13 +32,13 @@ private const val TAG = "ReaderViewModel"
 
 /**
  * ViewModel for Media-centric Reader Screen
- * 
+ *
  * Handles reading for:
  * - EPUB, PDF, FB2, MOBI (books)
  * - Comics (CBZ/CBR)
  * - Documents (DOCX, ODT, RTF)
  * - Web Fiction
- * 
+ *
  * Properly integrated with actual repositories.
  */
 @HiltViewModel
@@ -55,10 +55,10 @@ class ReaderViewModel @Inject constructor(
     private val comicReaderEngine: ComicReaderEngine,
     private val webFictionService: WebFictionService
 ) : ViewModel() {
-    
+
     private val mediaId: String = savedStateHandle.get<String>("mediaId") ?: ""
     private val mediaType: String = savedStateHandle.get<String>("mediaType") ?: "book"
-    
+
     private val _uiState = MutableStateFlow(ReaderState(
         title = "Loading...",
         author = null,
@@ -72,11 +72,11 @@ class ReaderViewModel @Inject constructor(
 
     private var chapterContents: List<ReaderContent> = emptyList()
     private var textPages: List<ReaderContent> = emptyList()
-    
+
     init {
         loadContent()
     }
-    
+
     private fun loadContent() {
         viewModelScope.launch {
             try {
@@ -137,11 +137,11 @@ class ReaderViewModel @Inject constructor(
             }
         }
     }
-    
+
     private suspend fun loadBook(itemId: Long) {
         // Use direct ID lookup instead of loading all books
         val book = bookRepository.getBookById(itemId)
-        
+
         if (book != null) {
             // First update UI with metadata
             _uiState.update {
@@ -152,13 +152,13 @@ class ReaderViewModel @Inject constructor(
                     totalPages = 1 // Will be updated when content is loaded
                 )
             }
-            
+
             // Load actual content from the file using UnifiedReaderService
             try {
                 chapterContents = emptyList()
                 textPages = emptyList()
                 val readerType = unifiedReaderService.openPublication(book.filePath)
-                
+
                 when (readerType) {
                     is ReaderType.Epub -> {
                         // Extract TOC and content from EPUB
@@ -290,11 +290,11 @@ class ReaderViewModel @Inject constructor(
             }
         }
     }
-    
+
     private suspend fun loadComic(itemId: Long) {
         // Use direct ID lookup instead of loading all comics
         val comic = comicRepository.getComicById(itemId)
-        
+
         if (comic != null) {
             // First update UI with metadata
             _uiState.update {
@@ -304,7 +304,7 @@ class ReaderViewModel @Inject constructor(
                     isComic = true
                 )
             }
-            
+
             // Load actual pages from the comic archive using ComicReaderEngine
             try {
                 val file = File(comic.filePath)
@@ -318,23 +318,23 @@ class ReaderViewModel @Inject constructor(
                     }
                     return
                 }
-                
+
                 // Open the comic archive
                 val bookSource = BookSource.File(Uri.fromFile(file))
                 val result = comicReaderEngine.open(context, bookSource)
-                
+
                 result.fold(
                     onSuccess = {
                         // Get all pages from the archive
                         val pages = comicReaderEngine.getAllPages()
                         val pageCount = pages.size
-                        
+
                         // Create list of page paths/entries for the UI
                         // The imageUrls list contains the entry names within the archive
-                        val imageUrls = pages.map { page -> 
-                            "${comic.filePath}#${page.entryName}" 
+                        val imageUrls = pages.map { page ->
+                            "${comic.filePath}#${page.entryName}"
                         }
-                        
+
                         _uiState.update {
                             it.copy(
                                 totalPages = pageCount.coerceAtLeast(1),
@@ -376,11 +376,11 @@ class ReaderViewModel @Inject constructor(
             }
         }
     }
-    
+
     private suspend fun loadWebFiction(storyId: String) {
         // Use direct ID lookup instead of loading all stories
         val story = webFictionRepository.getWebFictionById(storyId)
-        
+
         if (story != null) {
             // First update UI with metadata
             _uiState.update {
@@ -400,7 +400,7 @@ class ReaderViewModel @Inject constructor(
                     }
                 )
             }
-            
+
             // Try to load content from cached EPUB first, then from source
             try {
                 val content = loadWebFictionContent(story)
@@ -429,7 +429,7 @@ class ReaderViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Loads web fiction content from cached EPUB or fetches from source
      */
@@ -459,7 +459,7 @@ class ReaderViewModel @Inject constructor(
                 }
             }
         }
-        
+
         // Fetch chapter content from the source URL
         try {
             // Create a WebFictionStory model for the service
@@ -481,10 +481,10 @@ class ReaderViewModel @Inject constructor(
                 site = story.sourceSite,
                 totalChapters = story.chapterCount
             )
-            
+
             // Download chapters from source
             val chapters = webFictionService.downloadAllChapters(webFictionStory)
-            
+
             if (chapters.isNotEmpty()) {
                 // Return the first chapter's content
                 val firstChapter = chapters.first()
@@ -505,7 +505,7 @@ class ReaderViewModel @Inject constructor(
             return ReaderContent(text = "Unable to load chapter content. Please check your internet connection.")
         }
     }
-    
+
     private fun parseStoryStatus(status: String): com.universalmedialibrary.services.webfiction.StoryStatus {
         return when (status.uppercase()) {
             "COMPLETE", "COMPLETED" -> com.universalmedialibrary.services.webfiction.StoryStatus.COMPLETED
@@ -515,12 +515,12 @@ class ReaderViewModel @Inject constructor(
             else -> com.universalmedialibrary.services.webfiction.StoryStatus.UNKNOWN
         }
     }
-    
+
     private suspend fun loadDocument(itemId: Long) {
         // Load from book repository as documents use similar storage
         loadBook(itemId)
     }
-    
+
     private suspend fun loadProgress(itemId: Long) {
         try {
             val progress = readingProgressRepository.getProgress(itemId).first()
@@ -536,7 +536,7 @@ class ReaderViewModel @Inject constructor(
             Log.w(TAG, "Failed to load progress for item $itemId", e)
         }
     }
-    
+
     private suspend fun loadBookmarks(itemId: Long) {
         try {
             val bookmarks = bookmarkRepository.getBookmarksForItem(itemId)
@@ -559,11 +559,11 @@ class ReaderViewModel @Inject constructor(
             Log.w(TAG, "Failed to load bookmarks for item $itemId", e)
         }
     }
-    
+
     private fun generateChaptersFromPageCount(pageCount: Int): List<ChapterInfo> {
         val chapterCount = (pageCount / 20).coerceAtLeast(1).coerceAtMost(50)
         val pagesPerChapter = pageCount / chapterCount
-        
+
         return (1..chapterCount).map { index ->
             ChapterInfo(
                 id = "chapter_$index",
@@ -574,10 +574,10 @@ class ReaderViewModel @Inject constructor(
             )
         }
     }
-    
+
     fun goToPage(page: Int) {
         if (page < 1 || page > _uiState.value.totalPages) return
-        
+
         viewModelScope.launch {
             _uiState.update { state ->
                 val newChapterIndex = state.chapters.indexOfLast { it.startPage <= page }
@@ -588,7 +588,7 @@ class ReaderViewModel @Inject constructor(
                     textPages.isNotEmpty() -> textPages.getOrNull(page - 1) ?: state.currentContent
                     else -> state.currentContent
                 }
-                
+
                 state.copy(
                     currentPage = page,
                     currentChapterIndex = newChapterIndex,
@@ -598,40 +598,40 @@ class ReaderViewModel @Inject constructor(
                     isCurrentPageBookmarked = state.bookmarks.any { it.page == page }
                 )
             }
-            
+
             // Save progress
             saveProgressInternal()
         }
     }
-    
+
     fun goToChapter(chapterIndex: Int) {
         val chapters = _uiState.value.chapters
         if (chapterIndex < 0 || chapterIndex >= chapters.size) return
-        
+
         val chapter = chapters[chapterIndex]
         goToPage(chapter.startPage)
     }
-    
+
     fun nextPage() {
         goToPage(_uiState.value.currentPage + 1)
     }
-    
+
     fun previousPage() {
         goToPage(_uiState.value.currentPage - 1)
     }
-    
+
     fun toggleBookmark() {
         viewModelScope.launch {
             val currentPage = _uiState.value.currentPage
             val isBookmarked = _uiState.value.isCurrentPageBookmarked
             val itemId = mediaId.toLongOrNull()
-            
+
             // Skip bookmark operations for non-numeric IDs (web fiction)
             if (itemId == null) {
                 Log.d(TAG, "Skipping bookmark toggle for non-numeric mediaId: $mediaId")
                 return@launch
             }
-            
+
             try {
                 if (isBookmarked) {
                     // Remove bookmark - find it safely
@@ -662,7 +662,7 @@ class ReaderViewModel @Inject constructor(
                         dateCreated = System.currentTimeMillis()
                     )
                     bookmarkRepository.insertBookmark(newBookmark)
-                    
+
                     // Reload bookmarks to get the actual database-assigned ID
                     // This ensures the UI has the correct ID for future deletion
                     loadBookmarks(itemId)
@@ -672,7 +672,7 @@ class ReaderViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun toggleTts() {
         _uiState.update { it.copy(isTtsActive = !it.isTtsActive) }
     }
@@ -687,27 +687,27 @@ class ReaderViewModel @Inject constructor(
         }
         return pages
     }
-    
+
     fun updateTheme(theme: ReaderTheme) {
         _uiState.update { it.copy(theme = theme) }
     }
-    
+
     fun updateTypography(typography: ReaderTypography) {
         _uiState.update { it.copy(typography = typography) }
     }
-    
+
     fun selectText(text: String, startIndex: Int, endIndex: Int) {
         // Handle text selection for highlighting, dictionary lookup, etc.
     }
-    
+
     private suspend fun saveProgressInternal() {
         try {
             val itemId = mediaId.toLongOrNull() ?: return
             val state = _uiState.value
-            
+
             // Compute percentage directly from currentPage/totalPages to avoid stale overallProgress
             val percentage = (state.currentPage.toFloat() / state.totalPages.coerceAtLeast(1)) * 100f
-            
+
             readingProgressRepository.updateProgress(
                 itemId = itemId,
                 currentPage = state.currentPage,
@@ -718,7 +718,7 @@ class ReaderViewModel @Inject constructor(
             Log.w(TAG, "Failed to save progress", e)
         }
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         // Progress is saved on every page change in goToPage(), so no additional

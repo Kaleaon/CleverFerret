@@ -32,7 +32,7 @@ import android.webkit.WebViewClient
 
 /**
  * Clean Media-Centric Reader Screen
- * 
+ *
  * Unified reader interface supporting:
  * - EPUB, PDF, FB2, MOBI, CBZ/CBR (comics)
  * - Customizable themes (light, dark, sepia, custom)
@@ -42,7 +42,7 @@ import android.webkit.WebViewClient
  * - Dictionary lookup
  * - Highlights & annotations
  * - Gesture controls
- * 
+ *
  * Features a clean, distraction-free reading experience
  * with elegant controls that fade away during reading.
  */
@@ -65,7 +65,7 @@ fun MediaReaderScreen(
     var controlsVisible by remember { mutableStateOf(true) }
     var showTocSheet by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
-    
+
     // Auto-hide controls after 3 seconds
     LaunchedEffect(controlsVisible) {
         if (controlsVisible) {
@@ -73,7 +73,7 @@ fun MediaReaderScreen(
             controlsVisible = false
         }
     }
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -113,7 +113,7 @@ fun MediaReaderScreen(
             currentPage = state.currentPage,
             degradedWarning = state.degradedParseWarning
         )
-        
+
         // Animated top bar
         AnimatedVisibility(
             visible = controlsVisible,
@@ -134,7 +134,7 @@ fun MediaReaderScreen(
                 onSettings = { showSettingsSheet = true }
             )
         }
-        
+
         // Animated bottom bar
         AnimatedVisibility(
             visible = controlsVisible,
@@ -162,7 +162,7 @@ fun MediaReaderScreen(
                 theme = state.theme
             )
         }
-        
+
         // Reading progress indicator (always visible)
         LinearProgressIndicator(
             progress = { state.overallProgress },
@@ -174,7 +174,7 @@ fun MediaReaderScreen(
             trackColor = Color.Transparent
         )
     }
-    
+
     // Table of Contents Sheet
     if (showTocSheet) {
         ModalBottomSheet(
@@ -191,7 +191,7 @@ fun MediaReaderScreen(
             )
         }
     }
-    
+
     // Settings Sheet
     if (showSettingsSheet) {
         ModalBottomSheet(
@@ -326,7 +326,7 @@ internal fun ComicPageView(
     ) {
         if (imageUrl != null) {
             coil.compose.AsyncImage(
-                    
+
                 model = imageUrl,
                 contentDescription = "Media image",
                 modifier = Modifier.fillMaxSize(),
@@ -446,25 +446,25 @@ data class ReaderTheme(
             backgroundColor = MediaColors.Background,
             textColor = MediaColors.TextPrimary
         )
-        
+
         val Light = ReaderTheme(
             name = "Light",
             backgroundColor = Color(0xFFFAFAFA),
             textColor = Color(0xFF1A1A1A)
         )
-        
+
         val Sepia = ReaderTheme(
             name = "Sepia",
             backgroundColor = Color(0xFFF5E6D3),
             textColor = Color(0xFF5B4636)
         )
-        
+
         val Black = ReaderTheme(
             name = "Black",
             backgroundColor = Color.Black,
             textColor = Color(0xFFCCCCCC)
         )
-        
+
         val presets = listOf(Light, Sepia, Dark, Black)
     }
 }

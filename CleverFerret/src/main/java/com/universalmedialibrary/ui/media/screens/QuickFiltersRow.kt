@@ -35,7 +35,7 @@ internal fun QuickFiltersRow(
     mediaType: MediaType
 ) {
     val quickFilters = getQuickFiltersForMediaType(mediaType)
-    
+
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()

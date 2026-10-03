@@ -49,15 +49,15 @@ internal fun ImportConfirmationDialog(
 ) {
     var includeSubfolders by remember { mutableStateOf(true) }
     var validateFiles by remember { mutableStateOf(true) }
-    
+
     val totalFiles = selectedFiles.size
     val totalFolders = selectedFolders.size
     val estimatedFiles = totalFiles + (totalFolders * 50) // Rough estimate
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { 
-            Text("Import Selection") 
+        title = {
+            Text("Import Selection")
         },
         text = {
             Column(
@@ -67,7 +67,7 @@ internal fun ImportConfirmationDialog(
                     text = "You've selected:",
                     style = MaterialTheme.typography.bodyMedium
                 )
-                
+
                 // Selection summary
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -90,7 +90,7 @@ internal fun ImportConfirmationDialog(
                         }
                     }
                 }
-                
+
                 // Options
                 if (totalFolders > 0) {
                     Row(
@@ -115,7 +115,7 @@ internal fun ImportConfirmationDialog(
                         )
                     }
                 }
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,

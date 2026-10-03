@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 /**
  * Dual-Page Mode for reading experience
  * Inspired by Moonreader's dual-page layout for foldable devices and landscape reading
- * 
+ *
  * Features:
  * - Automatic detection of foldable devices
  * - Landscape-only option
@@ -44,7 +44,7 @@ fun DualPageReader(
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-    
+
     // Determine if dual page should be shown
     val shouldShowDualPage = when {
         !settings.enabled -> false
@@ -145,7 +145,7 @@ fun DualPageSettingsPanel(
                 Text("Enable Dual-Page", style = MaterialTheme.typography.bodyMedium)
                 Switch(
                     checked = settings.enabled,
-                    onCheckedChange = { 
+                    onCheckedChange = {
                         onSettingsChange(settings.copy(enabled = it))
                     }
                 )
@@ -161,7 +161,7 @@ fun DualPageSettingsPanel(
                     Text("Landscape Only", style = MaterialTheme.typography.bodyMedium)
                     Switch(
                         checked = settings.onlyInLandscape,
-                        onCheckedChange = { 
+                        onCheckedChange = {
                             onSettingsChange(settings.copy(onlyInLandscape = it))
                         }
                     )
@@ -176,7 +176,7 @@ fun DualPageSettingsPanel(
                     Text("Book-Style Background", style = MaterialTheme.typography.bodyMedium)
                     Switch(
                         checked = settings.showBookStyleBackground,
-                        onCheckedChange = { 
+                        onCheckedChange = {
                             onSettingsChange(settings.copy(showBookStyleBackground = it))
                         }
                     )
@@ -191,7 +191,7 @@ fun DualPageSettingsPanel(
                     Text("Auto-Detect Foldable", style = MaterialTheme.typography.bodyMedium)
                     Switch(
                         checked = settings.autoDetectFoldable,
-                        onCheckedChange = { 
+                        onCheckedChange = {
                             onSettingsChange(settings.copy(autoDetectFoldable = it))
                         }
                     )
@@ -204,7 +204,7 @@ fun DualPageSettingsPanel(
                 )
                 Slider(
                     value = settings.pageGap.toFloat(),
-                    onValueChange = { 
+                    onValueChange = {
                         onSettingsChange(settings.copy(pageGap = it.toInt()))
                     },
                     valueRange = 0f..24f,

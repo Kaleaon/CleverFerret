@@ -6,13 +6,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 
 /**
  * 60 FPS Performance Optimization Extensions
- * 
+ *
  * These utilities help achieve smooth 60 FPS rendering for the visualizer
  */
 
 /**
  * Modifier extension for hardware-accelerated rendering
- * 
+ *
  * Enables GPU offloading for better performance at 60 FPS
  */
 fun Modifier.hardwareAccelerated(): Modifier = this.graphicsLayer {
@@ -24,7 +24,7 @@ fun Modifier.hardwareAccelerated(): Modifier = this.graphicsLayer {
 
 /**
  * Modifier extension for optimized drawing
- * 
+ *
  * Reduces overdraw and improves Canvas performance
  */
 fun Modifier.optimizedDrawing(): Modifier = this.graphicsLayer {
@@ -35,7 +35,7 @@ fun Modifier.optimizedDrawing(): Modifier = this.graphicsLayer {
 
 /**
  * Performance Tips for 60 FPS Visualizations:
- * 
+ *
  * 1. **Audio Capture Rate**: Set to Visualizer.getMaxCaptureRate() (typically 60-120 Hz)
  * 2. **Hardware Acceleration**: Use graphicsLayer with Offscreen compositing
  * 3. **Minimize Allocations**: Reuse lists and objects in hot paths
@@ -44,7 +44,7 @@ fun Modifier.optimizedDrawing(): Modifier = this.graphicsLayer {
  * 6. **Canvas Optimization**: Keep drawing operations simple and direct
  * 7. **GPU Offloading**: Enable hardware layers for complex visualizations
  * 8. **Avoid Recomposition**: Use key() and remember() effectively
- * 
+ *
  * Benchmark Results (Pixel 6):
  * - Before optimization: 20-30 FPS
  * - After optimization: 55-60 FPS sustained
@@ -65,12 +65,12 @@ class FPSCounter {
     private var startTime = System.currentTimeMillis()
     private var _fps = 0f
     val fps: Float get() = _fps
-    
+
     fun recordFrame() {
         frameCount++
         val currentTime = System.currentTimeMillis()
         val elapsed = currentTime - startTime
-        
+
         if (elapsed >= 1000) { // Update every second
             _fps = (frameCount * 1000f) / elapsed
             frameCount = 0
@@ -89,28 +89,28 @@ object VisualizerOptimizations {
     const val WAVEFORM_BUFFER_SIZE = 256
     const val SPECTRUM_BUFFER_SIZE = 128
     const val FFT_BUFFER_SIZE = 1024
-    
+
     /**
      * Recommended Canvas drawing optimizations
      */
     object Drawing {
         // Use simple primitives (lines, circles) over complex paths
         const val USE_SIMPLE_PRIMITIVES = true
-        
+
         // Batch similar drawing operations
         const val BATCH_OPERATIONS = true
-        
+
         // Limit anti-aliasing for performance (subtle difference)
         const val HIGH_PERFORMANCE_MODE = true
     }
-    
+
     /**
      * Memory optimization settings
      */
     object Memory {
         // Reuse arrays instead of creating new ones
         const val REUSE_BUFFERS = true
-        
+
         // Limit history size for spectrograph
         const val MAX_HISTORY_FRAMES = 60 // 1 second at 60 FPS
     }

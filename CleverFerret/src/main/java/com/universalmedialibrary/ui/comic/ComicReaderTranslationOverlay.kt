@@ -36,26 +36,26 @@ class ComicReaderTranslationViewModel @Inject constructor(
 
     var translationEnabled by mutableStateOf(false)
         private set
-    
+
     var translationData by mutableStateOf<ComicPageResponse?>(null)
         private set
-    
+
     var isLoading by mutableStateOf(false)
         private set
-    
+
     var errorMessage by mutableStateOf<String?>(null)
         private set
-    
+
     var isConfigured by mutableStateOf(false)
         private set
-    
+
     fun clearError() {
         errorMessage = null
     }
-    
+
     var currentComicId by mutableStateOf("")
         private set
-    
+
     var currentPageNumber by mutableStateOf(0)
         private set
 
@@ -81,16 +81,16 @@ class ComicReaderTranslationViewModel @Inject constructor(
             errorMessage = "Translation not configured. Please add your API key in settings."
             return
         }
-        
+
         currentComicId = comicId
         currentPageNumber = pageNumber
-        
+
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
-            
+
             val result = repository.processPage(pageBitmap, comicId, pageNumber, targetLanguage)
-            
+
             result.onSuccess { response ->
                 translationData = response
                 errorMessage = null
@@ -98,7 +98,7 @@ class ComicReaderTranslationViewModel @Inject constructor(
                 errorMessage = error.message ?: "Translation failed"
                 translationData = null
             }
-            
+
             isLoading = false
         }
     }
@@ -121,7 +121,7 @@ if (currentComicId.isNotEmpty()) {
 
 /**
  * Comic Reader Translation Control Bar
- * 
+ *
  * Floating action button and controls for translation in the comic reader
  */
 @Composable
@@ -257,7 +257,7 @@ fun ComicReaderTranslationControls(
 
 /**
  * Translation Status Badge
- * 
+ *
  * Small badge showing translation status in the reader
  */
 @Composable
@@ -268,7 +268,7 @@ fun TranslationStatusBadge(
     modifier: Modifier = Modifier
 ) {
     if (!isEnabled) return
-    
+
     Surface(
         color = when {
             isLoading -> MaterialTheme.colorScheme.tertiaryContainer

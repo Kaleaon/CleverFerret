@@ -13,22 +13,22 @@ interface FanfictionSiteAdapter {
      * Name of the site (e.g., "Archive of Our Own")
      */
     val siteName: String
-    
+
     /**
      * Base URL of the site
      */
     val baseUrl: String
-    
+
     /**
      * Check if this adapter can handle the given URL
      */
     fun canHandle(url: String): Boolean
-    
+
     /**
      * Extract metadata from a story URL
      */
     suspend fun extractMetadata(url: String): Result<StoryMetadata>
-    
+
     /**
      * Download all chapters from a story
      * @param progressCallback Called with (currentChapter, totalChapters, statusMessage)
@@ -37,7 +37,7 @@ interface FanfictionSiteAdapter {
         url: String,
         progressCallback: (Int, Int, String) -> Unit = { _, _, _ -> }
     ): Result<List<Chapter>>
-    
+
     /**
      * Check if there are updates available for a story
      */
@@ -45,7 +45,7 @@ interface FanfictionSiteAdapter {
         storyId: String,
         lastChapter: Int
     ): Result<UpdateInfo>
-    
+
     /**
      * Extract story ID from URL
      */

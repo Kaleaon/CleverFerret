@@ -41,7 +41,7 @@ fun EnhancedMediaCard(
     modifier: Modifier = Modifier
 ) {
     val shimmerEnabled = metallicShimmerEnabled()
-    
+
     Card(
         onClick = onClick,
         modifier = modifier
@@ -55,7 +55,7 @@ fun EnhancedMediaCard(
             Box {
                 if (imageUrl != null) {
                     AsyncImage(
-                    
+
                         model = imageUrl,
                         contentDescription = title,
                         modifier = Modifier
@@ -80,7 +80,7 @@ fun EnhancedMediaCard(
                         }
                     }
                 }
-                
+
                 // Badge overlay
                 if (badge != null) {
                     Surface(
@@ -98,7 +98,7 @@ fun EnhancedMediaCard(
                         )
                     }
                 }
-                
+
                 // Media type indicator
                 if (mediaType != null) {
                     Surface(
@@ -122,7 +122,7 @@ fun EnhancedMediaCard(
                     }
                 }
             }
-            
+
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     text = title,
@@ -131,7 +131,7 @@ fun EnhancedMediaCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 if (subtitle != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -142,7 +142,7 @@ fun EnhancedMediaCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 // Progress bar
                 if (progress != null) {
                     Spacer(modifier = Modifier.height(8.dp))
@@ -174,11 +174,11 @@ fun AnimatedInfoCard(
     modifier: Modifier = Modifier
 ) {
     var visible by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(Unit) {
         visible = true
     }
-    
+
     val scale by animateFloatAsState(
         targetValue = if (visible) 1f else 0.8f,
         animationSpec = spring(
@@ -187,7 +187,7 @@ fun AnimatedInfoCard(
         ),
         label = "scale"
     )
-    
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -219,7 +219,7 @@ fun AnimatedInfoCard(
                         )
                     }
                 }
-                
+
                 Column {
                     Text(
                         text = title,
@@ -234,7 +234,7 @@ fun AnimatedInfoCard(
                     )
                 }
             }
-            
+
             if (trend != null) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -313,7 +313,7 @@ fun FeatureCard(
                         )
                     }
                 }
-                
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = title,
@@ -337,7 +337,7 @@ fun FeatureCard(
                     )
                 }
             }
-            
+
             Button(
                 onClick = onAction,
                 enabled = enabled,

@@ -19,7 +19,7 @@ import com.universalmedialibrary.services.music.PlaylistMode
 
 /**
  * Enhanced Player Controls
- * 
+ *
  * Adds:
  * - Seek forward/backward buttons (+30s/-10s)
  * - Volume slider
@@ -71,9 +71,9 @@ fun EnhancedControlButtonsSection(
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Spacer(modifier = Modifier.weight(1f))
-            
+
             // Favorite button
             IconButton(
                 onClick = onToggleFavorite,
@@ -88,9 +88,9 @@ fun EnhancedControlButtonsSection(
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Spacer(modifier = Modifier.weight(1f))
-            
+
             // Repeat button
             IconButton(
                 onClick = onToggleRepeat,
@@ -110,9 +110,9 @@ fun EnhancedControlButtonsSection(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         // Main playback controls with seek buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -131,7 +131,7 @@ fun EnhancedControlButtonsSection(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            
+
             // Seek backward 10s
             FilledTonalIconButton(
                 onClick = onSeekBackward,
@@ -142,7 +142,7 @@ fun EnhancedControlButtonsSection(
                     contentDescription = "Seek Backward 10s"
                 )
             }
-            
+
             // Play/Pause
             FilledIconButton(
                 onClick = onPlayPause,
@@ -158,7 +158,7 @@ fun EnhancedControlButtonsSection(
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
-            
+
             // Seek forward 30s
             FilledTonalIconButton(
                 onClick = onSeekForward,
@@ -169,7 +169,7 @@ fun EnhancedControlButtonsSection(
                     contentDescription = "Seek Forward 30s"
                 )
             }
-            
+
             // Next track
             IconButton(
                 onClick = onSkipNext,
@@ -209,14 +209,14 @@ fun VolumeControlSection(
                 contentDescription = "Volume",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Slider(
                 value = volume,
                 onValueChange = onVolumeChange,
                 valueRange = 0f..1f,
                 modifier = Modifier.weight(1f)
             )
-            
+
             Text(
                 text = "${kotlin.math.round(volume * 100).toInt().coerceIn(0, 100)}%",
                 style = MaterialTheme.typography.bodyMedium,
@@ -242,7 +242,7 @@ fun PlaybackSpeedControl(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val speeds = listOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f)
-        
+
         speeds.forEach { speed ->
             SpeedChip(
                 speed = speed,
@@ -305,14 +305,14 @@ fun EnhancedVolumeDialog(
                     volume = currentVolume,
                     onVolumeChange = onVolumeChange
                 )
-                
+
                 // Quick volume presets
                 Text(
                     text = "Quick Presets",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -391,7 +391,7 @@ fun EnhancedPlaybackSpeedDialog(
                         )
                     }
                 }
-                
+
                 // Speed options
                 PlaybackSpeedControl(
                     currentSpeed = currentSpeed,
@@ -400,7 +400,7 @@ fun EnhancedPlaybackSpeedDialog(
                         onDismiss()
                     }
                 )
-                
+
                 // Info text
                 Text(
                     text = "Adjust playback speed without affecting pitch",
@@ -448,7 +448,7 @@ fun CompactSecondaryControls(
             label = "${kotlin.math.round(volume * 100).toInt().coerceIn(0, 100)}%",
             onClick = onVolumeClick
         )
-        
+
         // Speed
         SecondaryControlButton(
             icon = Icons.Default.Speed,
@@ -456,14 +456,14 @@ fun CompactSecondaryControls(
             onClick = onSpeedClick,
             isActive = speed != 1.0f
         )
-        
+
         // Equalizer
         SecondaryControlButton(
             icon = Icons.Default.GraphicEq,
             label = "EQ",
             onClick = onEqualizerClick
         )
-        
+
         // Share
         SecondaryControlButton(
             icon = Icons.Default.Share,

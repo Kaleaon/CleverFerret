@@ -5,17 +5,17 @@ package com.universalmedialibrary.services.comic
  */
 interface ComicMetadataSource {
     val sourceName: String
-    
+
     /**
      * Search for comic series
      */
     suspend fun searchSeries(seriesName: String): Result<List<ComicSeries>>
-    
+
     /**
      * Get specific issue
      */
     suspend fun getIssue(volumeId: String, issueNumber: Int): Result<ComicIssue?>
-    
+
     /**
      * Get volume/series info
      */

@@ -14,10 +14,10 @@ import javax.inject.Singleton
 
 /**
  * Hilt Module for Comic Translation dependencies
- * 
+ *
  * This module provides the necessary dependencies for the comic translation feature,
  * including the repository, DAO, and API key manager.
- * 
+ *
  * The API keys are securely stored using EncryptedSharedPreferences and retrieved
  * at runtime when creating the repository instance.
  */
@@ -35,10 +35,10 @@ object ComicTranslationModule {
 
     /**
      * Provides the ComicProcessorRepository with user-configured API key
-     * 
+     *
      * The repository uses on-device ML Kit for translation, so only Gemini API key is needed.
      * If key is not configured, null is returned.
-     * 
+     *
      * Usage pattern:
      * 1. Check if key is configured using ComicTranslationApiKeyManager.areKeysConfigured()
      * 2. If not configured, show setup UI to collect key

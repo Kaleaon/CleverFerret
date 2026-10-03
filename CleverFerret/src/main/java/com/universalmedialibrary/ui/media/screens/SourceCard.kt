@@ -56,9 +56,9 @@ internal fun SourceCard(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = source.displayName,
@@ -73,9 +73,9 @@ internal fun SourceCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.XS))
-                
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
                 ) {
@@ -94,7 +94,7 @@ internal fun SourceCard(
                     }
                 }
             }
-            
+
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Media image",

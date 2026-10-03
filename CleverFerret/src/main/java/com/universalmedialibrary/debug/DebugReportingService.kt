@@ -26,7 +26,7 @@ import javax.inject.Singleton
 
 /**
  * Debug Reporting Service
- * 
+ *
  * Comprehensive debug and crash reporting for debug builds:
  * - Automatic crash capture with stack traces
  * - Error logging and aggregation
@@ -42,60 +42,60 @@ class DebugReportingService @Inject constructor(
     private val TAG = "DebugReporting"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
-    
+
     private val _crashReports = MutableStateFlow<List<CrashReport>>(emptyList())
     val crashReports: StateFlow<List<CrashReport>> = _crashReports.asStateFlow()
-    
+
     private val _errorLogs = MutableStateFlow<List<ErrorLog>>(emptyList())
     val errorLogs: StateFlow<List<ErrorLog>> = _errorLogs.asStateFlow()
-    
+
     private val _performanceMetrics = MutableStateFlow<PerformanceMetrics>(PerformanceMetrics())
     val performanceMetrics: StateFlow<PerformanceMetrics> = _performanceMetrics.asStateFlow()
-    
+
     private val _notifications = MutableSharedFlow<DebugNotification>()
     val notifications: SharedFlow<DebugNotification> = _notifications.asSharedFlow()
-    
+
     private var isInitialized = false
     private var defaultExceptionHandler: Thread.UncaughtExceptionHandler? = null
-    
+
     private val reportDir: File
         get() = File(context.filesDir, "debug_reports").also { it.mkdirs() }
-    
+
     private val crashDir: File
         get() = File(reportDir, "crashes").also { it.mkdirs() }
-    
+
     private val logDir: File
         get() = File(reportDir, "logs").also { it.mkdirs() }
-    
+
     /**
      * Initialize crash reporting - call in Application.onCreate()
      */
     fun initialize() {
         if (isInitialized) return
         isInitialized = true
-        
+
         // Install custom exception handler
         defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             handleUncaughtException(thread, throwable)
         }
-        
+
         // Load existing reports
         loadExistingReports()
-        
+
         // Start performance monitoring
         startPerformanceMonitoring()
-        
+
         Log.i(TAG, "Debug reporting service initialized")
     }
-    
+
     private fun handleUncaughtException(thread: Thread, throwable: Throwable) {
         try {
             val report = createCrashReport(thread, throwable)
             saveCrashReport(report)
-            
+
             Log.e(TAG, "Crash captured: ${throwable.message}", throwable)
-            
+
             // Notify about crash
             scope.launch {
                 _crashReports.update { it + report }
@@ -108,11 +108,11 @@ class DebugReportingService @Inject constructor(
             defaultExceptionHandler?.uncaughtException(thread, throwable)
         }
     }
-    
+
     private fun createCrashReport(thread: Thread, throwable: Throwable): CrashReport {
         val sw = StringWriter()
         throwable.printStackTrace(PrintWriter(sw))
-        
+
         return CrashReport(
             id = UUID.randomUUID().toString(),
             timestamp = System.currentTimeMillis(),
@@ -124,7 +124,7 @@ class DebugReportingService @Inject constructor(
             appInfo = getAppInfo()
         )
     }
-    
+
     private fun saveCrashReport(report: CrashReport) {
         try {
             val file = File(crashDir, "crash_${report.timestamp}.json")
@@ -133,7 +133,7 @@ class DebugReportingService @Inject constructor(
             Log.e(TAG, "Error writing crash report", e)
         }
     }
-    
+
     private fun loadExistingReports() {
         scope.launch {
             try {
@@ -144,21 +144,21 @@ class DebugReportingService @Inject constructor(
                         null
                     }
                 }?.sortedByDescending { it.timestamp } ?: emptyList()
-                
+
                 _crashReports.value = crashes
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading existing reports", e)
             }
         }
     }
-    
+
     private fun startPerformanceMonitoring() {
         scope.launch {
             while (true) {
                 val runtime = Runtime.getRuntime()
                 val usedMemory = runtime.totalMemory() - runtime.freeMemory()
                 val maxMemory = runtime.maxMemory()
-                
+
                 _performanceMetrics.update { current ->
                     current.copy(
                         memoryUsedMB = usedMemory / (1024 * 1024),
@@ -167,16 +167,16 @@ class DebugReportingService @Inject constructor(
                         lastUpdated = System.currentTimeMillis()
                     )
                 }
-                
+
                 kotlinx.coroutines.delay(5000)
             }
         }
     }
-    
+
     // ==========================================================================
     // LOGGING
     // ==========================================================================
-    
+
     fun logError(tag: String, message: String, throwable: Throwable? = null) {
         if (throwable is kotlinx.coroutines.CancellationException) return
 
@@ -192,14 +192,14 @@ class DebugReportingService @Inject constructor(
                 sw.toString()
             }
         )
-        
+
         scope.launch {
             _errorLogs.update { logs -> (logs + errorLog).takeLast(1000) }
         }
-        
+
         Log.e(tag, message, throwable)
     }
-    
+
     fun logWarning(tag: String, message: String) {
         val log = ErrorLog(
             id = UUID.randomUUID().toString(),
@@ -209,14 +209,14 @@ class DebugReportingService @Inject constructor(
             message = message,
             stackTrace = null
         )
-        
+
         scope.launch {
             _errorLogs.update { logs -> (logs + log).takeLast(1000) }
         }
-        
+
         Log.w(tag, message)
     }
-    
+
     fun logInfo(tag: String, message: String) {
         val log = ErrorLog(
             id = UUID.randomUUID().toString(),
@@ -226,18 +226,18 @@ class DebugReportingService @Inject constructor(
             message = message,
             stackTrace = null
         )
-        
+
         scope.launch {
             _errorLogs.update { logs -> (logs + log).takeLast(1000) }
         }
-        
+
         Log.i(tag, message)
     }
-    
+
     // ==========================================================================
     // MANUAL REPORTING
     // ==========================================================================
-    
+
     /**
      * Create a manual bug report
      */
@@ -263,7 +263,7 @@ class DebugReportingService @Inject constructor(
             screenshotPath = screenshotUri?.toString()
         )
     }
-    
+
     /**
      * Export bug report for sharing
      */
@@ -272,7 +272,7 @@ class DebugReportingService @Inject constructor(
         file.writeText(json.encodeToString(report))
         return file
     }
-    
+
     /**
      * Share bug report via email/other apps
      */
@@ -283,7 +283,7 @@ class DebugReportingService @Inject constructor(
             "${context.packageName}.fileprovider",
             file
         )
-        
+
         return Intent(Intent.ACTION_SEND).apply {
             type = "application/json"
             putExtra(Intent.EXTRA_SUBJECT, "CleverFerret Bug Report: ${report.title}")
@@ -292,7 +292,7 @@ class DebugReportingService @Inject constructor(
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
     }
-    
+
     private fun buildReportEmailBody(report: BugReport): String {
         return """
             |Bug Report: ${report.title}
@@ -318,20 +318,20 @@ class DebugReportingService @Inject constructor(
             |Report ID: ${report.id}
         """.trimMargin()
     }
-    
+
     // ==========================================================================
     // EXPORT & CLEANUP
     // ==========================================================================
-    
+
     /**
      * Export all logs to a file
-     * 
+     *
      * @throws IOException if writing to file fails
      */
     fun exportAllLogs(): File {
         val timestamp = System.currentTimeMillis()
         val file = File(logDir, "full_log_export_$timestamp.json")
-        
+
         try {
             val export = LogExport(
                 timestamp = timestamp,
@@ -341,7 +341,7 @@ class DebugReportingService @Inject constructor(
                 errors = _errorLogs.value,
                 performance = _performanceMetrics.value
             )
-            
+
             file.writeText(json.encodeToString(export))
         } catch (e: Exception) {
             Log.e(TAG, "Error exporting logs to file", e)
@@ -349,7 +349,7 @@ class DebugReportingService @Inject constructor(
         }
         return file
     }
-    
+
     /**
      * Clear all crash reports
      */
@@ -359,7 +359,7 @@ class DebugReportingService @Inject constructor(
             _crashReports.value = emptyList()
         }
     }
-    
+
     /**
      * Clear all error logs
      */
@@ -368,11 +368,11 @@ class DebugReportingService @Inject constructor(
             _errorLogs.value = emptyList()
         }
     }
-    
+
     // ==========================================================================
     // DEVICE & APP INFO
     // ==========================================================================
-    
+
     private fun getDeviceInfo(): DeviceInfo {
         return DeviceInfo(
             manufacturer = Build.MANUFACTURER,
@@ -388,7 +388,7 @@ class DebugReportingService @Inject constructor(
             timezone = TimeZone.getDefault().id
         )
     }
-    
+
     private fun getAppInfo(): AppInfo {
         return try {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -416,7 +416,7 @@ class DebugReportingService @Inject constructor(
             )
         }
     }
-    
+
     private fun isDebugBuild(): Boolean {
         return try {
             val buildConfig = Class.forName("${context.packageName}.BuildConfig")
@@ -426,7 +426,7 @@ class DebugReportingService @Inject constructor(
             false
         }
     }
-    
+
     private fun formatTimestamp(timestamp: Long): String {
         return SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
     }

@@ -11,24 +11,24 @@ import javax.inject.Singleton
 
 /**
  * Secure storage for tracking service authentication tokens
- * 
+ *
  * Uses EncryptedSharedPreferences for secure storage of OAuth tokens
  */
 @Singleton
 class TrackingTokenStorage @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     companion object {
         private const val PREFS_FILE = "manga_tracking_tokens"
         private const val KEY_PREFIX = "token_"
     }
-    
+
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
-    
+
     private val prefs by lazy {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
         EncryptedSharedPreferences.create(
@@ -39,7 +39,7 @@ class TrackingTokenStorage @Inject constructor(
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
     }
-    
+
     /**
      * Save a tracking token
      */
@@ -48,7 +48,7 @@ class TrackingTokenStorage @Inject constructor(
         val tokenJson = json.encodeToString(token)
         prefs.edit().putString(key, tokenJson).apply()
     }
-    
+
     /**
      * Get a tracking token for a service
      */
@@ -61,7 +61,7 @@ class TrackingTokenStorage @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Check if a token exists for a service
      */
@@ -69,7 +69,7 @@ class TrackingTokenStorage @Inject constructor(
         val key = KEY_PREFIX + service.name
         return prefs.contains(key)
     }
-    
+
     /**
      * Clear a token for a service
      */
@@ -77,21 +77,21 @@ class TrackingTokenStorage @Inject constructor(
         val key = KEY_PREFIX + service.name
         prefs.edit().remove(key).apply()
     }
-    
+
     /**
      * Clear all tokens
      */
     fun clearAllTokens() {
         prefs.edit().clear().apply()
     }
-    
+
     /**
      * Get all authenticated services
      */
     fun getAuthenticatedServices(): List<TrackingService> {
         return TrackingService.entries.filter { hasToken(it) }
     }
-    
+
     /**
      * Check if token is expired
      */

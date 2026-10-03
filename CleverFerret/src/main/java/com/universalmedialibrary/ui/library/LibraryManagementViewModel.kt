@@ -58,7 +58,7 @@ class LibraryManagementViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-    
+
     /**
      * Flow that emits item counts for each library
      * Maps library ID to item count
@@ -230,18 +230,18 @@ class LibraryManagementViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = LibraryManagementUiState.Loading
-                
+
                 // Run export on IO dispatcher to avoid blocking main thread
                 val result = withContext(Dispatchers.IO) {
                     calibreExportService.exportToCalibre(exportPath, libraryId)
                 }
-                
+
                 if (result.success) {
                     _uiState.value = LibraryManagementUiState.Success
                 } else {
                     _uiState.value = LibraryManagementUiState.Error(result.message)
                 }
-                
+
             } catch (e: Exception) {
                 _uiState.value = LibraryManagementUiState.Error(
                     "Failed to export to Calibre: ${e.message}"

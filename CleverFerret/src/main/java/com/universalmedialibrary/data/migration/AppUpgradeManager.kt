@@ -14,25 +14,25 @@ import javax.inject.Singleton
 
 /**
  * App Upgrade Manager
- * 
+ *
  * CRITICAL SERVICE - PREVENTS DATA LOSS DURING UPGRADES
- * 
+ *
  * Responsibilities:
  * - Detect app version changes
  * - Create automatic backups before upgrades
  * - Handle database migrations safely
  * - Verify data integrity after upgrades
  * - Provide rollback capability
- * 
+ *
  * Called on every app startup to ensure data safety.
- * 
+ *
  * Flow:
  * 1. Detect version change
  * 2. Create backup BEFORE any changes
  * 3. Run database migrations
  * 4. Verify data integrity
  * 5. Log upgrade success
- * 
+ *
  * If anything fails, backup can be restored!
  */
 @Singleton
@@ -42,7 +42,7 @@ class AppUpgradeManager @Inject constructor(
     private val settingsBackupService: SettingsBackupService
 ) {
     private val TAG = "AppUpgradeManager"
-    
+
     companion object {
         private const val PREFS_NAME = "app_version_tracking"
         private const val KEY_LAST_VERSION_CODE = "last_version_code"
@@ -55,9 +55,9 @@ class AppUpgradeManager @Inject constructor(
 
     /**
      * Check for app upgrade and handle accordingly
-     * 
+     *
      * CALL THIS ON APP STARTUP!
-     * 
+     *
      * @return UpgradeStatus indicating what happened
      */
     suspend fun checkAndHandleUpgrade(): UpgradeStatus = withContext(Dispatchers.IO) {
@@ -74,19 +74,19 @@ class AppUpgradeManager @Inject constructor(
                     saveCurrentVersion(currentVersionCode, currentVersionName)
                     UpgradeStatus.FirstInstall(currentVersionName)
                 }
-                
+
                 // App upgraded
                 currentVersionCode > lastVersionCode -> {
                     Log.i(TAG, "App upgrade detected: $lastVersionName → $currentVersionName")
                     handleUpgrade(lastVersionCode, currentVersionCode, lastVersionName, currentVersionName)
                 }
-                
+
                 // Same version
                 currentVersionCode == lastVersionCode -> {
                     Log.d(TAG, "App version unchanged: $currentVersionName")
                     UpgradeStatus.NoChange(currentVersionName)
                 }
-                
+
                 // Downgrade (shouldn't happen in production)
                 else -> {
                     Log.w(TAG, "App downgrade detected: $lastVersionName → $currentVersionName")
@@ -122,7 +122,7 @@ class AppUpgradeManager @Inject constructor(
                 Log.e(TAG, "Backup creation failed: ${backupResult.exceptionOrNull()?.message}")
                 null
             }
-            
+
             if (backupPath != null) {
                 prefs.edit().putString(KEY_LAST_BACKUP_PATH, backupPath).apply()
                 Log.i(TAG, "✅ Backup created: $backupPath")
@@ -140,7 +140,7 @@ class AppUpgradeManager @Inject constructor(
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 Log.e(TAG, "❌ Database migration failed: ${e.message}", e)
-                
+
                 // If we have a backup, we can recover
                 if (backupPath != null) {
                     Log.w(TAG, "Backup available at: $backupPath")
@@ -158,7 +158,7 @@ class AppUpgradeManager @Inject constructor(
             Log.i(TAG, "Verifying data integrity...")
             val itemCount = database.mediaItemDao().getMediaItemCount()
             val progressCount = database.readingProgressDao().getProgressCount()
-            
+
             Log.i(TAG, "✅ Data verified:")
             Log.i(TAG, "   Media items: $itemCount")
             Log.i(TAG, "   Reading progress: $progressCount")
@@ -191,12 +191,12 @@ class AppUpgradeManager @Inject constructor(
      */
     private suspend fun runVersionSpecificMigrations(fromVersion: Int, toVersion: Int) {
         Log.i(TAG, "Checking for version-specific migrations...")
-        
+
         // Example migrations:
         // if (fromVersion < 10 && toVersion >= 10) {
         //     migrateOldBookmarksFormat()
         // }
-        
+
         // Add any custom migration logic here
         Log.i(TAG, "No version-specific migrations needed")
     }

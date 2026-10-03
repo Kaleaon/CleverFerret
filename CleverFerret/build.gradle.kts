@@ -1,6 +1,6 @@
 /**
  * CleverFerret Module Build Configuration
- * 
+ *
  * Universal Media Library - Android application module
  * Architecture: Kotlin + Jetpack Compose + Material 3 + Hilt + Room
  */
@@ -122,7 +122,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        
+
         // Enable BuildConfig generation
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
@@ -135,7 +135,7 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            
+
             // Debug-specific BuildConfig fields
             buildConfigField("boolean", "DEBUG_REPORTING_ENABLED", "true")
             buildConfigField("boolean", "CRASH_REPORTING_ENABLED", "true")
@@ -153,7 +153,7 @@ android {
             // Use stable release key if configured; otherwise fall back to debug signing for local builds.
             // NOTE: debug signing will not be update-compatible across different machines.
             signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
-            
+
             // Release-specific BuildConfig fields
             buildConfigField("boolean", "DEBUG_REPORTING_ENABLED", "false")
             buildConfigField("boolean", "CRASH_REPORTING_ENABLED", "false")
@@ -162,7 +162,7 @@ android {
             buildConfigField("String", "GIT_COMMIT", "\"${getGitCommitHash()}\"")
         }
     }
-    
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

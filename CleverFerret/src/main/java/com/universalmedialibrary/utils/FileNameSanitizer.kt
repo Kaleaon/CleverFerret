@@ -5,16 +5,16 @@ import javax.inject.Singleton
 
 /**
  * Centralized utility for sanitizing file names and paths.
- * 
+ *
  * Provides consistent file name sanitization across the application
  * to prevent filesystem issues and ensure cross-platform compatibility.
  */
 @Singleton
 class FileNameSanitizer @Inject constructor() {
-    
+
     /**
      * Sanitizes a file name by removing invalid characters.
-     * 
+     *
      * @param name The original file name
      * @param maxLength Maximum length of the sanitized name (default: 100)
      * @return Sanitized file name safe for filesystem use
@@ -26,10 +26,10 @@ class FileNameSanitizer @Inject constructor() {
             .trim('_', '.', '-') // Remove leading/trailing special chars
             .take(maxLength)
     }
-    
+
     /**
      * Sanitizes a file name with more permissive characters (includes spaces).
-     * 
+     *
      * @param name The original file name
      * @param maxLength Maximum length of the sanitized name (default: 100)
      * @return Sanitized file name with spaces preserved
@@ -42,10 +42,10 @@ class FileNameSanitizer @Inject constructor() {
             .trim('_', '.', '-', ' ')
             .take(maxLength)
     }
-    
+
     /**
      * Sanitizes a path component (directory or file name).
-     * 
+     *
      * @param path The path component to sanitize
      * @return Sanitized path component
      */
@@ -55,10 +55,10 @@ class FileNameSanitizer @Inject constructor() {
             .replace(Regex("_{2,}"), "_")
             .trim('_', '.')
     }
-    
+
     /**
      * Sanitizes a tag ID or similar identifier.
-     * 
+     *
      * @param value The value to sanitize
      * @return Sanitized identifier, with fallback if blank
      */

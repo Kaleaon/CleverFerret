@@ -46,7 +46,7 @@ class AmbientSoundService @Inject constructor(
     /**
      * Initialize default ambient sounds from SoundLibrary
      * Extensible system - add new themes (sci-fi, medieval, etc.) without modifying this code
-     * 
+     *
      * To add new themed collections:
      * 1. Create a new object like SciFiSounds with getAllSounds()
      * 2. Register it: SoundLibrary.registerCollection(...)
@@ -64,9 +64,9 @@ class AmbientSoundService @Inject constructor(
         val librarySounds = SoundLibrary.getAllSounds()
         val dbSounds = ambientSoundDao.getAllSoundsSync()
         val dbSoundMap = dbSounds.associateBy { it.name }
-        
+
         val newSounds = mutableListOf<AmbientSound>()
-        
+
         librarySounds.forEach { libSound ->
             val dbSound = dbSoundMap[libSound.name]
             if (dbSound == null) {
@@ -76,11 +76,11 @@ class AmbientSoundService @Inject constructor(
                 ambientSoundDao.updateSound(dbSound.copy(audioUrl = libSound.audioUrl))
             }
         }
-        
+
         if (newSounds.isNotEmpty()) {
             ambientSoundDao.insertSounds(newSounds)
         }
-        
+
         hydrateFreesoundUrls()
     }
 
@@ -88,7 +88,7 @@ class AmbientSoundService @Inject constructor(
         withContext(Dispatchers.IO) {
             try {
                 val sounds = ambientSoundDao.getAllSoundsSync()
-                
+
                 sounds.forEach { sound ->
                     val url = sound.audioUrl ?: return@forEach
                     if (url.contains("freesound.org") && url.contains("-lq.mp3")) {
@@ -97,11 +97,11 @@ class AmbientSoundService @Inject constructor(
                             val filename = url.substringAfterLast("/")
                             val idString = filename.substringBefore("_")
                             val id = idString.toIntOrNull()
-                            
+
                             if (id != null) {
                                 val freesoundData = freesoundClient.getSound(id)
                                 val hqUrl = freesoundData.previews.previewHqMp3
-                                
+
                                 if (hqUrl.isNotEmpty() && hqUrl != url) {
                                     ambientSoundDao.updateSound(
                                         sound.copy(
@@ -122,7 +122,7 @@ class AmbientSoundService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Initialize sounds from a specific collection
      * Useful for adding themed collections on-demand
@@ -132,7 +132,7 @@ class AmbientSoundService @Inject constructor(
             ambientSoundDao.insertSounds(collection.sounds)
         }
     }
-    
+
     /**
      * Get library statistics
      */
@@ -191,9 +191,9 @@ class AmbientSoundService @Inject constructor(
         if (mediaPlayers.containsKey(sound.id)) {
             return@withContext PlayResult.Success // Already playing
         }
-        
+
         var dataSource = sound.audioUrl
-        
+
         // Prefer local file if it exists
         if (!sound.audioResourcePath.isNullOrBlank()) {
             val file = File(sound.audioResourcePath)
@@ -205,7 +205,7 @@ class AmbientSoundService @Inject constructor(
         if (dataSource.isNullOrBlank()) {
             return@withContext PlayResult.Error("No audio source available for this sound")
         }
-        
+
         // Trigger download if not local
         if (sound.audioResourcePath.isNullOrBlank() && !sound.audioUrl.isNullOrBlank()) {
              launch {
@@ -264,22 +264,22 @@ class AmbientSoundService @Inject constructor(
             // The SoundLibrary is just the initial definition.
             // However, if they are already in DB, we should query them.
             // SoundLibrary sounds don't have IDs until inserted.
-            // Strategy: Find sounds in DB that match the names in the collection? 
+            // Strategy: Find sounds in DB that match the names in the collection?
             // Or assuming they were inserted.
-            
+
             // Simpler approach: Get all enabled sounds and filter by those that are in this collection (by name/category match?)
             // Ideally AmbientSound would have a collectionId field, but it doesn't.
-            
+
             // Let's iterate the sounds in the collection definition, and try to find them in DB by name/category.
             // Or just use the SoundLibrary definition if it's not inserted yet?
             // But we need the hydrated URLs for Freesound!
-            
+
             // Let's fetch all sounds from DB.
             val dbSounds = ambientSoundDao.getAllSoundsSync()
             val collectionSoundNames = collection.sounds.map { it.name }.toSet()
-            
+
             val soundsToDownload = dbSounds.filter { it.name in collectionSoundNames }
-            
+
             soundsToDownload.forEach { sound ->
                 ambientSoundDownloader.downloadSound(sound)
             }
@@ -313,10 +313,10 @@ class AmbientSoundService @Inject constructor(
     suspend fun detectContextFromText(text: String): List<AmbientSound> {
         val lowercaseText = text.lowercase()
         val allSounds = ambientSoundDao.getAllEnabledSounds()
-        
+
         // This is a simple implementation; in production, you might use NLP
         val matchedSounds = mutableListOf<AmbientSound>()
-        
+
         return matchedSounds
     }
 
@@ -417,7 +417,7 @@ class AmbientSoundService @Inject constructor(
         }
         mediaPlayers.clear()
         currentSessionId = null
-        
+
         // Cancel coroutine scope to prevent memory leaks
         serviceScope.cancel()
     }

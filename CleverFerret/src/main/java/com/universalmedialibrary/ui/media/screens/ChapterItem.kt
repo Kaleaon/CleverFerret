@@ -60,7 +60,7 @@ internal fun ChapterItem(
             )
             Spacer(Modifier.width(MediaSpacing.SM))
         }
-        
+
         Text(
             chapter.title,
             style = MediaTypography.BodyMedium,

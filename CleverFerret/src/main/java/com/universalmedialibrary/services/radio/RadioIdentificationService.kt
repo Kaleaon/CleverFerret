@@ -20,7 +20,7 @@ import kotlin.math.abs
 
 /**
  * Service for identifying songs playing on radio streams
- * 
+ *
  * Features:
  * - Audio fingerprinting
  * - Now playing detection
@@ -70,9 +70,9 @@ class RadioIdentificationService @Inject constructor(
         // ICY metadata format: StreamTitle='Artist - Song Title';
         val titlePattern = "StreamTitle='([^']+)'".toRegex()
         val match = titlePattern.find(metadata) ?: return null
-        
+
         val fullTitle = match.groupValues[1]
-        
+
         // Try to parse "Artist - Song" format
         val parts = fullTitle.split(" - ", limit = 2)
         return if (parts.size == 2) {
@@ -100,11 +100,11 @@ class RadioIdentificationService @Inject constructor(
      */
     suspend fun identifySong(audioData: ByteArray): IdentificationResult = withContext(Dispatchers.IO) {
         _isIdentifying.value = true
-        
+
         try {
             // Implemented basic audio fingerprinting with fallback to AI
             val fingerprintResult = generateAudioFingerprint(audioData)
-            
+
             if (fingerprintResult.isNotEmpty()) {
                 // Try to identify using AI with audio characteristics
                 val aiResult = identifyWithAI(fingerprintResult)
@@ -112,7 +112,7 @@ class RadioIdentificationService @Inject constructor(
                     return@withContext aiResult
                 }
             }
-            
+
             // Fallback: Try to analyze audio patterns for basic identification
             val patternAnalysis = analyzeAudioPatterns(audioData)
             if (patternAnalysis.confidence > 0.5f) {
@@ -121,7 +121,7 @@ class RadioIdentificationService @Inject constructor(
                     info = patternAnalysis
                 )
             }
-            
+
             IdentificationResult(
                 success = false,
                 error = "Could not identify song. Try external services like ACRCloud or Shazam SDK for better results."
@@ -164,7 +164,7 @@ class RadioIdentificationService @Inject constructor(
             val prompt = """
                 A user is listening to radio station "$stationName" (genre: $stationGenre) at $timeOfDay.
                 Based on typical programming for this type of station at this time, suggest what might be playing.
-                
+
                 Return ONLY JSON:
                 {
                     "likely_songs": [
@@ -173,7 +173,7 @@ class RadioIdentificationService @Inject constructor(
                     "programming_type": "music|talk|news|commercial",
                     "confidence": 0.6
                 }
-                
+
                 Note: This is speculation based on typical programming patterns.
             """.trimIndent()
 
@@ -218,21 +218,21 @@ class RadioIdentificationService @Inject constructor(
      */
     private fun generateAudioFingerprint(audioData: ByteArray): String {
         if (audioData.isEmpty()) return ""
-        
+
         try {
             // Basic audio fingerprinting: extract frequency characteristics
             val sampleSize = minOf(audioData.size / 2, 1024) // Use first 1024 samples
             val fingerprint = StringBuilder()
-            
+
             for (i in 0 until sampleSize step 8) {
                 if (i + 7 < audioData.size) {
                     // Convert bytes to sample value (simplified)
-                    val sample = ((audioData[i].toInt() and 0xFF) shl 8) or 
+                    val sample = ((audioData[i].toInt() and 0xFF) shl 8) or
                                 (audioData[i + 1].toInt() and 0xFF)
                     fingerprint.append(abs(sample) % 10) // Extract digit pattern
                 }
             }
-            
+
             return fingerprint.toString()
         } catch (e: Exception) {
             android.util.Log.e("RadioIdentificationService", "Error generating fingerprint", e)
@@ -248,14 +248,14 @@ class RadioIdentificationService @Inject constructor(
             try {
                 val prompt = """
                     Based on this audio fingerprint pattern: "$fingerprint"
-                    This represents audio frequency characteristics. 
-                    Can you suggest a possible song match? 
+                    This represents audio frequency characteristics.
+                    Can you suggest a possible song match?
                     Respond with "ARTIST - TITLE" format or "UNKNOWN" if unclear.
                 """.trimIndent()
-                
+
                 val response = model.generateContent(prompt)
                 val result = response.text?.trim()
-                
+
                 if (result != null && !result.contains("UNKNOWN", ignoreCase = true)) {
                     val parts = result.split(" - ", limit = 2)
                     if (parts.size == 2) {
@@ -283,7 +283,7 @@ class RadioIdentificationService @Inject constructor(
         // Basic pattern analysis - this is a simplified implementation
         val energy = calculateAudioEnergy(audioData)
         val tempo = estimateTempo(audioData)
-        
+
         // Generate a plausible identification based on audio characteristics
         // This is placeholder logic - in reality would match against a database
         val artist = when {
@@ -291,13 +291,13 @@ class RadioIdentificationService @Inject constructor(
             energy > 0.5f -> "Medium Tempo Artist"
             else -> "Acoustic Artist"
         }
-        
+
         val title = when {
             tempo > 120f -> "Fast Track ${tempo.toInt()}"
             tempo > 80f -> "Medium Tempo ${tempo.toInt()}"
             else -> "Slow Tempo ${tempo.toInt()}"
         }
-        
+
         return NowPlayingInfo(
             artist = artist,
             title = title,
@@ -312,19 +312,19 @@ class RadioIdentificationService @Inject constructor(
      */
     private fun calculateAudioEnergy(audioData: ByteArray): Float {
         if (audioData.isEmpty()) return 0f
-        
+
         var sum = 0.0
         var count = 0
-        
+
         for (i in 0 until audioData.size step 2) {
             if (i + 1 < audioData.size) {
-                val sample = ((audioData[i].toInt() and 0xFF) shl 8) or 
+                val sample = ((audioData[i].toInt() and 0xFF) shl 8) or
                             (audioData[i + 1].toInt() and 0xFF)
                 sum += sample * sample
                 count++
             }
         }
-        
+
         return if (count > 0) {
             (kotlin.math.sqrt(sum / count) / Short.MAX_VALUE.toFloat()).toFloat()
         } else {
@@ -352,22 +352,22 @@ class RadioIdentificationService @Inject constructor(
      */
     private fun countPeaks(audioData: ByteArray): Int {
         if (audioData.size < 10) return 0
-        
+
         var peaks = 0
         var previousSample = 0
-        
+
         for (i in 0 until audioData.size step 2) {
             if (i + 1 < audioData.size) {
-                val sample = ((audioData[i].toInt() and 0xFF) shl 8) or 
+                val sample = ((audioData[i].toInt() and 0xFF) shl 8) or
                             (audioData[i + 1].toInt() and 0xFF)
-                
+
                 if (previousSample < 0 && sample > 0) {
                     peaks++ // Zero crossing upward
                 }
                 previousSample = sample
             }
         }
-        
+
         return peaks
     }
 }

@@ -381,18 +381,18 @@ Add these dependencies to your `build.gradle.kts`:
 ```kotlin
 dependencies {
     // Existing dependencies...
-    
+
     // For JSON serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-    
+
     // For audio processing
     implementation("androidx.media3:media3-exoplayer:1.2.0")
     implementation("androidx.media3:media3-common:1.2.0")
-    
+
     // For network operations (book sources)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jsoup:jsoup:1.17.1") // For HTML parsing
-    
+
     // For PDF export (optional)
     implementation("com.itextpdf:itext7-core:7.2.5")
 }

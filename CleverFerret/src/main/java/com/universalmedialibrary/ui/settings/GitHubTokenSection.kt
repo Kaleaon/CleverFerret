@@ -28,7 +28,7 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * GitHub Token Section for Debug Bug Reporting
- * 
+ *
  * Only shown in debug builds. Allows configuration of GitHub personal
  * access token for automatic bug report issue creation.
  */
@@ -122,7 +122,7 @@ internal fun GitHubTokenSection(
                     Text("Save")
                 }
             }
-            
+
             // Show debug notice
             Card(
                 colors = CardDefaults.cardColors(

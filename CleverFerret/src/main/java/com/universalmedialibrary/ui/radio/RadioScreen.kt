@@ -160,7 +160,7 @@ fun RadioScreen(
                                     MetallicBadge(text = "LIVE")
                                 }
                             }
-                            
+
                             // Song identification display
                             nowPlayingInfo?.let { info ->
                                 HorizontalDivider(
@@ -196,7 +196,7 @@ fun RadioScreen(
                                             )
                                         }
                                     }
-                                    
+
                                     IconButton(
                                         onClick = { viewModel.identifyCurrentSong() },
                                         modifier = Modifier.size(32.dp)
@@ -307,7 +307,7 @@ private fun RadioMediaPlayerBar(
                 ) {
                     if (coverUrl != null) {
                         AsyncImage(
-                    
+
                             model = coverUrl,
                             contentDescription = station?.name ?: "Station artwork",
                             modifier = Modifier.fillMaxSize(),
@@ -493,7 +493,7 @@ private fun RadioStationCard(
             ) {
                 if (station.logoUrl != null) {
                     AsyncImage(
-                    
+
                         model = station.logoUrl,
                         contentDescription = "Station Logo",
                         modifier = Modifier.fillMaxSize(),

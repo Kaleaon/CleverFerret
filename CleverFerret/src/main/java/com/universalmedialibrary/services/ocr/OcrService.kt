@@ -7,29 +7,29 @@ import android.graphics.Rect
  * OCR Service interface for text recognition from images
  */
 interface OcrService {
-    
+
     /**
      * Recognize text from a bitmap image
-     * 
+     *
      * @param bitmap The image to process
      * @return Result containing OcrResult or error
      */
     suspend fun recognizeText(bitmap: Bitmap): Result<OcrResult>
-    
+
     /**
      * Recognize text from a specific region of a bitmap
-     * 
+     *
      * @param bitmap The image to process
      * @param region The region to extract text from
      * @return Result containing OcrResult or error
      */
     suspend fun recognizeTextInRegion(bitmap: Bitmap, region: Rect): Result<OcrResult>
-    
+
     /**
      * Check if OCR service is available
      */
     fun isAvailable(): Boolean
-    
+
     companion object {
         /**
          * Default confidence value for ML Kit OCR results.

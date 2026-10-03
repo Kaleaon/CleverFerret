@@ -22,7 +22,7 @@ import com.universalmedialibrary.services.network.*
 
 /**
  * Network Explorer Screen for CleverFerret
- * 
+ *
  * Provides UI for discovering and accessing network storage:
  * - SMB/CIFS share browsing
  * - LAN device discovery
@@ -37,7 +37,7 @@ fun NetworkExplorerScreen(
     viewModel: NetworkExplorerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     LaunchedEffect(Unit) {
         viewModel.scanNetwork()
     }
@@ -80,9 +80,9 @@ fun NetworkExplorerScreen(
                 isConnected = uiState.connectedDevice != null,
                 connectedDevice = uiState.connectedDevice
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             if (uiState.connectedDevice != null) {
                 // File Browser
                 NetworkFileBrowser(
@@ -105,9 +105,9 @@ fun NetworkExplorerScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -147,16 +147,16 @@ private fun ConnectionStatusCard(
                     contentDescription = "Media image",
                     tint = if (isConnected) Color.Green else MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.width(12.dp))
-                
+
                 Column {
                     Text(
                         text = if (isConnected) "Connected" else "Not Connected",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    
+
                     if (connectedDevice != null) {
                         Text(
                             text = "${connectedDevice.name} (${connectedDevice.address})",
@@ -165,7 +165,7 @@ private fun ConnectionStatusCard(
                     }
                 }
             }
-            
+
             if (isConnected) {
                 OutlinedButton(onClick = { /* Disconnect */ }) {
                     Text("Disconnect")
@@ -195,7 +195,7 @@ private fun NetworkFileBrowser(
             ) {
                 Icon(Icons.Default.ArrowUpward, contentDescription = "Up")
             }
-            
+
             Text(
                 text = currentPath,
                 style = MaterialTheme.typography.bodyMedium,
@@ -203,9 +203,9 @@ private fun NetworkFileBrowser(
                 modifier = Modifier.weight(1f)
             )
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Files List
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -242,9 +242,9 @@ private fun NetworkFileRow(
                 contentDescription = "Media image",
                 modifier = Modifier.size(24.dp)
             )
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -253,7 +253,7 @@ private fun NetworkFileRow(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 if (!file.isDirectory) {
                     Text(
                         text = formatFileSize(file.size),
@@ -261,7 +261,7 @@ private fun NetworkFileRow(
                     )
                 }
             }
-            
+
             if (!file.isDirectory) {
                 IconButton(onClick = onDownload) {
                     Icon(Icons.Default.Download, contentDescription = "Download")
@@ -296,21 +296,21 @@ private fun NetworkDeviceCard(
                         contentDescription = "Media image",
                         modifier = Modifier.size(24.dp)
                     )
-                    
+
                     Spacer(modifier = Modifier.width(12.dp))
-                    
+
                     Column {
                         Text(
                             text = device.name,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        
+
                         Text(
                             text = "${device.address}:${device.port}",
                             style = MaterialTheme.typography.bodySmall
                         )
-                        
+
                         if (device.requiresAuth) {
                             Text(
                                 text = "Authentication required",
@@ -320,15 +320,15 @@ private fun NetworkDeviceCard(
                         }
                     }
                 }
-                
+
                 Button(onClick = onConnect) {
                     Text("Connect")
                 }
             }
-            
+
             if (device.capabilities != null) {
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 DeviceCapabilitiesRow(capabilities = device.capabilities)
             }
         }
@@ -345,7 +345,7 @@ private fun DeviceCapabilitiesRow(
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold
         )
-        
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -355,14 +355,14 @@ private fun DeviceCapabilitiesRow(
                     label = { Text("Streaming") }
                 )
             }
-            
+
             if (capabilities.supportsSeeking) {
                 SuggestionChip(
                     onClick = {},
                     label = { Text("Seeking") }
                 )
             }
-            
+
             if (capabilities.requiresAuth) {
                 SuggestionChip(
                     onClick = {},

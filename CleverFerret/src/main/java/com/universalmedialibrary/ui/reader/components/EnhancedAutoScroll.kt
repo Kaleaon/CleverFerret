@@ -29,7 +29,7 @@ fun EnhancedAutoScrollControls(
     modifier: Modifier = Modifier
 ) {
     var showSpeedControl by remember { mutableStateOf(false) }
-    
+
     Card(
         modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -49,7 +49,7 @@ fun EnhancedAutoScrollControls(
                 ) {
                     Icon(Icons.Default.Remove, "Decrease speed")
                 }
-                
+
                 // Play/Pause
                 FilledTonalButton(
                     onClick = onScrollToggle,
@@ -62,7 +62,7 @@ fun EnhancedAutoScrollControls(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(if (isScrolling) "Pause" else "Auto Scroll")
                 }
-                
+
                 // Increase speed
                 IconButton(
                     onClick = { onSpeedChange((scrollSpeed + 0.1f).coerceAtMost(5.0f)) },
@@ -70,7 +70,7 @@ fun EnhancedAutoScrollControls(
                 ) {
                     Icon(Icons.Default.Add, "Increase speed")
                 }
-                
+
                 // Settings toggle
                 IconButton(
                     onClick = { showSpeedControl = !showSpeedControl }
@@ -78,7 +78,7 @@ fun EnhancedAutoScrollControls(
                     Icon(Icons.Default.Settings, "Speed settings")
                 }
             }
-            
+
             AnimatedVisibility(
                 visible = showSpeedControl,
                 enter = expandVertically(),
@@ -94,7 +94,7 @@ fun EnhancedAutoScrollControls(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
-                    
+
                     Slider(
                         value = scrollSpeed,
                         onValueChange = onSpeedChange,
@@ -102,7 +102,7 @@ fun EnhancedAutoScrollControls(
                         steps = 48,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -116,9 +116,9 @@ fun EnhancedAutoScrollControls(
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     // Preset speed buttons
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -157,21 +157,21 @@ private fun PresetSpeedButton(
 class AutoScrollState {
     var isScrolling by mutableStateOf(false)
         private set
-    
+
     var speed by mutableStateOf(1.0f)
-    
+
     fun toggle() {
         isScrolling = !isScrolling
     }
-    
+
     fun start() {
         isScrolling = true
     }
-    
+
     fun stop() {
         isScrolling = false
     }
-    
+
     fun updateSpeed(newSpeed: Float) {
         speed = newSpeed.coerceIn(0.1f, 5.0f)
     }

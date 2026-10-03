@@ -65,7 +65,7 @@ fun FolderImportScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var showUrlDialog by remember { mutableStateOf(false) }
     var importUrlText by remember { mutableStateOf("") }
-    
+
     // Folder picker launcher
     val folderPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
@@ -88,7 +88,7 @@ fun FolderImportScreen(
             }
         }
     }
-    
+
     // File picker launcher for individual files
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments()
@@ -104,7 +104,7 @@ fun FolderImportScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Column {
                         Text("Import Media")
                         if (uiState.selectedFolder != null) {
@@ -157,9 +157,9 @@ fun FolderImportScreen(
                             Spacer(Modifier.width(8.dp))
                             Text("Clear")
                         }
-                        
+
                         Button(
-                            onClick = { 
+                            onClick = {
                                 scope.launch {
                                     viewModel.importFiles(context)
                                     snackbarHostState.showSnackbar("Import complete!")
@@ -209,7 +209,7 @@ fun FolderImportScreen(
                         )
                     }
                 }
-                
+
                 uiState.isImporting -> {
                     // Import progress
                     Column(
@@ -247,7 +247,7 @@ fun FolderImportScreen(
                             text = "${(uiState.importProgress * 100).toInt()}%",
                             style = MaterialTheme.typography.labelMedium
                         )
-                        
+
                         if (uiState.isFetchingMetadata) {
                             Spacer(modifier = Modifier.height(16.dp))
                             Row(
@@ -267,7 +267,7 @@ fun FolderImportScreen(
                         }
                     }
                 }
-                
+
                 uiState.scannedFiles.isEmpty() -> {
                     // Empty state - show selection options
                     Column(
@@ -284,26 +284,26 @@ fun FolderImportScreen(
                             modifier = Modifier.size(80.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
-                        
+
                         Spacer(modifier = Modifier.height(24.dp))
-                        
+
                         Text(
                             text = "Import Media",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         Text(
                             text = "Select a folder or files to import into your library",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
-                        
+
                         Spacer(modifier = Modifier.height(32.dp))
-                        
+
                         // Folder selection card
                         ImportOptionCard(
                             icon = Icons.Default.Folder,
@@ -311,15 +311,15 @@ fun FolderImportScreen(
                             description = "Import all media files from a folder and subfolders",
                             onClick = { folderPickerLauncher.launch(null) }
                         )
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         // File selection card
                         ImportOptionCard(
                             icon = Icons.Default.InsertDriveFile,
                             title = "Select Files",
                             description = "Pick individual files to import",
-                            onClick = { 
+                            onClick = {
                                 filePickerLauncher.launch(arrayOf(
                                     "application/epub+zip",
                                     "application/pdf",
@@ -344,9 +344,9 @@ fun FolderImportScreen(
                             description = "Import from a direct http(s) media URL",
                             onClick = { showUrlDialog = true }
                         )
-                        
+
                         Spacer(modifier = Modifier.height(32.dp))
-                        
+
                         if (uiState.lastImportError != null) {
                             Spacer(modifier = Modifier.height(24.dp))
                             AssistChip(
@@ -362,7 +362,7 @@ fun FolderImportScreen(
                         SupportedFormatsCard()
                     }
                 }
-                
+
                 else -> {
                     // File list with sorting options
                     Column(modifier = Modifier.fillMaxSize()) {
@@ -404,7 +404,7 @@ fun FolderImportScreen(
                                         onClick = { viewModel.setFilter(MediaFilterType.VIDEO) }
                                     )
                                 }
-                                
+
                                 // Select all toggle
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -420,7 +420,7 @@ fun FolderImportScreen(
                                 }
                             }
                         }
-                        
+
                         // Auto-sort banner
                         AnimatedVisibility(
                             visible = uiState.autoSortEnabled,
@@ -452,7 +452,7 @@ fun FolderImportScreen(
                                 }
                             }
                         }
-                        
+
                         // File list
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
@@ -538,7 +538,7 @@ private fun MediaTypeChip(
     FilterChip(
         selected = selected,
         onClick = onClick,
-        label = { 
+        label = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     icon,
@@ -593,11 +593,11 @@ data class FileMetadata(
     val coverUrl: String?,
     val description: String?,
     val subjects: List<String>,  // General tags, genres, subjects
-    
+
     // === Book-specific fields ===
     val isbn: String? = null,
     val publisher: String? = null,
-    
+
     // === Audio-specific fields (TagLib/Metadator style) ===
     val album: String? = null,
     val albumArtist: String? = null,
@@ -607,7 +607,7 @@ data class FileMetadata(
     val genre: String? = null,
     val duration: Long? = null,
     val musicBrainzId: String? = null,
-    
+
     // === Comic-specific fields (ComicTagger style) ===
     val series: String? = null,
     val issueNumber: String? = null,
@@ -617,7 +617,7 @@ data class FileMetadata(
     val teams: List<String> = emptyList(),
     val locations: List<String> = emptyList(),
     val comicVineId: Int? = null,
-    
+
     // === Fanfiction-specific fields (AO3 style) ===
     val fandoms: List<String> = emptyList(),
     val relationships: List<String> = emptyList(),

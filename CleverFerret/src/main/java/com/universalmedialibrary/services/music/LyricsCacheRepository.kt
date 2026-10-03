@@ -38,7 +38,7 @@ class LyricsCacheRepository @Inject constructor(
 
     suspend fun getLyrics(trackId: Long): Lyrics? = withContext(Dispatchers.IO) {
         val entity = dao.getLyrics(trackId) ?: return@withContext null
-        
+
         // Permanent cache - no expiration
         // User can manually refresh if needed
         deserializeLyrics(trackId, entity)
@@ -50,7 +50,7 @@ class LyricsCacheRepository @Inject constructor(
 
     private fun serializeLyrics(lyrics: Lyrics): String {
         // Simple JSON serialization
-        val lines = lyrics.lines.joinToString(separator = "|||") { 
+        val lines = lyrics.lines.joinToString(separator = "|||") {
             "${it.time}::${it.text}"
         }
         return lines

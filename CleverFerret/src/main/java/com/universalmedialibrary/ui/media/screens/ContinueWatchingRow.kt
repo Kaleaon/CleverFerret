@@ -82,7 +82,7 @@ internal fun ContinueWatchingRow(
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold
             )
-            
+
             TextButton(onClick = onSeeAllClick) {
                 Text(
                     text = "View All",
@@ -91,9 +91,9 @@ internal fun ContinueWatchingRow(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
-        
+
         // Items with metallic borders
         LazyRow(
             contentPadding = PaddingValues(horizontal = MediaSpacing.LG),

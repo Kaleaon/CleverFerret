@@ -57,7 +57,7 @@ internal fun SelectionBar(
             Text("|", color = MaterialTheme.colorScheme.onSurfaceVariant)
             TextButton(onClick = onMove) { Text("Move") }
             Text("|", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            TextButton(onClick = onDelete) { 
+            TextButton(onClick = onDelete) {
                 Text("Delete", color = MaterialTheme.colorScheme.error)
             }
             Text("|", color = MaterialTheme.colorScheme.onSurfaceVariant)

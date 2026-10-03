@@ -16,12 +16,12 @@ import javax.inject.Singleton
 
 /**
  * Network connectivity observer that monitors network state changes.
- * 
+ *
  * Provides real-time network status updates using Android's ConnectivityManager.
  * Useful for pausing/resuming network operations and showing network status in UI.
- * 
+ *
  * Inspired by Myne's NetworkObserver with enhancements for CleverFerret's needs.
- * 
+ *
  * @property context Application context for accessing system services
  */
 @Singleton
@@ -61,10 +61,10 @@ class NetworkObserver @Inject constructor(
 
     /**
      * Observe network status changes as a Flow.
-     * 
+     *
      * Returns a cold Flow that emits network status updates. The Flow is distinct,
      * meaning consecutive duplicate statuses are filtered out.
-     * 
+     *
      * @return Flow of network Status updates
      */
     fun observe(): Flow<Status> {
@@ -92,7 +92,7 @@ class NetworkObserver @Inject constructor(
             }
 
             connectivityManager.registerDefaultNetworkCallback(callback)
-            
+
             awaitClose {
                 connectivityManager.unregisterNetworkCallback(callback)
             }
@@ -101,20 +101,20 @@ class NetworkObserver @Inject constructor(
 
     /**
      * Check if device currently has network connectivity.
-     * 
+     *
      * @return true if network is available, false otherwise
      */
     fun isConnected(): Boolean {
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        
+
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
                 capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
     /**
      * Get the current connection type.
-     * 
+     *
      * @return ConnectionType indicating how device is connected
      */
     fun getConnectionType(): ConnectionType {
@@ -133,7 +133,7 @@ class NetworkObserver @Inject constructor(
     /**
      * Check if device is connected via WiFi.
      * Useful for determining whether to sync large files.
-     * 
+     *
      * @return true if connected via WiFi
      */
     fun isWiFiConnected(): Boolean {
@@ -143,7 +143,7 @@ class NetworkObserver @Inject constructor(
     /**
      * Check if device is connected via cellular data.
      * Useful for warning users about data usage.
-     * 
+     *
      * @return true if connected via cellular
      */
     fun isCellularConnected(): Boolean {
@@ -152,7 +152,7 @@ class NetworkObserver @Inject constructor(
 
     /**
      * Observe network type changes (WiFi, Cellular, etc.).
-     * 
+     *
      * @return Flow of ConnectionType updates
      */
     fun observeConnectionType(): Flow<ConnectionType> {
@@ -164,11 +164,11 @@ class NetworkObserver @Inject constructor(
                 ) {
                     super.onCapabilitiesChanged(network, networkCapabilities)
                     val type = when {
-                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> 
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ->
                             ConnectionType.WiFi
-                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> 
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ->
                             ConnectionType.Cellular
-                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> 
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ->
                             ConnectionType.Ethernet
                         else -> ConnectionType.None
                     }
@@ -186,7 +186,7 @@ class NetworkObserver @Inject constructor(
                 .build()
 
             connectivityManager.registerNetworkCallback(request, callback)
-            
+
             // Send initial state
             launch { send(getConnectionType()) }
 

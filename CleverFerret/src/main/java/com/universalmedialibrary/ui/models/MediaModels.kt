@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
  * Media Category Models for CleverFerret
- * 
+ *
  * Defines all supported media types with their UI representation
  */
 
@@ -81,8 +81,8 @@ enum class MediaCategory(
          * Get MediaCategory from label string
          */
         fun fromLabel(label: String): MediaCategory? {
-            return values().firstOrNull { 
-                it.label.equals(label, ignoreCase = true) 
+            return values().firstOrNull {
+                it.label.equals(label, ignoreCase = true)
             }
         }
 

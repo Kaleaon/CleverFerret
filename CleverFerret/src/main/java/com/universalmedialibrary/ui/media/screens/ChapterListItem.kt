@@ -53,9 +53,9 @@ internal fun ChapterListItem(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = chapter.title,
@@ -64,7 +64,7 @@ internal fun ChapterListItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
             ) {
@@ -75,7 +75,7 @@ internal fun ChapterListItem(
                         color = MediaColors.TextTertiary
                     )
                 }
-                
+
                 chapter.date?.let {
                     Text(
                         text = it,
@@ -85,7 +85,7 @@ internal fun ChapterListItem(
                 }
             }
         }
-        
+
         // Progress or play indicator
         if (chapter.progress > 0 && chapter.progress < 1) {
             CircularProgressIndicator(

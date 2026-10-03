@@ -505,4 +505,3 @@ internal fun cloudSyncVector(): ImageVector = materialIcon(name = "CloudSync") {
         close()
     }
 }
-

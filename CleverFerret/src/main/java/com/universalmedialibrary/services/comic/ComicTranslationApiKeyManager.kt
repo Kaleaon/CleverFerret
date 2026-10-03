@@ -9,19 +9,19 @@ import javax.inject.Singleton
 
 /**
  * Secure API Key Manager for Comic Translation
- * 
- * Manages user-provided API key for Gemini AI using Android's 
+ *
+ * Manages user-provided API key for Gemini AI using Android's
  * EncryptedSharedPreferences for secure storage.
- * 
+ *
  * Note: Translation is now handled by on-device ML Kit, which doesn't require API keys.
  * Only Gemini AI key is needed for visual analysis.
- * 
+ *
  * Features:
  * - Encrypted storage using Android Keystore
  * - Simple get/set operations
  * - Validation checks
  * - Clear/reset functionality
- * 
+ *
  * Usage:
  * 1. User enters Gemini API key in settings
  * 2. Key is encrypted and stored
@@ -32,7 +32,7 @@ import javax.inject.Singleton
 class ComicTranslationApiKeyManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     private val masterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()

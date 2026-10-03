@@ -30,22 +30,22 @@ import javax.inject.Inject
 class AudioProfilesViewModel @Inject constructor(
     private val musicPlayerService: AdvancedMusicPlayerService
 ) : ViewModel() {
-    
+
     private val audioProfileService = musicPlayerService.getAudioProfileService()
-    
+
     private val _currentDeviceType = MutableStateFlow(audioProfileService.detectCurrentDevice())
     val currentDeviceType: StateFlow<AudioDeviceType> = _currentDeviceType.asStateFlow()
-    
+
     private val _autoSwitchEnabled = MutableStateFlow(true)
     val autoSwitchEnabled: StateFlow<Boolean> = _autoSwitchEnabled.asStateFlow()
-    
+
     private val _profiles = MutableStateFlow<Map<AudioDeviceType, AudioProfile>>(emptyMap())
     val profiles: StateFlow<Map<AudioDeviceType, AudioProfile>> = _profiles.asStateFlow()
-    
+
     init {
         loadAllProfiles()
     }
-    
+
     private fun loadAllProfiles() {
         viewModelScope.launch {
             val profileMap = mutableMapOf<AudioDeviceType, AudioProfile>()
@@ -57,7 +57,7 @@ class AudioProfilesViewModel @Inject constructor(
             _profiles.value = profileMap
         }
     }
-    
+
     fun updateProfile(deviceType: AudioDeviceType, eqPreset: EqualizerPreset, bassBoost: Int, reverbPreset: Int) {
         viewModelScope.launch {
             val profile = AudioProfile(
@@ -71,7 +71,7 @@ class AudioProfilesViewModel @Inject constructor(
             loadAllProfiles()
         }
     }
-    
+
     fun resetProfile(deviceType: AudioDeviceType) {
         viewModelScope.launch {
             // Load default profile and save it
@@ -82,14 +82,14 @@ class AudioProfilesViewModel @Inject constructor(
             loadAllProfiles()
         }
     }
-    
+
     fun setAutoSwitchEnabled(enabled: Boolean) {
         _autoSwitchEnabled.value = enabled
         // Note: Auto-switching is always active in AudioProfileService.
         // This toggle is for UI state only. To disable auto-switching,
         // the AudioProfileService would need a new method added.
     }
-    
+
     fun refreshCurrentDevice() {
         viewModelScope.launch {
             _currentDeviceType.value = audioProfileService.detectCurrentDevice()
@@ -107,9 +107,9 @@ fun AudioProfilesScreen(
     val currentDevice by viewModel.currentDeviceType.collectAsState()
     val autoSwitchEnabled by viewModel.autoSwitchEnabled.collectAsState()
     val profiles by viewModel.profiles.collectAsState()
-    
+
     var expandedDevice by remember { mutableStateOf<AudioDeviceType?>(currentDevice) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -154,7 +154,7 @@ fun AudioProfilesScreen(
                     )
                 }
             }
-            
+
             // Current Device Card
             ElevatedCard(
                 colors = CardDefaults.elevatedCardColors(
@@ -190,7 +190,7 @@ fun AudioProfilesScreen(
                     }
                 }
             }
-            
+
             // Auto-Switch Toggle
             ElevatedCard {
                 Row(
@@ -217,13 +217,13 @@ fun AudioProfilesScreen(
                     )
                 }
             }
-            
+
             // Device Profiles List
             Text(
                 "Device Profiles",
                 style = MaterialTheme.typography.titleLarge
             )
-            
+
             AudioDeviceType.values().filter { it != AudioDeviceType.UNKNOWN }.forEach { deviceType ->
                 DeviceProfileCard(
                     deviceType = deviceType,
@@ -258,7 +258,7 @@ fun DeviceProfileCard(
     var eqPreset by remember(profile) { mutableStateOf(profile?.eqPreset ?: EqualizerPreset.FLAT) }
     var bassBoost by remember(profile) { mutableStateOf(profile?.bassBoost ?: 500) }
     var reverbPreset by remember(profile) { mutableStateOf(profile?.reverbPreset ?: 0) }
-    
+
     ElevatedCard(
         colors = if (isCurrent) {
             CardDefaults.elevatedCardColors(
@@ -283,9 +283,9 @@ fun DeviceProfileCard(
                     Icon(
                         getDeviceIcon(deviceType),
                         "Device Type",
-                        tint = if (isCurrent) 
-                            MaterialTheme.colorScheme.onSecondaryContainer 
-                        else 
+                        tint = if (isCurrent)
+                            MaterialTheme.colorScheme.onSecondaryContainer
+                        else
                             MaterialTheme.colorScheme.onSurface
                     )
                     Column {
@@ -309,13 +309,13 @@ fun DeviceProfileCard(
                     )
                 }
             }
-            
+
             // Expanded Content
             if (isExpanded) {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // EQ Preset
                 Text("Equalizer Preset", style = MaterialTheme.typography.labelLarge)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -347,9 +347,9 @@ fun DeviceProfileCard(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Bass Boost
                 Text("Bass Boost: $bassBoost", style = MaterialTheme.typography.labelLarge)
                 Slider(
@@ -358,9 +358,9 @@ fun DeviceProfileCard(
                     valueRange = 0f..1000f,
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Reverb Preset
                 Text("Reverb Preset", style = MaterialTheme.typography.labelLarge)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -392,9 +392,9 @@ fun DeviceProfileCard(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),

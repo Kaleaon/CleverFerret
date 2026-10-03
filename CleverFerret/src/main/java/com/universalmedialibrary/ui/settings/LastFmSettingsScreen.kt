@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 /**
  * Last.fm Settings Screen
- * 
+ *
  * Provides UI for:
  * - Last.fm authentication
  * - Enable/disable scrobbling
@@ -42,7 +42,7 @@ fun LastFmSettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showApiKeyDialog by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -93,7 +93,7 @@ fun LastFmSettingsScreen(
                     )
                 }
             }
-            
+
             // Authentication Status Card
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth()
@@ -106,7 +106,7 @@ fun LastFmSettingsScreen(
                         "Authentication Status",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -114,20 +114,20 @@ fun LastFmSettingsScreen(
                         Icon(
                             if (uiState.isAuthenticated) Icons.Filled.CheckCircle else Icons.Filled.Warning,
                             contentDescription = "Media image",
-                            tint = if (uiState.isAuthenticated) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
+                            tint = if (uiState.isAuthenticated)
+                                MaterialTheme.colorScheme.primary
+                            else
                                 MaterialTheme.colorScheme.error
                         )
                         Text(
-                            if (uiState.isAuthenticated) 
-                                "Authenticated" 
-                            else 
+                            if (uiState.isAuthenticated)
+                                "Authenticated"
+                            else
                                 "Not Authenticated",
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
-                    
+
                     uiState.sessionKey?.let { key ->
                         Text(
                             "Session Key: ${key.take(16)}...",
@@ -135,7 +135,7 @@ fun LastFmSettingsScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    
+
                     Button(
                         onClick = { showApiKeyDialog = true },
                         modifier = Modifier.fillMaxWidth()
@@ -146,7 +146,7 @@ fun LastFmSettingsScreen(
                     }
                 }
             }
-            
+
             // Scrobbling Settings Card
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth()
@@ -159,7 +159,7 @@ fun LastFmSettingsScreen(
                         "Scrobbling Options",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    
+
                     // Enable Scrobbling
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -183,9 +183,9 @@ fun LastFmSettingsScreen(
                             enabled = uiState.isAuthenticated
                         )
                     }
-                    
+
                     HorizontalDivider()
-                    
+
                     // Now Playing Updates
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -211,7 +211,7 @@ fun LastFmSettingsScreen(
                     }
                 }
             }
-            
+
             // Statistics Card
             if (uiState.isAuthenticated) {
                 ElevatedCard(
@@ -225,7 +225,7 @@ fun LastFmSettingsScreen(
                             "Session Statistics",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -253,7 +253,7 @@ fun LastFmSettingsScreen(
                                 )
                             }
                         }
-                        
+
                         if (uiState.queuedCount > 0) {
                             OutlinedButton(
                                 onClick = { viewModel.retryQueuedScrobbles() },
@@ -267,7 +267,7 @@ fun LastFmSettingsScreen(
                     }
                 }
             }
-            
+
             // API Keys Dialog
             if (showApiKeyDialog) {
                 LastFmApiKeyDialog(
@@ -296,7 +296,7 @@ fun LastFmApiKeyDialog(
     var keyText by remember { mutableStateOf(apiKey) }
     var secretText by remember { mutableStateOf(apiSecret) }
     var sessionText by remember { mutableStateOf(sessionKey ?: "") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Last.fm API Configuration") },
@@ -309,7 +309,7 @@ fun LastFmApiKeyDialog(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 OutlinedTextField(
                     value = keyText,
                     onValueChange = { keyText = it },
@@ -317,7 +317,7 @@ fun LastFmApiKeyDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 OutlinedTextField(
                     value = secretText,
                     onValueChange = { secretText = it },
@@ -326,7 +326,7 @@ fun LastFmApiKeyDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 OutlinedTextField(
                     value = sessionText,
                     onValueChange = { sessionText = it },
@@ -374,20 +374,20 @@ class LastFmSettingsViewModel @Inject constructor(
     private val apiKeyRepository: APIKeyRepository,
     private val lastFmService: LastFmScrobblerService
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(LastFmUiState())
     val uiState: StateFlow<LastFmUiState> = _uiState.asStateFlow()
-    
+
     init {
         loadSettings()
     }
-    
+
     private fun loadSettings() {
         viewModelScope.launch {
             val apiKey = apiKeyRepository.getLastFmApiKey() ?: ""
             val apiSecret = apiKeyRepository.getLastFmSecret() ?: ""
             val sessionKey = apiKeyRepository.getLastFmSessionKey()
-            
+
             _uiState.value = _uiState.value.copy(
                 apiKey = apiKey,
                 apiSecret = apiSecret,
@@ -398,17 +398,17 @@ class LastFmSettingsViewModel @Inject constructor(
             )
         }
     }
-    
+
     fun setScrobblingEnabled(enabled: Boolean) {
         lastFmService.setScrobblingEnabled(enabled)
         _uiState.value = _uiState.value.copy(scrobblingEnabled = enabled)
     }
-    
+
     fun setNowPlayingEnabled(enabled: Boolean) {
         lastFmService.setNowPlayingEnabled(enabled)
         _uiState.value = _uiState.value.copy(nowPlayingEnabled = enabled)
     }
-    
+
     fun saveApiKeys(apiKey: String, apiSecret: String, sessionKey: String?) {
         viewModelScope.launch {
             if (apiKey.isNotEmpty()) {
@@ -423,7 +423,7 @@ class LastFmSettingsViewModel @Inject constructor(
             loadSettings()
         }
     }
-    
+
     fun retryQueuedScrobbles() {
         viewModelScope.launch {
             // Trigger retry of queued scrobbles

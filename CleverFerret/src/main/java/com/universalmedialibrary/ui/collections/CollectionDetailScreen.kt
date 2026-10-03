@@ -315,8 +315,8 @@ private fun CollectionItemCard(
                     fontWeight = FontWeight.Medium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
-                ) 
-                
+                )
+
                 Text(
                     text = "${item.mediaType} • ${formatFileSize(item.fileSize)}",
                     style = MaterialTheme.typography.bodySmall,

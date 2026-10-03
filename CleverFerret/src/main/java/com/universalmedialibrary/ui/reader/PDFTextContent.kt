@@ -65,7 +65,7 @@ fun PDFTextContent(
     onTextSelected: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
-    
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -98,12 +98,12 @@ fun PDFTextContent(
                     color = Color.Gray
                 )
             }
-            
+
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 16.dp),
                 color = Color.LightGray
             )
-            
+
             // Page content
             SelectionContainer(enabled = showTextSelectionMode) {
                 Text(

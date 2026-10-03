@@ -38,13 +38,13 @@ internal fun ThemePickerDialog(
     // Note: Only the 6 original themes can be persisted with current ViewModel
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { 
+        title = {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Select Theme") 
+                Text("Select Theme")
                 Text(
                     text = "15 Available",
                     style = MaterialTheme.typography.labelMedium,
@@ -68,14 +68,14 @@ internal fun ThemePickerDialog(
                             modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                         )
                     }
-                    
+
                     items(themes.size) { index ->
                         val theme = themes[index]
                         val config = theme.getConfig()
                         val isSelected = theme.name == currentTheme.toCleverFerretTheme().name
-                        
+
                         Card(
-                            onClick = { 
+                            onClick = {
                                 // Convert CleverFerretTheme to ThemePalette
                                 onSelect(theme.toThemePalette())
                             },
@@ -104,7 +104,7 @@ internal fun ThemePickerDialog(
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
-                                    
+
                                     // Show special features for Ancient Architect themes
                                     if (theme.isAncientArchitect()) {
                                         Row(
@@ -136,7 +136,7 @@ internal fun ThemePickerDialog(
                         }
                     }
 
-                    
+
                 }
             }
         },

@@ -49,31 +49,51 @@ def _target_exists(markdown_file: Path, target: str) -> bool:
 
 
 def main() -> int:
-    markdown_files = sorted(DOCS_ROOT.rglob("*.md"))
+    if len(sys.argv) > 1:
+        markdown_files = [Path(arg).resolve() for arg in sys.argv[1:] if arg.endswith(".md") and Path(arg).exists()]
+    else:
+        markdown_files = sorted(DOCS_ROOT.rglob("*.md"))
+
+    if not markdown_files:
+        print("No markdown files to validate.")
+        return 0
+
     errors: list[str] = []
 
     for markdown_file in markdown_files:
-        content = markdown_file.read_text(encoding="utf-8")
-        for raw_target in LINK_RE.findall(content):
-            target = _normalize_target(raw_target)
-            if not target:
-                continue
+        try:
+            content = markdown_file.read_text(encoding="utf-8")
+        except Exception as exc:
+            errors.append(f"{markdown_file}: failed to read file: {exc}")
+            continue
 
-            target_no_fragment = target.split("#", 1)[0].strip()
-            if not target_no_fragment or _should_skip(target_no_fragment):
-                continue
+        try:
+            rel_file = markdown_file.relative_to(ROOT)
+        except ValueError:
+            rel_file = markdown_file
 
-            if not _target_exists(markdown_file, target_no_fragment):
-                rel_file = markdown_file.relative_to(ROOT)
-                errors.append(f"{rel_file}: missing local link target '{target_no_fragment}'")
+        lines = content.splitlines()
+        for line_num, line in enumerate(lines, start=1):
+            for raw_target in LINK_RE.findall(line):
+                target = _normalize_target(raw_target)
+                if not target:
+                    continue
+
+                target_no_fragment = target.split("#", 1)[0].strip()
+                if not target_no_fragment or _should_skip(target_no_fragment):
+                    continue
+
+                if not _target_exists(markdown_file, target_no_fragment):
+                    errors.append(f"{rel_file}:{line_num}: missing local link target '{target_no_fragment}'")
 
     if errors:
         print("Broken documentation links detected:")
         for error in errors:
             print(f"- {error}")
+        print("\nCorrection steps: Ensure target file exists at the specified relative path or update the link URL.")
         return 1
 
-    print(f"Validated {len(markdown_files)} markdown files under docs/: no missing local links found.")
+    print(f"Validated {len(markdown_files)} markdown files: no missing local links found.")
     return 0
 
 

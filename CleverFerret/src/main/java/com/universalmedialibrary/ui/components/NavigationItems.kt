@@ -263,8 +263,7 @@ object NavigationItems {
 
     val bottomNavItems: List<NavigationItem> = items.filter { it.showInBottomNav }
     val settingsItem: NavigationItem = items.first { it.route == "settings" }
-    
+
     /** All navigation items available for drawer, including those hidden from bottom bar */
     val drawerItems: List<NavigationItem> = items
 }
-

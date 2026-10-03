@@ -41,10 +41,10 @@ class FolderImportViewModel @Inject constructor(
         PERMISSION_DENIED,
         ACCESS_ERROR
     }
-    
+
     companion object {
         private const val TAG = "FolderImportViewModel"
-        
+
         // File extensions by type
         val BOOK_EXTENSIONS = setOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx", "djvu", "chm")
         val COMIC_EXTENSIONS = setOf("cbz", "cbr", "cb7", "cbt")
@@ -54,7 +54,7 @@ class FolderImportViewModel @Inject constructor(
         val VIDEO_EXTENSIONS = setOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "mpg", "mpeg")
         val DOCUMENT_EXTENSIONS = setOf("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp")
         val FANFICTION_EXTENSIONS = setOf("epub") // Fanfiction typically in EPUB format
-        
+
         // Fanfiction detection patterns in filename
         val FANFICTION_PATTERNS = listOf(
             Regex("""(?i)\bao3\b"""),
@@ -65,7 +65,7 @@ class FolderImportViewModel @Inject constructor(
             Regex("""(?i)\bfandom\b""")
         )
     }
-    
+
     private val _uiState = MutableStateFlow(FolderImportUiState())
     val uiState: StateFlow<FolderImportUiState> = _uiState.asStateFlow()
 
@@ -77,7 +77,7 @@ class FolderImportViewModel @Inject constructor(
         val size: Long,
         val path: String = ""
     )
-    
+
     fun scanFolder(context: Context, folderUri: Uri) {
         viewModelScope.launch {
             _uiState.update { it.copy(
@@ -85,9 +85,9 @@ class FolderImportViewModel @Inject constructor(
                 scanProgress = 0,
                 selectedFolder = getFolderName(context, folderUri)
             )}
-            
+
             val files = mutableListOf<ScannedFile>()
-            
+
             withContext(Dispatchers.IO) {
                 try {
                     val documentFile = DocumentFile.fromTreeUri(context, folderUri)
@@ -98,17 +98,17 @@ class FolderImportViewModel @Inject constructor(
                     Log.e(TAG, "Error scanning folder", e)
                 }
             }
-            
+
             // Sort files by type
             val sortedFiles = files.sortedWith(
                 compareBy({ it.type.ordinal }, { it.name.lowercase() })
             )
-            
+
             // Calculate counts
             val bookCount = sortedFiles.count { it.type == ScannedFileType.BOOK }
             val audioCount = sortedFiles.count { it.type in listOf(ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK, ScannedFileType.PODCAST) }
             val videoCount = sortedFiles.count { it.type == ScannedFileType.VIDEO }
-            
+
             _uiState.update { it.copy(
                 isScanning = false,
                 scannedFiles = sortedFiles,
@@ -118,7 +118,7 @@ class FolderImportViewModel @Inject constructor(
                 audioCount = audioCount,
                 videoCount = videoCount
             )}
-            
+
             // Auto-fetch metadata for books if enabled
             if (_uiState.value.autoSortEnabled) {
                 fetchMetadataForFiles(
@@ -131,7 +131,7 @@ class FolderImportViewModel @Inject constructor(
             }
         }
     }
-    
+
     private suspend fun scanDocumentTree(
         context: Context,
         documentFile: DocumentFile,
@@ -146,14 +146,14 @@ class FolderImportViewModel @Inject constructor(
                 val name = file.name ?: return@forEach
                 val extension = name.substringAfterLast(".", "").lowercase()
                 val type = detectFileType(extension)
-                
+
                 // Skip unsupported files
                 if (type == ScannedFileType.OTHER && extension !in DOCUMENT_EXTENSIONS) {
                     return@forEach
                 }
-                
+
                 val size = file.length()
-                
+
                 files.add(ScannedFile(
                     uri = file.uri.toString(),
                     name = name,
@@ -163,12 +163,12 @@ class FolderImportViewModel @Inject constructor(
                     type = type,
                     path = path
                 ))
-                
+
                 _uiState.update { it.copy(scanProgress = files.size) }
             }
         }
     }
-    
+
     fun addFiles(context: Context, uris: List<Uri>) {
         viewModelScope.launch {
             val files = ingestEntries(
@@ -210,7 +210,7 @@ class FolderImportViewModel @Inject constructor(
             mergeScannedFiles(files)
         }
     }
-    
+
     fun toggleFileSelection(uri: String) {
         _uiState.update { state ->
             val newSelection = if (uri in state.selectedFiles) {
@@ -221,7 +221,7 @@ class FolderImportViewModel @Inject constructor(
             state.copy(selectedFiles = newSelection)
         }
     }
-    
+
     fun toggleSelectAll() {
         _uiState.update { state ->
             val filteredUris = state.filteredFiles.map { it.uri }.toSet()
@@ -233,7 +233,7 @@ class FolderImportViewModel @Inject constructor(
             state.copy(selectedFiles = newSelection)
         }
     }
-    
+
     fun setFilter(filter: MediaFilterType) {
         _uiState.update { state ->
             val newFilter = if (state.filterType == filter) MediaFilterType.ALL else filter
@@ -243,7 +243,7 @@ class FolderImportViewModel @Inject constructor(
             )
         }
     }
-    
+
     private fun applyFilter(files: List<ScannedFile>, filter: MediaFilterType): List<ScannedFile> {
         return when (filter) {
             MediaFilterType.ALL -> files
@@ -252,10 +252,10 @@ class FolderImportViewModel @Inject constructor(
             MediaFilterType.VIDEO -> files.filter { it.type == ScannedFileType.VIDEO }
         }
     }
-    
+
     fun toggleAutoSort() {
         _uiState.update { it.copy(autoSortEnabled = !it.autoSortEnabled) }
-        
+
         if (_uiState.value.autoSortEnabled) {
             fetchMetadataForAllFiles()
         }
@@ -283,18 +283,18 @@ class FolderImportViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Detect if a file is likely fanfiction based on filename patterns
      */
     private fun isFanfiction(filename: String): Boolean {
         return FANFICTION_PATTERNS.any { it.containsMatchIn(filename) }
     }
-    
+
     fun fetchMetadataForFile(file: ScannedFile) {
         viewModelScope.launch {
             _uiState.update { it.copy(isFetchingMetadata = true) }
-            
+
             try {
                 when (file.type) {
                     ScannedFileType.BOOK -> {
@@ -305,19 +305,19 @@ class FolderImportViewModel @Inject constructor(
                             fetchBookMetadata(file)
                         }
                     }
-                    
+
                     ScannedFileType.COMIC -> {
                         fetchComicMetadata(file)
                     }
-                    
+
                     ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK -> {
                         fetchAudioMetadata(file)
                     }
-                    
+
                     ScannedFileType.FANFICTION -> {
                         fetchFanfictionMetadata(file)
                     }
-                    
+
                     else -> {
                         // No metadata fetching for other types
                     }
@@ -329,10 +329,10 @@ class FolderImportViewModel @Inject constructor(
             }
         }
     }
-    
+
     private suspend fun fetchBookMetadata(file: ScannedFile) {
         val metadata = bookMetadataService.fetchMetadata(filename = file.name)
-        
+
         if (metadata != null) {
             val fileMetadata = FileMetadata(
                 title = metadata.title,
@@ -346,11 +346,11 @@ class FolderImportViewModel @Inject constructor(
             updateFileMetadata(file.uri, fileMetadata)
         }
     }
-    
+
     private suspend fun fetchAudioMetadata(file: ScannedFile) {
         val uri = Uri.parse(file.uri)
         val metadata = audioMetadataService.autoTag(uri)
-        
+
         if (metadata != null) {
             val fileMetadata = FileMetadata(
                 title = metadata.title,
@@ -369,11 +369,11 @@ class FolderImportViewModel @Inject constructor(
             updateFileMetadata(file.uri, fileMetadata)
         }
     }
-    
+
     private suspend fun fetchComicMetadata(file: ScannedFile) {
         // Get actual file path from URI for CBZ parsing
         val filePath = getFilePathFromUri(file.uri)
-        
+
         val metadata = if (filePath != null) {
             comicMetadataService.autoTag(filePath, file.name)
         } else {
@@ -381,12 +381,12 @@ class FolderImportViewModel @Inject constructor(
             val (series, issue) = comicMetadataService.parseFilename(file.name)
             comicMetadataService.searchComicVine(series, issue)
         }
-        
+
         if (metadata != null) {
             // Extract primary writer from credits
             val writers = metadata.credits.filter { it.role.equals("Writer", ignoreCase = true) }
             val artists = metadata.credits.filter { it.role.equals("Penciller", ignoreCase = true) || it.role.equals("Artist", ignoreCase = true) }
-            
+
             val fileMetadata = FileMetadata(
                 title = metadata.title ?: "${metadata.series} #${metadata.number}",
                 authors = writers.map { it.person }.ifEmpty { artists.map { it.person } },
@@ -408,16 +408,16 @@ class FolderImportViewModel @Inject constructor(
             updateFileMetadata(file.uri, fileMetadata)
         }
     }
-    
+
     private suspend fun fetchFanfictionMetadata(file: ScannedFile) {
         val filePath = getFilePathFromUri(file.uri)
-        
+
         val metadata = if (filePath != null && file.extension.equals("epub", ignoreCase = true)) {
             fanfictionMetadataService.autoTag(filePath, file.name)
         } else {
             fanfictionMetadataService.parseFilename(file.name)
         }
-        
+
         if (metadata != null && metadata.title != null) {
             val fileMetadata = FileMetadata(
                 title = metadata.title,
@@ -442,7 +442,7 @@ class FolderImportViewModel @Inject constructor(
             updateFileMetadata(file.uri, fileMetadata)
         }
     }
-    
+
     private fun getFilePathFromUri(uriString: String): String? {
         return try {
             val uri = Uri.parse(uriString)
@@ -457,7 +457,7 @@ class FolderImportViewModel @Inject constructor(
             null
         }
     }
-    
+
     private fun updateFileMetadata(uri: String, metadata: FileMetadata) {
         _uiState.update { state ->
             val updatedFiles = state.scannedFiles.map { file ->
@@ -472,7 +472,7 @@ class FolderImportViewModel @Inject constructor(
             )
         }
     }
-    
+
     fun clearFiles() {
         _uiState.update { FolderImportUiState() }
     }
@@ -480,15 +480,15 @@ class FolderImportViewModel @Inject constructor(
     fun clearImportError() {
         _uiState.update { it.copy(lastImportError = null) }
     }
-    
+
     suspend fun importFiles(context: Context) {
         val selectedFiles = _uiState.value.scannedFiles.filter { it.uri in _uiState.value.selectedFiles }
         val totalFiles = selectedFiles.size
-        
+
         if (totalFiles == 0) return
-        
+
         _uiState.update { it.copy(isImporting = true, importProgress = 0f) }
-        
+
         val failures = mutableListOf<String>()
         withContext(Dispatchers.IO) {
             selectedFiles.forEachIndexed { index, file ->
@@ -496,12 +496,12 @@ class FolderImportViewModel @Inject constructor(
                     currentImportFile = file.name,
                     importProgress = (index + 1).toFloat() / totalFiles
                 )}
-                
+
                 try {
                     // Fetch metadata if not already fetched
                     if (file.metadata == null) {
                         _uiState.update { it.copy(isFetchingMetadata = true) }
-                        
+
                         when (file.type) {
                             ScannedFileType.BOOK, ScannedFileType.COMIC -> {
                                 val metadata = bookMetadataService.fetchMetadata(filename = file.name)
@@ -518,7 +518,7 @@ class FolderImportViewModel @Inject constructor(
                                     updateFileMetadata(file.uri, fileMetadata)
                                 }
                             }
-                            
+
                             ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK -> {
                                 val uri = Uri.parse(file.uri)
                                 val metadata = audioMetadataService.autoTag(uri)
@@ -540,13 +540,13 @@ class FolderImportViewModel @Inject constructor(
                                     updateFileMetadata(file.uri, fileMetadata)
                                 }
                             }
-                            
+
                             else -> { /* No metadata fetching for other types */ }
                         }
-                        
+
                         _uiState.update { it.copy(isFetchingMetadata = false) }
                     }
-                    
+
                     importFileToLibrary(context, file)
                     Log.d(TAG, "Imported: ${file.name} (${file.type})")
                 } catch (e: Exception) {
@@ -555,7 +555,7 @@ class FolderImportViewModel @Inject constructor(
                 }
             }
         }
-        
+
         _uiState.update { it.copy(
             isImporting = false,
             importProgress = 1f,
@@ -567,7 +567,7 @@ class FolderImportViewModel @Inject constructor(
             }
         )}
     }
-    
+
     private fun detectFileType(extension: String): ScannedFileType {
         return when {
             extension in BOOK_EXTENSIONS -> ScannedFileType.BOOK
@@ -671,7 +671,7 @@ class FolderImportViewModel @Inject constructor(
             else -> "UNKNOWN"
         }
     }
-    
+
     private fun getFolderName(context: Context, uri: Uri): String {
         return try {
             DocumentFile.fromTreeUri(context, uri)?.name ?: "Selected Folder"
@@ -679,7 +679,7 @@ class FolderImportViewModel @Inject constructor(
             "Selected Folder"
         }
     }
-    
+
     private fun formatFileSize(bytes: Long): String {
         return when {
             bytes < 1024 -> "$bytes B"

@@ -65,7 +65,7 @@ internal fun ProgressSection(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             LinearProgressIndicator(
                 progress = progress,
                 modifier = Modifier
@@ -73,7 +73,7 @@ internal fun ProgressSection(
                     .height(8.dp)
                     .clip(RoundedCornerShape(4.dp))
             )
-            
+
             totalDuration?.let { duration ->
                 Text(
                     text = "${formatTime(lastPosition)} / ${formatTime(duration)}",

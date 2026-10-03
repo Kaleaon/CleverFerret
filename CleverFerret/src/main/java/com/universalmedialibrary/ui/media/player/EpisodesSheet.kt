@@ -44,7 +44,7 @@ internal fun EpisodesSheet(
             color = MediaColors.TextPrimary,
             modifier = Modifier.padding(bottom = MediaSpacing.MD)
         )
-        
+
         LazyColumn(
             modifier = Modifier.heightIn(max = 400.dp)
         ) {
@@ -71,14 +71,14 @@ internal fun EpisodesSheet(
                     ) {
                         if (episode.thumbnailUrl != null) {
                             AsyncImage(
-                    
+
                                 model = episode.thumbnailUrl,
                                 contentDescription = "Media image",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
-                        
+
                         // Play indicator for current
                         if (episode.id == currentEpisode) {
                             Box(
@@ -95,9 +95,9 @@ internal fun EpisodesSheet(
                             }
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                    
+
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "E${episode.number}: ${episode.title}",
@@ -113,7 +113,7 @@ internal fun EpisodesSheet(
                             else
                                 FontWeight.Normal
                         )
-                        
+
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
                         ) {
@@ -122,7 +122,7 @@ internal fun EpisodesSheet(
                                 style = MediaTypography.LabelSmall,
                                 color = MediaColors.TextSecondary
                             )
-                            
+
                             if (episode.progress > 0) {
                                 Text("•", color = MediaColors.TextTertiary)
                                 Text(

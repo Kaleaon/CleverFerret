@@ -27,7 +27,7 @@ import com.universalmedialibrary.services.webfiction.*
 
 /**
  * Universal tag browser that works for ANY fanfiction site
- * 
+ *
  * Features:
  * - Site selection
  * - Tag browsing for selected site

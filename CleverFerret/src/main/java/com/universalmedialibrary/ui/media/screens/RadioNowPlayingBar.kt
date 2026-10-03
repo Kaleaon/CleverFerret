@@ -55,7 +55,7 @@ internal fun RadioNowPlayingBar(
             ) {
                 if (station.logoUrl != null) {
                     AsyncImage(
-                    
+
                         model = station.logoUrl,
                         contentDescription = "Now playing: ${station.name}",
                         contentScale = ContentScale.Crop,
@@ -70,9 +70,9 @@ internal fun RadioNowPlayingBar(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             // Station info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -83,7 +83,7 @@ internal fun RadioNowPlayingBar(
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 station.currentTrack?.let { track ->
                     Text(
                         text = track,
@@ -98,7 +98,7 @@ internal fun RadioNowPlayingBar(
                     color = MediaColors.TextSecondary
                 )
             }
-            
+
             // Playback controls
             IconButton(onClick = { /* Stop */ }) {
                 Icon(

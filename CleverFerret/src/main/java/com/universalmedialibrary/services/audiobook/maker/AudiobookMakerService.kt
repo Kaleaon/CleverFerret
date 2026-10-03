@@ -35,16 +35,16 @@ class AudiobookMakerService @Inject constructor(
     private val geminiTtsService: GeminiTTSService,
     private val ttsProviderManager: TtsProviderManager
 ) {
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    
+
     private val _generationStatus = MutableStateFlow(GenerationStatus())
     val generationStatus: StateFlow<GenerationStatus> = _generationStatus.asStateFlow()
-    
+
     private var currentConfig: AudiobookGenerationConfig = AudiobookGenerationConfig()
     private var currentBookAnalysis: BookAnalysisResult? = null
     private var generatedSegments = mutableListOf<AudiobookSegment>()
-    
+
     /**
      * Initialize the audiobook maker with a book
      */
@@ -56,12 +56,12 @@ class AudiobookMakerService @Inject constructor(
     ): BookAnalysisResult = withContext(Dispatchers.IO) {
         try {
             updateStatus(isGenerating = true, progress = 0.1f)
-            
+
             currentConfig = config
-            
+
             // Analyze book content
             val analysis = bookContentAnalyzer.analyzeBook(bookText, title, author)
-            
+
             if (!analysis.success) {
                 updateStatus(
                     isGenerating = false,
@@ -69,19 +69,19 @@ class AudiobookMakerService @Inject constructor(
                 )
                 return@withContext analysis
             }
-            
+
             currentBookAnalysis = analysis
-            
+
             // Generate voice profiles for characters if auto-detect is enabled
             if (config.autoDetectCharacters && config.useCharacterVoices) {
                 updateStatus(progress = 0.3f)
                 generateCharacterVoices(analysis)
             }
-            
+
             updateStatus(isGenerating = false, progress = 1.0f)
-            
+
             analysis
-            
+
         } catch (e: Exception) {
             updateStatus(
                 isGenerating = false,
@@ -93,7 +93,7 @@ class AudiobookMakerService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Generate voice profiles for all detected characters
      */
@@ -102,7 +102,7 @@ class AudiobookMakerService @Inject constructor(
             characterVoiceService.generateVoiceProfile(character, analysis.genre)
         }
     }
-    
+
     /**
      * Process a chapter and generate audiobook segments
      */
@@ -116,33 +116,33 @@ class AudiobookMakerService @Inject constructor(
             if (analysis == null || !analysis.success) {
                 return@withContext emptyList()
             }
-            
+
             updateStatus(
                 isGenerating = true,
                 currentChapter = chapterIndex,
                 progress = 0f
             )
-            
+
             // Analyze chapter context
             val chapterContext = bookContentAnalyzer.analyzeChapter(
                 chapterText,
                 analysis.genre
             )
-            
+
             // Detect ambient sounds for this chapter
             val ambientSounds = if (currentConfig.useBackgroundSounds) {
                 contextDetectionService.detectAmbientContext(chapterText, 3)
             } else {
                 emptyList()
             }
-            
+
             // Detect action sounds
             val actionSounds = if (currentConfig.useActionSounds) {
                 actionSoundService.detectActionSounds(chapterText, analysis.genre, 10)
             } else {
                 emptyList()
             }
-            
+
             // Split chapter into segments (narration, dialogue, etc.)
             val segments = segmentChapter(
                 chapterText,
@@ -152,17 +152,17 @@ class AudiobookMakerService @Inject constructor(
                 ambientSounds.firstOrNull()?.first?.id?.toString(),
                 actionSounds
             )
-            
+
             generatedSegments.addAll(segments)
-            
+
             updateStatus(
                 isGenerating = false,
                 currentChapter = chapterIndex,
                 progress = 1.0f
             )
-            
+
             segments
-            
+
         } catch (e: Exception) {
             updateStatus(
                 isGenerating = false,
@@ -171,7 +171,7 @@ class AudiobookMakerService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Segment chapter text into audiobook segments
      * This is a simplified version - production would use more sophisticated parsing
@@ -185,33 +185,33 @@ class AudiobookMakerService @Inject constructor(
         actionSounds: List<ActionSound>
     ): List<AudiobookSegment> {
         val segments = mutableListOf<AudiobookSegment>()
-        
+
         // Split by paragraphs
         val paragraphs = chapterText.split("\n\n").filter { it.isNotBlank() }
-        
+
         var currentPosition = 0L
-        
+
         paragraphs.forEachIndexed { index, paragraph ->
             val trimmedParagraph = paragraph.trim()
-            
+
             // Detect if this is dialogue or narration
-            val isDialogue = trimmedParagraph.startsWith("\"") || 
+            val isDialogue = trimmedParagraph.startsWith("\"") ||
                             trimmedParagraph.contains("\" said") ||
                             trimmedParagraph.contains("\" asked")
-            
+
             // Estimate duration (rough: ~150 words per minute)
             val wordCount = trimmedParagraph.split("\\s+".toRegex()).size
             val estimatedDuration = (wordCount / 150.0 * 60000).toLong()
-            
+
             val segmentType = if (isDialogue) SegmentType.DIALOGUE else SegmentType.NARRATION
-            
+
             // Try to identify character for dialogue
             val characterId = if (isDialogue) {
                 identifyCharacter(trimmedParagraph, analysis.characters)
             } else {
                 null
             }
-            
+
             // Get voice profile
             val voiceProfile = if (characterId != null) {
                 characterVoiceService.getVoiceProfile(characterId)
@@ -220,10 +220,10 @@ class AudiobookMakerService @Inject constructor(
             } else {
                 null
             }
-            
+
             // Detect action sounds in this segment
             val segmentActionSounds = detectActionSoundsInSegment(trimmedParagraph, actionSounds)
-            
+
             val segment = AudiobookSegment(
                 id = "${chapterId}_seg_$index",
                 chapterId = chapterId,
@@ -236,14 +236,14 @@ class AudiobookMakerService @Inject constructor(
                 backgroundSoundId = backgroundSoundId,
                 actionSounds = segmentActionSounds
             )
-            
+
             segments.add(segment)
             currentPosition += estimatedDuration
         }
-        
+
         return segments
     }
-    
+
     /**
      * Identify which character is speaking in a dialogue segment
      */
@@ -259,7 +259,7 @@ class AudiobookMakerService @Inject constructor(
         }
         return null
     }
-    
+
     /**
      * Detect action sounds in a text segment
      */
@@ -269,7 +269,7 @@ class AudiobookMakerService @Inject constructor(
     ): List<ActionSoundTiming> {
         val timings = mutableListOf<ActionSoundTiming>()
         val lowerText = text.lowercase()
-        
+
         availableSounds.forEach { sound ->
             sound.keywords.forEach { keyword ->
                 val index = lowerText.indexOf(keyword)
@@ -282,7 +282,7 @@ class AudiobookMakerService @Inject constructor(
                     } else {
                         0L
                     }
-                    
+
                     timings.add(ActionSoundTiming(
                         soundId = sound.id,
                         relativePosition = relativePosition,
@@ -291,35 +291,35 @@ class AudiobookMakerService @Inject constructor(
                 }
             }
         }
-        
+
         return timings
     }
-    
+
     /**
      * Generate speech audio for a segment using configured TTS provider
      */
-    suspend fun generateSegmentAudio(segment: AudiobookSegment): Boolean = 
+    suspend fun generateSegmentAudio(segment: AudiobookSegment): Boolean =
         withContext(Dispatchers.IO) {
         try {
             val voiceProfile = segment.voiceProfile ?: return@withContext false
-            
+
             // Get active TTS service based on configuration
             val ttsService = ttsProviderManager.getActiveService()
-            
+
             // Apply voice settings
             ttsService.setSpeechRate(voiceProfile.speed)
             ttsService.setPitch(voiceProfile.pitch)
-            
+
             // Generate speech
             ttsService.speak(segment.text)
-            
+
             true
         } catch (e: Exception) {
             updateStatus(error = "TTS generation failed: ${e.message}")
             false
         }
     }
-    
+
     /**
      * Set the TTS provider for audiobook generation
      */
@@ -333,7 +333,7 @@ class AudiobookMakerService @Inject constructor(
         }
         ttsProviderManager.setProvider(ttsProvider)
     }
-    
+
     /**
      * Get available TTS providers
      */
@@ -354,7 +354,7 @@ class AudiobookMakerService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Check if a TTS provider is configured and ready
      */
@@ -368,42 +368,42 @@ class AudiobookMakerService @Inject constructor(
         }
         return ttsProviderManager.isProviderConfigured(ttsProvider)
     }
-    
+
     /**
      * Get the current book analysis
      */
     fun getBookAnalysis(): BookAnalysisResult? {
         return currentBookAnalysis
     }
-    
+
     /**
      * Get generated segments
      */
     fun getGeneratedSegments(): List<AudiobookSegment> {
         return generatedSegments.toList()
     }
-    
+
     /**
      * Get character voice profile
      */
     fun getCharacterVoice(characterId: String): CharacterVoiceProfile? {
         return characterVoiceService.getVoiceProfile(characterId)
     }
-    
+
     /**
      * Update character voice profile
      */
     fun updateCharacterVoice(profile: CharacterVoiceProfile) {
         characterVoiceService.updateVoiceProfile(profile)
     }
-    
+
     /**
      * Get all character voices
      */
     fun getAllCharacterVoices(): List<CharacterVoiceProfile> {
         return characterVoiceService.getAllVoiceProfiles()
     }
-    
+
     /**
      * Update generation status
      */
@@ -428,7 +428,7 @@ class AudiobookMakerService @Inject constructor(
             error = error
         )
     }
-    
+
     /**
      * Clear all data and reset
      */

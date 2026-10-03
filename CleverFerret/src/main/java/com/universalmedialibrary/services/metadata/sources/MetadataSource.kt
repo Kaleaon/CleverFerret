@@ -7,7 +7,7 @@ interface MetadataSource {
     val sourceName: String
     val priority: Int
     val supportedTypes: List<MediaType>
-    
+
     /**
      * Search for items
      */
@@ -18,7 +18,7 @@ interface MetadataSource {
         author: String? = null,
         maxResults: Int = 10
     ): Result<List<MetadataSearchResult>>
-    
+
     /**
      * Get detailed metadata
      */
@@ -70,7 +70,7 @@ data class EnhancedMetadata(
     val coverUrl: String? = null,
     val sourceId: String,
     val source: String,
-    
+
     // Enhanced fields
     val genres: List<String> = emptyList(),
     val moods: List<String> = emptyList(),

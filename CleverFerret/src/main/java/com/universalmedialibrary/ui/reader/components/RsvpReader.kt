@@ -31,7 +31,7 @@ import kotlinx.coroutines.isActive
  * RSVP (Rapid Serial Visual Presentation) Reader
  * Displays words one at a time at a fixed position for speed reading
  * Inspired by LibreraReader and Spritz
- * 
+ *
  * The optimal recognition point (ORP) is highlighted to help eyes fixate quickly
  */
 @Composable
@@ -42,17 +42,17 @@ fun RsvpReader(
     onComplete: () -> Unit = {},
     onClose: () -> Unit = {}
 ) {
-    val words = remember(text) { 
+    val words = remember(text) {
         text.split(Regex("\\s+")).filter { it.isNotEmpty() }
     }
-    
+
     var currentIndex by remember { mutableStateOf(0) }
     var isPlaying by remember { mutableStateOf(false) }
     var speed by remember { mutableStateOf(wordsPerMinute) }
-    
+
     // Calculate delay between words based on WPM
     val delayMs = remember(speed) { (60000 / speed).toLong() }
-    
+
     LaunchedEffect(isPlaying, currentIndex) {
         if (isPlaying && currentIndex < words.size) {
             while (isActive && isPlaying && currentIndex < words.size) {
@@ -83,9 +83,9 @@ fun RsvpReader(
                 Text("Close")
             }
         }
-        
+
         Spacer(modifier = Modifier.weight(1f))
-        
+
         // Word display with ORP highlighting
         Box(
             modifier = Modifier
@@ -96,7 +96,7 @@ fun RsvpReader(
             if (currentIndex < words.size) {
                 val word = words[currentIndex]
                 val orpIndex = calculateORP(word)
-                
+
                 AnimatedContent(
                     targetState = word,
                     transitionSpec = { fadeIn() togetherWith fadeOut() }
@@ -105,7 +105,7 @@ fun RsvpReader(
                         text = buildAnnotatedString {
                             // Text before ORP
                             append(targetWord.substring(0, orpIndex))
-                            
+
                             // ORP character (highlighted)
                             withStyle(
                                 style = SpanStyle(
@@ -115,7 +115,7 @@ fun RsvpReader(
                             ) {
                                 append(targetWord[orpIndex].toString())
                             }
-                            
+
                             // Text after ORP
                             if (orpIndex < targetWord.length - 1) {
                                 append(targetWord.substring(orpIndex + 1))
@@ -134,7 +134,7 @@ fun RsvpReader(
                 )
             }
         }
-        
+
         // Progress indicator
         LinearProgressIndicator(
             progress = if (words.isNotEmpty()) currentIndex.toFloat() / words.size else 0f,
@@ -142,15 +142,15 @@ fun RsvpReader(
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
-        
+
         Text(
             text = "${currentIndex + 1} / ${words.size}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         // Control buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -158,7 +158,7 @@ fun RsvpReader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = { 
+                onClick = {
                     if (currentIndex > 0) {
                         currentIndex--
                     }
@@ -167,7 +167,7 @@ fun RsvpReader(
             ) {
                 Icon(Icons.Default.SkipPrevious, "Previous word")
             }
-            
+
             FloatingActionButton(
                 onClick = { isPlaying = !isPlaying },
                 containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -177,9 +177,9 @@ fun RsvpReader(
                     if (isPlaying) "Pause" else "Play"
                 )
             }
-            
+
             IconButton(
-                onClick = { 
+                onClick = {
                     if (currentIndex < words.size - 1) {
                         currentIndex++
                     }
@@ -189,9 +189,9 @@ fun RsvpReader(
                 Icon(Icons.Default.SkipNext, "Next word")
             }
         }
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         // Speed control
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -201,7 +201,7 @@ fun RsvpReader(
                 text = "Speed: $speed WPM",
                 style = MaterialTheme.typography.titleMedium
             )
-            
+
             Slider(
                 value = speed.toFloat(),
                 onValueChange = { speed = it.toInt() },
@@ -211,7 +211,7 @@ fun RsvpReader(
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp)
             )
-            
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -222,7 +222,7 @@ fun RsvpReader(
                 Text("Fast", style = MaterialTheme.typography.bodySmall)
             }
         }
-        
+
         Spacer(modifier = Modifier.weight(1f))
     }
 }

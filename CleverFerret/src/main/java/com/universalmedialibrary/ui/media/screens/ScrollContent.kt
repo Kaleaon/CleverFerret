@@ -40,13 +40,13 @@ internal fun ScrollContent(
     onScrollPosition: (Float) -> Unit
 ) {
     val scrollState = rememberScrollState()
-    
+
     LaunchedEffect(scrollState.value) {
         if (scrollState.maxValue > 0) {
             onScrollPosition(scrollState.value.toFloat() / scrollState.maxValue)
         }
     }
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()

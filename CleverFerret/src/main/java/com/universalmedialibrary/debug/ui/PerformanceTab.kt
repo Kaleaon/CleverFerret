@@ -48,7 +48,7 @@ internal fun PerformanceTab(metrics: PerformanceMetrics) {
                         color = MediaColors.TextPrimary
                     )
                     Spacer(Modifier.height(12.dp))
-                    
+
                     LinearProgressIndicator(
                         progress = { metrics.memoryPercentUsed / 100f },
                         modifier = Modifier
@@ -62,7 +62,7 @@ internal fun PerformanceTab(metrics: PerformanceMetrics) {
                         },
                         trackColor = MediaColors.BackgroundElevated
                     )
-                    
+
                     Spacer(Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -82,7 +82,7 @@ internal fun PerformanceTab(metrics: PerformanceMetrics) {
                 }
             }
         }
-        
+
         item {
             Text(
                 "Last updated: ${formatTimestamp(metrics.lastUpdated)}",

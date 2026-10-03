@@ -90,7 +90,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Floating debug bug report button
- * 
+ *
  * Only visible in debug builds. Shows a floating action button that,
  * when tapped, captures a screenshot and opens the bug report dialog.
  */
@@ -156,7 +156,7 @@ fun DebugBugReportButton(
             activity = activity,
             bugReportService = bugReportService,
             initialScreenshot = screenshot,
-            onDismiss = { 
+            onDismiss = {
                 showDialog = false
                 screenshot = null
             }
@@ -166,7 +166,7 @@ fun DebugBugReportButton(
 
 /**
  * Compact debug bug report button for the bottom navigation bar
- * 
+ *
  * Only visible in debug builds. Shows a small icon button that,
  * when tapped, captures a screenshot and opens the bug report dialog.
  */
@@ -227,7 +227,7 @@ fun DebugBugReportBottomBarButton(
             activity = activity,
             bugReportService = bugReportService,
             initialScreenshot = screenshot,
-            onDismiss = { 
+            onDismiss = {
                 showDialog = false
                 screenshot = null
             }
@@ -247,12 +247,12 @@ fun BugReportDialog(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
+
     var userDescription by rememberSaveable { mutableStateOf("") }
     var includeScreenshot by rememberSaveable { mutableStateOf(true) }
     var includeLogs by rememberSaveable { mutableStateOf(true) }
     var screenshot by remember { mutableStateOf(initialScreenshot) }
-    
+
     // Submission states
     var isSubmitting by remember { mutableStateOf(false) }
     var submissionResult by remember { mutableStateOf<SubmissionResult?>(null) }
@@ -311,7 +311,7 @@ fun BugReportDialog(
                             )
                         }
                     }
-                    
+
                     IconButton(
                         onClick = onDismiss,
                         enabled = !isSubmitting
@@ -355,7 +355,7 @@ fun BugReportDialog(
                             onSubmit = {
                                 scope.launch {
                                     isSubmitting = true
-                                    
+
                                     // Create the bug report
                                     val report = bugReportService.createBugReport(
                                         activity = activity,
@@ -363,12 +363,12 @@ fun BugReportDialog(
                                         includeScreenshot = includeScreenshot && screenshot != null,
                                         includeLogs = includeLogs
                                     ).copy(screenshot = if (includeScreenshot) screenshot else null)
-                                    
+
                                     bugReport = report
-                                    
+
                                     // Save locally first
                                     bugReportService.saveLocally(report)
-                                    
+
                                     // Try to submit to GitHub
                                     if (!githubToken.isNullOrBlank()) {
                                         val result = bugReportService.submitToGitHub(report, githubToken)
@@ -383,7 +383,7 @@ fun BugReportDialog(
                                     } else {
                                         submissionResult = SubmissionResult.SavedLocally
                                     }
-                                    
+
                                     isSubmitting = false
                                 }
                             },
@@ -465,9 +465,9 @@ private fun BugReportForm(
                             Text("Retake")
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     Image(
                         bitmap = screenshot.asImageBitmap(),
                         contentDescription = "Screenshot",
@@ -500,9 +500,9 @@ private fun BugReportForm(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -515,7 +515,7 @@ private fun BugReportForm(
                         enabled = screenshot != null
                     )
                 }
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -605,7 +605,7 @@ private fun SubmissionResultContent(
     onRetry: () -> Unit
 ) {
     val context = LocalContext.current
-    
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -627,22 +627,22 @@ private fun SubmissionResultContent(
                         )
                         .padding(16.dp)
                 )
-                
+
                 Text(
                     text = "Bug Report Submitted!",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Text(
                     text = "Issue created and labeled for automated fix consideration.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 FilledTonalButton(
                     onClick = {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(result.issueUrl))
@@ -651,12 +651,12 @@ private fun SubmissionResultContent(
                 ) {
                     Text("View Issue on GitHub")
                 }
-                
+
                 OutlinedButton(onClick = onDismiss) {
                     Text("Done")
                 }
             }
-            
+
             is SubmissionResult.SavedLocally -> {
                 Icon(
                     Icons.Default.Check,
@@ -670,25 +670,25 @@ private fun SubmissionResultContent(
                         )
                         .padding(16.dp)
                 )
-                
+
                 Text(
                     text = "Report Saved Locally",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Text(
                     text = "Bug report saved to device. Configure GitHub token in Settings to enable automatic issue creation.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Button(onClick = onDismiss) {
                     Text("Done")
                 }
             }
-            
+
             is SubmissionResult.Error -> {
                 Icon(
                     Icons.Default.Error,
@@ -702,26 +702,26 @@ private fun SubmissionResultContent(
                         )
                         .padding(16.dp)
                 )
-                
+
                 Text(
                     text = "Submission Failed",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Text(
                     text = result.message,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.error
                 )
-                
+
                 Text(
                     text = "Bug report was saved locally as a backup.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {

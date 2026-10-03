@@ -35,7 +35,7 @@ import javax.inject.Singleton
 
 /**
  * Settings Backup & Restore Service
- * 
+ *
  * Handles backup and restoration of all app settings including:
  * - General settings (theme, language, playback)
  * - Security settings (biometric, lock timeout)
@@ -98,7 +98,7 @@ class SettingsBackupService @Inject constructor(
     suspend fun exportToFile(backup: SettingsBackup, outputUri: Uri): Result<String> = withContext(Dispatchers.IO) {
         try {
             val jsonString = json.encodeToString(backup)
-            
+
             context.contentResolver.openOutputStream(outputUri)?.use { output ->
                 output.write(jsonString.toByteArray())
             } ?: return@withContext Result.failure(Exception("Failed to open output stream"))
@@ -141,9 +141,9 @@ class SettingsBackupService @Inject constructor(
             val jsonString = context.contentResolver.openInputStream(inputUri)?.use { input ->
                 input.readBytes().toString(Charsets.UTF_8)
             } ?: return@withContext Result.failure(Exception("Failed to read backup file"))
-            
+
             val backup = json.decodeFromString<SettingsBackup>(jsonString)
-            
+
             restoreBackup(backup)
 
             Result.success("Backup restored successfully")
@@ -191,20 +191,20 @@ class SettingsBackupService @Inject constructor(
      */
     private fun exportAndEncryptApiKeys(): String {
         val keys = mutableMapOf<String, String>()
-        
+
         // Export keys from encrypted prefs
         encryptedPrefs.all.forEach { (key, value) ->
             if (value is String) {
                 keys[key] = value
             }
         }
-        
+
         // Serialize to JSON
         val jsonString = json.encodeToString(keys)
-        
+
         // Encrypt with Keystore key
         val encrypted = encryptWithKeystoreAes(jsonString.toByteArray())
-        
+
         // Return as Base64 string
         return Base64.encodeToString(encrypted, Base64.NO_WRAP)
     }
@@ -214,18 +214,18 @@ class SettingsBackupService @Inject constructor(
      */
     private fun decryptAndImportApiKeys(encryptedBase64: String) {
         if (encryptedBase64.isBlank()) return
-        
+
         try {
             // Decode from Base64
             val encrypted = Base64.decode(encryptedBase64, Base64.NO_WRAP)
-            
+
             // Decrypt with Keystore key
             val decrypted = decryptWithKeystoreAes(encrypted)
-            
+
             // Parse JSON
             val jsonString = String(decrypted, Charsets.UTF_8)
             val keys = json.decodeFromString<Map<String, String>>(jsonString)
-            
+
             // Import to encrypted prefs
             val editor = encryptedPrefs.edit()
             keys.forEach { (key, value) ->
@@ -244,26 +244,26 @@ class SettingsBackupService @Inject constructor(
     private fun getOrCreateBackupAesKey(): SecretKey {
         val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         val keyAlias = "backup_encryption_key"
-        
+
         // Return existing key if available
         keyStore.getKey(keyAlias, null)?.let { return it as SecretKey }
-        
+
         // Generate new key
         val keyGenerator = KeyGenerator.getInstance(
             android.security.keystore.KeyProperties.KEY_ALGORITHM_AES,
             "AndroidKeyStore"
         )
-        
+
         val keyGenSpec = android.security.keystore.KeyGenParameterSpec.Builder(
             keyAlias,
-            android.security.keystore.KeyProperties.PURPOSE_ENCRYPT or 
+            android.security.keystore.KeyProperties.PURPOSE_ENCRYPT or
             android.security.keystore.KeyProperties.PURPOSE_DECRYPT
         )
             .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
             .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE)
             .setKeySize(256)
             .build()
-        
+
         keyGenerator.init(keyGenSpec)
         return keyGenerator.generateKey()
     }
@@ -275,10 +275,10 @@ class SettingsBackupService @Inject constructor(
     private fun encryptWithKeystoreAes(plaintext: ByteArray): ByteArray {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, getOrCreateBackupAesKey())
-        
+
         val iv = cipher.iv
         val ciphertext = cipher.doFinal(plaintext)
-        
+
         // Prepend IV to ciphertext (IV is 12 bytes for GCM)
         return iv + ciphertext
     }
@@ -289,15 +289,15 @@ class SettingsBackupService @Inject constructor(
      */
     private fun decryptWithKeystoreAes(encryptedData: ByteArray): ByteArray {
         require(encryptedData.size > 12) { "Invalid encrypted data" }
-        
+
         // Extract IV from first 12 bytes
         val iv = encryptedData.copyOfRange(0, 12)
         val ciphertext = encryptedData.copyOfRange(12, encryptedData.size)
-        
+
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         val spec = GCMParameterSpec(128, iv)
         cipher.init(Cipher.DECRYPT_MODE, getOrCreateBackupAesKey(), spec)
-        
+
         return cipher.doFinal(ciphertext)
     }
 
@@ -307,7 +307,7 @@ class SettingsBackupService @Inject constructor(
     suspend fun listBackups(): List<BackupInfo> = withContext(Dispatchers.IO) {
         val backupDir = File(context.getExternalFilesDir(null), "backups")
         if (!backupDir.exists()) return@withContext emptyList()
-        
+
         backupDir.listFiles { file ->
             file.name.startsWith("cleverferret_backup_") && file.name.endsWith(".json")
         }?.map { file ->
@@ -327,7 +327,7 @@ class SettingsBackupService @Inject constructor(
         try {
             val backupDir = File(context.getExternalFilesDir(null), "backups")
             val file = File(backupDir, fileName)
-            
+
             if (file.exists() && file.delete()) {
                 Result.success(Unit)
             } else {

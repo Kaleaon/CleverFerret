@@ -21,38 +21,38 @@ class VideoRepository @Inject constructor(
         const val MEDIA_TYPE_TV_SHOW = "TV_SHOW"
         const val MEDIA_TYPE_VIDEO = "VIDEO"
     }
-    
-    fun getAllVideos(): Flow<List<MediaItem>> = 
+
+    fun getAllVideos(): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(MEDIA_TYPE_VIDEO)
-    
-    suspend fun getVideoById(id: Long): MediaItem? = 
+
+    suspend fun getVideoById(id: Long): MediaItem? =
         mediaItemDao.getMediaItemById(id)
-    
-    fun getRecentlyAddedVideos(limit: Int = 10): Flow<List<MediaItem>> = 
+
+    fun getRecentlyAddedVideos(limit: Int = 10): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(MEDIA_TYPE_VIDEO).map { it.take(limit) }
-    
-    fun getMovies(): Flow<List<MediaItem>> = 
+
+    fun getMovies(): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(MEDIA_TYPE_MOVIE)
-    
-    fun getTvShows(): Flow<List<MediaItem>> = 
+
+    fun getTvShows(): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(MEDIA_TYPE_TV_SHOW)
-    
-    suspend fun searchVideos(query: String): List<MediaItem> = 
+
+    suspend fun searchVideos(query: String): List<MediaItem> =
         mediaItemDao.searchMediaItems(query, 100)
             .filter { it.mediaType in listOf(MEDIA_TYPE_VIDEO, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV_SHOW) }
-    
+
     suspend fun insertVideo(video: MediaItem) = mediaItemDao.insertMediaItem(video)
-    
+
     suspend fun updateVideo(video: MediaItem) = mediaItemDao.updateMediaItem(video)
-    
+
     suspend fun deleteVideo(video: MediaItem) = mediaItemDao.deleteMediaItem(video)
-    
-    suspend fun getVideoCount(): Int = 
+
+    suspend fun getVideoCount(): Int =
         mediaItemDao.getItemCountByType(MEDIA_TYPE_VIDEO) +
         mediaItemDao.getItemCountByType(MEDIA_TYPE_MOVIE) +
         mediaItemDao.getItemCountByType(MEDIA_TYPE_TV_SHOW)
-    
-    fun getInProgressVideos(): Flow<List<MediaItem>> = 
+
+    fun getInProgressVideos(): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(MEDIA_TYPE_VIDEO).map { items ->
             items.filter { it.lastPlayed > 0 }
         }

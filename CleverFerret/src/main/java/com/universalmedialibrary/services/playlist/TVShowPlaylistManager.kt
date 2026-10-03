@@ -116,9 +116,9 @@ class TVShowPlaylistManager @Inject constructor(
             description = description ?: "Complete series",
             isSeries = true
         )
-        
+
         addEpisodesToPlaylist(seriesId, episodeIds)
-        
+
         return seriesId
     }
 
@@ -135,9 +135,9 @@ class TVShowPlaylistManager @Inject constructor(
             description = "Season $seasonNumber episodes",
             isSeries = true
         )
-        
+
         addEpisodesToPlaylist(seasonId, episodeIds)
-        
+
         return seasonId
     }
 
@@ -153,9 +153,9 @@ class TVShowPlaylistManager @Inject constructor(
             name = name,
             description = description ?: "Binge watch queue"
         )
-        
+
         addEpisodesToPlaylist(queueId, episodeIds)
-        
+
         return queueId
     }
 
@@ -171,9 +171,9 @@ class TVShowPlaylistManager @Inject constructor(
             name = name,
             description = description ?: "Multi-show marathon"
         )
-        
+
         addEpisodesToPlaylist(marathonId, episodeIds)
-        
+
         return marathonId
     }
 
@@ -186,7 +186,7 @@ class TVShowPlaylistManager @Inject constructor(
         seasonNumber: Int
     ) {
         val allEpisodes = mediaItemDao.getMediaItemsByType("TV_SHOW").first()
-        
+
         // Filter by show name and season using filename patterns
         // Note: A dedicated TVMetadata table with show_name and season columns
         // would enable more reliable filtering via JOIN queries
@@ -194,7 +194,7 @@ class TVShowPlaylistManager @Inject constructor(
             .filter { it.fileName.contains(showName, ignoreCase = true) }
             .filter { it.fileName.contains("S${seasonNumber.toString().padStart(2, '0')}", ignoreCase = true) }
             .sortedBy { extractEpisodeNumber(it.fileName) }
-        
+
         addEpisodesToPlaylist(playlistId, seasonEpisodes.map { it.itemId })
     }
 
@@ -248,7 +248,7 @@ class TVShowPlaylistManager @Inject constructor(
         sorted.forEachIndexed { index, (_, item) ->
             playlistDao.insertPlaylistItem(item.copy(position = index))
         }
-        
+
         updatePlaylistTimestamp(playlistId)
     }
 
@@ -259,9 +259,9 @@ class TVShowPlaylistManager @Inject constructor(
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
             .drop(startPosition)
-        
-        val episodes = items.mapNotNull { 
-            mediaItemDao.getMediaItemById(it.mediaItemId) 
+
+        val episodes = items.mapNotNull {
+            mediaItemDao.getMediaItemById(it.mediaItemId)
         }
 
         if (episodes.isEmpty()) return
@@ -284,12 +284,12 @@ class TVShowPlaylistManager @Inject constructor(
      */
     suspend fun continueWatching(playlistId: Long) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
-        
+
         // Find first unwatched episode
         val firstUnwatchedIndex = items.indexOfFirst { item ->
             !historyRepository.isWatched(item.mediaItemId)
         }
-        
+
         // If all watched, start from beginning; otherwise start from first unwatched
         val startIndex = if (firstUnwatchedIndex >= 0) firstUnwatchedIndex else 0
         startBingeWatch(playlistId, startIndex)
@@ -301,7 +301,7 @@ class TVShowPlaylistManager @Inject constructor(
     suspend fun playFromEpisode(playlistId: Long, episodeId: Long) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
-        
+
         val episodeIndex = items.indexOfFirst { it.mediaItemId == episodeId }
         if (episodeIndex >= 0) {
             startBingeWatch(playlistId, episodeIndex)
@@ -323,8 +323,8 @@ class TVShowPlaylistManager @Inject constructor(
      */
     suspend fun addPlaylistToQueue(playlistId: Long, playNext: Boolean = false) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
-        val episodes = items.mapNotNull { 
-            mediaItemDao.getMediaItemById(it.mediaItemId) 
+        val episodes = items.mapNotNull {
+            mediaItemDao.getMediaItemById(it.mediaItemId)
         }
 
         if (episodes.isEmpty()) return
@@ -345,7 +345,7 @@ class TVShowPlaylistManager @Inject constructor(
             val episodes = items.mapNotNull { item ->
                 mediaItemDao.getMediaItemById(item.mediaItemId)?.let { mediaItem ->
                     val progressData = historyRepository.getReadingProgress(item.mediaItemId).firstOrNull()
-                    
+
                     PlaylistEpisode(
                         playlistItem = item,
                         mediaItem = mediaItem,
@@ -356,7 +356,7 @@ class TVShowPlaylistManager @Inject constructor(
                     )
                 }
             }
-            
+
             TVShowPlaylist(
                 playlistId = playlistId,
                 episodes = episodes,
@@ -374,12 +374,12 @@ class TVShowPlaylistManager @Inject constructor(
     suspend fun getNextEpisode(playlistId: Long, currentEpisodeId: Long): Long? {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
-        
+
         val currentIndex = items.indexOfFirst { it.mediaItemId == currentEpisodeId }
         if (currentIndex < 0 || currentIndex >= items.size - 1) {
             return null
         }
-        
+
         return items[currentIndex + 1].mediaItemId
     }
 
@@ -389,12 +389,12 @@ class TVShowPlaylistManager @Inject constructor(
     suspend fun getPreviousEpisode(playlistId: Long, currentEpisodeId: Long): Long? {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
-        
+
         val currentIndex = items.indexOfFirst { it.mediaItemId == currentEpisodeId }
         if (currentIndex <= 0) {
             return null
         }
-        
+
         return items[currentIndex - 1].mediaItemId
     }
 
@@ -422,7 +422,7 @@ class TVShowPlaylistManager @Inject constructor(
     suspend fun getWatchProgress(playlistId: Long): Float {
         val playlist = getPlaylistWithEpisodes(playlistId).first()
         if (playlist.totalEpisodes == 0) return 0f
-        
+
         return (playlist.watchedEpisodes.toFloat() / playlist.totalEpisodes.toFloat()) * 100f
     }
 
@@ -432,7 +432,7 @@ class TVShowPlaylistManager @Inject constructor(
     suspend fun deletePlaylist(playlistId: Long) {
         val playlist = playlistDao.getAllPlaylistsFlow().first()
             .find { it.playlistId == playlistId } ?: return
-        
+
         playlistDao.deletePlaylist(playlist)
     }
 
@@ -445,13 +445,13 @@ class TVShowPlaylistManager @Inject constructor(
             name = newName,
             description = "Copy of playlist"
         )
-        
+
         items.forEach { item ->
             playlistDao.insertPlaylistItem(
                 item.copy(id = 0, playlistId = newPlaylistId)
             )
         }
-        
+
         return newPlaylistId
     }
 
@@ -476,7 +476,7 @@ class TVShowPlaylistManager @Inject constructor(
     private suspend fun reorderPlaylistItems(playlistId: Long) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
-        
+
         items.forEachIndexed { index, item ->
             playlistDao.insertPlaylistItem(item.copy(position = index))
         }

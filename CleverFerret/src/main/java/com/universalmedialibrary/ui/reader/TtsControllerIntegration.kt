@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 /**
  * Enhanced Text-to-Speech Controller with Provider Support
- * 
+ *
  * This controller wraps the TTS service and provides a unified interface
  * for the UI layer while supporting multiple TTS providers.
  */
@@ -47,9 +47,9 @@ class EnhancedTtsController @Inject constructor(
         try {
             // Get the active TTS service from the provider manager
             currentService = ttsProviderManager.getActiveService()
-            
+
             val success = currentService?.initialize() ?: false
-            
+
             if (success) {
                 _playbackState.value = _playbackState.value.copy(state = TtsState.IDLE)
                 onInitialized(true)
@@ -126,7 +126,7 @@ class EnhancedTtsController @Inject constructor(
         )
     }
 }
-        
+
         if (success && index < sentences.size - 1) {
             // Continue to next sentence (avoid deep recursion)
             scope.launch { playSentence(index + 1) }

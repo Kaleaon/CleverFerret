@@ -31,7 +31,7 @@ enum class NotificationType {
 
 /**
  * Ancient Architect Notification Box
- * 
+ *
  * Features:
  * - Stepped border design (Art Deco)
  * - Color-coded metallic accent
@@ -55,7 +55,7 @@ fun AncientArchitectNotification(
     val ancientColors = ancientArchitectColors()
     val enablePatterns = geometricPatternsEnabled()
     val enableGlow = crystalGlowEnabled()
-    
+
     // Get colors based on notification type
     val (accentColor, glowColor, defaultIcon) = when (type) {
         NotificationType.INFO -> Triple(
@@ -79,7 +79,7 @@ fun AncientArchitectNotification(
             Icons.Default.Error
         )
     }
-    
+
     // Pulse animation for glow
     val infiniteTransition = rememberInfiniteTransition(label = "notificationPulse")
     val pulseAlpha by infiniteTransition.animateFloat(
@@ -91,7 +91,7 @@ fun AncientArchitectNotification(
         ),
         label = "pulseAlpha"
     )
-    
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -107,7 +107,7 @@ fun AncientArchitectNotification(
                         )
                     )
                 }
-                
+
                 // Background pattern
                 if (enablePatterns) {
                     with(AncientArchitectPatterns) {
@@ -169,7 +169,7 @@ fun AncientArchitectNotification(
                     )
                 }
             }
-            
+
             // Content
             Column(
                 modifier = Modifier.weight(1f),
@@ -188,12 +188,12 @@ fun AncientArchitectNotification(
                     color = ancientColors.stone.text.copy(alpha = 0.9f)
                 )
             }
-            
+
             // Action button
             if (action != null) {
                 action()
             }
-            
+
             // Dismiss button
             if (dismissible && onDismiss != null) {
                 IconButton(
@@ -222,14 +222,14 @@ fun AncientArchitectSnackbar(
     type: NotificationType = NotificationType.INFO
 ) {
     val ancientColors = ancientArchitectColors()
-    
+
     val accentColor = when (type) {
         NotificationType.INFO -> ancientColors.accent.info
         NotificationType.SUCCESS -> ancientColors.accent.success
         NotificationType.WARNING -> ancientColors.accent.warning
         NotificationType.ERROR -> ancientColors.accent.error
     }
-    
+
     Snackbar(
         modifier = modifier
             .padding(12.dp)
@@ -285,14 +285,14 @@ fun AncientArchitectAlertDialog(
 ) {
     val ancientColors = ancientArchitectColors()
     val enablePatterns = geometricPatternsEnabled()
-    
+
     val accentColor = when (type) {
         NotificationType.INFO -> ancientColors.accent.info
         NotificationType.SUCCESS -> ancientColors.accent.success
         NotificationType.WARNING -> ancientColors.accent.warning
         NotificationType.ERROR -> ancientColors.accent.error
     }
-    
+
     AlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = confirmButton,

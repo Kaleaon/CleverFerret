@@ -26,7 +26,7 @@ import javax.inject.Singleton
 
 /**
  * ElevenLabs Text-to-Speech Service
- * 
+ *
  * High-quality AI voice synthesis using ElevenLabs API
  * Documentation: https://elevenlabs.io/docs/api-reference/text-to-speech
  * Get API key: https://elevenlabs.io/app/settings/api-keys
@@ -39,10 +39,10 @@ class ElevenLabsTtsService @Inject constructor(
     private var apiKey: String? = null
     private var voiceId: String = "21m00Tcm4TlvDq8ikWAM" // Default voice (Rachel)
     private var modelId: String = "eleven_multilingual_v2" // Default model
-    
+
     private val _ttsState = MutableStateFlow(TtsServiceState())
     override val ttsState: StateFlow<TtsServiceState> = _ttsState.asStateFlow()
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var mediaPlayer: MediaPlayer? = null
 
@@ -85,10 +85,10 @@ class ElevenLabsTtsService @Inject constructor(
 
             // Request audio from ElevenLabs API
             val audioBytes = requestTextToSpeech(text)
-            
+
             // Play audio
             playAudio(audioBytes)
-            
+
             _ttsState.value = _ttsState.value.copy(isPlaying = true)
             true
         } catch (e: Exception) {
@@ -112,7 +112,7 @@ class ElevenLabsTtsService @Inject constructor(
         }
 
         val requestBody = json.toString().toRequestBody("application/json".toMediaType())
-        
+
         val request = Request.Builder()
             .url("$BASE_URL/text-to-speech/$voiceId")
             .addHeader("xi-api-key", apiKey!!)
@@ -149,14 +149,14 @@ class ElevenLabsTtsService @Inject constructor(
                     .setUsage(AudioAttributes.USAGE_ASSISTANT)
                     .build()
             )
-            
+
             setDataSource(tempFile.absolutePath)
-            
+
             setOnCompletionListener {
                 _ttsState.value = _ttsState.value.copy(isPlaying = false)
                 tempFile.delete()
             }
-            
+
             setOnErrorListener { _, what, extra ->
                 _ttsState.value = TtsServiceState(
                     error = "MediaPlayer error: $what, $extra"
@@ -164,7 +164,7 @@ class ElevenLabsTtsService @Inject constructor(
                 tempFile.delete()
                 true
             }
-            
+
             prepare()
             start()
         }

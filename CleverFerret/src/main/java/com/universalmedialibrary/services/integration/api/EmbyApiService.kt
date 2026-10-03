@@ -13,15 +13,15 @@ import retrofit2.http.Query
  * Documentation: https://dev.emby.media/
  */
 interface EmbyApiService {
-    
+
     @POST("Users/AuthenticateByName")
     suspend fun authenticate(
         @Body credentials: EmbyAuthRequest
     ): EmbyAuthResponse
-    
+
     @GET("System/Info")
     suspend fun getServerInfo(): EmbyServerInfo
-    
+
     @GET("Users/{userId}/Items")
     suspend fun getLibraryItems(
         @Path("userId") userId: String,
@@ -30,12 +30,12 @@ interface EmbyApiService {
         @Query("Limit") limit: Int = 50,
         @Query("Recursive") recursive: Boolean = true
     ): EmbyItemsResponse
-    
+
     @GET("Users/{userId}/Views")
     suspend fun getLibraryViews(
         @Path("userId") userId: String
     ): EmbyItemsResponse
-    
+
     @GET("Users/{userId}/Items/{itemId}")
     suspend fun getItemDetails(
         @Path("userId") userId: String,

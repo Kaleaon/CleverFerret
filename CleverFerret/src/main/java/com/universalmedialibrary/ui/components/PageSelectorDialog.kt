@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Page Selector Dialog
- * 
+ *
  * Allows users to jump to a specific page in a PDF or eBook by entering the page number.
  *
  * @param currentPage Current page number
@@ -31,7 +31,7 @@ fun PageSelectorDialog(
 ) {
     var pageInput by remember { mutableStateOf(currentPage.toString()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
@@ -58,7 +58,7 @@ fun PageSelectorDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 OutlinedTextField(
                     value = pageInput,
                     onValueChange = { newValue ->
@@ -83,7 +83,7 @@ fun PageSelectorDialog(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
-                
+
                 // Quick jump buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),

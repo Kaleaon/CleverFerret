@@ -27,7 +27,7 @@ class SystemRadioWrapper(private val context: Context) {
     private var programSelectorClass: Class<*>? = null
     private var programInfoClass: Class<*>? = null
     private var radioMetadataClass: Class<*>? = null
-    
+
     // API Instances
     private var radioManager: Any? = null
     private var radioTuner: Any? = null
@@ -52,7 +52,7 @@ class SystemRadioWrapper(private val context: Context) {
 
     fun init(): Boolean {
         if (radioManagerClass == null) return false
-        
+
         try {
             // Get RadioManager service
             // Context.RADIO_SERVICE constant is "radio"
@@ -63,18 +63,18 @@ class SystemRadioWrapper(private val context: Context) {
             val modules = ArrayList<Any>()
             val listModulesMethod = radioManagerClass!!.getMethod("listModules", List::class.java)
             val result = listModulesMethod.invoke(radioManager, modules) as Int
-            
+
             if (result != 0) return false // STATUS_OK = 0
-            
+
             if (modules.isEmpty()) return false
-            
+
             // Find FM Module
             // We iterate through modules to find one with FM band
-            // For simplicity in this wrapper, we'll take the first one 
-            // or try to inspect bands if necessary. 
+            // For simplicity in this wrapper, we'll take the first one
+            // or try to inspect bands if necessary.
             // Most devices with FM only have one relevant module.
             fmModule = modules[0]
-            
+
             return true
         } catch (e: Exception) {
             Log.e(TAG, "Error initializing RadioManager", e)
@@ -87,7 +87,7 @@ class SystemRadioWrapper(private val context: Context) {
 
         try {
             val callbackClass = Class.forName("android.hardware.radio.RadioTuner\$Callback")
-            
+
             val proxy = Proxy.newProxyInstance(
                 callbackClass.classLoader,
                 arrayOf(callbackClass),
@@ -174,9 +174,9 @@ class SystemRadioWrapper(private val context: Context) {
             // RadioTuner.DIRECTION_UP / DOWN
             val directionUpField = radioTunerClass!!.getField("DIRECTION_UP")
             val directionDownField = radioTunerClass!!.getField("DIRECTION_DOWN")
-            
+
             val direction = if (up) directionUpField.getInt(null) else directionDownField.getInt(null)
-            
+
             val scanMethod = radioTunerClass!!.getMethod("scan", Int::class.javaPrimitiveType, Boolean::class.javaPrimitiveType)
             scanMethod.invoke(radioTuner, direction, true) // skipSubChannel = true
         } catch (e: Exception) {
@@ -201,18 +201,18 @@ class SystemRadioWrapper(private val context: Context) {
             // Extract primary ID (frequency)
             val getSelectorMethod = programInfoClass!!.getMethod("getSelector")
             val selector = getSelectorMethod.invoke(info)
-            
+
             val getPrimaryIdMethod = programSelectorClass!!.getMethod("getPrimaryId")
             val freq = (getPrimaryIdMethod.invoke(selector) as Long).toInt()
-            
+
             // Extract Metadata
             val getMetadataMethod = programInfoClass!!.getMethod("getMetadata")
             val metadata = getMetadataMethod.invoke(info)
-            
+
             var name: String? = null
             var text: String? = null
             var pi: Int = 0
-            
+
             if (metadata != null) {
                 // RDS Keys are typically in RadioMetadata
                 // Need to find constants METADATA_KEY_RDS_PS, METADATA_KEY_RDS_RT
@@ -220,18 +220,18 @@ class SystemRadioWrapper(private val context: Context) {
                 val rtKeyField = radioMetadataClass!!.getField("METADATA_KEY_RDS_RT")
                 val psKey = psKeyField.get(null) as String
                 val rtKey = rtKeyField.get(null) as String
-                
+
                 val getStringMethod = radioMetadataClass!!.getMethod("getString", String::class.java)
                 name = getStringMethod.invoke(metadata, psKey) as? String
                 text = getStringMethod.invoke(metadata, rtKey) as? String
-                
+
                 // PI code
                  val piKeyField = radioMetadataClass!!.getField("METADATA_KEY_RDS_PI")
                  val piKey = piKeyField.get(null) as String
                  val getIntMethod = radioMetadataClass!!.getMethod("getInt", String::class.java)
                  pi = getIntMethod.invoke(metadata, piKey) as Int
             }
-            
+
             callback.onProgramInfoChanged(freq, name, text, pi)
 
         } catch (e: Exception) {

@@ -33,4 +33,3 @@ These remain in archived logs for reference and should be re-validated only afte
 - 2026-04-18T20:12:20Z — Re-checked `archive/development-artifacts/clean-build-879e7103-20260418T195556Z.log`; crash reproduces in Kotlin DSL bootstrap with `java.lang.IllegalArgumentException: 25.0.1` before `:CleverFerret` configuration.
 - 2026-04-18T20:12:20Z — Added wrapper-level JDK gate (17..21), Gradle toolchain discovery constraints, and repo default `.java-version` (`21`) so unsupported runtimes now fail fast with an explicit message instead of Kotlin startup stacktrace.
 - 2026-04-18T20:12:20Z — Reproducibility status: bootstrap crash is reproducible with unsupported runtime JDK; expected to be replaced by deterministic preflight failure after this fix.
-

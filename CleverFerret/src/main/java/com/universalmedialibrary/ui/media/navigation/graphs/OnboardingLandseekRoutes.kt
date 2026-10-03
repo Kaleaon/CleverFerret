@@ -52,7 +52,7 @@ fun NavGraphBuilder.onboardingLandseekRoutes(
             }
         )
     }
-    
+
     // =====================================================================
     // WORK WITH LANDSEEK
     // =====================================================================
@@ -69,20 +69,20 @@ fun NavGraphBuilder.onboardingLandseekRoutes(
             navController.popBackStack()
         }
     }
-    
+
     composable(MediaRoutes.ENHANCED_FILE_BROWSER) {
         com.universalmedialibrary.ui.filepicker.EnhancedStorageBrowserScreen(
             onNavigateBack = { navController.popBackStack() },
-            onFilesSelected = { files -> 
+            onFilesSelected = { files ->
                 // Handle file selection/import
                 navController.popBackStack()
             },
             onFoldersSelected = { folders ->
-                // Handle folder selection/import  
+                // Handle folder selection/import
                 navController.popBackStack()
             }
         )
     }
-    
+
     // =====================================================================
 }

@@ -314,7 +314,7 @@ private fun WebtoonView(
     ) {
         items(pages.withIndex().toList()) { (index, pageUri) ->
             AsyncImage(
-                    
+
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(pageUri)
                     .crossfade(true)

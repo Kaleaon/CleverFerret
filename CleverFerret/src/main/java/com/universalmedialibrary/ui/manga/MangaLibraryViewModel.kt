@@ -22,16 +22,16 @@ import javax.inject.Inject
 class MangaLibraryViewModel @Inject constructor(
     private val libraryRepository: MangaLibraryRepository
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(MangaLibraryUiState())
     val uiState: StateFlow<MangaLibraryUiState> = _uiState.asStateFlow()
-    
+
     init {
         loadLibrary()
         loadCategories()
         observeLibraryChanges()
     }
-    
+
     private fun observeLibraryChanges() {
         viewModelScope.launch {
             libraryRepository.observeLibrary().collect { library ->
@@ -40,11 +40,11 @@ class MangaLibraryViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun loadLibrary() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            
+
             try {
                 val library = libraryRepository.getAllLibraryManga()
                 _uiState.update { it.copy(
@@ -60,7 +60,7 @@ class MangaLibraryViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun loadCategories() {
         viewModelScope.launch {
             val categories = libraryRepository.getAllCategories()
@@ -77,74 +77,74 @@ class MangaLibraryViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun selectCategory(category: MangaCategory?) {
         _uiState.update { it.copy(selectedCategory = category) }
         applyFilter()
     }
-    
+
     fun setSortOrder(order: LibrarySortOrder) {
         _uiState.update { it.copy(sortOrder = order) }
         applyFilter()
     }
-    
+
     fun toggleSortDirection() {
         _uiState.update { it.copy(sortDescending = !it.sortDescending) }
         applyFilter()
     }
-    
+
     fun setSearchQuery(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
         applyFilter()
     }
-    
+
     fun toggleUnreadFilter() {
         _uiState.update { it.copy(showUnreadOnly = !it.showUnreadOnly) }
         applyFilter()
     }
-    
+
     fun toggleFavorite(mangaId: Long) {
         viewModelScope.launch {
             libraryRepository.toggleFavorite(mangaId)
         }
     }
-    
+
     fun removeManga(mangaId: Long) {
         viewModelScope.launch {
             libraryRepository.removeFromLibrary(mangaId)
         }
     }
-    
+
     fun updateMangaCategories(mangaId: Long, categoryIds: Set<Long>) {
         viewModelScope.launch {
             libraryRepository.updateMangaCategories(mangaId, categoryIds)
             loadCategories()
         }
     }
-    
+
     fun createCategory(name: String) {
         viewModelScope.launch {
             libraryRepository.createCategory(name)
             loadCategories()
         }
     }
-    
+
     fun deleteCategory(categoryId: Long) {
         viewModelScope.launch {
             libraryRepository.deleteCategory(categoryId)
             loadCategories()
-            
+
             // Reset selection if deleted category was selected
             if (_uiState.value.selectedCategory?.id == categoryId) {
                 _uiState.update { it.copy(selectedCategory = null) }
             }
         }
     }
-    
+
     private fun applyFilter() {
         viewModelScope.launch {
             val state = _uiState.value
-            
+
             val filter = LibraryFilter(
                 query = state.searchQuery.takeIf { it.isNotBlank() },
                 categories = state.selectedCategory?.let { setOf(it.id) },
@@ -152,12 +152,12 @@ class MangaLibraryViewModel @Inject constructor(
                 sortOrder = state.sortOrder,
                 sortDescending = state.sortDescending
             )
-            
+
             val filtered = libraryRepository.getFilteredLibrary(filter)
             _uiState.update { it.copy(filteredLibrary = filtered) }
         }
     }
-    
+
     fun refresh() {
         loadLibrary()
         loadCategories()
@@ -170,15 +170,15 @@ class MangaLibraryViewModel @Inject constructor(
 data class MangaLibraryUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    
+
     // Library
     val library: List<LibraryManga> = emptyList(),
     val filteredLibrary: List<LibraryManga> = emptyList(),
-    
+
     // Categories
     val categories: List<MangaCategory> = emptyList(),
     val selectedCategory: MangaCategory? = null,
-    
+
     // Filters
     val searchQuery: String = "",
     val showUnreadOnly: Boolean = false,

@@ -159,7 +159,7 @@ internal suspend fun importRecursivelyImpl(
         val destUriStr = copied.uri.toString()
         val existing = mediaItemDao.getItemByPath(destUriStr)
         if (existing == null) {
-            val library = getOrCreateLibraryForTypeImpl(libraryDao, 
+            val library = getOrCreateLibraryForTypeImpl(libraryDao,
                 rootName = outputRoot.name ?: "Output",
                 rootPath = outputRootPath,
                 type = mediaType
@@ -617,4 +617,3 @@ internal suspend fun executeImportPlanAdvancedImpl(
         summary.copy(errors = summary.errors + 1)
     }
 }
-

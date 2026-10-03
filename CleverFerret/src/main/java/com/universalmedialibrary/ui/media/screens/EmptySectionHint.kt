@@ -123,7 +123,7 @@ internal fun HeroCarousel(
                 onPlayClick = { onPlayClick(items[page]) }
             )
         }
-        
+
         // Page indicators
         Row(
             modifier = Modifier
@@ -137,9 +137,9 @@ internal fun HeroCarousel(
                         .size(if (pagerState.currentPage == index) 24.dp else 8.dp, 4.dp)
                         .clip(RoundedCornerShape(MediaCorners.Full))
                         .background(
-                            if (pagerState.currentPage == index) 
-                                MediaColors.AccentPrimary 
-                            else 
+                            if (pagerState.currentPage == index)
+                                MediaColors.AccentPrimary
+                            else
                                 MediaColors.TextTertiary.copy(alpha = 0.5f)
                         )
                         .animateContentSize()

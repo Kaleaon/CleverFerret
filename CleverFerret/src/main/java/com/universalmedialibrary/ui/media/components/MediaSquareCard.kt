@@ -36,7 +36,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Media Card Components
- * 
+ *
  * A comprehensive set of beautiful media cards inspired by premium media apps's design:
  * - Poster cards (books, movies, TV shows)
  * - Square cards (music albums, podcasts)
@@ -44,7 +44,7 @@ import com.universalmedialibrary.ui.media.theme.*
  * - Hero cards (featured content)
  * - List items (compact views)
  * - Carousel rows
- * 
+ *
  * Features:
  * - Smooth hover/press animations
  * - Progress indicators
@@ -73,7 +73,7 @@ fun MediaSquareCard(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
     val scale by animateFloatAsState(
         targetValue = when {
             isPressed -> 0.95f
@@ -86,7 +86,7 @@ fun MediaSquareCard(
         ),
         label = "square_scale"
     )
-    
+
     Column(
         modifier = modifier
             .width(size)
@@ -135,14 +135,14 @@ fun MediaSquareCard(
                     )
                 }
             }
-            
+
             // Hover play button
             if (isHovered) {
                 Box(modifier = Modifier.align(Alignment.Center)) {
                     PlayButton(onClick = onClick)
                 }
             }
-            
+
             // Duration badge (bottom right)
             item.duration?.let { duration ->
                 Surface(
@@ -161,10 +161,10 @@ fun MediaSquareCard(
                 }
             }
         }
-        
+
         if (showTitle) {
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             Text(
                 text = item.title,
                 style = MediaTypography.BodyMedium,
@@ -173,7 +173,7 @@ fun MediaSquareCard(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
             )
-            
+
             if (showSubtitle && item.subtitle != null) {
                 Text(
                     text = item.subtitle,

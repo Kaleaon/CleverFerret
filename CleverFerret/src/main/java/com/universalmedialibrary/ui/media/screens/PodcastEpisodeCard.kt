@@ -56,7 +56,7 @@ internal fun PodcastEpisodeCard(
                 ) {
                     if (episode.showArtworkUrl != null) {
                         AsyncImage(
-                    
+
                             model = episode.showArtworkUrl,
                             contentDescription = "Media image",
                             contentScale = ContentScale.Crop,
@@ -64,9 +64,9 @@ internal fun PodcastEpisodeCard(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                
+
                 Column(modifier = Modifier.weight(1f)) {
                     // Show name
                     Text(
@@ -76,9 +76,9 @@ internal fun PodcastEpisodeCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    
+
                     Spacer(modifier = Modifier.height(2.dp))
-                    
+
                     // Episode title
                     Text(
                         text = episode.title,
@@ -88,9 +88,9 @@ internal fun PodcastEpisodeCard(
                         overflow = TextOverflow.Ellipsis,
                         fontWeight = if (episode.isNew) FontWeight.SemiBold else FontWeight.Normal
                     )
-                    
+
                     Spacer(modifier = Modifier.height(MediaSpacing.XS))
-                    
+
                     // Meta info
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
@@ -132,7 +132,7 @@ internal fun PodcastEpisodeCard(
                     }
                 }
             }
-            
+
             // Description
             if (episode.description != null) {
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
@@ -144,7 +144,7 @@ internal fun PodcastEpisodeCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            
+
             // Progress bar
             if (episode.progress > 0) {
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
@@ -166,9 +166,9 @@ internal fun PodcastEpisodeCard(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             // Action buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -194,7 +194,7 @@ internal fun PodcastEpisodeCard(
                         color = Color.Black
                     )
                 }
-                
+
                 if (!episode.isDownloaded) {
                     OutlinedButton(
                         onClick = onDownload,
@@ -210,7 +210,7 @@ internal fun PodcastEpisodeCard(
                         )
                     }
                 }
-                
+
                 IconButton(onClick = { /* More options */ }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,

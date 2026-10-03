@@ -45,7 +45,7 @@ class CalibreExportService @Inject constructor(
             }
 
             val bookItems = itemsList.filter { it.mediaType == "BOOK" }
-            
+
             if (bookItems.isEmpty()) {
                 return ExportResult(false, "No books found to export")
             }

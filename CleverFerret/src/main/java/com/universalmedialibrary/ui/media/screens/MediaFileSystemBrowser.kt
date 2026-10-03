@@ -24,13 +24,13 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric File System Browser
- * 
+ *
  * Full file system browsing for:
  * - Adding library folders
  * - Browsing local storage
  * - Importing files
  * - Managing downloads location
- * 
+ *
  * Features:
  * - Navigate file system hierarchy
  * - Multi-select for batch operations
@@ -62,7 +62,7 @@ fun MediaFileSystemBrowser(
     var selectedItems by remember { mutableStateOf<Set<String>>(emptySet()) }
     var showSortMenu by remember { mutableStateOf(false) }
     var showFilterMenu by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -110,8 +110,8 @@ fun MediaFileSystemBrowser(
                     },
                     onAddToLibrary = {
                         // For folders in selection
-                        val folders = state.items.filter { 
-                            it.path in selectedItems && it.isDirectory 
+                        val folders = state.items.filter {
+                            it.path in selectedItems && it.isDirectory
                         }
                         if (folders.isNotEmpty()) {
                             selectedFolderForLibrary = folders.first().path
@@ -132,7 +132,7 @@ fun MediaFileSystemBrowser(
                 path = state.currentPath,
                 onNavigate = onNavigateToPath
             )
-            
+
             // Quick access shortcuts
             if (state.showQuickAccess) {
                 QuickAccessSection(
@@ -140,14 +140,14 @@ fun MediaFileSystemBrowser(
                     onItemClick = { onNavigateToPath(it.path) }
                 )
             }
-            
+
             // Storage info
             StorageInfoBar(
                 totalSpace = state.totalSpace,
                 usedSpace = state.usedSpace,
                 freeSpace = state.freeSpace
             )
-            
+
             // Sort and filter controls
             SortFilterRow(
                 currentSort = state.sortOption,
@@ -155,7 +155,7 @@ fun MediaFileSystemBrowser(
                 onSortClick = { showSortMenu = true },
                 onFilterClick = { showFilterMenu = true }
             )
-            
+
             // File list
             when {
                 state.isLoading -> {
@@ -205,7 +205,7 @@ fun MediaFileSystemBrowser(
                 }
             }
         }
-        
+
         // Sort menu
         DropdownMenu(
             expanded = showSortMenu,
@@ -234,7 +234,7 @@ fun MediaFileSystemBrowser(
                 )
             }
         }
-        
+
         // Filter menu
         DropdownMenu(
             expanded = showFilterMenu,
@@ -264,7 +264,7 @@ fun MediaFileSystemBrowser(
                 )
             }
         }
-        
+
         // Add library dialog
         if (showAddLibraryDialog && selectedFolderForLibrary != null) {
             AddLibraryDialog(
@@ -302,9 +302,9 @@ internal fun BreadcrumbChip(
     Surface(
         modifier = Modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(MediaCorners.SM),
-        color = if (isLast) 
-            MediaColors.AccentPrimary.copy(alpha = 0.2f) 
-        else 
+        color = if (isLast)
+            MediaColors.AccentPrimary.copy(alpha = 0.2f)
+        else
             Color.Transparent
     ) {
         Text(
@@ -336,7 +336,7 @@ private fun QuickAccessSection(
             color = MediaColors.TextSecondary,
             modifier = Modifier.padding(bottom = MediaSpacing.SM)
         )
-        
+
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
         ) {
@@ -379,7 +379,7 @@ private fun SortFilterRow(
             Text(currentSort.displayName, style = MediaTypography.LabelMedium)
             Icon(Icons.Default.ArrowDropDown, null, modifier = Modifier.size(18.dp))
         }
-        
+
         TextButton(onClick = onFilterClick) {
             Icon(currentFilter.icon, null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(MediaSpacing.XS))
@@ -451,9 +451,9 @@ private fun EmptyDirectoryState(filter: FileTypeFilter) {
         )
         Spacer(Modifier.height(MediaSpacing.MD))
         Text(
-            if (filter == FileTypeFilter.ALL) 
-                "Empty folder" 
-            else 
+            if (filter == FileTypeFilter.ALL)
+                "Empty folder"
+            else
                 "No ${filter.displayName.lowercase()} found",
             style = MediaTypography.TitleSmall,
             color = MediaColors.TextSecondary

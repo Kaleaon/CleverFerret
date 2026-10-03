@@ -18,11 +18,11 @@ import javax.inject.Singleton
 
 /**
  * Jellyfin Client for server integration
- * 
+ *
  * Note: Some advanced features temporarily simplified for v1.0.0
  * Full Jellyfin SDK 1.5.4 integration will be completed in v1.1.0
  */
-@Singleton  
+@Singleton
 class JellyfinClient @Inject constructor(
     @ApplicationContext private val context: Context,
     private val okHttpClient: OkHttpClient
@@ -47,7 +47,7 @@ class JellyfinClient @Inject constructor(
                     version = BuildConfig.VERSION_NAME
                 )
             }
-            
+
             apiClient = if (apiKey != null) {
                 jellyfin?.createApi(
                     baseUrl = serverUrl,
@@ -64,18 +64,18 @@ class JellyfinClient @Inject constructor(
     /**
      * Authenticate with API key
      */
-    suspend fun authenticate(serverUrl: String, apiKey: String): Result<String> = 
+    suspend fun authenticate(serverUrl: String, apiKey: String): Result<String> =
         withContext(Dispatchers.IO) {
             try {
                 initialize(serverUrl, apiKey)
-                
+
                 val client = apiClient ?: return@withContext Result.failure(
                     IllegalStateException("API client not initialized")
                 )
-                
+
                 // Test the connection
                 val response by client.systemApi.getSystemInfo()
-                
+
                 Result.success(apiKey)
             } catch (e: Exception) {
                 Result.failure(e)
@@ -90,7 +90,7 @@ class JellyfinClient @Inject constructor(
             val client = apiClient ?: return@withContext Result.failure(
                 IllegalStateException("API client not initialized")
             )
-            
+
             val response by client.systemApi.getSystemInfo()
             Result.success(response)
         } catch (e: Exception) {

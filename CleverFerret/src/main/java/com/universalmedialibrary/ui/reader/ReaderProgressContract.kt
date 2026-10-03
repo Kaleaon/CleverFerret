@@ -13,4 +13,3 @@ data class ReaderPositionUpdate(
     val percentage: Float
         get() = if (totalPages <= 0) 0f else (currentPage.toFloat() / totalPages.toFloat()) * 100f
 }
-

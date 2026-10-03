@@ -36,7 +36,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Media Card Components
- * 
+ *
  * A comprehensive set of beautiful media cards inspired by premium media apps's design:
  * - Poster cards (books, movies, TV shows)
  * - Square cards (music albums, podcasts)
@@ -44,7 +44,7 @@ import com.universalmedialibrary.ui.media.theme.*
  * - Hero cards (featured content)
  * - List items (compact views)
  * - Carousel rows
- * 
+ *
  * Features:
  * - Smooth hover/press animations
  * - Progress indicators
@@ -72,7 +72,7 @@ fun MediaWideCard(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
     val scale by animateFloatAsState(
         targetValue = when {
             isPressed -> 0.98f
@@ -81,7 +81,7 @@ fun MediaWideCard(
         },
         label = "wide_scale"
     )
-    
+
     Box(
         modifier = modifier
             .width(width)
@@ -107,7 +107,7 @@ fun MediaWideCard(
                 error = painterResource(MediaImageModels.ErrorRes)
             )
         }
-        
+
         // Gradient overlay
         Box(
             modifier = Modifier
@@ -122,7 +122,7 @@ fun MediaWideCard(
                     )
                 )
         )
-        
+
         // Info overlay
         if (showOverlayInfo) {
             Column(
@@ -137,7 +137,7 @@ fun MediaWideCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 item.subtitle?.let { subtitle ->
                     Spacer(modifier = Modifier.height(MediaSpacing.XXS))
                     Text(
@@ -150,7 +150,7 @@ fun MediaWideCard(
                 }
             }
         }
-        
+
         // Progress bar
         if (item.progress > 0) {
             val (progressColor, progressTrackColor) = mediaProgressColors()
@@ -164,7 +164,7 @@ fun MediaWideCard(
                 trackColor = progressTrackColor
             )
         }
-        
+
         // Duration badge
         item.duration?.let { duration ->
             Surface(
@@ -182,7 +182,7 @@ fun MediaWideCard(
                 )
             }
         }
-        
+
         // Play button
         AnimatedVisibility(
             visible = isHovered,

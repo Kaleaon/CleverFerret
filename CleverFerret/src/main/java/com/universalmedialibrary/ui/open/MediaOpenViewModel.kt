@@ -57,7 +57,7 @@ class MediaOpenViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun playVideoFile(mediaItem: MediaItem) {
         viewModelScope.launch {
             try {

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Manga Source Models
- * 
+ *
  * Models for online manga sources and catalogues
  * Compatible with Futon/Kotatsu parser library structures
  */

@@ -103,13 +103,13 @@ fun AudioEffectsSettingsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    
+
                     Text(
                         "Choose a preset EQ profile for your audio",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
+
                     // EQ Preset Dropdown
                     var expandedEq by remember { mutableStateOf(false) }
                     ExposedDropdownMenuBox(
@@ -165,7 +165,7 @@ fun AudioEffectsSettingsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -178,7 +178,7 @@ fun AudioEffectsSettingsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    
+
                     Slider(
                         value = state.bassBoostStrength.toFloat(),
                         onValueChange = { viewModel.setBassBoost(it.toInt()) },
@@ -186,7 +186,7 @@ fun AudioEffectsSettingsScreen(
                         steps = 99,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     Text(
                         "Increase bass frequencies for deeper sound",
                         style = MaterialTheme.typography.bodySmall,
@@ -224,7 +224,7 @@ fun AudioEffectsSettingsScreen(
                             onCheckedChange = { viewModel.setReverbEnabled(it) }
                         )
                     }
-                    
+
                     if (state.reverbEnabled) {
                         var expandedReverb by remember { mutableStateOf(false) }
                         ExposedDropdownMenuBox(
@@ -291,16 +291,16 @@ fun AudioEffectsSettingsScreen(
                             onCheckedChange = { viewModel.setReplayGainEnabled(it) }
                         )
                     }
-                    
+
                     Text(
                         "Normalize volume across tracks to prevent loud/quiet jumps",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
+
                     if (state.replayGainEnabled) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -313,7 +313,7 @@ fun AudioEffectsSettingsScreen(
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
-                        
+
                         Slider(
                             value = state.replayGainPreamp.toFloat(),
                             onValueChange = { viewModel.setReplayGainPreamp(it.toInt()) },
@@ -321,7 +321,7 @@ fun AudioEffectsSettingsScreen(
                             steps = 29,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        
+
                         Text(
                             "Fine-tune overall volume (negative = quieter, positive = louder)",
                             style = MaterialTheme.typography.bodySmall,
@@ -368,15 +368,15 @@ fun AudioEffectsSettingsScreen(
 class AudioEffectsViewModel @Inject constructor(
     private val musicPlayerService: AdvancedMusicPlayerService
 ) : ViewModel() {
-    
+
     private val _state = MutableStateFlow(AudioEffectsState())
     val state: StateFlow<AudioEffectsState> = _state.asStateFlow()
-    
+
     init {
         // Load current settings from service
         loadCurrentSettings()
     }
-    
+
     private fun loadCurrentSettings() {
         viewModelScope.launch {
             try {
@@ -395,49 +395,49 @@ class AudioEffectsViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun setEqPreset(preset: EqualizerPreset) {
         viewModelScope.launch {
             _state.value = _state.value.copy(selectedEqPreset = preset)
             musicPlayerService.setEqualizerPreset(preset.ordinal)
         }
     }
-    
+
     fun setBassBoost(strength: Int) {
         viewModelScope.launch {
             _state.value = _state.value.copy(bassBoostStrength = strength)
             musicPlayerService.setBassBoost(strength)
         }
     }
-    
+
     fun setReverbEnabled(enabled: Boolean) {
         viewModelScope.launch {
             _state.value = _state.value.copy(reverbEnabled = enabled)
             musicPlayerService.enableReverb(enabled)
         }
     }
-    
+
     fun setReverbPreset(preset: ReverbPreset) {
         viewModelScope.launch {
             _state.value = _state.value.copy(reverbPreset = preset)
             musicPlayerService.setReverbPreset(preset)
         }
     }
-    
+
     fun setReplayGainEnabled(enabled: Boolean) {
         viewModelScope.launch {
             _state.value = _state.value.copy(replayGainEnabled = enabled)
             musicPlayerService.setReplayGainEnabled(enabled)
         }
     }
-    
+
     fun setReplayGainPreamp(preamp: Int) {
         viewModelScope.launch {
             _state.value = _state.value.copy(replayGainPreamp = preamp)
             musicPlayerService.setReplayGainPreamp(preamp)
         }
     }
-    
+
     fun resetToDefaults() {
         _state.value = AudioEffectsState()
         // Apply defaults to service

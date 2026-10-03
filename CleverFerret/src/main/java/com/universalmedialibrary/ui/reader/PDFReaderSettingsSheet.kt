@@ -78,9 +78,9 @@ fun PDFReaderSettingsSheet(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Zoom level
             Text(
                 text = "Zoom Level: ${(currentZoom * 100).toInt()}%",
@@ -100,16 +100,16 @@ fun PDFReaderSettingsSheet(
                 Text("50%", style = MaterialTheme.typography.bodySmall)
                 Text("500%", style = MaterialTheme.typography.bodySmall)
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Zoom mode
             Text(
                 text = "Zoom Mode",
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -118,7 +118,7 @@ fun PDFReaderSettingsSheet(
                     FilterChip(
                         selected = zoomMode == mode,
                         onClick = { onZoomModeChange(mode) },
-                        label = { 
+                        label = {
                             Text(
                                 when (mode) {
                                     ZoomMode.FIT_WIDTH -> "Fit Width"
@@ -130,7 +130,7 @@ fun PDFReaderSettingsSheet(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(32.dp))
         }
     }

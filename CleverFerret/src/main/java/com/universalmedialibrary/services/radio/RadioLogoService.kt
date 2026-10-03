@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 /**
  * Service to fetch and manage radio station logos.
- * 
+ *
  * Features:
  * - Fetches logos from Radio-Browser.info (via RadioStation entity)
  * - Caches logos locally

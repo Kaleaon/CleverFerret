@@ -83,7 +83,7 @@ fun PodcastSearchDialog(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 AsyncImage(
-                    
+
                                     model = result.imageUrl,
                                     contentDescription = "Media image",
                                     modifier = Modifier

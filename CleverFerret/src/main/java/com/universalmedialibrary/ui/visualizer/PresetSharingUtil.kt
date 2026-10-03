@@ -35,7 +35,7 @@ fun PresetShareDialog(
     val context = LocalContext.current
     val presetManager = remember { VisualizerPresetManager() }
     val jsonString = remember { presetManager.exportPreset(preset) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -51,7 +51,7 @@ fun PresetShareDialog(
                     text = "Share this preset with others",
                     style = MaterialTheme.typography.bodyMedium
                 )
-                
+
                 // Info about sharing
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -75,7 +75,7 @@ fun PresetShareDialog(
                         )
                     }
                 }
-                
+
                 // JSON preview
                 OutlinedCard(
                     modifier = Modifier
@@ -104,7 +104,7 @@ fun PresetShareDialog(
                 ) {
                     Text("Copy JSON")
                 }
-                
+
                 // Share via Android share sheet
                 Button(
                     onClick = {
@@ -133,7 +133,7 @@ private fun copyToClipboard(context: Context, text: String, label: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
     val clip = android.content.ClipData.newPlainText(label, text)
     clipboard.setPrimaryClip(clip)
-    
+
     // Show toast
     android.widget.Toast.makeText(
         context,
@@ -154,19 +154,19 @@ private fun sharePreset(context: Context, preset: VisualizerPreset, jsonString: 
             Intent.EXTRA_TEXT,
             """
             Check out this audio visualizer preset!
-            
+
             Name: ${preset.name}
             By: ${preset.author}
             Description: ${preset.description}
-            
+
             Import JSON:
             $jsonString
-            
+
             To use: Copy the JSON and import it in CleverFerret's Visualizer Preset Browser.
             """.trimIndent()
         )
     }
-    
+
     context.startActivity(Intent.createChooser(shareIntent, "Share Visualizer Preset"))
 }
 
@@ -178,14 +178,14 @@ fun generateSimpleQRCode(text: String, size: Int = 500): Bitmap {
     // This is a placeholder implementation
     // In a real app, you'd want to use ZXing or another QR code library
     val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-    
+
     // Fill with white background
     for (x in 0 until size) {
         for (y in 0 until size) {
             bitmap.setPixel(x, y, Color.WHITE)
         }
     }
-    
+
     // Draw a simple pattern (not a real QR code)
     // This is just for demonstration
     val cellSize = size / 25
@@ -203,6 +203,6 @@ fun generateSimpleQRCode(text: String, size: Int = 500): Bitmap {
             }
         }
     }
-    
+
     return bitmap
 }

@@ -26,13 +26,13 @@ class ReadiumEpubService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val TAG = "ReadiumEpubService"
-    
+
     private val httpClient by lazy { DefaultHttpClient() }
-    
+
     private val assetRetriever by lazy {
         AssetRetriever(context.contentResolver, httpClient)
     }
-    
+
     private val epubParser by lazy {
         EpubParser()
     }
@@ -53,7 +53,7 @@ class ReadiumEpubService @Inject constructor(
                     return@withContext null
                 }
             }
-            
+
             val parseResult = epubParser.parse(asset)
             val builder = when (parseResult) {
                 is Try.Success -> parseResult.value
@@ -62,7 +62,7 @@ class ReadiumEpubService @Inject constructor(
                     return@withContext null
                 }
             }
-            
+
             val pub = builder.build()
             val coverBitmap = extractCoverFromPublication(pub)
             pub.close()
@@ -89,7 +89,7 @@ class ReadiumEpubService @Inject constructor(
                     return@withContext null
                 }
             }
-            
+
             val parseResult = epubParser.parse(asset)
             val builder = when (parseResult) {
                 is Try.Success -> parseResult.value
@@ -98,10 +98,10 @@ class ReadiumEpubService @Inject constructor(
                     return@withContext null
                 }
             }
-            
+
             val pub = builder.build()
             val metadata = pub.metadata
-            
+
             val result = EpubMetadata(
                 title = metadata.title ?: "Unknown",
                 authors = metadata.authors.mapNotNull { it.name },
@@ -114,7 +114,7 @@ class ReadiumEpubService @Inject constructor(
                 rights = null,
                 numberOfPages = metadata.numberOfPages ?: 0
             )
-            
+
             pub.close()
             result
         } catch (e: Exception) {
@@ -139,7 +139,7 @@ class ReadiumEpubService @Inject constructor(
                     return@withContext emptyList()
                 }
             }
-            
+
             val parseResult = epubParser.parse(asset)
             val builder = when (parseResult) {
                 is Try.Success -> parseResult.value
@@ -148,7 +148,7 @@ class ReadiumEpubService @Inject constructor(
                     return@withContext emptyList()
                 }
             }
-            
+
             val pub = builder.build()
             val toc = extractTocFromPublication(pub)
             pub.close()
@@ -162,14 +162,14 @@ class ReadiumEpubService @Inject constructor(
     private suspend fun extractCoverFromPublication(publication: Publication): Bitmap? {
         return try {
             val coverLink = publication.linkWithRel("cover")
-            
+
             if (coverLink != null) {
                 val resourceResult = publication.get(coverLink)
                 val resource = when (resourceResult) {
                     is Try.Success<*, *> -> resourceResult.value
                     else -> return null
                 }
-                
+
                 // Cover extraction disabled temporarily - API unclear
                 Log.d(TAG, "Cover extraction temporarily disabled")
                 null
@@ -178,14 +178,14 @@ class ReadiumEpubService @Inject constructor(
                 val imageLink = publication.resources.firstOrNull { link ->
                     link.mediaType?.matches("image/*") == true
                 }
-                
+
                 if (imageLink != null) {
                     val resourceResult = publication.get(imageLink)
                     val resource = when (resourceResult) {
                         is Try.Success<*, *> -> resourceResult.value
                         else -> return null
                     }
-                    
+
                     // Cover extraction disabled temporarily
                     null
                 } else null
@@ -206,7 +206,7 @@ class ReadiumEpubService @Inject constructor(
             emptyList()
         }
     }
-    
+
     private fun linkToTocItem(link: Link): TocItem {
         return TocItem(
             title = link.title ?: "Untitled",

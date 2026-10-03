@@ -34,14 +34,14 @@ class NetworkStorageRepository @Inject constructor(
     private val webDavClient: WebDavClient
 ) {
     private val json = Json { ignoreUnknownKeys = true }
-    
+
     companion object {
         private val SMB_CONFIGS_KEY = stringPreferencesKey("smb_configs")
         private val WEBDAV_CONFIGS_KEY = stringPreferencesKey("webdav_configs")
     }
-    
+
     // SMB/CIFS Operations
-    
+
     fun getSmbConfigs(): Flow<List<NetworkStorageConfig>> {
         return context.networkStorageDataStore.data.map { preferences ->
             val configsJson = preferences[SMB_CONFIGS_KEY] ?: "[]"
@@ -49,24 +49,24 @@ class NetworkStorageRepository @Inject constructor(
                 .map { it.toNetworkStorageConfig() }
         }
     }
-    
+
     suspend fun addSmbConfig(config: NetworkStorageConfig) {
         context.networkStorageDataStore.edit { preferences ->
             val currentConfigs = preferences[SMB_CONFIGS_KEY]?.let {
                 json.decodeFromString<List<SerializableNetworkStorageConfig>>(it)
             } ?: emptyList()
-            
+
             val updatedConfigs = currentConfigs + SerializableNetworkStorageConfig.from(config)
             preferences[SMB_CONFIGS_KEY] = json.encodeToString(updatedConfigs)
         }
     }
-    
+
     suspend fun updateSmbConfig(index: Int, config: NetworkStorageConfig) {
         context.networkStorageDataStore.edit { preferences ->
             val currentConfigs = preferences[SMB_CONFIGS_KEY]?.let {
                 json.decodeFromString<List<SerializableNetworkStorageConfig>>(it)
             } ?: emptyList()
-            
+
             if (index in currentConfigs.indices) {
                 val updatedConfigs = currentConfigs.toMutableList()
                 updatedConfigs[index] = SerializableNetworkStorageConfig.from(config)
@@ -74,13 +74,13 @@ class NetworkStorageRepository @Inject constructor(
             }
         }
     }
-    
+
     suspend fun deleteSmbConfig(index: Int) {
         context.networkStorageDataStore.edit { preferences ->
             val currentConfigs = preferences[SMB_CONFIGS_KEY]?.let {
                 json.decodeFromString<List<SerializableNetworkStorageConfig>>(it)
             } ?: emptyList()
-            
+
             if (index in currentConfigs.indices) {
                 val updatedConfigs = currentConfigs.toMutableList()
                 updatedConfigs.removeAt(index)
@@ -88,7 +88,7 @@ class NetworkStorageRepository @Inject constructor(
             }
         }
     }
-    
+
     suspend fun testSmbConnection(config: NetworkStorageConfig): Result<Boolean> {
         return try {
             networkStorageService.initialize(config.domain, config.username, config.password)
@@ -98,9 +98,9 @@ class NetworkStorageRepository @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     // WebDAV Operations
-    
+
     fun getWebDavConfigs(): Flow<List<WebDavConfig>> {
         return context.networkStorageDataStore.data.map { preferences ->
             val configsJson = preferences[WEBDAV_CONFIGS_KEY] ?: "[]"
@@ -108,24 +108,24 @@ class NetworkStorageRepository @Inject constructor(
                 .map { it.toWebDavConfig() }
         }
     }
-    
+
     suspend fun addWebDavConfig(config: WebDavConfig) {
         context.networkStorageDataStore.edit { preferences ->
             val currentConfigs = preferences[WEBDAV_CONFIGS_KEY]?.let {
                 json.decodeFromString<List<SerializableWebDavConfig>>(it)
             } ?: emptyList()
-            
+
             val updatedConfigs = currentConfigs + SerializableWebDavConfig.from(config)
             preferences[WEBDAV_CONFIGS_KEY] = json.encodeToString(updatedConfigs)
         }
     }
-    
+
     suspend fun updateWebDavConfig(index: Int, config: WebDavConfig) {
         context.networkStorageDataStore.edit { preferences ->
             val currentConfigs = preferences[WEBDAV_CONFIGS_KEY]?.let {
                 json.decodeFromString<List<SerializableWebDavConfig>>(it)
             } ?: emptyList()
-            
+
             if (index in currentConfigs.indices) {
                 val updatedConfigs = currentConfigs.toMutableList()
                 updatedConfigs[index] = SerializableWebDavConfig.from(config)
@@ -133,13 +133,13 @@ class NetworkStorageRepository @Inject constructor(
             }
         }
     }
-    
+
     suspend fun deleteWebDavConfig(index: Int) {
         context.networkStorageDataStore.edit { preferences ->
             val currentConfigs = preferences[WEBDAV_CONFIGS_KEY]?.let {
                 json.decodeFromString<List<SerializableWebDavConfig>>(it)
             } ?: emptyList()
-            
+
             if (index in currentConfigs.indices) {
                 val updatedConfigs = currentConfigs.toMutableList()
                 updatedConfigs.removeAt(index)
@@ -147,7 +147,7 @@ class NetworkStorageRepository @Inject constructor(
             }
         }
     }
-    
+
     suspend fun testWebDavConnection(config: WebDavConfig): Result<Boolean> {
         return try {
             webDavClient.initialize(config.serverUrl, config.username, config.password)
@@ -179,7 +179,7 @@ private data class SerializableNetworkStorageConfig(
         password = password,
         port = port
     )
-    
+
     companion object {
         fun from(config: NetworkStorageConfig) = SerializableNetworkStorageConfig(
             name = config.name,
@@ -208,7 +208,7 @@ private data class SerializableWebDavConfig(
         password = password,
         basePath = basePath
     )
-    
+
     companion object {
         fun from(config: WebDavConfig) = SerializableWebDavConfig(
             name = config.name,

@@ -46,7 +46,7 @@ internal fun UpdateItem(
         ) {
             if (update.storyCoverUrl != null) {
                 AsyncImage(
-                    
+
                     model = update.storyCoverUrl,
                     contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
@@ -63,9 +63,9 @@ internal fun UpdateItem(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -79,7 +79,7 @@ internal fun UpdateItem(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false)
                 )
-                
+
                 if (!update.isRead) {
                     Box(
                         modifier = Modifier
@@ -88,7 +88,7 @@ internal fun UpdateItem(
                     )
                 }
             }
-            
+
             Text(
                 text = update.chapter.title,
                 style = MediaTypography.BodyMedium,
@@ -97,7 +97,7 @@ internal fun UpdateItem(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = if (!update.isRead) FontWeight.SemiBold else FontWeight.Normal
             )
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
                 verticalAlignment = Alignment.CenterVertically
@@ -107,7 +107,7 @@ internal fun UpdateItem(
                     style = MediaTypography.LabelSmall,
                     color = MediaColors.TextTertiary
                 )
-                
+
                 update.chapter.wordCount?.let { words ->
                     Text("•", color = MediaColors.TextTertiary)
                     Text(
@@ -118,7 +118,7 @@ internal fun UpdateItem(
                 }
             }
         }
-        
+
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = "Media image",

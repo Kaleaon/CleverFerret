@@ -19,7 +19,7 @@ import javax.inject.Singleton
 
 /**
  * Unified Gemini Comic Service
- * 
+ *
  * Uses Gemini Vision API to handle ALL comic analysis tasks:
  * - Panel detection and boundary identification
  * - OCR text extraction from speech bubbles
@@ -27,36 +27,36 @@ import javax.inject.Singleton
  * - Context-aware translation
  * - Reading order determination (LTR vs RTL)
  * - Speech bubble location identification
- * 
+ *
  * Single API, zero additional dependencies!
  */
 @Singleton
 class GeminiComicService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     companion object {
         private const val TAG = "GeminiComicService"
         private const val MODEL_NAME = "gemini-1.5-flash"
         private const val VISION_MODEL_NAME = "gemini-1.5-flash"
         private const val MAX_OUTPUT_TOKENS = 4096
     }
-    
+
     private var geminiModel: GenerativeModel? = null
     private var visionModel: GenerativeModel? = null
     private var isInitialized = false
-    
+
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
     }
-    
+
     private fun requireInitialized() {
         if (!isInitialized) {
             throw IllegalStateException("GeminiComicService must be initialized with an API key before use. Call initialize(apiKey) first.")
         }
     }
-    
+
     /**
      * Initialize Gemini service with API key
      */
@@ -64,7 +64,7 @@ class GeminiComicService @Inject constructor(
         if (apiKey.isBlank()) {
             throw IllegalArgumentException("Gemini API key is required")
         }
-        
+
         geminiModel = GenerativeModel(
             modelName = MODEL_NAME,
             apiKey = apiKey,
@@ -73,7 +73,7 @@ class GeminiComicService @Inject constructor(
                 maxOutputTokens = MAX_OUTPUT_TOKENS
             }
         )
-        
+
         visionModel = GenerativeModel(
             modelName = VISION_MODEL_NAME,
             apiKey = apiKey,
@@ -82,10 +82,10 @@ class GeminiComicService @Inject constructor(
                 maxOutputTokens = MAX_OUTPUT_TOKENS
             }
         )
-        
+
         isInitialized = true
     }
-    
+
     /**
      * Detect all panels in a comic page using Gemini Vision
      */
@@ -116,7 +116,7 @@ class GeminiComicService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Detect panels from bitmap using Gemini Vision
      */
@@ -126,7 +126,7 @@ class GeminiComicService @Inject constructor(
             try {
                 val prompt = """
                     Analyze this comic book page and identify all panels.
-                    
+
                     For each panel, provide:
                     1. Panel number/index (starting from 0)
                     2. Bounding box coordinates as percentages (0-100) of image dimensions:
@@ -136,11 +136,11 @@ class GeminiComicService @Inject constructor(
                        - height: panel height (% of image height)
                     3. Reading order (0 for first panel to read, 1 for second, etc.)
                     4. Confidence score (0.0 to 1.0)
-                    
+
                     Also determine:
                     - Is this manga-style (right-to-left reading)? true/false
                     - Overall detection confidence (0.0 to 1.0)
-                    
+
                     Return ONLY a JSON object with this exact structure:
                     {
                       "isRightToLeft": false,
@@ -157,26 +157,26 @@ class GeminiComicService @Inject constructor(
                         }
                       ]
                     }
-                    
+
                     If this is a single splash page with no distinct panels, return an empty panels array.
                     Be precise with the coordinates - they should tightly fit each panel.
                 """.trimIndent()
-                
+
                 val response = visionModel?.generateContent(
                     content {
                         image(bitmap)
                         text(prompt)
                     }
                 )
-                
+
                 val jsonResponse = response?.text?.trim() ?: ""
-                
+
                 // Extract JSON from response (may have markdown formatting)
                 val jsonString = extractJsonFromResponse(jsonResponse)
-                
+
                 // Parse response
                 val geminiResponse = json.decodeFromString<GeminiPanelResponse>(jsonString)
-                
+
                 // Convert to our format
                 val panels = geminiResponse.panels.map { geminiPanel ->
                     DetectedPanel(
@@ -193,7 +193,7 @@ class GeminiComicService @Inject constructor(
                         readingOrder = geminiPanel.readingOrder
                     )
                 }
-                
+
                 PanelDetectionResult(
                     pageNumber = pageNumber,
                     panels = panels,
@@ -201,7 +201,7 @@ class GeminiComicService @Inject constructor(
                     confidence = geminiResponse.confidence.toFloat(),
                     isRightToLeft = geminiResponse.isRightToLeft
                 )
-                
+
             } catch (e: Exception) {
                 Log.e(TAG, "Error in Gemini panel detection: ${e.message}", e)
                 PanelDetectionResult(
@@ -214,7 +214,7 @@ class GeminiComicService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Detect speech bubbles within a panel using Gemini Vision
      */
@@ -231,10 +231,10 @@ class GeminiComicService @Inject constructor(
                     return@withContext emptyList()
                 }
                 val panelBitmap = cropBitmap(bitmap, panelBounds)
-                
+
                 val prompt = """
                     Identify all speech bubbles and text boxes in this comic panel.
-                    
+
                     For each bubble/text box, provide:
                     1. Bubble index (starting from 0)
                     2. Bounding box as percentages (0-100) of panel dimensions:
@@ -243,7 +243,7 @@ class GeminiComicService @Inject constructor(
                        - width: bubble width (%)
                        - height: bubble height (%)
                     3. Confidence score (0.0 to 1.0)
-                    
+
                     Return ONLY a JSON object:
                     {
                       "bubbles": [
@@ -258,19 +258,19 @@ class GeminiComicService @Inject constructor(
                       ]
                     }
                 """.trimIndent()
-                
+
                 val response = visionModel?.generateContent(
                     content {
                         image(panelBitmap)
                         text(prompt)
                     }
                 )
-                
+
                 val jsonResponse = response?.text?.trim() ?: ""
                 val jsonString = extractJsonFromResponse(jsonResponse)
-                
+
                 val geminiResponse = json.decodeFromString<GeminiBubbleResponse>(jsonString)
-                
+
                 geminiResponse.bubbles.map { bubble ->
                     DetectedSpeechBubble(
                         bounds = NormalizedRect(
@@ -289,14 +289,14 @@ class GeminiComicService @Inject constructor(
                         )
                     )
                 }
-                
+
             } catch (e: Exception) {
                 Log.e(TAG, "Error detecting bubbles: ${e.message}", e)
                 emptyList()
             }
         }
     }
-    
+
     /**
      * Extract and translate text from a speech bubble using Gemini Vision
      */
@@ -321,7 +321,7 @@ class GeminiComicService @Inject constructor(
                         error = "Failed to decode image at path: $imagePath"
                     )
                 }
-                
+
                 // Crop to bubble region
                 val bubbleBitmap = if (panelBounds != null) {
                     val panelBitmap = cropBitmap(bitmap, panelBounds)
@@ -329,18 +329,18 @@ class GeminiComicService @Inject constructor(
                 } else {
                     cropBitmap(bitmap, bubbleBounds)
                 }
-                
+
                 val prompt = """
                     Extract the text from this speech bubble and translate it.
-                    
+
                     ${if (context != null) "Context: $context" else ""}
-                    
+
                     Tasks:
                     1. Extract all visible text (OCR)
                     2. Detect the source language (ISO 639-1 code)
                     3. Translate to $targetLanguage
                     4. Provide confidence scores
-                    
+
                     Return ONLY a JSON object:
                     {
                       "originalText": "extracted text",
@@ -349,22 +349,22 @@ class GeminiComicService @Inject constructor(
                       "ocrConfidence": 0.95,
                       "translationConfidence": 0.9
                     }
-                    
+
                     If no text is visible, return empty strings for text fields.
                 """.trimIndent()
-                
+
                 val response = visionModel?.generateContent(
                     content {
                         image(bubbleBitmap)
                         text(prompt)
                     }
                 )
-                
+
                 val jsonResponse = response?.text?.trim() ?: ""
                 val jsonString = extractJsonFromResponse(jsonResponse)
-                
+
                 val result = json.decodeFromString<GeminiTextResponse>(jsonString)
-                
+
                 BubbleTextResult(
                     originalText = result.originalText,
                     detectedLanguage = result.detectedLanguage,
@@ -372,7 +372,7 @@ class GeminiComicService @Inject constructor(
                     ocrConfidence = result.ocrConfidence.toFloat(),
                     translationConfidence = result.translationConfidence.toFloat()
                 )
-                
+
             } catch (e: Exception) {
                 Log.e(TAG, "Error extracting/translating text: ${e.message}", e)
                 BubbleTextResult(
@@ -386,7 +386,7 @@ class GeminiComicService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Analyze entire comic page in one shot (panels + text + translation)
      */
@@ -409,13 +409,13 @@ class GeminiComicService @Inject constructor(
                         error = "Failed to decode image at path: $imagePath"
                     )
                 }
-                
+
                 val prompt = """
                     Analyze this complete comic book page and provide comprehensive information.
-                    
+
                     Comic: ${comicTitle ?: "Unknown"}
                     Page: $pageNumber
-                    
+
                     Provide:
                     1. All panels with precise coordinates (% of image dimensions)
                     2. Reading order (manga style: right-to-left? true/false)
@@ -424,7 +424,7 @@ class GeminiComicService @Inject constructor(
                        - OCR extracted text from each bubble
                        - Detected language
                        - Translation to $targetLanguage
-                    
+
                     Return ONLY this JSON structure:
                     {
                       "isRightToLeft": false,
@@ -452,22 +452,22 @@ class GeminiComicService @Inject constructor(
                         }
                       ]
                     }
-                    
+
                     Be thorough and accurate with all coordinates and text.
                 """.trimIndent()
-                
+
                 val response = visionModel?.generateContent(
                     content {
                         image(bitmap)
                         text(prompt)
                     }
                 )
-                
+
                 val jsonResponse = response?.text?.trim() ?: ""
                 val jsonString = extractJsonFromResponse(jsonResponse)
-                
+
                 val result = json.decodeFromString<GeminiCompletePageResponse>(jsonString)
-                
+
                 CompletePageAnalysis(
                     pageNumber = pageNumber,
                     isRightToLeft = result.isRightToLeft,
@@ -499,7 +499,7 @@ class GeminiComicService @Inject constructor(
                         )
                     }
                 )
-                
+
             } catch (e: Exception) {
                 Log.e(TAG, "Error analyzing complete page: ${e.message}", e)
                 CompletePageAnalysis(
@@ -512,7 +512,7 @@ class GeminiComicService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Generate expressive narration for TTS
      */
@@ -526,33 +526,33 @@ class GeminiComicService @Inject constructor(
             try {
                 val prompt = """
                     Convert this comic panel dialogue into expressive narration for text-to-speech.
-                    
+
                     Panel text: ${panelTexts.joinToString(" | ")}
                     Context: $comicContext
                     Previous panels: ${previousPanels.joinToString(" | ")}
-                    
+
                     Guidelines:
                     - Add emotional cues (excited, worried, calm, etc.)
                     - Describe sound effects naturally
                     - Maintain character voices
                     - Keep it engaging for audio
                     - Natural pacing
-                    
+
                     Return only the narration text, no explanations.
                 """.trimIndent()
-                
+
                 val response = geminiModel?.generateContent(prompt)
                 response?.text?.trim() ?: panelTexts.joinToString(" ")
-                
+
             } catch (e: Exception) {
                 Log.e(TAG, "Error generating narration: ${e.message}", e)
                 panelTexts.joinToString(" ")
             }
         }
     }
-    
+
     // Helper methods
-    
+
     private fun extractJsonFromResponse(response: String): String {
         // Remove markdown code blocks if present
         var json = response.trim()
@@ -563,21 +563,21 @@ class GeminiComicService @Inject constructor(
         }
         return json
     }
-    
+
     private fun cropBitmap(bitmap: Bitmap, bounds: NormalizedRect): Bitmap {
         val x = (bounds.x * bitmap.width).toInt().coerceIn(0, bitmap.width - 1)
         val y = (bounds.y * bitmap.height).toInt().coerceIn(0, bitmap.height - 1)
         val width = (bounds.width * bitmap.width).toInt().coerceAtLeast(1)
         val height = (bounds.height * bitmap.height).toInt().coerceAtLeast(1)
-        
+
         val safeWidth = width.coerceAtMost(bitmap.width - x)
         val safeHeight = height.coerceAtMost(bitmap.height - y)
-        
+
         if (safeWidth <= 0 || safeHeight <= 0) {
             Log.w(TAG, "Invalid crop dimensions: ${safeWidth}x${safeHeight}, returning 1x1 bitmap")
             return Bitmap.createBitmap(1, 1, bitmap.config ?: Bitmap.Config.ARGB_8888)
         }
-        
+
         return Bitmap.createBitmap(bitmap, x, y, safeWidth, safeHeight)
     }
 }
@@ -659,19 +659,3 @@ private data class GeminiCompleteBubble(
 )
 
 // Result data classes
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

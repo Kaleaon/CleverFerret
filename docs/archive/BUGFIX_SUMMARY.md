@@ -57,7 +57,7 @@ override fun onCleared() {
 
 ### 2. Centralized Error Logging System ✅ NEW FEATURE
 
-**Problem:** 
+**Problem:**
 - 20+ instances of `printStackTrace()` scattered across codebase
 - No centralized error tracking
 - Difficult to debug production issues
@@ -159,7 +159,7 @@ try {
 ```kotlin
 class MyViewModel : ViewModel() {
     private val exceptionHandler = ErrorLogger.createCoroutineExceptionHandler("MyViewModel")
-    
+
     fun doWork() {
         viewModelScope.launch(exceptionHandler) {
             // Your coroutine code
@@ -174,20 +174,20 @@ class MyViewModel : ViewModel() {
 class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        
+
         // Initialize with your crash reporter
         ErrorLogger.initialize(object : CrashReporter {
             override fun recordException(throwable: Throwable, message: String?) {
                 FirebaseCrashlytics.getInstance().recordException(throwable)
-                message?.let { 
+                message?.let {
                     FirebaseCrashlytics.getInstance().log(it)
                 }
             }
-            
+
             override fun setUserId(userId: String) {
                 FirebaseCrashlytics.getInstance().setUserId(userId)
             }
-            
+
             override fun setCustomKey(key: String, value: String) {
                 FirebaseCrashlytics.getInstance().setCustomKey(key, value)
             }

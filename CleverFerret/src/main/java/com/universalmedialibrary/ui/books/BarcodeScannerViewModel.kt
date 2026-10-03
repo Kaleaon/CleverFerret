@@ -24,22 +24,22 @@ class BarcodeScannerViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(BarcodeScannerUiState())
     val uiState: StateFlow<BarcodeScannerUiState> = _uiState.asStateFlow()
-    
+
     /**
      * Handle a scanned barcode
      */
     fun onBarcodeScanned(isbn: String) {
         val normalizedISBN = barcodeScannerService.normalizeISBN(isbn)
-        
+
         _uiState.update { it.copy(
             scannedISBN = normalizedISBN,
             isSearching = true,
             errorMessage = null
         )}
-        
+
         // Search for the book using OpenLibrary
         viewModelScope.launch {
             try {
@@ -50,7 +50,7 @@ class BarcodeScannerViewModel @Inject constructor(
                     author = null,
                     maxResults = 1
                 )
-                
+
                 searchResult.fold(
                     onSuccess = { results ->
                         if (results.isNotEmpty()) {
@@ -82,7 +82,7 @@ class BarcodeScannerViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Handle scan cancellation
      */
@@ -93,7 +93,7 @@ class BarcodeScannerViewModel @Inject constructor(
             errorMessage = null
         )}
     }
-    
+
     /**
      * Reset state
      */

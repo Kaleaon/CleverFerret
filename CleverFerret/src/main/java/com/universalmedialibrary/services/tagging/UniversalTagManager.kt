@@ -15,10 +15,10 @@ import javax.inject.Singleton
 
 /**
  * Universal Tag Manager for CleverFerret
- * 
+ *
  * Manages tags across all media types with categories, colors,
  * auto-tagging, and usage analytics.
- * 
+ *
  * This class bridges the legacy tag API with the new UnifiedTag system,
  * providing a consistent interface for tag operations across the app.
  */
@@ -26,12 +26,12 @@ import javax.inject.Singleton
 class UniversalTagManager @Inject constructor(
     private val dataTagRepository: DataTagRepository
 ) {
-    
+
     private val _allTags = MutableStateFlow<List<UniversalTag>>(emptyList())
     val allTags: Flow<List<UniversalTag>> = _allTags.asStateFlow()
 
     private val scope = CoroutineScope(Dispatchers.IO)
-    
+
     init {
         scope.launch { loadTags() }
     }
@@ -51,9 +51,9 @@ class UniversalTagManager @Inject constructor(
             color = color,
             description = description
         )
-        
+
         loadTags()
-        
+
         return UniversalTag(
             id = tagId.toString(),
             name = name.trim(),
@@ -80,7 +80,7 @@ class UniversalTagManager @Inject constructor(
     suspend fun updateTag(tag: UniversalTag): Boolean {
         val id = tag.id.toLongOrNull() ?: return false
         val dbTag = dataTagRepository.getTagById(id) ?: return false
-        
+
         dataTagRepository.updateTag(dbTag.copy(
             name = tag.name,
             color = tag.color,
@@ -133,7 +133,7 @@ class UniversalTagManager @Inject constructor(
     ): Boolean {
         val itemId = mediaId.toLongOrNull() ?: return false
         val tId = tagId.toLongOrNull() ?: return false
-        
+
         dataTagRepository.addTagToItem(itemId, tId)
         return true
     }
@@ -148,7 +148,7 @@ class UniversalTagManager @Inject constructor(
     ): Boolean {
         val itemId = mediaId.toLongOrNull() ?: return false
         val tId = tagId.toLongOrNull() ?: return false
-        
+
         dataTagRepository.removeTagFromItem(itemId, tId)
         return true
     }
@@ -170,7 +170,7 @@ class UniversalTagManager @Inject constructor(
     suspend fun getMediaItemsWithTag(tagId: String): List<MediaTagRelation> {
         val tId = tagId.toLongOrNull() ?: return emptyList()
         val itemIds = dataTagRepository.getItemsWithTag(tId)
-        
+
         return itemIds.map { itemId ->
             MediaTagRelation(
                 id = "rel_${itemId}_$tagId",
@@ -193,18 +193,18 @@ class UniversalTagManager @Inject constructor(
     ): Int {
         var taggedCount = 0
         val itemId = mediaId.toLongOrNull() ?: return 0
-        
+
         suggestedTags.forEach { tagName ->
             val tagId = dataTagRepository.findOrCreateTag(
                 name = tagName,
                 type = TagType.AUTO_GENERATED,
                 color = getRandomColor()
             )
-            
+
             dataTagRepository.addTagToItem(itemId, tagId)
             taggedCount++
         }
-        
+
         return taggedCount
     }
 
@@ -222,7 +222,7 @@ class UniversalTagManager @Inject constructor(
         val allTagsList = _allTags.value
         val categories = getCategories()
         val totalUsage = allTagsList.sumOf { it.usageCount }
-        
+
         return TagStatistics(
             totalTags = allTagsList.size,
             totalUsage = totalUsage,
@@ -244,13 +244,13 @@ class UniversalTagManager @Inject constructor(
 
     private fun getRandomColor(): String {
         val colors = listOf(
-            "#6366F1", "#8B5CF6", "#EC4899", "#F43F5E", 
+            "#6366F1", "#8B5CF6", "#EC4899", "#F43F5E",
             "#F97316", "#F59E0B", "#84CC16", "#10B981",
             "#14B8A6", "#06B6D4", "#3B82F6", "#6366F1"
         )
         return colors.random()
     }
-    
+
     /**
      * Extension function to convert DbUnifiedTag to UniversalTag
      */

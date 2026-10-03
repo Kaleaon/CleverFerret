@@ -28,12 +28,12 @@ fun MaintenanceScreen(
 ) {
     val pending by viewModel.pending.collectAsState()
     val libraries by viewModel.libraries.collectAsState()
-    
+
     // Default to the first library if available, otherwise 0
-    var selectedLibrary by remember(libraries) { 
-        mutableStateOf(libraries.firstOrNull()) 
+    var selectedLibrary by remember(libraries) {
+        mutableStateOf(libraries.firstOrNull())
     }
-    
+
     // If selectedLibrary is null but libraries are available, select the first one
     LaunchedEffect(libraries) {
         if (selectedLibrary == null && libraries.isNotEmpty()) {
@@ -65,67 +65,67 @@ fun MaintenanceScreen(
             // Library Selector
             Text("Target Library", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
-            
+
             LibrarySelector(
                 libraries = libraries,
                 selectedLibrary = selectedLibrary,
                 onLibrarySelected = { selectedLibrary = it }
             )
-            
+
             Spacer(Modifier.height(16.dp))
 
             Text("Actions", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
-            
+
             // Actions Grid
             val libraryId = selectedLibrary?.libraryId ?: -1L
             val isLibrarySelected = libraryId != -1L
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp), 
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Button(
                         onClick = { viewModel.detectDuplicates(libraryId) },
                         modifier = Modifier.weight(1f),
                         enabled = isLibrarySelected
-                    ) { 
-                        Text("Detect Duplicates") 
+                    ) {
+                        Text("Detect Duplicates")
                     }
-                    
+
                     Button(
                         onClick = { showMetadataDialog = true },
                         modifier = Modifier.weight(1f)
-                    ) { 
-                        Text("Fetch Metadata") 
+                    ) {
+                        Text("Fetch Metadata")
                     }
                 }
-                
+
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp), 
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedButton(
                         onClick = { viewModel.generateCoverProposalsForLibrary(libraryId) },
                         modifier = Modifier.weight(1f),
                         enabled = isLibrarySelected
-                    ) { 
-                        Text("Generate Covers") 
+                    ) {
+                        Text("Generate Covers")
                     }
-                    
+
                     OutlinedButton(
                         onClick = { viewModel.scanFileChanges(libraryId) },
                         modifier = Modifier.weight(1f),
                         enabled = isLibrarySelected
-                    ) { 
-                        Text("Review File Changes") 
+                    ) {
+                        Text("Review File Changes")
                     }
                 }
             }
 
             Spacer(Modifier.height(24.dp))
-            
+
             if (pending.isNotEmpty()) {
                 Text("Pending Changes", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
@@ -136,8 +136,8 @@ fun MaintenanceScreen(
                 ) {
                     items(pending) { change ->
                         ChangeRow(
-                            change = change, 
-                            onAccept = { viewModel.accept(change.changeId) }, 
+                            change = change,
+                            onAccept = { viewModel.accept(change.changeId) },
                             onReject = { viewModel.reject(change.changeId) }
                         )
                     }
@@ -156,7 +156,7 @@ fun MaintenanceScreen(
             }
         }
     }
-    
+
     if (showMetadataDialog) {
         AlertDialog(
             onDismissRequest = { showMetadataDialog = false },
@@ -175,7 +175,7 @@ fun MaintenanceScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = { 
+                    onClick = {
                         if (metadataQuery.isNotBlank()) {
                             viewModel.fetchMetadataProposals(metadataQuery)
                             showMetadataDialog = false
@@ -245,7 +245,7 @@ private fun LibrarySelector(
         ) {
             libraries.forEach { library ->
                 DropdownMenuItem(
-                    text = { 
+                    text = {
                         Column {
                             Text(library.name)
                             Text(
@@ -274,7 +274,7 @@ private fun ChangeRow(change: MaintenanceChange, onAccept: () -> Unit, onReject:
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    change.changeType.replace("_", " "), 
+                    change.changeType.replace("_", " "),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold

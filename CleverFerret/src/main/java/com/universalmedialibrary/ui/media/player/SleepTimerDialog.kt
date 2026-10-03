@@ -40,7 +40,7 @@ internal fun SleepTimerDialog(
         60 to "1 hour",
         -1 to "End of chapter/episode"
     )
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -78,7 +78,7 @@ internal fun SleepTimerDialog(
                         }
                     }
                 }
-                
+
                 options.forEach { (minutes, label) ->
                     Row(
                         modifier = Modifier

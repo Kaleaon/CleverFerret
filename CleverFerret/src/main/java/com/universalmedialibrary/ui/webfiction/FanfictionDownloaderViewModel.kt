@@ -43,7 +43,7 @@ class FanfictionDownloaderViewModel @Inject constructor(
 
     fun downloadFanfiction() {
         val url = _uiState.value.url.trim()
-        
+
         if (url.isBlank()) {
             _uiState.value = _uiState.value.copy(
                 error = "Please enter a valid URL"
@@ -101,7 +101,7 @@ class FanfictionDownloaderViewModel @Inject constructor(
                         language = result.story.metadata.language,
                         fandom = result.story.metadata.fandom
                     )
-                    
+
                     downloadedStoryDao.insertStory(downloadedStory)
 
                     _uiState.value = _uiState.value.copy(
@@ -139,7 +139,7 @@ class FanfictionDownloaderViewModel @Inject constructor(
 
     fun openEpub() {
         val filePath = _uiState.value.result?.filePath ?: return
-        
+
         try {
             val file = File(filePath)
             if (!file.exists()) {
@@ -173,7 +173,7 @@ class FanfictionDownloaderViewModel @Inject constructor(
 
     fun shareEpub() {
         val filePath = _uiState.value.result?.filePath ?: return
-        
+
         try {
             val file = File(filePath)
             if (!file.exists()) {
@@ -261,7 +261,7 @@ class FanfictionDownloaderViewModel @Inject constructor(
                     // Log error but continue to delete from DB
                     AppLogger.error("FanfictionDownloaderViewModel", "Unhandled exception", e)
                 }
-                
+
                 // Delete from DB
                 downloadedStoryDao.deleteStory(story)
             }

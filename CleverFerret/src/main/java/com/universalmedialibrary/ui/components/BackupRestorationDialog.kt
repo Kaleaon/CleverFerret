@@ -15,7 +15,7 @@ import androidx.compose.ui.window.DialogProperties
 
 /**
  * Backup Restoration Dialog
- * 
+ *
  * Shown when database migration fails during app upgrade.
  * Offers user the option to restore from automatic backup.
  */
@@ -53,9 +53,9 @@ fun BackupRestorationDialog(
                     modifier = Modifier.size(64.dp),
                     tint = MaterialTheme.colorScheme.error
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Title
                 Text(
                     text = "Migration Failed",
@@ -63,18 +63,18 @@ fun BackupRestorationDialog(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.error
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Error Message
                 Text(
                     text = "The app upgrade encountered an error during database migration:",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.medium,
@@ -87,9 +87,9 @@ fun BackupRestorationDialog(
                         color = MaterialTheme.colorScheme.onErrorContainer
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Backup Info
                 Text(
                     text = "Good news! Your data is safe.",
@@ -97,17 +97,17 @@ fun BackupRestorationDialog(
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Text(
                     text = "An automatic backup was created before the upgrade. You can restore your library from this backup.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.medium,
@@ -130,9 +130,9 @@ fun BackupRestorationDialog(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -144,7 +144,7 @@ fun BackupRestorationDialog(
                     ) {
                         Text("Continue Without Restoring")
                     }
-                    
+
                     Button(
                         onClick = onRestore,
                         modifier = Modifier.weight(1f),
@@ -155,9 +155,9 @@ fun BackupRestorationDialog(
                         Text("Restore Backup")
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 // Warning Note
                 Text(
                     text = "Note: Restoring will replace the current database with the backup.",

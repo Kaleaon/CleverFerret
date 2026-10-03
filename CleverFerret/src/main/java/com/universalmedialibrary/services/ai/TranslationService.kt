@@ -20,7 +20,7 @@ class TranslationService @Inject constructor(
     private val httpClient: OkHttpClient,
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     /**
      * Translate text using OpenAI
      */
@@ -34,9 +34,9 @@ class TranslationService @Inject constructor(
                 ?: return@withContext Result.failure(
                     Exception("OpenAI API key not configured")
                 )
-            
+
             val prompt = buildTranslationPrompt(text, sourceLanguage, targetLanguage)
-            
+
             val json = JSONObject().apply {
                 put("model", "gpt-4-turbo-preview")
                 put("messages", JSONArray().apply {
@@ -51,35 +51,35 @@ class TranslationService @Inject constructor(
                 })
                 put("temperature", 0.3)
             }
-            
+
             val request = Request.Builder()
                 .url("https://api.openai.com/v1/chat/completions")
                 .header("Authorization", "Bearer $apiKey")
                 .header("Content-Type", "application/json")
                 .post(json.toString().toRequestBody("application/json".toMediaType()))
                 .build()
-            
+
             httpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return@withContext Result.failure(
                         Exception("HTTP error: ${response.code}")
                     )
                 }
-                
+
                 val responseJson = JSONObject(response.body?.string() ?: "")
                 val translatedText = responseJson
                     .getJSONArray("choices")
                     .getJSONObject(0)
                     .getJSONObject("message")
                     .getString("content")
-                
+
                 Result.success(translatedText)
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Translate text using xAI Grok
      */
@@ -93,9 +93,9 @@ class TranslationService @Inject constructor(
                 ?: return@withContext Result.failure(
                     Exception("xAI Grok API key not configured")
                 )
-            
+
             val prompt = buildTranslationPrompt(text, sourceLanguage, targetLanguage)
-            
+
             val json = JSONObject().apply {
                 put("messages", JSONArray().apply {
                     put(JSONObject().apply {
@@ -111,35 +111,35 @@ class TranslationService @Inject constructor(
                 put("stream", false)
                 put("temperature", 0.3)
             }
-            
+
             val request = Request.Builder()
                 .url("https://api.x.ai/v1/chat/completions")
                 .header("Authorization", "Bearer $apiKey")
                 .header("Content-Type", "application/json")
                 .post(json.toString().toRequestBody("application/json".toMediaType()))
                 .build()
-            
+
             httpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return@withContext Result.failure(
                         Exception("HTTP error: ${response.code}")
                     )
                 }
-                
+
                 val responseJson = JSONObject(response.body?.string() ?: "")
                 val translatedText = responseJson
                     .getJSONArray("choices")
                     .getJSONObject(0)
                     .getJSONObject("message")
                     .getString("content")
-                
+
                 Result.success(translatedText)
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Translate in chunks (for large texts)
      */
@@ -152,25 +152,25 @@ class TranslationService @Inject constructor(
         try {
             val chunks = splitIntoChunks(text, chunkSize)
             val translatedChunks = mutableListOf<String>()
-            
+
             chunks.forEachIndexed { index, chunk ->
                 progressCallback(index + 1, chunks.size)
-                
+
                 val result = translateWithGrok(chunk, targetLanguage)
-                
+
                 result.onSuccess { translatedChunk ->
                     translatedChunks.add(translatedChunk)
                 }.onFailure { error ->
                     return@withContext Result.failure(error)
                 }
             }
-            
+
             Result.success(translatedChunks.joinToString("\n\n"))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     private fun buildTranslationPrompt(
         text: String,
         sourceLanguage: String,
@@ -181,17 +181,17 @@ class TranslationService @Inject constructor(
             Translate the following text from $sourceLangText to $targetLanguage.
             Preserve all formatting, including line breaks and HTML tags if present.
             Maintain the tone, style, and literary quality of the original.
-            
+
             Text to translate:
-            
+
             $text
         """.trimIndent()
     }
-    
+
     private fun splitIntoChunks(text: String, chunkSize: Int): List<String> {
         val chunks = mutableListOf<String>()
         var currentChunk = StringBuilder()
-        
+
         text.split("\n").forEach { line ->
             if (currentChunk.length + line.length > chunkSize && currentChunk.isNotEmpty()) {
                 chunks.add(currentChunk.toString())
@@ -199,14 +199,14 @@ class TranslationService @Inject constructor(
             }
             currentChunk.append(line).append("\n")
         }
-        
+
         if (currentChunk.isNotEmpty()) {
             chunks.add(currentChunk.toString())
         }
-        
+
         return chunks
     }
-    
+
     /**
      * Get list of supported languages
      */

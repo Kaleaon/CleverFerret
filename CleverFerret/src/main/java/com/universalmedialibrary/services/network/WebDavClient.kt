@@ -42,7 +42,7 @@ class WebDavClient @Inject constructor(
     suspend fun listFiles(path: String = "/"): Result<List<WebDavFile>> = withContext(Dispatchers.IO) {
         try {
             val url = "$baseUrl${path.ensureStartsWithSlash()}"
-            
+
             val requestBody = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <d:propfind xmlns:d="DAV:">
@@ -55,25 +55,25 @@ class WebDavClient @Inject constructor(
                     </d:prop>
                 </d:propfind>
             """.trimIndent().toRequestBody("application/xml".toMediaType())
-            
+
             val request = Request.Builder()
                 .url(url)
                 .method("PROPFIND", requestBody)
                 .header("Authorization", credentials)
                 .header("Depth", "1")
                 .build()
-            
+
             okHttpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return@withContext Result.failure(
                         Exception("WebDAV request failed: ${response.code} ${response.message}")
                     )
                 }
-                
+
                 val responseBody = response.body?.string() ?: return@withContext Result.failure(
                     Exception("Empty response body")
                 )
-                
+
                 val files = parseWebDavResponse(responseBody, path)
                 Result.success(files)
             }
@@ -88,23 +88,23 @@ class WebDavClient @Inject constructor(
     suspend fun downloadFile(remotePath: String): Result<InputStream> = withContext(Dispatchers.IO) {
         try {
             val url = "$baseUrl${remotePath.ensureStartsWithSlash()}"
-            
+
             val request = Request.Builder()
                 .url(url)
                 .header("Authorization", credentials)
                 .build()
-            
+
             okHttpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return@withContext Result.failure(
                         Exception("Download failed: ${response.code} ${response.message}")
                     )
                 }
-                
+
                 val inputStream = response.body?.byteStream() ?: return@withContext Result.failure(
                     Exception("Empty response body")
                 )
-                
+
                 Result.success(inputStream)
             }
         } catch (e: Exception) {
@@ -118,28 +118,28 @@ class WebDavClient @Inject constructor(
     suspend fun uploadFile(localUri: Uri, remotePath: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val url = "$baseUrl${remotePath.ensureStartsWithSlash()}"
-            
+
             val inputStream = context.contentResolver.openInputStream(localUri)
                 ?: return@withContext Result.failure(
                     Exception("Cannot open input stream for: $localUri")
                 )
-            
+
             val bytes = inputStream.use { it.readBytes() }
             val requestBody = bytes.toRequestBody("application/octet-stream".toMediaType())
-            
+
             val request = Request.Builder()
                 .url(url)
                 .put(requestBody)
                 .header("Authorization", credentials)
                 .build()
-            
+
             okHttpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return@withContext Result.failure(
                         Exception("Upload failed: ${response.code} ${response.message}")
                     )
                 }
-                
+
                 Result.success(Unit)
             }
         } catch (e: Exception) {
@@ -153,20 +153,20 @@ class WebDavClient @Inject constructor(
     suspend fun createDirectory(path: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val url = "$baseUrl${path.ensureStartsWithSlash()}"
-            
+
             val request = Request.Builder()
                 .url(url)
                 .method("MKCOL", null)
                 .header("Authorization", credentials)
                 .build()
-            
+
             okHttpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful && response.code != 405) { // 405 means already exists
                     return@withContext Result.failure(
                         Exception("Create directory failed: ${response.code} ${response.message}")
                     )
                 }
-                
+
                 Result.success(Unit)
             }
         } catch (e: Exception) {
@@ -180,20 +180,20 @@ class WebDavClient @Inject constructor(
     suspend fun delete(path: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val url = "$baseUrl${path.ensureStartsWithSlash()}"
-            
+
             val request = Request.Builder()
                 .url(url)
                 .delete()
                 .header("Authorization", credentials)
                 .build()
-            
+
             okHttpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return@withContext Result.failure(
                         Exception("Delete failed: ${response.code} ${response.message}")
                     )
                 }
-                
+
                 Result.success(Unit)
             }
         } catch (e: Exception) {
@@ -208,21 +208,21 @@ class WebDavClient @Inject constructor(
         try {
             val sourceUrl = "$baseUrl${sourcePath.ensureStartsWithSlash()}"
             val destinationUrl = "$baseUrl${destinationPath.ensureStartsWithSlash()}"
-            
+
             val request = Request.Builder()
                 .url(sourceUrl)
                 .method("MOVE", null)
                 .header("Authorization", credentials)
                 .header("Destination", destinationUrl)
                 .build()
-            
+
             okHttpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return@withContext Result.failure(
                         Exception("Move failed: ${response.code} ${response.message}")
                     )
                 }
-                
+
                 Result.success(Unit)
             }
         } catch (e: Exception) {
@@ -237,21 +237,21 @@ class WebDavClient @Inject constructor(
         try {
             val sourceUrl = "$baseUrl${sourcePath.ensureStartsWithSlash()}"
             val destinationUrl = "$baseUrl${destinationPath.ensureStartsWithSlash()}"
-            
+
             val request = Request.Builder()
                 .url(sourceUrl)
                 .method("COPY", null)
                 .header("Authorization", credentials)
                 .header("Destination", destinationUrl)
                 .build()
-            
+
             okHttpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return@withContext Result.failure(
                         Exception("Copy failed: ${response.code} ${response.message}")
                     )
                 }
-                
+
                 Result.success(Unit)
             }
         } catch (e: Exception) {
@@ -264,48 +264,48 @@ class WebDavClient @Inject constructor(
      */
     private fun parseWebDavResponse(xml: String, requestPath: String): List<WebDavFile> {
         val files = mutableListOf<WebDavFile>()
-        
+
         try {
             val factory = DocumentBuilderFactory.newInstance()
             factory.isNamespaceAware = true
             val builder = factory.newDocumentBuilder()
             val document = builder.parse(xml.byteInputStream())
-            
+
             val responses = document.getElementsByTagNameNS("DAV:", "response")
-            
+
             for (i in 0 until responses.length) {
                 val response = responses.item(i) as Element
-                
+
                 val href = response.getElementsByTagNameNS("DAV:", "href")
                     .item(0)?.textContent ?: continue
-                
+
                 // Skip the parent directory itself
                 if (href.trimEnd('/') == requestPath.trimEnd('/')) continue
-                
+
                 val propstat = response.getElementsByTagNameNS("DAV:", "propstat").item(0) as? Element
                     ?: continue
-                
+
                 val prop = propstat.getElementsByTagNameNS("DAV:", "prop").item(0) as? Element
                     ?: continue
-                
+
                 val displayName = prop.getElementsByTagNameNS("DAV:", "displayname")
                     .item(0)?.textContent ?: href.substringAfterLast('/')
-                
+
                 val contentLength = prop.getElementsByTagNameNS("DAV:", "getcontentlength")
                     .item(0)?.textContent?.toLongOrNull() ?: 0L
-                
+
                 val lastModified = prop.getElementsByTagNameNS("DAV:", "getlastmodified")
                     .item(0)?.textContent ?: ""
-                
+
                 val resourceType = prop.getElementsByTagNameNS("DAV:", "resourcetype")
                     .item(0) as? Element
-                
+
                 val isDirectory = resourceType?.getElementsByTagNameNS("DAV:", "collection")
                     ?.length ?: 0 > 0
-                
+
                 val contentType = prop.getElementsByTagNameNS("DAV:", "getcontenttype")
                     .item(0)?.textContent
-                
+
                 files.add(
                     WebDavFile(
                         name = displayName,
@@ -320,7 +320,7 @@ class WebDavClient @Inject constructor(
         } catch (e: Exception) {
             // Return empty list on parse error
         }
-        
+
         return files
     }
 

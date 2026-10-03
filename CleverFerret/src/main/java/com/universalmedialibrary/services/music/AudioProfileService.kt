@@ -16,13 +16,13 @@ import javax.inject.Singleton
 
 /**
  * Per-Device Audio Profile Service
- * 
+ *
  * Manages different audio settings (EQ, effects) for different output devices:
  * - Headphones (wired/wireless)
  * - Speakers (internal/external)
  * - Car audio (USB/Bluetooth)
  * - Bluetooth devices
- * 
+ *
  * Automatically switches profiles when audio output changes.
  */
 @Singleton
@@ -30,18 +30,18 @@ class AudioProfileService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val audioEffectsService: AudioEffectsService
 ) {
-    
+
     private val TAG = "AudioProfileService"
     private val prefs: SharedPreferences = context.getSharedPreferences("audio_profiles", Context.MODE_PRIVATE)
-    
+
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    
+
     private val _currentProfile = MutableStateFlow<AudioProfile?>(null)
     val currentProfile: StateFlow<AudioProfile?> = _currentProfile.asStateFlow()
-    
+
     private val _currentDeviceType = MutableStateFlow(AudioDeviceType.UNKNOWN)
     val currentDeviceType: StateFlow<AudioDeviceType> = _currentDeviceType.asStateFlow()
-    
+
     /**
      * Initialize and detect current audio device
      */
@@ -49,7 +49,7 @@ class AudioProfileService @Inject constructor(
         detectCurrentDevice()
         loadAndApplyProfile()
     }
-    
+
     /**
      * Detect current audio output device
      */
@@ -58,7 +58,7 @@ class AudioProfileService @Inject constructor(
         _currentDeviceType.value = deviceType
         return deviceType
     }
-    
+
     private fun detectDevice(): AudioDeviceType {
         val devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
         for (device in devices) {
@@ -116,20 +116,20 @@ class AudioProfileService @Inject constructor(
             else -> null
         }
     }
-    
+
     /**
      * Load and apply profile for current device
      */
     fun loadAndApplyProfile() {
         val deviceType = _currentDeviceType.value
         val profile = loadProfile(deviceType)
-        
+
         if (profile != null) {
             applyProfile(profile)
             _currentProfile.value = profile
         }
     }
-    
+
     /**
      * Apply an audio profile
      */
@@ -137,10 +137,10 @@ class AudioProfileService @Inject constructor(
         try {
             // Apply EQ preset
             audioEffectsService.applyEqualizerPreset(profile.eqPreset)
-            
+
             // Apply bass boost
             audioEffectsService.setBassBoost(profile.bassBoost, enabled = profile.bassBoost > 0)
-            
+
             // Apply reverb
             audioEffectsService.setReverb(
                 when (profile.reverbPreset) {
@@ -155,14 +155,14 @@ class AudioProfileService @Inject constructor(
                 },
                 enabled = profile.reverbPreset > 0
             )
-            
+
             _currentProfile.value = profile
             Log.d(TAG, "Applied profile for ${_currentDeviceType.value}")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to apply profile", e)
         }
     }
-    
+
     /**
      * Save current settings as a profile for the device type
      */
@@ -175,27 +175,27 @@ class AudioProfileService @Inject constructor(
             putString("${key}_name", profile.name)
             apply()
         }
-        
+
         // If this is the current device, apply immediately
         if (deviceType == _currentDeviceType.value) {
             applyProfile(profile)
         }
     }
-    
+
     /**
      * Load profile for a device type
      */
     fun loadProfile(deviceType: AudioDeviceType): AudioProfile? {
         val key = "profile_${deviceType.name.lowercase()}"
-        
+
         if (!prefs.contains("${key}_eq")) {
             // Return default profile for this device type
             return getDefaultProfile(deviceType)
         }
-        
+
         val eqOrdinal = prefs.getInt("${key}_eq", 0)
         val eqPreset = EqualizerPreset.values().getOrNull(eqOrdinal) ?: EqualizerPreset.FLAT
-        
+
         return AudioProfile(
             name = prefs.getString("${key}_name", deviceType.displayName) ?: deviceType.displayName,
             deviceType = deviceType,
@@ -204,7 +204,7 @@ class AudioProfileService @Inject constructor(
             reverbPreset = prefs.getInt("${key}_reverb", 0)
         )
     }
-    
+
     /**
      * Get default profile for device type
      */
@@ -261,7 +261,7 @@ class AudioProfileService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Get all saved profiles
      */
@@ -270,7 +270,7 @@ class AudioProfileService @Inject constructor(
             loadProfile(deviceType)
         }
     }
-    
+
     /**
      * Delete a profile (revert to default)
      */

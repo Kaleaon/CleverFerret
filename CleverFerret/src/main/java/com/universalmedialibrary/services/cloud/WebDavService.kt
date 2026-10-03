@@ -16,7 +16,7 @@ import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * WebDAV Integration Service for CleverFerret
- * 
+ *
  * Provides WebDAV protocol support for various cloud storage providers:
  * - OwnCloud/NextCloud
  * - Box WebDAV
@@ -28,17 +28,17 @@ class WebDavService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val webDavClient: WebDavClient
 ) {
-    
+
     private val _isAuthenticated = MutableStateFlow(false)
     val isAuthenticated: Flow<Boolean> = _isAuthenticated.asStateFlow()
-    
+
     private val _syncProgress = MutableStateFlow(0f)
     val syncProgress: Flow<Float> = _syncProgress.asStateFlow()
-    
+
     private var serverUrl: String? = null
     private var username: String? = null
     private var password: String? = null
-    
+
     companion object {
         const val APP_FOLDER = "/CleverFerret"
     }
@@ -81,7 +81,7 @@ class WebDavService @Inject constructor(
                 this@WebDavService.username = username
                 this@WebDavService.password = password
                 webDavClient.initialize(url, username, password)
-                
+
                 storeCredentials(url, username, password)
                 _isAuthenticated.value = true
                 true
@@ -228,7 +228,7 @@ class WebDavService @Inject constructor(
         val url = prefs.getString("server_url", null)
         val user = prefs.getString("username", null)
         val pass = prefs.getString("password", null)
-        
+
         return if (url != null && user != null && pass != null) {
             WebDavCredentials(url, user, pass)
         } else {

@@ -41,7 +41,7 @@ internal fun TwoPageContent(
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-    
+
     if (isLandscape) {
         HorizontalPager(
             state = pagerState,
@@ -64,13 +64,13 @@ internal fun TwoPageContent(
                         )
                     }
                 }
-                
+
                 // Divider
                 VerticalDivider(
                     color = settings.theme.textColor.copy(alpha = 0.1f),
                     modifier = Modifier.fillMaxHeight()
                 )
-                
+
                 // Right page
                 val rightPageIndex = leftPageIndex + 1
                 Box(

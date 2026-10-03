@@ -70,7 +70,7 @@ fun ComicReaderScreen(
                 "cbr" -> extractCbrImages(context, uri)
                 else -> ExtractedComic()
             }
-        } catch (e: Exception) { 
+        } catch (e: Exception) {
             android.util.Log.w("ComicReader", "Failed to extract comic images", e)
             ExtractedComic()
         }
@@ -214,17 +214,17 @@ private fun loadBitmap(file: File?, maxWidth: Int = 2048, maxHeight: Int = 2048)
                 inJustDecodeBounds = true
             }
             BitmapFactory.decodeFile(it.absolutePath, options)
-            
+
             // Calculate inSampleSize to reduce memory usage
             options.inSampleSize = calculateInSampleSize(options, maxWidth, maxHeight)
             options.inJustDecodeBounds = false
-            
+
             // Now decode with the calculated sample size
             BitmapFactory.decodeFile(it.absolutePath, options)
         }
-    } catch (e: Exception) { 
+    } catch (e: Exception) {
         android.util.Log.w("ComicReader", "Failed to load bitmap", e)
-        null 
+        null
     }
 }
 
@@ -232,11 +232,11 @@ private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int,
     val height = options.outHeight
     val width = options.outWidth
     var inSampleSize = 1
-    
+
     if (height > reqHeight || width > reqWidth) {
         val halfHeight = height / 2
         val halfWidth = width / 2
-        
+
         while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
             inSampleSize *= 2
         }

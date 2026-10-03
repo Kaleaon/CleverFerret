@@ -5,7 +5,7 @@ ext {
     // Read version from build.gradle.kts
     def buildFile = file('build.gradle.kts')
     def buildContent = buildFile.text
-    
+
     // Extract version name
     def versionNameMatcher = buildContent =~ /versionName\s*=?\s*"([^"]+)"/
     if (versionNameMatcher.find()) {
@@ -13,7 +13,7 @@ ext {
     } else {
         appVersionName = "1.0.0"
     }
-    
+
     // Extract version code
     def versionCodeMatcher = buildContent =~ /versionCode\s*=?\s*(\d+)/
     if (versionCodeMatcher.find()) {
@@ -84,12 +84,12 @@ task incrementVersionCode {
         def buildContent = buildFile.text
         def currentVersionCode = appVersionCode
         def newVersionCode = currentVersionCode + 1
-        
+
         def newContent = buildContent.replaceAll(
             /(versionCode\s*=?\s*)\d+/,
             "\$1${newVersionCode}"
         )
-        
+
         buildFile.text = newContent
         println "Version code incremented from ${currentVersionCode} to ${newVersionCode}"
     }
@@ -101,16 +101,16 @@ task updateVersionName {
         if (!project.hasProperty('newVersionName')) {
             throw new GradleException('Please specify -PnewVersionName=x.y.z')
         }
-        
+
         def buildFile = file('build.gradle.kts')
         def buildContent = buildFile.text
         def newVersionName = project.newVersionName
-        
+
         def newContent = buildContent.replaceAll(
             /(versionName\s*=?\s*)"[^"]+"/,
             "\$1\"${newVersionName}\""
         )
-        
+
         buildFile.text = newContent
         println "Version name updated to ${newVersionName}"
     }

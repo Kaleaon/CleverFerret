@@ -9,7 +9,7 @@ import retrofit2.http.Query
  * Documentation: https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/
  */
 interface ApplePodcastsApi {
-    
+
     @GET("search")
     suspend fun searchPodcasts(
         @Query("term") term: String,

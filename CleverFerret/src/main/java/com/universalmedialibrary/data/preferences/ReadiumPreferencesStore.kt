@@ -16,16 +16,16 @@ import javax.inject.Singleton
 
 /**
  * Readium Navigator Preferences Store
- * 
+ *
  * Persists user reading preferences using DataStore to ensure:
  * - Preferences survive app upgrades
  * - Settings sync across devices (future)
  * - Per-book and global preferences
  * - Type-safe preference access
- * 
+ *
  * Based on Readium's Navigator Preferences system:
  * https://readium.org/kotlin-toolkit/guides/navigator-preferences/
- * 
+ *
  * Stores:
  * - EPUB preferences (font, theme, margins, etc.)
  * - PDF preferences (scroll mode, zoom, etc.)
@@ -41,7 +41,7 @@ class ReadiumPreferencesStore @Inject constructor(
         private val Context.readiumPreferencesDataStore: DataStore<Preferences> by preferencesDataStore(
             name = "readium_preferences"
         )
-        
+
         // EPUB Preferences Keys
         private val EPUB_FONT_FAMILY = stringPreferencesKey("epub_font_family")
         private val EPUB_FONT_SIZE = floatPreferencesKey("epub_font_size")
@@ -52,28 +52,28 @@ class ReadiumPreferencesStore @Inject constructor(
         private val EPUB_WORD_SPACING = floatPreferencesKey("epub_word_spacing")
         private val EPUB_LETTER_SPACING = floatPreferencesKey("epub_letter_spacing")
         private val EPUB_PAGE_MARGINS = stringPreferencesKey("epub_page_margins")
-        
+
         // PDF Preferences Keys
         private val PDF_SCROLL_MODE = stringPreferencesKey("pdf_scroll_mode")
         private val PDF_FIT_MODE = stringPreferencesKey("pdf_fit_mode")
         private val PDF_SPREAD_MODE = stringPreferencesKey("pdf_spread_mode")
-        
+
         // Audiobook Preferences Keys
         private val AUDIOBOOK_PLAYBACK_SPEED = floatPreferencesKey("audiobook_speed")
         private val AUDIOBOOK_SLEEP_TIMER = intPreferencesKey("audiobook_sleep_timer")
-        
+
         // Comic Preferences Keys
         private val COMIC_READING_MODE = stringPreferencesKey("comic_reading_mode")
         private val COMIC_TRANSLATION_ENABLED = booleanPreferencesKey("comic_translation_enabled")
         private val COMIC_TRANSLATION_LANG = stringPreferencesKey("comic_translation_lang")
-        
+
         // Global Preferences Keys
         private val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
         private val SCREEN_TIMEOUT_MINUTES = intPreferencesKey("screen_timeout_minutes")
         private val SCREEN_BRIGHTNESS = floatPreferencesKey("screen_brightness")
         private val AUTO_BRIGHTNESS = booleanPreferencesKey("auto_brightness")
         private val VOLUME_KEY_NAVIGATION = booleanPreferencesKey("volume_key_nav")
-        
+
         // Per-Book Preferences (stored as JSON)
         private val BOOK_PREFERENCES_PREFIX = "book_pref_"
     }
@@ -211,7 +211,7 @@ class ReadiumPreferencesStore @Inject constructor(
     suspend fun saveBookPreferences(bookId: String, preferences: BookPreferences) {
         val key = stringPreferencesKey("${BOOK_PREFERENCES_PREFIX}$bookId")
         val jsonString = json.encodeToString(preferences)
-        
+
         dataStore.edit { prefs ->
             prefs[key] = jsonString
         }
@@ -286,7 +286,7 @@ data class PageMargins(
     val right: Float = 20f
 ) {
     override fun toString(): String = "$top,$bottom,$left,$right"
-    
+
     companion object {
         fun fromString(value: String?): PageMargins {
             if (value == null) return PageMargins()

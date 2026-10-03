@@ -97,13 +97,13 @@ class PodcastViewModel @Inject constructor(
             isLoading.value = false
         }
     }
-    
+
     fun playEpisode(episode: PodcastEpisode) {
         viewModelScope.launch {
             nowPlaying.value = episode.copy(isPlaying = true)
         }
     }
-    
+
     fun downloadEpisode(episode: PodcastEpisode) {
         viewModelScope.launch {
             val episodeId = episode.id.toLongOrNull() ?: return@launch
@@ -116,7 +116,7 @@ class PodcastViewModel @Inject constructor(
             )
         }
     }
-    
+
     fun addToQueue(episode: PodcastEpisode) {
         viewModelScope.launch {
             val episodeId = episode.id.toLongOrNull() ?: return@launch
@@ -125,21 +125,21 @@ class PodcastViewModel @Inject constructor(
             episodeDao.updateQueueStatus(id = episodeId, queued = true, position = position)
         }
     }
-    
+
     fun removeFromQueue(episode: PodcastEpisode) {
         viewModelScope.launch {
             val episodeId = episode.id.toLongOrNull() ?: return@launch
             episodeDao.updateQueueStatus(id = episodeId, queued = false, position = null)
         }
     }
-    
+
     fun markAsPlayed(episode: PodcastEpisode) {
         viewModelScope.launch {
             val episodeId = episode.id.toLongOrNull() ?: return@launch
             episodeDao.markAsPlayed(episodeId)
         }
     }
-    
+
     fun refreshFeeds() {
         viewModelScope.launch {
             isLoading.value = true
@@ -159,7 +159,7 @@ class PodcastViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun importOpml(opmlContent: String) {
         viewModelScope.launch {
             isLoading.value = true
@@ -172,7 +172,7 @@ class PodcastViewModel @Inject constructor(
             }
         }
     }
-    
+
     suspend fun exportOpml(): String {
         return try {
             val podcasts = podcastRepository.getSubscribedPodcasts().firstOrNull().orEmpty()

@@ -18,7 +18,7 @@ import com.universalmedialibrary.ui.theme.*
 
 /**
  * Ancient Architect Button - Enhanced button with metallic gradient and geometric shape
- * 
+ *
  * Features:
  * - Beveled/geometric shape
  * - Metallic gradient background
@@ -40,7 +40,7 @@ fun AncientArchitectButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val ancientColors = ancientArchitectColors()
-    
+
     Button(
         onClick = onClick,
         modifier = modifier
@@ -76,7 +76,7 @@ fun AncientArchitectPrimaryButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val ancientColors = ancientArchitectColors()
-    
+
     Button(
         onClick = onClick,
         modifier = modifier
@@ -127,7 +127,7 @@ fun AncientArchitectSecondaryButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val ancientColors = ancientArchitectColors()
-    
+
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
@@ -164,7 +164,7 @@ fun AncientArchitectIconButton(
     content: @Composable () -> Unit
 ) {
     val ancientColors = ancientArchitectColors()
-    
+
     IconButton(
         onClick = onClick,
         modifier = modifier
@@ -208,7 +208,7 @@ fun AncientArchitectFloatingActionButton(
 ) {
     val ancientColors = ancientArchitectColors()
     val glowEnabled = crystalGlowEnabled()
-    
+
     Box(
         modifier = modifier
             .crystalGlow(
@@ -257,7 +257,7 @@ fun AncientArchitectTextButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val ancientColors = ancientArchitectColors()
-    
+
     TextButton(
         onClick = onClick,
         modifier = modifier,

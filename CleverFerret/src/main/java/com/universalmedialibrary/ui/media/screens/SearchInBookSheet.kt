@@ -41,7 +41,7 @@ internal fun SearchInBookSheet(
     onDismiss: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
-    
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = MediaColors.BackgroundElevated
@@ -65,9 +65,9 @@ internal fun SearchInBookSheet(
                     unfocusedBorderColor = MediaColors.Border
                 )
             )
-            
+
             Spacer(Modifier.height(MediaSpacing.MD))
-            
+
             if (searchResults.isEmpty() && query.isNotEmpty()) {
                 Text(
                     "No results found",

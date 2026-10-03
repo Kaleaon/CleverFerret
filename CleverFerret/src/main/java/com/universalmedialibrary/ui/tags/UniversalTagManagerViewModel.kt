@@ -178,12 +178,12 @@ class UniversalTagManagerViewModel @Inject constructor(
                     }
                 }
             }
-            
+
             // Refresh tag-category map
             refreshTagCategories()
         }
     }
-    
+
     private suspend fun refreshTagCategories() {
         withContext(Dispatchers.IO) {
             val assignments = tagHierarchyDao.getAllTagCategoryAssignments()

@@ -9,21 +9,21 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface GeneralSettingsDao {
-    
+
     @Query("SELECT * FROM general_settings WHERE id = 1")
     fun getSettings(): Flow<GeneralSettingsEntity?>
-    
+
     @Query("SELECT * FROM general_settings WHERE id = 1")
     suspend fun getSettingsSync(): GeneralSettingsEntity?
-    
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSettings(settings: GeneralSettingsEntity)
-    
+
     @Update
     suspend fun updateSettings(settings: GeneralSettingsEntity)
-    
+
     @Query("""
-        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize, 
+        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize,
             defaultPlaybackSpeed, autoPlayNext)
         VALUES (
             1,
@@ -35,9 +35,9 @@ interface GeneralSettingsDao {
         )
     """)
     suspend fun setThemeMode(mode: String)
-    
+
     @Query("""
-        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize, 
+        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize,
             defaultPlaybackSpeed, autoPlayNext)
         VALUES (
             1,
@@ -49,9 +49,9 @@ interface GeneralSettingsDao {
         )
     """)
     suspend fun setThemePalette(palette: String)
-    
+
     @Query("""
-        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize, 
+        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize,
             defaultPlaybackSpeed, autoPlayNext)
         VALUES (
             1,
@@ -63,9 +63,9 @@ interface GeneralSettingsDao {
         )
     """)
     suspend fun setFontSize(size: Int)
-    
+
     @Query("""
-        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize, 
+        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize,
             defaultPlaybackSpeed, autoPlayNext)
         VALUES (
             1,
@@ -77,9 +77,9 @@ interface GeneralSettingsDao {
         )
     """)
     suspend fun setPlaybackSpeed(speed: Float)
-    
+
     @Query("""
-        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize, 
+        INSERT OR REPLACE INTO general_settings (id, themeMode, themePalette, defaultFontSize,
             defaultPlaybackSpeed, autoPlayNext)
         VALUES (
             1,
@@ -91,7 +91,7 @@ interface GeneralSettingsDao {
         )
     """)
     suspend fun setAutoPlayNext(enabled: Boolean)
-    
+
     @Query("DELETE FROM general_settings")
     suspend fun deleteAll()
 }

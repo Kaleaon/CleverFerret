@@ -32,7 +32,7 @@ fun ParameterEditorScreen(
     var name by remember { mutableStateOf(preset?.name ?: "Custom Preset") }
     var description by remember { mutableStateOf(preset?.description ?: "") }
     var baseStyle by remember { mutableStateOf(preset?.baseStyle ?: "spectrum_bars") }
-    
+
     // Parameters
     var sensitivity by remember { mutableFloatStateOf(preset?.parameters?.sensitivity ?: 1.0f) }
     var smoothing by remember { mutableFloatStateOf(preset?.parameters?.smoothing ?: 0.5f) }
@@ -40,13 +40,13 @@ fun ParameterEditorScreen(
     var bassBoost by remember { mutableFloatStateOf(preset?.parameters?.bassBoost ?: 1.0f) }
     var midBoost by remember { mutableFloatStateOf(preset?.parameters?.midBoost ?: 1.0f) }
     var trebleBoost by remember { mutableFloatStateOf(preset?.parameters?.trebleBoost ?: 1.0f) }
-    
+
     // Colors
     var useCustomColors by remember { mutableStateOf(preset?.colorScheme != null) }
     var primaryColor by remember { mutableStateOf(preset?.colorScheme?.primary ?: "#FF0000") }
     var secondaryColor by remember { mutableStateOf(preset?.colorScheme?.secondary ?: "#00FF00") }
     var tertiaryColor by remember { mutableStateOf(preset?.colorScheme?.tertiary ?: "#0000FF") }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -114,7 +114,7 @@ fun ParameterEditorScreen(
                         text = "Basic Information",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    
+
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
@@ -122,7 +122,7 @@ fun ParameterEditorScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
-                    
+
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
@@ -130,13 +130,13 @@ fun ParameterEditorScreen(
                         modifier = Modifier.fillMaxWidth(),
                         maxLines = 3
                     )
-                    
+
                     // Base Style Selector
                     Text(
                         text = "Base Style",
                         style = MaterialTheme.typography.labelMedium
                     )
-                    
+
                     val styles = listOf(
                         "spectrum_bars" to "Spectrum Bars",
                         "waveform" to "Waveform",
@@ -154,7 +154,7 @@ fun ParameterEditorScreen(
                         "dual_channel" to "Dual Channel",
                         "cube_3d" to "3D Cube"
                     )
-                    
+
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -170,7 +170,7 @@ fun ParameterEditorScreen(
                     }
                 }
             }
-            
+
             // Audio Parameters
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -186,7 +186,7 @@ fun ParameterEditorScreen(
                         text = "Audio Parameters",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    
+
                     ParameterSlider(
                         label = "Sensitivity",
                         value = sensitivity,
@@ -194,7 +194,7 @@ fun ParameterEditorScreen(
                         range = 0.1f..3.0f,
                         icon = Icons.AutoMirrored.Filled.TrendingUp
                     )
-                    
+
                     ParameterSlider(
                         label = "Smoothing",
                         value = smoothing,
@@ -202,7 +202,7 @@ fun ParameterEditorScreen(
                         range = 0.0f..1.0f,
                         icon = Icons.Default.LinearScale
                     )
-                    
+
                     ParameterSlider(
                         label = "Speed",
                         value = speed,
@@ -212,7 +212,7 @@ fun ParameterEditorScreen(
                     )
                 }
             }
-            
+
             // Frequency Boost
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -228,7 +228,7 @@ fun ParameterEditorScreen(
                         text = "Frequency Boost",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    
+
                     ParameterSlider(
                         label = "Bass Boost",
                         value = bassBoost,
@@ -236,7 +236,7 @@ fun ParameterEditorScreen(
                         range = 0.1f..3.0f,
                         icon = Icons.Default.GraphicEq
                     )
-                    
+
                     ParameterSlider(
                         label = "Mid Boost",
                         value = midBoost,
@@ -244,7 +244,7 @@ fun ParameterEditorScreen(
                         range = 0.1f..3.0f,
                         icon = Icons.Default.GraphicEq
                     )
-                    
+
                     ParameterSlider(
                         label = "Treble Boost",
                         value = trebleBoost,
@@ -254,7 +254,7 @@ fun ParameterEditorScreen(
                     )
                 }
             }
-            
+
             // Color Customization
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -280,14 +280,14 @@ fun ParameterEditorScreen(
                             onCheckedChange = { useCustomColors = it }
                         )
                     }
-                    
+
                     if (useCustomColors) {
                         Text(
                             text = "Enter hex color codes (e.g., #FF0000 for red)",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        
+
                         OutlinedTextField(
                             value = primaryColor,
                             onValueChange = { primaryColor = it },
@@ -298,7 +298,7 @@ fun ParameterEditorScreen(
                                 Icon(Icons.Default.Palette, null)
                             }
                         )
-                        
+
                         OutlinedTextField(
                             value = secondaryColor,
                             onValueChange = { secondaryColor = it },
@@ -309,7 +309,7 @@ fun ParameterEditorScreen(
                                 Icon(Icons.Default.Palette, null)
                             }
                         )
-                        
+
                         OutlinedTextField(
                             value = tertiaryColor,
                             onValueChange = { tertiaryColor = it },
@@ -329,7 +329,7 @@ fun ParameterEditorScreen(
                     }
                 }
             }
-            
+
             // Save Button
             Button(
                 onClick = {

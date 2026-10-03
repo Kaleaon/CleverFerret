@@ -43,7 +43,7 @@ internal fun BookmarksSheet(
 ) {
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Bookmarks", "Highlights", "Notes")
-    
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = MediaColors.BackgroundElevated
@@ -66,7 +66,7 @@ internal fun BookmarksSheet(
                     )
                 }
             }
-            
+
             when (selectedTab) {
                 0 -> BookmarksList(bookmarks, onBookmarkClick)
                 1 -> HighlightsList(highlights)

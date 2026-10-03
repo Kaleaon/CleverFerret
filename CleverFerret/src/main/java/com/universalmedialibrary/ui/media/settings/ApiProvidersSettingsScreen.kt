@@ -26,7 +26,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Settings Screen
- * 
+ *
  * A beautiful, modular settings interface that allows users to:
  * - Configure API providers and their capabilities
  * - Manage integrations (Plex, Jellyfin, Calibre, etc.)
@@ -52,7 +52,7 @@ fun ApiProvidersSettingsScreen(
             title = "API Providers",
             onBackClick = onBackClick
         )
-        
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(MediaSpacing.ScreenHorizontal),
@@ -61,51 +61,51 @@ fun ApiProvidersSettingsScreen(
             // Group providers by category
             val providersByCategory = state.allProviders.groupBy { provider ->
                 when {
-                    provider.supportedCapabilities.any { 
-                        it in listOf(ApiCapability.BOOK_METADATA, ApiCapability.AUDIOBOOK_METADATA) 
+                    provider.supportedCapabilities.any {
+                        it in listOf(ApiCapability.BOOK_METADATA, ApiCapability.AUDIOBOOK_METADATA)
                     } -> "Books & Audiobooks"
-                    provider.supportedCapabilities.any { 
-                        it in listOf(ApiCapability.MOVIE_METADATA, ApiCapability.TV_METADATA) 
+                    provider.supportedCapabilities.any {
+                        it in listOf(ApiCapability.MOVIE_METADATA, ApiCapability.TV_METADATA)
                     } -> "Movies & TV"
-                    provider.supportedCapabilities.any { 
-                        it in listOf(ApiCapability.MUSIC_METADATA, ApiCapability.SCROBBLING) 
+                    provider.supportedCapabilities.any {
+                        it in listOf(ApiCapability.MUSIC_METADATA, ApiCapability.SCROBBLING)
                     } -> "Music"
-                    provider.supportedCapabilities.any { 
-                        it == ApiCapability.PODCAST_METADATA 
+                    provider.supportedCapabilities.any {
+                        it == ApiCapability.PODCAST_METADATA
                     } -> "Podcasts"
-                    provider.supportedCapabilities.any { 
-                        it in listOf(ApiCapability.LIBRARY_SYNC, ApiCapability.VIDEO_STREAM) 
+                    provider.supportedCapabilities.any {
+                        it in listOf(ApiCapability.LIBRARY_SYNC, ApiCapability.VIDEO_STREAM)
                     } -> "Media Servers"
-                    provider.supportedCapabilities.any { 
-                        it in listOf(ApiCapability.TTS, ApiCapability.TRANSLATION) 
+                    provider.supportedCapabilities.any {
+                        it in listOf(ApiCapability.TTS, ApiCapability.TRANSLATION)
                     } -> "AI & Cloud Services"
                     else -> "Other"
                 }
             }
-            
+
             providersByCategory.forEach { (category, providers) ->
                 item {
                     SettingsSectionHeader(title = category)
                 }
-                
+
                 item {
                     SettingsCard {
                         providers.forEachIndexed { index, provider ->
                             val isConfigured = provider.id in state.configuredProviderIds
-                            
+
                             ApiProviderItem(
                                 provider = provider,
                                 isConfigured = isConfigured,
                                 onClick = { onProviderClick(provider) }
                             )
-                            
+
                             if (index < providers.size - 1) {
                                 SettingsDivider()
                             }
                         }
                     }
                 }
-                
+
                 item {
                     Spacer(modifier = Modifier.height(MediaSpacing.MD))
                 }

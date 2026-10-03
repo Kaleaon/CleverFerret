@@ -65,7 +65,7 @@ fun ThemeManagerScreen(
 ) {
     val collections by viewModel.collections.collectAsState()
     val stats by viewModel.stats.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -119,7 +119,7 @@ fun ThemeManagerScreen(
                     totalSounds = stats.totalSounds
                 )
             }
-            
+
             // Filter chips
             item {
                 ThemeFilterChips(
@@ -128,7 +128,7 @@ fun ThemeManagerScreen(
                     onThemeSelected = { viewModel.filterByTheme(it) }
                 )
             }
-            
+
             // Collections list
             items(collections, key = { it.id }) { collection ->
                 ThemeCollectionCard(
@@ -138,7 +138,7 @@ fun ThemeManagerScreen(
                     isExpanded = viewModel.isExpanded(collection.id)
                 )
             }
-            
+
             // Help section
             item {
                 HelpCard()
@@ -178,17 +178,17 @@ private fun InfoCard(
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 "Browse and enable themed sound collections for genre-specific reading experiences.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
@@ -263,7 +263,7 @@ private fun ThemeFilterChips(
                 )
             }
         )
-        
+
         themes.sorted().forEach { theme ->
             FilterChip(
                 selected = selectedTheme == theme,
@@ -351,13 +351,13 @@ private fun ThemeCollectionCard(
                                 MaterialTheme.colorScheme.onSurfaceVariant
                             }
                         )
-                        
+
                         Text(
                             collection.name,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        
+
                         // Badge with sound count
                         Surface(
                             color = if (collection.enabled) {
@@ -374,23 +374,23 @@ private fun ThemeCollectionCard(
                             )
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(4.dp))
-                    
+
                     Text(
                         collection.description,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 // Toggle switch
                 Switch(
                     checked = collection.enabled,
                     onCheckedChange = { onToggle() }
                 )
             }
-            
+
             // Expand button
             TextButton(
                 onClick = onExpand,
@@ -402,7 +402,7 @@ private fun ThemeCollectionCard(
                     contentDescription = "Media image"
                 )
             }
-            
+
             // Expanded content
             AnimatedVisibility(
                 visible = isExpanded,
@@ -415,7 +415,7 @@ private fun ThemeCollectionCard(
                         .padding(top = 8.dp)
                 ) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    
+
                     // Sound list
                     collection.sounds.forEach { sound ->
                         Row(
@@ -441,7 +441,7 @@ private fun ThemeCollectionCard(
                                     )
                                 }
                             }
-                            
+
                             // Category badge
                             Surface(
                                 color = MaterialTheme.colorScheme.secondaryContainer,
@@ -454,7 +454,7 @@ private fun ThemeCollectionCard(
                                 )
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
@@ -490,9 +490,9 @@ private fun HelpCard() {
                     color = MaterialTheme.colorScheme.onTertiaryContainer
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 """
                 • Enable themes to add their sounds to your library

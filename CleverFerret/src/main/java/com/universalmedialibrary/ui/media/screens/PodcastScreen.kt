@@ -29,13 +29,13 @@ import kotlinx.coroutines.launch
 
 /**
  * Clean Media-Centric Podcast Screen
- * 
+ *
  * Comprehensive podcast management with:
  * - Subscribed shows
  * - Episode queue
  * - Downloads
  * - Discover new podcasts
- * 
+ *
  * Features:
  * - Episode playback with speed control
  * - Background download management
@@ -64,7 +64,7 @@ fun PodcastScreen(
     val tabs = listOf("Shows", "Episodes", "Queue", "Downloads")
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -157,7 +157,7 @@ fun PodcastScreen(
                     )
                 }
             }
-            
+
             // Content pager
             HorizontalPager(
                 state = pagerState,
@@ -213,7 +213,7 @@ private fun PodcastShowsPage(
         )
         return
     }
-    
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
         contentPadding = PaddingValues(MediaSpacing.MD),
@@ -255,7 +255,7 @@ private fun PodcastQueuePage(
         )
         return
     }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(vertical = MediaSpacing.SM),
         modifier = Modifier.fillMaxSize()
@@ -286,7 +286,7 @@ private fun PodcastDownloadsPage(
         )
         return
     }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(vertical = MediaSpacing.SM),
         modifier = Modifier.fillMaxSize()

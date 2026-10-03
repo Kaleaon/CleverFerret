@@ -56,9 +56,9 @@ internal fun ScannedFileItem(
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .clickable(onClick = onToggleSelect),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) 
+            containerColor = if (isSelected)
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            else 
+            else
                 MaterialTheme.colorScheme.surface
         )
     ) {
@@ -73,7 +73,7 @@ internal fun ScannedFileItem(
                 checked = isSelected,
                 onCheckedChange = { onToggleSelect() }
             )
-            
+
             // Cover/icon
             Box(
                 modifier = Modifier
@@ -98,9 +98,9 @@ internal fun ScannedFileItem(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             // File info
             Column(
                 modifier = Modifier.weight(1f)
@@ -112,13 +112,13 @@ internal fun ScannedFileItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 // Show authors for books, artist for audio
                 val secondaryText = when (file.type) {
                     ScannedFileType.MUSIC, ScannedFileType.AUDIOBOOK -> {
                         buildString {
                             file.metadata?.authors?.firstOrNull()?.let { append(it) }
-                            file.metadata?.album?.let { 
+                            file.metadata?.album?.let {
                                 if (isNotEmpty()) append(" • ")
                                 append(it)
                             }
@@ -128,7 +128,7 @@ internal fun ScannedFileItem(
                         file.metadata?.authors?.takeIf { it.isNotEmpty() }?.joinToString(", ")
                     }
                 }
-                
+
                 if (!secondaryText.isNullOrBlank()) {
                     Text(
                         text = secondaryText,
@@ -138,7 +138,7 @@ internal fun ScannedFileItem(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -155,14 +155,14 @@ internal fun ScannedFileItem(
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
-                    
+
                     // File size
                     Text(
                         text = file.sizeFormatted,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
+
                     // Metadata status
                     if (file.metadata != null) {
                         Icon(
@@ -174,7 +174,7 @@ internal fun ScannedFileItem(
                     }
                 }
             }
-            
+
             // Fetch metadata button - for books and audio without metadata
             if ((file.type == ScannedFileType.BOOK || file.type == ScannedFileType.MUSIC || file.type == ScannedFileType.AUDIOBOOK) && file.metadata == null) {
                 IconButton(onClick = onFetchMetadata) {

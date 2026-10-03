@@ -31,7 +31,7 @@ class SmartCollectionsViewModel @Inject constructor(
     init {
         loadSuggestions()
         loadAllSuggestions()
-        
+
         // Single collector for active collections
         viewModelScope.launch {
             activeCollectionsFlow.collect { collections ->

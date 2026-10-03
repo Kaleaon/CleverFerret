@@ -120,7 +120,7 @@ fun InternetRadioScreen(
             ) {
                 items(
                     stations.filter {
-                        val matchesSearch = searchQuery.isEmpty() || 
+                        val matchesSearch = searchQuery.isEmpty() ||
                             it.name.contains(searchQuery, ignoreCase = true) ||
                             it.genre.contains(searchQuery, ignoreCase = true)
                         val matchesGenre = selectedGenre == "All" || it.genre.equals(selectedGenre, ignoreCase = true)
@@ -136,7 +136,7 @@ fun InternetRadioScreen(
             }
         }
     }
-    
+
     // Add Station Dialog
     if (showAddStationDialog) {
         AddStationDialog(
@@ -177,7 +177,7 @@ private fun InternetRadioStationCard(
             // Logo
             station.logoUrl?.let { url ->
                 AsyncImage(
-                    
+
                     model = url,
                     contentDescription = "Media image",
                     modifier = Modifier
@@ -211,7 +211,7 @@ private fun InternetRadioStationCard(
                     )
                 }
             }
-            
+
             if (isPlaying) {
                 Icon(
                     Icons.Default.GraphicEq,
@@ -241,7 +241,7 @@ private fun AddStationDialog(
     var url by remember { mutableStateOf("") }
     var genre by remember { mutableStateOf("") }
     var showGenreDropdown by remember { mutableStateOf(false) }
-    
+
     // Suggest genres based on input
     val genreSuggestions = remember(genre, availableGenres) {
         if (genre.isBlank()) {
@@ -250,7 +250,7 @@ private fun AddStationDialog(
             availableGenres.filter { it.contains(genre, ignoreCase = true) }
         }
     }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Radio Station") },
@@ -273,7 +273,7 @@ private fun AddStationDialog(
                     singleLine = true,
                     placeholder = { Text("https://...") }
                 )
-                
+
                 // Genre field with dropdown suggestions
                 ExposedDropdownMenuBox(
                     expanded = showGenreDropdown && genreSuggestions.isNotEmpty(),
@@ -281,7 +281,7 @@ private fun AddStationDialog(
                 ) {
                     OutlinedTextField(
                         value = genre,
-                        onValueChange = { 
+                        onValueChange = {
                             genre = it
                             showGenreDropdown = true
                         },
@@ -295,7 +295,7 @@ private fun AddStationDialog(
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGenreDropdown)
                         }
                     )
-                    
+
                     if (genreSuggestions.isNotEmpty()) {
                         ExposedDropdownMenu(
                             expanded = showGenreDropdown,
@@ -326,7 +326,7 @@ private fun AddStationDialog(
                         }
                     }
                 }
-                
+
                 Text(
                     text = "Tip: Choose an existing genre or create a new one",
                     style = MaterialTheme.typography.bodySmall,
@@ -392,7 +392,7 @@ private fun NowPlayingCard(
                     )
                 }
             }
-            
+
             // Station Info Row
             Row(
                 modifier = Modifier
@@ -407,7 +407,7 @@ private fun NowPlayingCard(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                     )
-                    
+
                     // Scrolling station name
                     ScrollingText(
                         text = station.name,
@@ -417,14 +417,14 @@ private fun NowPlayingCard(
                         ),
                         modifier = Modifier.fillMaxWidth(0.9f)
                     )
-                    
+
                     Text(
                         station.genre,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                     )
                 }
-                
+
                 // Control Buttons Column
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -438,14 +438,14 @@ private fun NowPlayingCard(
                             if (isPlaying) "Pause" else "Play"
                         )
                     }
-                    
+
                     FilledTonalIconButton(
                         onClick = onToggleVisualizer
                     ) {
                         Icon(
                             Icons.Default.GraphicEq,
                             "Toggle Visualizer",
-                            tint = if (showVisualizer) MaterialTheme.colorScheme.primary 
+                            tint = if (showVisualizer) MaterialTheme.colorScheme.primary
                                    else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -465,7 +465,7 @@ private fun ScrollingText(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    
+
     // Auto-scroll effect - only if text overflows
     LaunchedEffect(text, scrollState.maxValue) {
         // Only animate if text actually needs scrolling
@@ -494,7 +494,7 @@ private fun ScrollingText(
             }
         }
     }
-    
+
     Text(
         text = text,
         style = style,

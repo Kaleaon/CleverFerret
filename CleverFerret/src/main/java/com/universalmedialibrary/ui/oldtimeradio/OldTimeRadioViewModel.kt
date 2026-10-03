@@ -38,7 +38,7 @@ class OldTimeRadioViewModel @Inject constructor(
             _isLoading.value = true
             try {
                 val seriesInfoList = oldTimeRadioDao.getAllSeries()
-                
+
                 // Convert SeriesInfo to OTRSeries with episodes
                 val seriesList = seriesInfoList.map { info ->
                     val episodes = oldTimeRadioDao.getEpisodesBySeries(info.series_title)
@@ -53,7 +53,7 @@ class OldTimeRadioViewModel @Inject constructor(
                         episodes = emptyList() // Episodes loaded on-demand via Flow
                     )
                 }
-                
+
                 _series.value = seriesList
             } catch (e: Exception) {
                 // Handle error - could emit error state

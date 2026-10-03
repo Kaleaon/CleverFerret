@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 /**
  * Movie Trailer Service
- * 
+ *
  * Fetches movie trailers from YouTube and TMDB APIs
  */
 @Singleton
@@ -50,7 +50,7 @@ class MovieTrailerService @Inject constructor(
 
     /**
      * Fetch trailers for a movie
-     * 
+     *
      * @param movieTitle Movie title
      * @param year Release year (optional)
      * @param tmdbId TMDB movie ID (optional, more accurate)

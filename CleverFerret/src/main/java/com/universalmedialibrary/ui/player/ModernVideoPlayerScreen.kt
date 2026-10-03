@@ -170,7 +170,7 @@ fun ModernVideoPlayerScreen(
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                    IconButton(onClick = { 
+                    IconButton(onClick = {
                         if (castState.isConnected) {
                             viewModel.stopVideoCasting()
                         } else {
@@ -178,9 +178,9 @@ fun ModernVideoPlayerScreen(
                         }
                     }) {
                         Icon(
-                            if (castState.isConnected) 
-                                Icons.Default.CastConnected 
-                            else 
+                            if (castState.isConnected)
+                                Icons.Default.CastConnected
+                            else
                                 Icons.Default.Cast,
                             contentDescription = "Cast",
                             tint = if (castState.isConnected)
@@ -459,7 +459,7 @@ private fun formatTime(ms: Long): String {
     val seconds = (ms / 1000) % 60
     val minutes = (ms / (1000 * 60)) % 60
     val hours = (ms / (1000 * 60 * 60))
-    
+
     return if (hours > 0) {
         String.format(Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
     } else {

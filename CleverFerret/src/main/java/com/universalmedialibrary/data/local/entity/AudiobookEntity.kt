@@ -23,10 +23,10 @@ import com.universalmedialibrary.services.audiobook.AudioChapter
 data class AudiobookEntity(
     @PrimaryKey
     val id: String,
-    
+
     // File info
     val filePath: String,
-    
+
     // Basic metadata
     val title: String,
     val author: String? = null,
@@ -35,27 +35,27 @@ data class AudiobookEntity(
     val genre: String? = null,
     val publisher: String? = null,
     val publishDate: String? = null,
-    
+
     // Technical info
     val duration: Long, // seconds
     val bitrate: Int? = null,
     val sampleRate: Int? = null,
     val codec: String? = null,
-    
+
     // Cover
     val coverPath: String? = null,
-    
+
     // Chapters
     val chapterCount: Int = 0,
     val chapters: List<AudioChapter> = emptyList(),
-    
+
     // Language
     val language: String = "en",
-    
+
     // Playback state
     val lastPlayedPosition: Long = 0, // seconds
     val isFinished: Boolean = false,
-    
+
     // Timestamps
     val dateAdded: Long = System.currentTimeMillis(),
     val lastPlayed: Long? = null

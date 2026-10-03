@@ -177,19 +177,19 @@ class APIKeyRepository @Inject constructor(
 
     // Last.fm API key convenience methods
     suspend fun getLastFmApiKey(): String? = getAPIKeyValue("lastfm")
-    
+
     suspend fun saveLastFmApiKey(apiKey: String) {
         saveAPIKey("lastfm", apiKey, "MUSIC", false)
     }
-    
+
     suspend fun getLastFmSecret(): String? = getAPIKeyValue("lastfm_secret")
-    
+
     suspend fun saveLastFmSecret(secret: String) {
         saveAPIKey("lastfm_secret", secret, "MUSIC", false)
     }
-    
+
     suspend fun getLastFmSessionKey(): String? = getAPIKeyValue("lastfm_session")
-    
+
     suspend fun saveLastFmSessionKey(sessionKey: String) {
         saveAPIKey("lastfm_session", sessionKey, "MUSIC", false)
     }

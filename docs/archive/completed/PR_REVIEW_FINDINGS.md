@@ -10,7 +10,7 @@ Canonical replacement: docs/INDEX.md
 1.  **Hardcoded API Key**: `TasteDiveService.kt` contained a hardcoded API key: `1062990-CleverFe-17BF9586`.
     *   **Status**: ✅ **FIXED**. Moved to `gradle.properties` and accessed via `BuildConfig`.
 
-2.  **Permission Issues**: 
+2.  **Permission Issues**:
     *   Previous reports (Oct 31) mentioned `android.permission.MANAGE_DOCUMENTS` being restricted to system apps.
     *   **Status**: ✅ **VERIFIED**. `MANAGE_DOCUMENTS` is NOT present in the current `AndroidManifest.xml`.
 

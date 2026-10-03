@@ -29,7 +29,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Media Detail Screen
- * 
+ *
  * A beautiful, comprehensive detail screen for all media types:
  * - Books: Author, series, reading progress, chapters, reviews
  * - Movies/TV: Cast, crew, ratings, trailers, similar content
@@ -56,7 +56,7 @@ fun MediaDetailScreen(
     val isScrolled by remember {
         derivedStateOf { scrollState.firstVisibleItemScrollOffset > 200 }
     }
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -73,7 +73,7 @@ fun MediaDetailScreen(
                     onPlayClick = onPlayClick
                 )
             }
-            
+
             // Action buttons
             item {
                 ActionButtonsRow(
@@ -84,19 +84,19 @@ fun MediaDetailScreen(
                     onAddToCollectionClick = onAddToCollectionClick
                 )
             }
-            
+
             // Metadata section
             item {
                 MetadataSection(item = state.item)
             }
-            
+
             // Description
             if (!state.item.description.isNullOrBlank()) {
                 item {
                     DescriptionSection(description = state.item.description!!)
                 }
             }
-            
+
             // Chapters/Episodes/Tracks
             if (state.chapters.isNotEmpty()) {
                 item {
@@ -112,14 +112,14 @@ fun MediaDetailScreen(
                         count = state.chapters.size
                     )
                 }
-                
+
                 items(state.chapters.take(10)) { chapter ->
                     ChapterListItem(
                         chapter = chapter,
                         onClick = { onChapterClick(chapter) }
                     )
                 }
-                
+
                 if (state.chapters.size > 10) {
                     item {
                         TextButton(
@@ -136,14 +136,14 @@ fun MediaDetailScreen(
                     }
                 }
             }
-            
+
             // Cast & Crew (for movies/TV)
             if (state.cast.isNotEmpty()) {
                 item {
                     Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
                     SectionHeader(title = "Cast & Crew")
                 }
-                
+
                 item {
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = MediaSpacing.ScreenHorizontal),
@@ -155,19 +155,19 @@ fun MediaDetailScreen(
                     }
                 }
             }
-            
+
             // Reviews & Ratings
             if (state.reviews.isNotEmpty()) {
                 item {
                     Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
                     SectionHeader(title = "Reviews")
                 }
-                
+
                 items(state.reviews.take(3)) { review ->
                     ReviewCard(review = review)
                 }
             }
-            
+
             // Related content
             if (state.relatedItems.isNotEmpty()) {
                 item {
@@ -185,7 +185,7 @@ fun MediaDetailScreen(
                     }
                 }
             }
-            
+
             // Series info (for books in a series)
             if (state.seriesItems.isNotEmpty()) {
                 item {
@@ -203,13 +203,13 @@ fun MediaDetailScreen(
                     }
                 }
             }
-            
+
             // Bottom padding
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.Huge + 80.dp))
             }
         }
-        
+
         // Top bar with back button
         AnimatedVisibility(
             visible = true,
@@ -221,7 +221,7 @@ fun MediaDetailScreen(
                 onBackClick = onBackClick
             )
         }
-        
+
         // Bottom action bar (for quick play)
         if (state.item.progress > 0) {
             Surface(
@@ -252,9 +252,9 @@ fun MediaDetailScreen(
                             trackColor = MediaColors.ProgressBackground
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                    
+
                     FilledIconButton(
                         onClick = onPlayClick,
                         colors = IconButtonDefaults.filledIconButtonColors(
@@ -294,7 +294,7 @@ fun MediaDetailScreen(
 @Composable
 private fun DescriptionSection(description: String) {
     var isExpanded by remember { mutableStateOf(false) }
-    
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -308,7 +308,7 @@ private fun DescriptionSection(description: String) {
             maxLines = if (isExpanded) Int.MAX_VALUE else 4,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         if (description.length > 200) {
             TextButton(
                 onClick = { isExpanded = !isExpanded },
@@ -351,7 +351,7 @@ private fun DetailTopBar(
                     tint = MediaColors.TextPrimary
                 )
             }
-            
+
             AnimatedVisibility(
                 visible = isScrolled,
                 enter = fadeIn() + slideInHorizontally(),
@@ -386,7 +386,7 @@ private fun SectionHeader(
             style = MediaTypography.TitleMedium,
             color = MediaColors.TextPrimary
         )
-        
+
         count?.let {
             Text(
                 text = "$it items",

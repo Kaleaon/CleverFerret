@@ -61,7 +61,7 @@ internal fun SearchTopBar(
                     tint = MediaColors.TextSecondary
                 )
             }
-            
+
             OutlinedTextField(
                 value = query,
                 onValueChange = onQueryChange,

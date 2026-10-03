@@ -31,25 +31,25 @@ internal object VisualizerColors {
     val neonOrange = Color(0xFFFF6B00)
     val neonYellow = Color(0xFFFFFF00)
     val neonPurple = Color(0xFFBF00FF)
-    
+
     // Aurora palette - rich gradients
     val auroraGreen = Color(0xFF00FF87)
     val auroraTeal = Color(0xFF00D4AA)
     val auroraBlue = Color(0xFF00A8E8)
     val auroraPurple = Color(0xFF8B5CF6)
     val auroraViolet = Color(0xFFA855F7)
-    
+
     // Fire palette - warm and intense
     val fireRed = Color(0xFFFF4500)
     val fireOrange = Color(0xFFFF8C00)
     val fireYellow = Color(0xFFFFD700)
     val fireGold = Color(0xFFFFA500)
-    
+
     // Deep space palette - cosmic
     val spacePurple = Color(0xFF6B5B95)
     val spaceBlue = Color(0xFF4169E1)
     val starWhite = Color(0xFFF0F8FF)
-    
+
     fun getRainbowColor(position: Float): Color {
         val hue = (position * 360f) % 360f
         return Color.hsv(hue, 0.9f, 1f)
@@ -61,7 +61,7 @@ internal object VisualizerColors {
  *
  * Renders beautiful, reactive visualizations based on audio data
  * inspired by the projectM music visualizer
- * 
+ *
  * Optimized for 60 FPS rendering with hardware acceleration
  */
 @Composable
@@ -75,7 +75,7 @@ fun ProjectMVisualizer(
     val secondaryColor = VisualizerColors.neonMagenta
     val tertiaryColor = VisualizerColors.neonGreen
     val backgroundColor = Color(0xFF0A0A0F) // Deep dark background for contrast
-    
+
     val infiniteTransition = rememberInfiniteTransition(label = "visualizer")
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -86,7 +86,7 @@ fun ProjectMVisualizer(
         ),
         label = "rotation"
     )
-    
+
     // Color cycling animation for dynamic effects
     val colorPhase by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -97,7 +97,7 @@ fun ProjectMVisualizer(
         ),
         label = "colorPhase"
     )
-    
+
     // Dynamic colors based on audio
     val dynamicPrimary = remember(visualizerState.frequencyBands.bass, colorPhase) {
         VisualizerColors.getRainbowColor(colorPhase + visualizerState.frequencyBands.bass * 0.3f)
@@ -150,19 +150,19 @@ private fun TunnelVisualizer(
 ) {
     val bass = state.frequencyBands.bass
     val mid = state.frequencyBands.mid
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
         val maxRadius = max(size.width, size.height)
-        
+
         // Draw concentric squares creating tunnel effect
         for (i in 0..10) {
             val progress = (i + (rotation / 30f)) % 10f / 10f
             val size = maxRadius * progress
             val alpha = progress * (0.5f + bass * 0.5f)
             val rotationOffset = progress * 90f
-            
+
             rotate(rotation + rotationOffset, pivot = Offset(centerX, centerY)) {
                 drawRect(
                     color = primaryColor.copy(alpha = alpha),
@@ -170,7 +170,7 @@ private fun TunnelVisualizer(
                     size = androidx.compose.ui.geometry.Size(size, size),
                     style = Stroke(width = 5f + mid * 10f)
                 )
-                
+
                 // Connect corners to next square for depth illusion
                 if (i > 0) {
                      val prevProgress = (i - 1 + (rotation / 30f)) % 10f / 10f
@@ -237,24 +237,24 @@ private fun OscilloscopeVisualizer(
     secondaryColor: Color
 ) {
     val waveform = state.waveform.ifEmpty { List(256) { 0f } }
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
         val scale = min(size.width, size.height) * 0.4f
-        
+
         // Create Lissajous-style XY plot
         val path = Path().apply {
             waveform.forEachIndexed { index, amplitude ->
                 val nextIdx = (index + waveform.size / 4) % waveform.size
                 val x = centerX + (amplitude * scale)
                 val y = centerY + (waveform[nextIdx] * scale)
-                
+
                 if (index == 0) moveTo(x, y)
                 else lineTo(x, y)
             }
         }
-        
+
         // Draw with glow effect
         drawPath(
             path = path,
@@ -278,31 +278,31 @@ private fun LissajousVisualizer(
     secondaryColor: Color
 ) {
     val waveform = state.waveform.ifEmpty { List(256) { 0f } }
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
         val scale = min(size.width, size.height) * 0.35f
-        
+
         // Different phase offsets for Lissajous patterns
         val phaseOffsets = listOf(
             waveform.size / 8,
             waveform.size / 6,
             waveform.size / 4
         )
-        
+
         phaseOffsets.forEachIndexed { index, phase ->
             val path = Path().apply {
                 waveform.forEachIndexed { i, amplitude ->
                     val nextIdx = (i + phase) % waveform.size
                     val x = centerX + (amplitude * scale * (1f + index * 0.1f))
                     val y = centerY + (waveform[nextIdx] * scale * (1f + index * 0.1f))
-                    
+
                     if (i == 0) moveTo(x, y)
                     else lineTo(x, y)
                 }
             }
-            
+
             val alpha = 0.4f - (index * 0.1f)
             drawPath(
                 path = path,
@@ -323,25 +323,25 @@ private fun RadialWaveformVisualizer(
     primaryColor: Color
 ) {
     val waveform = state.waveform.ifEmpty { List(256) { 0f } }
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
         val baseRadius = min(size.width, size.height) * 0.2f
-        
+
         val path = Path().apply {
             waveform.forEachIndexed { index, amplitude ->
                 val angle = (index.toFloat() / waveform.size * 360f + rotation) * PI.toFloat() / 180f
                 val radius = baseRadius + (amplitude * baseRadius * 2f)
                 val x = centerX + cos(angle) * radius
                 val y = centerY + sin(angle) * radius
-                
+
                 if (index == 0) moveTo(x, y)
                 else lineTo(x, y)
             }
             close()
         }
-        
+
         drawPath(
             path = path,
             brush = Brush.radialGradient(
@@ -368,27 +368,27 @@ private fun KaleidoscopeVisualizer(
     secondaryColor: Color
 ) {
     val spectrum = state.frequencyBands.spectrum.ifEmpty { List(64) { 0f } }
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
         val segments = 6
-        
+
         for (segment in 0 until segments) {
             val segmentAngle = (segment * 360f / segments + rotation) * PI.toFloat() / 180f
-            
+
             spectrum.take(20).forEachIndexed { index, magnitude ->
                 val distance = 50f + index * 15f
                 val spread = magnitude * 50f
-                
+
                 for (side in -1..1 step 2) {
                     val offset = side * spread
                     val x = centerX + cos(segmentAngle) * distance + sin(segmentAngle) * offset
                     val y = centerY + sin(segmentAngle) * distance - cos(segmentAngle) * offset
-                    
+
                     val progress = index.toFloat() / 20f
                     val color = androidx.compose.ui.graphics.lerp(primaryColor, secondaryColor, progress)
-                    
+
                     drawCircle(
                         color = color.copy(alpha = magnitude),
                         radius = magnitude * 15f,
@@ -410,24 +410,24 @@ private fun MatrixRainVisualizer(
     primaryColor: Color
 ) {
     val spectrum = state.frequencyBands.spectrum.ifEmpty { List(64) { 0f } }
-    
+
     // Store falling positions
     val dropPositions = remember { mutableStateMapOf<Int, Float>() }
-    
+
     LaunchedEffect(state.timestamp) {
         spectrum.forEachIndexed { index, magnitude ->
             val current = dropPositions.getOrPut(index) { 0f }
             dropPositions[index] = (current + magnitude * 20f) % 100f
         }
     }
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val columnWidth = size.width / spectrum.size
-        
+
         spectrum.forEachIndexed { index, magnitude ->
             val x = index * columnWidth
             val dropY = (dropPositions[index] ?: 0f) * size.height / 100f
-            
+
             // Draw trail
             for (i in 0..10) {
                 val y = dropY - (i * 20f)

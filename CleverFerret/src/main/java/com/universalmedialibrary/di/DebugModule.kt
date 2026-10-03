@@ -13,14 +13,14 @@ import javax.inject.Singleton
 
 /**
  * Hilt module providing debug-related dependencies
- * 
+ *
  * Note: FeatureFlagManager is not provided here because it has an @Inject constructor
  * with @Singleton scope, allowing Dagger to construct it automatically.
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object DebugModule {
-    
+
     @Provides
     @Singleton
     fun provideDebugReportingService(

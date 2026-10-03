@@ -53,9 +53,9 @@ fun EnhancedReaderWithPageTurns(
     viewModel: EnhancedEReaderViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     // Page turn settings
-    var animationSettings by remember { 
+    var animationSettings by remember {
         mutableStateOf(
             AnimationSettings(
                 animation = PageTurnAnimation.CURL,
@@ -67,7 +67,7 @@ fun EnhancedReaderWithPageTurns(
             )
         )
     }
-    
+
     // Page turn controller
     val pageTurnController = rememberPageTurnController(
         onPageTurn = { direction ->
@@ -81,7 +81,7 @@ fun EnhancedReaderWithPageTurns(
         enableSound = true, // Requires page_turn.mp3 in res/raw/
         enableHaptic = true
     )
-    
+
     // Dual-page settings
     var dualPageSettings by remember {
         mutableStateOf(
@@ -92,7 +92,7 @@ fun EnhancedReaderWithPageTurns(
             )
         )
     }
-    
+
     Box(modifier = Modifier.fillMaxSize()) {
         if (dualPageSettings.enabled) {
             // Dual-page mode

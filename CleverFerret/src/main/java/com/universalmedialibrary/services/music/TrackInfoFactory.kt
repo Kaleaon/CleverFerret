@@ -26,4 +26,3 @@ internal fun extractAlbumFromMetadata(mediaItem: LocalMediaItem): String? {
     // This is a simplified version - would use actual metadata extraction
     return "Unknown Album"
 }
-

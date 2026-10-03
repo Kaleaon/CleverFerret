@@ -88,9 +88,9 @@ internal fun ErrorStateContent(
                 tint = MaterialTheme.colorScheme.error
             )
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         // Error Title
         Text(
             text = "Unable to Load Library",
@@ -99,9 +99,9 @@ internal fun ErrorStateContent(
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         // Error Message
         Text(
             text = error,
@@ -109,9 +109,9 @@ internal fun ErrorStateContent(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.XL))
-        
+
         // Retry Button
         Button(
             onClick = onRetry,

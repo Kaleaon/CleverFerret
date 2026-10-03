@@ -68,30 +68,30 @@ internal fun StoragePermissionCard(
                     modifier = Modifier.size(72.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
-                
+
                 Text(
                     text = "Storage Access Required",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Text(
                     text = "To browse and open ebooks, documents, and other files from your device storage, CleverFerret needs 'All Files Access' permission.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Text(
                     text = "This permission allows the app to read files like EPUB, PDF, MOBI, and other document formats stored on your device.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Button(
                     onClick = onRequestPermission,
                     modifier = Modifier.fillMaxWidth()
@@ -100,7 +100,7 @@ internal fun StoragePermissionCard(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Grant Access")
                 }
-                
+
                 Text(
                     text = "You'll be taken to system settings. Find 'CleverFerret' and enable 'Allow access to manage all files'.",
                     style = MaterialTheme.typography.labelSmall,

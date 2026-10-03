@@ -28,7 +28,7 @@ Add the new entities to your database:
         MediaItem::class,
         Library::class,
         // ... other existing entities
-        
+
         // New entities for advanced features
         BookSource::class,
         BookChapter::class,
@@ -53,12 +53,12 @@ Add the new entities to your database:
     // Add any new converters if needed
 )
 abstract class AppDatabase : RoomDatabase() {
-    
+
     // Existing DAOs
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun libraryDao(): LibraryDao
     // ... other existing DAOs
-    
+
     // New DAOs for advanced features
     abstract fun bookSourceDao(): BookSourceDao
     abstract fun bookChapterDao(): BookChapterDao
@@ -112,7 +112,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
                 coverDecodeJs TEXT
             )
         """)
-        
+
         // Create book_chapters table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS book_chapters (
@@ -136,7 +136,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         """)
         database.execSQL("CREATE INDEX IF NOT EXISTS index_book_chapters_bookId ON book_chapters(bookId)")
         database.execSQL("CREATE INDEX IF NOT EXISTS index_book_chapters_chapterIndex ON book_chapters(chapterIndex)")
-        
+
         // Create reading_analytics table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS reading_analytics (
@@ -155,7 +155,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         """)
         database.execSQL("CREATE INDEX IF NOT EXISTS index_reading_analytics_itemId ON reading_analytics(itemId)")
         database.execSQL("CREATE INDEX IF NOT EXISTS index_reading_analytics_date ON reading_analytics(date)")
-        
+
         // Create reading_sessions table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS reading_sessions (
@@ -173,7 +173,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         """)
         database.execSQL("CREATE INDEX IF NOT EXISTS index_reading_sessions_itemId ON reading_sessions(itemId)")
         database.execSQL("CREATE INDEX IF NOT EXISTS index_reading_sessions_startTime ON reading_sessions(startTime)")
-        
+
         // Create ai_book_insights table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS ai_book_insights (
@@ -192,7 +192,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
             )
         """)
         database.execSQL("CREATE INDEX IF NOT EXISTS index_ai_book_insights_itemId ON ai_book_insights(itemId)")
-        
+
         // Create enhanced_annotations table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS enhanced_annotations (
@@ -219,7 +219,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         database.execSQL("CREATE INDEX IF NOT EXISTS index_enhanced_annotations_itemId ON enhanced_annotations(itemId)")
         database.execSQL("CREATE INDEX IF NOT EXISTS index_enhanced_annotations_createdAt ON enhanced_annotations(createdAt)")
         database.execSQL("CREATE INDEX IF NOT EXISTS index_enhanced_annotations_colorTag ON enhanced_annotations(colorTag)")
-        
+
         // Create annotation_cards table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS annotation_cards (
@@ -239,7 +239,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
             )
         """)
         database.execSQL("CREATE INDEX IF NOT EXISTS index_annotation_cards_annotationId ON annotation_cards(annotationId)")
-        
+
         // Create audio_waveforms table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS audio_waveforms (
@@ -260,7 +260,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
             )
         """)
         database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_audio_waveforms_itemId ON audio_waveforms(itemId)")
-        
+
         // Create audio_sync_servers table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS audio_sync_servers (
@@ -281,7 +281,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
             )
         """)
         database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_audio_sync_servers_serverName ON audio_sync_servers(serverName)")
-        
+
         // Create audio_sync_clients table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS audio_sync_clients (
@@ -303,7 +303,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         """)
         database.execSQL("CREATE INDEX IF NOT EXISTS index_audio_sync_clients_serverId ON audio_sync_clients(serverId)")
         database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_audio_sync_clients_clientId ON audio_sync_clients(clientId)")
-        
+
         // Create audio_sync_groups table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS audio_sync_groups (
@@ -318,7 +318,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
             )
         """)
         database.execSQL("CREATE INDEX IF NOT EXISTS index_audio_sync_groups_serverId ON audio_sync_groups(serverId)")
-        
+
         // Create audio_streams table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS audio_streams (
@@ -337,7 +337,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
             )
         """)
         database.execSQL("CREATE INDEX IF NOT EXISTS index_audio_streams_serverId ON audio_streams(serverId)")
-        
+
         // Create sync_statistics table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS sync_statistics (
@@ -375,9 +375,9 @@ Add the new services to your Hilt modules:
 @Module
 @InstallIn(SingletonComponent::class)
 object ServicesModule {
-    
+
     // Existing service providers...
-    
+
     @Provides
     @Singleton
     fun provideBookSourceService(
@@ -385,7 +385,7 @@ object ServicesModule {
     ): BookSourceService {
         return BookSourceService(bookSourceDao)
     }
-    
+
     @Provides
     @Singleton
     fun provideReadingAnalyticsService(
@@ -393,7 +393,7 @@ object ServicesModule {
     ): ReadingAnalyticsService {
         return ReadingAnalyticsService(analyticsDao)
     }
-    
+
     @Provides
     @Singleton
     fun provideMultiRoomAudioService(
@@ -405,7 +405,7 @@ object ServicesModule {
     ): MultiRoomAudioService {
         return MultiRoomAudioService(serverDao, clientDao, groupDao, streamDao, statsDao)
     }
-    
+
     @Provides
     @Singleton
     fun provideAnnotationExportService(
@@ -418,7 +418,7 @@ object ServicesModule {
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-    
+
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
@@ -430,54 +430,54 @@ object DatabaseModule {
         .addMigrations(MIGRATION_1_2)
         .build()
     }
-    
+
     // Existing DAO providers...
-    
+
     @Provides
     fun provideBookSourceDao(database: AppDatabase): BookSourceDao {
         return database.bookSourceDao()
     }
-    
+
     @Provides
     fun provideBookChapterDao(database: AppDatabase): BookChapterDao {
         return database.bookChapterDao()
     }
-    
+
     @Provides
     fun provideReadingAnalyticsDao(database: AppDatabase): ReadingAnalyticsDao {
         return database.readingAnalyticsDao()
     }
-    
+
     @Provides
     fun provideAudioWaveformDao(database: AppDatabase): AudioWaveformDao {
         return database.audioWaveformDao()
     }
-    
+
     @Provides
     fun provideAudioSyncServerDao(database: AppDatabase): AudioSyncServerDao {
         return database.audioSyncServerDao()
     }
-    
+
     @Provides
     fun provideAudioSyncClientDao(database: AppDatabase): AudioSyncClientDao {
         return database.audioSyncClientDao()
     }
-    
+
     @Provides
     fun provideAudioSyncGroupDao(database: AppDatabase): AudioSyncGroupDao {
         return database.audioSyncGroupDao()
     }
-    
+
     @Provides
     fun provideAudioStreamDao(database: AppDatabase): AudioStreamDao {
         return database.audioStreamDao()
     }
-    
+
     @Provides
     fun provideSyncStatisticsDao(database: AppDatabase): SyncStatisticsDao {
         return database.syncStatisticsDao()
     }
-    
+
     @Provides
     fun provideEnhancedAnnotationDao(database: AppDatabase): EnhancedAnnotationDao {
         return database.enhancedAnnotationDao()
@@ -498,26 +498,26 @@ Example ViewModel for Reading Analytics:
 class ReadingAnalyticsViewModel @Inject constructor(
     private val readingAnalyticsService: ReadingAnalyticsService
 ) : ViewModel() {
-    
+
     private val _readingStats = MutableStateFlow<ReadingStats?>(null)
     val readingStats: StateFlow<ReadingStats?> = _readingStats.asStateFlow()
-    
+
     private val _currentSession = MutableStateFlow<ReadingSessionLog?>(null)
     val currentSession: StateFlow<ReadingSessionLog?> = _currentSession.asStateFlow()
-    
+
     fun loadReadingStats(period: TimePeriod) {
         viewModelScope.launch {
             val stats = readingAnalyticsService.getReadingStats(period)
             _readingStats.value = stats
         }
     }
-    
+
     fun startReadingSession(itemId: Long, startProgress: Float) {
         viewModelScope.launch {
             readingAnalyticsService.startReadingSession(itemId, startProgress)
         }
     }
-    
+
     fun endReadingSession(endProgress: Float, pagesRead: Int) {
         viewModelScope.launch {
             readingAnalyticsService.endCurrentSession(endProgress, pagesRead)
@@ -536,11 +536,11 @@ fun ReadingStatsScreen(
     viewModel: ReadingAnalyticsViewModel = hiltViewModel()
 ) {
     val stats by viewModel.readingStats.collectAsState()
-    
+
     LaunchedEffect(Unit) {
         viewModel.loadReadingStats(TimePeriod.WEEKLY)
     }
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -550,30 +550,30 @@ fun ReadingStatsScreen(
             text = "Reading Statistics",
             style = MaterialTheme.typography.headlineMedium
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         stats?.let { s ->
             StatCard(
                 title = "Total Reading Time",
                 value = "${s.totalReadingTimeSeconds / 3600} hours"
             )
-            
+
             StatCard(
                 title = "Pages Read",
                 value = s.totalPagesRead.toString()
             )
-            
+
             StatCard(
                 title = "Reading Sessions",
                 value = s.totalSessions.toString()
             )
-            
+
             StatCard(
                 title = "Days Read",
                 value = s.daysRead.toString()
             )
-            
+
             // Heatmap visualization
             ReadingHeatmap(heatmapData = s.heatmapData)
         }
@@ -614,38 +614,38 @@ Create unit tests for services:
 ```kotlin
 @RunWith(MockitoJUnitRunner::class)
 class ReadingAnalyticsServiceTest {
-    
+
     @Mock
     private lateinit var analyticsDao: ReadingAnalyticsDao
-    
+
     private lateinit var service: ReadingAnalyticsService
-    
+
     @Before
     fun setup() {
         service = ReadingAnalyticsService(analyticsDao)
     }
-    
+
     @Test
     fun `startReadingSession creates new session`() = runTest {
         val itemId = 1L
         val startProgress = 0.5f
-        
+
         whenever(analyticsDao.insertSession(any())).thenReturn(1L)
-        
+
         val sessionId = service.startReadingSession(itemId, startProgress)
-        
+
         assertEquals(1L, sessionId)
         verify(analyticsDao).insertSession(any())
     }
-    
+
     @Test
     fun `endCurrentSession updates analytics`() = runTest {
         // Start a session first
         service.startReadingSession(1L, 0.5f)
-        
+
         // End the session
         service.endCurrentSession(0.6f, 10)
-        
+
         verify(analyticsDao).endSession(any(), any(), any(), any())
     }
 }
@@ -656,26 +656,26 @@ class ReadingAnalyticsServiceTest {
 ```kotlin
 @RunWith(AndroidJUnit4::class)
 class BookSourceIntegrationTest {
-    
+
     @get:Rule
     val hiltRule = HiltAndroidRule(this)
-    
+
     @Inject
     lateinit var bookSourceService: BookSourceService
-    
+
     @Inject
     lateinit var database: AppDatabase
-    
+
     @Before
     fun setup() {
         hiltRule.inject()
     }
-    
+
     @After
     fun teardown() {
         database.close()
     }
-    
+
     @Test
     fun testAddAndRetrieveBookSource() = runTest {
         val bookSource = BookSource(
@@ -683,10 +683,10 @@ class BookSourceIntegrationTest {
             sourceUrl = "https://test.com",
             sourceType = BookSourceType.TEXT
         )
-        
+
         val sourceId = bookSourceService.addBookSource(bookSource)
         val retrieved = bookSourceService.getBookSourceById(sourceId)
-        
+
         assertNotNull(retrieved)
         assertEquals("Test Source", retrieved?.sourceName)
     }

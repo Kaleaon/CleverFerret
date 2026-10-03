@@ -6,12 +6,12 @@ import com.universalmedialibrary.data.local.entity.AmbientSoundType
 
 /**
  * Themed sound collections for specific genres and settings
- * 
+ *
  * HOW TO ADD NEW THEMES:
  * 1. Create a new object (e.g., SciFiSounds, MedievalSounds)
  * 2. Implement getAllSounds() returning List<AmbientSound>
  * 3. Register it in your Application class or initialization code:
- *    
+ *
  *    SoundLibrary.registerCollection(
  *        SoundLibrary.SoundCollection(
  *            id = "scifi",
@@ -21,7 +21,7 @@ import com.universalmedialibrary.data.local.entity.AmbientSoundType
  *            sounds = SciFiSounds.getAllSounds()
  *        )
  *    )
- * 
+ *
  * 4. Optionally use AudioPackImporter to let users add their own sounds
  */
 
@@ -30,7 +30,7 @@ import com.universalmedialibrary.data.local.entity.AmbientSoundType
  * Perfect for science fiction, space opera, cyberpunk books
  */
 object SciFiSounds {
-    
+
     fun getAllSounds(): List<AmbientSound> = listOf(
         AmbientSound(
             name = "Spaceship Engine",
@@ -89,7 +89,7 @@ object SciFiSounds {
             keywords = listOf("deep space", "void", "silence", "cosmic")
         )
     )
-    
+
     /**
      * Register this collection automatically when initialized
      */
@@ -112,7 +112,7 @@ object SciFiSounds {
  * Perfect for fantasy, historical fiction, medieval settings
  */
 object MedievalSounds {
-    
+
     fun getAllSounds(): List<AmbientSound> = listOf(
         AmbientSound(
             name = "Castle Hall",
@@ -185,7 +185,7 @@ object MedievalSounds {
             keywords = listOf("wizard", "magic", "tower", "mystical", "fantasy")
         )
     )
-    
+
     /**
      * Register this collection automatically when initialized
      */
@@ -208,7 +208,7 @@ object MedievalSounds {
  * Perfect for high fantasy, magical worlds, mythical settings
  */
 object FantasySounds {
-    
+
     fun getAllSounds(): List<AmbientSound> = listOf(
         AmbientSound(
             name = "Enchanted Forest",
@@ -253,7 +253,7 @@ object FantasySounds {
             keywords = listOf("elven", "elf", "city", "ethereal", "fantasy")
         )
     )
-    
+
     /**
      * Register this collection automatically when initialized
      */
@@ -276,7 +276,7 @@ object FantasySounds {
  * Perfect for horror, thriller, suspense books
  */
 object HorrorSounds {
-    
+
     fun getAllSounds(): List<AmbientSound> = listOf(
         AmbientSound(
             name = "Creaking House",
@@ -307,7 +307,7 @@ object HorrorSounds {
             keywords = listOf("hospital", "abandoned", "empty", "echoes", "horror")
         )
     )
-    
+
     /**
      * Register this collection automatically when initialized
      */

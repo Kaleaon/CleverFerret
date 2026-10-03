@@ -28,14 +28,14 @@ fun EnhancedEmptyState(
     modifier: Modifier = Modifier
 ) {
     var visible by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(Unit) {
         visible = true
     }
-    
+
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(600)) + 
+        enter = fadeIn(animationSpec = tween(600)) +
                 scaleIn(initialScale = 0.8f, animationSpec = tween(600)),
         modifier = modifier
     ) {
@@ -59,7 +59,7 @@ fun EnhancedEmptyState(
                     ),
                     label = "iconScale"
                 )
-                
+
                 Surface(
                     modifier = Modifier
                         .size(120.dp)
@@ -76,23 +76,23 @@ fun EnhancedEmptyState(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
-                
+
                 if (actionText != null && onAction != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
@@ -121,11 +121,11 @@ fun EnhancedErrorState(
     modifier: Modifier = Modifier
 ) {
     var visible by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(Unit) {
         visible = true
     }
-    
+
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(animationSpec = tween(400)) + slideInVertically(
@@ -157,21 +157,21 @@ fun EnhancedErrorState(
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.error
                     )
-                    
+
                     Text(
                         text = title,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         textAlign = TextAlign.Center
                     )
-                    
+
                     Text(
                         text = message,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         textAlign = TextAlign.Center
                     )
-                    
+
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
@@ -187,7 +187,7 @@ fun EnhancedErrorState(
                                 Text(dismissLabel)
                             }
                         }
-                        
+
                         if (onRetry != null) {
                             Button(
                                 onClick = onRetry,

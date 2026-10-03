@@ -90,7 +90,7 @@ internal fun DoublePageView(
         // Left page
         if (currentPage > 1) {
             AsyncImage(
-                    
+
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(pages[currentPage - 2])
                     .crossfade(true)
@@ -106,7 +106,7 @@ internal fun DoublePageView(
         // Right page
         if (currentPage <= pages.size) {
             AsyncImage(
-                    
+
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(pages[currentPage - 1])
                     .crossfade(true)

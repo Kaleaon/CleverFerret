@@ -19,7 +19,7 @@ import javax.inject.Singleton
 /**
  * Network Storage Service for SMB/CIFS file access
  * Supports Windows shares, NAS devices, and Samba servers
- * 
+ *
  * Note: SMB/CIFS support requires jcifs-ng (not bundled). Local file and SAF
  * content URIs are supported as a fallback.
  */
@@ -152,7 +152,7 @@ class NetworkStorageService @Inject constructor(
                 IllegalStateException("SMB context not initialized")
             )
         }
-        
+
         // Stub: Return false - implement with jcifs-ng for real SMB access
         Result.success(false)
     }
@@ -167,7 +167,7 @@ class NetworkStorageService @Inject constructor(
                 IllegalStateException("SMB context not initialized")
             )
         }
-        
+
         // Stub: Return failure - implement with jcifs-ng for real SMB access
         Result.failure(IllegalStateException("SMB not implemented: $smbUrl"))
     }
@@ -182,7 +182,7 @@ class NetworkStorageService @Inject constructor(
                 IllegalStateException("SMB context not initialized")
             )
         }
-        
+
         // Stub: Return success - implement with jcifs-ng for real SMB access
         Result.success(Unit)
     }
@@ -197,7 +197,7 @@ class NetworkStorageService @Inject constructor(
                 IllegalStateException("SMB context not initialized")
             )
         }
-        
+
         // Stub: Return success - implement with jcifs-ng for real SMB access
         Result.success(Unit)
     }
@@ -216,7 +216,7 @@ class NetworkStorageService @Inject constructor(
                 IllegalStateException("SMB context not initialized")
             )
         }
-        
+
         // Stub: Return failure - implement with jcifs-ng for real SMB access
         Result.failure(IllegalStateException("SMB download not implemented"))
     }
@@ -235,7 +235,7 @@ class NetworkStorageService @Inject constructor(
                 IllegalStateException("SMB context not initialized")
             )
         }
-        
+
         // Stub: Return failure - implement with jcifs-ng for real SMB access
         Result.failure(IllegalStateException("SMB upload not implemented"))
     }

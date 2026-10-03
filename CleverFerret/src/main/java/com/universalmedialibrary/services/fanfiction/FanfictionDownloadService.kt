@@ -34,9 +34,9 @@ class FanfictionDownloadService @Inject constructor(
     private val fanfictionDao: FanfictionDao,
     private val downloadSafetyChecker: DownloadSafetyChecker
 ) {
-    
+
     private val adapters = listOf(ao3Adapter, ffnAdapter, royalRoadAdapter)
-    
+
     /**
      * Download a story from a URL
      * @param progressCallback Called with (currentChapter, totalChapters, statusMessage)
@@ -52,9 +52,9 @@ class FanfictionDownloadService @Inject constructor(
                 ?: return@withContext Result.failure(
                     IllegalArgumentException("Unsupported fanfiction site")
                 )
-            
+
             progressCallback(0, 0, "Extracting metadata from ${adapter.siteName}...")
-            
+
             // Extract metadata
             val metadataResult = adapter.extractMetadata(url)
             if (metadataResult.isFailure) {
@@ -98,43 +98,43 @@ class FanfictionDownloadService @Inject constructor(
             val chaptersResult = adapter.downloadChapters(url) { current, total, message ->
                 progressCallback(current, total, message)
             }
-            
+
             if (chaptersResult.isFailure) {
                 return@withContext Result.failure(
                     chaptersResult.exceptionOrNull() ?: Exception("Failed to download chapters")
                 )
             }
             val chapters = chaptersResult.getOrThrow()
-            
+
             progressCallback(chapters.size, chapters.size, "Creating EPUB...")
-            
+
             // Generate EPUB
             val epubPath = createEpub(metadata, chapters)
-            
+
             // Save to database
             progressCallback(chapters.size, chapters.size, "Saving to library...")
             saveToDatabase(metadata, epubPath, chapters.size)
-            
+
             progressCallback(chapters.size, chapters.size, "Download complete!")
-            
+
             Result.success(metadata)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Check for updates on all in-progress stories
      */
-    suspend fun checkAllForUpdates(): List<Pair<FanfictionStoryEntity, Int>> = 
+    suspend fun checkAllForUpdates(): List<Pair<FanfictionStoryEntity, Int>> =
         withContext(Dispatchers.IO) {
             val inProgressStories = fanfictionDao.getInProgressStories()
             val updates = mutableListOf<Pair<FanfictionStoryEntity, Int>>()
-            
+
             inProgressStories.forEach { story ->
                 val adapter = findAdapter(story.sourceUrl) ?: return@forEach
                 val storyId = adapter.extractStoryId(story.sourceUrl) ?: return@forEach
-                
+
                 val updateResult = adapter.checkForUpdates(storyId, story.lastChapterDownloaded)
                 if (updateResult.isSuccess) {
                     val updateInfo = updateResult.getOrThrow()
@@ -142,14 +142,14 @@ class FanfictionDownloadService @Inject constructor(
                         updates.add(story to updateInfo.newChapters)
                     }
                 }
-                
+
                 // Update last checked time
                 fanfictionDao.updateLastChecked(story.id, System.currentTimeMillis())
             }
-            
+
             updates
         }
-    
+
     /**
      * Re-download a story to get new chapters
      */
@@ -160,28 +160,28 @@ class FanfictionDownloadService @Inject constructor(
     ): Result<StoryMetadata> = withContext(Dispatchers.IO) {
         val story = fanfictionDao.getStoryById(storyId)
             ?: return@withContext Result.failure(Exception("Story not found"))
-        
+
         downloadStory(
             url = story.sourceUrl,
             bypassPin = bypassPin,
             progressCallback = progressCallback
         )
     }
-    
+
     private fun findAdapter(url: String): FanfictionSiteAdapter? {
         return adapters.find { it.canHandle(url) }
     }
-    
+
     private suspend fun createEpub(
         metadata: StoryMetadata,
         chapters: List<com.universalmedialibrary.services.fanfiction.models.Chapter>
     ): String {
         val fanficDir = File(context.filesDir, "fanfiction")
         fanficDir.mkdirs()
-        
+
         val filename = "${sanitizeFilename(metadata.title)}.epub"
         val epubFile = File(fanficDir, filename)
-        
+
         // Create EPUB using our EPUB service
         epubCreator.createFanfictionEpub(
             title = metadata.title,
@@ -203,10 +203,10 @@ class FanfictionDownloadService @Inject constructor(
             ),
             outputPath = epubFile.absolutePath
         )
-        
+
         return epubFile.absolutePath
     }
-    
+
     private suspend fun saveToDatabase(
         metadata: StoryMetadata,
         epubPath: String,
@@ -238,10 +238,10 @@ class FanfictionDownloadService @Inject constructor(
             language = metadata.language,
             dateAdded = System.currentTimeMillis()
         )
-        
+
         fanfictionDao.insertStory(entity)
     }
-    
+
     private fun sanitizeFilename(filename: String): String {
         return filename.replace(Regex("[^a-zA-Z0-9.-]"), "_")
             .take(100) // Limit length

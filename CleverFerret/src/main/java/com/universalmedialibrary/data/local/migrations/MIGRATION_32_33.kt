@@ -18,22 +18,21 @@ internal val MIGRATION_32_33: Migration = object : Migration(32, 33) {
                 language TEXT NOT NULL DEFAULT 'en'
             )
         """.trimIndent())
-        
+
         // Create indices for better query performance
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_ocr_cache_mediaItemId 
+            CREATE INDEX IF NOT EXISTS index_ocr_cache_mediaItemId
             ON ocr_cache(mediaItemId)
         """.trimIndent())
-        
+
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_ocr_cache_mediaItemId_pageNumber 
+            CREATE INDEX IF NOT EXISTS index_ocr_cache_mediaItemId_pageNumber
             ON ocr_cache(mediaItemId, pageNumber)
         """.trimIndent())
-        
+
         database.execSQL("""
-            CREATE INDEX IF NOT EXISTS index_ocr_cache_timestamp 
+            CREATE INDEX IF NOT EXISTS index_ocr_cache_timestamp
             ON ocr_cache(timestamp)
         """.trimIndent())
     }
 }
-

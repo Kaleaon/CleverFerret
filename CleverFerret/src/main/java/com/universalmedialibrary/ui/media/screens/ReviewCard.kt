@@ -53,9 +53,9 @@ internal fun ReviewCard(review: ReviewItem) {
                         tint = MediaColors.TextTertiary
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.width(MediaSpacing.SM))
-                
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = review.author,
@@ -68,7 +68,7 @@ internal fun ReviewCard(review: ReviewItem) {
                         color = MediaColors.TextTertiary
                     )
                 }
-                
+
                 // Rating
                 review.rating?.let { rating ->
                     Surface(
@@ -95,9 +95,9 @@ internal fun ReviewCard(review: ReviewItem) {
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.MD))
-            
+
             Text(
                 text = review.content,
                 style = MediaTypography.BodyMedium,

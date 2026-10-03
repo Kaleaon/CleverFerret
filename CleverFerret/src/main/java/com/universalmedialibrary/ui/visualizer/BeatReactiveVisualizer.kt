@@ -32,7 +32,7 @@ internal fun BeatReactiveVisualizer(
     val mid = state.frequencyBands.mid
     val treble = state.frequencyBands.treble
     val isBeat = state.isBeat
-    
+
     // Animate beat pulse
     val beatPulse = remember { Animatable(1f) }
     LaunchedEffect(isBeat) {
@@ -41,42 +41,42 @@ internal fun BeatReactiveVisualizer(
             beatPulse.animateTo(1f, animationSpec = tween(300, easing = FastOutSlowInEasing))
         }
     }
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
         val pulseScale = beatPulse.value
-        
+
         // Central circle reacts to beat
         drawCircle(
             color = primaryColor.copy(alpha = 0.8f),
             radius = bass * 150f * pulseScale,
             center = Offset(centerX, centerY)
         )
-        
+
         // Rotating triangles for mid frequencies
         val triangleCount = 8
         for (i in 0 until triangleCount) {
             val angle = (i.toFloat() / triangleCount * 360f) * PI.toFloat() / 180f
             val distance = 200f + mid * 100f
             val size = 40f + mid * 60f
-            
+
             val x = centerX + cos(angle) * distance
             val y = centerY + sin(angle) * distance
-            
+
             val path = Path().apply {
                 moveTo(x, y - size / 2)
                 lineTo(x + size / 2, y + size / 2)
                 lineTo(x - size / 2, y + size / 2)
                 close()
             }
-            
+
             drawPath(
                 path = path,
                 color = secondaryColor.copy(alpha = 0.6f + mid * 0.4f)
             )
         }
-        
+
         // Small circles for treble
         val circleCount = 16
         for (i in 0 until circleCount) {
@@ -84,7 +84,7 @@ internal fun BeatReactiveVisualizer(
             val distance = 100f
             val x = centerX + cos(angle) * distance
             val y = centerY + sin(angle) * distance
-            
+
             drawCircle(
                 color = tertiaryColor.copy(alpha = treble),
                 radius = treble * 20f,

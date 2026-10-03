@@ -78,9 +78,9 @@ internal fun ImportOptionCard(
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
@@ -93,7 +93,7 @@ internal fun ImportOptionCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Icon(
                 Icons.Default.ChevronRight,
                 contentDescription = null,

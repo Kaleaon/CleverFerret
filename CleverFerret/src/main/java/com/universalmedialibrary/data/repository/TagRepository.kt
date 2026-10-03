@@ -43,43 +43,43 @@ class TagRepository @Inject constructor(
     /**
      * Get recently used tags
      */
-    fun getRecentTags(limit: Int = 10): Flow<List<UnifiedTag>> = 
+    fun getRecentTags(limit: Int = 10): Flow<List<UnifiedTag>> =
         tagDao.getRecentlyUsedTags(limit)
 
     /**
      * Get most used tags
      */
-    fun getPopularTags(limit: Int = 10): Flow<List<UnifiedTag>> = 
+    fun getPopularTags(limit: Int = 10): Flow<List<UnifiedTag>> =
         tagDao.getMostUsedTags(limit)
 
     /**
      * Search tags by name
      */
-    fun searchTags(query: String): Flow<List<UnifiedTag>> = 
+    fun searchTags(query: String): Flow<List<UnifiedTag>> =
         tagDao.searchTags(query)
 
     /**
      * Get tag suggestions for auto-complete
      */
-    fun getTagSuggestions(query: String, limit: Int = 5): Flow<List<UnifiedTag>> = 
+    fun getTagSuggestions(query: String, limit: Int = 5): Flow<List<UnifiedTag>> =
         tagDao.getTagSuggestions(query, limit)
 
     /**
      * Get tags for a specific item
      */
-    fun getTagsForItem(itemId: Long): Flow<List<UnifiedTag>> = 
+    fun getTagsForItem(itemId: Long): Flow<List<UnifiedTag>> =
         tagDao.getTagsForItem(itemId)
 
     /**
      * Get tag by ID
      */
-    suspend fun getTagById(tagId: Long): UnifiedTag? = 
+    suspend fun getTagById(tagId: Long): UnifiedTag? =
         tagDao.getTagById(tagId)
 
     /**
      * Get tag by name
      */
-    suspend fun getTagByName(name: String): UnifiedTag? = 
+    suspend fun getTagByName(name: String): UnifiedTag? =
         tagDao.getTagByName(name)
 
     /**
@@ -162,7 +162,7 @@ class TagRepository @Inject constructor(
     suspend fun removeAllTagsFromItem(itemId: Long) {
         val tags = tagDao.getTagsForItemSync(itemId)
         tagDao.removeAllTagsFromItem(itemId)
-        
+
         // Recalculate usage counts for affected tags
         tags.forEach { tag ->
             tagDao.recalculateUsageCount(tag.tagId)

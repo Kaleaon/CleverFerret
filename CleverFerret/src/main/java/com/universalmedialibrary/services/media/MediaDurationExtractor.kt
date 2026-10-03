@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 /**
  * Service for extracting media duration from various file formats
- * 
+ *
  * Uses MediaMetadataRetriever to extract accurate duration information
  * for audio and video files.
  */
@@ -18,7 +18,7 @@ import javax.inject.Singleton
 class MediaDurationExtractor @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     /**
      * Extract duration from a file path
      * @param filePath Path to the media file
@@ -48,7 +48,7 @@ class MediaDurationExtractor @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Extract duration from a URI
      * @param uri URI to the media file
@@ -78,7 +78,7 @@ class MediaDurationExtractor @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Extract multiple metadata fields from a file
      * @param filePath Path to the media file
@@ -88,7 +88,7 @@ class MediaDurationExtractor @Inject constructor(
         val retriever = MediaMetadataRetriever()
         return try {
             retriever.setDataSource(filePath)
-            
+
             MediaMetadata(
                 duration = retriever.extractMetadata(
                     MediaMetadataRetriever.METADATA_KEY_DURATION

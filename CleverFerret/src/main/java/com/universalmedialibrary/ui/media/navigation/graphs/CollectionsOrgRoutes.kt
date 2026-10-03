@@ -46,7 +46,7 @@ fun NavGraphBuilder.collectionsOrgRoutes(
     composable(MediaRoutes.COLLECTIONS) {
         val viewModel: CollectionsViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         MediaCollectionsScreen(
             state = state,
             onCollectionClick = { collection ->
@@ -56,14 +56,14 @@ fun NavGraphBuilder.collectionsOrgRoutes(
             onBackClick = { navController.popBackStack() }
         )
     }
-    
+
     composable(
         route = MediaRoutes.COLLECTION_DETAIL,
         arguments = listOf(navArgument("collectionId") { type = NavType.StringType })
     ) { backStackEntry ->
         val viewModel: CollectionDetailViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         CollectionDetailScreen(
             state = state,
             onItemClick = { item ->
@@ -74,28 +74,28 @@ fun NavGraphBuilder.collectionsOrgRoutes(
             onBackClick = { navController.popBackStack() }
         )
     }
-    
+
     // Tag Manager - Full tag management with hierarchies and categories
     composable(MediaRoutes.TAG_MANAGER) {
         com.universalmedialibrary.ui.tags.UniversalTagManagerScreen(
             navController = navController
         )
     }
-    
+
     // Tag Explorer - Browse and filter by tags
     composable(MediaRoutes.TAG_EXPLORER) {
         com.universalmedialibrary.ui.tags.UniversalTagExplorerScreen(
             navController = navController
         )
     }
-    
+
     // Smart Collections - Auto-suggested playlists, series, and collections
     composable(MediaRoutes.SMART_COLLECTIONS) {
         com.universalmedialibrary.ui.collections.SmartCollectionsScreen(
             navController = navController
         )
     }
-    
+
     // Smart Collection Detail
     composable(
         route = MediaRoutes.SMART_COLLECTION_DETAIL,
@@ -108,12 +108,12 @@ fun NavGraphBuilder.collectionsOrgRoutes(
             navController.popBackStack()
         }
     }
-    
+
     // Enhanced Search with filters
     composable(
         route = MediaRoutes.ENHANCED_SEARCH,
         arguments = listOf(
-            navArgument("query") { 
+            navArgument("query") {
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
@@ -134,13 +134,13 @@ fun NavGraphBuilder.collectionsOrgRoutes(
             navController = navController
         )
     }
-    
+
     // Universal Search - Search across formats, tags, and media
     composable(MediaRoutes.UNIVERSAL_SEARCH) {
         com.universalmedialibrary.ui.search.UniversalSearchScreen(
             navController = navController
         )
     }
-    
+
     // =====================================================================
 }

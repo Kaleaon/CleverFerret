@@ -27,7 +27,7 @@ import com.universalmedialibrary.services.music.TrackInfo
 
 /**
  * Enhanced Track Info Components
- * 
+ *
  * Displays all 25+ metadata fields from EnhancedMetadataService
  * Includes audio quality badges, technical details, and expandable sections
  */
@@ -48,7 +48,7 @@ fun AudioQualityBadge(
             metadata.bitrate >= 128000 -> MaterialTheme.colorScheme.tertiary to "SQ"
             else -> MaterialTheme.colorScheme.error to "LQ"
         }
-        
+
         Surface(
             modifier = modifier,
             color = color,
@@ -96,9 +96,9 @@ fun EnhancedTrackInfoSection(
             Spacer(modifier = Modifier.width(8.dp))
             AudioQualityBadge(metadata = metadata)
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Artist
         Text(
             text = metadata?.displayArtist ?: track.artist ?: "Unknown Artist",
@@ -107,7 +107,7 @@ fun EnhancedTrackInfoSection(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         // Album
         if (metadata?.album != null || track.album != null) {
             Spacer(modifier = Modifier.height(4.dp))
@@ -119,7 +119,7 @@ fun EnhancedTrackInfoSection(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        
+
         // Composer (if available)
         if (metadata?.composer != null) {
             Spacer(modifier = Modifier.height(4.dp))
@@ -131,7 +131,7 @@ fun EnhancedTrackInfoSection(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        
+
         // Technical info row
         if (metadata != null) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -146,7 +146,7 @@ fun EnhancedTrackInfoSection(
                         icon = Icons.Default.GraphicEq
                     )
                 }
-                
+
                 // Sample rate
                 if (metadata.sampleRate != null) {
                     TechnicalInfoChip(
@@ -154,7 +154,7 @@ fun EnhancedTrackInfoSection(
                         icon = Icons.Default.Speed
                     )
                 }
-                
+
                 // Track number
                 if (metadata.trackPositionString != null) {
                     TechnicalInfoChip(
@@ -164,7 +164,7 @@ fun EnhancedTrackInfoSection(
                 }
             }
         }
-        
+
         // Show more details button
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(onClick = onShowDetails) {
@@ -249,7 +249,7 @@ fun TrackDetailsDialog(
                         }
                     }
                 }
-                
+
                 // Track Details
                 item {
                     DetailSection(title = "Track Details") {
@@ -280,7 +280,7 @@ fun TrackDetailsDialog(
                         }
                     }
                 }
-                
+
                 // Audio Quality
                 item {
                     DetailSection(title = "Audio Quality") {
@@ -304,7 +304,7 @@ fun TrackDetailsDialog(
                         }
                     }
                 }
-                
+
                 // File Information
                 item {
                     DetailSection(title = "File Information") {

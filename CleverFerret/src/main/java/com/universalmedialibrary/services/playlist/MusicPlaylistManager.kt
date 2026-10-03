@@ -62,8 +62,8 @@ class MusicPlaylistManager @Inject constructor(
     suspend fun addTrackToPlaylist(playlistId: Long, trackId: Long) {
         val track = mediaItemDao.getMediaItemById(trackId)
         require(track != null) { "Track $trackId not found" }
-        require(track.mediaType in listOf("MUSIC_TRACK", "MUSIC_ALBUM")) { 
-            "Media item is not a music track" 
+        require(track.mediaType in listOf("MUSIC_TRACK", "MUSIC_ALBUM")) {
+            "Media item is not a music track"
         }
 
         val nextPosition = playlistDao.getMaxPosition(playlistId) + 1
@@ -136,7 +136,7 @@ class MusicPlaylistManager @Inject constructor(
     suspend fun shufflePlaylist(playlistId: Long) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first().toMutableList()
         items.shuffle()
-        
+
         items.forEachIndexed { index, item ->
             playlistDao.insertPlaylistItem(item.copy(position = index))
         }
@@ -148,8 +148,8 @@ class MusicPlaylistManager @Inject constructor(
      */
     suspend fun playPlaylist(playlistId: Long, shuffle: Boolean = false) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
-        val mediaItems = items.mapNotNull { 
-            mediaItemDao.getMediaItemById(it.mediaItemId) 
+        val mediaItems = items.mapNotNull {
+            mediaItemDao.getMediaItemById(it.mediaItemId)
         }
 
         if (mediaItems.isEmpty()) return
@@ -174,8 +174,8 @@ class MusicPlaylistManager @Inject constructor(
      */
     suspend fun addPlaylistToQueue(playlistId: Long, playNext: Boolean = false) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
-        val mediaItems = items.mapNotNull { 
-            mediaItemDao.getMediaItemById(it.mediaItemId) 
+        val mediaItems = items.mapNotNull {
+            mediaItemDao.getMediaItemById(it.mediaItemId)
         }
 
         if (mediaItems.isEmpty()) return
@@ -194,9 +194,9 @@ class MusicPlaylistManager @Inject constructor(
 
         // Get all music tracks of this genre
         val tracks = mediaItemDao.getMediaItemsByGenre(genre, "MUSIC_TRACK").first()
-        
+
         addTracksToPlaylist(playlistId, tracks.map { it.itemId })
-        
+
         return playlistId
     }
 
@@ -212,9 +212,9 @@ class MusicPlaylistManager @Inject constructor(
         val tracks = mediaItemDao.getMediaItemsByType("MUSIC_TRACK").first()
             .sortedByDescending { it.dateAdded }
             .take(limit)
-        
+
         addTracksToPlaylist(playlistId, tracks.map { it.itemId })
-        
+
         return playlistId
     }
 
@@ -231,9 +231,9 @@ class MusicPlaylistManager @Inject constructor(
         val tracks = mediaItemDao.getMediaItemsByType("MUSIC_TRACK").first()
             .sortedByDescending { it.playCount }
             .take(limit)
-        
+
         addTracksToPlaylist(playlistId, tracks.map { it.itemId })
-        
+
         return playlistId
     }
 
@@ -273,13 +273,13 @@ class MusicPlaylistManager @Inject constructor(
                     )
                 }
             }
-            
+
             // Calculate total duration from track metadata
             val totalDuration = tracks.sumOf { track ->
                 val metadata = metadataDao.getMetadataMusicTrackByItemId(track.mediaItem.itemId)
                 metadata?.duration ?: 0L
             }
-            
+
             PlaylistWithTracks(
                 playlistId = playlistId,
                 tracks = tracks,
@@ -294,7 +294,7 @@ class MusicPlaylistManager @Inject constructor(
     suspend fun deletePlaylist(playlistId: Long) {
         val playlist = playlistDao.getAllPlaylistsFlow().first()
             .find { it.playlistId == playlistId } ?: return
-        
+
         playlistDao.deletePlaylist(playlist)
     }
 
@@ -307,13 +307,13 @@ class MusicPlaylistManager @Inject constructor(
             name = newName,
             description = "Copy of playlist"
         )
-        
+
         items.forEach { item ->
             playlistDao.insertPlaylistItem(
                 item.copy(id = 0, playlistId = newPlaylistId)
             )
         }
-        
+
         return newPlaylistId
     }
 
@@ -324,10 +324,10 @@ class MusicPlaylistManager @Inject constructor(
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
         val playlist = playlistDao.getAllPlaylistsFlow().first()
             .find { it.playlistId == playlistId }
-        
+
         val m3u = StringBuilder("#EXTM3U\n")
         m3u.append("#PLAYLIST:${playlist?.name ?: "Untitled"}\n\n")
-        
+
         items.forEach { item ->
             val mediaItem = mediaItemDao.getMediaItemById(item.mediaItemId)
             if (mediaItem != null) {
@@ -335,7 +335,7 @@ class MusicPlaylistManager @Inject constructor(
                 m3u.append("${mediaItem.filePath}\n")
             }
         }
-        
+
         return m3u.toString()
     }
 
@@ -350,7 +350,7 @@ class MusicPlaylistManager @Inject constructor(
     private suspend fun reorderPlaylistItems(playlistId: Long) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
-        
+
         items.forEachIndexed { index, item ->
             playlistDao.insertPlaylistItem(item.copy(position = index))
         }

@@ -30,7 +30,7 @@ fun PodcastDetailScreen(
     viewModel: PodcastDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     Scaffold(
         topBar = {
             MetallicTopAppBar(
@@ -58,7 +58,7 @@ fun PodcastDetailScreen(
             if (uiState.isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            
+
             if (uiState.podcast == null && !uiState.isLoading) {
                  Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Podcast not found")
@@ -73,7 +73,7 @@ fun PodcastDetailScreen(
                         uiState.podcast?.let { podcast ->
                             Row(verticalAlignment = Alignment.Top) {
                                 AsyncImage(
-                    
+
                                     model = podcast.imageUrl,
                                     contentDescription = "Media image",
                                     modifier = Modifier
@@ -103,13 +103,13 @@ fun PodcastDetailScreen(
                             )
                         }
                     }
-                    
+
                     // Episodes
                     items(uiState.episodes, key = { it.id }) { episode ->
                         EpisodeCard(
                             episode = episode,
                             onClick = { navController.navigate("podcast_player/${episode.id}") },
-                            onDownloadClick = { 
+                            onDownloadClick = {
                                 // Trigger download for this episode
                                 viewModel.downloadEpisode(episode)
                             },

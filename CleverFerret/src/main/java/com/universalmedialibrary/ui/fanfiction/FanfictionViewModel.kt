@@ -25,43 +25,43 @@ class FanfictionViewModel @Inject constructor(
     private val fanfictionDao: FanfictionDao,
     private val downloadSafetyChecker: DownloadSafetyChecker
 ) : ViewModel() {
-    
+
     // PERFORMANCE FIX: Use WhileSubscribed to stop collecting when no UI is observing
     val allStories = fanfictionDao.getAllStories()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    
+
     private val _downloadState = MutableStateFlow<DownloadState>(DownloadState.Idle)
     val downloadState: StateFlow<DownloadState> = _downloadState.asStateFlow()
-    
+
     private val _selectedFilter = MutableStateFlow(FilterType.ALL)
     val selectedFilter: StateFlow<FilterType> = _selectedFilter.asStateFlow()
-    
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
-    
+
     private val _updateStatus = MutableStateFlow<String?>(null)
     val updateStatus: StateFlow<String?> = _updateStatus.asStateFlow()
     private val _pendingPinChallenge = MutableStateFlow<PinChallenge?>(null)
     val pendingPinChallenge: StateFlow<PinChallenge?> = _pendingPinChallenge.asStateFlow()
     private var pendingPinAction: (() -> Unit)? = null
-    
+
     fun downloadStory(url: String, bypassPin: Boolean = false) {
         if (url.isBlank()) {
             _downloadState.value = DownloadState.Error("Please enter a URL")
             return
         }
-        
+
         viewModelScope.launch {
             try {
                 _downloadState.value = DownloadState.Downloading(0, 0, "Starting download...")
-                
+
                 val result = fanfictionService.downloadStory(
                     url = url,
                     bypassPin = bypassPin
                 ) { current, total, message ->
                     _downloadState.value = DownloadState.Downloading(current, total, message)
                 }
-                
+
                 result.onSuccess { metadata ->
                     _downloadState.value = DownloadState.Success(metadata)
                 }.onFailure { error ->
@@ -91,13 +91,13 @@ class FanfictionViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun checkForUpdates() {
         viewModelScope.launch {
             try {
                 _updateStatus.value = "Checking for updates..."
                 val updates = fanfictionService.checkAllForUpdates()
-                
+
                 if (updates.isEmpty()) {
                     _updateStatus.value = "All stories are up to date!"
                 } else {
@@ -108,13 +108,13 @@ class FanfictionViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun updateStory(storyId: String, bypassPin: Boolean = false) {
         if (storyId.isBlank()) {
             _downloadState.value = DownloadState.Error("Invalid story ID")
             return
         }
-        
+
         viewModelScope.launch {
             try {
                 _downloadState.value = DownloadState.Downloading(0, 0, "Updating story...")
@@ -126,7 +126,7 @@ class FanfictionViewModel @Inject constructor(
                 ) { current, total, message ->
                     _downloadState.value = DownloadState.Downloading(current, total, message)
                 }
-                
+
                 result.onSuccess { metadata ->
                     _downloadState.value = DownloadState.Success(metadata)
                 }.onFailure { error ->
@@ -156,25 +156,25 @@ class FanfictionViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun deleteStory(story: FanfictionStoryEntity) {
         viewModelScope.launch {
             fanfictionDao.deleteStory(story)
         }
     }
-    
+
     fun setFilter(filter: FilterType) {
         _selectedFilter.value = filter
     }
-    
+
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
     }
-    
+
     fun clearDownloadState() {
         _downloadState.value = DownloadState.Idle
     }
-    
+
     fun clearUpdateStatus() {
         _updateStatus.value = null
     }

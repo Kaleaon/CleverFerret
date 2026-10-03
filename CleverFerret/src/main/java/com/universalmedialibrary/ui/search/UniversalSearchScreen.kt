@@ -26,7 +26,7 @@ fun UniversalSearchScreen(
     viewModel: UniversalSearchViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     Scaffold(
         topBar = {
             if (navController != null) {
@@ -63,9 +63,9 @@ fun UniversalSearchScreen(
             },
             singleLine = true
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // Results
         when {
             uiState.query.isEmpty() -> {
@@ -102,7 +102,7 @@ private fun FormatCategoriesView(viewModel: UniversalSearchViewModel) {
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         FormatRegistry.FormatCategory.entries.forEach { category ->
             Card(
                 modifier = Modifier
@@ -150,7 +150,7 @@ private fun SearchResultsView(
                 FormatCard(format)
             }
         }
-        
+
         if (tags.isNotEmpty()) {
             item {
                 Text(
@@ -164,7 +164,7 @@ private fun SearchResultsView(
                 TagCard(tag)
             }
         }
-        
+
         if (formats.isEmpty() && tags.isEmpty()) {
             item {
                 Card(

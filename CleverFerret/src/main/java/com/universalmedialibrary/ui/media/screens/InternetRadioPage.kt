@@ -60,7 +60,7 @@ internal fun InternetRadioPage(
             }
             item { Spacer(modifier = Modifier.height(MediaSpacing.LG)) }
         }
-        
+
         // Categories section
         item {
             SectionHeader(title = "Browse by Category", icon = Icons.Default.Category)
@@ -78,9 +78,9 @@ internal fun InternetRadioPage(
                 }
             }
         }
-        
+
         item { Spacer(modifier = Modifier.height(MediaSpacing.LG)) }
-        
+
         // Popular stations section
         item {
             SectionHeader(title = "Popular Stations", icon = Icons.Default.TrendingUp)
@@ -93,9 +93,9 @@ internal fun InternetRadioPage(
                 onFavorite = { onFavoriteToggle(station) }
             )
         }
-        
+
         item { Spacer(modifier = Modifier.height(MediaSpacing.LG)) }
-        
+
         // Recently played section
         if (state.recentlyPlayed.isNotEmpty()) {
             item {

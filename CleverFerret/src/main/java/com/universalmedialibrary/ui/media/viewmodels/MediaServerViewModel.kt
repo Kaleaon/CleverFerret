@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 /**
  * ViewModel for Media Server Settings
- * 
+ *
  * Manages connections to:
  * - Plex servers (via PIN authentication)
  * - Jellyfin servers
@@ -20,24 +20,24 @@ import javax.inject.Inject
  * - Calibre Content Server
  * - Kavita/Komga servers
  * - Audiobookshelf
- * 
+ *
  * Note: This is a simplified implementation. Full service integration
  * will be added when authentication services are finalized.
  */
 @HiltViewModel
 class MediaServerViewModel @Inject constructor() : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(MediaServerSettingsState())
     val uiState: StateFlow<MediaServerSettingsState> = _uiState.asStateFlow()
-    
+
     private val _plexAuthState = MutableStateFlow<PlexAuthUIState>(PlexAuthUIState.Idle)
     val plexAuthState: StateFlow<PlexAuthUIState> = _plexAuthState.asStateFlow()
-    
+
     init {
         loadConnectedServers()
         discoverServers()
     }
-    
+
     private fun loadConnectedServers() {
         viewModelScope.launch {
             // Load saved server configurations from database
@@ -45,18 +45,18 @@ class MediaServerViewModel @Inject constructor() : ViewModel() {
             _uiState.update { it.copy(connectedServers = servers) }
         }
     }
-    
+
     private fun discoverServers() {
         viewModelScope.launch {
             _uiState.update { it.copy(isScanning = true) }
-            
+
             // Simulate network scan
             delay(1000)
-            
+
             // Return empty list for now
             val discovered = listOf<DiscoveredServer>()
-            
-            _uiState.update { 
+
+            _uiState.update {
                 it.copy(
                     discoveredServers = discovered,
                     isScanning = false
@@ -64,33 +64,33 @@ class MediaServerViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-    
+
     // ==========================================================================
     // PLEX AUTHENTICATION
     // ==========================================================================
-    
+
     fun startPlexAuth() {
         viewModelScope.launch {
             _plexAuthState.value = PlexAuthUIState.RequestingPin
-            
+
             // Simulate PIN request
             delay(1000)
-            
+
             _plexAuthState.value = PlexAuthUIState.WaitingForPin(
                 pinCode = "ABCD1234",
                 expiresAt = "5 minutes"
             )
         }
     }
-    
+
     fun cancelPlexAuth() {
         _plexAuthState.value = PlexAuthUIState.Idle
     }
-    
+
     // ==========================================================================
     // JELLYFIN/EMBY AUTHENTICATION
     // ==========================================================================
-    
+
     fun connectJellyfin(serverUrl: String, username: String, password: String) {
         viewModelScope.launch {
             val server = MediaServerConfig(
@@ -104,13 +104,13 @@ class MediaServerViewModel @Inject constructor() : ViewModel() {
                 itemCount = 0,
                 lastSync = "Just now"
             )
-            
+
             _uiState.update { state ->
                 state.copy(connectedServers = state.connectedServers + server)
             }
         }
     }
-    
+
     fun connectEmby(serverUrl: String, username: String, password: String) {
         viewModelScope.launch {
             val server = MediaServerConfig(
@@ -124,21 +124,21 @@ class MediaServerViewModel @Inject constructor() : ViewModel() {
                 itemCount = 0,
                 lastSync = "Just now"
             )
-            
+
             _uiState.update { state ->
                 state.copy(connectedServers = state.connectedServers + server)
             }
         }
     }
-    
+
     // ==========================================================================
     // GENERIC SERVER OPERATIONS
     // ==========================================================================
-    
+
     fun addServer(type: ServerType) {
         // Show add server dialog - handled by UI
     }
-    
+
     fun removeServer(serverId: String) {
         viewModelScope.launch {
             _uiState.update { state ->
@@ -148,11 +148,11 @@ class MediaServerViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-    
+
     fun editServer(config: MediaServerConfig) {
         // Navigate to edit screen - handled by UI
     }
-    
+
     fun testConnection(serverId: String) {
         viewModelScope.launch {
             _uiState.update { state ->
@@ -163,10 +163,10 @@ class MediaServerViewModel @Inject constructor() : ViewModel() {
                     }
                 )
             }
-            
+
             // Simulate connection test
             delay(1500)
-            
+
             _uiState.update { state ->
                 state.copy(
                     connectedServers = state.connectedServers.map {
@@ -177,7 +177,7 @@ class MediaServerViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-    
+
     fun syncServer(serverId: String) {
         viewModelScope.launch {
             // Update last sync time
@@ -191,7 +191,7 @@ class MediaServerViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-    
+
     fun toggleServerEnabled(serverId: String, enabled: Boolean) {
         viewModelScope.launch {
             _uiState.update { state ->

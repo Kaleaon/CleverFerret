@@ -23,12 +23,12 @@ class WebComicDownloaderViewModel @Inject constructor(
 
     fun search(query: String) {
         if (query.isBlank()) return
-        
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
+
             val result = comicvineMetadataSource.searchSeries(query)
-            
+
             result.fold(
                 onSuccess = { series ->
                     _uiState.value = _uiState.value.copy(
@@ -49,10 +49,10 @@ class WebComicDownloaderViewModel @Inject constructor(
     fun downloadFromUrl(url: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isDownloading = true, downloadStatus = "Fetching page...", error = null)
-            
+
             val outputDir = java.io.File(context.externalCacheDir, "web_comics")
             val result = webComicScraperService.downloadComicFromUrl(url, outputDir)
-            
+
             result.fold(
                 onSuccess = { file ->
                     _uiState.value = _uiState.value.copy(
@@ -71,11 +71,11 @@ class WebComicDownloaderViewModel @Inject constructor(
             )
         }
     }
-    
+
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
-    
+
     fun clearDownloadStatus() {
         _uiState.value = _uiState.value.copy(downloadSuccess = false, downloadStatus = "")
     }

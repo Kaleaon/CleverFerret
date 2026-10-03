@@ -197,7 +197,7 @@
     <string name="placeholder_year">Year</string>
     <string name="placeholder_genre">Genre</string>
     <string name="placeholder_rating">Rating</string>
-    
+
     <!-- Widget placeholders -->
     <string name="widget_media_title">CleverFerret Media Widget</string>
     <string name="widget_powered_by">Powered by Jetpack Glance</string>

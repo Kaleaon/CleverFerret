@@ -45,7 +45,7 @@ class ReadingTimeCalculator {
     ): ReadingTimeEstimate {
         val charactersRemaining = contentLength - currentPosition
         val charactersRead = currentPosition
-        
+
         // Calculate actual reading speed if time spent is available
         val actualWPM = if (timeSpentReading > 0 && charactersRead > 0) {
             val minutesSpent = timeSpentReading / 60000.0
@@ -54,35 +54,35 @@ class ReadingTimeCalculator {
         } else {
             readingSpeed.wordsPerMinute
         }
-        
+
         val actualCPM = actualWPM * 5 // Characters per minute
-        
+
         // Calculate time estimates
         val estimatedTimeRemaining = if (actualCPM > 0) {
             (charactersRemaining.toFloat() / actualCPM * 60000).toLong()
         } else {
             0L
         }
-        
+
         val estimatedTimeTotal = if (actualCPM > 0) {
             (contentLength.toFloat() / actualCPM * 60000).toLong()
         } else {
             0L
         }
-        
+
         // Calculate pages (assuming ~2500 characters per page)
         val charactersPerPage = 2500
         val pagesTotal = (contentLength / charactersPerPage).coerceAtLeast(1)
         val pagesRead = (currentPosition / charactersPerPage)
         val pagesRemaining = (pagesTotal - pagesRead).coerceAtLeast(0)
-        
+
         // Time per page in seconds
         val timePerPage = if (actualCPM > 0) {
             (charactersPerPage.toFloat() / actualCPM * 60)
         } else {
             30f // Default 30 seconds per page
         }
-        
+
         return ReadingTimeEstimate(
             timePerPage = timePerPage,
             wordsPerMinute = actualWPM,
@@ -93,13 +93,13 @@ class ReadingTimeCalculator {
             pagesTotal = pagesTotal
         )
     }
-    
+
     /**
      * Format time estimate as human-readable string
      */
     fun formatTimeEstimate(milliseconds: Long): String {
         val totalSeconds = (milliseconds / 1000).toInt()
-        
+
         return when {
             totalSeconds < 60 -> "$totalSeconds sec"
             totalSeconds < 3600 -> {
@@ -114,7 +114,7 @@ class ReadingTimeCalculator {
             }
         }
     }
-    
+
     /**
      * Calculate reading speed from session data
      */
@@ -125,16 +125,16 @@ class ReadingTimeCalculator {
         if (timeSpentMs <= 0 || charactersRead <= 0) {
             return ReadingSpeed()
         }
-        
+
         val minutesSpent = timeSpentMs / 60000.0
         val wordsRead = charactersRead / 5.0
         val wpm = (wordsRead / minutesSpent).roundToInt().coerceIn(50, 1000)
         val cpm = wpm * 5
-        
+
         // Estimate pages per minute (assuming 2500 chars per page)
         val pagesRead = charactersRead / 2500.0
         val pagesPerMinute = (pagesRead / minutesSpent).toFloat().coerceIn(0.1f, 10f)
-        
+
         return ReadingSpeed(
             wordsPerMinute = wpm,
             charactersPerMinute = cpm,
@@ -152,7 +152,7 @@ fun ReadingTimeEstimateDisplay(
     showDetailed: Boolean = false
 ) {
     val calculator = remember { ReadingTimeCalculator() }
-    
+
     Column {
         if (showDetailed) {
             // Detailed view

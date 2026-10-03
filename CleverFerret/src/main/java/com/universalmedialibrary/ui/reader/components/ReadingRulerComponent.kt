@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 /**
  * Reading Ruler - A visual guide that helps focus on a specific line while reading
  * Inspired by LibreraReader's reading ruler feature
- * 
+ *
  * @param enabled Whether the ruler is visible
  * @param rulerPosition Vertical position of the ruler (0f = top, 1f = bottom)
  * @param rulerHeight Height of the highlighted area in dp
@@ -57,7 +57,7 @@ fun ReadingRuler(
     ) {
         val canvasHeight = size.height
         val canvasWidth = size.width
-        
+
         // Calculate ruler position
         val centerY = canvasHeight * currentPosition
         val topY = (centerY - rulerHeightPx / 2).coerceAtLeast(0f)
@@ -91,7 +91,7 @@ fun ReadingRuler(
             end = Offset(canvasWidth, bottomY),
             strokeWidth = 2f
         )
-        
+
         // Draw dashed line at center for precise positioning
         drawLine(
             color = borderColor,

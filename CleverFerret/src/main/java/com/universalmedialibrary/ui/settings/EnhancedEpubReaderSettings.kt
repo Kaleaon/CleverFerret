@@ -14,14 +14,14 @@ import java.util.Locale
 
 /**
  * Enhanced EPUB Reader Settings (Phase 3)
- * 
+ *
  * Advanced EPUB customization options inspired by Myne:
  * - Font family selection (System, Serif, Sans-Serif, Monospace, OpenDyslexic)
  * - Reading theme presets (Default, Sepia, Night, Custom)
  * - Text alignment options
  * - Line height adjustment
  * - Custom colors
- * 
+ *
  * All settings persist per user and can be overridden per-book.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,7 +31,7 @@ fun EnhancedEpubReaderSettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val readerSettings by viewModel.readerSettings.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -65,9 +65,9 @@ fun EnhancedEpubReaderSettingsScreen(
                         )
                     }
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 // Line Height Slider
                 Text(
                     text = "Line Height: ${String.format(Locale.getDefault(), "%.1f", readerSettings.lineHeight)}",
@@ -84,7 +84,7 @@ fun EnhancedEpubReaderSettingsScreen(
                     steps = 10
                 )
             }
-            
+
             // Reading Theme Section
             SettingsSection(title = "Reading Theme") {
                 ReadingThemeSelector(
@@ -96,7 +96,7 @@ fun EnhancedEpubReaderSettingsScreen(
                     }
                 )
             }
-            
+
             // Text Alignment Section
             SettingsSection(title = "Text Layout") {
                 TextAlignmentSelector(
@@ -108,7 +108,7 @@ fun EnhancedEpubReaderSettingsScreen(
                     }
                 )
             }
-            
+
             // Feature Toggles Section
             SettingsSection(title = "Features") {
                 SwitchPreference(
@@ -117,7 +117,7 @@ fun EnhancedEpubReaderSettingsScreen(
                     checked = true, // This would come from GeneralSettings
                     onCheckedChange = { /* Update general settings */ }
                 )
-                
+
                 SwitchPreference(
                     title = "Enable Tutorial Hints",
                     description = "Show helpful hints for first-time features",
@@ -141,14 +141,14 @@ private fun FontFamilySelector(
         "Monospace" to "Monospace (Courier)",
         "OpenDyslexic" to "OpenDyslexic (Dyslexia-friendly)"
     )
-    
+
     Column {
         Text(
             text = "Font Family",
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
+
         fonts.forEach { (value, label) ->
             FilterChip(
                 selected = currentFont == value,
@@ -173,14 +173,14 @@ private fun ReadingThemeSelector(
         "Night" to "Night (Dark)",
         "Custom" to "Custom Colors"
     )
-    
+
     Column {
         Text(
             text = "Reading Theme",
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -207,14 +207,14 @@ private fun TextAlignmentSelector(
         "Center" to "Center",
         "Justify" to "Justify"
     )
-    
+
     Column {
         Text(
             text = "Text Alignment",
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)

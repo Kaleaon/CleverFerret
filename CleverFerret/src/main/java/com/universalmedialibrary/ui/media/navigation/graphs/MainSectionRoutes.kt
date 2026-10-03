@@ -146,7 +146,7 @@ fun NavGraphBuilder.mainSectionRoutes(
             )
         }
     }
-    
+
     // Alias route: podcast screen "Discover" action
     // The UI navigates to "discover/podcasts" but we can reuse the main Discover screen for now.
     composable(MediaRoutes.PODCAST_DISCOVER) {
@@ -159,7 +159,7 @@ fun NavGraphBuilder.mainSectionRoutes(
     composable(MediaRoutes.SEARCH) {
         val viewModel: SearchViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         MediaSearchScreen(
             state = state,
             onQueryChange = { viewModel.updateQuery(it) },
@@ -208,7 +208,7 @@ fun NavGraphBuilder.mainSectionRoutes(
             onBackClick = { navController.popBackStack() }
         )
     }
-    
+
     addSettingsRoutes(navController)
 
     // =====================================================================

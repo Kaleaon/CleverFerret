@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 /**
  * Service for fetching fanart from Fanart.tv
- * 
+ *
  * Provides high-quality artwork for movies, TV shows, music, and more.
  */
 @Singleton
@@ -28,7 +28,7 @@ class FanartTvService @Inject constructor(
     private val apiKeyRepository: APIKeyRepository
 ) {
     private val api: FanartTvApi by lazy { apiManager.createFanartTvApi() }
-    
+
     companion object {
         private const val TAG = "FanartTvService"
         private const val CACHE_DIR = "fanart_cache"
@@ -64,11 +64,11 @@ class FanartTvService @Inject constructor(
                 }
 
                 val response = api.getMovieFanart(tmdbId, apiKey)
-                
+
                 // Get the best poster and background
                 val posterUrl = getBestImage(response.moviePosters)
                 val backdropUrl = getBestImage(response.movieBackgrounds)
-                
+
                 Log.d(TAG, "Fetched movie fanart for TMDb ID $tmdbId: poster=$posterUrl, backdrop=$backdropUrl")
                 Pair(posterUrl, backdropUrl)
             } catch (e: Exception) {
@@ -93,11 +93,11 @@ class FanartTvService @Inject constructor(
                 }
 
                 val response = api.getTvFanart(tvdbId, apiKey)
-                
+
                 // Get the best poster and background
                 val posterUrl = getBestImage(response.tvPosters)
                 val backdropUrl = getBestImage(response.showBackgrounds)
-                
+
                 Log.d(TAG, "Fetched TV fanart for TVDB ID $tvdbId: poster=$posterUrl, backdrop=$backdropUrl")
                 Pair(posterUrl, backdropUrl)
             } catch (e: Exception) {
@@ -122,11 +122,11 @@ class FanartTvService @Inject constructor(
                 }
 
                 val response = api.getArtistFanart(mbid, apiKey)
-                
+
                 // Get the best thumb and background
                 val thumbUrl = getBestImage(response.artistThumbs)
                 val backgroundUrl = getBestImage(response.artistBackgrounds)
-                
+
                 Log.d(TAG, "Fetched artist fanart for MBID $mbid: thumb=$thumbUrl, background=$backgroundUrl")
                 Pair(thumbUrl, backgroundUrl)
             } catch (e: Exception) {
@@ -151,10 +151,10 @@ class FanartTvService @Inject constructor(
                 }
 
                 val response = api.getAlbumFanart(albumMbid, apiKey)
-                
+
                 // Get the best album cover
                 val coverUrl = getBestImage(response.albumCovers)
-                
+
                 Log.d(TAG, "Fetched album fanart for MBID $albumMbid: cover=$coverUrl")
                 coverUrl
             } catch (e: Exception) {
@@ -187,36 +187,36 @@ class FanartTvService @Inject constructor(
                 // Sanitize filename to prevent path traversal attacks
                 val safeName = File(filename).name
                 val imageFile = File(cacheDir, safeName)
-                
+
                 // Verify the canonical path stays within cache directory
                 if (imageFile.canonicalFile.parentFile != cacheDir.canonicalFile) {
                     Log.e(TAG, "Invalid filename: path traversal attempt detected")
                     return@withContext null
                 }
-                
+
                 // Use OkHttp for downloads with proper timeouts and connection pooling
                 val client = OkHttpClient.Builder()
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(60, TimeUnit.SECONDS)
                     .build()
-                
+
                 val request = Request.Builder()
                     .url(imageUrl)
                     .build()
-                
+
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
                         Log.w(TAG, "Failed to download image: HTTP ${response.code}")
                         return@withContext null
                     }
-                    
+
                     response.body?.byteStream()?.use { input ->
                         imageFile.outputStream().use { output ->
                             input.copyTo(output)
                         }
                     }
                 }
-                
+
                 Log.d(TAG, "Downloaded and cached image: $safeName")
                 imageFile.absolutePath
             } catch (e: Exception) {
@@ -232,13 +232,13 @@ class FanartTvService @Inject constructor(
      */
     private fun getBestImage(images: List<FanartImage>?): String? {
         if (images.isNullOrEmpty()) return null
-        
+
         // Sort by likes (descending) and prefer English language
         val sorted = images.sortedWith(
             compareByDescending<FanartImage> { it.likes.toIntOrNull() ?: 0 }
                 .thenByDescending { it.lang == "en" }
         )
-        
+
         return sorted.firstOrNull()?.url
     }
 

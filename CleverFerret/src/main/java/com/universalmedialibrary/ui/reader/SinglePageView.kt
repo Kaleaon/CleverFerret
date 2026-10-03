@@ -132,7 +132,7 @@ internal fun SinglePageView(
                 }
         ) {
             AsyncImage(
-                    
+
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(currentPageUri)
                     .crossfade(true)

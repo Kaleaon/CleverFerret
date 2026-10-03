@@ -31,7 +31,7 @@ interface DictionaryDao {
 
     @Query("DELETE FROM dictionary_entries WHERE bookId = :bookId")
     suspend fun clearBookDictionary(bookId: Long)
-    
+
     @Query("SELECT * FROM dictionary_entries WHERE word = :word LIMIT 1")
     suspend fun getEntry(word: String): DictionaryEntry?
 }

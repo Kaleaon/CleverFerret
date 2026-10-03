@@ -1,15 +1,15 @@
 # ADR 0002: MediaHomeScreen Decomposition
 
-**Status**: PENDING  
-**Date**: 2026-05-02  
-**Author**: Architecture Review  
+**Status**: PENDING
+**Date**: 2026-05-02
+**Author**: Architecture Review
 **Target**: Phase 1 Step 7 (PREMIERE_ROADMAP.md)
 
 ## 1. Current State
 
 ### Overview
-**File**: `/home/user/CleverFerret/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/screens/MediaHomeScreen.kt`  
-**Lines of Code**: 1918  
+**File**: `/home/user/CleverFerret/CleverFerret/src/main/java/com/universalmedialibrary/ui/media/screens/MediaHomeScreen.kt`
+**Lines of Code**: 1918
 **Main Composable**: `MediaHomeScreen()` (lines 80–538, signature: 18 params)
 
 ### Visual Layout (Top-to-Bottom in LazyColumn)
@@ -76,48 +76,48 @@
 ### Target Files & Allocations
 
 #### `HomeHeroSection.kt`
-**Composables**: `HeroCarousel`, related constants  
-**Estimated LOC**: 100  
+**Composables**: `HeroCarousel`, related constants
+**Estimated LOC**: 100
 **State Hoisting**:
 - Parent must supply `pagerState: PagerState` (created/remembered in parent)
 - Parent must supply `isHeroCarouselBeingDragged: Boolean` (read from pagerState.interactionSource in parent)
 - Callbacks: `onItemClick`, `onPlayClick`
 - Auto-scroll logic stays here (LaunchedEffect with internal timer)
 
-**Dependencies**: `PagerState`, featured items list, theme constants  
+**Dependencies**: `PagerState`, featured items list, theme constants
 **Screen-local vs ViewModel**: ViewModel supplies featured items; parent holds pagerState (screen-local ephemeral state)
 
 ---
 
 #### `HomeContinueRow.kt`
-**Composables**: `ContinueWatchingRow`, `MetallicBorderCard`, helper functions (`remainingLabel`, `parseDurationToSeconds`, `formatRemainingTime`)  
-**Estimated LOC**: 200  
+**Composables**: `ContinueWatchingRow`, `MetallicBorderCard`, helper functions (`remainingLabel`, `parseDurationToSeconds`, `formatRemainingTime`)
+**Estimated LOC**: 200
 **State Hoisting**:
 - Parent must supply `continueItems: List<MediaItem>`
 - Callbacks: `onItemClick`, `onSeeAllClick` (via `onSeeAllClick(MediaRoutes.SEARCH)`)
 - No internal state mutations
 
-**Dependencies**: MediaItem, theme, duration parsing utilities  
+**Dependencies**: MediaItem, theme, duration parsing utilities
 **Screen-local vs ViewModel**: All content from ViewModel; callbacks are screen-level
 
 ---
 
 #### `HomeRecentlyAddedRow.kt`
-**Composables**: `RecentlyAddedGridSection`, `RecentlyAddedGridItem`  
-**Estimated LOC**: 180  
+**Composables**: `RecentlyAddedGridSection`, `RecentlyAddedGridItem`
+**Estimated LOC**: 180
 **State Hoisting**:
 - Parent must supply pre-filtered `recentlyAddedItems: List<MediaItem>` (computed from state.recent* fields)
 - Callback: `onItemClick`
 - No reorder mode; stateless
 
-**Dependencies**: MediaItem, theme constants, aspect ratio logic  
+**Dependencies**: MediaItem, theme constants, aspect ratio logic
 **Screen-local vs ViewModel**: Content filtering from ViewModel data; parent computes the combined list once
 
 ---
 
 #### `HomeRecommendationsRow.kt`
-**Composables**: `CollectionsSection`, `CollectionCard`, `QuickAccessGrid`, `QuickAccessFlowGrid`, `QuickAccessCard`  
-**Estimated LOC**: 250  
+**Composables**: `CollectionsSection`, `CollectionCard`, `QuickAccessGrid`, `QuickAccessFlowGrid`, `QuickAccessCard`
+**Estimated LOC**: 250
 **State Hoisting**:
 - Parent must supply `collections: List<HomeCollection>`
 - Parent must supply `quickAccessItems: List<QuickAccessItem>`
@@ -125,21 +125,21 @@
 - Callbacks: `onCategoryClick`, `onPreferencesChange(order, favorites)`
 - **Internal local state**: `reorderMode`, `editableItems` mutations in `QuickAccessGrid`
 
-**Dependencies**: HomeCollection, QuickAccessItem, theme, flow layout  
+**Dependencies**: HomeCollection, QuickAccessItem, theme, flow layout
 **Screen-local vs ViewModel**: Collections & items from ViewModel; reorder mode is internal UI state; preferences callback is hoisted to parent
 
 ---
 
 #### `HomeQuickActionsBar.kt` *(placeholder for future stats/empty guidance)*
-**Composables**: `QuickStatsRow`, `StatCard`, `EmptySectionGuidanceRow`, `EmptySectionCard` (from MediaHomeWelcomeSection.kt lines 47–110)  
-**Estimated LOC**: 150  
+**Composables**: `QuickStatsRow`, `StatCard`, `EmptySectionGuidanceRow`, `EmptySectionCard` (from MediaHomeWelcomeSection.kt lines 47–110)
+**Estimated LOC**: 150
 **State Hoisting**:
 - Parent must supply `libraryStats: HomeLibraryStats`
 - Parent must supply `emptySections: List<EmptySectionHint>` (conditionally computed)
 - Callback: `onSectionClick` (wrapped from `onSeeAllClick`)
 - No internal state
 
-**Dependencies**: HomeLibraryStats, EmptySectionHint, theme  
+**Dependencies**: HomeLibraryStats, EmptySectionHint, theme
 **Screen-local vs ViewModel**: Stats from ViewModel; empty sections derived from library state in parent
 
 ---
@@ -213,7 +213,7 @@ fun MediaHomeScreen(
             state.error == null && !state.isLoading && !isHeroCarouselBeingDragged
         }
     }
-    
+
     val context = LocalContext.current
     val shouldReduceMotion = remember(context, reduceMotionEnabled) {
         val platformAnimationsDisabled = Settings.Global.getFloat(
@@ -279,7 +279,7 @@ fun MediaHomeScreen(
                     }
                 }
             }
-            
+
             AnimatedVisibility(
                 visible = showFloatingTopBar,
                 enter = fadeIn() + slideInVertically(),
@@ -386,5 +386,5 @@ Sections should extract in this order to minimize cascading dependency issues:
 
 ---
 
-**Plan Status**: READY FOR REVIEW  
+**Plan Status**: READY FOR REVIEW
 **Next Action**: Implementer to execute steps 1–5 in sequence; one commit per section file.

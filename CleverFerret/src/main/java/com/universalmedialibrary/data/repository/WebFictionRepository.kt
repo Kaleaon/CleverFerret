@@ -16,32 +16,32 @@ import javax.inject.Singleton
 class WebFictionRepository @Inject constructor(
     private val fanfictionDao: FanfictionDao
 ) {
-    fun getAllWebFiction(): Flow<List<FanfictionStoryEntity>> = 
+    fun getAllWebFiction(): Flow<List<FanfictionStoryEntity>> =
         fanfictionDao.getAllStories()
-    
-    suspend fun getWebFictionById(id: String): FanfictionStoryEntity? = 
+
+    suspend fun getWebFictionById(id: String): FanfictionStoryEntity? =
         fanfictionDao.getStoryById(id)
 
     suspend fun getWebFictionBySourceUrl(sourceUrl: String): FanfictionStoryEntity? =
         fanfictionDao.getStoryBySourceUrl(sourceUrl)
-    
-    fun getRecentlyAddedWebFiction(limit: Int = 10): Flow<List<FanfictionStoryEntity>> = 
+
+    fun getRecentlyAddedWebFiction(limit: Int = 10): Flow<List<FanfictionStoryEntity>> =
         fanfictionDao.getAllStories().map { it.take(limit) }
-    
-    fun searchWebFiction(query: String): Flow<List<FanfictionStoryEntity>> = 
+
+    fun searchWebFiction(query: String): Flow<List<FanfictionStoryEntity>> =
         fanfictionDao.searchStories(query)
-    
-    suspend fun insertWebFiction(story: FanfictionStoryEntity) = 
+
+    suspend fun insertWebFiction(story: FanfictionStoryEntity) =
         fanfictionDao.insertStory(story)
-    
-    suspend fun updateWebFiction(story: FanfictionStoryEntity) = 
+
+    suspend fun updateWebFiction(story: FanfictionStoryEntity) =
         fanfictionDao.updateStory(story)
-    
-    suspend fun deleteWebFiction(story: FanfictionStoryEntity) = 
+
+    suspend fun deleteWebFiction(story: FanfictionStoryEntity) =
         fanfictionDao.deleteStory(story)
-    
+
     suspend fun getWebFictionCount(): Int = fanfictionDao.getStoryCount()
-    
-    suspend fun getInProgressWebFiction(): List<FanfictionStoryEntity> = 
+
+    suspend fun getInProgressWebFiction(): List<FanfictionStoryEntity> =
         fanfictionDao.getInProgressStories()
 }

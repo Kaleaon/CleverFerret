@@ -36,7 +36,7 @@ data class LibraryMediaTypeOption(
 
 /**
  * Clean Media-Centric Library Screen
- * 
+ *
  * A unified library screen that adapts to all media types:
  * - Books, Audiobooks, Comics
  * - Music (Albums, Artists, Tracks)
@@ -44,7 +44,7 @@ data class LibraryMediaTypeOption(
  * - Podcasts
  * - Web Fiction / Fanfiction
  * - Documents
- * 
+ *
  * Features:
  * - Multiple view modes (grid, list, compact)
  * - Sorting and filtering
@@ -71,7 +71,7 @@ fun MediaLibraryScreen(
 ) {
     var showSortMenu by remember { mutableStateOf(false) }
     var showFilterSheet by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -103,7 +103,7 @@ fun MediaLibraryScreen(
                 onFilterChange = onFilterChange,
                 mediaType = state.mediaType
             )
-            
+
             // Sort and view controls
             SortAndViewControls(
                 currentSort = state.sortOption,
@@ -111,7 +111,7 @@ fun MediaLibraryScreen(
                 onSortClick = { showSortMenu = true },
                 onViewModeChange = onViewModeChange
             )
-            
+
             // Content
             when {
                 state.isLoading -> {
@@ -133,7 +133,7 @@ fun MediaLibraryScreen(
                 }
             }
         }
-        
+
         // Sort menu dropdown
         DropdownMenu(
             expanded = showSortMenu,
@@ -154,9 +154,9 @@ fun MediaLibraryScreen(
                             }
                             Text(
                                 text = option.displayName,
-                                color = if (state.sortOption == option) 
-                                    MediaColors.AccentPrimary 
-                                else 
+                                color = if (state.sortOption == option)
+                                    MediaColors.AccentPrimary
+                                else
                                     MediaColors.TextPrimary
                             )
                         }
@@ -168,7 +168,7 @@ fun MediaLibraryScreen(
                 )
             }
         }
-        
+
         // Filter bottom sheet
         if (showFilterSheet) {
             FilterBottomSheet(
@@ -278,7 +278,7 @@ private fun LibraryGridView(
         MediaType.MUSIC, MediaType.PODCAST, MediaType.RADIO -> 3
         else -> 3
     }
-    
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         contentPadding = PaddingValues(MediaSpacing.ScreenHorizontal),
@@ -394,9 +394,9 @@ private fun ListItemSkeleton() {
                 .clip(RoundedCornerShape(MediaCorners.SM))
                 .background(MediaColors.BackgroundElevated)
         )
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Box(
                 modifier = Modifier
@@ -405,9 +405,9 @@ private fun ListItemSkeleton() {
                     .clip(RoundedCornerShape(MediaCorners.XS))
                     .background(MediaColors.BackgroundElevated)
             )
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.5f)

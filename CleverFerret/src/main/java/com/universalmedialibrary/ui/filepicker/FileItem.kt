@@ -34,7 +34,7 @@ import java.util.*
 /**
  * Enhanced File Browser
  * Inspired by Moonreader's comprehensive file browsing features
- * 
+ *
  * Features:
  * - Folder navigation with breadcrumb trail
  * - File type filtering (EPUB, PDF, FB2, MOBI, etc.)
@@ -82,27 +82,27 @@ enum class FileType(val extensions: List<String>, val displayName: String) {
     PDB(listOf("pdb"), "PDB"),
     RB(listOf("rb"), "RB"),
     SNB(listOf("snb"), "SNB");
-    
+
     companion object {
         fun fromFile(file: File): FileType? {
             val extension = file.extension.lowercase()
             return values().find { it.extensions.contains(extension) }
         }
-        
+
         fun allBookTypes(): List<FileType> = values().toList()
-        
+
         fun getEbookTypes(): List<FileType> = listOf(
             EPUB, PDF, DJVU, FB2, MOBI, AZW3, CHM, UMD, LIT, PDB, RB, SNB
         )
-        
+
         fun getDocumentTypes(): List<FileType> = listOf(
             DOCX, DOC, RTF, ODT, TXT, MD
         )
-        
+
         fun getWebTypes(): List<FileType> = listOf(
             HTML, XHTML, MHTML
         )
-        
+
         fun getComicTypes(): List<FileType> = listOf(
             CBZ, CBR, CBT, CB7
         )

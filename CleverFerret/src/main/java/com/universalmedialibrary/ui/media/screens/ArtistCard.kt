@@ -46,7 +46,7 @@ internal fun ArtistCard(
         ) {
             if (artist.imageUrl != null) {
                 AsyncImage(
-                    
+
                     model = artist.imageUrl,
                     contentDescription = artist.name,
                     contentScale = ContentScale.Crop,
@@ -68,9 +68,9 @@ internal fun ArtistCard(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = artist.name,
             style = MediaTypography.BodyMedium,
@@ -80,7 +80,7 @@ internal fun ArtistCard(
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium
         )
-        
+
         Text(
             text = "${artist.albumCount} albums",
             style = MediaTypography.LabelSmall,

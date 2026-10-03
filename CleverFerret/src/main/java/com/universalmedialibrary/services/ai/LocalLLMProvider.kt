@@ -20,13 +20,13 @@ import javax.inject.Inject
 
 /**
  * Local LLM Provider - Support for Ollama, LM Studio, llama.cpp, and MLX LM
- * 
+ *
  * Inspired by oxproxion's LAN model support, this provider enables:
  * - Running models locally on device or LAN servers
  * - No API costs or internet dependency
  * - Privacy-preserving AI interactions
  * - Support for multiple local server implementations
- * 
+ *
  * Supported backends:
  * - Ollama: Popular local LLM server (port 11434)
  * - LM Studio: User-friendly LLM app (port 1234)
@@ -38,11 +38,11 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
     override val providerId: String = "LOCAL_LLM"
     override val displayName: String = "Local LLM (Ollama/LM Studio)"
 
-    private val json = Json { 
-        ignoreUnknownKeys = true 
+    private val json = Json {
+        ignoreUnknownKeys = true
         encodeDefaults = true
     }
-    
+
     // Use a longer timeout for local models which may be slower to respond
     private val localClient = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -89,7 +89,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
     ): Result<String> = withContext(Dispatchers.IO) {
         val models = getAvailableModels().getOrNull()
         val model = models?.firstOrNull()?.name ?: "llama3"
-        
+
         sendChatRequest(
             model = model,
             messages = listOf(
@@ -115,7 +115,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
                 LocalLLMBackend.LLAMA_CPP -> "${serverConfig.baseUrl}/health"
                 LocalLLMBackend.MLX_LM -> "${serverConfig.baseUrl}/v1/models"
             }
-            
+
             val request = Request.Builder()
                 .url(url)
                 .get()
@@ -157,7 +157,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
 
         val responseBody = response.body?.string() ?: return Result.failure(Exception("Empty response"))
         val parsed = json.decodeFromString<OllamaTagsResponse>(responseBody)
-        
+
         val models = parsed.models.map { model ->
             LocalModel(
                 name = model.name,
@@ -167,7 +167,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
                 backend = LocalLLMBackend.OLLAMA
             )
         }
-        
+
         return Result.success(models)
     }
 
@@ -184,7 +184,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
 
         val responseBody = response.body?.string() ?: return Result.failure(Exception("Empty response"))
         val parsed = json.decodeFromString<OpenAIModelsResponse>(responseBody)
-        
+
         val models = parsed.data.map { model ->
             LocalModel(
                 name = model.id,
@@ -192,7 +192,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
                 backend = LocalLLMBackend.LM_STUDIO
             )
         }
-        
+
         return Result.success(models)
     }
 
@@ -217,7 +217,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
         } catch (e: Exception) {
             // Fallback
         }
-        
+
         return Result.success(listOf(
             LocalModel(
                 name = "current",
@@ -240,7 +240,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
 
         val responseBody = response.body?.string() ?: return Result.failure(Exception("Empty response"))
         val parsed = json.decodeFromString<OpenAIModelsResponse>(responseBody)
-        
+
         val models = parsed.data.map { model ->
             LocalModel(
                 name = model.id,
@@ -248,7 +248,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
                 backend = LocalLLMBackend.MLX_LM
             )
         }
-        
+
         return Result.success(models)
     }
 
@@ -307,7 +307,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
 
         val responseBody = response.body?.string() ?: return Result.failure(Exception("Empty response"))
         val parsed = json.decodeFromString<OllamaChatResponse>(responseBody)
-        
+
         return Result.success(parsed.message.content)
     }
 
@@ -341,7 +341,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
         val responseBody = response.body?.string() ?: return Result.failure(Exception("Empty response"))
         val parsed = json.decodeFromString<OpenAICompatibleResponse>(responseBody)
         val content = parsed.choices.firstOrNull()?.message?.content
-        
+
         return if (content != null) {
             Result.success(content)
         } else {
@@ -387,7 +387,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
 
         val responseBody = response.body?.string() ?: return Result.failure(Exception("Empty response"))
         val parsed = json.decodeFromString<LlamaCppResponse>(responseBody)
-        
+
         return Result.success(parsed.content)
     }
 
@@ -458,7 +458,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
                     content = chunk.message.content,
                     isDone = chunk.done
                 ))
-                
+
                 if (chunk.done) break
             } catch (e: Exception) {
                 // Skip malformed chunks
@@ -505,7 +505,7 @@ class LocalLLMProvider @Inject constructor() : AIProvider {
                 try {
                     val chunk = json.decodeFromString<OpenAICompatibleStreamResponse>(data)
                     val content = chunk.choices.firstOrNull()?.delta?.content
-                    
+
                     emit(StreamChunk(
                         content = content,
                         isDone = false

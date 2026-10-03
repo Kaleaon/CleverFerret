@@ -79,7 +79,7 @@ fun NavGraphBuilder.libraryRoutes(
         val mediaType = backStackEntry.arguments?.getString("mediaType") ?: "book"
         val viewModel: MediaLibraryViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         UiErrorBoundary(
             boundaryName = "Route:${MediaRoutes.LIBRARY}",
             onGoHome = { navController.navigate(MediaRoutes.HOME) },
@@ -105,12 +105,12 @@ fun NavGraphBuilder.libraryRoutes(
             )
         }
     }
-    
+
     // Music library with special tabbed view
     composable(MediaRoutes.MUSIC) {
         val viewModel: MusicViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         MusicLibraryScreen(
             state = state,
             onArtistClick = { artist ->
@@ -126,12 +126,12 @@ fun NavGraphBuilder.libraryRoutes(
             onSearchClick = { navController.navigate(MediaRoutes.SEARCH) }
         )
     }
-    
+
     // Podcasts with special tabbed view
     composable(MediaRoutes.PODCASTS) {
         val viewModel: PodcastViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         PodcastScreen(
             state = state,
             onShowClick = { show ->
@@ -148,20 +148,20 @@ fun NavGraphBuilder.libraryRoutes(
             onSearchClick = { navController.navigate(MediaRoutes.SEARCH) }
         )
     }
-    
+
     // Web Fiction with special tabbed view
     composable(MediaRoutes.WEB_FICTION) {
         com.universalmedialibrary.ui.webfiction.WebFictionManagerScreen(
             navController = navController
         )
     }
-    
+
     // Radio screen
     composable(MediaRoutes.RADIO) {
         com.universalmedialibrary.ui.radio.RadioScreen(
             onBack = { navController.popBackStack() }
         )
     }
-    
+
     // =====================================================================
 }

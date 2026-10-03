@@ -158,7 +158,7 @@ class MetadataApiService @Inject constructor(
 
     /**
      * Search for TV shows using TVMaze API
-     * 
+     *
      * TVMaze provides comprehensive TV show data including:
      * - Complete episode listings
      * - Cast and crew information
@@ -166,9 +166,9 @@ class MetadataApiService @Inject constructor(
      * - Air dates and schedules
      * - Network information
      * - Links to IMDb and TheTVDB
-     * 
+     *
      * Best of all: No API key required!
-     * 
+     *
      * Example:
      * ```kotlin
      * val results = searchTVShows("Breaking Bad")
@@ -183,11 +183,11 @@ class MetadataApiService @Inject constructor(
         try {
             // Search using TVMaze API (no API key required!)
             val tvMazeResults = tvMazeService.searchShows(query)
-            
+
             tvMazeResults.shows.forEach { show ->
                 // Clean HTML from summary
                 val cleanSummary = show.summary?.replace(Regex("<[^>]*>"), "")?.trim()
-                
+
                 results.add(
                     UnifiedMetadataSearchResult(
                         id = show.id.toString(),
@@ -225,7 +225,7 @@ class MetadataApiService @Inject constructor(
 
     /**
      * Get comprehensive TV show details including episodes
-     * 
+     *
      * This fetches complete show information from TVMaze including:
      * - All episodes with air dates
      * - Cast information
@@ -236,9 +236,9 @@ class MetadataApiService @Inject constructor(
         return try {
             val details = tvMazeService.getCompleteShowDetails(tvMazeId)
             val show = details.show ?: return null
-            
+
             val cleanSummary = show.summary?.replace(Regex("<[^>]*>"), "")?.trim()
-            
+
             UnifiedMetadataSearchResult(
                 id = show.id.toString(),
                 title = show.name,

@@ -29,12 +29,12 @@ import kotlinx.coroutines.withContext
 
 /**
  * MainViewModel - ViewModel for the main application screen
- * 
+ *
  * Manages:
  * - Library list state
  * - Theme selection and dark mode preferences
  * - Library creation operations
- * 
+ *
  * @property libraryDao Data access for library operations
  * @property settingsRepository Repository for user preferences and settings
  */
@@ -109,7 +109,7 @@ class MainViewModel @Inject constructor(
             libraryDao.insertLibrary(newLibrary)
         }
     }
-    
+
     fun setTheme(theme: ThemePalette) {
         viewModelScope.launch {
             settingsRepository.setTheme(theme)

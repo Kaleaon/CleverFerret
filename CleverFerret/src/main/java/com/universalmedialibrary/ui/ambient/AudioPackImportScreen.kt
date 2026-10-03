@@ -33,14 +33,14 @@ fun AudioPackImportScreen(
     val uiState by viewModel.uiState.collectAsState()
     val packs by viewModel.audioPacks.collectAsState()
     val storageInfo by viewModel.storageInfo.collectAsState()
-    
+
     var showImportDialog by remember { mutableStateOf(false) }
     var selectedPackForDelete by remember { mutableStateOf<AudioPack?>(null) }
-    
+
     val zipPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let { 
+        uri?.let {
             showImportDialog = true
             viewModel.setSelectedZip(it)
         }
@@ -83,7 +83,7 @@ fun AudioPackImportScreen(
             item {
                 StorageInfoCard(storageInfo)
             }
-            
+
             // Import status
             item {
                 when (val state = uiState) {
@@ -110,14 +110,14 @@ fun AudioPackImportScreen(
                     else -> {}
                 }
             }
-            
+
             // Instructions card
             if (packs.isEmpty() && uiState is AudioPackImportUiState.Idle) {
                 item {
                     InstructionsCard()
                 }
             }
-            
+
             // Imported packs list
             item {
                 Text(
@@ -126,7 +126,7 @@ fun AudioPackImportScreen(
                     fontWeight = FontWeight.Bold
                 )
             }
-            
+
             items(packs) { pack ->
                 AudioPackCard(
                     pack = pack,
@@ -136,7 +136,7 @@ fun AudioPackImportScreen(
             }
         }
     }
-    
+
     // Import dialog
     if (showImportDialog) {
         ImportDialog(
@@ -147,7 +147,7 @@ fun AudioPackImportScreen(
             }
         )
     }
-    
+
     // Delete confirmation dialog
     selectedPackForDelete?.let { pack ->
         AlertDialog(
@@ -203,17 +203,17 @@ private fun StorageInfoCard(storageInfo: AudioPackImporter.StorageInfo?) {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Text(
                     text = info.location,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -242,9 +242,9 @@ private fun StorageInfoCard(storageInfo: AudioPackImporter.StorageInfo?) {
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 LinearProgressIndicator(
                     progress = info.usedSpaceGB.toFloat() / info.totalSpaceGB.toFloat(),
                     modifier = Modifier.fillMaxWidth()
@@ -286,14 +286,14 @@ private fun ImportProgressCard(progress: Int, message: String) {
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             LinearProgressIndicator(
                 progress = progress / 100f,
                 modifier = Modifier.fillMaxWidth()
             )
-            
+
             Text(
                 text = "$progress%",
                 style = MaterialTheme.typography.bodySmall,
@@ -422,9 +422,9 @@ private fun InstructionsCard() {
                     fontWeight = FontWeight.Bold
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Text(
                 text = "1. Prepare a ZIP file with your ambient sounds (MP3, WAV, OGG, FLAC, M4A, AAC)",
                 style = MaterialTheme.typography.bodySmall
@@ -477,7 +477,7 @@ private fun AudioPackCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 Row {
                     Switch(
                         checked = pack.isEnabled,
@@ -492,7 +492,7 @@ private fun AudioPackCard(
                     }
                 }
             }
-            
+
             if (pack.metadata.tags.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -516,7 +516,7 @@ private fun ImportDialog(
     onConfirm: (String) -> Unit
 ) {
     var packName by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Default.FileUpload, contentDescription = "Upload file") },
@@ -549,4 +549,3 @@ private fun ImportDialog(
         }
     )
 }
-

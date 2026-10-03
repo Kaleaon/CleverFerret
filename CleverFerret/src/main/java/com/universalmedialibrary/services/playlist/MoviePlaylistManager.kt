@@ -144,11 +144,11 @@ class MoviePlaylistManager @Inject constructor(
             name = name,
             description = description ?: "Movie collection"
         )
-        
+
         if (movieIds.isNotEmpty()) {
             addMoviesToPlaylist(collectionId, movieIds)
         }
-        
+
         return collectionId
     }
 
@@ -162,9 +162,9 @@ class MoviePlaylistManager @Inject constructor(
         )
 
         val movies = mediaItemDao.getMediaItemsByGenre(genre, "MOVIE").first()
-        
+
         addMoviesToPlaylist(collectionId, movies.map { it.itemId })
-        
+
         return collectionId
     }
 
@@ -178,9 +178,9 @@ class MoviePlaylistManager @Inject constructor(
         )
 
         val movies = mediaItemDao.getMediaItemsByDirector(director).first()
-        
+
         addMoviesToPlaylist(collectionId, movies.map { it.itemId })
-        
+
         return collectionId
     }
 
@@ -196,9 +196,9 @@ class MoviePlaylistManager @Inject constructor(
             name = name,
             description = description ?: "Movie marathon playlist"
         )
-        
+
         addMoviesToPlaylist(partyId, movieIds)
-        
+
         return partyId
     }
 
@@ -248,7 +248,7 @@ class MoviePlaylistManager @Inject constructor(
         sorted.forEachIndexed { index, (_, item) ->
             playlistDao.insertPlaylistItem(item.copy(position = index))
         }
-        
+
         updatePlaylistTimestamp(playlistId)
     }
 
@@ -259,9 +259,9 @@ class MoviePlaylistManager @Inject constructor(
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
             .drop(startPosition)
-        
-        val movies = items.mapNotNull { 
-            mediaItemDao.getMediaItemById(it.mediaItemId) 
+
+        val movies = items.mapNotNull {
+            mediaItemDao.getMediaItemById(it.mediaItemId)
         }
 
         if (movies.isEmpty()) return
@@ -281,8 +281,8 @@ class MoviePlaylistManager @Inject constructor(
      */
     suspend fun addCollectionToQueue(playlistId: Long, playNext: Boolean = false) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
-        val movies = items.mapNotNull { 
-            mediaItemDao.getMediaItemById(it.mediaItemId) 
+        val movies = items.mapNotNull {
+            mediaItemDao.getMediaItemById(it.mediaItemId)
         }
 
         if (movies.isEmpty()) return
@@ -310,7 +310,7 @@ class MoviePlaylistManager @Inject constructor(
                     )
                 }
             }
-            
+
             MovieCollection(
                 playlistId = playlistId,
                 movies = movies,
@@ -332,9 +332,9 @@ class MoviePlaylistManager @Inject constructor(
         val movies = mediaItemDao.getMediaItemsByType("MOVIE").first()
             .sortedByDescending { it.dateAdded }
             .take(limit)
-        
+
         addMoviesToPlaylist(collectionId, movies.map { it.itemId })
-        
+
         return collectionId
     }
 
@@ -344,7 +344,7 @@ class MoviePlaylistManager @Inject constructor(
     suspend fun deleteCollection(playlistId: Long) {
         val playlist = playlistDao.getAllPlaylistsFlow().first()
             .find { it.playlistId == playlistId } ?: return
-        
+
         playlistDao.deletePlaylist(playlist)
     }
 
@@ -357,13 +357,13 @@ class MoviePlaylistManager @Inject constructor(
             name = newName,
             description = "Copy of collection"
         )
-        
+
         items.forEach { item ->
             playlistDao.insertPlaylistItem(
                 item.copy(id = 0, playlistId = newPlaylistId)
             )
         }
-        
+
         return newPlaylistId
     }
 
@@ -373,7 +373,7 @@ class MoviePlaylistManager @Inject constructor(
     suspend fun getCollectionRuntime(playlistId: Long): Long {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
         var totalRuntime = 0L
-        
+
         for (item in items) {
             try {
                 // Get movie metadata for runtime information
@@ -386,7 +386,7 @@ class MoviePlaylistManager @Inject constructor(
                 android.util.Log.w("MoviePlaylistManager", "Failed to get runtime for item ${item.mediaItemId}: ${e.message}")
             }
         }
-        
+
         return totalRuntime
     }
 
@@ -395,7 +395,7 @@ class MoviePlaylistManager @Inject constructor(
     private suspend fun getOrCreateDefaultWatchlist(): Long {
         val playlists = playlistDao.getAllPlaylistsFlow().first()
         val watchlist = playlists.find { it.name == "My Watchlist" }
-        
+
         return watchlist?.playlistId ?: createWatchlist()
     }
 
@@ -408,7 +408,7 @@ class MoviePlaylistManager @Inject constructor(
     private suspend fun reorderPlaylistItems(playlistId: Long) {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
             .sortedBy { it.position }
-        
+
         items.forEachIndexed { index, item ->
             playlistDao.insertPlaylistItem(item.copy(position = index))
         }

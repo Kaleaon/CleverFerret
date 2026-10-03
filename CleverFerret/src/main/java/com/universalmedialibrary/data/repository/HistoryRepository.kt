@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 /**
  * Repository for managing watch/reading history and progress tracking
- * 
+ *
  * Provides unified interface for:
  * - Reading progress tracking (books, comics)
  * - Watch history (videos, TV shows, movies)
@@ -25,7 +25,7 @@ class HistoryRepository @Inject constructor(
     private val progressDao: ReadingProgressDao,
     private val bookmarkDao: BookmarkDao
 ) {
-    
+
     /**
      * Update reading progress for a media item
      */
@@ -38,7 +38,7 @@ class HistoryRepository @Inject constructor(
         try {
             val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
             val timestamp = System.currentTimeMillis()
-            
+
             val progress = if (existing != null) {
                 // Clamp values to valid ranges
                 val validCurrentPage = currentPage.coerceIn(0, maxOf(totalPages, 0))
@@ -46,7 +46,7 @@ class HistoryRepository @Inject constructor(
                 val calculatedPercentage = if (validTotalPages > 0) {
                     ((validCurrentPage.toFloat() / validTotalPages) * 100f).coerceIn(0f, 100f)
                 } else 0f
-                
+
                 existing.copy(
                     currentPage = validCurrentPage,
                     currentPosition = currentPosition,
@@ -60,7 +60,7 @@ class HistoryRepository @Inject constructor(
                 val calculatedPercentage = if (validTotalPages > 0) {
                     ((validCurrentPage.toFloat() / validTotalPages) * 100f).coerceIn(0f, 100f)
                 } else 0f
-                
+
                 ReadingProgress(
                     itemId = itemId,
                     currentPage = validCurrentPage,
@@ -71,7 +71,7 @@ class HistoryRepository @Inject constructor(
                     startedDate = timestamp
                 )
             }
-            
+
             progressDao.insertProgress(progress)
         } catch (e: SQLiteConstraintException) {
             // Foreign key constraint failed - media item doesn't exist in database
@@ -79,14 +79,14 @@ class HistoryRepository @Inject constructor(
             // Silently ignore to allow file viewing without persistence
         }
     }
-    
+
     /**
      * Get reading progress for an item
      */
     fun getReadingProgress(itemId: Long): Flow<ReadingProgress?> {
         return progressDao.getProgressByItemId(itemId)
     }
-    
+
     /**
      * Check if a book/media is finished
      */
@@ -94,7 +94,7 @@ class HistoryRepository @Inject constructor(
         val progress = progressDao.getProgressByItemId(itemId).firstOrNull()
         return progress?.percentage?.let { it >= 95.0f } ?: false
     }
-    
+
     /**
      * Mark item as finished
      */
@@ -117,35 +117,35 @@ class HistoryRepository @Inject constructor(
             // Silently ignore
         }
     }
-    
+
     /**
      * Get all items with progress
      */
     fun getAllProgress(): Flow<List<ReadingProgress>> {
         return progressDao.getAllProgress()
     }
-    
+
     /**
      * Get recently accessed items
      */
     fun getRecentlyAccessed(limit: Int = 10): Flow<List<ReadingProgress>> {
         return progressDao.getRecentProgress(limit)
     }
-    
+
     /**
      * Get in-progress items (started but not finished)
      */
     fun getInProgressItems(): Flow<List<ReadingProgress>> {
         return progressDao.getInProgressItems()
     }
-    
+
     /**
      * Delete progress for an item
      */
     suspend fun deleteProgress(itemId: Long) {
         progressDao.deleteProgressByItemId(itemId)
     }
-    
+
     /**
      * Record watch progress (for videos)
      */
@@ -161,7 +161,7 @@ class HistoryRepository @Inject constructor(
             val percentage = if (validDuration > 0) {
                 ((validPosition.toFloat() / validDuration) * 100f).coerceIn(0f, 100f)
             } else 0f
-            
+
             val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
             val timestamp = System.currentTimeMillis()
             val progress = if (existing != null) {
@@ -181,28 +181,28 @@ class HistoryRepository @Inject constructor(
                     startedDate = timestamp
                 )
             }
-            
+
             progressDao.insertProgress(progress)
         } catch (e: SQLiteConstraintException) {
             // Foreign key constraint failed - media item doesn't exist in database
             // Silently ignore to allow media viewing without persistence
         }
     }
-    
+
     /**
      * Check if video/audio has been watched/listened
      */
     suspend fun isWatched(itemId: Long): Boolean {
         return isFinished(itemId)
     }
-    
+
     /**
      * Get current position for media playback
      */
     suspend fun getCurrentPosition(itemId: Long): Long {
         return progressDao.getProgressByItemId(itemId).firstOrNull()?.currentPosition ?: 0L
     }
-    
+
     /**
      * Increment play count (for music/audio)
      */
@@ -232,14 +232,14 @@ class HistoryRepository @Inject constructor(
             // Silently ignore
         }
     }
-    
+
     /**
      * Get bookmarks for an item
      */
     suspend fun getBookmarks(itemId: Long): List<Bookmark> {
         return bookmarkDao.getBookmarksByMediaItem(itemId)
     }
-    
+
     /**
      * Add a bookmark
      */
@@ -258,21 +258,21 @@ class HistoryRepository @Inject constructor(
         )
         return bookmarkDao.insertBookmark(bookmark)
     }
-    
+
     /**
      * Delete a bookmark
      */
     suspend fun deleteBookmark(bookmarkId: Long) {
         bookmarkDao.deleteBookmark(bookmarkId)
     }
-    
+
     /**
      * Get all recent activity across all media types
      */
     fun getRecentActivity(limit: Int = 50): Flow<List<ReadingProgress>> {
         return progressDao.getRecentProgress(limit)
     }
-    
+
     /**
      * Get statistics
      */
@@ -284,11 +284,11 @@ class HistoryRepository @Inject constructor(
             totalItemsInProgress = allProgress.count { it.percentage in 1.0f..94.9f }
         )
     }
-    
+
     /**
      * PERFORMANCE OPTIMIZATION: Batch fetch reading progress for multiple items at once
      * to avoid N+1 query problems.
-     * 
+     *
      * @param itemIds List of item IDs to fetch progress for
      * @return Map of itemId to ReadingProgress
      */

@@ -38,7 +38,7 @@ internal fun ToolButton(
     destructive: Boolean = false
 ) {
     val color = if (destructive) MediaColors.Error else MediaColors.TextPrimary
-    
+
     Row(
         modifier = Modifier
             .fillMaxWidth()

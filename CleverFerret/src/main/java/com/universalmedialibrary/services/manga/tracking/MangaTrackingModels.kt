@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Manga Tracking Models
- * 
+ *
  * Models for tracking manga reading progress on external services
  * Inspired by Futon/Kotatsu tracking integration
  */
@@ -21,14 +21,14 @@ enum class TrackingService(
     MYANIMELIST("MyAnimeList", "https://myanimelist.net"),
     KITSU("Kitsu", "https://kitsu.app"),
     SHIKIMORI("Shikimori", "https://shikimori.one");
-    
+
     fun getAuthUrl(): String = when (this) {
         ANILIST -> "https://anilist.co/api/v2/oauth/authorize"
         MYANIMELIST -> "https://myanimelist.net/v1/oauth2/authorize"
         KITSU -> "https://kitsu.app/api/oauth/authorize"
         SHIKIMORI -> "https://shikimori.one/oauth/authorize"
     }
-    
+
     fun getTokenUrl(): String = when (this) {
         ANILIST -> "https://anilist.co/api/v2/oauth/token"
         MYANIMELIST -> "https://myanimelist.net/v1/oauth2/token"
@@ -47,7 +47,7 @@ enum class TrackingStatus(val displayName: String) {
     DROPPED("Dropped"),
     PLAN_TO_READ("Plan to Read"),
     REREADING("Re-reading");
-    
+
     fun toAniListStatus(): String = when (this) {
         READING -> "CURRENT"
         COMPLETED -> "COMPLETED"
@@ -56,7 +56,7 @@ enum class TrackingStatus(val displayName: String) {
         PLAN_TO_READ -> "PLANNING"
         REREADING -> "REPEATING"
     }
-    
+
     fun toMALStatus(): String = when (this) {
         READING -> "reading"
         COMPLETED -> "completed"
@@ -65,7 +65,7 @@ enum class TrackingStatus(val displayName: String) {
         PLAN_TO_READ -> "plan_to_read"
         REREADING -> "reading"
     }
-    
+
     fun toKitsuStatus(): String = when (this) {
         READING -> "current"
         COMPLETED -> "completed"
@@ -74,7 +74,7 @@ enum class TrackingStatus(val displayName: String) {
         PLAN_TO_READ -> "planned"
         REREADING -> "current"
     }
-    
+
     companion object {
         fun fromAniListStatus(status: String): TrackingStatus = when (status.uppercase()) {
             "CURRENT" -> READING
@@ -85,7 +85,7 @@ enum class TrackingStatus(val displayName: String) {
             "REPEATING" -> REREADING
             else -> READING
         }
-        
+
         fun fromMALStatus(status: String): TrackingStatus = when (status.lowercase()) {
             "reading" -> READING
             "completed" -> COMPLETED
@@ -94,7 +94,7 @@ enum class TrackingStatus(val displayName: String) {
             "plan_to_read" -> PLAN_TO_READ
             else -> READING
         }
-        
+
         fun fromKitsuStatus(status: String): TrackingStatus = when (status.lowercase()) {
             "current" -> READING
             "completed" -> COMPLETED

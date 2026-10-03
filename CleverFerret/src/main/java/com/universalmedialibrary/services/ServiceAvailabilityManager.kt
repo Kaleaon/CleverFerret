@@ -10,12 +10,12 @@ import javax.inject.Singleton
 
 /**
  * Service Availability Manager
- * 
+ *
  * Manages the availability status of external services based on:
  * - API key configuration
  * - Service health checks
  * - Feature flags
- * 
+ *
  * Provides a centralized way for ViewModels and screens to check
  * which features are available before attempting to use them.
  */
@@ -25,42 +25,42 @@ class ServiceAvailabilityManager @Inject constructor(
 ) {
     private val _serviceStatus = MutableStateFlow<Map<ServiceType, ServiceStatus>>(emptyMap())
     val serviceStatus = _serviceStatus.asStateFlow()
-    
+
     /**
      * Check if a specific service is available
      */
     suspend fun isServiceAvailable(serviceType: ServiceType): Boolean {
         val requiredKeys = serviceType.requiredApiKeys
         if (requiredKeys.isEmpty()) return true
-        
+
         return requiredKeys.all { provider ->
             val key = apiKeyRepository.getAPIKeyValue(provider)
             !key.isNullOrBlank()
         }
     }
-    
+
     /**
      * Get the status of a service with detailed information
      */
     suspend fun getServiceStatus(serviceType: ServiceType): ServiceStatus {
         val requiredKeys = serviceType.requiredApiKeys
-        
+
         if (requiredKeys.isEmpty()) {
             return ServiceStatus.Available
         }
-        
+
         val missingKeys = requiredKeys.filter { provider ->
             val key = apiKeyRepository.getAPIKeyValue(provider)
             key.isNullOrBlank()
         }
-        
+
         return when {
             missingKeys.isEmpty() -> ServiceStatus.Available
             missingKeys.size < requiredKeys.size -> ServiceStatus.PartiallyConfigured(missingKeys)
             else -> ServiceStatus.NotConfigured(missingKeys)
         }
     }
-    
+
     /**
      * Refresh status for all services
      */
@@ -70,14 +70,14 @@ class ServiceAvailabilityManager @Inject constructor(
         }
         _serviceStatus.value = statuses
     }
-    
+
     /**
      * Get all services that need API key configuration
      */
     fun getServicesNeedingConfiguration(): Flow<List<ServiceType>> {
         return combine(apiKeyRepository.getAllAPIKeys()) { allKeys ->
             val keyMap = allKeys.firstOrNull()?.associate { it.provider to it.keyValue } ?: emptyMap()
-            
+
             ServiceType.entries.filter { serviceType ->
                 serviceType.requiredApiKeys.any { provider ->
                     keyMap[provider].isNullOrBlank()
@@ -109,7 +109,7 @@ enum class ServiceType(
         listOf("openai"),
         ServiceCategory.AI
     ),
-    
+
     // TTS Services
     ELEVENLABS_TTS(
         "ElevenLabs TTS",
@@ -123,7 +123,7 @@ enum class ServiceType(
         listOf("google_cloud_tts"),
         ServiceCategory.TTS
     ),
-    
+
     // Book Metadata
     GOOGLE_BOOKS(
         "Google Books",
@@ -143,7 +143,7 @@ enum class ServiceType(
         listOf("nyt"),
         ServiceCategory.METADATA
     ),
-    
+
     // Comic/Manga
     COMICVINE(
         "ComicVine",
@@ -151,7 +151,7 @@ enum class ServiceType(
         listOf("comicvine"),
         ServiceCategory.METADATA
     ),
-    
+
     // Movie/TV
     TMDB(
         "TMDB",
@@ -171,7 +171,7 @@ enum class ServiceType(
         listOf("tvdb"),
         ServiceCategory.METADATA
     ),
-    
+
     // Music
     LASTFM(
         "Last.fm",
@@ -197,7 +197,7 @@ enum class ServiceType(
         listOf("genius"),
         ServiceCategory.MUSIC
     ),
-    
+
     // Podcasts
     LISTEN_NOTES(
         "Listen Notes",
@@ -211,7 +211,7 @@ enum class ServiceType(
         listOf("podcast_index"),
         ServiceCategory.PODCASTS
     ),
-    
+
     // Recommendations
     TASTEDIVE(
         "TasteDive",
@@ -219,7 +219,7 @@ enum class ServiceType(
         listOf("tastedive"),
         ServiceCategory.RECOMMENDATIONS
     ),
-    
+
     // Artwork
     FANART_TV(
         "Fanart.tv",
@@ -227,7 +227,7 @@ enum class ServiceType(
         listOf("fanart_tv"),
         ServiceCategory.ARTWORK
     ),
-    
+
     // Local Services (no API key required)
     LOCAL_LIBRARY(
         "Local Library",

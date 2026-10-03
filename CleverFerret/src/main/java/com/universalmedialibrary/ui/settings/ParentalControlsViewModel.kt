@@ -98,7 +98,7 @@ class ParentalControlsViewModel @Inject constructor(
                         successMessage = "PIN set successfully"
                     )
                 }
-                
+
                 PinDialogType.CHANGE -> {
                     // Change PIN
                     parentalControlsSettings.setPin(pin)
@@ -108,7 +108,7 @@ class ParentalControlsViewModel @Inject constructor(
                         successMessage = "PIN changed successfully"
                     )
                 }
-                
+
                 PinDialogType.CLEAR -> {
                     // Verify PIN before clearing
                     val valid = parentalControlsSettings.verifyPin(pin)
@@ -125,7 +125,7 @@ class ParentalControlsViewModel @Inject constructor(
                         )
                     }
                 }
-                
+
                 PinDialogType.VERIFY -> {
                     // Verify PIN for settings access
                     val valid = parentalControlsSettings.verifyPin(pin)

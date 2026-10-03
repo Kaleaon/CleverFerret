@@ -21,11 +21,11 @@ import com.universalmedialibrary.data.local.converters.StringListConverter
 data class FanfictionStoryEntity(
     @PrimaryKey
     val id: String,
-    
+
     // Source information
     val sourceUrl: String,
     val sourceSite: String, // "Archive of Our Own", "FanFiction.Net", etc.
-    
+
     // Basic metadata
     val title: String,
     val author: String,
@@ -33,22 +33,22 @@ data class FanfictionStoryEntity(
     val summary: String,
     val rating: String? = null,
     val status: String, // IN_PROGRESS, COMPLETE, HIATUS, ABANDONED
-    
+
     // Statistics
     val wordCount: Int,
     val chapterCount: Int,
     val lastChapterDownloaded: Int,
-    
+
     // Dates
     val publishDate: Long? = null,
     val updateDate: Long? = null,
     val lastCheckedDate: Long,
     val dateAdded: Long = System.currentTimeMillis(),
-    
+
     // Files
     val epubPath: String?,
     val coverPath: String? = null,
-    
+
     // Tags and categories
     val warnings: List<String> = emptyList(),
     val fandoms: List<String> = emptyList(),

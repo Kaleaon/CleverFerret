@@ -51,7 +51,7 @@ data class MediaItem(
     val hasMetadata: Boolean = false,
     val hasThumbnail: Boolean = false,
     val thumbnailPath: String? = null,
-       
+
        // Playback and user preference fields
        val isFavorite: Boolean = false,
        val playCount: Int = 0,

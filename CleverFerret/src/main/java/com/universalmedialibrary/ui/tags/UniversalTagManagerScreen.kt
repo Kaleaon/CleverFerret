@@ -208,9 +208,9 @@ fun UniversalTagManagerScreen(
                             tag = tag,
                             onEdit = { editingTag = tag },
                             onDelete = { viewModel.deleteTag(tag) },
-                            onClick = { 
+                            onClick = {
                                 val encodedTag = URLEncoder.encode(tag.name, "UTF-8")
-                                navController.navigate("enhanced_search?tags=$encodedTag") 
+                                navController.navigate("enhanced_search?tags=$encodedTag")
                             }
                         )
                     }
@@ -233,9 +233,9 @@ fun UniversalTagManagerScreen(
                                 tag = tag,
                                 onEdit = { editingTag = tag },
                                 onDelete = { viewModel.deleteTag(tag) },
-                                onClick = { 
+                                onClick = {
                                     val encodedTag = URLEncoder.encode(tag.name, "UTF-8")
-                                    navController.navigate("enhanced_search?tags=$encodedTag") 
+                                    navController.navigate("enhanced_search?tags=$encodedTag")
                                 }
                             )
                         }
@@ -248,9 +248,9 @@ fun UniversalTagManagerScreen(
                         tag = tag,
                         onEdit = { editingTag = tag },
                         onDelete = { viewModel.deleteTag(tag) },
-                        onClick = { 
+                        onClick = {
                             val encodedTag = URLEncoder.encode(tag.name, "UTF-8")
-                            navController.navigate("enhanced_search?tags=$encodedTag") 
+                            navController.navigate("enhanced_search?tags=$encodedTag")
                         }
                     )
                 }

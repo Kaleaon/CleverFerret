@@ -7,7 +7,7 @@ import javax.inject.Singleton
 
 /**
  * Safety checker for download operations
- * 
+ *
  * Verifies that content being downloaded is allowed
  * under current parental controls settings
  */
@@ -18,7 +18,7 @@ class DownloadSafetyChecker @Inject constructor(
 
     /**
      * Check if a download is safe to proceed
-     * 
+     *
      * @param contentRating Content rating (e.g., "Explicit", "Mature", etc.)
      * @return DownloadSafetyResult with status and message
      */
@@ -152,10 +152,10 @@ data class DownloadContentMetadata(
 sealed class DownloadSafetyResult {
     /** Download is allowed */
     object Allowed : DownloadSafetyResult()
-    
+
     /** Download is blocked */
     data class Blocked(val reason: String) : DownloadSafetyResult()
-    
+
     /** Download requires PIN verification */
     data class RequiresPin(
         val contentTitle: String,
@@ -169,7 +169,7 @@ sealed class DownloadSafetyResult {
 sealed class BulkDownloadSafetyResult {
     /** All items allowed */
     data class AllAllowed(val totalCount: Int) : BulkDownloadSafetyResult()
-    
+
     /** Some items blocked */
     data class PartiallyBlocked(
         val allowedCount: Int,
@@ -177,7 +177,7 @@ sealed class BulkDownloadSafetyResult {
         val requiresPinCount: Int,
         val blockedReasons: List<String>
     ) : BulkDownloadSafetyResult()
-    
+
     /** Items require PIN */
     data class RequiresPin(val itemsRequiringPin: Int) : BulkDownloadSafetyResult()
 }

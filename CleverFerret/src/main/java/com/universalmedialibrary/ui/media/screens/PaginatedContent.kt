@@ -48,7 +48,7 @@ internal fun PaginatedContent(
         pageSpacing = 0.dp
     ) { pageIndex ->
         val page = pages.getOrNull(pageIndex)
-        
+
         Box(
             modifier = Modifier
                 .fillMaxSize()

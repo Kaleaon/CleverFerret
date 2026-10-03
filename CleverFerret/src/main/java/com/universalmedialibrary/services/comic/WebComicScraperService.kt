@@ -39,7 +39,7 @@ class WebComicScraperService @Inject constructor(
             // Clean filename from URL
             val comicName = url.substringAfterLast("/").filter { it.isLetterOrDigit() || it == '-' || it == '_' }
                 .ifEmpty { "comic_${System.currentTimeMillis()}" }
-            
+
             val downloadedFiles = mutableListOf<File>()
 
             imageUrls.forEachIndexed { index, imageUrl ->
@@ -55,7 +55,7 @@ class WebComicScraperService @Inject constructor(
                     }
                 }
             }
-            
+
             if (downloadedFiles.isEmpty()) throw Exception("Failed to download any images")
 
             // Return the first file or directory - in a real app we might zip them into a CBZ
@@ -80,7 +80,7 @@ class WebComicScraperService @Inject constructor(
             url.contains("schlockmercenary.com") -> {
                 // Schlock Mercenary: <div class="strip-images"><img src="..."></div>
                 // Often has multiple images for one strip
-                doc.select(".strip-images img").forEach { 
+                doc.select(".strip-images img").forEach {
                     it.absUrl("src").takeIf { src -> src.isNotEmpty() }?.let { src -> images.add(src) }
                 }
             }
@@ -91,8 +91,8 @@ class WebComicScraperService @Inject constructor(
             else -> {
                 // Generic fallback
                 // Try Open Graph image
-                doc.select("meta[property=og:image]").attr("content").takeIf { it.isNotEmpty() }?.let { 
-                    images.add(it) 
+                doc.select("meta[property=og:image]").attr("content").takeIf { it.isNotEmpty() }?.let {
+                    images.add(it)
                     return images // If OG image found, it's likely the main content
                 }
 
@@ -102,7 +102,7 @@ class WebComicScraperService @Inject constructor(
                 // Look for common comic IDs/Classes
                 val commonSelectors = listOf("#comic img", "#strip img", ".comic img", ".strip img", "img#comic", "img#strip")
                 for (selector in commonSelectors) {
-                    doc.select(selector).first()?.absUrl("src")?.let { 
+                    doc.select(selector).first()?.absUrl("src")?.let {
                         images.add(it)
                         return images
                     }

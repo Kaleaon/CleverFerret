@@ -49,7 +49,7 @@ data class Track(
             "%d:%02d".format(minutes, secs)
         }
     }
-    
+
     val displayArtist: String get() = artist ?: "Unknown Artist"
     val displayAlbum: String get() = album ?: "Unknown Album"
     val displayGenre: String get() = genre ?: "Unknown Genre"
@@ -122,7 +122,7 @@ enum class MusicSortOption(val displayName: String, val icon: ImageVector) {
     YEAR_NEW("Newest Year", Icons.Default.CalendarToday),
     YEAR_OLD("Oldest Year", Icons.Default.CalendarToday),
     TRACK_NUMBER("Track Number", Icons.Default.Numbers);
-    
+
     fun comparator(): Comparator<Track> = when (this) {
         TITLE_ASC -> compareBy { it.title?.lowercase() ?: "" }
         TITLE_DESC -> compareByDescending { it.title?.lowercase() ?: "" }

@@ -70,7 +70,7 @@ fun PodcastPlayerScreen(
                     com.universalmedialibrary.ui.visualizer.VisualizerButton(
                         onClick = onNavigateToVisualizer
                     )
-                    IconButton(onClick = { 
+                    IconButton(onClick = {
                         uiState.episode?.let { episode ->
                             try {
                                 val shareText = "Check out this podcast episode: ${episode.title}"
@@ -119,7 +119,7 @@ fun PodcastPlayerScreen(
                             .aspectRatio(1f)
                     ) {
                         AsyncImage(
-                    
+
                             model = uiState.episode?.imageUrl,
                             contentDescription = "Episode Artwork",
                             modifier = Modifier.fillMaxSize(),

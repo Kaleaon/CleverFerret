@@ -111,7 +111,7 @@ fun AlbumDetailScreen(
                             ) {
                                 if (albumData.artworkUri != null) {
                                     AsyncImage(
-                    
+
                                         model = albumData.artworkUri,
                                         contentDescription = "Album art",
                                         modifier = Modifier.fillMaxSize(),
@@ -306,7 +306,7 @@ class AlbumDetailViewModel @Inject constructor(
 
     fun addAlbumToQueue(album: Album) {
         // Queue functionality would require implementation of a persistent queue system
-        // For now, this is a placeholder - in production, tracks would be added to 
+        // For now, this is a placeholder - in production, tracks would be added to
         // the music player's queue for sequential playback
         viewModelScope.launch {
             // Future: musicPlayerService.addToQueue(album.tracks)

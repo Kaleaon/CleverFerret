@@ -29,7 +29,7 @@ import kotlinx.coroutines.isActive
 
 /**
  * Enhanced Music Player Screen with all PowerampAPI features
- * 
+ *
  * New Features:
  * - Audio quality badges
  * - Full metadata display (25+ fields)
@@ -63,7 +63,7 @@ fun EnhancedMusicPlayerScreen(
 
     var currentPosition by remember { mutableLongStateOf(0L) }
     var isDragging by remember { mutableStateOf(false) }
-    
+
     // Dialog states
     var showSpeedDialog by remember { mutableStateOf(false) }
     var showVolumeDialog by remember { mutableStateOf(false) }
@@ -131,12 +131,12 @@ fun EnhancedMusicPlayerScreen(
                             Icon(PhosphorIcons.QueueMusic, contentDescription = "Queue")
                         }
                     }
-                    
+
                     // Visualizer button
                     com.universalmedialibrary.ui.visualizer.VisualizerButton(
                         onClick = onNavigateToVisualizer
                     )
-                    
+
                     // Sleep timer indicator
                     if (sleepTimerState.isActive) {
                         IconButton(onClick = { showSleepTimerDialog = true }) {
@@ -154,7 +154,7 @@ fun EnhancedMusicPlayerScreen(
                             }
                         }
                     }
-                    
+
                     // More menu
                     var showMoreMenu by remember { mutableStateOf(false) }
                     Box {
@@ -243,8 +243,8 @@ fun EnhancedMusicPlayerScreen(
 
                 // Progress Section (inline implementation)
                 Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                    val progress = if ((currentTrack?.duration ?: 0L) > 0) 
-                        currentPosition.toFloat() / (currentTrack?.duration ?: 1L).toFloat() 
+                    val progress = if ((currentTrack?.duration ?: 0L) > 0)
+                        currentPosition.toFloat() / (currentTrack?.duration ?: 1L).toFloat()
                     else 0f
 
                     Slider(
@@ -418,7 +418,7 @@ fun EnhancedMusicPlayerScreen(
             }
         }
     }
-    
+
     // Dialogs
     if (showSpeedDialog) {
         EnhancedPlaybackSpeedDialog(
@@ -427,7 +427,7 @@ fun EnhancedMusicPlayerScreen(
             onDismiss = { showSpeedDialog = false }
         )
     }
-    
+
     if (showVolumeDialog) {
         EnhancedVolumeDialog(
             currentVolume = volume,
@@ -435,7 +435,7 @@ fun EnhancedMusicPlayerScreen(
             onDismiss = { showVolumeDialog = false }
         )
     }
-    
+
     if (showEqualizerDialog) {
         EqualizerDialog(
             currentPreset = equalizerPreset,
@@ -443,17 +443,17 @@ fun EnhancedMusicPlayerScreen(
             onDismiss = { showEqualizerDialog = false }
         )
     }
-    
+
     if (showSleepTimerDialog) {
         SleepTimerDialog(
             onTimerSet = viewModel::startSleepTimer,
             onDismiss = { showSleepTimerDialog = false }
         )
     }
-    
+
     if (showAddToPlaylistDialog) {
         val playlists by viewModel.playlists.collectAsState()
-        
+
         AddToPlaylistDialog(
             playlists = playlists.map { it.name },
             onPlaylistSelected = { playlistName ->
@@ -468,7 +468,7 @@ fun EnhancedMusicPlayerScreen(
             onDismiss = { showAddToPlaylistDialog = false }
         )
     }
-    
+
     if (showTrackDetailsDialog && currentTrack != null) {
         TrackDetailsDialog(
             track = currentTrack!!,

@@ -15,18 +15,18 @@ import javax.inject.Inject
 
 /**
  * Comic Processor Repository
- * 
+ *
  * Handles AI-powered comic translation using Google Gemini 2.5 Pro for:
  * - Visual analysis and panel detection
  * - Text extraction from speech bubbles and narration boxes
  * - Direct translation to target language
  * - Local Room database for offline caching
- * 
+ *
  * This repository orchestrates the entire translation workflow:
  * 1. Check local cache first for instant offline access
  * 2. If not cached, call Gemini 2.5 AI to analyze and translate the comic page
  * 3. Cache the results for future offline viewing
- * 
+ *
  * @param geminiApiKey User-provided API key for Gemini AI
  * @param translationCacheDao Room DAO for caching translations
  */
@@ -35,7 +35,7 @@ class ComicProcessorRepository @Inject constructor(
     private val translationCacheDao: ComicTranslationCacheDao
 ) {
 
-    private val json = Json { 
+    private val json = Json {
         ignoreUnknownKeys = true
         prettyPrint = false
     }
@@ -61,10 +61,10 @@ class ComicProcessorRepository @Inject constructor(
 
     /**
      * Main function to process a comic page
-     * 
+     *
      * This function checks the local cache first, and if not found,
      * calls Gemini AI to analyze and translate the page in a single request.
-     * 
+     *
      * @param imageBitmap The comic page image
      * @param comicId Unique identifier for the comic (e.g., file path or library ID)
      * @param pageNumber The page number within the comic
@@ -77,7 +77,7 @@ class ComicProcessorRepository @Inject constructor(
         pageNumber: Int,
         userLanguage: String = "en"
     ): Result<ComicPageResponse> = withContext(Dispatchers.IO) {
-        
+
         val uniqueId = generatePageId(comicId, pageNumber, userLanguage)
 
         // 1. CHECK DATABASE FIRST for cached translation
@@ -100,16 +100,16 @@ class ComicProcessorRepository @Inject constructor(
 
             // Generate content with image and prompt
             val response = generativeModel.generateContent(imagePart, content { text(prompt) })
-            
+
             // 3. Parse the response
             val responseText = response.text ?: throw IllegalStateException("Response was empty.")
-            
+
             // Clean up markdown code blocks if present
             val cleanJson = responseText
                 .replace("```json", "")
                 .replace("```", "")
                 .trim()
-            
+
             // Parse the JSON response - Gemini already translated the text
             val translatedResponse = json.decodeFromString<ComicPageResponse>(cleanJson)
 
@@ -123,13 +123,13 @@ class ComicProcessorRepository @Inject constructor(
                 cachedAt = System.currentTimeMillis()
             )
             translationCacheDao.saveTranslation(cacheEntry)
-            
+
             Result.success(translatedResponse)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Build the prompt for Gemini AI to analyze and translate in one step
      */
@@ -137,7 +137,7 @@ class ComicProcessorRepository @Inject constructor(
         val languageName = getLanguageName(targetLanguage)
         return """
             You are an expert comic book analyzer and translator. Analyze the provided image and translate all text to $languageName.
-            
+
             Follow these steps:
             1. Identify the bounding box for each panel in the comic page.
             2. For each panel, identify every text element (speech bubbles, narration boxes, sound effects).
@@ -163,13 +163,13 @@ class ComicProcessorRepository @Inject constructor(
                 }
               ]
             }
-            
+
             IMPORTANT: Translate ALL text to $languageName in the translated_text field.
             Preserve the meaning and tone of the original text.
             Return ONLY the JSON object, no additional text or explanation.
         """.trimIndent()
     }
-    
+
     /**
      * Convert ISO 639-1 language codes to readable names
      */

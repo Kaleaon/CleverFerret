@@ -25,7 +25,7 @@ private const val TAG = "EnhancedRadioViewModel"
 
 /**
  * Enhanced Radio ViewModel
- * 
+ *
  * Provides radio functionality for:
  * - FM Radio (via FMRadioService with hardware support detection)
  * - HD Radio (requires device-specific hardware APIs)
@@ -40,18 +40,18 @@ class EnhancedRadioViewModel @Inject constructor(
     private val exoPlayerService: ExoPlayerService,
     private val radioStationDao: RadioStationDao
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(EnhancedRadioState())
     val uiState: StateFlow<EnhancedRadioState> = _uiState.asStateFlow()
-    
+
     private val _fmState = MutableStateFlow(FMRadioState())
     val fmState: StateFlow<FMRadioState> = _fmState.asStateFlow()
-    
+
     private val _hdState = MutableStateFlow(HDRadioState())
     val hdState: StateFlow<HDRadioState> = _hdState.asStateFlow()
 
     private val favoriteStreamUrls = MutableStateFlow<Set<String>>(emptySet())
-    
+
     init {
         loadCategories()
         loadPopularStations()
@@ -79,7 +79,7 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Observe FM Radio hardware state from FMRadioService
      */
@@ -111,7 +111,7 @@ class EnhancedRadioViewModel @Inject constructor(
         }
         viewModelScope.launch {
             fmRadioService.rdsData.collect { rds ->
-                _fmState.update { 
+                _fmState.update {
                     it.copy(
                         stationName = rds?.stationName,
                         radioText = rds?.radioText
@@ -120,7 +120,7 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun loadCategories() {
         val categories = listOf(
             RadioCategory("pop", "Pop", Icons.Default.MusicNote, Color(0xFFE91E63), 0),
@@ -136,7 +136,7 @@ class EnhancedRadioViewModel @Inject constructor(
         )
         _uiState.update { it.copy(categories = categories) }
     }
-    
+
     private fun loadPopularStations() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -166,7 +166,7 @@ class EnhancedRadioViewModel @Inject constructor(
                 Log.d(TAG, "Loaded ${uiStations.size} popular stations")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to load popular stations", e)
-                _uiState.update { 
+                _uiState.update {
                     it.copy(
                         isLoading = false,
                         error = "Failed to load stations: ${e.message}"
@@ -175,11 +175,11 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     // ==========================================================================
     // FM RADIO CONTROLS (Uses FMRadioService for hardware access)
     // ==========================================================================
-    
+
     fun startFMRadio() {
         viewModelScope.launch {
             if (!fmRadioService.isAvailable.value) {
@@ -195,13 +195,13 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun stopFMRadio() {
         viewModelScope.launch {
             fmRadioService.stop()
         }
     }
-    
+
     fun tuneFMFrequency(frequencyKhz: Int) {
         viewModelScope.launch {
             val success = fmRadioService.tune(frequencyKhz)
@@ -210,21 +210,21 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun seekFMUp() {
         viewModelScope.launch {
             // Use scanUp for seeking to next station
             fmRadioService.scanUp()
         }
     }
-    
+
     fun seekFMDown() {
         viewModelScope.launch {
             // Use scanDown for seeking to previous station
             fmRadioService.scanDown()
         }
     }
-    
+
     fun toggleFMMute() {
         viewModelScope.launch {
             // isMuted is derived from isPlaying, so just toggle play/stop
@@ -238,7 +238,7 @@ class EnhancedRadioViewModel @Inject constructor(
             // which is observed and updated by observeFMRadioState()
         }
     }
-    
+
     fun startFMRecording() {
         viewModelScope.launch {
             try {
@@ -249,12 +249,12 @@ class EnhancedRadioViewModel @Inject constructor(
                         _fmState.update { it.copy(error = "Cannot access storage") }
                         return@launch
                     }
-                
+
                 if (!recordingDir.exists() && !recordingDir.mkdirs()) {
                     _fmState.update { it.copy(error = "Failed to create recording directory") }
                     return@launch
                 }
-                
+
                 val outputFile = File(recordingDir, "fm_recording_${System.currentTimeMillis()}.m4a")
                 val success = fmRadioService.startRecording(outputFile)
                 if (!success) {
@@ -265,37 +265,37 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun stopFMRecording() {
         viewModelScope.launch {
             fmRadioService.stopRecording()
         }
     }
-    
+
     fun clearFMError() {
         _fmState.update { it.copy(error = null) }
     }
-    
+
     // ==========================================================================
     // HD RADIO CONTROLS (Hardware-dependent - placeholder implementations)
     // Note: Real HD radio requires device-specific hardware APIs
     // ==========================================================================
-    
+
     fun startHDRadio() {
         viewModelScope.launch {
             _hdState.update { it.copy(isPlaying = true) }
         }
     }
-    
+
     fun stopHDRadio() {
         viewModelScope.launch {
             _hdState.update { it.copy(isPlaying = false) }
         }
     }
-    
+
     fun tuneHDStation(frequency: Int, subchannel: Int = 1) {
         viewModelScope.launch {
-            _hdState.update { 
+            _hdState.update {
                 it.copy(
                     currentStation = HDStationInfo(
                         frequency = frequency,
@@ -307,7 +307,7 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun selectHDSubchannel(subchannel: Int) {
         viewModelScope.launch {
             _hdState.update { current ->
@@ -317,11 +317,11 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     // ==========================================================================
     // INTERNET RADIO CONTROLS (Fully functional)
     // ==========================================================================
-    
+
     fun playInternetStation(station: RadioStation) {
         viewModelScope.launch {
             try {
@@ -332,7 +332,7 @@ class EnhancedRadioViewModel @Inject constructor(
                     artist = station.genre
                 )
                 exoPlayerService.play()
-                
+
                 // Perform atomic update to set nowPlaying and rebuild recentlyPlayed
                 // This avoids race conditions from multiple state updates
                 _uiState.update { state ->
@@ -343,7 +343,7 @@ class EnhancedRadioViewModel @Inject constructor(
                     }
                     state.copy(nowPlaying = station, recentlyPlayed = updatedRecent)
                 }
-                
+
                 Log.d(TAG, "Playing station: ${station.name}")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to play station: ${station.name}", e)
@@ -351,14 +351,14 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun stopInternetRadio() {
         viewModelScope.launch {
             exoPlayerService.stop()
             _uiState.update { it.copy(nowPlaying = null) }
         }
     }
-    
+
     fun searchStations(query: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isSearching = true, error = null) }
@@ -378,18 +378,18 @@ class EnhancedRadioViewModel @Inject constructor(
                         isFavorite = _uiState.value.favoriteStations.any { fav -> fav.id == stationId }
                     )
                 }
-                _uiState.update { 
+                _uiState.update {
                     it.copy(
-                        searchResults = uiStations, 
+                        searchResults = uiStations,
                         isSearching = false
                     )
                 }
                 Log.d(TAG, "Search for '$query' returned ${uiStations.size} stations")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to search stations for '$query'", e)
-                _uiState.update { 
+                _uiState.update {
                     it.copy(
-                        searchResults = emptyList(), 
+                        searchResults = emptyList(),
                         isSearching = false,
                         error = "Search failed: ${e.message}"
                     )
@@ -397,7 +397,7 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun loadStationsByCategory(categoryId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, selectedCategory = categoryId, error = null) }
@@ -416,7 +416,7 @@ class EnhancedRadioViewModel @Inject constructor(
                     "hip-hop" -> "hip hop"
                     else -> categoryId
                 }
-                
+
                 val stations = radioBrowserService.searchStations(query = "", tag = tag, limit = 50)
                 // Filter out stations with null/blank streamUrl to prevent playback failures
                 val uiStations = stations.mapNotNull { station ->
@@ -432,18 +432,18 @@ class EnhancedRadioViewModel @Inject constructor(
                         isFavorite = _uiState.value.favoriteStations.any { fav -> fav.id == stationId }
                     )
                 }
-                _uiState.update { 
+                _uiState.update {
                     it.copy(
-                        categoryStations = uiStations, 
+                        categoryStations = uiStations,
                         isLoading = false
                     )
                 }
                 Log.d(TAG, "Loaded ${uiStations.size} stations for category '$categoryId'")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to load stations for category '$categoryId'", e)
-                _uiState.update { 
+                _uiState.update {
                     it.copy(
-                        categoryStations = emptyList(), 
+                        categoryStations = emptyList(),
                         isLoading = false,
                         error = "Failed to load category: ${e.message}"
                     )
@@ -451,19 +451,19 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun clearSearch() {
         _uiState.update { it.copy(searchResults = emptyList()) }
     }
-    
+
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
-    
+
     // ==========================================================================
     // FAVORITES
     // ==========================================================================
-    
+
     fun toggleFavorite(station: RadioStation) {
         viewModelScope.launch {
             val existing = radioStationDao.getStationByStreamUrl(station.streamUrl)
@@ -485,12 +485,12 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun saveFMStationAsFavorite() {
         viewModelScope.launch {
             val freq = _fmState.value.currentFrequency
             val name = _fmState.value.stationName ?: "FM ${freq / 1000.0} MHz"
-            
+
             val station = RadioStation(
                 id = "fm_$freq",
                 name = name,
@@ -514,7 +514,7 @@ class EnhancedRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         // Only stop FM radio - ExoPlayerService is a singleton shared across

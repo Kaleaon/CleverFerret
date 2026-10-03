@@ -63,7 +63,7 @@ internal fun ErrorDetailsDialog(
                     fontSize = 12.sp,
                     color = MediaColors.TextSecondary
                 )
-                
+
                 Text(
                     "Message:",
                     fontWeight = FontWeight.Bold,
@@ -71,7 +71,7 @@ internal fun ErrorDetailsDialog(
                     fontSize = 12.sp
                 )
                 Text(error.message, color = MediaColors.TextPrimary)
-                
+
                 error.stackTrace?.let { trace ->
                     Text(
                         "Stack Trace:",

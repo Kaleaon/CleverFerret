@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 /**
  * Feature Flag Manager
- * 
+ *
  * Manages runtime feature flags for debug builds.
  * Allows enabling/disabling features without rebuilding.
  */
@@ -24,40 +24,40 @@ class FeatureFlagManager @Inject constructor(
         "debug_feature_flags",
         Context.MODE_PRIVATE
     )
-    
+
     private val _flags = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     val flags: StateFlow<Map<String, Boolean>> = _flags.asStateFlow()
-    
+
     init {
         loadFlags()
     }
-    
+
     private fun loadFlags() {
         val loadedFlags = mutableMapOf<String, Boolean>()
-        
+
         // Define all feature flags with their default values
         FeatureFlag.entries.forEach { flag ->
             loadedFlags[flag.key] = prefs.getBoolean(flag.key, flag.defaultValue)
         }
-        
+
         _flags.value = loadedFlags
     }
-    
+
     fun setFlag(key: String, value: Boolean) {
         prefs.edit().putBoolean(key, value).apply()
         _flags.update { current ->
             current.toMutableMap().apply { put(key, value) }
         }
     }
-    
+
     fun isEnabled(flag: FeatureFlag): Boolean {
         return _flags.value[flag.key] ?: flag.defaultValue
     }
-    
+
     fun isEnabled(key: String): Boolean {
         return _flags.value[key] ?: false
     }
-    
+
     fun resetAll() {
         prefs.edit().clear().apply()
         loadFlags()
@@ -88,7 +88,7 @@ enum class FeatureFlag(
         true,
         "Enable animated page turn effects in book reader"
     ),
-    
+
     // Networking Features
     ENABLE_OFFLINE_MODE(
         "enable_offline_mode",
@@ -100,7 +100,7 @@ enum class FeatureFlag(
         false,
         "Use mock API responses instead of real network calls"
     ),
-    
+
     // Media Server Features
     ENABLE_PLEX_INTEGRATION(
         "enable_plex_integration",
@@ -117,7 +117,7 @@ enum class FeatureFlag(
         true,
         "Enable Emby media server integration"
     ),
-    
+
     // Radio Features
     ENABLE_FM_RADIO(
         "enable_fm_radio",
@@ -134,7 +134,7 @@ enum class FeatureFlag(
         true,
         "Enable internet radio streaming"
     ),
-    
+
     // Debug Features
     VERBOSE_LOGGING(
         "verbose_logging",
@@ -151,7 +151,7 @@ enum class FeatureFlag(
         false,
         "Log all network requests and responses"
     ),
-    
+
     // Experimental Features
     EXPERIMENTAL_READER_ENGINE(
         "experimental_reader_engine",

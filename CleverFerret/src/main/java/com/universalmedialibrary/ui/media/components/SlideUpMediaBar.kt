@@ -32,13 +32,13 @@ import kotlin.math.roundToInt
 
 /**
  * Slide-Up Media Control Bar
- * 
+ *
  * A draggable media control bar that:
  * - Shows at the bottom as a mini player
  * - Can be dragged up to reveal full controls
  * - Especially useful when reading a book
  * - Supports music, podcasts, audiobooks, ambient sounds
- * 
+ *
  * States:
  * - Collapsed: Small bar showing current track
  * - Expanded: Full player with all controls
@@ -82,14 +82,14 @@ fun SlideUpMediaBar(
     modifier: Modifier = Modifier
 ) {
     if (state == null) return
-    
+
     var barState by remember { mutableStateOf(MediaBarState.COLLAPSED) }
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
-    
+
     val collapsedHeight = 72.dp
     val expandedHeight = 400.dp
-    
+
     val animatedHeight by animateDpAsState(
         targetValue = when (barState) {
             MediaBarState.HIDDEN -> 0.dp
@@ -102,11 +102,11 @@ fun SlideUpMediaBar(
         ),
         label = "barHeight"
     )
-    
+
     // Drag state for smooth dragging
     var offsetY by remember { mutableStateOf(0f) }
     val maxDragOffset = with(density) { (expandedHeight - collapsedHeight).toPx() }
-    
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -157,7 +157,7 @@ fun SlideUpMediaBar(
                         color = MediaColors.TextTertiary
                     ) {}
                 }
-                
+
                 // Progress bar (always visible at top)
                 LinearProgressIndicator(
                     progress = { state.progress },
@@ -167,7 +167,7 @@ fun SlideUpMediaBar(
                     color = MediaColors.AccentPrimary,
                     trackColor = MediaColors.ProgressBackground
                 )
-                
+
                 when (barState) {
                     MediaBarState.COLLAPSED -> CollapsedContent(
                         state = state,
@@ -239,9 +239,9 @@ private fun CollapsedContent(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         // Title & subtitle
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -260,7 +260,7 @@ private fun CollapsedContent(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        
+
         // Play/Pause
         IconButton(onClick = onPlayPause) {
             Surface(
@@ -276,7 +276,7 @@ private fun CollapsedContent(
                 )
             }
         }
-        
+
         // Expand hint
         Icon(
             imageVector = Icons.Default.KeyboardArrowUp,
@@ -300,7 +300,7 @@ private fun ExpandedContent(
 ) {
     var showSpeedPicker by remember { mutableStateOf(false) }
     var showChapters by remember { mutableStateOf(false) }
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -319,13 +319,13 @@ private fun ExpandedContent(
                     tint = MediaColors.TextSecondary
                 )
             }
-            
+
             Text(
                 text = state.mediaType.replaceFirstChar { it.uppercase() },
                 style = MediaTypography.LabelMedium,
                 color = MediaColors.TextTertiary
             )
-            
+
             IconButton(onClick = { /* More options */ }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
@@ -334,9 +334,9 @@ private fun ExpandedContent(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
-        
+
         // Large artwork
         Surface(
             modifier = Modifier
@@ -366,9 +366,9 @@ private fun ExpandedContent(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         // Title & subtitle
         Text(
             text = state.title,
@@ -378,7 +378,7 @@ private fun ExpandedContent(
             overflow = TextOverflow.Ellipsis,
             fontWeight = FontWeight.SemiBold
         )
-        
+
         Text(
             text = state.subtitle,
             style = MediaTypography.BodyMedium,
@@ -386,9 +386,9 @@ private fun ExpandedContent(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         // Progress slider
         Column(modifier = Modifier.fillMaxWidth()) {
             Slider(
@@ -400,7 +400,7 @@ private fun ExpandedContent(
                     inactiveTrackColor = MediaColors.ProgressBackground
                 )
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -417,9 +417,9 @@ private fun ExpandedContent(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
-        
+
         // Main controls
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -441,7 +441,7 @@ private fun ExpandedContent(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            
+
             // Play/Pause (large)
             IconButton(
                 onClick = onPlayPause,
@@ -460,7 +460,7 @@ private fun ExpandedContent(
                     )
                 }
             }
-            
+
             // Skip forward / Next
             IconButton(
                 onClick = onNext,
@@ -477,9 +477,9 @@ private fun ExpandedContent(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
-        
+
         // Secondary controls
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -494,7 +494,7 @@ private fun ExpandedContent(
                     )
                 }
             }
-            
+
             // Chapters (for audiobooks/podcasts with chapters)
             if (state.chapters.isNotEmpty()) {
                 TextButton(onClick = { showChapters = true }) {
@@ -512,7 +512,7 @@ private fun ExpandedContent(
             }
         }
     }
-    
+
     // Speed picker dialog
     if (showSpeedPicker) {
         SpeedPickerDialog(
@@ -533,7 +533,7 @@ private fun SpeedPickerDialog(
     onDismiss: () -> Unit
 ) {
     val speeds = listOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 2.5f, 3.0f)
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Playback Speed", color = MediaColors.TextPrimary) },

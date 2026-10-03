@@ -53,7 +53,7 @@ internal fun RadioStationCard(
             ) {
                 if (station.logoUrl != null) {
                     AsyncImage(
-                    
+
                         model = station.logoUrl,
                         contentDescription = "${station.name} logo",
                         contentScale = ContentScale.Crop,
@@ -72,7 +72,7 @@ internal fun RadioStationCard(
                         )
                     }
                 }
-                
+
                 // Favorite indicator
                 if (station.isFavorite) {
                     Box(
@@ -89,9 +89,9 @@ internal fun RadioStationCard(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             Text(
                 text = station.name,
                 style = MediaTypography.BodyMedium,
@@ -101,7 +101,7 @@ internal fun RadioStationCard(
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Text(
                 text = station.genre,
                 style = MediaTypography.LabelSmall,

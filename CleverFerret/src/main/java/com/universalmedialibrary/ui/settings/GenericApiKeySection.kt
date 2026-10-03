@@ -92,7 +92,7 @@ internal fun GenericApiKeySection(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
-            
+
             if (note != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

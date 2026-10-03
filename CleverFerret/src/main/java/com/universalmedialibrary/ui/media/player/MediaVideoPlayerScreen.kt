@@ -29,12 +29,12 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Video Player Screen
- * 
+ *
  * Full-featured video player for:
  * - Movies
  * - TV Shows
  * - Video files
- * 
+ *
  * Features:
  * - Gesture controls (swipe for brightness/volume)
  * - Double-tap to seek
@@ -76,7 +76,7 @@ fun MediaVideoPlayerScreen(
     var volumeLevel by remember { mutableStateOf(1f) }
     var showBrightnessIndicator by remember { mutableStateOf(false) }
     var showVolumeIndicator by remember { mutableStateOf(false) }
-    
+
     // Auto-hide controls
     LaunchedEffect(controlsVisible) {
         if (controlsVisible && state.isPlaying) {
@@ -84,7 +84,7 @@ fun MediaVideoPlayerScreen(
             controlsVisible = false
         }
     }
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -112,7 +112,7 @@ fun MediaVideoPlayerScreen(
             // For now, showing a placeholder
             if (state.thumbnailUrl != null) {
                 AsyncImage(
-                    
+
                     model = state.thumbnailUrl,
                     contentDescription = "Media image",
                     modifier = Modifier.fillMaxSize(),
@@ -120,7 +120,7 @@ fun MediaVideoPlayerScreen(
                 )
             }
         }
-        
+
         // Gesture overlays for brightness/volume
         Row(modifier = Modifier.fillMaxSize()) {
             // Left side - brightness
@@ -138,7 +138,7 @@ fun MediaVideoPlayerScreen(
                         )
                     }
             )
-            
+
             // Right side - volume
             Box(
                 modifier = Modifier
@@ -155,7 +155,7 @@ fun MediaVideoPlayerScreen(
                     }
             )
         }
-        
+
         // Brightness indicator
         AnimatedVisibility(
             visible = showBrightnessIndicator,
@@ -168,7 +168,7 @@ fun MediaVideoPlayerScreen(
                 level = brightnessLevel
             )
         }
-        
+
         // Volume indicator
         AnimatedVisibility(
             visible = showVolumeIndicator,
@@ -181,7 +181,7 @@ fun MediaVideoPlayerScreen(
                 level = volumeLevel
             )
         }
-        
+
         // Skip intro button
         AnimatedVisibility(
             visible = state.showSkipIntro,
@@ -213,7 +213,7 @@ fun MediaVideoPlayerScreen(
                 )
             }
         }
-        
+
         // Controls overlay
         AnimatedVisibility(
             visible = controlsVisible,
@@ -236,7 +236,7 @@ fun MediaVideoPlayerScreen(
                             )
                         )
                 )
-                
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -251,7 +251,7 @@ fun MediaVideoPlayerScreen(
                             )
                         )
                 )
-                
+
                 // Top bar
                 VideoPlayerTopBar(
                     title = state.title,
@@ -263,7 +263,7 @@ fun MediaVideoPlayerScreen(
                     onSettings = { showSettings = true },
                     modifier = Modifier.align(Alignment.TopCenter)
                 )
-                
+
                 // Center playback controls
                 CenterControls(
                     isPlaying = state.isPlaying,
@@ -277,7 +277,7 @@ fun MediaVideoPlayerScreen(
                     onFastForward = { onSeekRelative(10000) },
                     modifier = Modifier.align(Alignment.Center)
                 )
-                
+
                 // Bottom bar
                 VideoPlayerBottomBar(
                     currentPosition = state.currentPosition,
@@ -295,7 +295,7 @@ fun MediaVideoPlayerScreen(
                 )
             }
         }
-        
+
         // Seek preview
         seekPreviewPosition?.let { position ->
             SeekPreview(
@@ -305,7 +305,7 @@ fun MediaVideoPlayerScreen(
             )
         }
     }
-    
+
     // Subtitles sheet
     if (showSubtitles) {
         ModalBottomSheet(
@@ -322,7 +322,7 @@ fun MediaVideoPlayerScreen(
             )
         }
     }
-    
+
     // Quality sheet
     if (showQuality) {
         ModalBottomSheet(
@@ -339,7 +339,7 @@ fun MediaVideoPlayerScreen(
             )
         }
     }
-    
+
     // Episodes sheet
     if (showEpisodes) {
         ModalBottomSheet(
@@ -394,6 +394,17 @@ fun MediaVideoPlayerScreen(
 // HELPERS
 // =============================================================================
 
+private fun formatTime(ms: Long): String {
+    val seconds = (ms / 1000) % 60
+    val minutes = (ms / (1000 * 60)) % 60
+    val hours = ms / (1000 * 60 * 60)
+
+    return if (hours > 0) {
+        "%d:%02d:%02d".format(hours, minutes, seconds)
+    } else {
+        "%d:%02d".format(minutes, seconds)
+    }
+}
 // =============================================================================
 // DATA MODELS
 // =============================================================================

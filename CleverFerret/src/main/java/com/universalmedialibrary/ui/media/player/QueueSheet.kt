@@ -43,7 +43,7 @@ internal fun QueueSheet(
             color = MediaColors.TextPrimary,
             modifier = Modifier.padding(bottom = MediaSpacing.MD)
         )
-        
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -70,9 +70,9 @@ internal fun QueueSheet(
                         tint = MediaColors.TextTertiary,
                         modifier = Modifier.size(20.dp)
                     )
-                    
+
                     Spacer(modifier = Modifier.width(MediaSpacing.SM))
-                    
+
                     // Artwork
                     Surface(
                         modifier = Modifier
@@ -82,7 +82,7 @@ internal fun QueueSheet(
                     ) {
                         if (item.artworkUrl != null) {
                             AsyncImage(
-                    
+
                                 model = item.artworkUrl,
                                 contentDescription = "Media image",
                                 contentScale = ContentScale.Crop,
@@ -90,16 +90,16 @@ internal fun QueueSheet(
                             )
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                    
+
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = item.title,
                             style = MediaTypography.BodyMedium,
-                            color = if (index == currentIndex) 
-                                MediaColors.AccentPrimary 
-                            else 
+                            color = if (index == currentIndex)
+                                MediaColors.AccentPrimary
+                            else
                                 MediaColors.TextPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -113,7 +113,7 @@ internal fun QueueSheet(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    
+
                     // Now playing indicator
                     if (index == currentIndex) {
                         Icon(

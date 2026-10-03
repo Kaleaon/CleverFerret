@@ -49,7 +49,7 @@ internal fun WebFictionStoryCard(
             ) {
                 if (story.coverUrl != null) {
                     AsyncImage(
-                    
+
                         model = story.coverUrl,
                         contentDescription = "Media image",
                         contentScale = ContentScale.Crop,
@@ -68,7 +68,7 @@ internal fun WebFictionStoryCard(
                         )
                     }
                 }
-                
+
                 // Progress overlay
                 if (story.readProgress > 0) {
                     Box(
@@ -86,9 +86,9 @@ internal fun WebFictionStoryCard(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 // Source badge
                 Surface(
@@ -102,9 +102,9 @@ internal fun WebFictionStoryCard(
                         modifier = Modifier.padding(horizontal = MediaSpacing.SM, vertical = 2.dp)
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.XS))
-                
+
                 // Title
                 Text(
                     text = story.title,
@@ -114,7 +114,7 @@ internal fun WebFictionStoryCard(
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 // Author
                 Text(
                     text = "by ${story.author}",
@@ -123,9 +123,9 @@ internal fun WebFictionStoryCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                
+
                 // Stats row
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
@@ -146,7 +146,7 @@ internal fun WebFictionStoryCard(
                             color = MediaColors.TextTertiary
                         )
                     }
-                    
+
                     // Word count
                     if (story.wordCount != null) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -164,15 +164,15 @@ internal fun WebFictionStoryCard(
                             )
                         }
                     }
-                    
+
                     // Status
                     story.status?.let { status ->
                         StatusBadge(status = status)
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                
+
                 // Tags (first few)
                 if (story.tags.isNotEmpty()) {
                     Row(
@@ -194,9 +194,9 @@ internal fun WebFictionStoryCard(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
-                
+
                 // Update info
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -234,7 +234,7 @@ internal fun WebFictionStoryCard(
                             color = MediaColors.TextTertiary
                         )
                     }
-                    
+
                     Text(
                         text = "${story.readChapters}/${story.chapterCount}",
                         style = MediaTypography.LabelSmall,

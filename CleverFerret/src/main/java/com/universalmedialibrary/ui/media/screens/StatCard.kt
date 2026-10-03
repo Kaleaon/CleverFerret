@@ -91,9 +91,9 @@ internal fun StatCard(
                     tint = color
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.SM))
-            
+
             Column(modifier = Modifier.weight(1f, fill = false)) {
                 Text(
                     text = value,

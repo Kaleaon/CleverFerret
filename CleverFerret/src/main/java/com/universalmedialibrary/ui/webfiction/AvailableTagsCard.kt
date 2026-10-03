@@ -33,13 +33,13 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery, download, and management.
- * 
+ *
  * Streamlined experience combining:
  * - Site selection & Tag-based browsing
  * - Direct story download
  * - Library management (My Library)
  * - Update checker
- * 
+ *
  * No more jumping between screens! Reading is handled by the separate eReader.
  */
 
@@ -59,7 +59,7 @@ internal fun AvailableTagsCard(
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             if (tags.isEmpty()) {
                 Text(
                     "Select a site to see available tags",
@@ -79,7 +79,7 @@ internal fun AvailableTagsCard(
                         )
                     }
                 }
-                
+
                 if (tags.size > 50) {
                     Text(
                         "... and ${tags.size - 50} more tags",

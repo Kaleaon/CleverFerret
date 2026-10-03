@@ -15,4 +15,3 @@ class UniversalSystemIntegrationTest {
         assertTrue(true)
     }
 }
-

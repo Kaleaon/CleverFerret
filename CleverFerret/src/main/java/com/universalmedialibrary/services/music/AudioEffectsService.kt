@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 /**
  * Advanced audio effects service
- * 
+ *
  * Effects:
  * - Bass Boost
  * - Virtualizer (3D/Surround)
@@ -34,7 +34,7 @@ class AudioEffectsService @Inject constructor(
      */
     fun initialize(audioSessionId: Int) {
         release() // Clean up old effects
-        
+
         currentAudioSessionId = audioSessionId
 
         try {
@@ -142,7 +142,7 @@ class AudioEffectsService @Inject constructor(
         } catch (e: Exception) {
             // Ignore
         }
-        
+
         bassBoost = null
         virtualizer = null
         reverb = null

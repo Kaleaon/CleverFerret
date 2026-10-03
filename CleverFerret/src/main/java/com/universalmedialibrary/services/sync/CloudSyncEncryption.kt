@@ -88,4 +88,3 @@ internal fun getCipher(): javax.crypto.Cipher {
         android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE
     )
 }
-

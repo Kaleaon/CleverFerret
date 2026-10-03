@@ -23,21 +23,21 @@ sealed class ReaderColorScheme(
         linkColor = Color(0xFF0066CC),
         name = "Classic Day"
     )
-    
+
     object WarmDay : ReaderColorScheme(
         backgroundColor = Color(0xFFFFF8DC), // Cornsilk
         textColor = Color(0xFF2C2C2C),
         linkColor = Color(0xFF9F0600),
         name = "Warm Day"
     )
-    
+
     object PaperDay : ReaderColorScheme(
         backgroundColor = Color(0xFFFFFBF0), // Ivory
         textColor = Color(0xFF1A1A1A),
         linkColor = Color(0xFF4169E1), // Royal Blue
         name = "Paper Day"
     )
-    
+
     // Moonreader-inspired day themes with background images
     object NatureDay : ReaderColorScheme(
         backgroundColor = Color(0xFFF5F5DC), // Beige
@@ -47,7 +47,7 @@ sealed class ReaderColorScheme(
         backgroundImageName = "readbg_11", // Paper texture
         useBackgroundImage = true
     )
-    
+
     object ProDay1 : ReaderColorScheme(
         backgroundColor = Color(0xFFFFFEF7), // Off-white
         textColor = Color(0xFF1A1A1A),
@@ -64,7 +64,7 @@ sealed class ReaderColorScheme(
         linkColor = Color(0xFF8B4513),
         name = "Sepia"
     )
-    
+
     object DarkSepia : ReaderColorScheme(
         backgroundColor = Color(0xFFE8DCC0),
         textColor = Color(0xFF3D2E1F),
@@ -79,14 +79,14 @@ sealed class ReaderColorScheme(
         linkColor = Color(0xFF7494B2),
         name = "Classic Night"
     )
-    
+
     object DarkGray : ReaderColorScheme(
         backgroundColor = Color(0xFF1E1E1E),
         textColor = Color(0xFFD4D4D4),
         linkColor = Color(0xFF6CA0DC),
         name = "Dark Gray"
     )
-    
+
     object OLED : ReaderColorScheme(
         backgroundColor = Color(0xFF000000),
         textColor = Color(0xFFFFFFFF),
@@ -94,7 +94,7 @@ sealed class ReaderColorScheme(
         name = "OLED Black",
         isAMOLED = true
     )
-    
+
     // Moonreader-inspired AMOLED modes
     object AMOLEDBlack : ReaderColorScheme(
         backgroundColor = Color(0xFF000000), // True black
@@ -103,7 +103,7 @@ sealed class ReaderColorScheme(
         name = "AMOLED Black",
         isAMOLED = true
     )
-    
+
     object AMOLEDBlack2 : ReaderColorScheme(
         backgroundColor = Color(0xFF141414), // Slightly lighter for contrast
         textColor = Color(0xFFEEEEEE),
@@ -111,7 +111,7 @@ sealed class ReaderColorScheme(
         name = "AMOLED Black 2",
         isAMOLED = true
     )
-    
+
     object AMOLEDBlack3 : ReaderColorScheme(
         backgroundColor = Color(0xFF171717),
         textColor = Color(0xFFEEEEEE),
@@ -119,7 +119,7 @@ sealed class ReaderColorScheme(
         name = "AMOLED Black 3",
         isAMOLED = true
     )
-    
+
     // Moonreader-inspired night themes with background images
     object NatureNight : ReaderColorScheme(
         backgroundColor = Color(0xFF1A1A1A),
@@ -129,7 +129,7 @@ sealed class ReaderColorScheme(
         backgroundImageName = "readbg_05",
         useBackgroundImage = true
     )
-    
+
     object ProNight1 : ReaderColorScheme(
         backgroundColor = Color(0xFF0A0A0A),
         textColor = Color(0xFFE8E8E8),
@@ -138,21 +138,21 @@ sealed class ReaderColorScheme(
         backgroundImageName = "readbg_06",
         useBackgroundImage = true
     )
-    
+
     object MidnightBlue : ReaderColorScheme(
         backgroundColor = Color(0xFF0A1929),
         textColor = Color(0xFFE3F2FD),
         linkColor = Color(0xFF90CAF9),
         name = "Midnight Blue"
     )
-    
+
     object DarkGreen : ReaderColorScheme(
         backgroundColor = Color(0xFF0D1B0D),
         textColor = Color(0xFFE8F5E9),
         linkColor = Color(0xFF81C784),
         name = "Dark Green"
     )
-    
+
     object Amber : ReaderColorScheme(
         backgroundColor = Color(0xFF1A0F00),
         textColor = Color(0xFFFFE082),
@@ -167,7 +167,7 @@ sealed class ReaderColorScheme(
         linkColor = Color(0xFF0000FF), // Pure blue
         name = "High Contrast Day"
     )
-    
+
     object HighContrastNight : ReaderColorScheme(
         backgroundColor = Color.Black,
         textColor = Color.White,
@@ -183,11 +183,11 @@ sealed class ReaderColorScheme(
             PaperDay,
             NatureDay,
             ProDay1,
-            
+
             // Sepia modes
             Sepia,
             DarkSepia,
-            
+
             // Night modes
             ClassicNight,
             DarkGray,
@@ -200,12 +200,12 @@ sealed class ReaderColorScheme(
             Amber,
             NatureNight,
             ProNight1,
-            
+
             // High contrast
             HighContrastDay,
             HighContrastNight
         )
-        
+
         fun daySchemes(): List<ReaderColorScheme> = listOf(
             ClassicDay,
             WarmDay,
@@ -214,12 +214,12 @@ sealed class ReaderColorScheme(
             ProDay1,
             HighContrastDay
         )
-        
+
         fun sepiaSchemes(): List<ReaderColorScheme> = listOf(
             Sepia,
             DarkSepia
         )
-        
+
         fun nightSchemes(): List<ReaderColorScheme> = listOf(
             ClassicNight,
             DarkGray,
@@ -234,21 +234,21 @@ sealed class ReaderColorScheme(
             ProNight1,
             HighContrastNight
         )
-        
+
         fun amoledSchemes(): List<ReaderColorScheme> = listOf(
             AMOLEDBlack,
             AMOLEDBlack2,
             AMOLEDBlack3,
             OLED
         )
-        
+
         fun schemesWithBackgroundImages(): List<ReaderColorScheme> = listOf(
             NatureDay,
             ProDay1,
             NatureNight,
             ProNight1
         )
-        
+
         fun fromName(name: String): ReaderColorScheme {
             return allSchemes().find { it.name == name } ?: ClassicDay
         }
@@ -262,13 +262,13 @@ enum class ReaderThemeMode {
     DAY,
     SEPIA,
     NIGHT;
-    
+
     fun getDefaultScheme(): ReaderColorScheme = when (this) {
         DAY -> ReaderColorScheme.ClassicDay
         SEPIA -> ReaderColorScheme.Sepia
         NIGHT -> ReaderColorScheme.ClassicNight
     }
-    
+
     fun getSchemes(): List<ReaderColorScheme> = when (this) {
         DAY -> ReaderColorScheme.daySchemes()
         SEPIA -> ReaderColorScheme.sepiaSchemes()

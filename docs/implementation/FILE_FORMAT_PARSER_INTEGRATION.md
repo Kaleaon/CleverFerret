@@ -54,7 +54,7 @@ This document outlines the recommended approach for implementing full parsing su
 ### FBReader (Older Open Source Versions)
 - **Location**: Check older versions (pre-2015) on GitHub
 - **Formats**: MOBI, CHM, RTF
-- **Key Files**: 
+- **Key Files**:
   - MOBI parser implementation
   - CHM extraction logic
   - RTF text extraction
@@ -68,7 +68,7 @@ This document outlines the recommended approach for implementing full parsing su
 ### EBookDroid
 - **GitHub**: `https://github.com/foobnix/EBookDroid`
 - **Formats**: DJVU, PDF
-- **Key Features**: 
+- **Key Features**:
   - DJVU rendering with DjVuLibre
   - PDF integration
   - Android-specific optimizations
@@ -88,11 +88,11 @@ This document outlines the recommended approach for implementing full parsing su
 dependencies {
     // Note: MOBI support requires libmobi (C) via JNI or conversion workflow
     // See Phase 2 for JNI-based formats
-    
+
     // Microsoft Office
     implementation("org.apache.poi:poi-ooxml:5.2.5")
     implementation("org.apache.poi:poi-scratchpad:5.2.5") // For .doc (legacy)
-    
+
     // Content analysis
     implementation("org.apache.tika:tika-core:2.9.1")
     implementation("org.apache.tika:tika-parsers-standard-package:2.9.1")

@@ -22,7 +22,7 @@ object ComicArchiveUtils {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
                 val zipStream = ZipInputStream(inputStream)
                 var entry = zipStream.nextEntry
-                
+
                 while (entry != null) {
                     if (entry.name.equals("ComicInfo.xml", ignoreCase = true)) {
                         return ComicInfoParser.parse(zipStream)
@@ -44,7 +44,7 @@ object ComicArchiveUtils {
             // Create temporary file for CBR processing
             val tempFile = File.createTempFile("comic", ".cbr", context.cacheDir)
             tempFile.deleteOnExit()
-            
+
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
                 tempFile.outputStream().use { outputStream ->
                     inputStream.copyTo(outputStream)

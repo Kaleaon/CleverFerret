@@ -58,7 +58,7 @@ internal fun CenterControls(
                 modifier = Modifier.size(36.dp)
             )
         }
-        
+
         // Rewind 10s
         IconButton(
             onClick = onRewind,
@@ -71,7 +71,7 @@ internal fun CenterControls(
                 modifier = Modifier.size(36.dp)
             )
         }
-        
+
         // Play/Pause
         if (isBuffering) {
             CircularProgressIndicator(
@@ -94,7 +94,7 @@ internal fun CenterControls(
                 )
             }
         }
-        
+
         // Forward 10s
         IconButton(
             onClick = onFastForward,
@@ -107,7 +107,7 @@ internal fun CenterControls(
                 modifier = Modifier.size(36.dp)
             )
         }
-        
+
         // Next
         IconButton(
             onClick = onSkipNext,

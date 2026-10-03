@@ -1,6 +1,6 @@
 # CleverFerret - Quick Reference Guide
 
-**Version:** 1.6.5 (Build 27)  
+**Version:** 1.6.5 (Build 27)
 **Last Updated:** December 30, 2024
 
 Quick reference for developers working on CleverFerret.

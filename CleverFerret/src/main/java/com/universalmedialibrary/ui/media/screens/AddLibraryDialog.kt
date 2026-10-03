@@ -29,7 +29,7 @@ internal fun AddLibraryDialog(
     onDismiss: () -> Unit
 ) {
     var selectedType by remember { mutableStateOf(LibraryType.BOOKS) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -47,17 +47,17 @@ internal fun AddLibraryDialog(
                     style = MediaTypography.LabelSmall,
                     color = MediaColors.TextTertiary
                 )
-                
+
                 Spacer(Modifier.height(MediaSpacing.MD))
-                
+
                 Text(
                     "Library Type:",
                     style = MediaTypography.LabelMedium,
                     color = MediaColors.TextPrimary
                 )
-                
+
                 Spacer(Modifier.height(MediaSpacing.SM))
-                
+
                 LibraryType.entries.forEach { type ->
                     Row(
                         modifier = Modifier

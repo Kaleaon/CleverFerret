@@ -39,7 +39,7 @@ import java.util.Locale
     val queueItems by viewModel.queueItems.collectAsState()
     val currentQueue by viewModel.currentQueue.collectAsState()
     val playlists by viewModel.availablePlaylists.collectAsState()
-    
+
     var showPlaylistDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -99,7 +99,7 @@ import java.util.Locale
             )
         }
     }
-    
+
     if (showPlaylistDialog && currentItem != null) {
         PlaylistSelectionDialog(
             playlists = playlists,
@@ -230,7 +230,7 @@ private fun CurrentPlayingItem(
                     Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next")
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Secondary Controls (Shuffle, Repeat, Like, Playlist)
@@ -265,7 +265,7 @@ private fun CurrentPlayingItem(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-                
+
                 IconButton(onClick = onAddToPlaylist) {
                     Icon(
                         Icons.Default.PlaylistAdd,

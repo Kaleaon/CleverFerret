@@ -36,33 +36,33 @@ internal fun loadFileItems(directory: File, settings: FileBrowserSettings): List
         if (!directory.exists() || !directory.isDirectory) {
             return emptyList()
         }
-        
+
         val files = directory.listFiles() ?: return emptyList()
-        
+
         val filteredFiles = files.filter { file ->
             if (!settings.showHidden && file.name.startsWith(".")) {
                 return@filter false
             }
-            
+
             if (file.isDirectory) {
                 true
             } else {
                 val fileType = FileType.fromFile(file)
                 val sizeKB = file.length() / 1024
-                
+
                 fileType in settings.selectedFileTypes &&
                 sizeKB >= settings.minFileSizeKB &&
                 sizeKB <= settings.maxFileSizeKB
             }
         }
-    
+
         val sortedFiles = when (settings.sortMode) {
             SortMode.BY_TIME -> filteredFiles.sortedByDescending { it.lastModified() }
             SortMode.BY_FILENAME -> filteredFiles.sortedBy { it.name.lowercase() }
             SortMode.BY_SIZE -> filteredFiles.sortedByDescending { it.length() }
             SortMode.BY_LOCATION -> filteredFiles.sortedBy { it.absolutePath }
         }
-        
+
         return sortedFiles.map { file ->
             FileItem(
                 file = file,

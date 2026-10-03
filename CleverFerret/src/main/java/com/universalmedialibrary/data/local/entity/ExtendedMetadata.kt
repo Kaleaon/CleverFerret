@@ -36,19 +36,19 @@ import kotlinx.serialization.Serializable
 )
 data class ExtendedMetadata(
     val itemId: Long,
-    
+
     /**
      * The property key (e.g., "director", "bpm", "publisher")
      * standardized to lowercase_snake_case recommended.
      */
     val key: String,
-    
+
     /**
      * The value string.
      * For non-string types, use dataType to convert back.
      */
     val value: String,
-    
+
     /**
      * Data type hint for UI formatting and sorting
      * Options: STRING, INT, FLOAT, BOOLEAN, DATE, RATING

@@ -83,7 +83,7 @@ fun LoadingStateCard(
     modifier: Modifier = Modifier
 ) {
     val patternsEnabled = geometricPatternsEnabled()
-    
+
     Card(
         modifier = modifier
             .fillMaxWidth()

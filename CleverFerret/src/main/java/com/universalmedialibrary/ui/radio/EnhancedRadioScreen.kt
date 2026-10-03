@@ -156,7 +156,7 @@ private fun NowPlayingCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
-                
+
                 IconButton(onClick = onIdentify) {
                     Icon(
                         Icons.Default.Search,
@@ -177,7 +177,7 @@ private fun NowPlayingCard(
                         modifier = Modifier.size(48.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                    
+
                     Column(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -268,4 +268,3 @@ private fun RadioCategoryCard(
         }
     }
 }
-

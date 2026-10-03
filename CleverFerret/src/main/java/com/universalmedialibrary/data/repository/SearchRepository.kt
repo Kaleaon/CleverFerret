@@ -46,7 +46,7 @@ class SearchRepository @Inject constructor(
                 emit(emptyList<MediaItem>())
             }
         }
-        
+
         val items = itemsFlow.first()
 
         // Apply filters
@@ -88,21 +88,21 @@ class SearchRepository @Inject constructor(
         // Convert to MediaItemWithMetadata and apply additional filters
         filteredItems.mapNotNull { item ->
             val metadata = metadataDao.getMetadataCommonByItemId(item.itemId)
-            
+
             // Apply rating filter
             if (minRating != null || maxRating != null) {
                 val rating = metadata?.rating ?: metadata?.userRating ?: return@mapNotNull null
                 if (minRating != null && rating < minRating) return@mapNotNull null
                 if (maxRating != null && rating > maxRating) return@mapNotNull null
             }
-            
+
             // Apply year filter
             if (yearFrom != null || yearTo != null) {
                 val year = metadata?.year ?: return@mapNotNull null
                 if (yearFrom != null && year < yearFrom) return@mapNotNull null
                 if (yearTo != null && year > yearTo) return@mapNotNull null
             }
-            
+
             MediaItemWithMetadata(item, metadata)
         }
     }
@@ -112,13 +112,13 @@ class SearchRepository @Inject constructor(
      */
     suspend fun getSearchSuggestions(query: String, libraryId: Long, limit: Int = 10): List<String> = withContext(Dispatchers.IO) {
         if (query.isBlank()) return@withContext emptyList()
-        
+
         val lowerQuery = query.lowercase()
         val suggestions = mutableSetOf<String>()
 
         // Get all items
         val items = mediaItemDao.getMediaItemsForLibrary(libraryId).first()
-        
+
         // Collect filename suggestions
         items.forEach { item ->
             if (item.fileName.lowercase().contains(lowerQuery)) {
@@ -149,11 +149,11 @@ class SearchRepository @Inject constructor(
             // For null libraryId, return empty flow for now
             kotlinx.coroutines.flow.flow { emit(emptyList<MediaItem>()) }
         }
-        
+
         val items = itemsFlow.first()
 
         val mediaTypes = items.map { it.mediaType }.distinct().sorted()
-        
+
         val years = items.mapNotNull { item ->
             metadataDao.getMetadataCommonByItemId(item.itemId)?.year
         }.distinct().sorted()
@@ -237,7 +237,7 @@ data class SearchFilters(
                 hasMetadata != null ||
                 libraryId != null
     }
-    
+
     fun activeFilterCount(): Int {
         var count = 0
         if (mediaTypes.isNotEmpty()) count++

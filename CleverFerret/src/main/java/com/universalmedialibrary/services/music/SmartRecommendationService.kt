@@ -77,17 +77,17 @@ class SmartRecommendationService @Inject constructor(
             val prompt = """
                 Based on these recently played tracks:
                 $recentInfo
-                
+
                 And this music library:
                 $libraryInfo
-                
+
                 Recommend 10 tracks from the library that the user might enjoy next.
                 Consider:
                 - Musical similarity (genre, era, mood)
                 - Artist connections
                 - Listening patterns
                 - Variety (don't recommend same artist/album repeatedly)
-                
+
                 Return ONLY valid JSON:
                 {
                     "recommendations": [
@@ -99,7 +99,7 @@ class SmartRecommendationService @Inject constructor(
                         }
                     ]
                 }
-                
+
                 Guidelines:
                 - Recommend exactly 10 tracks
                 - High confidence (>0.6) only
@@ -150,10 +150,10 @@ class SmartRecommendationService @Inject constructor(
 
             val prompt = """
                 Based on the mood: "$mood"
-                
+
                 Recommend 15-20 tracks from this library that match:
                 $libraryInfo
-                
+
                 Return ONLY valid JSON:
                 {
                     "recommendations": [
@@ -165,7 +165,7 @@ class SmartRecommendationService @Inject constructor(
                         }
                     ]
                 }
-                
+
                 Guidelines:
                 - Match the mood/vibe closely
                 - 15-20 tracks
@@ -204,30 +204,30 @@ class SmartRecommendationService @Inject constructor(
             }
 
             val json = jsonText.substring(jsonStart, jsonEnd)
-            
+
             val recommendations = mutableListOf<Recommendation>()
             val recsArrayPattern = "\"recommendations\"\\s*:\\s*\\[(.*?)\\]".toRegex(RegexOption.DOT_MATCHES_ALL)
             val recsArrayMatch = recsArrayPattern.find(json)
-            
+
             if (recsArrayMatch != null) {
                 val recsContent = recsArrayMatch.groupValues[1]
-                
+
                 val recPattern = "\\{([^}]+)\\}".toRegex()
                 recPattern.findAll(recsContent).forEach { match ->
                     val recJson = match.value
-                    
+
                     val title = extractJsonValue(recJson, "title")
                     val artist = extractJsonValue(recJson, "artist")
                     val reason = extractJsonValue(recJson, "reason")
                     val confidence = extractJsonValue(recJson, "confidence")?.toFloatOrNull() ?: 0.5f
-                    
+
                     if (title != null && artist != null) {
                         // Find matching track in library
                         val track = library.firstOrNull {
                             it.title?.contains(title, ignoreCase = true) == true &&
                             it.artist?.contains(artist, ignoreCase = true) == true
                         }
-                        
+
                         if (track != null && confidence >= 0.6f) {
                             recommendations.add(
                                 Recommendation(

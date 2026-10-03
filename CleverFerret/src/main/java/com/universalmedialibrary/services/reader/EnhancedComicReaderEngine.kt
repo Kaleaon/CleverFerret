@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 /**
  * Enhanced Comic Reader Engine
- * 
+ *
  * Features:
  * - Full CBZ (ZIP) and CBR (RAR) support
  * - Page-by-page navigation
@@ -31,32 +31,32 @@ import javax.inject.Singleton
  */
 @Singleton
 class EnhancedComicReaderEngine @Inject constructor() {
-    
+
     private var archiveFile: File? = null
     private var zipFile: ZipFile? = null
     private var rarArchive: Archive? = null
     private var pageFiles: List<PageFile> = emptyList()
     private var isRarFormat = false
-    
+
     private val _currentPage = MutableStateFlow(0)
     val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
-    
+
     private val _totalPages = MutableStateFlow(0)
     val totalPages: StateFlow<Int> = _totalPages.asStateFlow()
-    
+
     private val _readingMode = MutableStateFlow(ReadingMode.FIT_WIDTH)
     val readingMode: StateFlow<ReadingMode> = _readingMode.asStateFlow()
-    
+
     private val _isDoublePage = MutableStateFlow(false)
     val isDoublePage: StateFlow<Boolean> = _isDoublePage.asStateFlow()
-    
+
     private val _isMangaMode = MutableStateFlow(false)
     val isMangaMode: StateFlow<Boolean> = _isMangaMode.asStateFlow()
-    
+
     // Image cache for smooth navigation
     private val imageCache = mutableMapOf<Int, Bitmap>()
     private val cacheSize = 3 // Cache current + next 2 pages
-    
+
     /**
      * Open comic archive file
      */
@@ -66,49 +66,49 @@ class EnhancedComicReaderEngine @Inject constructor() {
             if (!file.exists()) {
                 return@withContext Result.failure(IllegalArgumentException("File not found"))
             }
-            
+
             archiveFile = file
             isRarFormat = file.extension.lowercase() == "cbr"
-            
+
             // Extract page list
             pageFiles = if (isRarFormat) {
                 extractRarPages(file)
             } else {
                 extractZipPages(file)
             }
-            
+
             if (pageFiles.isEmpty()) {
                 return@withContext Result.failure(RuntimeException("No images found in archive"))
             }
-            
+
             _totalPages.value = pageFiles.size
             _currentPage.value = 0
-            
+
             // Preload first few pages
             preloadPages(0)
-            
+
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Get current page as bitmap
      */
     suspend fun getCurrentPageBitmap(): Bitmap? {
         return getPageBitmap(_currentPage.value)
     }
-    
+
     /**
      * Get specific page as bitmap
      */
     suspend fun getPageBitmap(pageIndex: Int): Bitmap? = withContext(Dispatchers.IO) {
         if (pageIndex !in pageFiles.indices) return@withContext null
-        
+
         // Check cache first
         imageCache[pageIndex]?.let { return@withContext it }
-        
+
         // Load from archive
         val bitmap = try {
             if (isRarFormat) {
@@ -119,23 +119,23 @@ class EnhancedComicReaderEngine @Inject constructor() {
         } catch (e: Exception) {
             null
         }
-        
+
         // Cache the bitmap
         bitmap?.let {
             imageCache[pageIndex] = it
             trimCache()
         }
-        
+
         bitmap
     }
-    
+
     /**
      * Navigate to next page
      */
     suspend fun nextPage(): Boolean {
         val increment = if (_isDoublePage.value) 2 else 1
         val newPage = _currentPage.value + increment
-        
+
         return if (newPage < _totalPages.value) {
             _currentPage.value = newPage
             preloadPages(newPage)
@@ -144,14 +144,14 @@ class EnhancedComicReaderEngine @Inject constructor() {
             false
         }
     }
-    
+
     /**
      * Navigate to previous page
      */
     suspend fun previousPage(): Boolean {
         val decrement = if (_isDoublePage.value) 2 else 1
         val newPage = _currentPage.value - decrement
-        
+
         return if (newPage >= 0) {
             _currentPage.value = newPage
             preloadPages(newPage)
@@ -160,7 +160,7 @@ class EnhancedComicReaderEngine @Inject constructor() {
             false
         }
     }
-    
+
     /**
      * Go to specific page
      */
@@ -173,28 +173,28 @@ class EnhancedComicReaderEngine @Inject constructor() {
             false
         }
     }
-    
+
     /**
      * Set reading mode
      */
     fun setReadingMode(mode: ReadingMode) {
         _readingMode.value = mode
     }
-    
+
     /**
      * Toggle double-page mode
      */
     fun toggleDoublePage() {
         _isDoublePage.value = !_isDoublePage.value
     }
-    
+
     /**
      * Toggle manga (right-to-left) mode
      */
     fun toggleMangaMode() {
         _isMangaMode.value = !_isMangaMode.value
     }
-    
+
     /**
      * Get reading progress
      */
@@ -205,7 +205,7 @@ class EnhancedComicReaderEngine @Inject constructor() {
             0f
         }
     }
-    
+
     /**
      * Close and cleanup
      */
@@ -218,15 +218,15 @@ class EnhancedComicReaderEngine @Inject constructor() {
         archiveFile = null
         pageFiles = emptyList()
     }
-    
+
     // Private helper methods
-    
+
     private fun extractZipPages(file: File): List<PageFile> {
         val zip = ZipFile(file)
         zipFile = zip
-        
+
         val imageExtensions = setOf("jpg", "jpeg", "png", "webp", "bmp", "gif")
-        
+
         return zip.entries().toList()
             .filter { !it.isDirectory }
             .filter { entry ->
@@ -242,13 +242,13 @@ class EnhancedComicReaderEngine @Inject constructor() {
                 )
             }
     }
-    
+
     private fun extractRarPages(file: File): List<PageFile> {
         val archive = Archive(file)
         rarArchive = archive
-        
+
         val imageExtensions = setOf("jpg", "jpeg", "png", "webp", "bmp", "gif")
-        
+
         return archive.fileHeaders
             .filter { !it.isDirectory }
             .filter { header ->
@@ -264,28 +264,28 @@ class EnhancedComicReaderEngine @Inject constructor() {
                 )
             }
     }
-    
+
     private fun loadFromZip(pageIndex: Int): Bitmap? {
         val zip = zipFile ?: return null
         val pageFile = pageFiles.getOrNull(pageIndex) ?: return null
-        
+
         val entry = zip.getEntry(pageFile.entryName)
         return zip.getInputStream(entry).use { stream ->
             BitmapFactory.decodeStream(stream)
         }
     }
-    
+
     private fun loadFromRar(pageIndex: Int): Bitmap? {
         val rar = rarArchive ?: return null
         val pageFile = pageFiles.getOrNull(pageIndex) ?: return null
-        
+
         val header = rar.fileHeaders.find { it.fileName == pageFile.entryName } ?: return null
         val bytes = ByteArray(header.fullUnpackSize.toInt())
-        
+
         rar.getInputStream(header).use { it.read(bytes) }
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     }
-    
+
     private suspend fun preloadPages(fromIndex: Int) = withContext(Dispatchers.IO) {
         // Preload current + next pages
         for (i in fromIndex until minOf(fromIndex + cacheSize, _totalPages.value)) {
@@ -294,7 +294,7 @@ class EnhancedComicReaderEngine @Inject constructor() {
             }
         }
     }
-    
+
     private fun trimCache() {
         if (imageCache.size > cacheSize * 2) {
             val currentPage = _currentPage.value
@@ -302,13 +302,13 @@ class EnhancedComicReaderEngine @Inject constructor() {
                 .forEach { imageCache.remove(it) }
         }
     }
-    
+
     data class PageFile(
         val fileName: String,
         val entryName: String,
         val pageNumber: Int
     )
-    
+
     enum class ReadingMode {
         FIT_WIDTH,      // Fit to screen width
         FIT_HEIGHT,     // Fit to screen height

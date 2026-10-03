@@ -44,7 +44,7 @@ internal fun PodcastShowCard(
         ) {
             if (show.artworkUrl != null) {
                 AsyncImage(
-                    
+
                     model = show.artworkUrl,
                     contentDescription = show.title,
                     contentScale = ContentScale.Crop,
@@ -65,7 +65,7 @@ internal fun PodcastShowCard(
                     )
                 }
             }
-            
+
             // Unplayed badge
             if (show.unplayedCount > 0) {
                 Box(
@@ -88,9 +88,9 @@ internal fun PodcastShowCard(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = show.title,
             style = MediaTypography.BodyMedium,
@@ -99,7 +99,7 @@ internal fun PodcastShowCard(
             overflow = TextOverflow.Ellipsis,
             fontWeight = FontWeight.Medium
         )
-        
+
         Text(
             text = show.author,
             style = MediaTypography.LabelSmall,

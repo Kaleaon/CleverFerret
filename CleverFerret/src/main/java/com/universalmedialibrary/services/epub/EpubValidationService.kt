@@ -14,24 +14,24 @@ import javax.inject.Singleton
  */
 @Singleton
 class EpubValidationService @Inject constructor() {
-    
+
     /**
      * Validate an EPUB file
      */
-    suspend fun validateEpub(epubPath: String): Result<ValidationReport> = 
+    suspend fun validateEpub(epubPath: String): Result<ValidationReport> =
         withContext(Dispatchers.IO) {
             try {
                 val file = File(epubPath)
-                
+
                 if (!file.exists()) {
                     return@withContext Result.failure(
                         Exception("File not found: $epubPath")
                     )
                 }
-                
+
                 val errors = mutableListOf<ValidationError>()
                 val warnings = mutableListOf<ValidationWarning>()
-                
+
                 ZipFile(file).use { zip ->
                     // Check mimetype file
                     val mimetypeEntry = zip.getEntry("mimetype")
@@ -54,7 +54,7 @@ class EpubValidationService @Inject constructor() {
                             )
                         }
                     }
-                    
+
                     // Check container.xml
                     val containerEntry = zip.getEntry("META-INF/container.xml")
                     if (containerEntry == null) {
@@ -65,7 +65,7 @@ class EpubValidationService @Inject constructor() {
                             )
                         )
                     }
-                    
+
                     // Check for content.opf
                     val hasOpf = zip.entries().asSequence()
                         .any { it.name.endsWith(".opf") }
@@ -77,13 +77,13 @@ class EpubValidationService @Inject constructor() {
                             )
                         )
                     }
-                    
+
                     // Check for navigation document (EPUB 3) or NCX (EPUB 2)
                     val hasNav = zip.entries().asSequence()
                         .any { it.name.contains("nav") && it.name.endsWith(".xhtml") }
                     val hasNcx = zip.entries().asSequence()
                         .any { it.name.endsWith(".ncx") }
-                    
+
                     if (!hasNav && !hasNcx) {
                         warnings.add(
                             ValidationWarning(
@@ -92,12 +92,12 @@ class EpubValidationService @Inject constructor() {
                             )
                         )
                     }
-                    
+
                     // Check for content files
                     val contentFiles = zip.entries().asSequence()
                         .filter { it.name.endsWith(".xhtml") || it.name.endsWith(".html") }
                         .count()
-                    
+
                     if (contentFiles == 0) {
                         errors.add(
                             ValidationError(
@@ -106,13 +106,13 @@ class EpubValidationService @Inject constructor() {
                             )
                         )
                     }
-                    
+
                     // Check file sizes
                     val largeFiles = zip.entries().asSequence()
                         .filter { !it.isDirectory && it.size > 10 * 1024 * 1024 } // 10MB
                         .map { it.name }
                         .toList()
-                    
+
                     if (largeFiles.isNotEmpty()) {
                         warnings.add(
                             ValidationWarning(
@@ -245,7 +245,7 @@ class EpubValidationService @Inject constructor() {
                         }
                     }
                 }
-                
+
                 val report = ValidationReport(
                     isValid = errors.isEmpty(),
                     errors = errors,
@@ -253,13 +253,13 @@ class EpubValidationService @Inject constructor() {
                     filePath = epubPath,
                     fileSize = file.length()
                 )
-                
+
                 Result.success(report)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
-    
+
     /**
      * Quick check if file is a valid EPUB
      */
@@ -280,7 +280,7 @@ data class ValidationReport(
 ) {
     val errorCount: Int get() = errors.size
     val warningCount: Int get() = warnings.size
-    
+
     val summary: String get() = buildString {
         if (isValid) {
             append("✓ Valid EPUB")

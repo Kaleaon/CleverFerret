@@ -27,7 +27,7 @@ import javax.inject.Singleton
 
 /**
  * Google Cloud Text-to-Speech Service
- * 
+ *
  * Professional text-to-speech using Google Cloud TTS API
  * Documentation: https://cloud.google.com/text-to-speech/docs
  * Get API key: https://console.cloud.google.com/apis/credentials
@@ -42,10 +42,10 @@ class GoogleCloudTtsService @Inject constructor(
     private var voiceName: String = "en-US-Neural2-C" // Female voice
     private var speakingRate: Double = 1.0
     private var pitch: Double = 0.0
-    
+
     private val _ttsState = MutableStateFlow(TtsServiceState())
     override val ttsState: StateFlow<TtsServiceState> = _ttsState.asStateFlow()
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var mediaPlayer: MediaPlayer? = null
 
@@ -80,10 +80,10 @@ class GoogleCloudTtsService @Inject constructor(
 
             // Request audio from Google Cloud TTS API
             val audioBytes = requestTextToSpeech(text)
-            
+
             // Play audio
             playAudio(audioBytes)
-            
+
             _ttsState.value = _ttsState.value.copy(isPlaying = true)
             true
         } catch (e: Exception) {
@@ -109,7 +109,7 @@ class GoogleCloudTtsService @Inject constructor(
         }
 
         val requestBody = json.toString().toRequestBody("application/json".toMediaType())
-        
+
         val request = Request.Builder()
             .url("$BASE_URL/text:synthesize?key=$apiKey")
             .addHeader("Content-Type", "application/json")
@@ -125,7 +125,7 @@ class GoogleCloudTtsService @Inject constructor(
             val responseBody = response.body?.string() ?: throw Exception("Empty response")
             val responseJson = JSONObject(responseBody)
             val audioContent = responseJson.getString("audioContent")
-            
+
             // Decode base64 audio
             Base64.decode(audioContent, Base64.DEFAULT)
         }
@@ -150,14 +150,14 @@ class GoogleCloudTtsService @Inject constructor(
                     .setUsage(AudioAttributes.USAGE_ASSISTANT)
                     .build()
             )
-            
+
             setDataSource(tempFile.absolutePath)
-            
+
             setOnCompletionListener {
                 _ttsState.value = _ttsState.value.copy(isPlaying = false)
                 tempFile.delete()
             }
-            
+
             setOnErrorListener { _, what, extra ->
                 _ttsState.value = TtsServiceState(
                     error = "MediaPlayer error: $what, $extra"
@@ -165,7 +165,7 @@ class GoogleCloudTtsService @Inject constructor(
                 tempFile.delete()
                 true
             }
-            
+
             prepare()
             start()
         }

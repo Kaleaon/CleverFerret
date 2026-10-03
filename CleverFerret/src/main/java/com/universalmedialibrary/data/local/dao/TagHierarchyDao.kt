@@ -50,7 +50,7 @@ interface TagHierarchyDao {
         WITH RECURSIVE ancestors AS (
             SELECT parentTagId, childTagId, depth FROM tag_hierarchies WHERE childTagId = :tagId
             UNION ALL
-            SELECT th.parentTagId, th.childTagId, th.depth 
+            SELECT th.parentTagId, th.childTagId, th.depth
             FROM tag_hierarchies th
             INNER JOIN ancestors a ON th.childTagId = a.parentTagId
         )
@@ -67,7 +67,7 @@ interface TagHierarchyDao {
         WITH RECURSIVE descendants AS (
             SELECT parentTagId, childTagId, depth FROM tag_hierarchies WHERE parentTagId = :tagId
             UNION ALL
-            SELECT th.parentTagId, th.childTagId, th.depth 
+            SELECT th.parentTagId, th.childTagId, th.depth
             FROM tag_hierarchies th
             INNER JOIN descendants d ON th.parentTagId = d.childTagId
         )
@@ -210,7 +210,7 @@ interface TagHierarchyDao {
      * Get related tags for a specific tag
      */
     @Query("""
-        SELECT t.* 
+        SELECT t.*
         FROM unified_tags t
         INNER JOIN related_tags rt ON t.tagId = rt.relatedTagId
         WHERE rt.tagId = :tagId
@@ -223,7 +223,7 @@ interface TagHierarchyDao {
      * Get commonly co-occurring tags
      */
     @Query("""
-        SELECT t.* 
+        SELECT t.*
         FROM unified_tags t
         INNER JOIN related_tags rt ON t.tagId = rt.relatedTagId
         WHERE rt.tagId = :tagId AND rt.relationType = 'COMMONLY_USED_WITH'
@@ -236,8 +236,8 @@ interface TagHierarchyDao {
      * Update co-occurrence count
      */
     @Query("""
-        UPDATE related_tags 
-        SET coOccurrenceCount = coOccurrenceCount + 1 
+        UPDATE related_tags
+        SET coOccurrenceCount = coOccurrenceCount + 1
         WHERE tagId = :tagId AND relatedTagId = :relatedTagId
     """)
     suspend fun incrementCoOccurrence(tagId: Long, relatedTagId: Long)
@@ -248,16 +248,16 @@ interface TagHierarchyDao {
     suspend fun insertAnalytics(analytics: TagAnalytics): Long
 
     @Query("""
-        SELECT * FROM tag_analytics 
-        WHERE tagId = :tagId 
-        ORDER BY period DESC 
+        SELECT * FROM tag_analytics
+        WHERE tagId = :tagId
+        ORDER BY period DESC
         LIMIT :months
     """)
     suspend fun getTagAnalytics(tagId: Long, months: Int = 12): List<TagAnalytics>
 
     @Query("""
-        UPDATE tag_analytics 
-        SET searchCount = searchCount + 1 
+        UPDATE tag_analytics
+        SET searchCount = searchCount + 1
         WHERE tagId = :tagId AND period = :period
     """)
     suspend fun incrementSearchCount(tagId: Long, period: String)
@@ -273,7 +273,7 @@ interface TagHierarchyDao {
         val parent = getParentTag(tagId)
         val synonyms = getSynonymsForTagSync(tagId)
         val categories = getCategoriesForTagSync(tagId)
-        
+
         return TagWithDetails(
             tag = tag,
             parentTag = parent,

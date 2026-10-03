@@ -17,7 +17,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class ComicInfoHandler @Inject constructor() {
-    
+
     /**
      * Read ComicInfo.xml from a CBZ file
      */
@@ -34,7 +34,7 @@ class ComicInfoHandler @Inject constructor() {
             null
         }
     }
-    
+
     /**
      * Write ComicInfo.xml to a CBZ file
      */
@@ -42,7 +42,7 @@ class ComicInfoHandler @Inject constructor() {
         try {
             val xml = generateComicInfoXml(comicInfo)
             val tempFile = File.createTempFile("comic", ".cbz")
-            
+
             // Create new ZIP with ComicInfo.xml
             ZipOutputStream(FileOutputStream(tempFile)).use { zipOut ->
                 // Copy existing entries except ComicInfo.xml
@@ -57,13 +57,13 @@ class ComicInfoHandler @Inject constructor() {
                             zipOut.closeEntry()
                         }
                 }
-                
+
                 // Add new ComicInfo.xml
                 zipOut.putNextEntry(ZipEntry("ComicInfo.xml"))
                 zipOut.write(xml.toByteArray())
                 zipOut.closeEntry()
             }
-            
+
             // Replace original file
             File(cbzPath).delete()
             tempFile.renameTo(File(cbzPath))
@@ -71,17 +71,17 @@ class ComicInfoHandler @Inject constructor() {
             throw Exception("Failed to write ComicInfo.xml: ${e.message}", e)
         }
     }
-    
+
     /**
      * Parse ComicInfo.xml from string
      */
     private fun parseComicInfo(xml: String): ComicInfo {
         val parser = Xml.newPullParser()
         parser.setInput(xml.reader())
-        
+
         var eventType = parser.eventType
         val values = mutableMapOf<String, String>()
-        
+
         while (eventType != XmlPullParser.END_DOCUMENT) {
             when (eventType) {
                 XmlPullParser.START_TAG -> {
@@ -96,7 +96,7 @@ class ComicInfoHandler @Inject constructor() {
             }
             eventType = parser.next()
         }
-        
+
         return ComicInfo(
             title = values["Title"],
             series = values["Series"],
@@ -137,7 +137,7 @@ class ComicInfoHandler @Inject constructor() {
             ageRating = values["AgeRating"]
         )
     }
-    
+
     /**
      * Generate ComicInfo.xml from ComicInfo object
      */
@@ -145,10 +145,10 @@ class ComicInfoHandler @Inject constructor() {
         val writer = StringWriter()
         val serializer = Xml.newSerializer()
         serializer.setOutput(writer)
-        
+
         serializer.startDocument("UTF-8", true)
         serializer.startTag(null, "ComicInfo")
-        
+
         comicInfo.title?.let { writeTag(serializer, "Title", it) }
         comicInfo.series?.let { writeTag(serializer, "Series", it) }
         comicInfo.number?.let { writeTag(serializer, "Number", it) }
@@ -186,13 +186,13 @@ class ComicInfoHandler @Inject constructor() {
         comicInfo.storyArc?.let { writeTag(serializer, "StoryArc", it) }
         comicInfo.seriesGroup?.let { writeTag(serializer, "SeriesGroup", it) }
         comicInfo.ageRating?.let { writeTag(serializer, "AgeRating", it) }
-        
+
         serializer.endTag(null, "ComicInfo")
         serializer.endDocument()
-        
+
         return writer.toString()
     }
-    
+
     private fun writeTag(serializer: XmlSerializer, name: String, value: String) {
         serializer.startTag(null, name)
         serializer.text(value)

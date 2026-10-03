@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
  * Pattern drawing utilities
  */
 object AncientArchitectPatterns {
-    
+
     /**
      * Draw chevron steps pattern (Art Deco inspired)
      */
@@ -30,7 +30,7 @@ object AncientArchitectPatterns {
         val width = size.width
         val height = size.height
         val steps = (height / spacing).toInt()
-        
+
         for (i in 0..steps) {
             val y = i * spacing
             val path = Path().apply {
@@ -47,7 +47,7 @@ object AncientArchitectPatterns {
             )
         }
     }
-    
+
     /**
      * Draw diamond grid pattern (Dwarven inspired)
      */
@@ -62,13 +62,13 @@ object AncientArchitectPatterns {
         val height = size.height
         val cols = (width / cellSize).toInt() + 1
         val rows = (height / cellSize).toInt() + 1
-        
+
         for (row in 0..rows) {
             for (col in 0..cols) {
                 val x = col * cellSize
                 val y = row * cellSize
                 val halfCell = cellSize / 2f
-                
+
                 val path = Path().apply {
                     moveTo(x, y - halfCell)
                     lineTo(x + halfCell, y)
@@ -76,7 +76,7 @@ object AncientArchitectPatterns {
                     lineTo(x - halfCell, y)
                     close()
                 }
-                
+
                 drawPath(
                     path = path,
                     color = color.copy(alpha = alpha),
@@ -85,7 +85,7 @@ object AncientArchitectPatterns {
             }
         }
     }
-    
+
     /**
      * Draw hexagonal cells pattern (Ancient tech inspired)
      */
@@ -102,13 +102,13 @@ object AncientArchitectPatterns {
         val hexHeight = cellSize * 1.732f // sqrt(3)
         val cols = (width / (hexWidth * 0.75f)).toInt() + 2
         val rows = (height / hexHeight).toInt() + 2
-        
+
         for (row in 0..rows) {
             for (col in 0..cols) {
                 val xOffset = if (row % 2 == 0) 0f else hexWidth * 0.75f / 2f
                 val x = col * hexWidth * 0.75f + xOffset
                 val y = row * hexHeight
-                
+
                 drawHexagon(
                     center = Offset(x, y),
                     radius = cellSize,
@@ -118,7 +118,7 @@ object AncientArchitectPatterns {
             }
         }
     }
-    
+
     /**
      * Draw a single hexagon
      */
@@ -137,14 +137,14 @@ object AncientArchitectPatterns {
             }
             close()
         }
-        
+
         drawPath(
             path = path,
             color = color,
             style = Stroke(width = strokeWidth)
         )
     }
-    
+
     /**
      * Draw corner decorations (Art Deco/Dwarven inspired)
      */
@@ -155,7 +155,7 @@ object AncientArchitectPatterns {
         strokeWidth: Float = 2f
     ) {
         val decorationSize = size
-        
+
         // Top-left corner
         drawCornerDecoration(
             offset = Offset(0f, 0f),
@@ -164,7 +164,7 @@ object AncientArchitectPatterns {
             strokeWidth = strokeWidth,
             rotation = 0f
         )
-        
+
         // Top-right corner
         drawCornerDecoration(
             offset = Offset(this.size.width, 0f),
@@ -173,7 +173,7 @@ object AncientArchitectPatterns {
             strokeWidth = strokeWidth,
             rotation = 90f
         )
-        
+
         // Bottom-right corner
         drawCornerDecoration(
             offset = Offset(this.size.width, this.size.height),
@@ -182,7 +182,7 @@ object AncientArchitectPatterns {
             strokeWidth = strokeWidth,
             rotation = 180f
         )
-        
+
         // Bottom-left corner
         drawCornerDecoration(
             offset = Offset(0f, this.size.height),
@@ -192,7 +192,7 @@ object AncientArchitectPatterns {
             rotation = 270f
         )
     }
-    
+
     /**
      * Draw a single corner decoration
      */
@@ -213,21 +213,21 @@ object AncientArchitectPatterns {
             lineTo(size / 3f, 0f)
             lineTo(size, 0f)
         }
-        
+
         // Apply rotation and translation
         val matrix = Matrix().apply {
             rotateZ(rotation)
             translate(offset.x, offset.y)
         }
         path.transform(matrix)
-        
+
         drawPath(
             path = path,
             color = color,
             style = Stroke(width = strokeWidth)
         )
     }
-    
+
     /**
      * Draw frieze pattern (Dwarven inspired)
      */
@@ -241,7 +241,7 @@ object AncientArchitectPatterns {
         val width = size.width
         val segmentWidth = 60f
         val segments = (width / segmentWidth).toInt() + 1
-        
+
         for (i in 0..segments) {
             val x = i * segmentWidth
             val path = Path().apply {
@@ -251,14 +251,14 @@ object AncientArchitectPatterns {
                 lineTo(x + segmentWidth / 2f, yPosition)
                 lineTo(x + 3f * segmentWidth / 4f, yPosition + height / 3f)
                 lineTo(x + segmentWidth, yPosition)
-                
+
                 moveTo(x + segmentWidth / 4f, yPosition + height / 3f)
                 lineTo(x + segmentWidth / 4f, yPosition + 2f * height / 3f)
-                
+
                 moveTo(x + 3f * segmentWidth / 4f, yPosition + height / 3f)
                 lineTo(x + 3f * segmentWidth / 4f, yPosition + 2f * height / 3f)
             }
-            
+
             drawPath(
                 path = path,
                 color = color.copy(alpha = alpha),
@@ -266,7 +266,7 @@ object AncientArchitectPatterns {
             )
         }
     }
-    
+
     /**
      * Draw crystalline facets pattern (Stargate Atlantis inspired)
      */
@@ -278,7 +278,7 @@ object AncientArchitectPatterns {
         val width = size.width
         val height = size.height
         val numFacets = 20
-        
+
         for (i in 0 until numFacets) {
             val x1 = (Math.random() * width).toFloat()
             val y1 = (Math.random() * height).toFloat()
@@ -286,14 +286,14 @@ object AncientArchitectPatterns {
             val y2 = y1 + (Math.random() * 100 - 50).toFloat()
             val x3 = x1 + (Math.random() * 100 - 50).toFloat()
             val y3 = y1 + (Math.random() * 100 - 50).toFloat()
-            
+
             val path = Path().apply {
                 moveTo(x1, y1)
                 lineTo(x2, y2)
                 lineTo(x3, y3)
                 close()
             }
-            
+
             drawPath(
                 path = path,
                 color = color.copy(alpha = alpha),
@@ -307,7 +307,7 @@ object AncientArchitectPatterns {
  * Metallic gradient brushes
  */
 object MetallicBrushes {
-    
+
     /**
      * Create a bronze metallic gradient
      */
@@ -328,7 +328,7 @@ object MetallicBrushes {
             tileMode = TileMode.Mirror
         )
     }
-    
+
     /**
      * Create a copper metallic gradient
      */
@@ -349,7 +349,7 @@ object MetallicBrushes {
             tileMode = TileMode.Mirror
         )
     }
-    
+
     /**
      * Create a radial metallic gradient
      */
@@ -364,7 +364,7 @@ object MetallicBrushes {
             radius = radius
         )
     }
-    
+
     /**
      * Create a crystal glow gradient
      */

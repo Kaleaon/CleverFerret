@@ -68,7 +68,7 @@ class RadioPlayerWidget : AppWidgetProvider() {
             // Get current station from prefs
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
-            
+
             val currentStation = if (currentStationId > 0 && radioStationDao != null) {
                 radioStationDao.getStationByIdDirect(currentStationId) // ✅ Already in suspend context
             } else {
@@ -78,7 +78,7 @@ class RadioPlayerWidget : AppWidgetProvider() {
             val audioState = audioPlaybackManager?.state?.value
             views.setTextViewText(R.id.widget_station_name, currentStation?.name ?: "No Station Playing")
             views.setTextViewText(R.id.widget_station_genre, currentStation?.genre ?: "")
-            views.setTextViewText(R.id.widget_now_playing, 
+            views.setTextViewText(R.id.widget_now_playing,
                 if (audioState?.isPlaying == true) "Now Playing" else "Stopped")
 
             // Set up button intents
@@ -148,12 +148,12 @@ class RadioPlayerWidget : AppWidgetProvider() {
                     val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                     val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
                     val allStations = radioStationDao.getAllStations().firstOrNull() ?: emptyList()
-                    
+
                     if (allStations.isNotEmpty()) {
                         val currentIndex = allStations.indexOfFirst { it.id == currentStationId }
                         val nextIndex = (currentIndex + 1) % allStations.size
                         val nextStation = allStations[nextIndex]
-                        
+
                         // Play next station
                         val uri = android.net.Uri.parse(nextStation.streamUrl)
                         audioPlaybackManager.loadSingle(uri, playWhenReady = true)
@@ -167,12 +167,12 @@ class RadioPlayerWidget : AppWidgetProvider() {
                     val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                     val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
                     val allStations = radioStationDao.getAllStations().firstOrNull() ?: emptyList()
-                    
+
                     if (allStations.isNotEmpty()) {
                         val currentIndex = allStations.indexOfFirst { it.id == currentStationId }
                         val prevIndex = if (currentIndex <= 0) allStations.size - 1 else currentIndex - 1
                         val prevStation = allStations[prevIndex]
-                        
+
                         // Play previous station
                         val uri = android.net.Uri.parse(prevStation.streamUrl)
                         audioPlaybackManager.loadSingle(uri, playWhenReady = true)

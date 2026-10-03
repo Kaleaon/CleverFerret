@@ -30,14 +30,14 @@ import kotlinx.coroutines.launch
 
 /**
  * Clean Media-Centric Music Library Screen
- * 
+ *
  * A tabbed music library with views for:
  * - Albums
  * - Artists
  * - Tracks
  * - Playlists
  * - Genres
- * 
+ *
  * Features:
  * - Artist detail view with discography
  * - Album grid and list views
@@ -65,7 +65,7 @@ fun MusicLibraryScreen(
     val tabs = listOf("Albums", "Artists", "Tracks", "Playlists", "Genres")
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -134,7 +134,7 @@ fun MusicLibraryScreen(
                     )
                 }
             }
-            
+
             // Content pager - show loading state if needed
             if (state.isLoading) {
                 Box(
@@ -195,7 +195,7 @@ private fun AlbumsPage(
         EmptyMusicState(message = "No albums in your library")
         return
     }
-    
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
         contentPadding = PaddingValues(MediaSpacing.MD),
@@ -226,7 +226,7 @@ private fun ArtistsPage(
         EmptyMusicState(message = "No artists in your library")
         return
     }
-    
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 140.dp),
         contentPadding = PaddingValues(MediaSpacing.MD),
@@ -258,7 +258,7 @@ private fun TracksPage(
         EmptyMusicState(message = "No tracks in your library")
         return
     }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(vertical = MediaSpacing.SM),
         modifier = Modifier.fillMaxSize()
@@ -316,7 +316,7 @@ private fun PlaylistsPage(
         }
         return
     }
-    
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp),
         contentPadding = PaddingValues(MediaSpacing.MD),
@@ -347,7 +347,7 @@ private fun GenresPage(
         EmptyMusicState(message = "No genres found")
         return
     }
-    
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(MediaSpacing.MD),

@@ -24,7 +24,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Common Media UI Components
- * 
+ *
  * Reusable components used across multiple screens:
  * - Mini Player
  * - Loading states
@@ -63,7 +63,7 @@ fun MediaMiniPlayer(
                 color = MediaColors.AccentPrimary,
                 trackColor = MediaColors.ProgressBackground
             )
-            
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -79,7 +79,7 @@ fun MediaMiniPlayer(
                 ) {
                     if (state.artworkUrl != null) {
                         AsyncImage(
-                    
+
                             model = state.artworkUrl,
                             contentDescription = "Album art for ${state.title}",
                             contentScale = ContentScale.Crop,
@@ -104,9 +104,9 @@ fun MediaMiniPlayer(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                
+
                 // Title & subtitle
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -125,7 +125,7 @@ fun MediaMiniPlayer(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 // Controls
                 IconButton(onClick = onPlayPause) {
                     Surface(
@@ -141,7 +141,7 @@ fun MediaMiniPlayer(
                         )
                     }
                 }
-                
+
                 IconButton(onClick = onNext) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,
@@ -174,9 +174,9 @@ fun MediaLoadingScreen(
                 color = MediaColors.AccentPrimary,
                 modifier = Modifier.size(48.dp)
             )
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.MD))
-            
+
             Text(
                 text = message,
                 style = MediaTypography.BodyMedium,
@@ -194,7 +194,7 @@ fun MediaLoadingOverlay(
 ) {
     Box(modifier = modifier) {
         content()
-        
+
         AnimatedVisibility(
             visible = isLoading,
             enter = fadeIn(),
@@ -236,28 +236,28 @@ fun MediaErrorScreen(
             tint = MediaColors.Error,
             modifier = Modifier.size(72.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Text(
             text = title,
             style = MediaTypography.TitleMedium,
             color = MediaColors.TextPrimary,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = message,
             style = MediaTypography.BodyMedium,
             color = MediaColors.TextSecondary,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
-        
+
         if (onRetry != null) {
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
-            
+
             Button(
                 onClick = onRetry,
                 colors = ButtonDefaults.buttonColors(
@@ -304,28 +304,28 @@ fun MediaEmptyState(
                 modifier = Modifier.padding(MediaSpacing.LG)
             )
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Text(
             text = title,
             style = MediaTypography.TitleMedium,
             color = MediaColors.TextPrimary,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = message,
             style = MediaTypography.BodyMedium,
             color = MediaColors.TextSecondary,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
-        
+
         if (actionLabel != null && onAction != null) {
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
-            
+
             Button(
                 onClick = onAction,
                 colors = ButtonDefaults.buttonColors(
@@ -389,7 +389,7 @@ fun MediaInputDialog(
     onDismiss: () -> Unit
 ) {
     var value by remember { mutableStateOf(initialValue) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -537,7 +537,7 @@ fun MediaCircularProgress(
             trackColor = MediaColors.ProgressBackground,
             strokeWidth = strokeWidth.dp
         )
-        
+
         Text(
             text = "${(progress * 100).toInt()}%",
             style = MediaTypography.LabelSmall,
@@ -649,14 +649,14 @@ fun MediaSectionDivider(
             modifier = Modifier.weight(1f),
             color = MediaColors.Border
         )
-        
+
         Text(
             text = title,
             style = MediaTypography.LabelSmall,
             color = MediaColors.TextTertiary,
             modifier = Modifier.padding(horizontal = MediaSpacing.MD)
         )
-        
+
         HorizontalDivider(
             modifier = Modifier.weight(1f),
             color = MediaColors.Border

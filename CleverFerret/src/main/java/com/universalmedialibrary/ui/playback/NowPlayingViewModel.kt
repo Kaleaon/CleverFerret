@@ -35,7 +35,7 @@ class NowPlayingViewModel @Inject constructor(
     val queueItems = playbackQueueManager.queueItems
     val currentQueue = playbackQueueManager.currentQueue
     val currentSession = playbackQueueManager.currentSession
-    
+
     // Available playlists for "Add to Playlist" feature
     val availablePlaylists: StateFlow<List<Playlist>> = playlistDao.getAllPlaylistsFlow()
         .stateIn(
@@ -159,7 +159,7 @@ class NowPlayingViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun createPlaylistWithCurrentTrack(playlistName: String) {
         viewModelScope.launch {
             currentItem.value?.let { item ->

@@ -136,10 +136,10 @@ fun FMRadioScreen(
                     ) {
                         // Station Logo / Song Cover
                         val displayImage = songInfo?.coverUrl ?: dnsMetadata?.logoUrl
-                        
+
                         if (displayImage != null) {
                              AsyncImage(
-                    
+
                                 model = displayImage,
                                 contentDescription = "Station Logo / Album Art",
                                 modifier = Modifier
@@ -157,9 +157,9 @@ fun FMRadioScreen(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         // RDS Station Name / Song Info
                         rdsData?.let { rds ->
                             Text(
@@ -167,7 +167,7 @@ fun FMRadioScreen(
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
-                            
+
                             if (songInfo != null) {
                                 Text(
                                     text = "${songInfo?.title} - ${songInfo?.artist}",
@@ -188,9 +188,9 @@ fun FMRadioScreen(
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
                                 )
-                                
+
                                 Spacer(modifier = Modifier.height(8.dp))
-                                
+
                                 // Identify Button if song not recognized but text exists (or even if empty)
                                 OutlinedButton(
                                     onClick = { viewModel.identifySong(context) },
@@ -203,9 +203,9 @@ fun FMRadioScreen(
                                 }
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         // Signal Strength Indicator
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -259,7 +259,7 @@ fun FMRadioScreen(
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 16.dp)
                     )
-                    
+
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(vertical = 8.dp)
@@ -325,7 +325,7 @@ fun FMRadioScreen(
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
-                            
+
                             FilledIconButton(
                                 onClick = { viewModel.togglePlayback() },
                                 modifier = Modifier.size(80.dp)
@@ -336,7 +336,7 @@ fun FMRadioScreen(
                                     modifier = Modifier.size(40.dp)
                                 )
                             }
-                            
+
                             IconButton(
                                 onClick = { viewModel.scanUp() },
                                 modifier = Modifier.size(64.dp)
@@ -348,7 +348,7 @@ fun FMRadioScreen(
                                 )
                             }
                         }
-                        
+
                         // Fine Tune
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -358,9 +358,9 @@ fun FMRadioScreen(
                             IconButton(onClick = { viewModel.tuneDown() }) {
                                 Icon(Icons.Default.Remove, "Tune Down")
                             }
-                            
+
                             Text("Fine Tune", style = MaterialTheme.typography.labelMedium)
-                            
+
                             IconButton(onClick = { viewModel.tuneUp() }) {
                                 Icon(Icons.Default.Add, "Tune Up")
                             }
@@ -374,7 +374,7 @@ fun FMRadioScreen(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.align(Alignment.Start)
                 )
-                
+
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -382,7 +382,7 @@ fun FMRadioScreen(
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { 
+                                .clickable {
                                     station.frequencyKhz?.let { viewModel.tuneToStation(it) }
                                 },
                             colors = CardDefaults.cardColors(
@@ -413,7 +413,7 @@ fun FMRadioScreen(
                                         )
                                     }
                                 }
-                                
+
                                 if (station.frequencyKhz == currentFrequency && isPlaying) {
                                     Icon(
                                         Icons.Default.GraphicEq,
@@ -447,13 +447,13 @@ class FMRadioViewModel @Inject constructor(
 
     private val _hasInternetStream = MutableStateFlow(false)
     val hasInternetStream: StateFlow<Boolean> = _hasInternetStream.asStateFlow()
-    
+
     private val _songInfo = MutableStateFlow<MusicInfoService.SongInfo?>(null)
     val songInfo: StateFlow<MusicInfoService.SongInfo?> = _songInfo.asStateFlow()
 
     private val _similarItems = MutableStateFlow<List<TasteDiveItem>>(emptyList())
     val similarItems: StateFlow<List<TasteDiveItem>> = _similarItems.asStateFlow()
-    
+
     // Load favorites from DB where frequencyKhz is not null
     // Note: Logic here assumes we want to filter for FM stations.
     // RadioStation entity has isFavorite flag.
@@ -465,7 +465,7 @@ class FMRadioViewModel @Inject constructor(
                 _hasInternetStream.value = !metadata?.streamUrl.isNullOrEmpty()
             }
         }
-        
+
         viewModelScope.launch {
             rdsData.collect { rds ->
                 parseAndFetchSongInfo(rds)
@@ -479,15 +479,15 @@ class FMRadioViewModel @Inject constructor(
             _similarItems.value = emptyList()
             return
         }
-        
+
         val text = rds.radioText
-        
+
         // Heuristic to determine if text is likely a song
         if (text.length > 5 && (text.contains(" - ") || text.contains(" by "))) {
             viewModelScope.launch {
                 val info = musicInfoService.fetchSongInfo(text)
                 _songInfo.value = info
-                
+
                 // Fetch similar items using TasteDive
                 if (info != null) {
                     val artist = info.artist
@@ -509,7 +509,7 @@ class FMRadioViewModel @Inject constructor(
              _similarItems.value = emptyList()
         }
     }
-    
+
     fun identifySong(context: Context) {
         try {
             // Use Android's built-in music search intent (often handled by Google Assistant / SoundHound / Shazam)
@@ -572,17 +572,17 @@ class FMRadioViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun saveCurrentStation() {
         viewModelScope.launch {
             val freq = currentFrequency.value
             val rds = rdsData.value
             val dns = dnsMetadata.value
-            
-            val name = rds?.stationName?.ifEmpty { null } 
-                ?: dns?.name 
+
+            val name = rds?.stationName?.ifEmpty { null }
+                ?: dns?.name
                 ?: formatFrequency(freq)
-                
+
             val station = RadioStation(
                 name = name,
                 frequencyKhz = freq,
@@ -591,7 +591,7 @@ class FMRadioViewModel @Inject constructor(
                 streamUrl = dns?.streamUrl, // Save stream URL if available
                 logoUrl = dns?.logoUrl
             )
-            
+
             // Check if already exists? For now just insert/replace
             radioStationDao.insertStation(station)
         }

@@ -67,10 +67,10 @@ class RadioBrowserViewModel @Inject constructor(
         viewModelScope.launch {
             // Save to DB
             val id = radioStationDao.insertStation(station)
-            
+
             // Ensure logo is cached
             radioLogoService.ensureStationLogo(station.copy(id = id), cacheDir)
-            
+
             _uiState.value = _uiState.value.copy(message = "Station added to library")
         }
     }

@@ -7,7 +7,7 @@ import com.universalmedialibrary.data.local.entity.AmbientSoundType
 /**
  * Complete set of 84 ambient sounds from Moodist
  * Source: https://github.com/remvze/moodist
- * 
+ *
  * Categories:
  * - Nature (12 sounds)
  * - Rain (8 sounds)
@@ -19,7 +19,7 @@ import com.universalmedialibrary.data.local.entity.AmbientSoundType
  * - Noise (3 sounds)
  */
 object MoodistSounds {
-        private const val BASE_URL = "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/"    
+        private const val BASE_URL = "https://raw.githubusercontent.com/remvze/moodist/main/public/sounds/"
     fun getAllSounds(): List<AmbientSound> = listOf(
         // === NATURE CATEGORY (12 sounds) ===
         AmbientSound(
@@ -118,7 +118,7 @@ object MoodistSounds {
             keywords = listOf("jungle", "tropical", "rainforest", "exotic"),
             audioUrl = "${BASE_URL}jungle.mp3"
         ),
-        
+
         // === RAIN CATEGORY (8 sounds) ===
         AmbientSound(
             name = "Light Rain",
@@ -184,7 +184,7 @@ object MoodistSounds {
             keywords = listOf("rain", "leaves", "forest", "nature"),
             audioUrl = "${BASE_URL}rain-on-leaves.mp3"
         ),
-        
+
         // === ANIMALS CATEGORY (16 sounds) ===
         AmbientSound(
             name = "Birds",
@@ -314,7 +314,7 @@ object MoodistSounds {
             keywords = listOf("sheep", "bleating", "farm", "pastoral"),
             audioUrl = "${BASE_URL}sheep.mp3"
         ),
-        
+
         // === URBAN CATEGORY (7 sounds) ===
         AmbientSound(
             name = "Highway",
@@ -372,7 +372,7 @@ object MoodistSounds {
             keywords = listOf("fireworks", "celebration", "explosions"),
             audioUrl = "${BASE_URL}fireworks.mp3"
         ),
-        
+
         // === PLACES CATEGORY (16 sounds) ===
         AmbientSound(
             name = "Cafe",
@@ -502,7 +502,7 @@ object MoodistSounds {
             keywords = listOf("library", "quiet", "reading", "study"),
             audioUrl = "${BASE_URL}library.mp3"
         ),
-        
+
         // === TRANSPORT CATEGORY (6 sounds) ===
         AmbientSound(
             name = "Train",
@@ -552,7 +552,7 @@ object MoodistSounds {
             keywords = listOf("rowing", "boat", "oars", "water"),
             audioUrl = "${BASE_URL}rowing-boat.mp3"
         ),
-        
+
         // === THINGS CATEGORY (16 sounds) ===
         AmbientSound(
             name = "Keyboard",
@@ -682,7 +682,7 @@ object MoodistSounds {
             keywords = listOf("wipers", "windshield", "car", "rhythmic"),
             audioUrl = "${BASE_URL}windshield-wipers.mp3"
         ),
-        
+
         // === NOISE CATEGORY (3 sounds) ===
         AmbientSound(
             name = "White Noise",
@@ -709,17 +709,16 @@ object MoodistSounds {
             audioUrl = "${BASE_URL}brown-noise.mp3"
         )
     )
-    
+
     /**
      * Get count by category
      */
     fun getCategoryCount(category: AmbientCategory): Int {
         return getAllSounds().count { it.category == category }
     }
-    
+
     /**
      * Get total count
      */
     fun getTotalCount(): Int = getAllSounds().size
 }
-

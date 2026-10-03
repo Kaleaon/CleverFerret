@@ -12,13 +12,13 @@ import javax.inject.Singleton
 
 /**
  * Reading Progress Tracker
- * 
+ *
  * Tracks reading progress across all media types:
  * - E-books (EPUB, PDF): Page/chapter position
  * - Comics (CBZ, CBR): Current page
  * - Audiobooks: Playback position
  * - Text files: Scroll position
- * 
+ *
  * Features:
  * - Automatic progress saving
  * - Reading streak tracking
@@ -31,7 +31,7 @@ class ReadingProgressTracker @Inject constructor(
     @ApplicationContext private val context: Context,
     private val progressDao: ReadingProgressDao
 ) {
-    
+
     /**
      * Save current reading progress
      */
@@ -45,7 +45,7 @@ class ReadingProgressTracker @Inject constructor(
         try {
             // Get existing progress or create new
             val existing = progressDao.getProgress(mediaItemId).first()
-            
+
             val timestamp = System.currentTimeMillis()
             val progress = existing?.copy(
                 currentPosition = currentPosition,
@@ -64,7 +64,7 @@ class ReadingProgressTracker @Inject constructor(
                 lastUpdate = timestamp,
                 lastModified = timestamp
             )
-            
+
             progressDao.upsert(progress)
         } catch (e: SQLiteConstraintException) {
             // Foreign key constraint failed - media item doesn't exist in database
@@ -72,56 +72,56 @@ class ReadingProgressTracker @Inject constructor(
             // Silently ignore to allow file viewing without persistence
         }
     }
-    
+
     /**
      * Get reading progress for media item
      */
     fun getProgress(mediaItemId: Long): Flow<ReadingProgress?> {
         return progressDao.getProgress(mediaItemId)
     }
-    
+
     /**
      * Get recently read items
      */
     fun getRecentlyRead(limit: Int = 10): Flow<List<ReadingProgress>> {
         return progressDao.getRecentlyRead(limit)
     }
-    
+
     /**
      * Get completed items
      */
     fun getCompleted(): Flow<List<ReadingProgress>> {
         return progressDao.getCompleted()
     }
-    
+
     /**
      * Mark book as finished
      */
     suspend fun markAsFinished(mediaItemId: Long) {
         progressDao.markAsCompleted(mediaItemId, true)
     }
-    
+
     /**
      * Mark book as not finished
      */
     suspend fun markAsUnfinished(mediaItemId: Long) {
         progressDao.markAsCompleted(mediaItemId, false)
     }
-    
+
     /**
      * Clear progress for media item
      */
     suspend fun clearProgress(mediaItemId: Long) {
         progressDao.delete(mediaItemId)
     }
-    
+
     /**
      * Get reading statistics
      */
     suspend fun getReadingStats(): ReadingStats {
         val recentlyRead = progressDao.getRecentlyRead(100).first()
         val completed = progressDao.getCompleted().first()
-        
+
         val totalBooksRead = completed.size
         val totalBooks = progressDao.getProgressCount()
         val averageCompletion = if (recentlyRead.isNotEmpty()) {
@@ -129,9 +129,9 @@ class ReadingProgressTracker @Inject constructor(
         } else {
             0f
         }
-        
+
         val totalReadingTime = recentlyRead.sumOf { it.totalReadingTime }
-        
+
         return ReadingStats(
             totalBooksRead = totalBooksRead,
             totalBooks = totalBooks,
@@ -140,7 +140,7 @@ class ReadingProgressTracker @Inject constructor(
             totalReadingTimeMs = totalReadingTime
         )
     }
-    
+
     data class ReadingStats(
         val totalBooksRead: Int,
         val totalBooks: Int,

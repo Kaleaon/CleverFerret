@@ -79,7 +79,7 @@ fun DetailedProgressIndicator(
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
-        
+
         // Progress text
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -92,7 +92,7 @@ fun DetailedProgressIndicator(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             if (showPageNumbers && progress.totalPages > 0) {
                 Text(
                     text = "Page ${progress.currentPage + 1} / ${progress.totalPages}",
@@ -100,7 +100,7 @@ fun DetailedProgressIndicator(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Text(
                 text = "${(progress.percentage * 100).roundToInt()}%",
                 style = MaterialTheme.typography.bodySmall,
@@ -157,7 +157,7 @@ fun ReadingTimeRemainingIndicator(
 ) {
     val calculator = remember { ReadingTimeCalculator() }
     val formattedTime = calculator.formatTimeEstimate(timeRemaining)
-    
+
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.primaryContainer,
@@ -216,7 +216,7 @@ fun CharactersInBookIndicator(
 ) {
     val formatter = NumberFormat.getNumberInstance()
     val formattedChars = formatter.format(characters)
-    
+
     Text(
         text = "$formattedChars characters",
         style = MaterialTheme.typography.bodySmall,
@@ -248,7 +248,7 @@ fun ComprehensiveProgressIndicator(
             showPageNumbers = true,
             showChapterNumbers = true
         )
-        
+
         // Additional info row
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -261,7 +261,7 @@ fun ComprehensiveProgressIndicator(
                     modifier = Modifier.weight(1f)
                 )
             }
-            
+
             wordsPerMinute?.let {
                 WordsPerMinuteIndicator(
                     wordsPerMinute = it,
@@ -269,7 +269,7 @@ fun ComprehensiveProgressIndicator(
                 )
             }
         }
-        
+
         // Print edition pages
         if (currentPrintPage != null && totalPrintPages != null) {
             PrintEditionPageIndicator(
@@ -277,7 +277,7 @@ fun ComprehensiveProgressIndicator(
                 totalPrintPages = totalPrintPages
             )
         }
-        
+
         // Characters count
         totalCharacters?.let {
             CharactersInBookIndicator(characters = it)

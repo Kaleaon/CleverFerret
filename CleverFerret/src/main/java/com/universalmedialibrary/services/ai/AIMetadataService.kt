@@ -21,12 +21,12 @@ class AIMetadataService @Inject constructor(
         val provider = aiServiceManager.getActiveProvider() ?: return Result.failure(Exception("No AI provider configured"))
 
         val prompt = buildTagSuggestionPrompt(mediaItem, metadata)
-        
+
         // We use SUMMARY type as a generic "generate text" request since we don't have a dedicated TAGS type yet,
         // or we could add one. For now, repurposing an existing type or adding a new one is fine.
         // Let's assume the provider can handle this prompt regardless of the "type" enum if we format the prompt well.
         // Ideally, we should add a TAGS type to ReaderAIInsightType, but for now we can use THEMES or SUMMARY.
-        
+
         val result = provider.generateInsight(
             prompt = prompt,
             contextText = "Media Type: ${mediaItem.mediaType}",
@@ -46,12 +46,12 @@ class AIMetadataService @Inject constructor(
 
         return """
             Analyze the following media item and suggest 5-10 relevant tags.
-            
+
             Media Type: $type
             Title: $title
             Creator/Author: $author
             Description/Summary: $summary
-            
+
             Output ONLY a comma-separated list of tags. Do not include numbering, bullet points, or extra text.
             Example output: Science Fiction, Space Opera, Adventure, Classic, Future
         """.trimIndent()
@@ -61,7 +61,7 @@ class AIMetadataService @Inject constructor(
         return response.split(",")
             .map { it.trim() }
             .filter { it.isNotEmpty() }
-            .map { 
+            .map {
                 // clean up any accidental markdown or quotes
                 it.replace("\"", "")
                   .replace("*", "")

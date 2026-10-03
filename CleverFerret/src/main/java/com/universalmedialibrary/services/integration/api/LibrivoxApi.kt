@@ -9,7 +9,7 @@ import retrofit2.http.Query
  * Documentation: https://librivox.org/api/info
  */
 interface LibrivoxApi {
-    
+
     @GET("audiobooks")
     suspend fun searchAudiobooks(
         @Query("title") title: String? = null,

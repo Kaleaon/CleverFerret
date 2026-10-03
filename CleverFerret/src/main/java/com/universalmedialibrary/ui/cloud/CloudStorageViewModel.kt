@@ -21,7 +21,7 @@ class CloudStorageViewModel @Inject constructor(
     private val oneDriveService: OneDriveService,
     private val webDavService: WebDavService
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(CloudStorageUiState())
     val uiState: StateFlow<CloudStorageUiState> = _uiState.asStateFlow()
 
@@ -90,17 +90,17 @@ class CloudStorageViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     activeProviders = providers
                 )
-                
+
                 // Update authenticated providers - collect from flows
                 updateAuthenticatedProviders(providers)
             }
         }
     }
-    
+
     private fun updateAuthenticatedProviders(providers: Set<CloudProvider>) {
         viewModelScope.launch {
             val authenticated = mutableSetOf<CloudProvider>()
-            
+
             providers.forEach { provider ->
                 when (provider) {
                     CloudProvider.GOOGLE_DRIVE -> {

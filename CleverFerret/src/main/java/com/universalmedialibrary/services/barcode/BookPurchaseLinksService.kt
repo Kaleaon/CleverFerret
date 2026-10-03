@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 /**
  * Book Purchase Links Service
- * 
+ *
  * Provides purchase links for books scanned via barcode but not yet in the library.
  * Helps users find and purchase digital copies of scanned books.
  */
@@ -19,7 +19,7 @@ import javax.inject.Singleton
 class BookPurchaseLinksService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     /**
      * Available platforms for purchasing books
      */
@@ -74,7 +74,7 @@ class BookPurchaseLinksService @Inject constructor(
             "📘"
         )
     }
-    
+
     /**
      * Purchase link data
      */
@@ -83,17 +83,17 @@ class BookPurchaseLinksService @Inject constructor(
         val url: String,
         val displayName: String
     )
-    
+
     /**
      * Get all available purchase links for a book
-     * 
+     *
      * @param isbn ISBN-10 or ISBN-13
      * @param title Optional book title for better search results
      * @return List of purchase links
      */
     fun getPurchaseLinks(isbn: String?, title: String? = null): List<PurchaseLink> {
         val links = mutableListOf<PurchaseLink>()
-        
+
         if (isbn != null && isbn.isNotBlank()) {
             // Add ISBN-based links
             links.addAll(
@@ -115,7 +115,7 @@ class BookPurchaseLinksService @Inject constructor(
                 }
             )
         }
-        
+
         if (title != null && title.isNotBlank()) {
             // Add title-based search for platforms like Project Gutenberg
             links.add(
@@ -127,10 +127,10 @@ class BookPurchaseLinksService @Inject constructor(
                 )
             )
         }
-        
+
         return links
     }
-    
+
     /**
      * Get free/open source platforms only
      */
@@ -140,12 +140,12 @@ class BookPurchaseLinksService @Inject constructor(
             PurchasePlatform.INTERNET_ARCHIVE,
             PurchasePlatform.PROJECT_GUTENBERG
         )
-        
-        return getPurchaseLinks(isbn, title).filter { 
-            it.platform in freePlatforms 
+
+        return getPurchaseLinks(isbn, title).filter {
+            it.platform in freePlatforms
         }
     }
-    
+
     /**
      * Get commercial platforms only
      */
@@ -157,15 +157,15 @@ class BookPurchaseLinksService @Inject constructor(
             PurchasePlatform.KOBO,
             PurchasePlatform.BARNES_NOBLE
         )
-        
-        return getPurchaseLinks(isbn).filter { 
-            it.platform in commercialPlatforms 
+
+        return getPurchaseLinks(isbn).filter {
+            it.platform in commercialPlatforms
         }
     }
-    
+
     /**
      * Open a purchase link in the browser
-     * 
+     *
      * @param link The purchase link to open
      */
     fun openPurchaseLink(link: PurchaseLink) {
@@ -180,7 +180,7 @@ class BookPurchaseLinksService @Inject constructor(
             Log.w("BookPurchaseLinks", "No activity found to handle $uri")
         }
     }
-    
+
     /**
      * Create a share intent for the purchase link
      */
@@ -190,7 +190,7 @@ class BookPurchaseLinksService @Inject constructor(
         } else {
             "Check out this book on ${link.platform.displayName}: ${link.url}"
         }
-        
+
         return Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, shareText)

@@ -33,13 +33,13 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery, download, and management.
- * 
+ *
  * Streamlined experience combining:
  * - Site selection & Tag-based browsing
  * - Direct story download
  * - Library management (My Library)
  * - Update checker
- * 
+ *
  * No more jumping between screens! Reading is handled by the separate eReader.
  */
 
@@ -66,7 +66,7 @@ internal fun UnifiedContent(
                 onSiteSelected = { viewModel.selectSite(it) }
             )
         }
-        
+
         // Only show content if a site is selected
         if (uiState.selectedSite != null) {
             // Selected tags display
@@ -79,7 +79,7 @@ internal fun UnifiedContent(
                     )
                 }
             }
-            
+
             // Available tags
             item {
                 AvailableTagsCard(
@@ -88,7 +88,7 @@ internal fun UnifiedContent(
                     onTagToggle = { viewModel.toggleTag(it.name) }
                 )
             }
-            
+
             // Search button
             if (uiState.selectedTags.isNotEmpty()) {
                 item {
@@ -103,7 +103,7 @@ internal fun UnifiedContent(
                     }
                 }
             }
-            
+
             // Search results
             if (uiState.isLoadingStories) {
                 item {
@@ -117,7 +117,7 @@ internal fun UnifiedContent(
                     }
                 }
             }
-            
+
             uiState.searchResult?.let { result ->
                 if (result.stories.isNotEmpty()) {
                     item {
@@ -127,14 +127,14 @@ internal fun UnifiedContent(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    
+
                     items(
                         items = result.stories,
                         key = { story -> story.id }
                     ) { story ->
                         StoryCard(
                             story = story,
-                            onDownload = { 
+                            onDownload = {
                                 story.url?.let { downloadViewModel.downloadFromUrl(it) }
                             },
                             isDownloading = downloadState.isLoading && downloadState.url == story.url

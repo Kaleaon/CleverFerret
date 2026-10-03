@@ -45,7 +45,7 @@ internal fun AlbumCard(
         ) {
             if (album.artworkUrl != null) {
                 AsyncImage(
-                    
+
                     model = album.artworkUrl,
                     contentDescription = album.title,
                     contentScale = ContentScale.Crop,
@@ -66,7 +66,7 @@ internal fun AlbumCard(
                     )
                 }
             }
-            
+
             // Play overlay on hover
             Box(
                 modifier = Modifier
@@ -97,9 +97,9 @@ internal fun AlbumCard(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = album.title,
             style = MediaTypography.BodyMedium,
@@ -108,7 +108,7 @@ internal fun AlbumCard(
             overflow = TextOverflow.Ellipsis,
             fontWeight = FontWeight.Medium
         )
-        
+
         Text(
             text = album.artist,
             style = MediaTypography.LabelSmall,
@@ -116,7 +116,7 @@ internal fun AlbumCard(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MediaSpacing.XS)

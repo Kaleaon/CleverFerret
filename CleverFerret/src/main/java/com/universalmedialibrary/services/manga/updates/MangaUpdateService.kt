@@ -31,10 +31,10 @@ import javax.inject.Singleton
 
 /**
  * Manga Update Service
- * 
+ *
  * Checks for new chapters and sends notifications
  * Inspired by Futon/Kotatsu update checking system
- * 
+ *
  * Features:
  * - Periodic update checking (configurable interval)
  * - Smart notifications (grouped by manga)
@@ -49,30 +49,30 @@ class MangaUpdateService @Inject constructor(
     private val libraryRepository: MangaLibraryRepository,
     private val updateRepository: MangaUpdateRepository
 ) {
-    
+
     companion object {
         private const val TAG = "MangaUpdateService"
         private const val NOTIFICATION_CHANNEL_ID = "manga_updates"
         private const val NOTIFICATION_GROUP = "com.universalmedialibrary.MANGA_UPDATES"
     }
-    
+
     private val _updates = MutableStateFlow<List<MangaUpdate>>(emptyList())
     val updates: StateFlow<List<MangaUpdate>> = _updates.asStateFlow()
-    
+
     private val _isChecking = MutableStateFlow(false)
     val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
-    
+
     private val _lastCheckTime = MutableStateFlow(0L)
     val lastCheckTime: StateFlow<Long> = _lastCheckTime.asStateFlow()
-    
-    private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) 
+
+    private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
             as NotificationManager
-    
+
     init {
         createNotificationChannel()
         loadCachedUpdates()
     }
-    
+
     /**
      * Schedule periodic update checks
      */
@@ -80,46 +80,46 @@ class MangaUpdateService @Inject constructor(
         WorkScheduler.scheduleWebFictionUpdateScan(context, intervalHours)
         Log.d(TAG, "Scheduled update checks every $intervalHours hours")
     }
-    
+
     /**
      * Cancel scheduled update checks
      */
     fun cancelUpdateChecks() {
         WorkScheduler.cancelWebFictionUpdateScan(context)
     }
-    
+
     /**
      * Check for updates now
      */
     suspend fun checkForUpdates(): List<MangaUpdate> = withContext(Dispatchers.IO) {
         if (_isChecking.value) return@withContext emptyList()
-        
+
         _isChecking.value = true
         val allUpdates = mutableListOf<MangaUpdate>()
-        
+
         try {
             val libraryManga = libraryRepository.getAllLibraryManga()
-            
+
             for (manga in libraryManga) {
                 try {
                     // Get current chapter list from library
                     val knownChapters = libraryRepository.getKnownChapterIds(manga.id)
-                    
+
                     // Fetch latest chapters from source
                     val detailsResult = sourceService.getMangaDetails(manga.sourceId, manga.url)
-                    
+
                     detailsResult.onSuccess { details ->
                         val newChapters = details.chapters?.filter { chapter ->
                             chapter.id !in knownChapters
                         } ?: emptyList()
-                        
+
                         if (newChapters.isNotEmpty()) {
                             val update = MangaUpdate(
                                 manga = details,
                                 newChapters = newChapters
                             )
                             allUpdates.add(update)
-                            
+
                             // Save new chapter IDs
                             libraryRepository.addKnownChapterIds(
                                 manga.id,
@@ -131,32 +131,32 @@ class MangaUpdateService @Inject constructor(
                     Log.e(TAG, "Failed to check updates for ${manga.title}", e)
                 }
             }
-            
+
             if (allUpdates.isNotEmpty()) {
                 // Save updates
                 updateRepository.saveUpdates(allUpdates)
                 _updates.value = updateRepository.getAllUpdates()
-                
+
                 // Show notifications
                 showUpdateNotifications(allUpdates)
             }
-            
+
             _lastCheckTime.value = System.currentTimeMillis()
-            
+
         } finally {
             _isChecking.value = false
         }
-        
+
         allUpdates
     }
-    
+
     /**
      * Get update feed
      */
     suspend fun getUpdateFeed(): List<MangaUpdate> = withContext(Dispatchers.IO) {
         updateRepository.getAllUpdates()
     }
-    
+
     /**
      * Clear update feed
      */
@@ -164,7 +164,7 @@ class MangaUpdateService @Inject constructor(
         updateRepository.clearUpdates()
         _updates.value = emptyList()
     }
-    
+
     /**
      * Mark chapters as seen
      */
@@ -172,16 +172,16 @@ class MangaUpdateService @Inject constructor(
         updateRepository.markChaptersAsSeen(mangaId, chapterIds)
         _updates.value = updateRepository.getAllUpdates()
     }
-    
+
     /**
      * Get unread update count
      */
     suspend fun getUnreadUpdateCount(): Int {
         return updateRepository.getUnseenUpdateCount()
     }
-    
+
     // Private methods
-    
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -195,12 +195,12 @@ class MangaUpdateService @Inject constructor(
             notificationManager.createNotificationChannel(channel)
         }
     }
-    
+
     private fun showUpdateNotifications(updates: List<MangaUpdate>) {
         if (updates.isEmpty()) return
-        
+
         val totalNewChapters = updates.sumOf { it.newChapters.size }
-        
+
         // Group notification (summary)
         val summaryNotification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_ferret_blue)
@@ -210,9 +210,9 @@ class MangaUpdateService @Inject constructor(
             .setGroupSummary(true)
             .setAutoCancel(true)
             .build()
-        
+
         notificationManager.notify(0, summaryNotification)
-        
+
         // Individual notifications for each manga
         updates.forEachIndexed { index, update ->
             val chapterText = if (update.newChapters.size == 1) {
@@ -220,7 +220,7 @@ class MangaUpdateService @Inject constructor(
             } else {
                 "${update.newChapters.size} new chapters"
             }
-            
+
             val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_ferret_blue)
                 .setContentTitle(update.manga.title)
@@ -228,11 +228,11 @@ class MangaUpdateService @Inject constructor(
                 .setGroup(NOTIFICATION_GROUP)
                 .setAutoCancel(true)
                 .build()
-            
+
             notificationManager.notify(index + 1, notification)
         }
     }
-    
+
     private fun loadCachedUpdates() {
         // Load updates from repository
         kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {

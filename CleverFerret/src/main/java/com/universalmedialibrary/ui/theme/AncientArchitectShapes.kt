@@ -34,45 +34,45 @@ class SteppedCornerShape(
         val cornerPx = with(density) { cornerSize.toPx() }
         val safeSteps = steps.coerceAtLeast(1)
         val stepSize = cornerPx / safeSteps
-        
+
         return Outline.Generic(
             Path().apply {
                 // Start from top-left, moving clockwise
                 moveTo(0f, cornerPx)
-                
+
                 // Top-left stepped corner
                 for (i in 0 until safeSteps) {
                     lineTo(stepSize * i, cornerPx - stepSize * (i + 1))
                 }
                 lineTo(cornerPx, 0f)
-                
+
                 // Top edge
                 lineTo(size.width - cornerPx, 0f)
-                
+
                 // Top-right stepped corner
                 for (i in 0 until safeSteps) {
                     lineTo(size.width - cornerPx + stepSize * (i + 1), stepSize * i)
                 }
                 lineTo(size.width, cornerPx)
-                
+
                 // Right edge
                 lineTo(size.width, size.height - cornerPx)
-                
+
                 // Bottom-right stepped corner
                 for (i in 0 until safeSteps) {
                     lineTo(size.width - stepSize * i, size.height - cornerPx + stepSize * (i + 1))
                 }
                 lineTo(size.width - cornerPx, size.height)
-                
+
                 // Bottom edge
                 lineTo(cornerPx, size.height)
-                
+
                 // Bottom-left stepped corner
                 for (i in 0 until safeSteps) {
                     lineTo(cornerPx - stepSize * (i + 1), size.height - stepSize * i)
                 }
                 lineTo(0f, size.height - cornerPx)
-                
+
                 // Close path
                 close()
             }
@@ -92,7 +92,7 @@ class HexagonShape : Shape {
         val width = size.width
         val height = size.height
         val sideLength = width / 4f
-        
+
         return Outline.Generic(
             Path().apply {
                 moveTo(sideLength, 0f)
@@ -118,7 +118,7 @@ class DiamondShape : Shape {
     ): Outline {
         val width = size.width
         val height = size.height
-        
+
         return Outline.Generic(
             Path().apply {
                 moveTo(width / 2f, 0f)
@@ -145,7 +145,7 @@ class BeveledRectangleShape(
         val bevelPx = with(density) { bevelSize.toPx() }
         val width = size.width
         val height = size.height
-        
+
         return Outline.Generic(
             Path().apply {
                 moveTo(bevelPx, 0f)
@@ -176,7 +176,7 @@ class ChevronShape(
         val width = size.width
         val height = size.height
         val point = height * pointHeight
-        
+
         return Outline.Generic(
             Path().apply {
                 moveTo(0f, point)
@@ -198,19 +198,19 @@ object AncientArchitectShapes {
     val small = RoundedCornerShape(4.dp)
     val medium = RoundedCornerShape(8.dp)
     val large = RoundedCornerShape(12.dp)
-    
+
     // Geometric shapes
     val steppedSmall = SteppedCornerShape(cornerSize = 6.dp, steps = 2)
     val steppedMedium = SteppedCornerShape(cornerSize = 8.dp, steps = 3)
     val steppedLarge = SteppedCornerShape(cornerSize = 12.dp, steps = 4)
-    
+
     val hexagon = HexagonShape()
     val diamond = DiamondShape()
-    
+
     val beveledSmall = BeveledRectangleShape(bevelSize = 3.dp)
     val beveledMedium = BeveledRectangleShape(bevelSize = 4.dp)
     val beveledLarge = BeveledRectangleShape(bevelSize = 6.dp)
-    
+
     val chevron = ChevronShape()
 }
 
@@ -221,19 +221,19 @@ object AncientArchitectShapeTokens {
     // Cards and containers
     val cardShape = AncientArchitectShapes.steppedMedium
     val elevatedCardShape = AncientArchitectShapes.steppedLarge
-    
+
     // Buttons
     val buttonShape = AncientArchitectShapes.beveledMedium
     val iconButtonShape = AncientArchitectShapes.hexagon
     val fabShape = AncientArchitectShapes.diamond
-    
+
     // Dialogs and sheets
     val dialogShape = AncientArchitectShapes.steppedLarge
     val bottomSheetShape = AncientArchitectShapes.chevron
-    
+
     // Input fields
     val textFieldShape = AncientArchitectShapes.beveledSmall
-    
+
     // Chips and badges
     val chipShape = AncientArchitectShapes.beveledSmall
     val badgeShape = AncientArchitectShapes.diamond

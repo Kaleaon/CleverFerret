@@ -59,33 +59,33 @@ internal fun SupportedFormatsCard() {
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold
             )
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             FormatRow(
                 icon = Icons.AutoMirrored.Filled.MenuBook,
                 label = "Books",
                 formats = "EPUB, PDF, MOBI, AZW, FB2, TXT, RTF, DJVU"
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             FormatRow(
                 icon = Icons.Default.Image,
                 label = "Comics",
                 formats = "CBZ, CBR, CB7, PDF"
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             FormatRow(
                 icon = Icons.Default.MusicNote,
                 label = "Audio",
                 formats = "MP3, M4A, M4B, AAC, OGG, FLAC, WAV"
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             FormatRow(
                 icon = Icons.Default.VideoLibrary,
                 label = "Video",

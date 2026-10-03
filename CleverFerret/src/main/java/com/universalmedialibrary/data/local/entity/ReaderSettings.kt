@@ -25,7 +25,7 @@ data class ReaderSettingsEntity(
     val lineHeight: Float = 1.5f,  // Line spacing multiplier
     val letterSpacing: Float = 0f,  // Letter spacing in pixels
     val fontWeight: String = "Normal",  // Normal, Medium, Bold
-    
+
     // Layout
     val marginTop: Int = 32,      // in dp
     val marginBottom: Int = 32,   // in dp
@@ -33,14 +33,14 @@ data class ReaderSettingsEntity(
     val marginRight: Int = 24,    // in dp
     val textAlignment: String = "Left",  // Left, Center, Justify
     val paragraphSpacing: Int = 8,  // in dp
-    
+
     // Page Turn Settings
     val pageTurnAnimation: String = "Slide",  // Slide, Fade, Curl, None
     val pageTurnSpeed: String = "Normal",  // Slow, Normal, Fast
     val tapToTurnPages: Boolean = true,
     val swipeToTurnPages: Boolean = true,
     val volumeKeysToTurnPages: Boolean = true,
-    
+
     // Display
     val theme: String = "Auto",  // Auto, Light, Dark, Sepia
     val brightness: Float = -1f,  // -1 for system, 0-1 for custom
@@ -48,71 +48,71 @@ data class ReaderSettingsEntity(
     val autoNightMode: Boolean = true,
     val nightModeStart: String = "22:00",
     val nightModeEnd: String = "07:00",
-    
+
     // Reading Experience
     val enableHyphenation: Boolean = true,
     val enablePageNumbers: Boolean = true,
     val enableProgressIndicator: Boolean = true,
     val fullScreenMode: Boolean = false,
     val keepScreenOn: Boolean = true,
-    
+
     // Advanced
     val enableDictionaryLookup: Boolean = true,
     val enableTextSelection: Boolean = true,
     val enableTranslation: Boolean = true,
     val scrollingMode: Boolean = false,  // false = page mode, true = scroll mode
-    
+
     // Enhanced Reading Features (LibreraReader-inspired)
     // Color Scheme
     val colorScheme: String = "Classic Day",  // From ReaderColorScheme options
-    
+
     // Reading Ruler
     val rulerEnabled: Boolean = false,
     val rulerHeight: Int = 60,  // in dp
     val rulerColor: String = "#808080",  // Gray
     val rulerAlpha: Float = 0.3f,  // 0-1
     val rulerPosition: Float = 0.5f,  // 0-1, vertical position
-    
+
     // RSVP Speed Reading
     val rsvpEnabled: Boolean = false,
     val rsvpWpm: Int = 250,  // Words per minute (100-600)
     val rsvpFontSize: Int = 32,  // sp
-    
+
     // Enhanced Auto-Scroll
     val autoScrollEnabled: Boolean = false,
     val autoScrollSpeedMultiplier: Float = 1.0f,  // 0.1x - 5.0x
-    
+
     // Enhanced EPUB Reader Features (Phase 3 - Myne-inspired)
     /**
      * Font family options: System, Serif, Sans-Serif, Monospace, OpenDyslexic
      */
     val epubFontFamily: String = "System",
-    
+
     /**
      * Reading themes: Default, Sepia, Night, Custom
      */
     val epubReadingTheme: String = "Default",
-    
+
     /**
      * Text alignment: Left, Center, Justify
      */
     val epubTextAlignment: String = "Left",
-    
+
     /**
      * Line height multiplier: 1.0 - 2.0
      */
     val epubLineHeight: Float = 1.5f,
-    
+
     /**
      * Custom background color for reading (hex string)
      */
     val epubCustomBackgroundColor: String = "#FFFFFF",
-    
+
     /**
      * Custom text color for reading (hex string)
      */
     val epubCustomTextColor: String = "#000000",
-    
+
     val updatedAt: Long = System.currentTimeMillis()
 )
 
@@ -137,20 +137,20 @@ data class ReaderSettingsEntity(
 data class BookReaderSettingsEntity(
     @PrimaryKey
     val bookId: Long,
-    
+
     // Override any global settings for this specific book
     val fontSize: Int? = null,
     val fontFamily: String? = null,
     val lineHeight: Float? = null,
     val theme: String? = null,
     val brightness: Float? = null,
-    
+
     // Book-specific state
     val currentPage: Int = 0,
     val currentChapter: Int = 0,
     val currentPosition: Float = 0f,  // Percentage through book
     val lastReadAt: Long = System.currentTimeMillis(),
-    
+
     val updatedAt: Long = System.currentTimeMillis()
 )
 
@@ -237,7 +237,7 @@ data class ReaderSettings(
     val autoScrollSpeed: Int = 30,
     val autoScrollMode: String = "OFF",
     val textAlignment: String = "Left",
-    
+
     // Enhanced Reading Features
     val colorScheme: String = "Classic Day",
     val rulerEnabled: Boolean = false,
@@ -259,7 +259,7 @@ data class ReaderSettings(
             "Light" -> "#FFFFFF"
             else -> "#FFFFFF" // Auto defaults to light
         }
-    
+
     val textColor: String
         get() = when (theme) {
             "Dark" -> "#FFFFFF"
@@ -267,7 +267,7 @@ data class ReaderSettings(
             "Light" -> "#000000"
             else -> "#000000" // Auto defaults to dark text
         }
-    
+
     companion object {
         /**
          * Create default settings from global settings only
@@ -307,7 +307,7 @@ data class ReaderSettings(
                 autoScrollSpeed = 30, // Default - not in entity
                 autoScrollMode = "OFF", // Default - not in entity
                 textAlignment = entity.textAlignment,
-                
+
                 // Enhanced Reading Features
                 colorScheme = entity.colorScheme,
                 rulerEnabled = entity.rulerEnabled,
@@ -355,7 +355,7 @@ data class ReaderSettings(
                 autoScrollSpeed = 30, // Default - not in entity
                 autoScrollMode = "OFF", // Default - not in entity
                 textAlignment = global.textAlignment,
-                
+
                 // Enhanced Reading Features
                 colorScheme = global.colorScheme,
                 rulerEnabled = global.rulerEnabled,
@@ -398,7 +398,7 @@ fun ReaderSettings.toEntity(): ReaderSettingsEntity {
         volumeKeysToTurnPages = this.volumeKeysToTurnPages,
         pageTurnAnimation = this.pageAnimation,
         textAlignment = this.textAlignment,
-        
+
         // Enhanced Reading Features
         colorScheme = this.colorScheme,
         rulerEnabled = this.rulerEnabled,

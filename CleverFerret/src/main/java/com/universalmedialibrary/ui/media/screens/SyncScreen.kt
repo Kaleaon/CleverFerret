@@ -23,7 +23,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Sync Screen
- * 
+ *
  * Manage sync across devices and services:
  * - Reading progress sync
  * - Library sync (Plex, Calibre, etc.)
@@ -87,7 +87,7 @@ fun MediaSyncScreen(
                     onSyncNow = onSyncNow
                 )
             }
-            
+
             // Progress sync section
             item {
                 SectionHeader(title = "Reading Progress", icon = Icons.Default.MenuBook)
@@ -98,7 +98,7 @@ fun MediaSyncScreen(
                     onConfigure = { onConfigureService(state.progressSyncService) }
                 )
             }
-            
+
             // Library sync section
             item {
                 SectionHeader(title = "Library Sync", icon = Icons.Default.LibraryBooks)
@@ -109,7 +109,7 @@ fun MediaSyncScreen(
                     onConfigure = { onConfigureService(service) }
                 )
             }
-            
+
             // Cloud backup section
             item {
                 SectionHeader(title = "Cloud Backup", icon = Icons.Default.Cloud)
@@ -120,7 +120,7 @@ fun MediaSyncScreen(
                     onConfigure = { onConfigureService(service) }
                 )
             }
-            
+
             // Sync history
             if (state.syncHistory.isNotEmpty()) {
                 item {
@@ -158,13 +158,13 @@ private fun SyncStatusCard(
                         color = MediaColors.TextPrimary
                     )
                     Text(
-                        text = if (isSyncing) "Syncing..." 
+                        text = if (isSyncing) "Syncing..."
                                else lastSyncTime?.let { "Last sync: $it" } ?: "Never synced",
                         style = MediaTypography.LabelSmall,
                         color = MediaColors.TextSecondary
                     )
                 }
-                
+
                 if (isSyncing) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
@@ -186,9 +186,9 @@ private fun SyncStatusCard(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.MD))
-            
+
             Button(
                 onClick = onSyncNow,
                 enabled = !isSyncing,
@@ -238,9 +238,9 @@ private fun SyncServiceCard(
                     modifier = Modifier.padding(MediaSpacing.SM)
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = service.name,
@@ -263,7 +263,7 @@ private fun SyncServiceCard(
                     }
                 )
             }
-            
+
             // Status indicator
             Surface(
                 shape = CircleShape,
@@ -275,9 +275,9 @@ private fun SyncServiceCard(
                 },
                 modifier = Modifier.size(10.dp)
             ) {}
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Media image",
@@ -310,9 +310,9 @@ private fun SyncHistoryItem(
             },
             modifier = Modifier.size(20.dp)
         )
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = entry.description,
@@ -379,7 +379,7 @@ fun ImportExportScreen(
                     modifier = Modifier.padding(vertical = MediaSpacing.SM)
                 )
             }
-            
+
             items(ImportExportType.entries.toTypedArray()) { type ->
                 ImportExportCard(
                     type = type,
@@ -387,7 +387,7 @@ fun ImportExportScreen(
                     onClick = { onImport(type) }
                 )
             }
-            
+
             // Export section
             item {
                 Spacer(modifier = Modifier.height(MediaSpacing.MD))
@@ -398,7 +398,7 @@ fun ImportExportScreen(
                     modifier = Modifier.padding(vertical = MediaSpacing.SM)
                 )
             }
-            
+
             items(ImportExportType.entries.toTypedArray()) { type ->
                 ImportExportCard(
                     type = type,
@@ -432,9 +432,9 @@ private fun ImportExportCard(
                 contentDescription = "Media image",
                 tint = MediaColors.AccentPrimary
             )
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "${if (isImport) "Import" else "Export"} ${type.displayName}",
@@ -447,7 +447,7 @@ private fun ImportExportCard(
                     color = MediaColors.TextSecondary
                 )
             }
-            
+
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Media image",

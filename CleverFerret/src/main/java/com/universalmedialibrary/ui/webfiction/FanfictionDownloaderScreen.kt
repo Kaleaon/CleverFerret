@@ -105,7 +105,7 @@ fun FanfictionDownloaderScreen(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium
                         )
-                        
+
                         OutlinedTextField(
                             value = uiState.url,
                             onValueChange = { viewModel.updateUrl(it) },

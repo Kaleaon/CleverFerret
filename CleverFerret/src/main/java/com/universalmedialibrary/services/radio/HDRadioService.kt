@@ -12,10 +12,10 @@ import javax.inject.Singleton
 
 /**
  * Service for HD Radio (digital radio) streaming via Internet
- * 
+ *
  * HD Radio provides high-quality digital audio and additional data services.
  * This implementation accesses HD Radio stations via their internet streams.
- * 
+ *
  * Features:
  * - Main channel (HD1) and sub-channels (HD2, HD3, etc.)
  * - Artist and song information
@@ -182,7 +182,7 @@ class HDRadioService @Inject constructor(
     fun searchStations(query: String): List<HDRadioStation> {
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) return _hdStations.value
-        
+
         val lowerQuery = trimmedQuery.lowercase()
         val digitQuery = trimmedQuery.filter { it.isDigit() }
 
@@ -273,7 +273,7 @@ class HDRadioService @Inject constructor(
 
 /**
  * HD Radio Station
- * 
+ *
  * HD Radio is a digital radio standard that provides:
  * - CD-quality audio
  * - Multiple channels per frequency (HD1, HD2, HD3, etc.)
@@ -298,7 +298,7 @@ data class HDRadioStation(
 ) {
     val displayFrequency: String
         get() = "%.1f FM".format(frequency / 1000.0)
-        
+
     val fullName: String
         get() = if (name.contains(channel, ignoreCase = true)) name else "$name $channel"
 }

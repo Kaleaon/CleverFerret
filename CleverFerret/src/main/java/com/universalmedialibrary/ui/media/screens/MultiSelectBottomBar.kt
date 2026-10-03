@@ -47,7 +47,7 @@ internal fun MultiSelectBottomBar(
                 Spacer(Modifier.width(MediaSpacing.SM))
                 Text("Add to Library")
             }
-            
+
             Button(
                 onClick = onConfirm,
                 modifier = Modifier.weight(1f),

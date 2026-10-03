@@ -50,9 +50,9 @@ internal fun FileBrowserSettingsDialog(
                     selectedTypes = settings.selectedFileTypes,
                     onTypesChange = { onSettingsChange(settings.copy(selectedFileTypes = it)) }
                 )
-                
+
                 HorizontalDivider()
-                
+
                 // File size filter
                 Text("File Size (KB)", style = MaterialTheme.typography.titleSmall)
                 Row(
@@ -61,7 +61,7 @@ internal fun FileBrowserSettingsDialog(
                 ) {
                     OutlinedTextField(
                         value = settings.minFileSizeKB.toString(),
-                        onValueChange = { 
+                        onValueChange = {
                             onSettingsChange(settings.copy(minFileSizeKB = it.toIntOrNull() ?: 0))
                         },
                         label = { Text("Min") },
@@ -69,16 +69,16 @@ internal fun FileBrowserSettingsDialog(
                     )
                     OutlinedTextField(
                         value = if (settings.maxFileSizeKB == Int.MAX_VALUE) "" else settings.maxFileSizeKB.toString(),
-                        onValueChange = { 
+                        onValueChange = {
                             onSettingsChange(settings.copy(maxFileSizeKB = it.toIntOrNull() ?: Int.MAX_VALUE))
                         },
                         label = { Text("Max") },
                         modifier = Modifier.weight(1f)
                     )
                 }
-                
+
                 HorizontalDivider()
-                
+
                 // Show hidden files
                 Row(
                     modifier = Modifier.fillMaxWidth(),

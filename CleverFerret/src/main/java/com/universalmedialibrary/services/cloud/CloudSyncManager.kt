@@ -10,7 +10,7 @@ import com.universalmedialibrary.core.logging.AppLogger
 
 /**
  * Cloud Sync Manager for CleverFerret
- * 
+ *
  * Coordinates synchronization across multiple cloud storage providers:
  * - Google Drive
  * - Dropbox
@@ -26,16 +26,16 @@ class CloudSyncManager @Inject constructor(
     private val oneDriveService: OneDriveService,
     private val webDavService: WebDavService
 ) {
-    
+
     private val _syncStatus = MutableStateFlow(SyncStatus.IDLE)
     val syncStatus: Flow<SyncStatus> = _syncStatus.asStateFlow()
-    
+
     private val _syncProgress = MutableStateFlow(0f)
     val syncProgress: Flow<Float> = _syncProgress.asStateFlow()
-    
+
     private val _activeProviders = MutableStateFlow(setOf<CloudProvider>())
     val activeProviders: Flow<Set<CloudProvider>> = _activeProviders.asStateFlow()
-    
+
     private val _lastSyncResults = MutableStateFlow<Map<CloudProvider, SyncResult>>(emptyMap())
     val lastSyncResults: Flow<Map<CloudProvider, SyncResult>> = _lastSyncResults.asStateFlow()
 
@@ -44,7 +44,7 @@ class CloudSyncManager @Inject constructor(
      */
     suspend fun initialize(): Boolean {
         val initializedProviders = mutableSetOf<CloudProvider>()
-        
+
         // Initialize each provider
         if (googleDriveService.initialize()) {
             initializedProviders.add(CloudProvider.GOOGLE_DRIVE)
@@ -58,7 +58,7 @@ class CloudSyncManager @Inject constructor(
         if (webDavService.initialize()) {
             initializedProviders.add(CloudProvider.WEBDAV)
         }
-        
+
         _activeProviders.value = initializedProviders
         return initializedProviders.isNotEmpty()
     }
@@ -69,33 +69,33 @@ class CloudSyncManager @Inject constructor(
     suspend fun syncAll(): Map<CloudProvider, SyncResult> {
         _syncStatus.value = SyncStatus.SYNCING
         val results = mutableMapOf<CloudProvider, SyncResult>()
-        
+
         try {
             val providers = _activeProviders.value
             val totalProviders = providers.size
-            
+
             providers.forEachIndexed { index, provider ->
                 _syncProgress.value = index.toFloat() / totalProviders.toFloat()
-                
+
                 val result = when (provider) {
                     CloudProvider.GOOGLE_DRIVE -> googleDriveService.syncMedia()
                     CloudProvider.DROPBOX -> dropboxService.syncMedia()
                     CloudProvider.ONEDRIVE -> oneDriveService.syncMedia()
                     CloudProvider.WEBDAV -> webDavService.syncMedia()
                 }
-                
+
                 results[provider] = result
             }
-            
+
             _syncProgress.value = 1f
             _syncStatus.value = SyncStatus.COMPLETED
             _lastSyncResults.value = results
-            
+
         } catch (e: Exception) {
             _syncStatus.value = SyncStatus.ERROR
             AppLogger.error("CloudSyncManager", "Unhandled exception", e)
         }
-        
+
         return results
     }
 
@@ -148,7 +148,7 @@ class CloudSyncManager @Inject constructor(
     suspend fun getCombinedStorageUsage(): Map<CloudProvider, StorageUsage?> {
         val providers = _activeProviders.value
         val usage = mutableMapOf<CloudProvider, StorageUsage?>()
-        
+
         providers.forEach { provider ->
             usage[provider] = when (provider) {
                 CloudProvider.GOOGLE_DRIVE -> googleDriveService.getStorageUsage()
@@ -157,7 +157,7 @@ class CloudSyncManager @Inject constructor(
                 CloudProvider.WEBDAV -> webDavService.getStorageUsage()
             }
         }
-        
+
         return usage
     }
 
@@ -166,7 +166,7 @@ class CloudSyncManager @Inject constructor(
      */
     suspend fun setProviderEnabled(provider: CloudProvider, enabled: Boolean) {
         val currentProviders = _activeProviders.value.toMutableSet()
-        
+
         if (enabled) {
             when (provider) {
                 CloudProvider.GOOGLE_DRIVE -> {
@@ -193,7 +193,7 @@ class CloudSyncManager @Inject constructor(
         } else {
             currentProviders.remove(provider)
         }
-        
+
         _activeProviders.value = currentProviders
     }
 
@@ -206,7 +206,7 @@ class CloudSyncManager @Inject constructor(
         val totalDownloaded = results.values.sumOf { it.downloadedCount }
         val totalConflicts = results.values.sumOf { it.conflictCount }
         val lastSyncTime = results.values.maxOfOrNull { System.currentTimeMillis() } ?: 0L
-        
+
         return SyncStatistics(
             totalUploaded = totalUploaded,
             totalDownloaded = totalDownloaded,

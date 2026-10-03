@@ -24,7 +24,7 @@ internal val MIGRATION_31_32: Migration = object : Migration(31, 32) {
                 metadata TEXT NOT NULL
             )
         """.trimIndent())
-        
+
         // Create audio_pack_sounds linking table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS audio_pack_sounds (
@@ -35,4 +35,3 @@ internal val MIGRATION_31_32: Migration = object : Migration(31, 32) {
         """.trimIndent())
     }
 }
-

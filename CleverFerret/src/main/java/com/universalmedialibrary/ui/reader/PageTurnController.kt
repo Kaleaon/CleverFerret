@@ -54,20 +54,20 @@ fun rememberPageTurnController(
             enableHaptic = enableHaptic
         )
     }
-    
+
     // Handle animation when turning starts
     LaunchedEffect(controller.state.value.isTurning) {
         if (controller.state.value.isTurning) {
             controller.animateTurn()
         }
     }
-    
+
     DisposableEffect(controller) {
         onDispose {
             controller.cleanup()
         }
     }
-    
+
     return controller
 }
 
@@ -80,54 +80,54 @@ class PageTurnController(
 ) {
     private var _state = mutableStateOf(PageTurnState())
     val state: State<PageTurnState> = _state
-    
+
     private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null
-    
+
     init {
         if (enableSound) {
             // Sound disabled - add custom sound file to res/raw if needed
             // Example: mediaPlayer = MediaPlayer.create(context, R.raw.page_turn)
             mediaPlayer = null
         }
-        
+
         if (enableHaptic) {
             vibrator = context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? Vibrator
         }
     }
-    
+
     fun startDrag(deltaX: Float) {
         if (_state.value.isTurning) return
-        
+
         val direction = if (deltaX < 0) PageTurnDirection.FORWARD else PageTurnDirection.BACKWARD
         val progress = (kotlin.math.abs(deltaX) / 1000f).coerceIn(0f, 1f)
-        
+
         _state.value = _state.value.copy(
             isDragging = true,
             direction = direction,
             turnProgress = progress
         )
     }
-    
+
     fun updateDrag(deltaX: Float) {
         if (!_state.value.isDragging) return
-        
+
         val direction = if (deltaX < 0) PageTurnDirection.FORWARD else PageTurnDirection.BACKWARD
         val progress = (kotlin.math.abs(deltaX) / 1000f).coerceIn(0f, 1f)
-        
+
         _state.value = _state.value.copy(
             direction = direction,
             turnProgress = progress
         )
     }
-    
+
     fun endDrag(scope: kotlinx.coroutines.CoroutineScope) {
         val currentState = _state.value
         if (!currentState.isDragging) return
-        
+
         val threshold = animationSettings.swipeThreshold
         val shouldTurn = currentState.turnProgress >= threshold
-        
+
         if (shouldTurn) {
             // Trigger page turn
             triggerPageTurn(currentState.direction)
@@ -138,20 +138,20 @@ class PageTurnController(
             }
         }
     }
-    
+
     fun triggerPageTurn(direction: PageTurnDirection) {
         if (_state.value.isTurning) return
-        
+
         // Play sound
         if (enableSound) {
             playPageTurnSound()
         }
-        
+
         // Haptic feedback
         if (enableHaptic && animationSettings.enableHapticFeedback) {
             triggerHapticFeedback()
         }
-        
+
         // Start animation
         _state.value = _state.value.copy(
             isTurning = true,
@@ -159,44 +159,44 @@ class PageTurnController(
             direction = direction,
             turnProgress = 0f
         )
-        
+
         // Animation will be triggered by LaunchedEffect in rememberPageTurnController
     }
-    
+
     suspend fun animateTurn() {
         val duration = animationSettings.duration
         val steps = 60 // 60 frames
         val stepDuration = duration / steps
-        
+
         for (i in 0..steps) {
             val progress = i.toFloat() / steps
             _state.value = _state.value.copy(turnProgress = progress)
             delay(stepDuration.toLong())
         }
-        
+
         // Complete turn
         onPageTurn(_state.value.direction)
-        
+
         // Reset state
         _state.value = PageTurnState()
     }
-    
+
     suspend fun cancelTurn() {
         // Animate back to start
         val duration = 200 // Quick cancel animation
         val steps = 30
         val stepDuration = duration / steps
         val startProgress = _state.value.turnProgress
-        
+
         for (i in steps downTo 0) {
             val progress = startProgress * (i.toFloat() / steps)
             _state.value = _state.value.copy(turnProgress = progress)
             delay(stepDuration.toLong())
         }
-        
+
         _state.value = PageTurnState()
     }
-    
+
     private fun playPageTurnSound() {
         try {
             mediaPlayer?.let {
@@ -210,7 +210,7 @@ class PageTurnController(
             // Ignore sound errors
         }
     }
-    
+
     private fun triggerHapticFeedback() {
         try {
             vibrator?.let {
@@ -220,7 +220,7 @@ class PageTurnController(
             // Ignore vibration errors
         }
     }
-    
+
     fun cleanup() {
         mediaPlayer?.release()
         mediaPlayer = null
@@ -263,7 +263,7 @@ fun PageTurnWrapper(
     modifier: Modifier = Modifier
 ) {
     val state = controller.state.value
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()

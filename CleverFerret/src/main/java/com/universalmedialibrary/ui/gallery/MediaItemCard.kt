@@ -60,7 +60,7 @@ internal fun MediaItemCard(
             )
     ) {
         AsyncImage(
-                    
+
             model = ImageRequest.Builder(LocalContext.current)
                 .data(item.uri)
                 .crossfade(true)
@@ -69,7 +69,7 @@ internal fun MediaItemCard(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
-        
+
         // Video duration badge
         if (item.isVideo && item.formattedDuration != null) {
             Surface(
@@ -87,7 +87,7 @@ internal fun MediaItemCard(
                 )
             }
         }
-        
+
         // Favorite indicator
         if (item.isFavorite) {
             Icon(
@@ -100,7 +100,7 @@ internal fun MediaItemCard(
                 tint = MaterialTheme.colorScheme.error
             )
         }
-        
+
         // Selection checkbox
         if (isSelectionMode) {
             Box(
@@ -111,7 +111,7 @@ internal fun MediaItemCard(
                         else Color.Transparent
                     )
             )
-            
+
             Checkbox(
                 checked = isSelected,
                 onCheckedChange = null,

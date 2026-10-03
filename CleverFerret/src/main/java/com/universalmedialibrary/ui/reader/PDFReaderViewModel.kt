@@ -35,7 +35,7 @@ class PDFReaderViewModel @Inject constructor(
 
     private val _annotations = MutableStateFlow<List<Annotation>>(emptyList())
     val annotations: StateFlow<List<Annotation>> = _annotations.asStateFlow()
-    
+
     private val _bookmarks = MutableStateFlow<List<Int>>(emptyList())
     val bookmarks: StateFlow<List<Int>> = _bookmarks.asStateFlow()
     private var currentItemId: Long? = null
@@ -65,7 +65,7 @@ class PDFReaderViewModel @Inject constructor(
     fun loadPDF(filePath: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
-                isLoading = true, 
+                isLoading = true,
                 error = null,
                 filePath = filePath
             )
@@ -162,10 +162,10 @@ class PDFReaderViewModel @Inject constructor(
     fun deleteAnnotation(annotationId: Long) {
         _annotations.value = _annotations.value.filter { it.id != annotationId }
     }
-    
+
     fun updateAnnotation(annotation: Annotation) {
-        _annotations.value = _annotations.value.map { 
-            if (it.id == annotation.id) annotation else it 
+        _annotations.value = _annotations.value.map {
+            if (it.id == annotation.id) annotation else it
         }
     }
 
@@ -204,7 +204,7 @@ class PDFReaderViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun clearSearch() {
         _uiState.value = _uiState.value.copy(
             searchQuery = "",
@@ -219,17 +219,17 @@ class PDFReaderViewModel @Inject constructor(
     fun setZoomLevel(level: Float) {
         _uiState.value = _uiState.value.copy(zoomLevel = level.coerceIn(0.5f, 5f))
     }
-    
+
     fun zoomIn() {
         val currentZoom = _uiState.value.zoomLevel
         setZoomLevel(currentZoom + 0.25f)
     }
-    
+
     fun zoomOut() {
         val currentZoom = _uiState.value.zoomLevel
         setZoomLevel(currentZoom - 0.25f)
     }
-    
+
     fun resetZoom() {
         _uiState.value = _uiState.value.copy(
             zoomLevel = 1f,
@@ -245,7 +245,7 @@ class PDFReaderViewModel @Inject constructor(
     fun showPageSelector() {
         _uiState.value = _uiState.value.copy(showPageSelector = true)
     }
-    
+
     fun hidePageSelector() {
         _uiState.value = _uiState.value.copy(showPageSelector = false)
     }
@@ -253,51 +253,51 @@ class PDFReaderViewModel @Inject constructor(
     fun showBookmarks() {
         _uiState.value = _uiState.value.copy(showBookmarks = true)
     }
-    
+
     fun hideBookmarks() {
         _uiState.value = _uiState.value.copy(showBookmarks = false)
     }
-    
+
     fun toggleBookmark() {
         val currentPage = _uiState.value.currentPage
         val currentBookmarks = _bookmarks.value.toMutableList()
-        
+
         if (currentPage in currentBookmarks) {
             currentBookmarks.remove(currentPage)
         } else {
             currentBookmarks.add(currentPage)
             currentBookmarks.sort()
         }
-        
+
         _bookmarks.value = currentBookmarks
     }
-    
+
     fun isCurrentPageBookmarked(): Boolean {
         return _uiState.value.currentPage in _bookmarks.value
     }
-    
+
     fun setBrightness(brightness: Float) {
         _uiState.value = _uiState.value.copy(brightness = brightness.coerceIn(0.1f, 1f))
     }
-    
+
     fun toggleNightMode() {
         _uiState.value = _uiState.value.copy(nightMode = !_uiState.value.nightMode)
     }
-    
+
     fun toggleContinuousScroll() {
         _uiState.value = _uiState.value.copy(continuousScroll = !_uiState.value.continuousScroll)
     }
-    
+
     fun rotatePage() {
         val currentRotation = _uiState.value.pageRotation
         val newRotation = (currentRotation + 90) % 360
         _uiState.value = _uiState.value.copy(pageRotation = newRotation)
     }
-    
+
     fun getAnnotationsForPage(page: Int): List<Annotation> {
         return _annotations.value.filter { it.pageNumber == page }
     }
-    
+
     fun exportAnnotations(): String {
         val annotations = _annotations.value
         return buildString {
@@ -305,7 +305,7 @@ class PDFReaderViewModel @Inject constructor(
             appendLine("Document: ${_uiState.value.documentTitle}")
             appendLine("Total Annotations: ${annotations.size}")
             appendLine("---")
-            
+
             annotations.groupBy { it.pageNumber }.forEach { (page, pageAnnotations) ->
                 appendLine("\nPage $page:")
                 pageAnnotations.forEach { annotation ->
@@ -349,7 +349,7 @@ Key Features:
    • Select any text in the document
    • Copy to clipboard functionality
    • Highlight selected text
-   
+
 3. Navigation
    • Page slider for quick navigation
    • Go to specific page dialog

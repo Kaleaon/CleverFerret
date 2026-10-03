@@ -71,7 +71,7 @@ NavigationItem(
     showInBottomNav = true
 ),
 NavigationItem(
-    route = "ambient", 
+    route = "ambient",
     label = "Ambient",
     icon = { Icon(PhosphorIcons.Nature, "Ambient") },
     showInBottomNav = true

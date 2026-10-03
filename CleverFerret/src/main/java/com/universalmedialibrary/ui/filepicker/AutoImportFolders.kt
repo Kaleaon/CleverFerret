@@ -17,7 +17,7 @@ import java.io.File
 /**
  * Auto-Import Folders Feature
  * Inspired by Moonreader's auto-import functionality
- * 
+ *
  * Automatically imports new books from selected folders to the library
  */
 
@@ -53,7 +53,7 @@ fun AutoImportFoldersScreen(
                 }
             }
         )
-        
+
         if (folders.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -137,7 +137,7 @@ private fun AutoImportFolderItem(
                     onCheckedChange = { onToggle() }
                 )
             }
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

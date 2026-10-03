@@ -144,16 +144,16 @@ class EnhancedEReaderViewModel @Inject constructor(
                     }
                 }
             }
-            
+
             textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) {
                     _ttsState.value = _ttsState.value.copy(isPlaying = true, isPaused = false)
                 }
-                
+
                 override fun onDone(utteranceId: String?) {
                     _ttsState.value = _ttsState.value.copy(isPlaying = false, isPaused = false)
                 }
-                
+
                 override fun onError(utteranceId: String?) {
                     _ttsState.value = _ttsState.value.copy(isPlaying = false, isPaused = false)
                 }
@@ -204,7 +204,7 @@ class EnhancedEReaderViewModel @Inject constructor(
         val targetIndex = (_uiState.value.currentChapterIndex + 1).coerceAtMost(total - 1)
         goToChapter(targetIndex)
     }
-    
+
     fun goToChapter(index: Int) {
         viewModelScope.launch {
             val total = _uiState.value.totalChapters
@@ -222,7 +222,7 @@ class EnhancedEReaderViewModel @Inject constructor(
             }
         }
     }
-    
+
     override fun onCleared() {
         viewModelScope.launch {
             readerService.closeCurrentBook()

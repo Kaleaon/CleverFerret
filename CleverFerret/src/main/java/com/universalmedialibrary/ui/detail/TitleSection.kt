@@ -46,7 +46,7 @@ internal fun TitleSection(
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-        
+
         if (subtitle != null) {
             Text(
                 text = subtitle,
@@ -54,13 +54,13 @@ internal fun TitleSection(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Chip(text = mediaType.lowercase().replaceFirstChar { it.uppercase() })
-            
+
             rating?.let {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),

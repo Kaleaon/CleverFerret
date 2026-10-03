@@ -56,7 +56,7 @@ fun MusicPlayerScreen(
 
     var currentPosition by remember { mutableLongStateOf(0L) }
     var isDragging by remember { mutableStateOf(false) }
-    
+
     // Dialog states
     var showSpeedDialog by remember { mutableStateOf(false) }
     var showVolumeDialog by remember { mutableStateOf(false) }
@@ -113,7 +113,7 @@ fun MusicPlayerScreen(
                     com.universalmedialibrary.ui.visualizer.VisualizerButton(
                         onClick = onNavigateToVisualizer
                     )
-                    
+
                     // Sleep timer indicator
                     if (sleepTimerState.isActive) {
                         IconButton(onClick = { showSleepTimerDialog = true }) {
@@ -131,7 +131,7 @@ fun MusicPlayerScreen(
                             }
                         }
                     }
-                    
+
                     // More menu
                     var showMoreMenu by remember { mutableStateOf(false) }
                     Box {
@@ -300,7 +300,7 @@ fun MusicPlayerScreen(
             }
         }
     }
-    
+
     // Dialogs
     if (showSpeedDialog) {
         PlaybackSpeedDialog(
@@ -309,7 +309,7 @@ fun MusicPlayerScreen(
             onDismiss = { showSpeedDialog = false }
         )
     }
-    
+
     if (showVolumeDialog) {
         VolumeDialog(
             currentVolume = volume,
@@ -317,7 +317,7 @@ fun MusicPlayerScreen(
             onDismiss = { showVolumeDialog = false }
         )
     }
-    
+
     if (showEqualizerDialog) {
         EqualizerDialog(
             currentPreset = equalizerPreset,
@@ -325,14 +325,14 @@ fun MusicPlayerScreen(
             onDismiss = { showEqualizerDialog = false }
         )
     }
-    
+
     if (showSleepTimerDialog) {
         SleepTimerDialog(
             onTimerSet = viewModel::startSleepTimer,
             onDismiss = { showSleepTimerDialog = false }
         )
     }
-    
+
     if (showAddToPlaylistDialog) {
         // Simple placeholder dialog for playlist feature
         AlertDialog(
@@ -375,7 +375,7 @@ internal fun AlbumArtSection(
             onClick = { onAlbumClick(track) }
         ) {
             AsyncImage(
-                    
+
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(track.albumArtUrl ?: "")
                     .placeholder(android.R.drawable.ic_media_play)
@@ -564,7 +564,7 @@ private fun ControlButtonsSection(
             Icon(
                 if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                 contentDescription = "Favorite",
-                tint = if (isFavorite) MaterialTheme.colorScheme.primary 
+                tint = if (isFavorite) MaterialTheme.colorScheme.primary
                        else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

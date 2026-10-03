@@ -37,4 +37,3 @@ internal val MIGRATION_36_37: Migration = object : Migration(36, 37) {
         )
     }
 }
-

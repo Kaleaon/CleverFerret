@@ -13,7 +13,7 @@ import com.universalmedialibrary.utils.PermissionState
 
 /**
  * Dialog displayed when required permissions are not granted.
- * 
+ *
  * Prompts the user to grant necessary permissions for the app to function properly.
  */
 @Composable
@@ -38,35 +38,35 @@ fun PermissionDialog(
                 modifier = Modifier.size(80.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Text(
                 text = "Permissions Required",
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = "CleverFerret needs access to your storage to browse and play your media files.",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Button(
                 onClick = { permissionState.requestPermissions() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Grant Permissions")
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             TextButton(
                 onClick = { /* Could open app settings */ }
             ) {

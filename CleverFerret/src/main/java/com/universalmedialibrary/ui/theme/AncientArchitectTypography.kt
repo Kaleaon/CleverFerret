@@ -9,12 +9,12 @@ import androidx.compose.ui.unit.sp
 
 /**
  * Typography system for Ancient Architect theme
- * 
+ *
  * Combines geometric sans-serif fonts with architectural feel:
  * - Display/Headline: Geometric, tech-inspired (like Orbitron)
  * - Body: Clean, readable (like Rajdhani)
  * - Accent: Classical feel for special elements (like Cinzel)
- * 
+ *
  * Note: Using system fonts as fallback. Replace with custom fonts if available.
  */
 
@@ -51,7 +51,7 @@ val AncientArchitectTypography = Typography(
         lineHeight = 44.sp,
         letterSpacing = 0.sp
     ),
-    
+
     // Headline styles - Geometric, prominent
     headlineLarge = TextStyle(
         fontFamily = GeometricFontFamily,
@@ -74,7 +74,7 @@ val AncientArchitectTypography = Typography(
         lineHeight = 32.sp,
         letterSpacing = 0.sp
     ),
-    
+
     // Title styles - Clean, architectural
     titleLarge = TextStyle(
         fontFamily = BodyFontFamily,
@@ -97,7 +97,7 @@ val AncientArchitectTypography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     ),
-    
+
     // Body styles - Readable, clean
     bodyLarge = TextStyle(
         fontFamily = BodyFontFamily,
@@ -120,7 +120,7 @@ val AncientArchitectTypography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.4.sp
     ),
-    
+
     // Label styles - Compact, clear
     labelLarge = TextStyle(
         fontFamily = BodyFontFamily,
@@ -159,7 +159,7 @@ object AncientArchitectTextStyles {
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     )
-    
+
     /**
      * Carved text style - appears like text carved in stone
      */
@@ -170,7 +170,7 @@ object AncientArchitectTextStyles {
         lineHeight = 24.sp,
         letterSpacing = 1.sp
     )
-    
+
     /**
      * Metallic nameplate style - for titles and labels
      */
@@ -181,7 +181,7 @@ object AncientArchitectTextStyles {
         lineHeight = 20.sp,
         letterSpacing = 1.5.sp
     )
-    
+
     /**
      * Ancient inscription style - for special messages
      */

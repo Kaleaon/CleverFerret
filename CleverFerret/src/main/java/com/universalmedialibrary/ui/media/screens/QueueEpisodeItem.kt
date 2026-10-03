@@ -48,7 +48,7 @@ internal fun QueueEpisodeItem(
             color = MediaColors.TextTertiary,
             modifier = Modifier.width(32.dp)
         )
-        
+
         // Drag handle
         Icon(
             imageVector = Icons.Default.DragHandle,
@@ -56,9 +56,9 @@ internal fun QueueEpisodeItem(
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(24.dp)
         )
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.SM))
-        
+
         // Artwork
         Surface(
             modifier = Modifier
@@ -68,7 +68,7 @@ internal fun QueueEpisodeItem(
         ) {
             if (episode.showArtworkUrl != null) {
                 AsyncImage(
-                    
+
                     model = episode.showArtworkUrl,
                     contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
@@ -76,9 +76,9 @@ internal fun QueueEpisodeItem(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = episode.title,
@@ -95,7 +95,7 @@ internal fun QueueEpisodeItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        
+
         IconButton(onClick = onPlay) {
             Icon(
                 imageVector = Icons.Default.PlayCircle,

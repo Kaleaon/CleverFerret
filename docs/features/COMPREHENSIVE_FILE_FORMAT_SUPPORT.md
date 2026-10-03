@@ -284,7 +284,7 @@ when (result) {
 
 1. **Format Detection**: All formats are detected by file extension primarily, with MIME type as fallback.
 
-2. **Extraction Methods**: 
+2. **Extraction Methods**:
    - ZIP-based formats (EPUB, DOCX, ODT) extract content from specific XML files
    - XML formats (FB2, XHTML) parse XML to extract text
    - Binary formats use specialized libraries or placeholders

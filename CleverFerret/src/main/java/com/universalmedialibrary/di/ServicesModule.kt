@@ -23,7 +23,7 @@ import javax.inject.Singleton
 
 /**
  * Hilt module providing service-layer dependencies.
- * 
+ *
  * This module provides singleton instances of various services including
  * storage access, API key management, fanfiction conversion, and web fiction downloading.
  */
@@ -33,7 +33,7 @@ object ServicesModule {
 
     /**
      * Provides a singleton StorageAccessService for managing media library storage.
-     * 
+     *
      * @param libraryDao DAO for accessing library data
      * @param mediaItemDao DAO for accessing media items
      * @param metadataDao DAO for accessing metadata
@@ -57,7 +57,7 @@ object ServicesModule {
 
     /**
      * Provides a singleton APIKeyRepository for managing third-party API keys.
-     * 
+     *
      * @param apiKeyDao DAO for accessing API key data
      * @return Singleton APIKeyRepository instance
      */
@@ -79,7 +79,7 @@ object ServicesModule {
 
     /**
      * Provides a singleton RedditFanficDownloader for downloading fanfiction from Reddit.
-     * 
+     *
      * @return Singleton RedditFanficDownloader instance
      */
     @Provides

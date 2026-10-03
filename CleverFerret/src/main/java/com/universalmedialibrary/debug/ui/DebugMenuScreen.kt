@@ -31,7 +31,7 @@ import java.util.*
 
 /**
  * Debug Menu Screen
- * 
+ *
  * Comprehensive debug panel accessible from the navbar in debug builds.
  * Provides access to:
  * - Crash reports
@@ -49,12 +49,12 @@ fun DebugMenuScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
-    
+
     var selectedTab by remember { mutableIntStateOf(0) }
     var showBugReportDialog by remember { mutableStateOf(false) }
     var showCrashDetails by remember { mutableStateOf<CrashReport?>(null) }
     var showErrorDetails by remember { mutableStateOf<ErrorLog?>(null) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -123,7 +123,7 @@ fun DebugMenuScreen(
                 crashCount = state.crashReports.size,
                 errorCount = state.errorLogs.size
             )
-            
+
             // Tab row
             ScrollableTabRow(
                 selectedTabIndex = selectedTab,
@@ -167,7 +167,7 @@ fun DebugMenuScreen(
                     )
                 }
             }
-            
+
             // Tab content
             when (selectedTab) {
                 0 -> CrashReportsTab(
@@ -198,7 +198,7 @@ fun DebugMenuScreen(
             }
         }
     }
-    
+
     // Bug Report Dialog
     if (showBugReportDialog) {
         BugReportDialog(
@@ -210,7 +210,7 @@ fun DebugMenuScreen(
             }
         )
     }
-    
+
     // Crash Details Dialog
     showCrashDetails?.let { crash ->
         CrashDetailsDialog(
@@ -218,7 +218,7 @@ fun DebugMenuScreen(
             onDismiss = { showCrashDetails = null }
         )
     }
-    
+
     // Error Details Dialog
     showErrorDetails?.let { error ->
         ErrorDetailsDialog(
@@ -286,7 +286,7 @@ private fun NotificationsTab(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
-        
+
         val notificationTypes = listOf(
             "download_complete" to "Download Complete",
             "sync_finished" to "Sync Finished",
@@ -295,7 +295,7 @@ private fun NotificationsTab(
             "storage_warning" to "Storage Warning",
             "update_available" to "Update Available"
         )
-        
+
         items(notificationTypes) { (type, label) ->
             OutlinedButton(
                 onClick = { onTriggerNotification(type) },

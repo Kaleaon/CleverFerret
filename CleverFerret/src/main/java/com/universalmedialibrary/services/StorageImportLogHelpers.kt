@@ -46,4 +46,3 @@ internal fun writeImportLog(context: Context, log: ImportTransactionLog) {
         file.writeText(importLogJson.encodeToString(log))
     }
 }
-

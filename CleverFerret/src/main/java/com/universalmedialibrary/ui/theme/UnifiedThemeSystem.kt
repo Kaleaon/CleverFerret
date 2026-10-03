@@ -12,7 +12,7 @@ import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
 
 /**
  * Unified Theme System for CleverFerret
- * 
+ *
  * Combines 12 traditional metallic themes with the new Ancient Architect theme system.
  * Provides seamless switching between all 15 theme variants:
  * - 12 Unified themes (Navy Gold, Emerald Silver, etc.)
@@ -37,17 +37,17 @@ enum class CleverFerretTheme {
     SLATE_GUNMETAL,
     DEEP_PURPLE_PLATINUM,
     PAPER_INK,
-    
+
     // Warm Metallic Themes (3)
     COPPER_BRONZE,
     AMBER_GOLD,
     ROSE_BRASS,
-    
+
     // Cool Metallic Themes (3)
     STEEL_TITANIUM,
     PLATINUM_SILVER,
     COBALT_CHROME,
-    
+
     // Ancient Architect Variants (3)
     ANCIENT_BRONZE,
     SILVER_ARCHITECT,
@@ -206,7 +206,7 @@ fun CleverFerretTheme.getConfig(): ThemeConfig {
 
 /**
  * Main unified theme composable
- * 
+ *
  * @param theme The theme to apply
  * @param darkTheme Whether to use dark theme (only applies to some themes)
  * @param enableGeometricPatterns Enable geometric patterns (Ancient Architect only)
@@ -229,7 +229,7 @@ fun UnifiedCleverFerretTheme(
         CleverFerretTheme.SILVER_ARCHITECT,
         CleverFerretTheme.OBSIDIAN_TECH
     )
-    
+
     if (isAncientArchitect) {
         // Use Ancient Architect theme system
         val variant = when (theme) {
@@ -238,7 +238,7 @@ fun UnifiedCleverFerretTheme(
             CleverFerretTheme.OBSIDIAN_TECH -> AncientArchitectVariant.OBSIDIAN_TECH
             else -> AncientArchitectVariant.ANCIENT_BRONZE
         }
-        
+
         AncientArchitectTheme(
             variant = variant,
             enableGeometricPatterns = enableGeometricPatterns,
@@ -266,7 +266,6 @@ fun UnifiedCleverFerretTheme(
             onError = String.format("#%08X", colorScheme.onError.toArgb())
         )
         val semanticTheme = KthemeThemeAdapterV1.adapt(kthemeSnapshot)
-        
         // Provide advanced effects context for all themes
         // Note: LocalEnable* composition locals are defined in AncientArchitectTheme.kt
         // and shared across all themes (same package, no import needed)

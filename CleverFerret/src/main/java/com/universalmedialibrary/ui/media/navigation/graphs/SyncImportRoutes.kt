@@ -46,7 +46,7 @@ fun NavGraphBuilder.syncImportRoutes(
     composable(MediaRoutes.SYNC) {
         val viewModel: MediaSyncViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         MediaSyncScreen(
             state = state,
             onSyncNow = { viewModel.syncNow() },
@@ -54,11 +54,11 @@ fun NavGraphBuilder.syncImportRoutes(
             onBackClick = { navController.popBackStack() }
         )
     }
-    
+
     composable(MediaRoutes.IMPORT_EXPORT) {
         val viewModel: ImportExportViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         ImportExportScreen(
             state = state,
             onImport = { type -> viewModel.startImport(type) },
@@ -66,12 +66,12 @@ fun NavGraphBuilder.syncImportRoutes(
             onBackClick = { navController.popBackStack() }
         )
     }
-    
+
     // Enhanced Folder Import Screen with metadata fetching
     composable(MediaRoutes.FOLDER_IMPORT) {
         com.universalmedialibrary.ui.folderimport.FolderImportScreen(
             onBack = { navController.popBackStack() },
-            onImportComplete = { 
+            onImportComplete = {
                 navController.popBackStack()
                 onShowSnackbar("Import complete!")
             }
@@ -81,7 +81,7 @@ fun NavGraphBuilder.syncImportRoutes(
     composable(MediaRoutes.FILE_BROWSER) {
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
-        
+
         com.universalmedialibrary.ui.filepicker.EnhancedFileBrowser(
             onFileSelected = { file ->
                 // Import the selected file to library
@@ -96,7 +96,7 @@ fun NavGraphBuilder.syncImportRoutes(
                             else -> "DOCUMENT"
                         }
                         onShowSnackbar("Importing ${file.name}...")
-                        
+
                         // Navigate to appropriate detail/reader based on type
                         when (mediaType) {
                             "BOOK" -> {
@@ -130,6 +130,6 @@ fun NavGraphBuilder.syncImportRoutes(
             }
         )
     }
-    
+
     // =====================================================================
 }

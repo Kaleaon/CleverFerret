@@ -20,10 +20,10 @@ import java.util.Locale
 
 /**
  * MIDI Player Screen
- * 
+ *
  * Displays MIDI file information and playback controls
  * Inspired by MuseScore's MIDI playback interface
- * 
+ *
  * Features:
  * - MIDI file metadata display
  * - Playback controls (play/pause/stop)
@@ -64,9 +64,9 @@ fun MidiPlayerScreen(
         ) {
             // MIDI File Info
             MidiFileInfoCard(midiFile)
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Playback Controls
             PlaybackControls(
                 playbackState = playbackState,
@@ -75,16 +75,16 @@ fun MidiPlayerScreen(
                 onSeek = onSeek,
                 onTempoChange = onTempoChange
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Track List
             Text(
                 text = "Tracks",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
-            
+
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(16.dp),
@@ -167,23 +167,23 @@ private fun PlaybackControls(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.width(48.dp)
             )
-            
+
             Slider(
                 value = playbackState.currentPosition.toFloat(),
                 onValueChange = { onSeek(it.toLong()) },
                 valueRange = 0f..playbackState.duration.toFloat(),
                 modifier = Modifier.weight(1f)
             )
-            
+
             Text(
                 text = formatDuration(playbackState.duration),
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.width(48.dp)
             )
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Control buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -194,9 +194,9 @@ private fun PlaybackControls(
             IconButton(onClick = onStop) {
                 Icon(Icons.Default.Stop, contentDescription = "Stop")
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             // Play/Pause button
             FilledIconButton(
                 onClick = onPlayPause,
@@ -212,9 +212,9 @@ private fun PlaybackControls(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             // Tempo control
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -224,7 +224,7 @@ private fun PlaybackControls(
                 Text("${playbackState.currentTempo} BPM")
             }
         }
-        
+
         // Error display
         if (playbackState.error != null) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -270,7 +270,7 @@ private fun TrackItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             // Mute button
             IconButton(onClick = onMute) {
                 Icon(
@@ -287,7 +287,7 @@ private fun TrackItem(
                     }
                 )
             }
-            
+
             // Solo button
             IconButton(onClick = onSolo) {
                 Icon(

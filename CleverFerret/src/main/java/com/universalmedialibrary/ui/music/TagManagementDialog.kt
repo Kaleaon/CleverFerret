@@ -45,7 +45,7 @@ fun TagManagementDialog(
     val availableTags by viewModel.availableTags.collectAsState()
     val suggestedTags by viewModel.suggestedTags.collectAsState()
     val isLoadingSuggestions by viewModel.isLoadingSuggestions.collectAsState()
-    
+
     var showCreateDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf(TagCategory.CUSTOM) }
 

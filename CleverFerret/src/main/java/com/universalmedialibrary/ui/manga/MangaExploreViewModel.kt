@@ -20,46 +20,46 @@ import javax.inject.Inject
 class MangaExploreViewModel @Inject constructor(
     private val sourceService: MangaSourceService
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(MangaExploreUiState())
     val uiState: StateFlow<MangaExploreUiState> = _uiState.asStateFlow()
-    
+
     private var currentSearchPage = 0
     private var currentPopularPage = 0
     private var currentLatestPage = 0
-    
+
     init {
         loadSources()
     }
-    
+
     private fun loadSources() {
         viewModelScope.launch {
             val sources = sourceService.getEnabledSources()
             val allSources = sourceService.getAllSources()
-            
+
             _uiState.update { it.copy(
                 sources = sources,
                 allSources = allSources,
                 selectedSource = sources.firstOrNull()
             )}
-            
+
             // Load initial content
             loadInitialContent()
         }
     }
-    
+
     private fun loadInitialContent() {
         viewModelScope.launch {
             val source = _uiState.value.selectedSource ?: return@launch
-            
+
             _uiState.update { it.copy(isLoading = true, error = null) }
-            
+
             try {
                 // Load popular
                 sourceService.getPopular(source.id, 0).onSuccess { page ->
                     _uiState.update { it.copy(popularManga = page.manga) }
                 }
-                
+
                 // Load latest
                 sourceService.getLatestUpdates(source.id, 0).onSuccess { page ->
                     _uiState.update { it.copy(latestManga = page.manga) }
@@ -71,38 +71,38 @@ class MangaExploreViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun selectSource(source: MangaSource) {
         if (source.id == _uiState.value.selectedSource?.id) return
-        
+
         _uiState.update { it.copy(
             selectedSource = source,
             popularManga = emptyList(),
             latestManga = emptyList(),
             searchResults = emptyList()
         )}
-        
+
         currentSearchPage = 0
         currentPopularPage = 0
         currentLatestPage = 0
-        
+
         loadInitialContent()
     }
-    
+
     fun search(query: String) {
         if (query.length < 3) return
-        
+
         viewModelScope.launch {
             val source = _uiState.value.selectedSource ?: return@launch
-            
+
             _uiState.update { it.copy(
-                isLoading = true, 
+                isLoading = true,
                 error = null,
                 currentQuery = query
             )}
-            
+
             currentSearchPage = 0
-            
+
             sourceService.search(source.id, query, 0).fold(
                 onSuccess = { page ->
                     _uiState.update { it.copy(
@@ -120,19 +120,19 @@ class MangaExploreViewModel @Inject constructor(
             )
         }
     }
-    
+
     fun loadMoreSearchResults() {
         val state = _uiState.value
         if (state.isLoading || !state.hasMoreSearchResults) return
-        
+
         viewModelScope.launch {
             val source = state.selectedSource ?: return@launch
             val query = state.currentQuery ?: return@launch
-            
+
             _uiState.update { it.copy(isLoading = true) }
-            
+
             currentSearchPage++
-            
+
             sourceService.search(source.id, query, currentSearchPage).fold(
                 onSuccess = { page ->
                     _uiState.update { it.copy(
@@ -151,7 +151,7 @@ class MangaExploreViewModel @Inject constructor(
             )
         }
     }
-    
+
     fun clearSearch() {
         _uiState.update { it.copy(
             searchResults = emptyList(),
@@ -160,15 +160,15 @@ class MangaExploreViewModel @Inject constructor(
         )}
         currentSearchPage = 0
     }
-    
+
     fun loadPopular() {
         viewModelScope.launch {
             val source = _uiState.value.selectedSource ?: return@launch
-            
+
             _uiState.update { it.copy(isLoading = true, error = null) }
-            
+
             currentPopularPage++
-            
+
             sourceService.getPopular(source.id, currentPopularPage).fold(
                 onSuccess = { page ->
                     _uiState.update { it.copy(
@@ -186,15 +186,15 @@ class MangaExploreViewModel @Inject constructor(
             )
         }
     }
-    
+
     fun loadLatest() {
         viewModelScope.launch {
             val source = _uiState.value.selectedSource ?: return@launch
-            
+
             _uiState.update { it.copy(isLoading = true, error = null) }
-            
+
             currentLatestPage++
-            
+
             sourceService.getLatestUpdates(source.id, currentLatestPage).fold(
                 onSuccess = { page ->
                     _uiState.update { it.copy(
@@ -212,29 +212,29 @@ class MangaExploreViewModel @Inject constructor(
             )
         }
     }
-    
+
     fun refresh() {
         currentSearchPage = 0
         currentPopularPage = 0
         currentLatestPage = 0
-        
+
         _uiState.update { it.copy(
             popularManga = emptyList(),
             latestManga = emptyList(),
             searchResults = emptyList(),
             error = null
         )}
-        
+
         loadInitialContent()
     }
-    
+
     fun toggleSource(sourceId: String, enabled: Boolean) {
         viewModelScope.launch {
             sourceService.setSourceEnabled(sourceId, enabled)
             loadSources()
         }
     }
-    
+
     fun pinSource(sourceId: String, pinned: Boolean) {
         viewModelScope.launch {
             sourceService.setSourcePinned(sourceId, pinned)
@@ -249,17 +249,17 @@ class MangaExploreViewModel @Inject constructor(
 data class MangaExploreUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    
+
     // Sources
     val sources: List<MangaSource> = emptyList(),
     val allSources: List<MangaSource> = emptyList(),
     val selectedSource: MangaSource? = null,
-    
+
     // Content
     val manga: List<OnlineManga> = emptyList(),
     val popularManga: List<OnlineManga> = emptyList(),
     val latestManga: List<OnlineManga> = emptyList(),
-    
+
     // Search
     val searchResults: List<OnlineManga> = emptyList(),
     val currentQuery: String? = null,

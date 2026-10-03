@@ -44,15 +44,15 @@ import kotlin.math.pow
 internal fun FileIcon(file: File) {
     val (icon, gradient) = when {
         file.isDirectory -> Icons.Default.Folder to listOf(Color(0xFFFFA726), Color(0xFFFF6F00))
-        file.extension.lowercase() in listOf("epub", "pdf", "txt", "mobi") -> 
+        file.extension.lowercase() in listOf("epub", "pdf", "txt", "mobi") ->
             Icons.Default.Book to listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))
-        file.extension.lowercase() in listOf("mp3", "m4a", "flac", "wav") -> 
+        file.extension.lowercase() in listOf("mp3", "m4a", "flac", "wav") ->
             Icons.Default.MusicNote to listOf(Color(0xFF4A148C), Color(0xFF9C27B0))
-        file.extension.lowercase() in listOf("mp4", "mkv", "avi", "mov") -> 
+        file.extension.lowercase() in listOf("mp4", "mkv", "avi", "mov") ->
             Icons.Default.Movie to listOf(Color(0xFF0D47A1), Color(0xFF2196F3))
-        file.extension.lowercase() in listOf("cbz", "cbr", "cb7") -> 
+        file.extension.lowercase() in listOf("cbz", "cbr", "cb7") ->
             Icons.Default.AutoStories to listOf(Color(0xFFE65100), Color(0xFFFF9800))
-        file.extension.lowercase() in listOf("jpg", "jpeg", "png", "gif") -> 
+        file.extension.lowercase() in listOf("jpg", "jpeg", "png", "gif") ->
             Icons.Default.Image to listOf(Color(0xFF006064), Color(0xFF00BCD4))
         else -> Icons.AutoMirrored.Filled.InsertDriveFile to listOf(Color(0xFF37474F), Color(0xFF78909C))
     }

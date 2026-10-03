@@ -52,7 +52,7 @@ internal fun PlaylistCard(
                         Row(modifier = Modifier.weight(1f)) {
                             playlist.artworkUrls.take(2).forEach { url ->
                                 AsyncImage(
-                    
+
                                     model = url,
                                     contentDescription = "Media image",
                                     contentScale = ContentScale.Crop,
@@ -65,7 +65,7 @@ internal fun PlaylistCard(
                         Row(modifier = Modifier.weight(1f)) {
                             playlist.artworkUrls.drop(2).take(2).forEach { url ->
                                 AsyncImage(
-                    
+
                                     model = url,
                                     contentDescription = "Media image",
                                     contentScale = ContentScale.Crop,
@@ -79,7 +79,7 @@ internal fun PlaylistCard(
                 }
                 playlist.artworkUrls.isNotEmpty() -> {
                     AsyncImage(
-                    
+
                         model = playlist.artworkUrls.first(),
                         contentDescription = "Media image",
                         contentScale = ContentScale.Crop,
@@ -98,9 +98,9 @@ internal fun PlaylistCard(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = playlist.name,
             style = MediaTypography.BodyMedium,
@@ -109,7 +109,7 @@ internal fun PlaylistCard(
             overflow = TextOverflow.Ellipsis,
             fontWeight = FontWeight.Medium
         )
-        
+
         Text(
             text = "${playlist.trackCount} tracks",
             style = MediaTypography.LabelSmall,

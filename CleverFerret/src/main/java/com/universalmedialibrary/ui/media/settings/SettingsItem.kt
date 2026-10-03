@@ -26,7 +26,7 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Settings Screen
- * 
+ *
  * A beautiful, modular settings interface that allows users to:
  * - Configure API providers and their capabilities
  * - Manage integrations (Plex, Jellyfin, Calibre, etc.)
@@ -63,9 +63,9 @@ internal fun SettingsItem(
                 tint = iconColor
             )
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
@@ -78,7 +78,7 @@ internal fun SettingsItem(
                 color = MediaColors.TextSecondary
             )
         }
-        
+
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = "Media image",

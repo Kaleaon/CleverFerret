@@ -25,14 +25,14 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric OPDS Browser Screen
- * 
+ *
  * Browse and download from OPDS/Atom catalogs:
  * - Standard Ebooks
  * - Project Gutenberg
  * - Feedbooks
  * - Calibre servers
  * - Custom catalogs
- * 
+ *
  * Features:
  * - Hierarchical navigation
  * - Search within catalogs
@@ -54,7 +54,7 @@ fun OPDSBrowserScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -85,7 +85,7 @@ fun OPDSBrowserScreen(
                     }
                 )
             }
-            
+
             when {
                 state.isLoading -> {
                     OPDSLoadingState()
@@ -114,7 +114,7 @@ fun OPDSBrowserScreen(
             }
         }
     }
-    
+
     // Add Catalog Dialog
     if (showAddDialog) {
         AddCatalogDialog(
@@ -242,7 +242,7 @@ private fun BreadcrumbNavigation(
                     modifier = Modifier.size(16.dp)
                 )
             }
-            
+
             TextButton(
                 onClick = { onNavigateToIndex(index) },
                 colors = ButtonDefaults.textButtonColors(
@@ -287,7 +287,7 @@ private fun CatalogListView(
                 modifier = Modifier.padding(vertical = MediaSpacing.SM)
             )
         }
-        
+
         items(catalogs.filter { it.isBuiltIn }) { catalog ->
             CatalogCard(
                 catalog = catalog,
@@ -295,7 +295,7 @@ private fun CatalogListView(
                 onRemove = null
             )
         }
-        
+
         // Custom catalogs
         val customCatalogs = catalogs.filter { !it.isBuiltIn }
         if (customCatalogs.isNotEmpty()) {
@@ -308,7 +308,7 @@ private fun CatalogListView(
                     modifier = Modifier.padding(vertical = MediaSpacing.SM)
                 )
             }
-            
+
             items(customCatalogs) { catalog ->
                 CatalogCard(
                     catalog = catalog,
@@ -352,9 +352,9 @@ private fun CatalogCard(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(MediaSpacing.MD))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = catalog.name,
@@ -370,7 +370,7 @@ private fun CatalogCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            
+
             if (onRemove != null) {
                 IconButton(onClick = onRemove) {
                     Icon(
@@ -380,7 +380,7 @@ private fun CatalogCard(
                     )
                 }
             }
-            
+
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Media image",
@@ -401,7 +401,7 @@ private fun OPDSEntriesView(
 ) {
     val navigationEntries = entries.filter { it.isNavigation }
     val bookEntries = entries.filter { !it.isNavigation }
-    
+
     LazyColumn(
         contentPadding = PaddingValues(vertical = MediaSpacing.MD),
         modifier = Modifier.fillMaxSize()
@@ -414,7 +414,7 @@ private fun OPDSEntriesView(
                     onClick = { onEntryClick(entry) }
                 )
             }
-            
+
             item {
                 HorizontalDivider(
                     color = MediaColors.Border,
@@ -422,7 +422,7 @@ private fun OPDSEntriesView(
                 )
             }
         }
-        
+
         // Book entries
         if (bookEntries.isNotEmpty()) {
             items(bookEntries) { entry ->
@@ -453,16 +453,16 @@ private fun NavigationEntryItem(
             tint = MediaColors.AccentPrimary,
             modifier = Modifier.size(24.dp)
         )
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Text(
             text = entry.title,
             style = MediaTypography.BodyMedium,
             color = MediaColors.TextPrimary,
             modifier = Modifier.weight(1f)
         )
-        
+
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = "Media image",
@@ -492,7 +492,7 @@ private fun BookEntryItem(
         ) {
             if (entry.coverUrl != null) {
                 AsyncImage(
-                    
+
                     model = entry.coverUrl,
                     contentDescription = "Media image",
                     contentScale = ContentScale.Crop,
@@ -509,9 +509,9 @@ private fun BookEntryItem(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = entry.title,
@@ -521,7 +521,7 @@ private fun BookEntryItem(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
             )
-            
+
             entry.author?.let { author ->
                 Text(
                     text = author,
@@ -531,7 +531,7 @@ private fun BookEntryItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            
+
             entry.summary?.let { summary ->
                 Spacer(modifier = Modifier.height(MediaSpacing.XS))
                 Text(
@@ -542,7 +542,7 @@ private fun BookEntryItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            
+
             // Format badges
             if (entry.formats.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(MediaSpacing.SM))
@@ -566,7 +566,7 @@ private fun BookEntryItem(
                 }
             }
         }
-        
+
         // Download button
         if (entry.isDownloadable) {
             IconButton(onClick = onClick) {
@@ -590,7 +590,7 @@ private fun AddCatalogDialog(
     onAdd: (String) -> Unit
 ) {
     var url by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {

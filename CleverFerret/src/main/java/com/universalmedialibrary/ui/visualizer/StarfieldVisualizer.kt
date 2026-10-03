@@ -29,28 +29,28 @@ internal fun StarfieldVisualizer(
 ) {
     val spectrum = state.frequencyBands.spectrum.ifEmpty { List(64) { 0f } }
     val bass = state.frequencyBands.bass
-    
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
-        
+
         // Use spectrum to determine star brightness/size
         spectrum.forEachIndexed { index, magnitude ->
             // Random-ish position based on index
             val angle = (index * 137.5f + rotation) * PI.toFloat() / 180f
             val distance = (index * 10f + (state.timestamp % 1000)) % (min(size.width, size.height) / 2)
-            
+
             val x = centerX + cos(angle) * distance
             val y = centerY + sin(angle) * distance
-            
+
             val size = 2f + magnitude * 10f + bass * 5f
-            
+
             drawCircle(
                 color = starColor.copy(alpha = magnitude.coerceIn(0.2f, 1f)),
                 radius = size,
                 center = Offset(x, y)
             )
-            
+
             // Trailing effect for fast moving stars (bass kick)
             if (bass > 0.5f) {
                 drawLine(

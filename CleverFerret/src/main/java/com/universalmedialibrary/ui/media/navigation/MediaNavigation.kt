@@ -62,13 +62,13 @@ fun MediaBottomNavigation(
         val effectiveDestinations = remember(destinations, bottomBarPreferences) {
             applyBottomBarPreferencesToMediaDestinations(destinations, bottomBarPreferences)
         }
-        
+
         // ===================================================================================
         // Navigation scroll behavior:
         // Start scrolled to the LEFT (beginning) so users see Home and primary items first
         // Users can scroll right to discover more navigation options
         // ===================================================================================
-        
+
         val showLeftFade by remember { derivedStateOf { scrollState.value > 0 } }
         val showRightFade by remember { derivedStateOf { scrollState.value < scrollState.maxValue } }
 
@@ -195,7 +195,7 @@ private fun BottomNavItem(
         },
         label = "bottom_nav_icon"
     )
-    
+
     val textColor by animateColorAsState(
         targetValue = when {
             !enabled -> cs.onSurfaceVariant.copy(alpha = 0.5f)
@@ -204,7 +204,7 @@ private fun BottomNavItem(
         },
         label = "bottom_nav_text"
     )
-    
+
     Column(
         modifier = Modifier
             .widthIn(min = MediaSizes.BottomNavMinItemWidth)
@@ -220,9 +220,9 @@ private fun BottomNavItem(
                 .clip(CircleShape)
                 .background(if (isSelected) cs.primary else Color.Transparent)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.XS))
-        
+
         // Increased icon size from IconMD (24dp) to IconLG (32dp) for better visibility
         Icon(
             imageVector = if (isSelected) destination.selectedIcon else destination.icon,
@@ -230,9 +230,9 @@ private fun BottomNavItem(
             tint = iconColor,
             modifier = Modifier.size(MediaSizes.IconLG)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.XS))
-        
+
         Text(
             text = destination.label,
             style = MediaTypography.LabelMedium,
@@ -264,9 +264,9 @@ fun MediaNavigationScaffold(
     val configuration = LocalConfiguration.current
     val isCompact = configuration.screenWidthDp < 600
     val isMedium = configuration.screenWidthDp in 600..839
-    
+
     var sidebarExpanded by remember { mutableStateOf(!isMedium) }
-    
+
     if (isCompact) {
         // Mobile: Bottom navigation
         Scaffold(
@@ -293,7 +293,7 @@ fun MediaNavigationScaffold(
                 userAvatarUrl = userAvatarUrl,
                 userName = userName
             )
-            
+
             Box(
                 modifier = Modifier
                     .weight(1f)

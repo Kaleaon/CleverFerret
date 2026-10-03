@@ -300,18 +300,18 @@ class UnifiedPlaybackQueueManager @Inject constructor(
     suspend fun skipToNext() = withContext(Dispatchers.IO) {
         val currentQueue = _currentQueue.value ?: return@withContext
         val items = _queueItems.value
-        
+
         if (items.isEmpty()) return@withContext
-        
+
         // Find current item index
         val currentIndex = items.indexOfFirst { it.isCurrentlyPlaying }
-        
+
         if (currentIndex < 0) {
             // No current item, start from first
             playQueueItemAtIndex(0)
             return@withContext
         }
-        
+
         // Check if we're at the end
         if (currentIndex >= items.size - 1) {
             // Handle based on repeat mode
@@ -337,18 +337,18 @@ class UnifiedPlaybackQueueManager @Inject constructor(
      */
     suspend fun skipToPrevious() = withContext(Dispatchers.IO) {
         val items = _queueItems.value
-        
+
         if (items.isEmpty()) return@withContext
-        
+
         // Find current item index
         val currentIndex = items.indexOfFirst { it.isCurrentlyPlaying }
-        
+
         if (currentIndex < 0) {
             // No current item; start from end
             playQueueItemAtIndex(items.size - 1)
             return@withContext
         }
-        
+
         if (currentIndex == 0) {
             // At beginning, restart current track or go to end based on repeat mode
             val currentQueue = _currentQueue.value
@@ -371,7 +371,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
     suspend fun playQueueItem(queueItemId: Long) = withContext(Dispatchers.IO) {
         val items = _queueItems.value
         val itemIndex = items.indexOfFirst { it.queueItemId == queueItemId }
-        
+
         if (itemIndex >= 0) {
             playQueueItemAtIndex(itemIndex)
         }
@@ -384,21 +384,21 @@ class UnifiedPlaybackQueueManager @Inject constructor(
         val currentQueue = _currentQueue.value ?: return@withContext
         val items = _queueItems.value
         val itemToRemove = items.find { it.queueItemId == queueItemId } ?: return@withContext
-        
+
         // Check if we're removing the currently playing item
         val wasCurrentlyPlaying = itemToRemove.isCurrentlyPlaying
         val removedPosition = itemToRemove.queuePosition
-        
+
         // Delete from database
         queueItemDao.deleteQueueItemById(queueItemId)
-        
+
         // Shift positions of items after the removed item
         queueItemDao.shiftPositionsDown(currentQueue.queueId, removedPosition, Int.MAX_VALUE)
-        
+
         // Reload queue items
         val updatedItems = queueItemDao.getQueueItems(currentQueue.queueId)
         _queueItems.value = updatedItems
-        
+
         // If we removed the current item, handle playback state
         if (wasCurrentlyPlaying) {
             if (updatedItems.isEmpty()) {
@@ -409,13 +409,13 @@ class UnifiedPlaybackQueueManager @Inject constructor(
                 // Find item at the same position (which is now the "next" item)
                 val nextItem = updatedItems.find { it.queuePosition == removedPosition }
                     ?: updatedItems.firstOrNull()
-                
+
                 nextItem?.let {
                     playQueueItem(it.queueItemId)
                 }
             }
         }
-        
+
         // Update queue timestamp
         queueDao.updateLastUsed(currentQueue.queueId)
     }
@@ -427,7 +427,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
         _currentQueue.value?.let { queue ->
             val modeString = repeatMode.name
             queueDao.updateRepeatMode(queue.queueId, modeString)
-            
+
             // Reload queue
             val updatedQueue = queueDao.getQueueById(queue.queueId)
             _currentQueue.value = updatedQueue
@@ -440,11 +440,11 @@ class UnifiedPlaybackQueueManager @Inject constructor(
     suspend fun setShuffleMode(enabled: Boolean) = withContext(Dispatchers.IO) {
         _currentQueue.value?.let { queue ->
             queueDao.updateShuffleMode(queue.queueId, enabled)
-            
+
             // Reload queue
             val updatedQueue = queueDao.getQueueById(queue.queueId)
             _currentQueue.value = updatedQueue
-            
+
             // If shuffle is enabled, randomize queue order (except current item)
             if (enabled) {
                 shuffleQueue()
@@ -453,32 +453,32 @@ class UnifiedPlaybackQueueManager @Inject constructor(
     }
 
     // Private helper methods
-    
+
     /**
      * Play the queue item at a specific index
      */
     private suspend fun playQueueItemAtIndex(index: Int) {
         val currentQueue = _currentQueue.value ?: return
         val items = _queueItems.value
-        
+
         if (index < 0 || index >= items.size) return
-        
+
         val itemToPlay = items[index]
-        
+
         // Clear current playing status
         queueItemDao.clearCurrentlyPlaying(currentQueue.queueId)
-        
+
         // Set new current item
         queueItemDao.setCurrentlyPlaying(itemToPlay.queueItemId)
         _currentItem.value = itemToPlay
-        
+
         // Record playback
         queueItemDao.recordPlayback(itemToPlay.queueItemId)
-        
+
         // Prepare and play
         preparePlayerForCurrentItem()
         play()
-        
+
         // Reload items to get updated state
         _queueItems.value = queueItemDao.getQueueItems(currentQueue.queueId)
     }
@@ -489,26 +489,26 @@ class UnifiedPlaybackQueueManager @Inject constructor(
     private suspend fun shuffleQueue() {
         val currentQueue = _currentQueue.value ?: return
         val items = _queueItems.value.toMutableList()
-        
+
         if (items.size <= 1) return
-        
+
         // Find and remove current item
         val currentIndex = items.indexOfFirst { it.isCurrentlyPlaying }
         val currentItem = if (currentIndex >= 0) items.removeAt(currentIndex) else null
-        
+
         // Shuffle remaining items
         items.shuffle()
-        
+
         // Put current item at the beginning if it exists
         if (currentItem != null) {
             items.add(0, currentItem)
         }
-        
+
         // Update positions in database
         items.forEachIndexed { index, item ->
             queueItemDao.updateItemPosition(item.queueItemId, index)
         }
-        
+
         // Reload queue items
         _queueItems.value = queueItemDao.getQueueItems(currentQueue.queueId)
     }

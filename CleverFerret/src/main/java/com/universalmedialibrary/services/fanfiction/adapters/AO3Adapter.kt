@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 /**
  * Adapter for Archive of Our Own (archiveofourown.org)
- * 
+ *
  * AO3 is the easiest site to scrape because:
  * - Clean HTML structure
  * - "View entire work" option
@@ -29,29 +29,29 @@ import javax.inject.Singleton
 class AO3Adapter @Inject constructor(
     private val httpClient: OkHttpClient
 ) : FanfictionSiteAdapter {
-    
+
     override val siteName = "Archive of Our Own"
     override val baseUrl = "https://archiveofourown.org"
-    
+
     private val urlPattern = Regex("https?://(?:www\\.)?archiveofourown\\.org/works/(\\d+)")
-    
+
     override fun canHandle(url: String): Boolean {
         return urlPattern.matches(url)
     }
-    
+
     override fun extractStoryId(url: String): String? {
         return urlPattern.find(url)?.groupValues?.get(1)
     }
-    
+
     override suspend fun extractMetadata(url: String): Result<StoryMetadata> {
         return withContext(Dispatchers.IO) {
             try {
-                val workId = extractStoryId(url) 
+                val workId = extractStoryId(url)
                     ?: return@withContext Result.failure(IllegalArgumentException("Invalid AO3 URL"))
-                
+
                 // Use view_full_work to get all chapters in one page
                 val doc = fetchDocument("$baseUrl/works/$workId?view_full_work=true")
-                
+
                 val metadata = StoryMetadata(
                     title = doc.select("h2.title").text().trim(),
                     author = doc.select("h3.byline a[rel=author]").text().trim(),
@@ -73,14 +73,14 @@ class AO3Adapter @Inject constructor(
                     sourceUrl = url,
                     sourceSite = siteName
                 )
-                
+
                 Result.success(metadata)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
     }
-    
+
     override suspend fun downloadChapters(
         url: String,
         progressCallback: (Int, Int, String) -> Unit
@@ -89,25 +89,25 @@ class AO3Adapter @Inject constructor(
             try {
                 val workId = extractStoryId(url)
                     ?: return@withContext Result.failure(IllegalArgumentException("Invalid AO3 URL"))
-                
+
                 progressCallback(0, 0, "Fetching story...")
-                
+
                 val doc = fetchDocument("$baseUrl/works/$workId?view_full_work=true")
                 val chapters = mutableListOf<Chapter>()
                 val chapterElements = doc.select("div#chapters div.chapter")
-                
+
                 val totalChapters = chapterElements.size
-                
+
                 chapterElements.forEachIndexed { index, element ->
                     progressCallback(index + 1, totalChapters, "Processing chapter ${index + 1}...")
-                    
+
                     val chapterTitle = element.select("h3.title").text().trim()
                         .removePrefix("${index + 1}.").trim()
-                    
+
                     val content = element.select("div.userstuff").html()
                     val authorNote = element.select("div.notes").html()
                         .takeIf { it.isNotBlank() }
-                    
+
                     chapters.add(
                         Chapter(
                             number = index + 1,
@@ -118,14 +118,14 @@ class AO3Adapter @Inject constructor(
                         )
                     )
                 }
-                
+
                 Result.success(chapters)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
     }
-    
+
     override suspend fun checkForUpdates(
         storyId: String,
         lastChapter: Int
@@ -135,29 +135,29 @@ class AO3Adapter @Inject constructor(
                 val doc = fetchDocument("$baseUrl/works/$storyId")
                 val currentChapters = extractChapterCount(doc)
                 val updateDate = extractDate(doc.select("dd.status").text())
-                
+
                 val updateInfo = UpdateInfo(
                     hasUpdates = currentChapters > lastChapter,
                     newChapters = (currentChapters - lastChapter).coerceAtLeast(0),
                     currentChapterCount = currentChapters,
                     lastUpdateDate = updateDate
                 )
-                
+
                 Result.success(updateInfo)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
     }
-    
+
     // Helper functions
-    
+
     private suspend fun fetchDocument(url: String): Document {
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", "CleverFerret/1.0 (Android)")
             .build()
-        
+
         return httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw Exception("HTTP error: ${response.code}")
@@ -165,7 +165,7 @@ class AO3Adapter @Inject constructor(
             Jsoup.parse(response.body?.string() ?: "")
         }
     }
-    
+
     private fun extractStatus(doc: Document): CompletionStatus {
         val statusText = doc.select("dd.status").text().lowercase()
         return when {
@@ -175,17 +175,17 @@ class AO3Adapter @Inject constructor(
             else -> CompletionStatus.IN_PROGRESS
         }
     }
-    
+
     private fun extractWordCount(doc: Document): Int {
         val text = doc.select("dd.words").text().replace(",", "")
         return text.toIntOrNull() ?: 0
     }
-    
+
     private fun extractChapterCount(doc: Document): Int {
         val chaptersText = doc.select("dd.chapters").text() // e.g., "10/15" or "15/15"
         return chaptersText.split("/").firstOrNull()?.toIntOrNull() ?: 1
     }
-    
+
     private fun extractDate(dateStr: String): LocalDate? {
         if (dateStr.isBlank()) return null
         return try {
@@ -194,7 +194,7 @@ class AO3Adapter @Inject constructor(
             null
         }
     }
-    
+
     private fun countWords(text: String): Int {
         return text.split(Regex("\\s+")).count { it.isNotBlank() }
     }

@@ -242,4 +242,3 @@ private fun FeatureCard(
         }
     }
 }
-

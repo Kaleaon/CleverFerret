@@ -27,7 +27,7 @@ class QRCodeSharingViewModel @Inject constructor(
     private val qrCodeSharingService: QRCodeSharingService,
     private val mediaLibraryService: MediaLibraryService
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(QRCodeSharingUiState())
     val uiState: StateFlow<QRCodeSharingUiState> = _uiState.asStateFlow()
 
@@ -55,7 +55,7 @@ class QRCodeSharingViewModel @Inject constructor(
                     // For now, create a sample playlist
                     val playlist = createSamplePlaylist()
                     val result = qrCodeSharingService.startSharing(playlist)
-                    
+
                     if (result.success) {
                         _uiState.value = _uiState.value.copy(
                             sharingMode = SharingMode.SHARING,
@@ -69,7 +69,7 @@ class QRCodeSharingViewModel @Inject constructor(
                 }
                 SharingType.CURRENT_TRACK -> {
                     val result = qrCodeSharingService.shareCurrentlyPlaying()
-                    
+
                     if (result.success) {
                         _uiState.value = _uiState.value.copy(
                             sharingMode = SharingMode.SHARING,
@@ -104,15 +104,15 @@ class QRCodeSharingViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(
                 isReceiving = true
             )
-            
+
             val result = qrCodeSharingService.receiveFromQRCode(url)
-            
+
             if (result.success) {
                 _uiState.value = _uiState.value.copy(
                     receiveResult = result,
                     error = null
                 )
-                
+
                 // Import received items to library
                 result.playlist?.items?.forEach { item ->
                     val streamItem = StreamMediaItem(
@@ -211,7 +211,7 @@ class QRCodeSharingViewModel @Inject constructor(
                 url = "http://example.com/track2.mp3"
             )
         )
-        
+
         return MediaPlaylist(
             id = "sample_playlist",
             name = "Sample Playlist",

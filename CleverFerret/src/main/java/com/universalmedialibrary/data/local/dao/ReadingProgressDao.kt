@@ -53,18 +53,18 @@ interface ReadingProgressDao {
 
     @Query("SELECT * FROM reading_progress WHERE itemId IN (:itemIds)")
     fun getProgressForItems(itemIds: List<Long>): Flow<List<ReadingProgress>>
-    
+
     @Query("SELECT COUNT(*) FROM reading_progress")
     suspend fun getProgressCount(): Int
-    
+
     // ==================== AI Library Browser Support ====================
-    
+
     /**
      * Get reading progress by item ID (suspend version for one-shot queries)
      */
     @Query("SELECT * FROM reading_progress WHERE itemId = :itemId LIMIT 1")
     suspend fun getProgressByItemIdSnapshot(itemId: Long): ReadingProgress?
-    
+
     /**
      * Get count of items in progress
      */

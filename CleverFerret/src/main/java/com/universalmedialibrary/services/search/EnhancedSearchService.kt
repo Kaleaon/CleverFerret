@@ -155,7 +155,7 @@ class EnhancedSearchService @Inject constructor(
      */
     suspend fun getFacets(): SearchFacets {
         val allItems = mediaItemDao.getAllMediaItems()
-        
+
         return SearchFacets(
             mediaTypes = allItems.groupBy { it.mediaType }.mapValues { it.value.size },
             dateRanges = calculateDateRanges(allItems),

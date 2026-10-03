@@ -22,7 +22,7 @@ import java.util.TimeZone
 /**
  * Reddit fanfiction downloader for series like "Out of Cruel Space" (HFY).
  * Fetches latest chapter posts, orders them, and extracts readable HTML.
- * 
+ *
  * Reddit API Configuration:
  * - Client ID: EvU-yXXa66v0qe94RLorQw
  * - User Agent: CleverFerret:OutOfCruelSpaceDownloader:v1.0
@@ -53,7 +53,7 @@ class RedditFanficDownloader {
     /**
      * Fetch chapters by Reddit search. Example:
      * seriesQuery: "Out of Cruel Space", subreddit: "HFY".
-     * 
+     *
      * For "Out of Cruel Space" specifically, also filter by author "KyleKKent"
      */
     suspend fun fetchSeries(
@@ -184,12 +184,12 @@ class RedditFanficDownloader {
 
         for (p in paragraphs.take(5)) { // Check first 5 paragraphs
             val text = p.text().trim()
-            
+
             // Skip if it's a navigation link (contains First/Next/Prev/Last/Wiki)
             if (p.select("a").isNotEmpty() && isNavigationParagraph(p, navKeywords)) {
                 continue
             }
-            
+
             // Skip empty lines
             if (text.isBlank()) continue
 
@@ -198,7 +198,7 @@ class RedditFanficDownloader {
                 // Convert to Title
                 p.tagName("h1").attr("class", "ps1").text(text)
                 // Stop after finding the first title
-                break 
+                break
             }
         }
 
@@ -209,7 +209,7 @@ class RedditFanficDownloader {
                  p.remove()
              }
         }
-        
+
         // Bottom Cleaning
         // Re-select because we removed some and structure might have changed
         val remainingParagraphs = doc.select("p.ps2")
@@ -218,7 +218,7 @@ class RedditFanficDownloader {
                  p.remove()
              }
         }
-        
+
         processedContent = doc.body().html()
 
         return wrapChapterHtml(url, author, createdUtc, processedContent)
@@ -315,7 +315,7 @@ class RedditFanficDownloader {
                         val restOfComments = commentsHtml.substring(endOfTitle)
                         return titlePart + postContent + restOfComments
                     }
-                    
+
                     return postContent + commentsHtml
                 }
             } catch (e: Exception) {

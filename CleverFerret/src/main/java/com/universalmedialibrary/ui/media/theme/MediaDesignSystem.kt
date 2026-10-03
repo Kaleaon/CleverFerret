@@ -18,7 +18,7 @@ import com.universalmedialibrary.R
 
 /**
  * CleverFerret Media-Centric Design System
- * 
+ *
  * A sophisticated, media-centric design system inspired by premium media apps's dark,
  * elegant aesthetic with rich accent colors and cinematic feel.
  */
@@ -91,7 +91,7 @@ object MediaColors {
         private set
     var TextOnAccent by mutableStateOf(Color(0xFF000000))
         private set
-    
+
     // Media Type Colors (for categorization)
     object MediaTypes {
         // User request: remove per-segment bright rainbow colors.
@@ -108,28 +108,28 @@ object MediaColors {
         val Fanfiction: Color get() = AccentPrimary
         val News: Color get() = AccentPrimary
     }
-    
+
     // Status Colors
     val Success: Color = Color(0xFF4CAF50)
     val Warning: Color = Color(0xFFFFC107)
     val Info: Color = Color(0xFF2196F3)
     var Error by mutableStateOf(Color(0xFFF44336))
         private set
-    
+
     // Progress Colors
     var ProgressBackground by mutableStateOf(Color(0xFF3D3D3D))
         private set
     val ProgressForeground: Color get() = AccentPrimary
     var ProgressUnwatched by mutableStateOf(Color(0xFF666666))
         private set
-    
+
     // Border & Divider Colors
     var Border by mutableStateOf(Color(0xFF404040))
         private set
     val BorderFocused: Color get() = AccentPrimary
     var Divider by mutableStateOf(Color(0xFF333333))
         private set
-    
+
     // Gradient Backgrounds
     object Gradients {
         val backgroundFade: Brush
@@ -298,7 +298,7 @@ private fun contrastRatio(foreground: Color, background: Color): Float = calcula
  * Clean, readable fonts optimized for media titles and descriptions
  */
 object MediaTypography {
-    
+
     // Font sizes following Plex's scale
     object Sizes {
         val Hero = 48.sp
@@ -311,14 +311,14 @@ object MediaTypography {
         val Label = 11.sp
         val Micro = 10.sp
     }
-    
+
     // Line heights
     object LineHeights {
         val Tight = 1.1f
         val Normal = 1.4f
         val Relaxed = 1.6f
     }
-    
+
     // Font weights
     object Weights {
         val Thin = FontWeight.W200
@@ -329,7 +329,7 @@ object MediaTypography {
         val Bold = FontWeight.W700
         val Black = FontWeight.W900
     }
-    
+
     // Text styles
     val Hero = TextStyle(
         fontSize = Sizes.Hero,
@@ -337,77 +337,77 @@ object MediaTypography {
         lineHeight = 56.sp,
         letterSpacing = (-1).sp
     )
-    
+
     val TitleLarge = TextStyle(
         fontSize = Sizes.Title,
         fontWeight = Weights.Bold,
         lineHeight = 40.sp,
         letterSpacing = (-0.5).sp
     )
-    
+
     val TitleMedium = TextStyle(
         fontSize = Sizes.Headline,
         fontWeight = Weights.SemiBold,
         lineHeight = 32.sp,
         letterSpacing = 0.sp
     )
-    
+
     val TitleSmall = TextStyle(
         fontSize = Sizes.Subheadline,
         fontWeight = Weights.Medium,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     )
-    
+
     val BodyLarge = TextStyle(
         fontSize = Sizes.Body,
         fontWeight = Weights.Regular,
         lineHeight = 24.sp,
         letterSpacing = 0.sp
     )
-    
+
     val BodyMedium = TextStyle(
         fontSize = Sizes.BodySmall,
         fontWeight = Weights.Regular,
         lineHeight = 20.sp,
         letterSpacing = 0.sp
     )
-    
+
     val BodySmall = TextStyle(
         fontSize = Sizes.Caption,
         fontWeight = Weights.Regular,
         lineHeight = 16.sp,
         letterSpacing = 0.sp
     )
-    
+
     val LabelLarge = TextStyle(
         fontSize = Sizes.BodySmall,
         fontWeight = Weights.Medium,
         lineHeight = 20.sp,
         letterSpacing = 0.5.sp
     )
-    
+
     val LabelMedium = TextStyle(
         fontSize = Sizes.Caption,
         fontWeight = Weights.Medium,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     )
-    
+
     val LabelSmall = TextStyle(
         fontSize = Sizes.Label,
         fontWeight = Weights.Medium,
         lineHeight = 14.sp,
         letterSpacing = 0.5.sp
     )
-    
+
     val Metadata = TextStyle(
         fontSize = Sizes.Caption,
         fontWeight = Weights.Regular,
         lineHeight = 16.sp,
         letterSpacing = 0.sp
     )
-    
+
     val Badge = TextStyle(
         fontSize = Sizes.Micro,
         fontWeight = Weights.Bold,
@@ -435,23 +435,23 @@ object MediaSpacing {
     val XXL = 32.dp
     val XXXL = 48.dp
     val Huge = 64.dp
-    
+
     // Screen padding
     val ScreenHorizontal = 20.dp
     val ScreenVertical = 16.dp
-    
+
     // Card spacing
     val CardPadding = MD
     val CardGap = SM
-    
+
     // Section spacing
     val SectionGap = XL
     val SectionPadding = LG
-    
+
     // List spacing
     val ListItemGap = SM
     val ListSectionGap = LG
-    
+
     // Grid spacing
     val GridGap = MD
     val GridItemGap = SM
@@ -466,20 +466,20 @@ object MediaSizes {
     val SidebarCollapsedWidth = 72.dp
     val BottomBarHeight = 88.dp  // Increased from 80.dp for larger icons
     val TopBarHeight = 64.dp
-    
+
     // Cards
     val CardSmall = 120.dp
     val CardMedium = 160.dp
     val CardLarge = 200.dp
     val CardXLarge = 280.dp
-    
+
     // Card aspect ratios
     val PosterAspectRatio = 2f / 3f        // Movie/TV posters
     val CoverAspectRatio = 3f / 4f         // Book covers
     val SquareAspectRatio = 1f             // Album art
     val WidescreenAspectRatio = 16f / 9f   // Video thumbnails
     val BannerAspectRatio = 3f / 1f        // Wide banners
-    
+
     // Icons
     val IconXS = 16.dp
     val IconSM = 20.dp
@@ -490,31 +490,31 @@ object MediaSizes {
     val IconAvatarCollapsed = 32.dp
     val IconAvatarExpanded = 40.dp
     val IndicatorDot = 5.dp
-    
+
     // Buttons
     val ButtonHeightSmall = 32.dp
     val ButtonHeightMedium = 40.dp
     val ButtonHeightLarge = 48.dp
     val ButtonHeightXLarge = 56.dp
-    
+
     // Avatars
     val AvatarSmall = 32.dp
     val AvatarMedium = 48.dp
     val AvatarLarge = 64.dp
-    
+
     // Thumbnails
     val ThumbnailSmall = 48.dp
     val ThumbnailMedium = 64.dp
     val ThumbnailLarge = 80.dp
-    
+
     // Progress
     val ProgressHeight = 3.dp
     val ProgressHeightThick = 6.dp
-    
+
     // Hero sections
     val HeroHeight = 400.dp
     val HeroHeightCompact = 280.dp
-    
+
     // Mini player
     val MiniPlayerHeight = 72.dp
     val BottomNavFadeWidth = 18.dp
@@ -534,7 +534,7 @@ object MediaCorners {
     val LG = 16.dp
     val XL = 24.dp
     val Full = 999.dp
-    
+
     // Specific components
     val Card = SM
     val Button = SM
@@ -574,7 +574,7 @@ object MediaAnimations {
         const val Slower = 600
         const val Slowest = 1000
     }
-    
+
     // Easing curves
     val EaseOut = FastOutSlowInEasing
     val EaseIn = FastOutLinearInEasing
@@ -583,18 +583,18 @@ object MediaAnimations {
         dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
         stiffness = androidx.compose.animation.core.Spring.StiffnessLow
     )
-    
+
     // Transition specs
     val fadeSpec = tween<Float>(
         durationMillis = Duration.Normal,
         easing = EaseOut
     )
-    
+
     val slideSpec = tween<Float>(
         durationMillis = Duration.Normal,
         easing = EaseOut
     )
-    
+
     val scaleSpec: SpringSpec<Float> = spring(
         dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
         stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow
@@ -758,7 +758,7 @@ fun getAccentColors(theme: MediaAccentTheme, customColor: Color? = null): MediaA
 
 /**
  * Plex Theme composable with accent customization
- * 
+ *
  * Note: Use MediaTheme from MediaThemes.kt for full theme preset support.
  * This function provides accent color customization on top of the base dark theme.
  */
@@ -771,7 +771,7 @@ fun MediaAccentTheme(
     val accentColors = remember(accentTheme, customAccent) {
         getAccentColors(accentTheme, customAccent)
     }
-    
+
     val colorScheme = remember(accentColors) {
         DefaultMediaDarkColorScheme.copy(
             primary = accentColors.primary,
@@ -781,7 +781,7 @@ fun MediaAccentTheme(
             secondary = accentColors.secondary
         )
     }
-    
+
     CompositionLocalProvider(
         LocalMediaColors provides MediaColors,
         LocalMediaAccent provides accentColors

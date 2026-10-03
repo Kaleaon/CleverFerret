@@ -84,12 +84,12 @@ fun EnhancedPDFReaderScreen(
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
-    
+
     // Zoom and pan state
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
-    
+
     // UI visibility state
     var showControls by remember { mutableStateOf(true) }
     var showAnnotationMenu by remember { mutableStateOf(false) }
@@ -100,18 +100,18 @@ fun EnhancedPDFReaderScreen(
     var showTextSelectionMode by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf("") }
     var showGoToPageDialog by remember { mutableStateOf(false) }
-    
+
     // Screen dimensions for rendering
     val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx().toInt() }
     val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx().toInt() }
-    
+
     // Current page bitmap
     var currentPageBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(pdfFilePath) {
         viewModel.loadPDF(pdfFilePath)
     }
-    
+
     // Re-render when page changes or zoom changes
     LaunchedEffect(uiState.currentPage, scale, screenWidthPx, screenHeightPx) {
         if (uiState.isLoaded) {
@@ -121,7 +121,7 @@ fun EnhancedPDFReaderScreen(
             currentPageBitmap = viewModel.renderCurrentPage(renderWidth, renderHeight)
         }
     }
-    
+
     // Transform state for pinch-to-zoom
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         scale = (scale * zoomChange).coerceIn(0.5f, 5f)
@@ -162,17 +162,17 @@ fun EnhancedPDFReaderScreen(
                             Icon(
                                 Icons.Default.SelectAll,
                                 contentDescription = "Select Text",
-                                tint = if (showTextSelectionMode) MaterialTheme.colorScheme.primary 
+                                tint = if (showTextSelectionMode) MaterialTheme.colorScheme.primary
                                        else MaterialTheme.colorScheme.onSurface
                             )
                         }
-                        
+
                         // Annotation mode toggle
                         IconButton(onClick = { viewModel.toggleAnnotationMode() }) {
                             Icon(
                                 if (annotationMode) Icons.Default.EditOff else Icons.Default.Edit,
                                 contentDescription = if (annotationMode) "Exit Annotation Mode" else "Enter Annotation Mode",
-                                tint = if (annotationMode) MaterialTheme.colorScheme.primary 
+                                tint = if (annotationMode) MaterialTheme.colorScheme.primary
                                        else MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -344,7 +344,7 @@ fun EnhancedPDFReaderScreen(
                                         style = MaterialTheme.typography.bodySmall,
                                         modifier = Modifier.padding(horizontal = 4.dp)
                                     )
-                                    
+
                                     Slider(
                                         value = uiState.currentPage.toFloat(),
                                         onValueChange = { viewModel.goToPage(it.toInt()) },
@@ -352,14 +352,14 @@ fun EnhancedPDFReaderScreen(
                                         steps = (uiState.totalPages - 2).coerceAtLeast(0),
                                         modifier = Modifier.weight(1f)
                                     )
-                                    
+
                                     Text(
                                         text = uiState.totalPages.toString(),
                                         style = MaterialTheme.typography.bodySmall,
                                         modifier = Modifier.padding(horizontal = 4.dp)
                                     )
                                 }
-                                
+
                                 // Navigation buttons and zoom controls
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -385,7 +385,7 @@ fun EnhancedPDFReaderScreen(
                                     ) {
                                         // Zoom out
                                         FilledTonalIconButton(
-                                            onClick = { 
+                                            onClick = {
                                                 scale = (scale - 0.25f).coerceAtLeast(0.5f)
                                             },
                                             enabled = scale > 0.5f,
@@ -393,7 +393,7 @@ fun EnhancedPDFReaderScreen(
                                         ) {
                                             Icon(Icons.Default.ZoomOut, contentDescription = "Zoom Out")
                                         }
-                                        
+
                                         // Zoom level indicator
                                         Surface(
                                             shape = RoundedCornerShape(8.dp),
@@ -406,10 +406,10 @@ fun EnhancedPDFReaderScreen(
                                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                                             )
                                         }
-                                        
+
                                         // Zoom in
                                         FilledTonalIconButton(
-                                            onClick = { 
+                                            onClick = {
                                                 scale = (scale + 0.25f).coerceAtMost(5f)
                                             },
                                             enabled = scale < 5f,
@@ -417,10 +417,10 @@ fun EnhancedPDFReaderScreen(
                                         ) {
                                             Icon(Icons.Default.ZoomIn, contentDescription = "Zoom In")
                                         }
-                                        
+
                                         // Reset zoom
                                         FilledTonalIconButton(
-                                            onClick = { 
+                                            onClick = {
                                                 scale = 1f
                                                 offsetX = 0f
                                                 offsetY = 0f
@@ -556,7 +556,7 @@ fun EnhancedPDFReaderScreen(
                                     }
                                 )
                             }
-                            
+
                             // Annotation overlay
                             if (annotationMode) {
                                 PDFAnnotationOverlay(
@@ -568,7 +568,7 @@ fun EnhancedPDFReaderScreen(
                             }
                         }
                     }
-                    
+
                     // Page thumbnails panel
                     AnimatedVisibility(
                         visible = showPageThumbnails,
@@ -598,7 +598,7 @@ fun EnhancedPDFReaderScreen(
                                 .padding(16.dp)
                         )
                     }
-                    
+
                     // Text selection action bar
                     if (showTextSelectionMode && selectedText.isNotEmpty()) {
                         TextSelectionActionBar(
@@ -638,7 +638,7 @@ fun EnhancedPDFReaderScreen(
             }
         }
     }
-    
+
     // Go to Page Dialog
     if (showGoToPageDialog) {
         GoToPageDialog(
@@ -651,7 +651,7 @@ fun EnhancedPDFReaderScreen(
             onDismiss = { showGoToPageDialog = false }
         )
     }
-    
+
     // Settings Bottom Sheet
     if (showSettingsSheet) {
         PDFReaderSettingsSheet(

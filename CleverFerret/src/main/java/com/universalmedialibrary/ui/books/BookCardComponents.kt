@@ -20,7 +20,7 @@ import java.util.Locale
 
 /**
  * Book Card Components with Visual Distinction
- * 
+ *
  * Provides composable components for displaying books with different visual styles:
  * - Available books (has digital file) - solid border
  * - Scanned books (no file yet) - dashed border + badge
@@ -100,7 +100,7 @@ fun EnhancedBookCard(
                     .fillMaxHeight()
             ) {
                 AsyncImage(
-                    
+
                     model = book.coverUrl,
                     contentDescription = "Cover for ${book.title}",
                     modifier = Modifier
@@ -108,7 +108,7 @@ fun EnhancedBookCard(
                         .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
-                
+
                 // Availability badge
                 if (book.availability == BookAvailability.SCANNED) {
                     Surface(
@@ -129,7 +129,7 @@ fun EnhancedBookCard(
                         )
                     }
                 }
-                
+
                 // Bookmark indicator
                 if (book.isBookmarked) {
                     Icon(
@@ -143,7 +143,7 @@ fun EnhancedBookCard(
                     )
                 }
             }
-            
+
             // Book Info
             Column(
                 modifier = Modifier
@@ -160,7 +160,7 @@ fun EnhancedBookCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
-                    
+
                     // Author
                     if (book.author != null) {
                         Text(
@@ -171,14 +171,14 @@ fun EnhancedBookCard(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    
+
                     // Shelf/Status
                     if (book.shelf != null) {
                         Spacer(modifier = Modifier.height(4.dp))
                         ShelfChip(shelf = book.shelf)
                     }
                 }
-                
+
                 // Bottom row - Rating, Progress, Actions
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -207,7 +207,7 @@ fun EnhancedBookCard(
                                 )
                             }
                         }
-                        
+
                         // Reading Progress
                         if (book.readingProgress > 0f) {
                             Text(
@@ -217,7 +217,7 @@ fun EnhancedBookCard(
                             )
                         }
                     }
-                    
+
                     // Purchase links button for scanned books
                     if (book.availability == BookAvailability.SCANNED && onPurchaseLinksClick != null) {
                         FilledTonalIconButton(
@@ -248,7 +248,7 @@ fun ShelfChip(shelf: String, modifier: Modifier = Modifier) {
         "to-read" -> "To Read" to MaterialTheme.colorScheme.secondary
         else -> shelf to MaterialTheme.colorScheme.outline
     }
-    
+
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(4.dp),
@@ -293,13 +293,13 @@ fun CompactBookCard(
                     .height(160.dp)
             ) {
                 AsyncImage(
-                    
+
                     model = book.coverUrl,
                     contentDescription = "Cover for ${book.title}",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                
+
                 // Scanned badge
                 if (book.availability == BookAvailability.SCANNED) {
                     Surface(
@@ -320,7 +320,7 @@ fun CompactBookCard(
                     }
                 }
             }
-            
+
             // Title
             Column(
                 modifier = Modifier.padding(8.dp)
@@ -332,7 +332,7 @@ fun CompactBookCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 if (book.author != null) {
                     Text(
                         text = book.author,

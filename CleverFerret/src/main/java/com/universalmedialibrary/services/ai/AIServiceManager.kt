@@ -24,7 +24,7 @@ class AIServiceManager @Inject constructor(
 
         // Fetch key
         val keyEntity = apiKeyDao.getAPIKeyByProvider(providerId.lowercase())
-        
+
         return if (keyEntity != null) {
             when (provider) {
                 is GeminiAIProvider -> provider.setApiKey(keyEntity.keyValue)
@@ -35,7 +35,7 @@ class AIServiceManager @Inject constructor(
             null
         }
     }
-    
+
     suspend fun getAvailableProviders(): List<AIProvider> {
         return listOf(geminiProvider, openAIProvider)
     }

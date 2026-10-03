@@ -27,14 +27,14 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Ambient Sounds Screen
- * 
+ *
  * Create immersive reading/relaxation environments with:
  * - Nature sounds (rain, ocean, forest, etc.)
  * - White/brown/pink noise
  * - Music atmospheres
  * - Custom sound mixes
  * - Presets for different activities
- * 
+ *
  * Features:
  * - Multiple simultaneous sounds
  * - Individual volume control
@@ -56,7 +56,7 @@ fun MediaAmbientScreen(
 ) {
     var showSaveDialog by remember { mutableStateOf(false) }
     var showTimerDialog by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -85,7 +85,7 @@ fun MediaAmbientScreen(
                     )
                 }
             }
-            
+
             // Presets section
             item {
                 SectionTitle(
@@ -100,7 +100,7 @@ fun MediaAmbientScreen(
                     onPresetSelect = onPresetSelect
                 )
             }
-            
+
             // Sound categories
             state.categories.forEach { category ->
                 item {
@@ -119,7 +119,7 @@ fun MediaAmbientScreen(
                 }
             }
         }
-        
+
         // Now playing bar
         if (state.activeSounds.isNotEmpty()) {
             Box(
@@ -137,7 +137,7 @@ fun MediaAmbientScreen(
             }
         }
     }
-    
+
     // Save preset dialog
     if (showSaveDialog) {
         SavePresetDialog(
@@ -148,7 +148,7 @@ fun MediaAmbientScreen(
             }
         )
     }
-    
+
     // Timer dialog
     if (showTimerDialog) {
         TimerDialog(
@@ -244,9 +244,9 @@ private fun ActiveSoundsSection(
                 style = MediaTypography.TitleSmall,
                 color = MediaColors.TextSecondary
             )
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.MD))
-            
+
             activeSounds.forEach { sound ->
                 ActiveSoundItem(
                     sound = sound,
@@ -284,9 +284,9 @@ private fun ActiveSoundItem(
                 modifier = Modifier.padding(MediaSpacing.SM)
             )
         }
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.MD))
-        
+
         // Name and volume
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -294,7 +294,7 @@ private fun ActiveSoundItem(
                 style = MediaTypography.BodyMedium,
                 color = MediaColors.TextPrimary
             )
-            
+
             Slider(
                 value = sound.volume,
                 onValueChange = onVolumeChange,
@@ -306,7 +306,7 @@ private fun ActiveSoundItem(
                 )
             )
         }
-        
+
         // Remove button
         IconButton(onClick = onRemove) {
             Icon(
@@ -379,9 +379,9 @@ private fun PresetCard(
                     modifier = Modifier.padding(MediaSpacing.SM)
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.SM))
-            
+
             Text(
                 text = preset.name,
                 style = MediaTypography.LabelMedium,
@@ -478,9 +478,9 @@ private fun SoundCard(
                 tint = if (isActive) sound.color else MediaColors.TextSecondary,
                 modifier = Modifier.size(32.dp)
             )
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.XS))
-            
+
             Text(
                 text = sound.name,
                 style = MediaTypography.LabelSmall,
@@ -551,9 +551,9 @@ private fun AmbientNowPlayingBar(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.MD))
-            
+
             // Master volume
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -565,7 +565,7 @@ private fun AmbientNowPlayingBar(
                     tint = MediaColors.TextSecondary,
                     modifier = Modifier.size(20.dp)
                 )
-                
+
                 Slider(
                     value = masterVolume,
                     onValueChange = onMasterVolumeChange,
@@ -575,16 +575,16 @@ private fun AmbientNowPlayingBar(
                         activeTrackColor = MediaColors.AccentPrimary
                     )
                 )
-                
+
                 Icon(
                     imageVector = Icons.Default.VolumeUp,
                     contentDescription = "Media image",
                     tint = MediaColors.TextSecondary,
                     modifier = Modifier.size(20.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                
+
                 // Stop button
                 Button(
                     onClick = onStopAll,
@@ -616,7 +616,7 @@ private fun SavePresetDialog(
     onSave: (String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Save Preset", color = MediaColors.TextPrimary) },
@@ -663,7 +663,7 @@ private fun TimerDialog(
         90 to "1.5 hours",
         120 to "2 hours"
     )
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Sleep Timer", color = MediaColors.TextPrimary) },
@@ -698,7 +698,7 @@ private fun TimerDialog(
                         }
                     }
                 }
-                
+
                 options.forEach { (minutes, label) ->
                     Row(
                         modifier = Modifier

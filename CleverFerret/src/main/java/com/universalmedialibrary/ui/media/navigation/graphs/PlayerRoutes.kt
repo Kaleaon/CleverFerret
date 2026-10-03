@@ -48,7 +48,7 @@ fun NavGraphBuilder.playerRoutes(
         arguments = listOf(
             navArgument("mediaType") { type = NavType.StringType },
             navArgument("mediaId") { type = NavType.StringType },
-            navArgument("chapter") { 
+            navArgument("chapter") {
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
@@ -57,7 +57,7 @@ fun NavGraphBuilder.playerRoutes(
     ) { backStackEntry ->
         val viewModel: ReaderViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         // Handle chapter parameter if provided (expects chapter index as string)
         val chapterParam = backStackEntry.arguments?.getString("chapter")
         LaunchedEffect(chapterParam) {
@@ -65,7 +65,7 @@ fun NavGraphBuilder.playerRoutes(
                 viewModel.goToChapter(chapterIndex)
             }
         }
-        
+
         UiErrorBoundary(
             boundaryName = "ReaderBoundary",
             onGoHome = { navController.navigate(MediaRoutes.HOME) },
@@ -84,14 +84,14 @@ fun NavGraphBuilder.playerRoutes(
             )
         }
     }
-    
+
     composable(
         route = MediaRoutes.AUDIO_PLAYER,
         arguments = listOf(navArgument("playerType") { type = NavType.StringType })
     ) { backStackEntry ->
         val viewModel: AudioPlayerViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         UiErrorBoundary(
             boundaryName = "AudioPlayerBoundary",
             onGoHome = { navController.navigate(MediaRoutes.HOME) },
@@ -115,14 +115,14 @@ fun NavGraphBuilder.playerRoutes(
             )
         }
     }
-    
+
     composable(
         route = MediaRoutes.VIDEO_PLAYER,
         arguments = listOf(navArgument("videoId") { type = NavType.StringType })
     ) { backStackEntry ->
         val viewModel: VideoPlayerViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsState()
-        
+
         UiErrorBoundary(
             boundaryName = "VideoPlayerBoundary",
             onGoHome = { navController.navigate(MediaRoutes.HOME) },
@@ -144,6 +144,6 @@ fun NavGraphBuilder.playerRoutes(
             )
         }
     }
-    
+
     // =====================================================================
 }

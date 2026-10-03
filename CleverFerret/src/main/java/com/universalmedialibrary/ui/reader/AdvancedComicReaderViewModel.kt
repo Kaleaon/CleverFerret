@@ -79,7 +79,7 @@ class AdvancedComicReaderViewModel @Inject constructor(
 
                 val fileName = comicUri.lastPathSegment ?: "Unknown Comic"
                 panelDetector = GeometricPanelDetector()
-                
+
                 // Store media ID for OCR caching
                 currentMediaId = comicUri.toString()
 

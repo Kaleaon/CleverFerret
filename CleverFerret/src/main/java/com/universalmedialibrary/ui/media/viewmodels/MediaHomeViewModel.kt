@@ -27,14 +27,14 @@ import javax.inject.Inject
 
 /**
  * ViewModel for Clean media-centric Home Screen
- * 
+ *
  * Aggregates data from all media repositories to provide:
  * - Featured/hero items
  * - Continue where you left off
  * - Recently added across all media types
  * - Library statistics
  * - Collections
- * 
+ *
  * Integrates with actual repositories and provides graceful
  * fallbacks when data isn't available.
  */
@@ -51,18 +51,18 @@ class MediaHomeViewModel @Inject constructor(
     private val serviceAvailabilityManager: ServiceAvailabilityManager,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(MediaHomeState(isLoading = true))
     val uiState: StateFlow<MediaHomeState> = _uiState.asStateFlow()
-    
+
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
-    
+
     private val _serviceStatuses = MutableStateFlow<Map<ServiceType, Boolean>>(emptyMap())
     val serviceStatuses: StateFlow<Map<ServiceType, Boolean>> = _serviceStatuses.asStateFlow()
     val reduceMotionEnabled: StateFlow<Boolean> = settingsRepository.reduceMotionFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-    
+
     private var currentQuickAccessPrefs: QuickAccessPreferences = QuickAccessPreferences.Default
 
     init {
@@ -87,7 +87,7 @@ class MediaHomeViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun observeQuickAccessPreferences() {
         viewModelScope.launch {
             settingsRepository.quickAccessPreferencesFlow.collect { prefs ->
@@ -139,7 +139,7 @@ class MediaHomeViewModel @Inject constructor(
             else currentState.copy(lastOpenedCategory = null)
         }
     }
-    
+
     private fun checkServiceAvailability() {
         viewModelScope.launch {
             val statuses = mapOf(
@@ -151,7 +151,7 @@ class MediaHomeViewModel @Inject constructor(
             _serviceStatuses.value = statuses
         }
     }
-    
+
     private fun loadHomeData() {
         viewModelScope.launch {
             try {
@@ -168,7 +168,7 @@ class MediaHomeViewModel @Inject constructor(
                 val hasConfiguredContentSourceDeferred = async {
                     true
                 }
-                
+
                 val recentBooks = booksDeferred.await()
                 val recentMusic = musicDeferred.await()
                 val recentAudiobooks = audiobooksDeferred.await()
@@ -179,16 +179,16 @@ class MediaHomeViewModel @Inject constructor(
                 val collections = collectionsDeferred.await()
                 val stats = statsDeferred.await()
                 val hasConfiguredContentSource = hasConfiguredContentSourceDeferred.await()
-                
+
                 // Create featured items from recent content
                 val featured = createFeaturedItems(recentBooks, recentAudiobooks, recentMusic)
-                
+
                 // Create continue items (items with progress > 0)
                 val continueItems = (recentBooks + recentAudiobooks + recentComics)
                     .filter { it.progress > 0f && it.progress < 1f }
                     .sortedByDescending { it.progress }
                     .take(10)
-                
+
                 _uiState.update {
                     val lastOpenedCategory = it.lastOpenedCategory
                     val showOnboardingTips = it.showOnboardingTips
@@ -215,7 +215,7 @@ class MediaHomeViewModel @Inject constructor(
             } catch (e: Exception) {
                 // Improved error handling with logging and error state
                 android.util.Log.e("MediaHomeViewModel", "Error loading home data", e)
-                
+
                 _uiState.update {
                     MediaHomeState(
                         isLoading = false,
@@ -241,7 +241,7 @@ class MediaHomeViewModel @Inject constructor(
             }
         }
     }
-    
+
     private suspend fun loadRecentBooks(): List<MediaItem> {
         return try {
             bookRepository.getAllBooks().first().map { book ->
@@ -261,7 +261,7 @@ class MediaHomeViewModel @Inject constructor(
             emptyList()
         }
     }
-    
+
     private suspend fun loadRecentMusic(): List<MediaItem> {
         return try {
             musicRepository.albums.value.mapIndexed { index, album ->
@@ -280,7 +280,7 @@ class MediaHomeViewModel @Inject constructor(
             emptyList()
         }
     }
-    
+
     private suspend fun loadRecentAudiobooks(): List<MediaItem> {
         return try {
             audiobookRepository.getAllAudiobooks().first().map { audiobook ->
@@ -299,7 +299,7 @@ class MediaHomeViewModel @Inject constructor(
             emptyList()
         }
     }
-    
+
     private suspend fun loadRecentComics(): List<MediaItem> {
         return try {
             comicRepository.getAllComics().first().map { comic ->
@@ -317,14 +317,14 @@ class MediaHomeViewModel @Inject constructor(
             emptyList()
         }
     }
-    
+
     private suspend fun loadRecentVideos(): List<MediaItem> {
         return try {
             // Pull from all relevant video types, not only MEDIA_TYPE_VIDEO.
             val videos = (videoRepository.getMovies().first() + videoRepository.getTvShows().first() + videoRepository.getAllVideos().first())
                 .distinctBy { it.itemId }
                 .sortedByDescending { it.dateAdded }
-                
+
 
             videos.map { video ->
                 MediaItem(
@@ -396,7 +396,7 @@ class MediaHomeViewModel @Inject constructor(
             emptyList()
         }
     }
-    
+
     private suspend fun loadCollections(): List<HomeCollection> {
         return try {
             collectionRepository.getCollections().first().map { collection ->
@@ -417,7 +417,7 @@ class MediaHomeViewModel @Inject constructor(
             )
         }
     }
-    
+
     private suspend fun loadLibraryStats(): HomeLibraryStats {
         return try {
             val bookCount = bookRepository.getBookCount()
@@ -427,7 +427,7 @@ class MediaHomeViewModel @Inject constructor(
             val podcastCount = podcastRepository.getSubscribedPodcasts().first().size
             val fanfictionCount = webFictionRepository.getWebFictionCount()
             val videoCount = videoRepository.getVideoCount()
-            
+
             HomeLibraryStats(
                 totalBooks = bookCount,
                 totalAudiobooks = audiobookCount,
@@ -441,21 +441,21 @@ class MediaHomeViewModel @Inject constructor(
             HomeLibraryStats()
         }
     }
-    
+
     private fun createFeaturedItems(
         books: List<MediaItem>,
         audiobooks: List<MediaItem>,
         music: List<MediaItem>
     ): List<MediaItem> {
         val featured = mutableListOf<MediaItem>()
-        
+
         // Add highest rated items as featured
         val topRatedBooks = books.filter { it.rating != null }.sortedByDescending { it.rating }.take(2)
         val topRatedAudiobooks = audiobooks.filter { it.rating != null }.sortedByDescending { it.rating }.take(1)
-        
+
         featured.addAll(topRatedBooks)
         featured.addAll(topRatedAudiobooks)
-        
+
         // Fill with recent items if not enough rated items
         if (featured.size < 3) {
             val remaining = 3 - featured.size
@@ -464,10 +464,10 @@ class MediaHomeViewModel @Inject constructor(
                 .take(remaining)
             featured.addAll(recentItems)
         }
-        
+
         return featured.take(5)
     }
-    
+
     private fun formatDuration(durationMs: Long?): String? {
         if (durationMs == null) return null
         val hours = durationMs / (1000 * 60 * 60)

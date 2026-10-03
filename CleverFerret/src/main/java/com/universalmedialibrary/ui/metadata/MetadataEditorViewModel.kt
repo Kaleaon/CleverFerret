@@ -127,7 +127,7 @@ class MetadataEditorViewModel @Inject constructor(
                 // Get media item to determine type
                 val mediaItem = mediaItemDao.getMediaItemById(itemId)
                 val mediaType = mediaItem?.mediaType ?: "BOOK"
-                
+
                 // Update metadata_common table
                 metadataDao.updateMetadataCommon(
                     itemId = itemId,

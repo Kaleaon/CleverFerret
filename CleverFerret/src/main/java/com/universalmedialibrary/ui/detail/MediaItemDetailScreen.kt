@@ -144,7 +144,7 @@ fun MediaItemDetailScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Open")
                     }
-                    
+
                     OutlinedButton(
                         onClick = { /* Share */ },
                         modifier = Modifier.weight(1f)
@@ -191,7 +191,7 @@ fun MediaItemDetailScreen(
                         uiState.metadataFetchSuccess?.let { message ->
                             SuccessMessage(message = message, onDismiss = { viewModel.clearMetadataFetchStatus() })
                         }
-                        
+
                         uiState.metadataFetchError?.let { error ->
                             ErrorMessage(message = error, onDismiss = { viewModel.clearMetadataFetchStatus() })
                         }
@@ -358,7 +358,7 @@ private fun FileInfoSection(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
-            
+
             InfoRow(label = "Format", value = fileExtension.uppercase())
             InfoRow(label = "Size", value = formatFileSize(fileSize))
             InfoRow(label = "Location", value = filePath.substringBeforeLast('/'))
@@ -384,7 +384,7 @@ private fun AdditionalMetadataSection(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
-                
+
                 year?.let { InfoRow(label = "Year", value = it.toString()) }
                 language?.let { InfoRow(label = "Language", value = it) }
                 country?.let { InfoRow(label = "Country", value = it) }
@@ -472,7 +472,7 @@ private fun formatTime(milliseconds: Long): String {
     val seconds = milliseconds / 1000
     val minutes = seconds / 60
     val hours = minutes / 60
-    
+
     return when {
         hours > 0 -> String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes % 60, seconds % 60)
         else -> String.format(java.util.Locale.US, "%d:%02d", minutes, seconds % 60)
@@ -483,6 +483,3 @@ private fun formatDate(timestamp: Long): String {
     val sdf = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
     return sdf.format(java.util.Date(timestamp))
 }
-
-
-

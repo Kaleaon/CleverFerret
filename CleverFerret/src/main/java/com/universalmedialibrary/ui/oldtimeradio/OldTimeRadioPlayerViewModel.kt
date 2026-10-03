@@ -20,14 +20,14 @@ class OldTimeRadioPlayerViewModel @Inject constructor(
     fun playEpisode(episodeId: Long) {
         viewModelScope.launch {
             val episode = oldTimeRadioDao.getEpisodeById(episodeId) ?: return@launch
-            
+
             val metadata = MediaMetadata.Builder()
                 .setTitle(episode.displayTitle)
                 .setArtist(episode.seriesTitle)
                 .setAlbumTitle(episode.seriesTitle)
                 .setReleaseYear(episode.originalAirDate?.take(4)?.toIntOrNull())
                 .build()
-                
+
             val uri = try {
                 Uri.parse(episode.uri)
             } catch (e: Exception) {

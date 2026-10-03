@@ -2,7 +2,7 @@ package com.universalmedialibrary.services.audiobook
 
 /**
  * Common data classes for audiobook synchronization
- * 
+ *
  * Note: SynchronizationState and HighlightedText are defined in AudiobookModels.kt
  */
 

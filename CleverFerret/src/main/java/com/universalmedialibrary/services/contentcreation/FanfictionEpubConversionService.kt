@@ -390,7 +390,7 @@ class FanfictionEpubConversionService @Inject constructor(
                 .get()
 
             // Extract story info from Royal Road
-            val title = doc.select("h1.font-white").first()?.text() 
+            val title = doc.select("h1.font-white").first()?.text()
                 ?: doc.select(".fic-title h1").first()?.text()
                 ?: "Unknown Title"
             val author = doc.select(".fic-title h4 a").first()?.text()

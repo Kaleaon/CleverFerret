@@ -32,14 +32,14 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Universal Search Screen
- * 
+ *
  * A powerful search interface that searches across:
  * - Local library (all media types)
  * - External sources (metadata providers, catalogs)
  * - Web fiction sites
  * - Podcast directories
  * - Music services
- * 
+ *
  * Features:
  * - Category filters
  * - Recent searches
@@ -67,11 +67,11 @@ fun MediaSearchScreen(
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
-    
+
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
@@ -110,7 +110,7 @@ fun MediaSearchScreen(
                 onCategoryClear = { onCategoryFilterChange(null) },
                 onMediaTypeClear = { onMediaTypeFilterChange(null) }
             )
-            
+
             when {
                 state.isSearching -> {
                     SearchLoadingState()
@@ -199,6 +199,80 @@ private fun ActiveFilterTags(
 // =============================================================================
 
 @Composable
+private fun SearchResultsList(
+    results: List<SearchResult>,
+    groupedResults: Map<SearchCategory, List<SearchResult>>,
+    onResultClick: (SearchResult) -> Unit,
+    onCategoryFilterChange: (SearchCategory?) -> Unit,
+    onCategoryNavigate: (SearchCategory) -> Unit,
+    showGrouped: Boolean
+) {
+    if (showGrouped && groupedResults.isNotEmpty()) {
+        // Grouped by category
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = MediaSpacing.XL),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            groupedResults.forEach { (category, categoryResults) ->
+                item {
+                    ResultCategoryHeader(
+                        category = category,
+                        count = categoryResults.size
+                    )
+                }
+
+                items(categoryResults.take(5), key = { "${it.category.name}:${it.id}" }) { result ->
+                    SearchResultItem(
+                        result = result,
+                        onClick = { onResultClick(result) }
+                    )
+                }
+
+                if (categoryResults.size > 5) {
+                    item {
+                        TextButton(
+                            onClick = {
+                                onCategoryFilterChange(category)
+                                onCategoryNavigate(category)
+                            },
+                            modifier = Modifier.padding(
+                                horizontal = MediaSpacing.MD,
+                                vertical = MediaSpacing.SM
+                            )
+                        ) {
+                            Text(
+                                text = "See all ${categoryResults.size} ${category.displayName.lowercase()}",
+                                color = MediaColors.AccentPrimary
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    HorizontalDivider(
+                        color = MediaColors.Border,
+                        modifier = Modifier.padding(vertical = MediaSpacing.SM)
+                    )
+                }
+            }
+        }
+    } else {
+        // Flat list
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = MediaSpacing.XL),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(results, key = { "${it.category.name}:${it.id}" }) { result ->
+                SearchResultItem(
+                    result = result,
+                    onClick = { onResultClick(result) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 internal fun ResultCategoryHeader(
     category: SearchCategory,
     count: Int
@@ -215,18 +289,18 @@ internal fun ResultCategoryHeader(
             tint = category.color,
             modifier = Modifier.size(20.dp)
         )
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.SM))
-        
+
         Text(
             text = category.displayName,
             style = MediaTypography.TitleSmall,
             color = MediaColors.TextPrimary,
             fontWeight = FontWeight.SemiBold
         )
-        
+
         Spacer(modifier = Modifier.width(MediaSpacing.SM))
-        
+
         Surface(
             shape = RoundedCornerShape(MediaCorners.Full),
             color = category.color.copy(alpha = 0.2f)
@@ -257,9 +331,9 @@ private fun SearchLoadingState() {
             color = MediaColors.AccentPrimary,
             modifier = Modifier.size(48.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
-        
+
         Text(
             text = "Searching...",
             style = MediaTypography.BodyMedium,
@@ -283,17 +357,17 @@ private fun SearchEmptyState() {
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(72.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Text(
             text = "Search your library",
             style = MediaTypography.TitleMedium,
             color = MediaColors.TextPrimary
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = "Search across all your media, or explore external sources",
             style = MediaTypography.BodyMedium,
@@ -318,17 +392,17 @@ private fun NoResultsState(query: String) {
             tint = MediaColors.TextTertiary,
             modifier = Modifier.size(72.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.LG))
-        
+
         Text(
             text = "No results for \"$query\"",
             style = MediaTypography.TitleMedium,
             color = MediaColors.TextPrimary
         )
-        
+
         Spacer(modifier = Modifier.height(MediaSpacing.SM))
-        
+
         Text(
             text = "Try different keywords or check external sources",
             style = MediaTypography.BodyMedium,

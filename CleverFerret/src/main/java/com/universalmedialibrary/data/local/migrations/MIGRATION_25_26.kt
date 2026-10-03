@@ -27,7 +27,7 @@ internal val MIGRATION_25_26: Migration = object : Migration(25, 26) {
                 lastUpdated INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         // Create security_settings table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS security_settings (
@@ -40,7 +40,7 @@ internal val MIGRATION_25_26: Migration = object : Migration(25, 26) {
                 lastUpdated INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         // Create api_settings table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS api_settings (
@@ -64,14 +64,14 @@ internal val MIGRATION_25_26: Migration = object : Migration(25, 26) {
                 updatedAt INTEGER NOT NULL
             )
         """.trimIndent())
-        
+
         // Insert default general settings
         database.execSQL("""
             INSERT INTO general_settings VALUES (
                 1, 'en', 'auto', 'BURGUNDY_ROSE_GOLD', 16, 1, 1, 1, 1.0, 1, 0, 0, ${System.currentTimeMillis()}
             )
         """.trimIndent())
-        
+
         // Insert default security settings
         database.execSQL("""
             INSERT INTO security_settings VALUES (
@@ -80,4 +80,3 @@ internal val MIGRATION_25_26: Migration = object : Migration(25, 26) {
         """.trimIndent())
     }
 }
-

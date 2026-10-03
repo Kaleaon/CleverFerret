@@ -26,10 +26,10 @@ import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Debug Overlay Composable
- * 
+ *
  * A floating overlay that displays real-time debug information.
  * Only visible in debug builds when the feature flag is enabled.
- * 
+ *
  * Features:
  * - Real-time memory usage
  * - Crash/error count badges
@@ -46,10 +46,10 @@ fun DebugOverlay(
 ) {
     // Only show in debug builds
     if (!BuildConfig.SHOW_DEBUG_MENU) return
-    
+
     val metrics by performanceMetrics.collectAsState()
     var isExpanded by remember { mutableStateOf(false) }
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -91,7 +91,7 @@ private fun CollapsedDebugFab(
     onExpand: () -> Unit
 ) {
     val hasIssues = crashCount > 0 || errorCount > 0
-    
+
     BadgedBox(
         badge = {
             if (hasIssues) {
@@ -105,9 +105,9 @@ private fun CollapsedDebugFab(
     ) {
         FloatingActionButton(
             onClick = onExpand,
-            containerColor = if (hasIssues) 
-                MediaColors.Error.copy(alpha = 0.9f) 
-            else 
+            containerColor = if (hasIssues)
+                MediaColors.Error.copy(alpha = 0.9f)
+            else
                 Color(0xFF4CAF50).copy(alpha = 0.9f),
             contentColor = Color.White,
             modifier = Modifier.size(48.dp)
@@ -175,9 +175,9 @@ private fun ExpandedDebugOverlay(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Memory usage
             DebugMetricRow(
                 icon = Icons.Default.Memory,
@@ -189,7 +189,7 @@ private fun ExpandedDebugOverlay(
                     else -> Color(0xFF4CAF50)
                 }
             )
-            
+
             // Memory progress bar
             LinearProgressIndicator(
                 progress = { metrics.memoryPercentUsed / 100f },
@@ -204,9 +204,9 @@ private fun ExpandedDebugOverlay(
                 },
                 trackColor = Color.White.copy(alpha = 0.2f)
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Crash count
             DebugMetricRow(
                 icon = Icons.Default.Warning,
@@ -214,7 +214,7 @@ private fun ExpandedDebugOverlay(
                 value = "$crashCount",
                 color = if (crashCount > 0) MediaColors.Error else Color.White.copy(alpha = 0.7f)
             )
-            
+
             // Error count
             DebugMetricRow(
                 icon = Icons.Default.Error,
@@ -222,9 +222,9 @@ private fun ExpandedDebugOverlay(
                 value = "$errorCount",
                 color = if (errorCount > 0) MediaColors.Warning else Color.White.copy(alpha = 0.7f)
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Version info
             Text(
                 text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
@@ -232,16 +232,16 @@ private fun ExpandedDebugOverlay(
                 fontFamily = FontFamily.Monospace,
                 color = Color.White.copy(alpha = 0.5f)
             )
-            
+
             Text(
                 text = "Git: ${BuildConfig.GIT_COMMIT}",
                 fontSize = 9.sp,
                 fontFamily = FontFamily.Monospace,
                 color = Color.White.copy(alpha = 0.4f)
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Open Debug Menu button
             Button(
                 onClick = onNavigateToDebugMenu,
@@ -308,7 +308,7 @@ private fun DebugMetricRow(
 
 /**
  * Debug Quick Action Bar
- * 
+ *
  * A compact bar that can be shown at the top/bottom of the screen
  * for quick access to debug functions.
  */
@@ -320,7 +320,7 @@ fun DebugQuickBar(
     modifier: Modifier = Modifier
 ) {
     if (!BuildConfig.SHOW_DEBUG_MENU) return
-    
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = Color(0xDD1E1E1E),
@@ -347,19 +347,19 @@ fun DebugQuickBar(
                     color = Color(0xFF4CAF50)
                 )
             }
-            
+
             QuickAction(
                 icon = Icons.Default.BugReport,
                 label = "Report",
                 onClick = onReportBug
             )
-            
+
             QuickAction(
                 icon = Icons.Default.Settings,
                 label = "Debug",
                 onClick = onOpenDebugMenu
             )
-            
+
             QuickAction(
                 icon = Icons.Default.Screenshot,
                 label = "Screenshot",

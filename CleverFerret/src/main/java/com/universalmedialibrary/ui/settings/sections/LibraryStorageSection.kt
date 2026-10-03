@@ -45,7 +45,7 @@ fun LazyListScope.libraryStorageSection(
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
     }
-    
+
     // Quick Import - Add Media to Library
     item {
         MetallicCard(

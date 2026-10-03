@@ -81,7 +81,7 @@ fun MiniPlayer(
                         modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
-                            if (playbackState.isPlaying) Icons.Default.Pause 
+                            if (playbackState.isPlaying) Icons.Default.Pause
                             else Icons.Default.PlayArrow,
                             "Play/Pause"
                         )

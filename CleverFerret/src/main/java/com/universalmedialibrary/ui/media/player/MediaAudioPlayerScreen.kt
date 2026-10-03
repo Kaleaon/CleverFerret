@@ -27,12 +27,12 @@ import com.universalmedialibrary.ui.media.theme.*
 
 /**
  * Clean Media-Centric Audio Player Screen
- * 
+ *
  * Unified player for:
  * - Music tracks
  * - Audiobooks
  * - Podcasts
- * 
+ *
  * Features:
  * - Full-screen artwork display with blur background
  * - Playback controls (play, pause, seek, skip)
@@ -68,7 +68,7 @@ fun MediaAudioPlayerScreen(
     var showQueue by remember { mutableStateOf(false) }
     var showSpeedPicker by remember { mutableStateOf(false) }
     var showSleepTimer by remember { mutableStateOf(false) }
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -77,7 +77,7 @@ fun MediaAudioPlayerScreen(
         // Blurred background artwork
         if (state.artworkUrl != null) {
             AsyncImage(
-                    
+
                 model = state.artworkUrl,
                 contentDescription = "Background artwork",
                 modifier = Modifier
@@ -87,7 +87,7 @@ fun MediaAudioPlayerScreen(
                 alpha = 0.3f
             )
         }
-        
+
         // Gradient overlay
         Box(
             modifier = Modifier
@@ -102,7 +102,7 @@ fun MediaAudioPlayerScreen(
                     )
                 )
         )
-        
+
         // Main content
         Column(
             modifier = Modifier
@@ -126,9 +126,9 @@ fun MediaAudioPlayerScreen(
                 onCast = onCastClick,
                 onQueue = { showQueue = true }
             )
-            
+
             Spacer(modifier = Modifier.weight(1f))
-            
+
             // Artwork
             Box(
                 modifier = Modifier
@@ -145,7 +145,7 @@ fun MediaAudioPlayerScreen(
                 ) {
                     if (state.artworkUrl != null) {
                         AsyncImage(
-                    
+
                             model = state.artworkUrl,
                             contentDescription = "${state.title} album artwork",
                             modifier = Modifier.fillMaxSize(),
@@ -170,9 +170,9 @@ fun MediaAudioPlayerScreen(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.weight(1f))
-            
+
             // Track info
             Column(
                 modifier = Modifier
@@ -189,9 +189,9 @@ fun MediaAudioPlayerScreen(
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.SemiBold
                 )
-                
+
                 Spacer(modifier = Modifier.height(MediaSpacing.XS))
-                
+
                 Text(
                     text = state.artist ?: "",
                     style = MediaTypography.BodyMedium,
@@ -200,7 +200,7 @@ fun MediaAudioPlayerScreen(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 // Chapter title for audiobooks/podcasts
                 if (state.playerType != PlayerType.MUSIC && state.chapterTitle != null) {
                     Spacer(modifier = Modifier.height(MediaSpacing.XS))
@@ -214,9 +214,9 @@ fun MediaAudioPlayerScreen(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.XL))
-            
+
             // Progress bar
             Column(
                 modifier = Modifier
@@ -233,7 +233,7 @@ fun MediaAudioPlayerScreen(
                         inactiveTrackColor = MediaColors.ProgressBackground
                     )
                 )
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -250,9 +250,9 @@ fun MediaAudioPlayerScreen(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
-            
+
             // Main playback controls
             Row(
                 modifier = Modifier
@@ -280,23 +280,23 @@ fun MediaAudioPlayerScreen(
                         )
                     }
                 }
-                
+
                 // Previous / Rewind
                 IconButton(
                     onClick = if (state.playerType == PlayerType.MUSIC) onSkipPrevious else onRewind,
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
-                        imageVector = if (state.playerType == PlayerType.MUSIC) 
-                            Icons.Default.SkipPrevious 
-                        else 
+                        imageVector = if (state.playerType == PlayerType.MUSIC)
+                            Icons.Default.SkipPrevious
+                        else
                             Icons.Default.Replay30,
                         contentDescription = if (state.playerType == PlayerType.MUSIC) "Previous" else "Rewind 30s",
                         tint = MediaColors.TextPrimary,
                         modifier = Modifier.size(32.dp)
                     )
                 }
-                
+
                 // Play/Pause
                 Surface(
                     shape = CircleShape,
@@ -311,23 +311,23 @@ fun MediaAudioPlayerScreen(
                         modifier = Modifier.padding(16.dp)
                     )
                 }
-                
+
                 // Next / Fast Forward
                 IconButton(
                     onClick = if (state.playerType == PlayerType.MUSIC) onSkipNext else onFastForward,
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
-                        imageVector = if (state.playerType == PlayerType.MUSIC) 
-                            Icons.Default.SkipNext 
-                        else 
+                        imageVector = if (state.playerType == PlayerType.MUSIC)
+                            Icons.Default.SkipNext
+                        else
                             Icons.Default.Forward30,
                         contentDescription = if (state.playerType == PlayerType.MUSIC) "Next" else "Forward 30s",
                         tint = MediaColors.TextPrimary,
                         modifier = Modifier.size(32.dp)
                     )
                 }
-                
+
                 // Repeat (music) or Sleep Timer (audiobook/podcast)
                 if (state.playerType == PlayerType.MUSIC) {
                     IconButton(onClick = onRepeatToggle) {
@@ -338,18 +338,18 @@ fun MediaAudioPlayerScreen(
                                 RepeatMode.ONE -> Icons.Default.RepeatOne
                             },
                             contentDescription = "Repeat",
-                            tint = if (state.repeatMode != RepeatMode.OFF) 
-                                MediaColors.AccentPrimary 
-                            else 
+                            tint = if (state.repeatMode != RepeatMode.OFF)
+                                MediaColors.AccentPrimary
+                            else
                                 MediaColors.TextSecondary
                         )
                     }
                 } else {
                     IconButton(onClick = { showSleepTimer = true }) {
                         Icon(
-                            imageVector = if (state.sleepTimerActive) 
-                                Icons.Filled.Timer 
-                            else 
+                            imageVector = if (state.sleepTimerActive)
+                                Icons.Filled.Timer
+                            else
                                 Icons.Outlined.Timer,
                             contentDescription = "Sleep Timer",
                             tint = if (state.sleepTimerActive) MediaColors.AccentPrimary else MediaColors.TextSecondary
@@ -357,9 +357,9 @@ fun MediaAudioPlayerScreen(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.XL))
-            
+
             // Bottom actions
             Row(
                 modifier = Modifier
@@ -384,7 +384,7 @@ fun MediaAudioPlayerScreen(
                         }
                     }
                 }
-                
+
                 // Equalizer
                 IconButton(onClick = { /* Open equalizer */ }) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -400,7 +400,7 @@ fun MediaAudioPlayerScreen(
                         )
                     }
                 }
-                
+
                 // Queue
                 IconButton(onClick = { showQueue = true }) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -416,7 +416,7 @@ fun MediaAudioPlayerScreen(
                         )
                     }
                 }
-                
+
                 // Lyrics (for music)
                 if (state.playerType == PlayerType.MUSIC) {
                     IconButton(onClick = { /* Show lyrics */ }) {
@@ -435,11 +435,11 @@ fun MediaAudioPlayerScreen(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
         }
     }
-    
+
     // Queue sheet
     if (showQueue) {
         ModalBottomSheet(
@@ -459,7 +459,7 @@ fun MediaAudioPlayerScreen(
             )
         }
     }
-    
+
     // Speed picker
     if (showSpeedPicker) {
         SpeedPickerDialog(
@@ -471,7 +471,7 @@ fun MediaAudioPlayerScreen(
             onDismiss = { showSpeedPicker = false }
         )
     }
-    
+
     // Sleep timer
     if (showSleepTimer) {
         SleepTimerDialog(
@@ -514,7 +514,7 @@ fun formatTime(ms: Long): String {
     val seconds = (ms / 1000) % 60
     val minutes = (ms / (1000 * 60)) % 60
     val hours = ms / (1000 * 60 * 60)
-    
+
     return if (hours > 0) {
         "%d:%02d:%02d".format(hours, minutes, seconds)
     } else {

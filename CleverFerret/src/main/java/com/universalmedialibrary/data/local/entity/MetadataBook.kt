@@ -51,14 +51,14 @@ data class MetadataBook(
     val averageRating: Float? = null,
     val ratingsCount: Int? = null,
     val reviewsCount: Int? = null,
-    
+
     // Enhanced fields from badreads integration
     val bookmarked: Boolean = false, // Flag for quick access/favorites
     val shelf: String? = null, // currently-reading, read, to-read
     val notes: String? = null, // User's personal notes/review
     val additionalAuthors: String? = null, // Co-authors, editors, etc.
     val customCoverUrl: String? = null, // User-provided cover URL
-    
+
     // Barcode scanning tracking
     val scannedViaBarcode: Boolean = false, // Track if added via ISBN scan
     val purchaseLinksShown: Boolean = false, // Track if user has seen purchase options

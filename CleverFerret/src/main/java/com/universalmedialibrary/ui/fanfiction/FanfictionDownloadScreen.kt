@@ -28,7 +28,7 @@ fun FanfictionDownloadScreen(
     var url by remember { mutableStateOf("") }
     val downloadState by viewModel.downloadState.collectAsState()
     val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
-    
+
     LaunchedEffect(downloadState) {
         if (downloadState is DownloadState.Success) {
             // Auto-clear after showing success briefly
@@ -37,7 +37,7 @@ fun FanfictionDownloadScreen(
             onDownloadComplete()
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -94,14 +94,14 @@ fun FanfictionDownloadScreen(
                     }
                 }
             }
-            
+
             // URL input
             OutlinedTextField(
                 value = url,
                 onValueChange = { url = it },
                 label = { Text("Story URL") },
-                placeholder = { 
-                    Text("https://archiveofourown.org/works/...") 
+                placeholder = {
+                    Text("https://archiveofourown.org/works/...")
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = false,
@@ -111,7 +111,7 @@ fun FanfictionDownloadScreen(
                     Icon(Icons.Default.Link, "URL")
                 }
             )
-            
+
             // Download button
             Button(
                 onClick = { viewModel.downloadStory(url) },
@@ -122,38 +122,38 @@ fun FanfictionDownloadScreen(
                 Spacer(Modifier.width(8.dp))
                 Text("Download Story")
             }
-            
+
             // Example URLs
             if (downloadState is DownloadState.Idle) {
                 HorizontalDivider()
-                
+
                 Text(
                     "Example URLs",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 ExampleUrlCard(
                     site = "AO3",
                     example = "https://archiveofourown.org/works/12345",
                     onClick = { url = it }
                 )
-                
+
                 ExampleUrlCard(
                     site = "FFN",
                     example = "https://www.fanfiction.net/s/12345/1/",
                     onClick = { url = it }
                 )
-                
+
                 ExampleUrlCard(
                     site = "Royal Road",
                     example = "https://www.royalroad.com/fiction/12345",
                     onClick = { url = it }
                 )
             }
-            
+
             Spacer(Modifier.height(8.dp))
-            
+
             // Status display
             when (val state = downloadState) {
                 is DownloadState.Downloading -> {
@@ -232,17 +232,17 @@ private fun DownloadProgressCard(
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
-            
+
             Spacer(Modifier.height(8.dp))
-            
+
             if (total > 0) {
                 LinearProgressIndicator(
                     progress = { current.toFloat() / total },
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 Spacer(Modifier.height(4.dp))
-                
+
                 Text(
                     "Chapter $current of $total",
                     style = MaterialTheme.typography.bodySmall,
@@ -253,9 +253,9 @@ private fun DownloadProgressCard(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            
+
             Spacer(Modifier.height(8.dp))
-            
+
             Text(
                 message,
                 style = MaterialTheme.typography.bodyMedium,
@@ -282,23 +282,23 @@ private fun SuccessCard(metadata: StoryMetadata) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )
-            
+
             Spacer(Modifier.height(8.dp))
-            
+
             Text(
                 metadata.title,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )
-            
+
             Text(
                 "by ${metadata.author}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )
-            
+
             Spacer(Modifier.height(4.dp))
-            
+
             Text(
                 "${metadata.chapterCount} chapters • ${metadata.wordCount} words",
                 style = MaterialTheme.typography.bodySmall,
@@ -325,9 +325,9 @@ private fun ErrorCard(message: String) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
-            
+
             Spacer(Modifier.height(8.dp))
-            
+
             Text(
                 message,
                 style = MaterialTheme.typography.bodyMedium,

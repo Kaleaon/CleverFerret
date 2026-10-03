@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 
 enum class ReaderThemePreset {
     WHITE, SEPIA, DARK, AMOLED, NIGHT;
-    
+
     fun toTheme(): ReaderTheme = when (this) {
         WHITE -> ReaderTheme(
             backgroundColor = Color.White,

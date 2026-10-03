@@ -12,7 +12,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class SearchHistoryManager @Inject constructor() {
-    
+
     private val _searchHistory = MutableStateFlow<List<SearchHistoryEntry>>(emptyList())
     private val searchHistory = _searchHistory.asStateFlow()
 
@@ -26,15 +26,15 @@ class SearchHistoryManager @Inject constructor() {
             resultCount = 0, // Would be populated by actual search results
             mediaTypes = searchRequest.mediaTypes
         )
-        
+
         val currentHistory = _searchHistory.value.toMutableList()
         currentHistory.add(0, entry) // Add to beginning
-        
+
         // Keep only last 100 searches
         if (currentHistory.size > 100) {
             currentHistory.removeAt(currentHistory.size - 1)
         }
-        
+
         _searchHistory.value = currentHistory
     }
 

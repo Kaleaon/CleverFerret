@@ -17,30 +17,30 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class ThemeManagerViewModel @Inject constructor() : ViewModel() {
-    
+
     private val _collections = MutableStateFlow<List<SoundLibrary.SoundCollection>>(emptyList())
     val collections: StateFlow<List<SoundLibrary.SoundCollection>> = _collections.asStateFlow()
-    
+
     private val _stats = MutableStateFlow(SoundLibrary.getStats())
     val stats: StateFlow<SoundLibrary.LibraryStats> = _stats.asStateFlow()
-    
+
     val selectedTheme = mutableStateOf<String?>(null)
-    
+
     private val expandedCollections = mutableSetOf<String>()
-    
+
     init {
         loadCollections()
     }
-    
+
     private fun loadCollections() {
         viewModelScope.launch {
             refreshData()
         }
     }
-    
+
     private fun refreshData() {
         val allCollections = SoundLibrary.getAllCollections()
-        
+
         _collections.value = if (selectedTheme.value != null) {
             allCollections.filter { it.theme == selectedTheme.value }
         } else {
@@ -50,10 +50,10 @@ class ThemeManagerViewModel @Inject constructor() : ViewModel() {
                 .thenBy { it.theme }
                 .thenBy { it.name }
         )
-        
+
         _stats.value = SoundLibrary.getStats()
     }
-    
+
     fun toggleCollection(collectionId: String) {
         viewModelScope.launch {
             val collection = SoundLibrary.getCollection(collectionId)
@@ -63,12 +63,12 @@ class ThemeManagerViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-    
+
     fun filterByTheme(theme: String?) {
         selectedTheme.value = theme
         refreshData()
     }
-    
+
     fun toggleExpanded(collectionId: String) {
         if (expandedCollections.contains(collectionId)) {
             expandedCollections.remove(collectionId)
@@ -78,11 +78,11 @@ class ThemeManagerViewModel @Inject constructor() : ViewModel() {
         // Trigger recomposition by updating collections
         _collections.value = _collections.value.toList()
     }
-    
+
     fun isExpanded(collectionId: String): Boolean {
         return expandedCollections.contains(collectionId)
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         expandedCollections.clear()

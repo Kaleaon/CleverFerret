@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object HistoryModule {
-    
+
     @Provides
     @Singleton
     fun provideHistoryRepository(

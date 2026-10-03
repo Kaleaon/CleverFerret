@@ -26,14 +26,14 @@ import javax.inject.Inject
 
 /**
  * Reading Preferences Screen
- * 
+ *
  * Comprehensive user preferences UI for all reading formats:
  * - EPUB (font, theme, layout)
  * - PDF (scroll, fit, spread modes)
  * - Audiobooks (speed, sleep timer)
  * - Comics (reading mode, translation)
  * - Global (screen, brightness, navigation)
- * 
+ *
  * All preferences persist across app upgrades via DataStore
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,10 +47,10 @@ fun ReadingPreferencesScreen(
     val audiobookPrefs by viewModel.audiobookPreferences.collectAsState()
     val comicPrefs by viewModel.comicPreferences.collectAsState()
     val globalPrefs by viewModel.globalPreferences.collectAsState()
-    
+
     val snackbarHostState = remember { SnackbarHostState() }
     var showRestoreDialog by remember { mutableStateOf(false) }
-    
+
     // Listen for backup results
     LaunchedEffect(Unit) {
         viewModel.backupResult.collect { result ->
@@ -101,7 +101,7 @@ fun ReadingPreferencesScreen(
                     onValueChange = { viewModel.updateEpubFontSize(it) },
                     valueDisplay = "${epubPrefs.fontSize.toInt()}%"
                 )
-                
+
                 // Theme
                 DropdownPreference(
                     label = "Theme",
@@ -109,7 +109,7 @@ fun ReadingPreferencesScreen(
                     options = EpubTheme.values().toList(),
                     onValueChange = { viewModel.updateEpubTheme(it) }
                 )
-                
+
                 // Text align
                 DropdownPreference(
                     label = "Text Alignment",
@@ -117,7 +117,7 @@ fun ReadingPreferencesScreen(
                     options = TextAlign.values().toList(),
                     onValueChange = { viewModel.updateTextAlign(it) }
                 )
-                
+
                 // Line height
                 SliderPreference(
                     label = "Line Height",
@@ -136,7 +136,7 @@ fun ReadingPreferencesScreen(
                     options = ScrollMode.values().toList(),
                     onValueChange = { viewModel.updateScrollMode(it) }
                 )
-                
+
                 DropdownPreference(
                     label = "Fit Mode",
                     value = pdfPrefs.fitMode,
@@ -154,15 +154,15 @@ fun ReadingPreferencesScreen(
                     onValueChange = { viewModel.updatePlaybackSpeed(it) },
                     valueDisplay = "${String.format(Locale.getDefault(), "%.2f", audiobookPrefs.playbackSpeed)}x"
                 )
-                
+
                 SliderPreference(
                     label = "Sleep Timer",
                     value = audiobookPrefs.sleepTimerMinutes.toFloat(),
                     valueRange = 0f..120f,
                     onValueChange = { viewModel.updateSleepTimer(it.toInt()) },
-                    valueDisplay = if (audiobookPrefs.sleepTimerMinutes > 0) 
-                        "${audiobookPrefs.sleepTimerMinutes} min" 
-                    else 
+                    valueDisplay = if (audiobookPrefs.sleepTimerMinutes > 0)
+                        "${audiobookPrefs.sleepTimerMinutes} min"
+                    else
                         "Off"
                 )
             }
@@ -175,7 +175,7 @@ fun ReadingPreferencesScreen(
                     options = ReadingMode.values().toList(),
                     onValueChange = { viewModel.updateComicReadingMode(it) }
                 )
-                
+
                 SwitchPreference(
                     label = "AI Translation",
                     checked = comicPrefs.translationEnabled,
@@ -190,13 +190,13 @@ fun ReadingPreferencesScreen(
                     checked = globalPrefs.keepScreenOn,
                     onCheckedChange = { viewModel.updateKeepScreenOn(it) }
                 )
-                
+
                 SwitchPreference(
                     label = "Auto Brightness",
                     checked = globalPrefs.autoBrightness,
                     onCheckedChange = { viewModel.updateAutoBrightness(it) }
                 )
-                
+
                 SwitchPreference(
                     label = "Volume Key Navigation",
                     checked = globalPrefs.volumeKeyNavigation,
@@ -214,7 +214,7 @@ fun ReadingPreferencesScreen(
                     Spacer(Modifier.width(8.dp))
                     Text("Create Backup Now")
                 }
-                
+
                 OutlinedButton(
                     onClick = { showRestoreDialog = true },
                     modifier = Modifier.fillMaxWidth()
@@ -223,7 +223,7 @@ fun ReadingPreferencesScreen(
                     Spacer(Modifier.width(8.dp))
                     Text("Restore from Backup")
                 }
-                
+
                 Text(
                     text = "💡 Backups are created automatically before app upgrades",
                     style = MaterialTheme.typography.bodySmall,
@@ -297,7 +297,7 @@ private fun <T : Enum<T>> DropdownPreference(
     onValueChange: (T) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    
+
     Column {
         Text(text = label, style = MaterialTheme.typography.bodyLarge)
         Spacer(Modifier.height(4.dp))
@@ -357,23 +357,23 @@ class ReadingPreferencesViewModel @Inject constructor(
     private val preferencesStore: ReadiumPreferencesStore,
     private val settingsBackupService: SettingsBackupService
 ) : ViewModel() {
-    
+
     // Events for UI feedback
     private val _backupResult = MutableSharedFlow<Result<String>>()
     val backupResult = _backupResult.asSharedFlow()
 
     val epubPreferences = preferencesStore.epubPreferences
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), EpubPreferences())
-    
+
     val pdfPreferences = preferencesStore.pdfPreferences
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PdfPreferences())
-    
+
     val audiobookPreferences = preferencesStore.audiobookPreferences
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AudiobookPreferences())
-    
+
     val comicPreferences = preferencesStore.comicPreferences
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ComicPreferences())
-    
+
     val globalPreferences = preferencesStore.globalPreferences
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), GlobalPreferences())
 
@@ -478,7 +478,7 @@ class ReadingPreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val result = settingsBackupService.exportToStorage()
-                
+
                 if (result.isSuccess) {
                     val file = result.getOrNull()
                     _backupResult.emit(Result.success("Backup saved to ${file?.name}"))
@@ -496,7 +496,7 @@ class ReadingPreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val result = settingsBackupService.importFromFile(uri)
-                
+
                 if (result.isSuccess) {
                     _backupResult.emit(Result.success("Settings restored successfully"))
                 } else {

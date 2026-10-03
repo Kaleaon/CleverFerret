@@ -304,23 +304,23 @@ class EReaderViewModel @Inject constructor(
         // PDF parsing requires external libraries - show info message
         val content = """
             PDF Reader
-            
+
             File: ${file.name}
             Size: ${file.length() / 1024} KB
-            
+
             PDF reading requires additional libraries for proper rendering.
             For now, this is a placeholder showing file information.
-            
+
             To read PDF files, consider:
             • Using a dedicated PDF reader app
             • Converting the PDF to EPUB or TXT format
             • Waiting for enhanced PDF support in future updates
         """.trimIndent()
-        
+
         chapters = listOf(content)
         chapterTitles = listOf("PDF Info")
         currentChapterIndex = 0
-        
+
         _uiState.value = _uiState.value.copy(
             isLoading = false,
             isLoaded = true,

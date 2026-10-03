@@ -65,7 +65,7 @@ data class WebFictionSource(
             categories = listOf("LitRPG", "Fantasy", "Sci-Fi"),
             baseUrl = "https://www.royalroad.com"
         )
-        
+
         val AO3 = WebFictionSource(
             id = "ao3",
             displayName = "Archive of Our Own",
@@ -75,7 +75,7 @@ data class WebFictionSource(
             categories = listOf("Fanfiction", "Original Works"),
             baseUrl = "https://archiveofourown.org"
         )
-        
+
         val FFN = WebFictionSource(
             id = "ffn",
             displayName = "FanFiction.Net",
@@ -85,7 +85,7 @@ data class WebFictionSource(
             categories = listOf("Anime", "Books", "Games", "Movies"),
             baseUrl = "https://www.fanfiction.net"
         )
-        
+
         val WATTPAD = WebFictionSource(
             id = "wattpad",
             displayName = "Wattpad",
@@ -95,7 +95,7 @@ data class WebFictionSource(
             categories = listOf("Romance", "Teen Fiction", "Werewolf"),
             baseUrl = "https://www.wattpad.com"
         )
-        
+
         val SCRIBBLEHUB = WebFictionSource(
             id = "scribblehub",
             displayName = "ScribbleHub",
@@ -105,7 +105,7 @@ data class WebFictionSource(
             categories = listOf("Fantasy", "Isekai", "LitRPG"),
             baseUrl = "https://www.scribblehub.com"
         )
-        
+
         val SPACEBATTLES = WebFictionSource(
             id = "spacebattles",
             displayName = "SpaceBattles",

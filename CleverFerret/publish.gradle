@@ -12,35 +12,35 @@ publishing {
             }
         }
     }
-    
+
     publications {
         maven(MavenPublication) {
             groupId = 'com.universalmedialibrary'
             artifactId = 'cleverferret'
             version = project.findProperty('versionName') ?: android.defaultConfig.versionName
-            
+
             artifact("$buildDir/outputs/apk/release/CleverFerret-release-unsigned.apk") {
                 classifier = 'release'
                 extension = 'apk'
             }
-            
+
             artifact("$buildDir/outputs/apk/debug/CleverFerret-debug.apk") {
-                classifier = 'debug'  
+                classifier = 'debug'
                 extension = 'apk'
             }
-            
+
             pom {
                 name = 'CleverFerret Universal Media Library'
                 description = 'A comprehensive Android application for managing books, movies, music, podcasts, and web fiction with Plex integration and AI-powered features.'
                 url = 'https://github.com/your-username/CleverFerret'
-                
+
                 licenses {
                     license {
                         name = 'MIT License'
                         url = 'https://opensource.org/licenses/MIT'
                     }
                 }
-                
+
                 developers {
                     developer {
                         id = 'cleverferret-dev'
@@ -48,7 +48,7 @@ publishing {
                         email = 'dev@cleverferret.com'
                     }
                 }
-                
+
                 scm {
                     connection = 'scm:git:git://github.com/your-username/CleverFerret.git'
                     developerConnection = 'scm:git:ssh://github.com:your-username/CleverFerret.git'
@@ -64,11 +64,11 @@ task publishToGitHub {
     dependsOn 'assembleRelease'
     dependsOn 'assembleDebug'
     dependsOn 'publishMavenPublicationToGitHubPackagesRepository'
-    
+
     doLast {
         println "Published CleverFerret to GitHub Packages"
         println "Version: ${project.findProperty('versionName') ?: android.defaultConfig.versionName}"
-        println "Group: com.universalmedialibrary" 
+        println "Group: com.universalmedialibrary"
         println "Artifact: cleverferret"
     }
 }

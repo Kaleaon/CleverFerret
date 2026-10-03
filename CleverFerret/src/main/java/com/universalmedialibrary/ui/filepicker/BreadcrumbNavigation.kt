@@ -39,7 +39,7 @@ internal fun BreadcrumbNavigation(
 ) {
     val context = LocalContext.current
     val pathParts = currentPath.split("/").filter { it.isNotEmpty() }
-    
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant
@@ -103,9 +103,9 @@ internal fun BreadcrumbNavigation(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Breadcrumb trail
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -119,7 +119,7 @@ internal fun BreadcrumbNavigation(
                         Icon(Icons.Default.Home, null, modifier = Modifier.size(16.dp))
                     }
                 }
-                
+
                 items(pathParts.size) { index ->
                     val path = "/" + pathParts.take(index + 1).joinToString("/")
                     TextButton(

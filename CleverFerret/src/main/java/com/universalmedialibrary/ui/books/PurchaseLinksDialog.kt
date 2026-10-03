@@ -18,7 +18,7 @@ import com.universalmedialibrary.services.barcode.BookPurchaseLinksService
 
 /**
  * Purchase Links Dialog
- * 
+ *
  * Displays available purchase links for books scanned via barcode
  * but not yet available in the library.
  */
@@ -62,16 +62,16 @@ fun PurchaseLinksDialog(
                         Icon(Icons.Default.Close, contentDescription = "Close")
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 // Book info
                 Text(
                     text = bookTitle,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 if (isbn != null) {
                     Text(
                         text = "ISBN: $isbn",
@@ -79,9 +79,9 @@ fun PurchaseLinksDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Info card
                 Card(
                     colors = CardDefaults.cardColors(
@@ -95,9 +95,9 @@ fun PurchaseLinksDialog(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Purchase links list
                 if (purchaseLinks.isEmpty()) {
                     Text(
@@ -114,11 +114,11 @@ fun PurchaseLinksDialog(
                             BookPurchaseLinksService.PurchasePlatform.PROJECT_GUTENBERG
                         )
                     }
-                    
+
                     val commercialLinks = purchaseLinks.filter {
                         it !in freeLinks
                     }
-                    
+
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -141,7 +141,7 @@ fun PurchaseLinksDialog(
                                     onShareLink = { onShareLink(link) }
                                 )
                             }
-                            
+
                             if (commercialLinks.isNotEmpty()) {
                                 item {
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -154,7 +154,7 @@ fun PurchaseLinksDialog(
                                 }
                             }
                         }
-                        
+
                         items(commercialLinks) { link ->
                             PurchaseLinkItem(
                                 link = link,
@@ -164,9 +164,9 @@ fun PurchaseLinksDialog(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Close button
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -209,7 +209,7 @@ private fun PurchaseLinkItem(
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -223,7 +223,7 @@ private fun PurchaseLinkItem(
                         modifier = Modifier.size(18.dp)
                     )
                 }
-                
+
                 IconButton(
                     onClick = onOpenLink,
                     modifier = Modifier.size(36.dp)

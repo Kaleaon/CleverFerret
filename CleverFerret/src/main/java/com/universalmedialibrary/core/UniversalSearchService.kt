@@ -14,7 +14,7 @@ import javax.inject.Singleton
  * - Tags
  * - Media metadata
  * - Services and capabilities
- * 
+ *
  * This is the single entry point for all search functionality in the application.
  */
 @Singleton
@@ -22,7 +22,7 @@ class UniversalSearchService @Inject constructor(
     private val formatRegistry: FormatRegistry,
     private val tagRegistry: TagRegistry
 ) {
-    
+
     /**
      * Search result type
      */
@@ -30,10 +30,10 @@ class UniversalSearchService @Inject constructor(
         data class FormatResult(val format: FormatInfo) : SearchResult()
         data class TagResult(val tag: UnifiedTagInfo) : SearchResult()
     }
-    
+
     /**
      * Search across all searchable entities
-     * 
+     *
      * @param query Search query
      * @param includeFormats Whether to include formats in results
      * @param includeTags Whether to include tags in results
@@ -60,7 +60,7 @@ class UniversalSearchService @Inject constructor(
         } else {
             emptyList()
         }
-        
+
         return if (includeTags) {
             tagRegistry.searchTags(query, source = tagSource).map { tags ->
                 val tagResults = tags.map { SearchResult.TagResult(it) }
@@ -75,7 +75,7 @@ class UniversalSearchService @Inject constructor(
             flowOf(formatResults)
         }
     }
-    
+
     /**
      * Search formats only
      */
@@ -91,7 +91,7 @@ class UniversalSearchService @Inject constructor(
             formatRegistry.searchFormats(query)
         }
     }
-    
+
     /**
      * Search tags only
      */
@@ -102,69 +102,69 @@ class UniversalSearchService @Inject constructor(
     ): Flow<List<UnifiedTagInfo>> {
         return tagRegistry.searchTags(query, category, source)
     }
-    
+
     /**
      * Get all supported formats
      */
     fun getAllFormats(): List<FormatInfo> = formatRegistry.getAllFormats()
-    
+
     /**
      * Get all readable formats
      */
     fun getReadableFormats(): List<FormatInfo> = formatRegistry.getReadableFormats()
-    
+
     /**
      * Get formats by category
      */
     fun getFormatsByCategory(category: FormatRegistry.FormatCategory): List<FormatInfo> {
         return formatRegistry.getFormatsByCategory(category)
     }
-    
+
     /**
      * Get format by extension
      */
     fun getFormatByExtension(extension: String): FormatInfo? {
         return formatRegistry.getFormatByExtension(extension)
     }
-    
+
     /**
      * Get format by MIME type
      */
     fun getFormatByMimeType(mimeType: String): FormatInfo? {
         return formatRegistry.getFormatByMimeType(mimeType)
     }
-    
+
     /**
      * Check if extension is supported
      */
     fun isFormatSupported(extension: String): Boolean {
         return formatRegistry.isSupported(extension)
     }
-    
+
     /**
      * Check if extension is readable
      */
     fun isFormatReadable(extension: String): Boolean {
         return formatRegistry.isReadable(extension)
     }
-    
+
     /**
      * Get all supported extensions
      */
     fun getAllExtensions(): List<String> = formatRegistry.getAllExtensions()
-    
+
     /**
      * Get all supported MIME types
      */
     fun getAllMimeTypes(): List<String> = formatRegistry.getAllMimeTypes()
-    
+
     /**
      * Get popular tags
      */
     fun getPopularTags(limit: Int = 50): Flow<List<UnifiedTagInfo>> {
         return tagRegistry.getPopularTags(limit)
     }
-    
+
     /**
      * Get recent tags
      */

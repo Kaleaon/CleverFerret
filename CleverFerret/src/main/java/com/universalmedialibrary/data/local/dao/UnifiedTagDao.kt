@@ -33,10 +33,10 @@ interface UnifiedTagDao {
 
     @Query("DELETE FROM unified_tags WHERE tagId = :tagId")
     suspend fun deleteTagById(tagId: Long)
-    
+
     @Query("DELETE FROM unified_tags WHERE tagId = :tagId")
     suspend fun deleteTag(tagId: Long)
-    
+
     @Query("UPDATE unified_tags SET name = :newName WHERE tagId = :tagId")
     suspend fun updateTagName(tagId: Long, newName: String)
 
@@ -111,7 +111,7 @@ interface UnifiedTagDao {
     suspend fun recalculateUsageCount(tagId: Long)
 
     @Query("""
-        UPDATE unified_tags 
+        UPDATE unified_tags
         SET usageCount = (SELECT COUNT(*) FROM item_tags WHERE tagId = unified_tags.tagId)
     """)
     suspend fun recalculateAllUsageCounts()
@@ -121,13 +121,13 @@ interface UnifiedTagDao {
     suspend fun applyTagsToItem(itemId: Long, tagIds: List<Long>) {
         // Remove existing tags
         removeAllTagsFromItem(itemId)
-        
+
         // Add new tags
         val itemTags = tagIds.map { tagId ->
             ItemTag(itemId = itemId, tagId = tagId)
         }
         addTagsToItem(itemTags)
-        
+
         // Update usage counts
         tagIds.forEach { tagId ->
             incrementUsageCount(tagId)
@@ -138,16 +138,16 @@ interface UnifiedTagDao {
     suspend fun mergeTag(fromTagId: Long, toTagId: Long) {
         // Get all items with the source tag
         val itemIds = getItemIdsForTag(fromTagId)
-        
+
         // Add the destination tag to all those items
         val itemTags = itemIds.map { itemId ->
             ItemTag(itemId = itemId, tagId = toTagId)
         }
         addTagsToItem(itemTags)
-        
+
         // Delete the source tag (cascade will remove item_tags)
         deleteTagById(fromTagId)
-        
+
         // Recalculate usage for destination tag
         recalculateUsageCount(toTagId)
     }
@@ -167,7 +167,7 @@ interface UnifiedTagDao {
 
     // Get tag suggestions based on partial match and usage
     @Query("""
-        SELECT * FROM unified_tags 
+        SELECT * FROM unified_tags
         WHERE name LIKE :query || '%'
         ORDER BY usageCount DESC, name ASC
         LIMIT :limit
@@ -189,15 +189,15 @@ interface UnifiedTagDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query("""
-        SELECT 
-            t.tagId, 
-            t.name, 
-            t.type, 
-            t.color, 
-            t.description, 
-            t.createdAt, 
-            t.lastUsed, 
-            t.usageCount, 
+        SELECT
+            t.tagId,
+            t.name,
+            t.type,
+            t.color,
+            t.description,
+            t.createdAt,
+            t.lastUsed,
+            t.usageCount,
             t.externalId,
             COUNT(mi.itemId) AS filteredUsage
         FROM unified_tags t
