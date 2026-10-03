@@ -30,6 +30,7 @@ import kotlinx.serialization.Serializable
         )
     ],
     indices = [
+        Index(value = ["itemId"]),
         Index(value = ["key"]),
         Index(value = ["value"]) // Allows searching by value
     ]
