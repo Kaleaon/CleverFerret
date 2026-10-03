@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongParameterList:TelemetryEventFactory.kt$TelemetryEventFactory$(eventName: String, integration: String, operation: String, requestId: String, error: AppError, state: UserFacingState, attributes: Map&lt;String, String&gt;)</ID>
+    <ID>MagicNumber:AiProviderGatewayAdapters.kt$GeminiProviderGatewayAdapter$4</ID>
+    <ID>MagicNumber:AiProviderGatewayAdapters.kt$OllamaProviderGatewayAdapter$3</ID>
+    <ID>MagicNumber:AiProviderGatewayAdapters.kt$OllamaProviderGatewayAdapter$5</ID>
+    <ID>MagicNumber:AiProviderGatewayAdapters.kt$OpenAiProviderGatewayAdapter$4</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$408</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$429</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$500</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$502</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$503</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$504</ID>
+    <ID>MaxLineLength:IdempotentRetryPolicy.kt$IdempotentRetryPolicy$attempt &lt; retryMaxAttempts &amp;&amp; (error is AppError.TransportFailure || error is AppError.RateLimitFailure || error is AppError.ExternalServiceFailure)</ID>
+    <ID>MaxLineLength:TelemetryEventFactory.kt$TelemetryEventFactory$TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, eventName, integration, operation, requestId, Instant.now(), false, error::class.simpleName, state.name, attributes)</ID>
+    <ID>MaxLineLength:TelemetryEventFactory.kt$TelemetryEventFactory$TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, eventName, integration, operation, requestId, Instant.now(), true, null, null, attributes)</ID>
+    <ID>MaxLineLength:TelemetryEventFactory.kt$TelemetryEventFactory$fun</ID>
+  </CurrentIssues>
+</SmellBaseline>

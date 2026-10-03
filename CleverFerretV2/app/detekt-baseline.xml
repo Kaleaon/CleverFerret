@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaxLineLength:V2NavigationGraph.kt$V2NavigationGraph$TopLevelDomain.AUDIO to listOf("audio/home", "audio/now-playing", "audio/queue", "audio/audiobooks", "audio/podcasts", "audio/music")</ID>
+    <ID>MaxLineLength:V2NavigationGraph.kt$V2NavigationGraph$TopLevelDomain.DISCOVER to listOf("discover/home", "discover/search", "discover/opds", "discover/webfiction", "discover/recommendations")</ID>
+    <ID>MaxLineLength:V2NavigationGraph.kt$V2NavigationGraph$TopLevelDomain.LIBRARY to listOf("library/home", "library/item/{itemId}", "library/collection/{collectionId}", "library/series/{seriesId}", "library/search")</ID>
+    <ID>MaxLineLength:V2NavigationGraph.kt$V2NavigationGraph$TopLevelDomain.READER to listOf("reader/session/{itemId}", "reader/contents/{itemId}", "reader/annotations/{itemId}", "reader/theme")</ID>
+    <ID>MaxLineLength:V2NavigationGraph.kt$V2NavigationGraph$TopLevelDomain.SETTINGS to listOf("settings/home", "settings/reader", "settings/playback", "settings/network", "settings/security", "settings/import-export", "settings/about")</ID>
+  </CurrentIssues>
+</SmellBaseline>
