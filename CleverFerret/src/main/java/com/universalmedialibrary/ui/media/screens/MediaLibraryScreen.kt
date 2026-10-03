@@ -57,9 +57,9 @@ data class LibraryMediaTypeOption(
 @Composable
 fun MediaLibraryScreen(
     state: LibraryScreenState,
-    mediaTypeOptions: List<LibraryMediaTypeOption>,
-    currentMediaTypeRoute: String,
-    onMediaTypeSelected: (String) -> Unit,
+    mediaTypeOptions: List<LibraryMediaTypeOption> = emptyList(),
+    currentMediaTypeRoute: String = "",
+    onMediaTypeSelected: (String) -> Unit = {},
     onItemClick: (MediaItem) -> Unit,
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
@@ -427,7 +427,7 @@ private fun ListItemSkeleton() {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FlowRowWrapper(
+internal fun FlowRowWrapper(
     horizontalArrangement: Arrangement.Horizontal,
     verticalArrangement: Arrangement.Vertical,
     content: @Composable () -> Unit

@@ -206,14 +206,6 @@ class FanfictionEpubConversionService @Inject constructor(
     }
 
 
-
-    private fun org.json.JSONArray?.toStringList(): List<String> {
-        val array = this ?: return emptyList()
-        return (0 until array.length())
-            .mapNotNull { idx -> array.optString(idx).takeIf { it.isNotBlank() } }
-    }
-
-
     /**
      * Fetch story from FanFiction.Net
      */
@@ -473,29 +465,10 @@ class FanfictionEpubConversionService @Inject constructor(
             null
         }
     }
+}
 
-    /**
-     * Fetch a single chapter from Royal Road
-     */
-
-    /**
-     * Parse FanFiction.Net metadata
-     */
-
-    /**
-     * Parse Archive of Our Own metadata
-     */
-
-    /**
-     * Create EPUB file from story content
-     */
-
-
-
-
-
-
-
-
-
+internal fun org.json.JSONArray?.toStringList(): List<String> {
+    val array = this ?: return emptyList()
+    return (0 until array.length())
+        .mapNotNull { idx -> array.optString(idx).takeIf { it.isNotBlank() } }
 }

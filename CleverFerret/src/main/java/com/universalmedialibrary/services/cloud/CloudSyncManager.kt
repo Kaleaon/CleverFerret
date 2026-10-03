@@ -77,9 +77,12 @@ class CloudSyncManager @Inject constructor(
             providers.forEachIndexed { index, provider ->
                 _syncProgress.value = index.toFloat() / totalProviders.toFloat()
                 
-                val result = when (provider) {
+                val result: SyncResult = when (provider) {
                     CloudProvider.GOOGLE_DRIVE -> googleDriveService.syncMedia()
-                    CloudProvider.DROPBOX -> dropboxService.syncMedia()
+                    CloudProvider.DROPBOX -> {
+                        val res = dropboxService.syncMedia()
+                        SyncResult(provider = CloudProvider.DROPBOX, success = res.success, error = res.error)
+                    }
                     CloudProvider.ONEDRIVE -> oneDriveService.syncMedia()
                     CloudProvider.WEBDAV -> webDavService.syncMedia()
                 }
@@ -105,7 +108,10 @@ class CloudSyncManager @Inject constructor(
     suspend fun syncProvider(provider: CloudProvider): SyncResult {
         return when (provider) {
             CloudProvider.GOOGLE_DRIVE -> googleDriveService.syncMedia()
-            CloudProvider.DROPBOX -> dropboxService.syncMedia()
+            CloudProvider.DROPBOX -> {
+                val res = dropboxService.syncMedia()
+                SyncResult(provider = CloudProvider.DROPBOX, success = res.success, error = res.error)
+            }
             CloudProvider.ONEDRIVE -> oneDriveService.syncMedia()
             CloudProvider.WEBDAV -> webDavService.syncMedia()
         }
@@ -231,6 +237,17 @@ enum class SyncStatus {
 enum class ConflictResolutionStrategy {
     LOCAL_WINS, CLOUD_WINS, MANUAL
 }
+
+data class SyncResult(
+    val provider: CloudProvider = CloudProvider.GOOGLE_DRIVE,
+    val success: Boolean,
+    val uploadedCount: Int = 0,
+    val downloadedCount: Int = 0,
+    val conflictCount: Int = 0,
+    val duration: Long = 0L,
+    val error: String? = null,
+    val errorMessage: String? = error
+)
 
 data class SyncLocalMediaFile(
     val id: String,

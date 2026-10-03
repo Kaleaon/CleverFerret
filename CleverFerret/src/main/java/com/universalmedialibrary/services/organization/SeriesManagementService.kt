@@ -125,12 +125,12 @@ class SeriesManagementService @Inject constructor(
 
     private companion object {
         val SERIES_PREFIX_PATTERNS = listOf(
-            Regex("^(.+?)(?:\\s+and\\s+the|:\\s+|\\s+#\\d+|\\s+\\d+$)"),
-            Regex("^(The\\s+.+?)(?:\\s+Book\\s+\\d+|\\s+-\\s+Part\\s+\\d+)"),
-            Regex("^(.+?)(?:\\s+Volume\\s+\\d+|\\s+Vol\\.\\s+\\d+)")
+            Regex("^(.+?)(?:\\s+Volume\\s+\\d+|\\s+Vol\\.\\s+\\d+|\\s+Book\\s+\\d+|\\s+Part\\s+\\d+)", RegexOption.IGNORE_CASE),
+            Regex("^(The\\s+.+?)(?:\\s+Book\\s+\\d+|\\s+-\\s+Part\\s+\\d+)", RegexOption.IGNORE_CASE),
+            Regex("^(.+?)(?:\\s+and\\s+the|:\\s+|\\s+#\\d+|\\s+\\d+$)", RegexOption.IGNORE_CASE)
         )
 
-        val NUMBERING_REGEX = Regex("\\d+|#\\d+|Book \\d+|Vol\\.? \\d+")
+        val NUMBERING_REGEX = Regex("\\d+|#\\d+|Book \\d+|Vol\\.? \\d+", RegexOption.IGNORE_CASE)
     }
     
     /**

@@ -20,10 +20,10 @@ class MediaSectionPagingIntegrationTest {
             PagingSource.LoadParams.Refresh(key = null, loadSize = 20, placeholdersEnabled = false)
         ) as PagingSource.LoadResult.Page
         val second = pagingSource.load(
-            PagingSource.LoadParams.Append(key = first.nextKey, loadSize = 20, placeholdersEnabled = false)
+            PagingSource.LoadParams.Append(key = checkNotNull(first.nextKey), loadSize = 20, placeholdersEnabled = false)
         ) as PagingSource.LoadResult.Page
         val third = pagingSource.load(
-            PagingSource.LoadParams.Append(key = second.nextKey, loadSize = 20, placeholdersEnabled = false)
+            PagingSource.LoadParams.Append(key = checkNotNull(second.nextKey), loadSize = 20, placeholdersEnabled = false)
         ) as PagingSource.LoadResult.Page
 
         assertThat(requested).containsExactly(20 to 0, 20 to 20, 20 to 40).inOrder()

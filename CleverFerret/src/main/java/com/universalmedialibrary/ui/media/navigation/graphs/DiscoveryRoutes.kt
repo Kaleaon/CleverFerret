@@ -38,6 +38,7 @@ import com.universalmedialibrary.ui.reader.EPUBReaderScreen
 import kotlinx.coroutines.launch
 import java.io.File
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
+import com.universalmedialibrary.ui.media.navigation.sanitizeRouteParamForDisplay
 
 fun NavGraphBuilder.discoveryRoutes(
     navController: NavHostController,

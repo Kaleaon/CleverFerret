@@ -319,21 +319,3 @@ private fun GalleryViewMode.toDisplayName(): String = when (this) {
     GalleryViewMode.TIMELINE -> "Timeline View"
     GalleryViewMode.MAP -> "Map View"
 }
-
-private fun GallerySortOrder.toDisplayName(): String = when (this) {
-    GallerySortOrder.DATE_TAKEN_DESC -> "Date Taken (Newest)"
-    GallerySortOrder.DATE_TAKEN_ASC -> "Date Taken (Oldest)"
-    GallerySortOrder.DATE_ADDED_DESC -> "Date Added (Newest)"
-    GallerySortOrder.DATE_ADDED_ASC -> "Date Added (Oldest)"
-    GallerySortOrder.DATE_MODIFIED_DESC -> "Date Modified (Newest)"
-    GallerySortOrder.DATE_MODIFIED_ASC -> "Date Modified (Oldest)"
-    GallerySortOrder.NAME_ASC -> "Name (A-Z)"
-    GallerySortOrder.NAME_DESC -> "Name (Z-A)"
-    GallerySortOrder.SIZE_DESC -> "Size (Largest)"
-    GallerySortOrder.SIZE_ASC -> "Size (Smallest)"
-    GallerySortOrder.DURATION_DESC -> "Duration (Longest)"
-    GallerySortOrder.DURATION_ASC -> "Duration (Shortest)"
-    GallerySortOrder.RATING_DESC -> "Rating (Highest)"
-    GallerySortOrder.RATING_ASC -> "Rating (Lowest)"
-    GallerySortOrder.RANDOM -> "Random"
-}

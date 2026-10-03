@@ -3,7 +3,12 @@ package com.universalmedialibrary.services
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import com.universalmedialibrary.services.StorageAccessService.DerivedMetadata
 import java.security.MessageDigest
+import java.util.Locale
+import com.universalmedialibrary.utils.FileNameSanitizer
+
+private val fileNameSanitizer = FileNameSanitizer()
 
 internal fun computeSha256(context: Context, uri: Uri): String? {
     return try {
@@ -111,10 +116,10 @@ internal fun buildPlanRecursively(
                 val segments = when (options.profile) {
                     ImportSortProfile.BOOKS_FLAT -> listOf("Books")
                     ImportSortProfile.BOOKS_AUTHOR_TITLE -> listOf("Books", safeAuthor ?: "Unknown Author")
-                    else -> buildList {
+                    else -> buildList<String> {
                         add("Books")
                         add(safeAuthor ?: "Unknown Author")
-                        safeSeries?.let { add(it) }
+                        if (safeSeries != null) add(safeSeries)
                     }
                 }
                 val name = "${safeTitle}.${ext.ifBlank { "bin" }}"
