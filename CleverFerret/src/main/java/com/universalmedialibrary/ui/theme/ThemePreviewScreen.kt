@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.dp
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ThemePreviewScreen() {
+fun ThemePreviewScreen(
+    onNavigateToThemePaywall: () -> Unit = {}
+) {
     var selectedPalette by remember { mutableStateOf(CleverFerretTheme.NAVY_GOLD) }
     var showPaletteSelector by remember { mutableStateOf(false) }
 
@@ -261,7 +263,20 @@ fun ThemePreviewScreen() {
                 currentPalette = selectedPalette,
                 onDismiss = { showPaletteSelector = false },
                 onSelect = { palette ->
-                    selectedPalette = palette
+                    val freePalettes = setOf(
+                        CleverFerretTheme.NAVY_GOLD,
+                        CleverFerretTheme.EMERALD_SILVER,
+                        CleverFerretTheme.ROYAL_BRONZE,
+                        CleverFerretTheme.MIDNIGHT_AMBER,
+                        CleverFerretTheme.OBSIDIAN_CRIMSON,
+                        CleverFerretTheme.SLATE_CYAN,
+                        CleverFerretTheme.PAPER_INK
+                    )
+                    if (palette in freePalettes) {
+                        selectedPalette = palette
+                    } else {
+                        onNavigateToThemePaywall()
+                    }
                     showPaletteSelector = false
                 }
             )

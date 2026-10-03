@@ -2,6 +2,8 @@ package com.universalmedialibrary.services.plex
 
 import android.content.Context
 import android.util.Log
+import androidx.room.withTransaction
+import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
 import com.universalmedialibrary.services.ingestion.IngestionPipeline
@@ -21,6 +23,7 @@ import javax.inject.Singleton
 @Singleton
 class PlexSyncService @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val database: AppDatabase,
     private val plexServerDao: PlexServerDao,
     private val plexMediaItemDao: PlexMediaItemDao,
     private val plexSyncDao: PlexSyncDao,
@@ -206,30 +209,34 @@ class PlexSyncService @Inject constructor(
     private suspend fun mapPlexItemsToUnifiedModel(
         plexMetadata: List<PlexMetadata>,
         libraryId: Long,
-        server: PlexServer
+        server: PlexServer,
+        chunkSize: Int = 250
     ) {
-        for (metadata in plexMetadata) {
-            val existingItem = mediaItemDao.getMediaItemByPath(
-                "plex://${server.machineIdentifier}/${metadata.ratingKey}"
-            )
+        for (chunk in plexMetadata.chunked(chunkSize.coerceAtLeast(1))) {
+            val chunkPaths = chunk.map { "plex://${server.machineIdentifier}/${it.ratingKey}" }
+            val existingPathsSet = mediaItemDao.getExistingFilePaths(chunkPaths).toSet()
 
-            if (existingItem == null) {
-                // Create stub entry in unified model
-                val mediaItem = MediaItem(
-                    libraryId = libraryId,
-                    filePath = "plex://${server.machineIdentifier}/${metadata.ratingKey}",
-                    fileName = metadata.title,
-                    fileExtension = "", // Plex items don't have extensions
-                    fileSize = 0L, // Size not available from Plex metadata
-                    fileHash = metadata.ratingKey, // Use rating key as unique identifier
-                    mediaType = mapPlexTypeToMediaType(metadata.type),
-                    mimeType = null,
-                    isAvailable = true,
-                    hasMetadata = true,
-                    hasThumbnail = !metadata.thumb.isNullOrEmpty(),
-                    thumbnailPath = metadata.thumb
-                )
-                mediaItemDao.insertMediaItem(mediaItem)
+            database.withTransaction {
+                for (metadata in chunk) {
+                    val path = "plex://${server.machineIdentifier}/${metadata.ratingKey}"
+                    if (!existingPathsSet.contains(path)) {
+                        val mediaItem = MediaItem(
+                            libraryId = libraryId,
+                            filePath = path,
+                            fileName = metadata.title,
+                            fileExtension = "", // Plex items don't have extensions
+                            fileSize = 0L, // Size not available from Plex metadata
+                            fileHash = metadata.ratingKey, // Use rating key as unique identifier
+                            mediaType = mapPlexTypeToMediaType(metadata.type),
+                            mimeType = null,
+                            isAvailable = true,
+                            hasMetadata = true,
+                            hasThumbnail = !metadata.thumb.isNullOrEmpty(),
+                            thumbnailPath = metadata.thumb
+                        )
+                        mediaItemDao.insertMediaItem(mediaItem)
+                    }
+                }
             }
         }
     }

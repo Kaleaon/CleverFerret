@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.integration.jellyfin
 
+import androidx.room.withTransaction
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.JellyfinServer
 import com.universalmedialibrary.data.local.entity.Library
@@ -190,7 +191,9 @@ class JellyfinSyncService @Inject constructor(
     suspend fun syncMediaItems(
         server: JellyfinServer,
         jellyfinLibraryId: String,
-        localLibraryId: Long
+        localLibraryId: Long,
+        chunkSize: Int = 250,
+        onProgress: (syncedCount: Int, totalCount: Int) -> Unit = { _, _ -> }
     ): Result<Int> {
         return try {
             _syncState.value = _syncState.value.copy(isSyncing = true)
@@ -213,33 +216,50 @@ class JellyfinSyncService @Inject constructor(
                 val items = responseBody["Items"] as? List<Map<String, Any>> ?: emptyList()
                 var syncedCount = 0
 
-                items.forEach { item ->
-                    val itemId = item["Id"] as? String ?: return@forEach
-                    val name = item["Name"] as? String ?: "Unknown"
-                    val type = item["Type"] as? String
+                for (chunk in items.chunked(chunkSize.coerceAtLeast(1))) {
+                    val candidatePaths = chunk.mapNotNull { item ->
+                        val itemId = item["Id"] as? String ?: return@mapNotNull null
+                        "jellyfin://${server.id}/$itemId"
+                    }
+                    val existingPathsSet = mediaItemDao.getExistingFilePaths(candidatePaths).toSet()
 
-                    // Create MediaItem stub
-                    val mediaItem = MediaItem(
-                        libraryId = localLibraryId,
-                        filePath = "jellyfin://${server.id}/$itemId",
-                        fileName = name,
-                        fileExtension = "",
-                        fileSize = 0, // Unknown for remote
-                        mediaType = getMediaTypeFromJellyfinType(type)
-                    )
+                    database.withTransaction {
+                        for (item in chunk) {
+                            val itemId = item["Id"] as? String ?: continue
+                            val path = "jellyfin://${server.id}/$itemId"
 
-                    val localItemId = mediaItemDao.insertMediaItem(mediaItem)
+                            if (existingPathsSet.contains(path)) {
+                                continue
+                            }
 
-                    // Create metadata
-                    val serverUrl = "http://${server.host}:${server.port}"
-                    val thumbnailUrl = getJellyfinImageUrl(serverUrl, itemId, server.apiKey ?: "")
-                    val metadata = MetadataCommon(
-                        itemId = localItemId,
-                        title = name
-                    )
+                            val name = item["Name"] as? String ?: "Unknown"
+                            val type = item["Type"] as? String
 
-                    metadataDao.insertMetadataCommon(metadata)
-                    syncedCount++
+                            // Create MediaItem stub
+                            val mediaItem = MediaItem(
+                                libraryId = localLibraryId,
+                                filePath = path,
+                                fileName = name,
+                                fileExtension = "",
+                                fileSize = 0, // Unknown for remote
+                                mediaType = getMediaTypeFromJellyfinType(type)
+                            )
+
+                            val localItemId = mediaItemDao.insertMediaItem(mediaItem)
+
+                            // Create metadata
+                            val thumbnailUrl = getJellyfinImageUrl(serverUrl, itemId, server.apiKey ?: "")
+                            val metadata = MetadataCommon(
+                                itemId = localItemId,
+                                title = name,
+                                coverImagePath = thumbnailUrl
+                            )
+
+                            metadataDao.insertMetadataCommon(metadata)
+                            syncedCount++
+                        }
+                    }
+                    onProgress(syncedCount, items.size)
                 }
 
                 _syncState.value = _syncState.value.copy(
