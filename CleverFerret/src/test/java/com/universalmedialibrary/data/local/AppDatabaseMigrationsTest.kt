@@ -45,12 +45,25 @@ class AppDatabaseMigrationsTest {
     }
 
     @Test
-    fun `migration 44_45 creates expected indexes on metadata tables`() {
+    fun `migration 44_45 creates staged_metadata_candidates table and alters metadata_common`() {
         val database = mockk<SupportSQLiteDatabase>()
         val executedSql = mutableListOf<String>()
         every { database.execSQL(capture(executedSql)) } just runs
 
         AppDatabaseMigrations.MIGRATION_44_45.migrate(database)
+
+        assertThat(executedSql.any { it.contains("staged_metadata_candidates") }).isTrue()
+        assertThat(executedSql.any { it.contains("index_staged_metadata_candidates_itemId") }).isTrue()
+        assertThat(executedSql.any { it.contains("ALTER TABLE `metadata_common` ADD COLUMN `isVerified`") }).isTrue()
+    }
+
+    @Test
+    fun `migration 45_46 creates expected indexes on metadata tables`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_45_46.migrate(database)
 
         assertThat(executedSql).hasSize(5)
         assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_metadata_common_itemId ON metadata_common") }).isTrue()
