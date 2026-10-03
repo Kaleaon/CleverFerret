@@ -6,6 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
+import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
 
 /**
  * Ancient Architect Theme - Combining Art Deco, Dwarven, Frank Lloyd Wright, and Stargate Atlantis aesthetics
@@ -324,7 +327,24 @@ fun AncientArchitectTheme(
         scrim = ancientColors.stone.shadow.copy(alpha = 0.5f)
     )
     
+    val themeId = variant.name.lowercase().replace('_', '-')
+    val kthemeSnapshot = KthemeThemeAdapterV1.KthemeSnapshot(
+        id = themeId,
+        darkMode = true,
+        primary = String.format("#%08X", materialColorScheme.primary.toArgb()),
+        onPrimary = String.format("#%08X", materialColorScheme.onPrimary.toArgb()),
+        background = String.format("#%08X", materialColorScheme.background.toArgb()),
+        onBackground = String.format("#%08X", materialColorScheme.onBackground.toArgb()),
+        surface = String.format("#%08X", materialColorScheme.surface.toArgb()),
+        onSurface = String.format("#%08X", materialColorScheme.onSurface.toArgb()),
+        outline = String.format("#%08X", materialColorScheme.outline.toArgb()),
+        error = String.format("#%08X", materialColorScheme.error.toArgb()),
+        onError = String.format("#%08X", materialColorScheme.onError.toArgb())
+    )
+    val semanticTheme = KthemeThemeAdapterV1.adapt(kthemeSnapshot)
+
     CompositionLocalProvider(
+        LocalSemanticTheme provides semanticTheme,
         LocalAncientArchitectColors provides ancientColors,
         LocalEnableGeometricPatterns provides enableGeometricPatterns,
         LocalEnableMetallicShimmer provides enableMetallicShimmer,

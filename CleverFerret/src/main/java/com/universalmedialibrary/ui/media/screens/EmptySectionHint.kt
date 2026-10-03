@@ -58,6 +58,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+private const val HERO_CAROUSEL_AUTO_ADVANCE_INTERVAL_MS = 5000L
+private const val HERO_CAROUSEL_IDLE_RESUME_DELAY_MS = 10000L
+
 
 
 internal data class EmptySectionHint(

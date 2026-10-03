@@ -33,6 +33,8 @@ import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.media.theme.*
 
+val libraryTypeOptions: List<com.universalmedialibrary.ui.media.screens.LibraryMediaTypeOption> = emptyList()
+
 
 // MediaNavDestination/NavSection/NavBadge data classes live in MediaNavDestinations.kt (same package).
 // Sidebar composables live in MediaSidebar.kt (same package).
@@ -304,7 +306,7 @@ fun MediaNavigationScaffold(
     }
 }
 
-private fun isDestinationSelected(currentRoute: String, destinationRoute: String): Boolean {
+internal fun isDestinationSelected(currentRoute: String, destinationRoute: String): Boolean {
     // Exact match, plus nested sub-routes (e.g. settings/* should select settings)
     return currentRoute == destinationRoute || currentRoute.startsWith("$destinationRoute/")
 }
