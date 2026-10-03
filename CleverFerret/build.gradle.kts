@@ -116,7 +116,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 81
+        versionCode = 84
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -226,6 +226,8 @@ fun getGitCommitHash(): String {
 }
 
 dependencies {
+    implementation(project(":core:design-system"))
+
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
@@ -242,6 +244,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material3.window.sizeclass)
     implementation(libs.androidx.compose.material.icons.extended)
 
     // Navigation

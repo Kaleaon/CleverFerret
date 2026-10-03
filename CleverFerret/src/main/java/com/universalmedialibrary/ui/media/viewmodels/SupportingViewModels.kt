@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.ui.media.components.MediaItem
 import com.universalmedialibrary.ui.media.screens.*
+import com.universalmedialibrary.ui.media.theme.MediaColors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

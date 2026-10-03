@@ -7,10 +7,10 @@ import java.io.File
 
 internal object MediaImageModels {
     @DrawableRes
-    const val PlaceholderRes: Int = R.drawable.placeholder_book_cover
+    val PlaceholderRes: Int = R.drawable.placeholder_book_cover
 
     @DrawableRes
-    const val ErrorRes: Int = R.drawable.placeholder_book_cover
+    val ErrorRes: Int = R.drawable.placeholder_book_cover
 
     fun resolve(model: String?): Any? {
         val value = model?.trim().orEmpty()

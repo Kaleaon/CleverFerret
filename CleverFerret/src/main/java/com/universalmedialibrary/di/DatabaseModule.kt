@@ -64,6 +64,11 @@ object DatabaseModule {
     }
 
     @Provides
+    fun provideStagedMetadataCandidateDao(database: AppDatabase): com.universalmedialibrary.data.local.dao.StagedMetadataCandidateDao {
+        return database.stagedMetadataCandidateDao()
+    }
+
+    @Provides
     fun provideBookmarkDao(database: AppDatabase): BookmarkDao {
         return database.bookmarkDao()
     }
@@ -219,9 +224,10 @@ object DatabaseModule {
     fun provideMetadataFetchRepository(
         realMetadataService: RealMetadataService,
         mediaItemDao: MediaItemDao,
-        metadataDao: MetadataDao
+        metadataDao: MetadataDao,
+        metadataStagingRepository: com.universalmedialibrary.data.repository.MetadataStagingRepository
     ): MetadataFetchRepository {
-        return MetadataFetchRepository(realMetadataService, mediaItemDao, metadataDao)
+        return MetadataFetchRepository(realMetadataService, mediaItemDao, metadataDao, metadataStagingRepository)
     }
 
     // Search Repository
