@@ -107,7 +107,7 @@ jobs:
             ./gradlew connectedCheck
 
       - name: Upload test artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: instrumentation-test-api${{ matrix.config.api }}-${{ matrix.config.arch }}

@@ -109,7 +109,7 @@ jobs:
     
     - name: Upload compilation log artifact
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: compile-log-${{ github.sha }}-${{ github.run_attempt }}
         path: ${{ env.COMPILE_LOG }}
@@ -152,7 +152,7 @@ jobs:
         fi
       
     - name: Upload test reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: test-reports
@@ -272,7 +272,7 @@ jobs:
     
     - name: Upload build log artifact
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: build-log-${{ github.sha }}-${{ github.run_attempt }}
         path: ${{ env.BUILD_LOG }}
@@ -357,14 +357,14 @@ jobs:
         
     - name: Upload debug APK
       if: steps.build-debug.outcome == 'success'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: debug-apk
         path: CleverFerret/build/outputs/apk/debug/CleverFerret-v${{ steps.version.outputs.version-name }}-debug.apk
         
     - name: Upload release APK
       if: steps.build-debug.outcome == 'success'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: release-apk
         path: CleverFerret/build/outputs/apk/release/CleverFerret-v${{ steps.version.outputs.version-name }}-release*.apk
