@@ -2,15 +2,15 @@ package com.universalmedialibrary.ui.visualizer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.cast.ChromecastManager
 import com.universalmedialibrary.services.visualizer.AudioVisualizerService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,10 +23,6 @@ class VisualizerViewModel @Inject constructor(
     private val advancedMusicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 ) : ViewModel() {
 
-    companion object {
-        private const val PLAYER_CHECK_INTERVAL_MS = 100L
-    }
-
     val visualizerState = audioVisualizerService.visualizerState
     val castState = chromecastManager.castState
     val isVisualizerEnabled = audioVisualizerService.isEnabled
@@ -34,6 +30,18 @@ class VisualizerViewModel @Inject constructor(
 
     private val _currentPreset = MutableStateFlow<com.universalmedialibrary.services.visualizer.VisualizerPreset?>(null)
     val currentPreset: StateFlow<com.universalmedialibrary.services.visualizer.VisualizerPreset?> = _currentPreset.asStateFlow()
+
+    private val registeredPlayers = mutableSetOf<Player>()
+
+    private val playerListener = object : Player.Listener {
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            updateTargetPlayer()
+        }
+
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            updateTargetPlayer()
+        }
+    }
 
     fun setPreset(preset: com.universalmedialibrary.services.visualizer.VisualizerPreset) {
         _currentPreset.value = preset
@@ -43,52 +51,71 @@ class VisualizerViewModel @Inject constructor(
         // Initialize Chromecast
         chromecastManager.initialize()
 
-        // Attach visualizer to the active player
-        // Try AdvancedMusicPlayerService first (used for music AND radio), then ExoPlayerService, then AudioPlaybackManager
-        val activePlayer = advancedMusicPlayerService.getExoPlayer()
-            ?: exoPlayerService.getPlayer()
-            ?: audioPlaybackManager.exoPlayer
-        audioVisualizerService.attachToPlayer(activePlayer)
+        // Attach visualizer to active player and register listeners
+        updateTargetPlayer()
         audioVisualizerService.setEnabled(true)
 
-        // Monitor all players and reattach when active player changes
+        // Reactively stream visualizer data updates to Chromecast without background timers
         viewModelScope.launch {
-            while (isActive) {
-                // Check if we need to switch players
-                val advancedPlayer = advancedMusicPlayerService.getExoPlayer()  // Music + Radio
-                val musicPlayer = exoPlayerService.getPlayer()
-                val audioPlayer = audioPlaybackManager.exoPlayer
-                val currentPlayer = audioVisualizerService.getCurrentPlayer()
-
-                delay(500L) // Prevent busy-loop CPU/battery drain
-
-                // Prefer the player that's actually playing
-                val targetPlayer = when {
-                    advancedPlayer?.isPlaying == true -> advancedPlayer  // Highest priority - music/radio
-                    musicPlayer?.isPlaying == true -> musicPlayer
-                    audioPlayer.isPlaying -> audioPlayer
-                    advancedPlayer != null -> advancedPlayer
-                    musicPlayer != null -> musicPlayer
-                    else -> audioPlayer
-                }
-
-                // Reattach if player changed (with null-safety check)
-                if (currentPlayer != targetPlayer && targetPlayer != null) {
-                    audioVisualizerService.attachToPlayer(targetPlayer)
-                    if (isVisualizerEnabled.value) {
-                        audioVisualizerService.setEnabled(true)
-                    }
-                }
-
-                // Update cast with visualizer data
-                val state = visualizerState.value
+            visualizerState.collect { state ->
                 chromecastManager.updateVisualizerData(
                     bass = state.frequencyBands.bass,
                     mid = state.frequencyBands.mid,
                     treble = state.frequencyBands.treble,
                     spectrum = state.frequencyBands.spectrum
                 )
-                delay(PLAYER_CHECK_INTERVAL_MS)
+            }
+        }
+    }
+
+    private fun registerPlayerListeners() {
+        val candidates = listOfNotNull(
+            advancedMusicPlayerService.getExoPlayer(),
+            exoPlayerService.getPlayer(),
+            audioPlaybackManager.exoPlayer
+        )
+
+        for (player in candidates) {
+            if (registeredPlayers.add(player)) {
+                player.addListener(playerListener)
+            }
+        }
+    }
+
+    private fun unregisterPlayerListeners() {
+        for (player in registeredPlayers) {
+            try {
+                player.removeListener(playerListener)
+            } catch (e: Exception) {
+                // Ignore if player was already released
+            }
+        }
+        registeredPlayers.clear()
+    }
+
+    fun updateTargetPlayer() {
+        registerPlayerListeners()
+
+        val advancedPlayer = advancedMusicPlayerService.getExoPlayer()  // Music + Radio
+        val musicPlayer = exoPlayerService.getPlayer()
+        val audioPlayer = audioPlaybackManager.exoPlayer
+        val currentPlayer = audioVisualizerService.getCurrentPlayer()
+
+        // Prefer the player that's actually playing
+        val targetPlayer = when {
+            advancedPlayer?.isPlaying == true -> advancedPlayer  // Highest priority - music/radio
+            musicPlayer?.isPlaying == true -> musicPlayer
+            audioPlayer.isPlaying -> audioPlayer
+            advancedPlayer != null -> advancedPlayer
+            musicPlayer != null -> musicPlayer
+            else -> audioPlayer
+        }
+
+        // Reattach if player changed (with null-safety check)
+        if (currentPlayer != targetPlayer && targetPlayer != null) {
+            audioVisualizerService.attachToPlayer(targetPlayer)
+            if (isVisualizerEnabled.value) {
+                audioVisualizerService.setEnabled(true)
             }
         }
     }
@@ -106,6 +133,7 @@ class VisualizerViewModel @Inject constructor(
     }
 
     fun cleanup() {
+        unregisterPlayerListeners()
         audioVisualizerService.setEnabled(false)
         chromecastManager.stopCasting()
         chromecastManager.release()
@@ -113,7 +141,9 @@ class VisualizerViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        unregisterPlayerListeners()
         chromecastManager.release()
         audioVisualizerService.release()
     }
 }
+
