@@ -32,13 +32,16 @@ interface AmbientSoundDao {
     suspend fun insertSound(sound: AmbientSound): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSounds(sounds: List<AmbientSound>)
+    suspend fun insertSounds(sounds: List<AmbientSound>): List<Long>
 
     @Update
     suspend fun updateSound(sound: AmbientSound)
 
     @Delete
     suspend fun deleteSound(sound: AmbientSound)
+
+    @Query("DELETE FROM ambient_sounds WHERE id IN (:ids)")
+    suspend fun deleteSoundsByIds(ids: List<Long>)
 
     @Query("UPDATE ambient_sounds SET isFavorite = :isFavorite WHERE id = :id")
     suspend fun toggleFavorite(id: Long, isFavorite: Boolean)

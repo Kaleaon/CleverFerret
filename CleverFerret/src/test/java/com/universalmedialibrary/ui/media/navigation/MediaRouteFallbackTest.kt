@@ -35,6 +35,13 @@ class MediaRouteFallbackTest {
     }
 
     @Test
+    fun resolveRouteOrFallback_keepsPaywallSubroutes() {
+        assertEquals("settings/paywall/themes", resolveRouteOrFallback(MediaRoutes.SETTINGS_PAYWALL_THEMES))
+        assertEquals("settings/paywall/scanner", resolveRouteOrFallback(MediaRoutes.SETTINGS_PAYWALL_SCANNER))
+        assertEquals("settings/paywall/cloud", resolveRouteOrFallback(MediaRoutes.SETTINGS_PAYWALL_CLOUD))
+    }
+
+    @Test
     fun sectionSeeAllDetail_contract_isStable() {
         val section = HomeSectionRouteContract.BOOKS
         val seeAllRoute = section.seeAllRoute()

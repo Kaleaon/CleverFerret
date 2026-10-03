@@ -32,7 +32,8 @@ fun PurchaseLinksDialog(
     onOpenLink: (BookPurchaseLinksService.PurchaseLink) -> Unit,
     onShareLink: (BookPurchaseLinksService.PurchaseLink) -> Unit,
     purchaseLinks: List<BookPurchaseLinksService.PurchaseLink>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToScannerPaywall: () -> Unit = {}
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -94,6 +95,46 @@ fun PurchaseLinksDialog(
                         modifier = Modifier.padding(12.dp),
                         style = MaterialTheme.typography.bodyMedium
                     )
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Scanner Pro Upgrade Prompt
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "⚡ Barcode Scanner Pro",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                        Text(
+                            text = "Unlock batch scanning, automatic cataloging, and instant cover art retrieval.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                        TextButton(
+                            onClick = {
+                                onDismiss()
+                                onNavigateToScannerPaywall()
+                            },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text(
+                                "Upgrade Scanner",
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))

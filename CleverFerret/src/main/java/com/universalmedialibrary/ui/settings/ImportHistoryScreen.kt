@@ -28,6 +28,8 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.universalmedialibrary.services.listImportLogs
+import com.universalmedialibrary.services.readImportLog
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -63,7 +65,7 @@ fun ImportHistoryScreen(
     val df = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
 
     val logs by produceState(initialValue = emptyList(), key1 = reloadToken) {
-        value = withContext(Dispatchers.IO) { com.universalmedialibrary.services.listImportLogs(context) }
+        value = withContext(Dispatchers.IO) { listImportLogs(context) }
     }
 
     Scaffold(
@@ -154,7 +156,7 @@ fun ImportHistoryScreen(
                                         selectedImportDetails = null
                                         coroutineScope.launch {
                                             val details = withContext(Dispatchers.IO) {
-                                                com.universalmedialibrary.services.readImportLog(context, log.fileName)
+                                                readImportLog(context, log.fileName)
                                             }
                                             if (details != null) {
                                                 selectedImportDetails = details
