@@ -68,6 +68,7 @@ okhttp = "5.2.1"
  truth = "1.4.4"
  mockk = "1.14.6"
  robolectric = "4.14.1"
+ turbine = "1.1.0"
     
     # Document Parsing Libraries
     apache-poi = "5.5.0"
@@ -122,6 +123,7 @@ androidx-compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 androidx-compose-foundation = { module = "androidx.compose.foundation:foundation" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-material3-window-sizeclass = { module = "androidx.compose.material3:material3-window-size-class" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
@@ -235,6 +237,7 @@ androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core",
  mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
  mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
  robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
     
     # Document Parsing Libraries
     apache-poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "apache-poi" }
@@ -292,6 +295,7 @@ glance = [
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

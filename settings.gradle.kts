@@ -21,6 +21,7 @@ if (androidHome.isNullOrBlank() && !localPropertiesFile.exists()) {
 pluginManagement {
     repositories {
         google()
+        maven { url = uri("https://maven-central.storage-download.googleapis.com/maven2/") }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -29,6 +30,7 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
+        maven { url = uri("https://maven-central.storage-download.googleapis.com/maven2/") }
         mavenCentral()
         // JitPack repository for GitHub-hosted libraries
         maven { url = uri("https://jitpack.io") }
@@ -36,3 +38,10 @@ dependencyResolutionManagement {
 }
 rootProject.name = "UniversalMediaLibrary"
 include(":CleverFerret")
+include(":core:design-system")
+
+// Phase 0 step 8: empty placeholder benchmark module so :benchmark-macro:assemble
+// succeeds before any real macro-benchmark wiring lands. See
+// docs/planning/PREMIERE_ROADMAP.md and benchmark-macro/build.gradle.kts.
+include(":benchmark-macro")
+

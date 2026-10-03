@@ -63,7 +63,7 @@ fun ImportHistoryScreen(
     val df = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
 
     val logs by produceState(initialValue = emptyList(), key1 = reloadToken) {
-        value = withContext(Dispatchers.IO) { storageService.listImportLogs(context) }
+        value = withContext(Dispatchers.IO) { com.universalmedialibrary.services.listImportLogs(context) }
     }
 
     Scaffold(
@@ -154,7 +154,7 @@ fun ImportHistoryScreen(
                                         selectedImportDetails = null
                                         coroutineScope.launch {
                                             val details = withContext(Dispatchers.IO) {
-                                                storageService.readImportLog(context, log.fileName)
+                                                com.universalmedialibrary.services.readImportLog(context, log.fileName)
                                             }
                                             if (details != null) {
                                                 selectedImportDetails = details
@@ -182,7 +182,7 @@ fun ImportHistoryScreen(
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(details.operations.take(20)) { operation ->
                         Text(
-                            "${operation.status.name}: ${operation.sourceUri} → ${operation.destUri}",
+                            "${operation.status.name}: ${operation.sourceUri} → ${operation.destinationUri}",
                             style = androidx.compose.material3.MaterialTheme.typography.bodySmall
                         )
                     }

@@ -127,8 +127,13 @@ fun MultiRoomAudioScreen(
 
                 if (uiState.groups.isNotEmpty()) {
                     item { Text("Rooms", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary) }
-                    items(uiState.groups) { group ->
-                        AudioGroupCard(group = group, onVolumeChange = { viewModel.setGroupVolume(group, it) })
+                    items(uiState.groups, key = { it.groupId }) { group ->
+                        AudioGroupCard(
+                            group = group,
+                            onVolumeChange = { viewModel.setGroupVolume(group, it) },
+                            onDelete = { viewModel.deleteGroup(group) },
+                            onOpenChat = { onOpenRoomChat(group.groupName) }
+                        )
                     }
                 }
 

@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/CODE_REVIEW.md
+---
+
 # CleverFerret Android App - UI/Design Review
 
 ## Executive Summary

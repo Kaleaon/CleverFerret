@@ -178,6 +178,8 @@ class DebugReportingService @Inject constructor(
     // ==========================================================================
     
     fun logError(tag: String, message: String, throwable: Throwable? = null) {
+        if (throwable is kotlinx.coroutines.CancellationException) return
+
         val errorLog = ErrorLog(
             id = UUID.randomUUID().toString(),
             timestamp = System.currentTimeMillis(),

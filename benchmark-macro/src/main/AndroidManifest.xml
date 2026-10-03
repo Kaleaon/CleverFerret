@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+      Empty Phase 0 placeholder manifest. See benchmark-macro/build.gradle.kts.
+      A real macrobenchmark module will replace this with com.android.test
+      and androidx.benchmark.macro plugins in Phase 1.
+    -->
+</manifest>

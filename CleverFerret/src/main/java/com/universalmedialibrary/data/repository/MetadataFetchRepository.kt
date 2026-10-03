@@ -22,7 +22,8 @@ import javax.inject.Singleton
 class MetadataFetchRepository @Inject constructor(
     private val realMetadataService: RealMetadataService,
     private val mediaItemDao: MediaItemDao,
-    private val metadataDao: MetadataDao
+    private val metadataDao: MetadataDao,
+    private val metadataStagingRepository: MetadataStagingRepository
 ) {
 
     /**
@@ -89,11 +90,13 @@ class MetadataFetchRepository @Inject constructor(
                 )
             }
 
-            // Save to database
-            metadataDao.insertMetadataCommon(updatedMetadata)
-
-            // Update media item to mark it has metadata
-            mediaItemDao.updateMediaItem(mediaItem.copy(hasMetadata = true))
+            // Save candidate to staged metadata table for user review
+            metadataStagingRepository.stageMetadataCommon(
+                itemId = itemId,
+                metadata = updatedMetadata,
+                source = result.sources.joinToString(", ").ifBlank { "BOOK_API" },
+                confidenceScore = 0.85f
+            )
 
             MetadataFetchResult.Success(
                 sources = result.sources,
@@ -165,8 +168,12 @@ class MetadataFetchRepository @Inject constructor(
                 )
             }
 
-            metadataDao.insertMetadataCommon(updatedMetadata)
-            mediaItemDao.updateMediaItem(mediaItem.copy(hasMetadata = true))
+            metadataStagingRepository.stageMetadataCommon(
+                itemId = itemId,
+                metadata = updatedMetadata,
+                source = result.sources.joinToString(", ").ifBlank { "MOVIE_API" },
+                confidenceScore = 0.85f
+            )
 
             MetadataFetchResult.Success(
                 sources = result.sources,
@@ -236,8 +243,12 @@ class MetadataFetchRepository @Inject constructor(
                 )
             }
 
-            metadataDao.insertMetadataCommon(updatedMetadata)
-            mediaItemDao.updateMediaItem(mediaItem.copy(hasMetadata = true))
+            metadataStagingRepository.stageMetadataCommon(
+                itemId = itemId,
+                metadata = updatedMetadata,
+                source = result.sources.joinToString(", ").ifBlank { "MUSIC_API" },
+                confidenceScore = 0.85f
+            )
 
             MetadataFetchResult.Success(
                 sources = result.sources,

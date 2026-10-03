@@ -366,6 +366,7 @@ fun MediaType.displayName(): String {
         MediaType.MIDI -> "MIDI Files"
         MediaType.MUSIC_SCORE -> "Music Scores"
         MediaType.UNKNOWN -> "Unknown"
+        else -> "Media"
     }
 }
 
@@ -390,6 +391,7 @@ fun MediaType.getIcon(): ImageVector {
         MediaType.MIDI -> Icons.Default.Piano
         MediaType.MUSIC_SCORE -> Icons.Default.MusicNote
         MediaType.UNKNOWN -> Icons.Default.QuestionMark
+        else -> Icons.Default.Folder
     }
 }
 

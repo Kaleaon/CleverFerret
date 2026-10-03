@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/CODE_REVIEW.md
+---
+
 # CleverFerret Android App - Review Executive Summary
 
 **Date:** January 3, 2026  

@@ -1,3 +1,8 @@
+---
+Status: Historical
+Canonical replacement: docs/CODE_REVIEW.md
+---
+
 # CleverFerret UI/Design Review Package
 
 This package contains a comprehensive review of the CleverFerret Android app's user interface and design, along with applied fixes and recommendations for future improvements.
