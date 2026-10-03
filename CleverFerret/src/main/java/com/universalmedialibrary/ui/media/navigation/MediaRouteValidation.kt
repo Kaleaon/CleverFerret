@@ -49,6 +49,9 @@ private val knownStaticRoutes = setOf(
     MediaRoutes.SETTINGS_SECURITY,
     MediaRoutes.SETTINGS_ABOUT,
     MediaRoutes.SETTINGS_MEDIA_SERVERS,
+    MediaRoutes.SETTINGS_PAYWALL_THEMES,
+    MediaRoutes.SETTINGS_PAYWALL_SCANNER,
+    MediaRoutes.SETTINGS_PAYWALL_CLOUD,
     MediaRoutes.FILE_BROWSER,
     MediaRoutes.ONBOARDING,
     MediaRoutes.DEBUG_MENU
