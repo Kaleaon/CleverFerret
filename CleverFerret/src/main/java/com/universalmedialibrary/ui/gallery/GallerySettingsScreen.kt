@@ -320,7 +320,7 @@ private fun GalleryViewMode.toDisplayName(): String = when (this) {
     GalleryViewMode.MAP -> "Map View"
 }
 
-private fun GallerySortOrder.toDisplayName(): String = when (this) {
+internal fun GallerySortOrder.toDisplayName(): String = when (this) {
     GallerySortOrder.DATE_TAKEN_DESC -> "Date Taken (Newest)"
     GallerySortOrder.DATE_TAKEN_ASC -> "Date Taken (Oldest)"
     GallerySortOrder.DATE_ADDED_DESC -> "Date Added (Newest)"
