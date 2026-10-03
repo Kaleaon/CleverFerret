@@ -1,3 +1,7 @@
+import org.gradle.api.JavaVersion
+import org.gradle.api.plugins.JavaPluginExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     base
     kotlin("jvm") version "1.9.24" apply false
@@ -14,13 +18,14 @@ subprojects {
         mavenCentral()
     }
 
-    java {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
-        }
+    configure<JavaPluginExtension> {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-        jvmToolchain(17)
+    tasks.withType<KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
     }
 }
