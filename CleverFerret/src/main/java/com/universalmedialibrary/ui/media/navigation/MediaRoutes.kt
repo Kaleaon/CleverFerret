@@ -97,6 +97,9 @@ object MediaRoutes {
     const val SETTINGS_STORAGE = "settings/storage"
     const val SETTINGS_SECURITY = "settings/security"
     const val SETTINGS_ABOUT = "settings/about"
+    const val SETTINGS_PAYWALL_THEMES = "settings/paywall/themes"
+    const val SETTINGS_PAYWALL_SCANNER = "settings/paywall/scanner"
+    const val SETTINGS_PAYWALL_CLOUD = "settings/paywall/cloud"
     // Legacy route compatibility (underscore is the primary route in the legacy settings UI)
     const val SETTINGS_MEDIA_SERVERS = "settings/media_servers"
     const val FILE_BROWSER = "file-browser"

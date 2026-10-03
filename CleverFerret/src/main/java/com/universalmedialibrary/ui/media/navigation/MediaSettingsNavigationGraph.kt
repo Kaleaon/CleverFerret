@@ -242,6 +242,24 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
         )
     }
 
+    composable(MediaRoutes.SETTINGS_PAYWALL_THEMES) {
+        com.universalmedialibrary.ui.settings.paywall.ThemePaywallSubpage(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    composable(MediaRoutes.SETTINGS_PAYWALL_SCANNER) {
+        com.universalmedialibrary.ui.settings.paywall.ScannerPaywallSubpage(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    composable(MediaRoutes.SETTINGS_PAYWALL_CLOUD) {
+        com.universalmedialibrary.ui.settings.paywall.CloudPaywallSubpage(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
     composable("ambient/theme_manager") {
         com.universalmedialibrary.ui.ambient.ThemeManagerScreen(
             onBack = { navController.popBackStack() }

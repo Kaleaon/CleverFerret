@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.dp
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ThemePreviewScreen() {
+fun ThemePreviewScreen(
+    onNavigateToThemePaywall: () -> Unit = {}
+) {
     var selectedPalette by remember { mutableStateOf(ThemePalette.NAVY_GOLD) }
     var showPaletteSelector by remember { mutableStateOf(false) }
 
@@ -261,7 +263,20 @@ fun ThemePreviewScreen() {
                 currentPalette = selectedPalette,
                 onDismiss = { showPaletteSelector = false },
                 onSelect = { palette ->
-                    selectedPalette = palette
+                    val freePalettes = setOf(
+                        ThemePalette.NAVY_GOLD,
+                        ThemePalette.EMERALD_SILVER,
+                        ThemePalette.ROYAL_BRONZE,
+                        ThemePalette.MIDNIGHT_AMBER,
+                        ThemePalette.OBSIDIAN_CRIMSON,
+                        ThemePalette.SLATE_CYAN,
+                        ThemePalette.PAPER_INK
+                    )
+                    if (palette in freePalettes) {
+                        selectedPalette = palette
+                    } else {
+                        onNavigateToThemePaywall()
+                    }
                     showPaletteSelector = false
                 }
             )

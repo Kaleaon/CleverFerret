@@ -7,6 +7,21 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
 import com.universalmedialibrary.services.importer.*
 
+val importLogJson = Json {
+    ignoreUnknownKeys = true
+    prettyPrint = true
+}
+
+data class ImportLogInfo(
+    val fileName: String,
+    val importId: String,
+    val startedAt: Long,
+    val finishedAt: Long?,
+    val moveFiles: Boolean,
+    val operationCount: Int,
+    val failedCount: Int
+)
+
 fun listImportLogs(context: Context): List<ImportLogInfo> {
     return try {
         val dir = File(context.filesDir, "import_logs")
