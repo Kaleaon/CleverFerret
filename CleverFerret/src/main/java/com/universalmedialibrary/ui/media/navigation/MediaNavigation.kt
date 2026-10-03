@@ -33,6 +33,8 @@ import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.media.theme.*
 
+val libraryTypeOptions: List<com.universalmedialibrary.ui.media.screens.LibraryMediaTypeOption> = emptyList()
+
 
 // MediaNavDestination/NavSection/NavBadge data classes live in MediaNavDestinations.kt (same package).
 // Sidebar composables live in MediaSidebar.kt (same package).

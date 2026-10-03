@@ -391,7 +391,7 @@ fun MediaType.getIcon(): ImageVector {
         MediaType.MIDI -> Icons.Default.Piano
         MediaType.MUSIC_SCORE -> Icons.Default.MusicNote
         MediaType.UNKNOWN -> Icons.Default.QuestionMark
-        else -> Icons.Default.Description
+        else -> Icons.Default.Folder
     }
 }
 
