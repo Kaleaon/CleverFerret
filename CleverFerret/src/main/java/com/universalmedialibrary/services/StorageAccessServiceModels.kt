@@ -110,3 +110,9 @@ enum class ImportSortProfile {
     BOOKS_FLAT,
     BOOKS_AUTHOR_TITLE
 }
+
+internal sealed class CopyResult {
+    data class Copied(val file: DocumentFile) : CopyResult()
+    data class Skipped(val reason: String) : CopyResult()
+    data class Failed(val reason: String) : CopyResult()
+}

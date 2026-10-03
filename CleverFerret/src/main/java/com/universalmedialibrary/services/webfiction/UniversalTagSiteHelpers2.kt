@@ -1,6 +1,30 @@
 package com.universalmedialibrary.services.webfiction
 
 import org.jsoup.Jsoup
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.net.URLEncoder
+
+internal const val REQUEST_TIMEOUT = 30000
+internal const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+internal const val SCRIBBLE_HUB_PAGE_SIZE = 20
+
+internal fun buildSearchResult(
+    criteria: StorySearchCriteria,
+    stories: List<WebFictionStory>
+): StorySearchResult {
+    val sliced = stories.drop(criteria.offset)
+    val limited = sliced.take(criteria.limit)
+    val consumed = criteria.offset + limited.size
+    val hasMore = stories.size > consumed
+    val nextOffset = if (hasMore) consumed else null
+    return StorySearchResult(
+        stories = limited,
+        totalCount = stories.size,
+        hasMore = hasMore,
+        nextOffset = nextOffset
+    )
+}
 
 internal suspend fun fetchWattpadTags(): Result<List<WebFictionTag>> {
     return Result.success(

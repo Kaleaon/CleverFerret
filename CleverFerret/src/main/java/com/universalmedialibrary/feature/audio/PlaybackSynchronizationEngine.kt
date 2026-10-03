@@ -8,11 +8,20 @@ import kotlinx.coroutines.flow.asStateFlow
 
 import javax.inject.Inject
 
-class PlaybackSynchronizationEngine @Inject constructor(
-    private val maxCorrectionPerTickMs: Double = 20.0,
-    private val jitterToleranceMs: Double = 6.0,
-    private val disconnectTimeoutMs: Long = 4_000L
-) {
+class PlaybackSynchronizationEngine @Inject constructor() {
+    private var maxCorrectionPerTickMs: Double = 20.0
+    private var jitterToleranceMs: Double = 6.0
+    private var disconnectTimeoutMs: Long = 4_000L
+
+    constructor(
+        maxCorrectionPerTickMs: Double = 20.0,
+        jitterToleranceMs: Double = 6.0,
+        disconnectTimeoutMs: Long = 4_000L
+    ) : this() {
+        this.maxCorrectionPerTickMs = maxCorrectionPerTickMs
+        this.jitterToleranceMs = jitterToleranceMs
+        this.disconnectTimeoutMs = disconnectTimeoutMs
+    }
     private val _state = MutableStateFlow(SyncEngineState())
     val state: StateFlow<SyncEngineState> = _state.asStateFlow()
 

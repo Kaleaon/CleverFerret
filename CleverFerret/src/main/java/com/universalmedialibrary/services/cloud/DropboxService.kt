@@ -230,16 +230,16 @@ class DropboxService @Inject constructor(
     /**
      * Sync media with Dropbox
      */
-    suspend fun syncMedia(): DropboxSyncResult {
+    suspend fun syncMedia(): SyncResult {
         return withContext(Dispatchers.IO) {
             if (accessToken == null) {
-                return@withContext DropboxSyncResult(
+                return@withContext SyncResult(
                     success = false,
                     error = "Dropbox access token not configured."
                 )
             }
             val remoteFiles = listFiles(APP_FOLDER)
-            DropboxSyncResult(success = remoteFiles.isNotEmpty() || accessToken != null, error = null)
+            SyncResult(success = remoteFiles.isNotEmpty() || accessToken != null, error = null)
         }
     }
 

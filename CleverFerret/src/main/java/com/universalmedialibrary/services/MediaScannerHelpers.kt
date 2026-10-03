@@ -2,19 +2,26 @@ package com.universalmedialibrary.services
 
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
-import com.universalmedialibrary.services.metadata.MusicTrackInfo
+import android.util.Log
 import com.universalmedialibrary.data.local.entity.LibraryScanSettings
+import com.universalmedialibrary.services.MediaScannerService.MusicTrackInfo
+import com.universalmedialibrary.utils.ErrorLogger
+import com.universalmedialibrary.utils.media.AudioMetadataUtils
 import java.io.File
 import java.security.MessageDigest
+import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 internal fun determineMediaType(file: File): String? {
     val extension = file.extension.lowercase()
     return when {
-        extension in BOOK_EXTENSIONS -> "BOOK"
-        extension in AUDIO_EXTENSIONS -> "MUSIC"
-        extension in VIDEO_EXTENSIONS -> "MOVIE"
-        extension in COMIC_EXTENSIONS -> "COMIC"
-        extension in IMAGE_EXTENSIONS && file.length() > 100000 -> "DOCUMENT"
+        extension in MediaScannerService.BOOK_EXTENSIONS -> "BOOK"
+        extension in MediaScannerService.AUDIO_EXTENSIONS -> "MUSIC"
+        extension in MediaScannerService.VIDEO_EXTENSIONS -> "MOVIE"
+        extension in MediaScannerService.COMIC_EXTENSIONS -> "COMIC"
+        extension in MediaScannerService.IMAGE_EXTENSIONS && file.length() > 100000 -> "DOCUMENT"
         else -> null
     }
 }
@@ -145,7 +152,7 @@ internal fun String.normalizeMatcher(): String? {
 internal fun File.normalizedPath(): String =
     absolutePath.normalizeMatcher() ?: absolutePath.lowercase()
 
-private fun scanLibrary(libraryId: Long, scanPath: String?) {
+internal fun MediaScannerService.scanLibrary(libraryId: Long, scanPath: String?) {
     scanJob?.cancel()
     scanJob = serviceScope.launch {
         try {

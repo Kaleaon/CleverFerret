@@ -6,6 +6,11 @@ import androidx.documentfile.provider.DocumentFile
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.local.entity.People
+import com.universalmedialibrary.data.local.entity.ItemPersonRole
+import com.universalmedialibrary.data.local.entity.Series
+import com.universalmedialibrary.data.local.entity.MetadataBook
+import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
 import com.universalmedialibrary.services.importer.ImportOperationLog
 import com.universalmedialibrary.services.importer.ImportOperationStatus
 import com.universalmedialibrary.services.importer.ImportTransactionLog
@@ -60,14 +65,18 @@ internal suspend fun importRecursivelyImpl(
 
     input.listFiles().forEach { child ->
         if (child.isDirectory) {
-            currentSummary = importRecursively(
+            currentSummary = importRecursivelyImpl(
                 context = context,
                 input = child,
                 outputRoot = outputRoot,
                 outputRootPath = outputRootPath,
                 options = options,
                 progressCallback = progressCallback,
-                summary = currentSummary
+                summary = currentSummary,
+                fileNameSanitizer = fileNameSanitizer,
+                mediaItemDao = mediaItemDao,
+                metadataDao = metadataDao,
+                libraryDao = libraryDao
             )
             return@forEach
         }
@@ -299,6 +308,7 @@ internal suspend fun executeImportPlanAdvancedImpl(
     checkpointCallback: ((Int) -> Unit)? = null,
     mediaItemDao: com.universalmedialibrary.data.local.dao.MediaItemDao,
     metadataDao: com.universalmedialibrary.data.local.dao.MetadataDao,
+    libraryDao: com.universalmedialibrary.data.local.dao.LibraryDao,
 ): ImportSortSummary = withContext(Dispatchers.IO) {
     var summary = ImportSortSummary()
     val startedAt = System.currentTimeMillis()
@@ -425,7 +435,8 @@ internal suspend fun executeImportPlanAdvancedImpl(
                 continue
             }
 
-            val library = getOrCreateLibraryForType(
+            val library = getOrCreateLibraryForTypeImpl(
+                libraryDao = libraryDao,
                 rootName = outputRoot.name ?: "Output",
                 rootPath = plan.outputTreeUri,
                 type = item.mediaType

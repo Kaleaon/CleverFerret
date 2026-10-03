@@ -4,6 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import java.security.MessageDigest
+import java.util.Locale
+import com.universalmedialibrary.utils.FileNameSanitizer
+
+internal val fileNameSanitizer = FileNameSanitizer()
 
 internal fun computeSha256(context: Context, uri: Uri): String? {
     return try {

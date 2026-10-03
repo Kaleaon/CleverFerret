@@ -67,7 +67,7 @@ internal fun SleepTimerDialog(
                             )
                             Spacer(modifier = Modifier.width(MediaSpacing.SM))
                             Text(
-                                text = "Timer: ${formatTime(currentTimer)}",
+                                text = "Timer: ${formatTime(currentTimer ?: 0L)}",
                                 color = MediaColors.AccentPrimary,
                                 style = MediaTypography.BodyMedium
                             )

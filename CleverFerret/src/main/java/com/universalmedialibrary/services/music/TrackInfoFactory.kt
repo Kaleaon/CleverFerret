@@ -1,8 +1,8 @@
 package com.universalmedialibrary.services.music
 
-import com.universalmedialibrary.data.LocalMediaItem
+import com.universalmedialibrary.data.local.entity.MediaItem
 
-internal fun createTrackInfo(mediaItem: LocalMediaItem, queuePosition: Int = 0): TrackInfo {
+internal fun createTrackInfo(mediaItem: MediaItem, queuePosition: Int = 0): TrackInfo {
     return TrackInfo(
         id = mediaItem.itemId.toString(),
         title = mediaItem.fileName.substringBeforeLast('.'),
@@ -15,13 +15,13 @@ internal fun createTrackInfo(mediaItem: LocalMediaItem, queuePosition: Int = 0):
     )
 }
 
-internal fun extractArtistFromMetadata(mediaItem: LocalMediaItem): String? {
+internal fun extractArtistFromMetadata(mediaItem: MediaItem): String? {
     // Extract artist from metadata or filename
     // This is a simplified version - would use actual metadata extraction
     return "Unknown Artist"
 }
 
-internal fun extractAlbumFromMetadata(mediaItem: LocalMediaItem): String? {
+internal fun extractAlbumFromMetadata(mediaItem: MediaItem): String? {
     // Extract album from metadata or filename
     // This is a simplified version - would use actual metadata extraction
     return "Unknown Album"

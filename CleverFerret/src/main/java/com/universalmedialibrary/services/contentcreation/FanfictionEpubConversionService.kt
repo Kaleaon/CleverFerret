@@ -18,6 +18,32 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import com.universalmedialibrary.utils.ErrorLogger
 
+data class Story(
+    val title: String,
+    val author: String,
+    val summary: String,
+    val chapters: List<Chapter>,
+    val metadata: StoryMetadata
+)
+
+data class Chapter(
+    val number: Int,
+    val title: String,
+    val content: String
+)
+
+data class StoryMetadata(
+    val fandom: String? = null,
+    val characters: List<String> = emptyList(),
+    val rating: String? = null,
+    val genre: String? = null,
+    val wordCount: Int = 0,
+    val publishDate: String? = null,
+    val updateDate: String? = null,
+    val language: String = "en",
+    val status: String? = null
+)
+
 /**
  * Service for converting fanfiction stories to EPUB format
  * Supports multiple fanfiction platforms
@@ -32,32 +58,6 @@ class FanfictionEpubConversionService @Inject constructor(
         .build()
 
     private val ficHubApiUrl = "https://fichub.net/api/v0/epub"
-
-    data class Story(
-        val title: String,
-        val author: String,
-        val summary: String,
-        val chapters: List<Chapter>,
-        val metadata: StoryMetadata
-    )
-
-    data class Chapter(
-        val number: Int,
-        val title: String,
-        val content: String
-    )
-
-    data class StoryMetadata(
-        val fandom: String? = null,
-        val characters: List<String> = emptyList(),
-        val rating: String? = null,
-        val genre: String? = null,
-        val wordCount: Int = 0,
-        val publishDate: String? = null,
-        val updateDate: String? = null,
-        val language: String = "en",
-        val status: String? = null
-    )
 
     enum class FanfictionSite(val domain: String) {
         FANFICTION_NET("fanfiction.net"),
@@ -207,7 +207,7 @@ class FanfictionEpubConversionService @Inject constructor(
 
 
 
-    private fun org.json.JSONArray?.toStringList(): List<String> {
+    internal fun org.json.JSONArray?.toStringList(): List<String> {
         val array = this ?: return emptyList()
         return (0 until array.length())
             .mapNotNull { idx -> array.optString(idx).takeIf { it.isNotBlank() } }

@@ -2,7 +2,9 @@ package com.universalmedialibrary.services
 
 import android.content.Context
 import android.net.Uri
+import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
+import com.universalmedialibrary.utils.ErrorLogger
 
 internal fun getOrCreateChildDir(context: Context, parent: DocumentFile, name: String): DocumentFile {
     parent.listFiles().firstOrNull { it.isDirectory && it.name == name }?.let { return it }

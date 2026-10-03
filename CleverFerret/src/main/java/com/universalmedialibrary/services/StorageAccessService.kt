@@ -185,14 +185,18 @@ class StorageAccessService @Inject constructor(
                 ?: return@withContext summary.copy(errors = summary.errors + 1)
 
             progressCallback("Scanning input…")
-            var updated = importRecursively(
+            var updated = importRecursivelyImpl(
                 context = context,
                 input = inputRoot,
                 outputRoot = outputRoot,
                 outputRootPath = outputTreeUri.toString(),
                 options = options,
                 progressCallback = progressCallback,
-                summary = summary
+                summary = summary,
+                fileNameSanitizer = fileNameSanitizer,
+                mediaItemDao = mediaItemDao,
+                metadataDao = metadataDao,
+                libraryDao = libraryDao
             )
 
             if (options.moveFiles && options.removeEmptyFolders) {
@@ -299,6 +303,7 @@ class StorageAccessService @Inject constructor(
         checkpointCallback = checkpointCallback,
         mediaItemDao = mediaItemDao,
         metadataDao = metadataDao,
+        libraryDao = libraryDao
     )
 
 
@@ -382,11 +387,7 @@ class StorageAccessService @Inject constructor(
 
 
 
-    private sealed class CopyResult {
-        data class Copied(val file: DocumentFile) : CopyResult()
-        data class Skipped(val reason: String) : CopyResult()
-        data class Failed(val reason: String) : CopyResult()
-    }
+
 
 
 
@@ -517,32 +518,8 @@ class StorageAccessService @Inject constructor(
         }
     }
 
-    private suspend fun getOrCreateLibraryForType(rootName: String, rootPath: String, type: String): Library =
+    internal suspend fun getOrCreateLibraryForType(rootName: String, rootPath: String, type: String): Library =
         getOrCreateLibraryForTypeImpl(libraryDao, rootName, rootPath, type)
-
-
-
-
-    private data class DerivedMetadata(
-        val title: String,
-        val authorOrArtist: String? = null,
-        val album: String? = null,
-        val series: String? = null,
-        val trackNumber: Int? = null,
-        val durationMs: Long? = null
-    )
-
-
-
-
-
-
-
-    private data class OpfParsed(
-        val title: String? = null,
-        val creator: String? = null,
-        val series: String? = null
-    )
 
 
 
@@ -560,12 +537,12 @@ class StorageAccessService @Inject constructor(
         log: MutableList<String>
     ) = importRecursivelyImpl(
         context = context,
-        srcDir = srcDir,
+        input = srcDir,
         outputRoot = outputRoot,
-        rootName = rootName,
-        rootPath = rootPath,
+        outputRootPath = rootPath,
+        options = ImportSortOptions(),
         progressCallback = progressCallback,
-        log = log,
+        summary = ImportSortSummary(),
         fileNameSanitizer = fileNameSanitizer,
         mediaItemDao = mediaItemDao,
         metadataDao = metadataDao,
@@ -629,3 +606,18 @@ class StorageAccessService @Inject constructor(
         }
     }
 }
+
+internal data class DerivedMetadata(
+    val title: String,
+    val authorOrArtist: String? = null,
+    val album: String? = null,
+    val series: String? = null,
+    val trackNumber: Int? = null,
+    val durationMs: Long? = null
+)
+
+internal data class OpfParsed(
+    val title: String? = null,
+    val creator: String? = null,
+    val series: String? = null
+)
