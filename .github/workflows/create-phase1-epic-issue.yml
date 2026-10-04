@@ -8,6 +8,8 @@ on:
         required: true
         default: ''
 
+permissions: {}
+
 jobs:
   create-issue:
     name: Create Phase 1 Epic Issue

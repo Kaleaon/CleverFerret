@@ -5,8 +5,7 @@ on:
     types: [opened, reopened, synchronize, ready_for_review]
     branches: [ main, develop ]
 
-permissions:
-  contents: write
+permissions: {}
 
 concurrency:
   group: auto-bump-version-code-${{ github.event.pull_request.number }}
@@ -16,6 +15,8 @@ jobs:
   bump:
     name: Bump versionCode if needed
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
 
     steps:

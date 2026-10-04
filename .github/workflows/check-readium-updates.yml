@@ -11,13 +11,14 @@ on:
   # Allow manual trigger
   workflow_dispatch:
 
-permissions:
-  contents: read
-  issues: write
+permissions: {}
 
 jobs:
   check-updates:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     
     steps:
       - name: Checkout code
@@ -39,10 +40,10 @@ jobs:
       
       - name: Compare versions
         id: compare
+        env:
+          CURRENT: ${{ steps.current.outputs.version }}
+          LATEST: ${{ steps.latest.outputs.version }}
         run: |
-          CURRENT="${{ steps.current.outputs.version }}"
-          LATEST="${{ steps.latest.outputs.version }}"
-          
           if [ "$CURRENT" != "$LATEST" ]; then
             echo "update_available=true" >> $GITHUB_OUTPUT
             echo "⚠️ Update available: $CURRENT → $LATEST"
@@ -63,11 +64,15 @@ jobs:
       - name: Create issue for new version
         if: steps.compare.outputs.update_available == 'true'
         uses: actions/github-script@v8
+        env:
+          CURRENT_VERSION: ${{ steps.current.outputs.version }}
+          LATEST_VERSION: ${{ steps.latest.outputs.version }}
+          RELEASE_NOTES: ${{ steps.release_notes.outputs.notes }}
         with:
           script: |
-            const currentVersion = '${{ steps.current.outputs.version }}';
-            const latestVersion = '${{ steps.latest.outputs.version }}';
-            const releaseNotes = `${{ steps.release_notes.outputs.notes }}`;
+            const currentVersion = process.env.CURRENT_VERSION;
+            const latestVersion = process.env.LATEST_VERSION;
+            const releaseNotes = process.env.RELEASE_NOTES;
             
             const issueTitle = `📦 Readium Kotlin Toolkit ${latestVersion} Available`;
             const issueBody = `## New Readium Version Available
@@ -141,6 +146,8 @@ jobs:
       
       - name: Send notification (optional)
         if: steps.compare.outputs.update_available == 'true'
+        env:
+          LATEST_VERSION: ${{ steps.latest.outputs.version }}
         run: |
-          echo "🔔 New Readium version available: ${{ steps.latest.outputs.version }}"
+          echo "🔔 New Readium version available: $LATEST_VERSION"
           # Optional: Add Slack/Discord/Email notification here
