@@ -42,10 +42,21 @@ object MediaRoutes {
     
     // Discovery routes
     const val DISCOVER = "discover"
+    const val DISCOVERY_BASE = "discovery"
+    const val DISCOVERY = "discovery?query={query}&tags={tags}&type={type}"
     const val OPDS_BROWSER = "opds"
     const val PODCAST_DISCOVER = "discover/podcasts"
     const val WEB_FICTION_BROWSE = "discover/webfiction/{source}"
     const val SEE_ALL = "home/see-all/{section}"
+
+    // Standardized helper for discovery route with arguments
+    fun discoveryRoute(query: String? = null, tags: String? = null, type: String? = null): String {
+        val params = mutableListOf<String>()
+        query?.takeIf { it.isNotBlank() }?.let { params.add("query=${Uri.encode(it)}") }
+        tags?.takeIf { it.isNotBlank() }?.let { params.add("tags=${Uri.encode(it)}") }
+        type?.takeIf { it.isNotBlank() }?.let { params.add("type=${Uri.encode(it)}") }
+        return if (params.isEmpty()) DISCOVERY_BASE else "$DISCOVERY_BASE?${params.joinToString("&")}"
+    }
     
     // Collections & Organization
     const val COLLECTIONS = "collections"

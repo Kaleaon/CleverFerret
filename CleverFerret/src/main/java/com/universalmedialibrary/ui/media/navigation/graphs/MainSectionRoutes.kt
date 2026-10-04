@@ -95,7 +95,7 @@ fun NavGraphBuilder.mainSectionRoutes(
             },
             onSearchClick = {
                 viewModel.clearLastOpenedCategory()
-                navController.navigate(MediaRoutes.SEARCH)
+                navController.navigate(MediaRoutes.discoveryRoute())
             },
             onRetry = { viewModel.refresh() },
             onNotificationClick = {
@@ -156,38 +156,37 @@ fun NavGraphBuilder.mainSectionRoutes(
         )
     }
 
-    composable(MediaRoutes.SEARCH) {
-        val viewModel: SearchViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
-        
-        MediaSearchScreen(
-            state = state,
-            onQueryChange = { viewModel.updateQuery(it) },
-            onSearch = { viewModel.search(it) },
-            onClearSearch = { viewModel.clearSearch() },
-            onResultClick = { result ->
-                navController.navigate(MediaRoutes.mediaDetailRoute(result.mediaType.routeName, result.id))
+    composable(
+        route = MediaRoutes.DISCOVERY,
+        arguments = listOf(
+            navArgument("query") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
             },
-            onRecentSearchClick = { viewModel.useRecentSearch(it) },
-            onClearRecentSearches = { viewModel.clearRecentSearches() },
-            onCategoryFilterChange = { viewModel.setCategory(it) },
-            onCategoryNavigate = { category ->
-                val libraryRoute = when (category) {
-                    SearchCategory.BOOKS -> MediaRoutes.BOOKS
-                    SearchCategory.AUDIOBOOKS -> MediaRoutes.AUDIOBOOKS
-                    SearchCategory.COMICS -> MediaRoutes.COMICS
-                    SearchCategory.MUSIC -> MediaRoutes.MUSIC
-                    SearchCategory.PODCASTS -> MediaRoutes.PODCASTS
-                    SearchCategory.MOVIES -> MediaRoutes.MOVIES
-                    SearchCategory.TV_SHOWS -> MediaRoutes.TV_SHOWS
-                    SearchCategory.WEB_FICTION -> MediaRoutes.WEB_FICTION
-                    SearchCategory.DOCUMENTS -> MediaRoutes.DOCUMENTS
-                }
-                navController.navigate(libraryRoute)
+            navArgument("tags") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
             },
-            onVoiceSearch = { /* Implement voice search */ },
-            onBackClick = { navController.popBackStack() }
+            navArgument("type") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
         )
+    ) {
+        com.universalmedialibrary.ui.media.screens.UniversalSearchAndDiscoveryScreen(
+            navController = navController
+        )
+    }
+
+    composable(MediaRoutes.SEARCH) {
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.discoveryRoute()) {
+                popUpTo(MediaRoutes.SEARCH) { inclusive = true }
+            }
+        }
     }
 
     composable(MediaRoutes.ACTIVITY) {
