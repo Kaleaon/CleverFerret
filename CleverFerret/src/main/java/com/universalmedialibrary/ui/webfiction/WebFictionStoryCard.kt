@@ -39,6 +39,7 @@ import com.universalmedialibrary.ui.components.UserFeedbackSeverity
 import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
 import com.universalmedialibrary.ui.components.showUserFeedback
 import com.universalmedialibrary.ui.components.PinAccessDialog
+import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
@@ -141,15 +142,11 @@ fun WebFictionStoryCard(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     // Status
+                    val tokens = LocalCFTokens.current
                     Text(
                         text = story.status.name,
                         style = MaterialTheme.typography.bodySmall,
-                        color = when (story.status) {
-                            StoryStatus.COMPLETED -> MaterialTheme.colorScheme.primary
-                            StoryStatus.ONGOING -> Color(0xFF4CAF50)
-                            StoryStatus.HIATUS -> Color(0xFFFF9800)
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                        }
+                        color = tokens.status.forStoryStatus(story.status)
                     )
                 }
 
