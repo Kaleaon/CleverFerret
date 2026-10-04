@@ -15,6 +15,8 @@ import com.universalmedialibrary.data.local.entity.ComicTranslation
 import com.universalmedialibrary.data.repository.ReadingProgressRepository
 import com.universalmedialibrary.services.ai.GeminiTTSService
 import com.universalmedialibrary.services.comic.*
+import com.universalmedialibrary.ui.viewer.common.ReadingDirection
+import com.universalmedialibrary.ui.viewer.common.ReadingMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -114,6 +116,18 @@ class ComicReaderViewModel @Inject constructor(
                 // Ensure session exists in database before updates
                 comicPanelDao.insertReadingSession(session)
                 
+                // Restore reading direction and mode
+                val loadedDirection = when {
+                    session.readingDirection == "RIGHT_TO_LEFT" || session.isRightToLeft -> ReadingDirection.RIGHT_TO_LEFT
+                    session.readingDirection == "VERTICAL" -> ReadingDirection.VERTICAL
+                    else -> ReadingDirection.LEFT_TO_RIGHT
+                }
+                val loadedMode = when (session.readingMode) {
+                    "WEBTOON", "CONTINUOUS_VERTICAL" -> ReadingMode.WEBTOON
+                    "CONTINUOUS_HORIZONTAL" -> ReadingMode.CONTINUOUS_HORIZONTAL
+                    else -> ReadingMode.PAGE_BY_PAGE
+                }
+
                 // Try to import existing panel data
                 comicDataService.importPanelDataFromFile(comicId, comicPath)
                 
@@ -126,6 +140,8 @@ class ComicReaderViewModel @Inject constructor(
                     comicTitle = session.comicTitle,
                     totalPages = comicPages.size,
                     currentPage = currentPage,
+                    readingDirection = loadedDirection,
+                    readingMode = loadedMode,
                     readingSession = session
                 )
             } catch (e: Exception) {
@@ -391,9 +407,10 @@ class ComicReaderViewModel @Inject constructor(
      * Navigate to next page
      */
     fun nextPage() {
-        val nextPage = _uiState.value.currentPage + 1
-        if (nextPage < _uiState.value.totalPages) {
-            loadPage(nextPage)
+        val isRtl = _uiState.value.readingDirection == ReadingDirection.RIGHT_TO_LEFT
+        val targetPage = if (isRtl) _uiState.value.currentPage - 1 else _uiState.value.currentPage + 1
+        if (targetPage in 0 until _uiState.value.totalPages) {
+            loadPage(targetPage)
         }
     }
     
@@ -401,10 +418,56 @@ class ComicReaderViewModel @Inject constructor(
      * Navigate to previous page
      */
     fun previousPage() {
-        val prevPage = _uiState.value.currentPage - 1
-        if (prevPage >= 0) {
-            loadPage(prevPage)
+        val isRtl = _uiState.value.readingDirection == ReadingDirection.RIGHT_TO_LEFT
+        val targetPage = if (isRtl) _uiState.value.currentPage + 1 else _uiState.value.currentPage - 1
+        if (targetPage in 0 until _uiState.value.totalPages) {
+            loadPage(targetPage)
         }
+    }
+    
+    /**
+     * Set reading direction (LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL)
+     */
+    fun setReadingDirection(direction: ReadingDirection) {
+        viewModelScope.launch {
+            val isRtl = direction == ReadingDirection.RIGHT_TO_LEFT
+            comicPanelDao.updateReadingDirection(currentComicId, direction.name, isRtl)
+            val updatedSession = _uiState.value.readingSession?.copy(
+                readingDirection = direction.name,
+                isRightToLeft = isRtl
+            )
+            _uiState.value = _uiState.value.copy(
+                readingDirection = direction,
+                readingSession = updatedSession
+            )
+        }
+    }
+
+    /**
+     * Toggle reading mode
+     */
+    fun setReadingMode(mode: ReadingMode) {
+        viewModelScope.launch {
+            comicPanelDao.updateReadingMode(currentComicId, mode.name)
+            val updatedSession = _uiState.value.readingSession?.copy(readingMode = mode.name)
+            _uiState.value = _uiState.value.copy(
+                readingMode = mode,
+                readingSession = updatedSession
+            )
+        }
+    }
+
+    fun setReadingMode(mode: String) {
+        val modeEnum = when (mode) {
+            "WEBTOON", "CONTINUOUS_VERTICAL" -> ReadingMode.WEBTOON
+            "CONTINUOUS_HORIZONTAL" -> ReadingMode.CONTINUOUS_HORIZONTAL
+            else -> ReadingMode.PAGE_BY_PAGE
+        }
+        setReadingMode(modeEnum)
+    }
+
+    fun reportProgress(page: Int, panel: Int = 0) {
+        updateReadingProgress(page, panel)
     }
     
     /**
@@ -435,18 +498,6 @@ class ComicReaderViewModel @Inject constructor(
         } else {
             // Move to previous page
             previousPage()
-        }
-    }
-    
-    /**
-     * Toggle reading mode (PAGE vs PANEL)
-     */
-    fun setReadingMode(mode: String) {
-        viewModelScope.launch {
-            comicPanelDao.updateReadingMode(currentComicId, mode)
-            _uiState.value = _uiState.value.copy(
-                readingSession = _uiState.value.readingSession?.copy(readingMode = mode)
-            )
         }
     }
     
@@ -582,6 +633,10 @@ data class ComicReaderUiState(
     val totalPages: Int = 0,
     val currentPagePath: String? = null,
     val currentPanel: Int = 0,
+    
+    // Direction & Mode settings
+    val readingDirection: ReadingDirection = ReadingDirection.LEFT_TO_RIGHT,
+    val readingMode: ReadingMode = ReadingMode.PAGE_BY_PAGE,
     
     // Panel data
     val panels: List<ComicPanelData> = emptyList(),
