@@ -89,29 +89,15 @@ fun NavGraphBuilder.playerRoutes(
         route = MediaRoutes.AUDIO_PLAYER,
         arguments = listOf(navArgument("playerType") { type = NavType.StringType })
     ) { backStackEntry ->
-        val viewModel: AudioPlayerViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
-        
         UiErrorBoundary(
             boundaryName = "AudioPlayerBoundary",
             onGoHome = { navController.navigate(MediaRoutes.HOME) },
         ) {
-            MediaAudioPlayerScreen(
-                state = state,
-                onPlayPause = { viewModel.playPause() },
-                onSeek = { viewModel.seek(it) },
-                onSkipPrevious = { viewModel.skipPrevious() },
-                onSkipNext = { viewModel.skipNext() },
-                onRewind = { viewModel.rewind() },
-                onFastForward = { viewModel.fastForward() },
-                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
-                onShuffleToggle = { viewModel.toggleShuffle() },
-                onRepeatToggle = { viewModel.toggleRepeat() },
-                onSleepTimer = { /* Show sleep timer dialog */ },
-                onQueueOpen = { /* Handled by sheet in screen */ },
-                onChaptersOpen = { /* Handled by sheet in screen */ },
-                onCastClick = { /* Start casting */ },
-                onClose = { navController.popBackStack() }
+            com.universalmedialibrary.ui.music.UnifiedMusicPlayerScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToQueue = { /* Queue handled in screen or sheet */ },
+                onNavigateToAlbum = { albumId -> navController.navigate(MediaRoutes.mediaDetailRoute("album", albumId)) },
+                onNavigateToVisualizer = { navController.navigate(MediaRoutes.VISUALIZER) }
             )
         }
     }
