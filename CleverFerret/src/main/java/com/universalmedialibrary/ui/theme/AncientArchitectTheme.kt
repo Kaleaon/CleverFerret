@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.theme
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -328,8 +329,12 @@ fun AncientArchitectTheme(
         MaterialTheme(
             colorScheme = materialColorScheme,
             typography = AncientArchitectTypography,
-            content = content
-        )
+        ) {
+            CompositionLocalProvider(
+                LocalIndication provides rememberFocusHighlightIndication(),
+                content = content
+            )
+        }
     }
 }
 
