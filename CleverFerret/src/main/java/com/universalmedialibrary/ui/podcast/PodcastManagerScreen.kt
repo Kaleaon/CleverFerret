@@ -271,7 +271,6 @@ fun PodcastManagerScreen(
         )
     }
 }
-}
 
 @Composable
 fun PodcastEpisodesTab(

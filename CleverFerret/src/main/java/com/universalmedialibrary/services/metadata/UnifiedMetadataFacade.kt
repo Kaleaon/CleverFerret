@@ -106,7 +106,7 @@ class UnifiedMetadataFacade @Inject constructor(
         artist: String,
         title: String,
         album: String? = null
-    ): EnhancedTrackMetadata {
+    ): com.universalmedialibrary.services.music.EnhancedTrackMetadata {
         return musicMetadataService.enhanceTrackMetadata(artist, title, album)
     }
 
