@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.integration.emby
 
+import androidx.room.withTransaction
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.EmbyServer
 import com.universalmedialibrary.data.local.entity.Library
@@ -191,7 +192,9 @@ class EmbySyncService @Inject constructor(
     suspend fun syncMediaItems(
         server: EmbyServer,
         embyLibraryId: String,
-        localLibraryId: Long
+        localLibraryId: Long,
+        chunkSize: Int = 250,
+        onProgress: (syncedCount: Int, totalCount: Int) -> Unit = { _, _ -> }
     ): Result<Int> {
         return try {
             _syncState.value = _syncState.value.copy(isSyncing = true)
@@ -214,49 +217,69 @@ class EmbySyncService @Inject constructor(
                 val items = responseBody["Items"] as? List<Map<String, Any>> ?: emptyList()
                 var syncedCount = 0
 
-                items.forEach { item ->
-                    val itemId = item["Id"] as? String ?: return@forEach
-                    val name = item["Name"] as? String ?: "Unknown"
-                    val type = item["Type"] as? String
-                    val path = item["Path"] as? String
-                        ?: (item["MediaSources"] as? List<Map<String, Any>>)
-                            ?.firstOrNull()
-                            ?.get("Path") as? String
-                    val size = (item["Size"] as? Number)?.toLong()
-                        ?: (
-                            (item["MediaSources"] as? List<Map<String, Any>>)
+                for (chunk in items.chunked(chunkSize.coerceAtLeast(1))) {
+                    val candidatePaths = chunk.mapNotNull { item ->
+                        val itemId = item["Id"] as? String ?: return@mapNotNull null
+                        item["Path"] as? String
+                            ?: (item["MediaSources"] as? List<Map<String, Any>>)
                                 ?.firstOrNull()
-                                ?.get("Size") as? Number
-                            )?.toLong()
-                        ?: 0L
-                    val fileExtension = path?.substringAfterLast('.', "")?.lowercase().orEmpty()
-                    val fileName = path?.substringAfterLast('/')?.ifBlank { name } ?: name
+                                ?.get("Path") as? String
+                            ?: "emby://${server.id}/$itemId"
+                    }
+                    val existingPathsSet = mediaItemDao.getExistingFilePaths(candidatePaths).toSet()
 
-                    val mediaItem = MediaItem(
-                        libraryId = localLibraryId,
-                        filePath = path ?: "emby://${server.id}/$itemId",
-                        fileName = fileName,
-                        fileExtension = fileExtension,
-                        fileSize = size,
-                        mediaType = getMediaTypeFromEmbyType(type),
-                        isAvailable = path != null,
-                        hasMetadata = true
-                    )
+                    database.withTransaction {
+                        for (item in chunk) {
+                            val itemId = item["Id"] as? String ?: continue
+                            val path = item["Path"] as? String
+                                ?: (item["MediaSources"] as? List<Map<String, Any>>)
+                                    ?.firstOrNull()
+                                    ?.get("Path") as? String
+                                ?: "emby://${server.id}/$itemId"
 
-                    val localItemId = mediaItemDao.insertMediaItem(mediaItem)
+                            if (existingPathsSet.contains(path)) {
+                                continue
+                            }
 
-                    // Create metadata
-                    val serverUrl = "http://${server.host}:${server.port}"
-                    val thumbnailUrl = getEmbyImageUrl(serverUrl, itemId, server.apiKey ?: "")
-                    val metadata = MetadataCommon(
-                        itemId = localItemId,
-                        title = name,
-                        summary = item["Overview"] as? String,
-                        coverImagePath = thumbnailUrl
-                    )
+                            val name = item["Name"] as? String ?: "Unknown"
+                            val type = item["Type"] as? String
+                            val size = (item["Size"] as? Number)?.toLong()
+                                ?: (
+                                    (item["MediaSources"] as? List<Map<String, Any>>)
+                                        ?.firstOrNull()
+                                        ?.get("Size") as? Number
+                                    )?.toLong()
+                                ?: 0L
+                            val fileExtension = path.substringAfterLast('.', "").lowercase()
+                            val fileName = path.substringAfterLast('/')?.ifBlank { name } ?: name
 
-                    metadataDao.insertMetadataCommon(metadata)
-                    syncedCount++
+                            val mediaItem = MediaItem(
+                                libraryId = localLibraryId,
+                                filePath = path,
+                                fileName = fileName,
+                                fileExtension = fileExtension,
+                                fileSize = size,
+                                mediaType = getMediaTypeFromEmbyType(type),
+                                isAvailable = item["Path"] != null,
+                                hasMetadata = true
+                            )
+
+                            val localItemId = mediaItemDao.insertMediaItem(mediaItem)
+
+                            // Create metadata
+                            val thumbnailUrl = getEmbyImageUrl(serverUrl, itemId, server.apiKey ?: "")
+                            val metadata = MetadataCommon(
+                                itemId = localItemId,
+                                title = name,
+                                summary = item["Overview"] as? String,
+                                coverImagePath = thumbnailUrl
+                            )
+
+                            metadataDao.insertMetadataCommon(metadata)
+                            syncedCount++
+                        }
+                    }
+                    onProgress(syncedCount, items.size)
                 }
 
                 _syncState.value = _syncState.value.copy(
