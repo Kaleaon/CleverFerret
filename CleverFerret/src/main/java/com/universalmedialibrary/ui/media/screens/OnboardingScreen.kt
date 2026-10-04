@@ -17,10 +17,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.ui.media.viewmodels.OnboardingViewModel
+import com.universalmedialibrary.utils.PermissionState
+import com.universalmedialibrary.utils.PermissionsHandler
+import com.universalmedialibrary.utils.rememberPermissionsHandler
 import kotlinx.coroutines.launch
 
 /**
@@ -39,8 +45,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnboardingScreen(
     onComplete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: OnboardingViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val pages = listOf(
         OnboardingPage.Welcome,
         OnboardingPage.Features,
@@ -52,6 +60,18 @@ fun OnboardingScreen(
     
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val coroutineScope = rememberCoroutineScope()
+    val totalMediaItems by viewModel.totalMediaItemsCount.collectAsState()
+    val isScanDispatched by viewModel.isScanDispatched.collectAsState()
+
+    val permissionState = rememberPermissionsHandler(
+        onAllPermissionsGranted = {
+            viewModel.triggerInitialScan()
+        }
+    )
+
+    val handleComplete = {
+        viewModel.completeOnboarding(onComplete)
+    }
     
     Box(
         modifier = modifier
@@ -73,10 +93,18 @@ fun OnboardingScreen(
             when (pages[pageIndex]) {
                 OnboardingPage.Welcome -> WelcomePage()
                 OnboardingPage.Features -> FeaturesPage()
-                OnboardingPage.Storage -> StoragePage()
+                OnboardingPage.Storage -> StoragePage(
+                    permissionState = permissionState,
+                    onGrantSuccess = { viewModel.triggerInitialScan() }
+                )
                 OnboardingPage.Accounts -> AccountsPage()
                 OnboardingPage.Theme -> ThemePage()
-                OnboardingPage.Ready -> ReadyPage()
+                OnboardingPage.Ready -> ReadyPage(
+                    hasStoragePermissions = PermissionsHandler.hasStoragePermissions(context) || permissionState.hasAllPermissions,
+                    totalMediaItems = totalMediaItems,
+                    isScanDispatched = isScanDispatched,
+                    onTriggerScan = { viewModel.triggerInitialScan() }
+                )
             }
         }
         
@@ -128,7 +156,7 @@ fun OnboardingScreen(
                     }
                 } else {
                     TextButton(
-                        onClick = onComplete
+                        onClick = handleComplete
                     ) {
                         Text("Skip")
                     }
@@ -138,7 +166,7 @@ fun OnboardingScreen(
                 Button(
                     onClick = {
                         if (pagerState.currentPage == pages.size - 1) {
-                            onComplete()
+                            handleComplete()
                         } else {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
@@ -232,9 +260,19 @@ private fun FeaturesPage() {
 }
 
 @Composable
-private fun StoragePage() {
-    var hasPermission by remember { mutableStateOf(false) }
+private fun StoragePage(
+    permissionState: PermissionState,
+    onGrantSuccess: () -> Unit
+) {
+    val context = LocalContext.current
+    val hasStorageAccess = PermissionsHandler.hasStoragePermissions(context) || permissionState.hasAllPermissions
     var selectedFolders by remember { mutableStateOf(listOf<String>()) }
+    
+    LaunchedEffect(hasStorageAccess) {
+        if (hasStorageAccess) {
+            onGrantSuccess()
+        }
+    }
     
     OnboardingPageContent(
         icon = Icons.Default.Folder,
@@ -246,9 +284,9 @@ private fun StoragePage() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
         ) {
-            if (!hasPermission) {
+            if (!hasStorageAccess) {
                 Button(
-                    onClick = { hasPermission = true },
+                    onClick = { permissionState.requestPermissions() },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MediaColors.AccentPrimary
                     )
@@ -269,13 +307,14 @@ private fun StoragePage() {
                     ) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Media image",
+                            contentDescription = "Access Granted",
                             tint = MediaColors.Success
                         )
                         Spacer(modifier = Modifier.width(MediaSpacing.SM))
                         Text(
                             text = "Storage access granted!",
-                            color = MediaColors.Success
+                            color = MediaColors.Success,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -302,7 +341,7 @@ private fun StoragePage() {
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Folder,
-                                contentDescription = "Media image",
+                                contentDescription = "Folder",
                                 tint = MediaColors.AccentPrimary
                             )
                             Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -449,24 +488,107 @@ private fun ThemePage() {
 }
 
 @Composable
-private fun ReadyPage() {
+private fun ReadyPage(
+    hasStoragePermissions: Boolean,
+    totalMediaItems: Int,
+    isScanDispatched: Boolean,
+    onTriggerScan: () -> Unit
+) {
+    LaunchedEffect(hasStoragePermissions) {
+        if (hasStoragePermissions) {
+            onTriggerScan()
+        }
+    }
+
     OnboardingPageContent(
         icon = Icons.Default.Celebration,
         iconColor = MediaColors.Success,
         title = "You're All Set!",
         description = "Your library is ready. Enjoy your media collection!"
     ) {
-        Surface(
-            shape = CircleShape,
-            color = MediaColors.Success.copy(alpha = 0.1f),
-            modifier = Modifier.size(120.dp)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = "Media image",
-                tint = MediaColors.Success,
-                modifier = Modifier.padding(MediaSpacing.XL)
-            )
+            Surface(
+                shape = CircleShape,
+                color = MediaColors.Success.copy(alpha = 0.1f),
+                modifier = Modifier.size(100.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = "Ready",
+                    tint = MediaColors.Success,
+                    modifier = Modifier.padding(MediaSpacing.LG)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(MediaSpacing.SM))
+
+            Surface(
+                shape = RoundedCornerShape(MediaCorners.MD),
+                color = MediaColors.BackgroundElevated,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(MediaSpacing.MD),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+                ) {
+                    if (hasStoragePermissions) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            if (totalMediaItems == 0 && isScanDispatched) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MediaColors.AccentPrimary
+                                )
+                                Spacer(modifier = Modifier.width(MediaSpacing.SM))
+                                Text(
+                                    text = "Scanning device for media files...",
+                                    style = MediaTypography.BodyMedium,
+                                    color = MediaColors.TextPrimary
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.LibraryMusic,
+                                    contentDescription = "Scan status",
+                                    tint = MediaColors.AccentPrimary
+                                )
+                                Spacer(modifier = Modifier.width(MediaSpacing.SM))
+                                Text(
+                                    text = "$totalMediaItems items indexed in library",
+                                    style = MediaTypography.BodyMedium,
+                                    color = MediaColors.TextPrimary,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Warning",
+                                tint = MediaColors.Warning
+                            )
+                            Spacer(modifier = Modifier.width(MediaSpacing.SM))
+                            Text(
+                                text = "Storage access skipped. Grant access later in Settings.",
+                                style = MediaTypography.BodyMedium,
+                                color = MediaColors.TextSecondary,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

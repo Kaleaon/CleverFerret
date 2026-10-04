@@ -553,7 +553,7 @@ fun EnhancedFileBrowser(
 
 
 @Composable
-private fun QuickAccessButton(
+fun QuickAccessButton(
     label: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit
@@ -720,14 +720,5 @@ private fun moveFileSafely(source: File, destination: File, overwrite: Boolean):
     } catch (e: Exception) {
         android.util.Log.e("FileBrowser", "Failed to move ${source.name}: ${e.message}")
         MoveResult.FAILED
-    }
-}
-
-private fun formatFileSize(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "$bytes B"
-        bytes < 1024 * 1024 -> "${bytes / 1024} KB"
-        bytes < 1024 * 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
-        else -> "${bytes / (1024 * 1024 * 1024)} GB"
     }
 }

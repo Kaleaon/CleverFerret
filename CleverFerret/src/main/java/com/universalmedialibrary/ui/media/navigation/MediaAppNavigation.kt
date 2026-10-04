@@ -10,11 +10,12 @@ import com.universalmedialibrary.ui.media.navigation.graphs.*
 fun MediaAppNavHost(
     navController: NavHostController,
     onShowSnackbar: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    startDestination: String = MediaRoutes.HOME
 ) {
     NavHost(
         navController = navController,
-        startDestination = MediaRoutes.HOME,
+        startDestination = startDestination,
         modifier = modifier
     ) {
         mainSectionRoutes(navController, onShowSnackbar)

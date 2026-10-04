@@ -69,6 +69,11 @@ class SettingsRepository @Inject constructor(
         // Casting
         val CASTING_ENABLED = booleanPreferencesKey("casting_enabled")
         val SHOW_HOME_ONBOARDING_TIPS = booleanPreferencesKey("show_home_onboarding_tips")
+
+        // Onboarding
+        val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val INITIAL_SCAN_STARTED = booleanPreferencesKey("initial_scan_started")
+        val INITIAL_SCAN_COMPLETED = booleanPreferencesKey("initial_scan_completed")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -242,6 +247,18 @@ class SettingsRepository @Inject constructor(
         preferences[PreferencesKeys.SHOW_HOME_ONBOARDING_TIPS] ?: true
     }
 
+    val onboardingCompletedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.ONBOARDING_COMPLETED] ?: false
+    }
+
+    val initialScanStartedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.INITIAL_SCAN_STARTED] ?: false
+    }
+
+    val initialScanCompletedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.INITIAL_SCAN_COMPLETED] ?: false
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -403,6 +420,24 @@ class SettingsRepository @Inject constructor(
     suspend fun setShowHomeOnboardingTips(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_HOME_ONBOARDING_TIPS] = enabled
+        }
+    }
+
+    suspend fun setOnboardingCompleted(completed: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.ONBOARDING_COMPLETED] = completed
+        }
+    }
+
+    suspend fun setInitialScanStarted(started: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.INITIAL_SCAN_STARTED] = started
+        }
+    }
+
+    suspend fun setInitialScanCompleted(completed: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.INITIAL_SCAN_COMPLETED] = completed
         }
     }
 

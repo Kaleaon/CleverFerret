@@ -1,5 +1,9 @@
 package com.universalmedialibrary.services.webfiction
 
+import java.net.URLEncoder
+import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
 internal suspend fun fetchAO3Tags(): Result<List<WebFictionTag>> {
@@ -368,39 +372,6 @@ internal fun getRoyalRoadFallbackTags(): List<WebFictionTag> = listOf(
     WebFictionTag("martial-arts", "martial-arts", "Martial Arts", TagCategory.THEME, 0),
     WebFictionTag("kingdom-building", "kingdom-building", "Kingdom Building", TagCategory.THEME, 0)
 )
-
-private fun buildRoyalRoadSearchUrl(criteria: StorySearchCriteria): String {
-    val builder = StringBuilder("https://www.royalroad.com/fictions/search")
-    var hasQuery = false
-
-    fun appendParam(name: String, value: String) {
-        if (!hasQuery) {
-            builder.append('?')
-            hasQuery = true
-        } else {
-            builder.append('&')
-        }
-        builder.append(name).append('=').append(value)
-    }
-
-    if (criteria.tags.isNotEmpty()) {
-        val encoded = criteria.tags.joinToString(",") { tag ->
-            URLEncoder.encode(tag, "UTF-8")
-        }
-        appendParam("tagsAdd", encoded)
-    }
-
-    if (criteria.tagMatchMode == TagMatchMode.ALL) {
-        appendParam("tagMatch", "all")
-    }
-
-    if (criteria.offset > 0) {
-        val page = (criteria.offset / criteria.limit) + 1
-        appendParam("page", page.toString())
-    }
-
-    return builder.toString()
-}
 
 internal fun buildRoyalRoadSearchUrl(criteria: StorySearchCriteria): String {
     val builder = StringBuilder("https://www.royalroad.com/fictions/search")

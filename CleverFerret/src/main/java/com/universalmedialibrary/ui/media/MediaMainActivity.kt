@@ -99,22 +99,25 @@ fun MediaMainScreen(
 ) {
     val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsState(BottomBarPreferences.Default)
     val gearPosition by mainViewModel.bottomGearPosition.collectAsState(BottomGearPosition.RIGHT)
+    val isOnboardingCompleted by mainViewModel.isOnboardingCompleted.collectAsState(false)
 
-    // Permissions: request everything the app needs on startup.
+    // Permissions: request permissions for returning users if needed
     val permissionState = rememberPermissionsHandler()
     var permissionRequestedOnce by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        if (!permissionState.hasAllPermissions && !permissionRequestedOnce) {
+    LaunchedEffect(isOnboardingCompleted) {
+        if (isOnboardingCompleted && !permissionState.hasAllPermissions && !permissionRequestedOnce) {
             permissionRequestedOnce = true
             permissionState.requestPermissions()
         }
     }
 
-    // Gate the UI until the required runtime permissions are granted.
-    if (!permissionState.hasAllPermissions) {
+    // Gate returning users if required permissions are missing
+    if (isOnboardingCompleted && !permissionState.hasAllPermissions) {
         PermissionDialog(permissionState = permissionState)
         return
     }
+
+    val startDestination = if (isOnboardingCompleted) MediaRoutes.HOME else MediaRoutes.ONBOARDING
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -126,12 +129,12 @@ fun MediaMainScreen(
                 if (mediaType.isNullOrBlank()) MediaRoutes.LIBRARY else MediaRoutes.libraryRoute(mediaType)
             }
             else -> currentRoute
-        } ?: MediaRoutes.HOME
+        } ?: startDestination
     }
     
-    // Check if we should show navigation (hide during player screens)
+    // Check if we should show navigation (hide during onboarding or player screens)
     val showNavigation = remember(currentRoute) {
-        currentRoute != null && !currentRoute.startsWith("player/") && !currentRoute.startsWith("reader/")
+        currentRoute != null && currentRoute != MediaRoutes.ONBOARDING && !currentRoute.startsWith("player/") && !currentRoute.startsWith("reader/")
     }
     
     // Check if we should show mini player
@@ -210,6 +213,7 @@ fun MediaMainScreen(
             ) {
                 MediaAppNavHost(
                     navController = navController,
+                    startDestination = startDestination,
                     onShowSnackbar = { message ->
                         scope.launch {
                             snackbarHostState.showSnackbar(message)
@@ -276,6 +280,7 @@ fun MediaMainScreen(
                 ) {
                     MediaAppNavHost(
                         navController = navController,
+                        startDestination = startDestination,
                         onShowSnackbar = { message ->
                             scope.launch {
                                 snackbarHostState.showSnackbar(message)
