@@ -39,6 +39,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.universalmedialibrary.services.gallery.*
+import com.universalmedialibrary.ui.components.permission.StoragePermissionBannerDefaults
+import com.universalmedialibrary.utils.rememberPermissionsHandler
 
 /**
  * Gallery Screen
@@ -56,7 +58,7 @@ fun GalleryScreen(
     val context = LocalContext.current
     
     // Permission handling
-    val hasPermission = rememberStoragePermissionState()
+    val permissionState = rememberPermissionsHandler()
     
     // Delete confirmation launcher (Android 11+)
     val deleteLauncher = rememberLauncherForActivityResult(
@@ -129,8 +131,10 @@ fun GalleryScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (!hasPermission) {
-                PermissionRequestContent()
+            if (!permissionState.hasStoragePermissions) {
+                StoragePermissionBannerDefaults.GalleryPermissionBanner(
+                    onRequestPermission = { permissionState.requestPermissions() }
+                )
             } else {
                 when {
                     uiState.isLoading -> {

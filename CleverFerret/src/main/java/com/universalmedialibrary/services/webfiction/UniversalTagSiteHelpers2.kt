@@ -1,5 +1,8 @@
 package com.universalmedialibrary.services.webfiction
 
+import java.net.URLEncoder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
 internal suspend fun fetchWattpadTags(): Result<List<WebFictionTag>> {

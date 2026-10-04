@@ -1,5 +1,12 @@
 package com.universalmedialibrary.services.contentcreation
 
+import com.universalmedialibrary.services.contentcreation.FanfictionEpubConversionService.Story
+import com.universalmedialibrary.services.contentcreation.FanfictionEpubConversionService.Chapter
+import com.universalmedialibrary.services.contentcreation.FanfictionEpubConversionService.StoryMetadata
+import java.io.FileOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+import org.jsoup.Jsoup
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -238,43 +245,6 @@ internal fun createContainerXml(): String = """<?xml version="1.0" encoding="UTF
 </rootfiles>
 </container>"""
 
-private fun createContentOPF(story: Story): String {
-    val manifest = StringBuilder()
-    val spine = StringBuilder()
-
-    manifest.append("""
-    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
-    <item id="title" href="title.xhtml" media-type="application/xhtml+xml"/>
-    <item id="style" href="style.css" media-type="text/css"/>""")
-
-    spine.append("""<itemref idref="title"/>""")
-
-    story.chapters.forEach { chapter ->
-        val chapterId = "chapter${chapter.number}"
-        manifest.append("""
-    <item id="$chapterId" href="$chapterId.xhtml" media-type="application/xhtml+xml"/>""")
-        spine.append("""
-    <itemref idref="$chapterId"/>""")
-    }
-
-    return """<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uid" version="2.0">
-<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:title>${escapeXml(story.title)}</dc:title>
-    <dc:creator>${escapeXml(story.author)}</dc:creator>
-    <dc:language>${story.metadata.language}</dc:language>
-    <dc:identifier id="uid">fanfic-${System.currentTimeMillis()}</dc:identifier>
-    <dc:description>${escapeXml(story.summary)}</dc:description>
-</metadata>
-<manifest>
-    $manifest
-</manifest>
-<spine toc="ncx">
-    $spine
-</spine>
-</package>"""
-}
-
 internal fun createContentOPF(story: Story): String {
     val manifest = StringBuilder()
     val spine = StringBuilder()
@@ -455,17 +425,6 @@ border-top: 1px solid #ccc;
 margin: 2em 0;
 }
 """
-
-private fun cleanHtml(html: String): String {
-    val doc = Jsoup.parse(html)
-    doc.select("script, style").remove()
-
-    // Convert to clean HTML
-    doc.select("br").append("\n")
-    doc.select("p").prepend("\n\n")
-
-    return doc.html()
-}
 
 internal fun cleanHtml(html: String): String {
     val doc = Jsoup.parse(html)

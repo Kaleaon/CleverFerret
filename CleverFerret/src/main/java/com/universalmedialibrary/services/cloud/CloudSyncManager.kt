@@ -254,6 +254,14 @@ data class ConflictResolution(
     val resolved: Boolean
 )
 
+data class SyncResult(
+    val success: Boolean = true,
+    val uploadedCount: Int = 0,
+    val downloadedCount: Int = 0,
+    val conflictCount: Int = 0,
+    val error: String? = null
+)
+
 data class SyncStatistics(
     val totalUploaded: Int,
     val totalDownloaded: Int,
