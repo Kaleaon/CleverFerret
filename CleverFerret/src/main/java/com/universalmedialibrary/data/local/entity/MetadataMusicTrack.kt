@@ -3,6 +3,7 @@ package com.universalmedialibrary.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
+import androidx.room.Index
 
 /**
  * Music track-specific metadata entity
@@ -16,6 +17,9 @@ import androidx.room.ForeignKey
             childColumns = ["itemId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["itemId"])
     ]
 )
 data class MetadataMusicTrack(
