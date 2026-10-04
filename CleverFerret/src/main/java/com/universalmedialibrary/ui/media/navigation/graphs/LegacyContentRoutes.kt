@@ -40,10 +40,42 @@ import java.io.File
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.navigation.libraryTypeOptions
 import com.universalmedialibrary.ui.media.screens.LibraryMediaTypeOption
+import com.universalmedialibrary.ui.modern.books.ModernBookshelfScreen
+import com.universalmedialibrary.ui.modern.radio.ModernOldTimeRadioSeriesDetailScreen
+import com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen
+
 fun NavGraphBuilder.legacyContentRoutes(
     navController: NavHostController,
     onShowSnackbar: (String) -> Unit
 ) {
+    composable("bookshelf") {
+        ModernBookshelfScreen(
+            navController = navController,
+            libraryId = 1L
+        )
+    }
+
+    composable("otr_series_detail/{seriesTitle}") { backStackEntry ->
+        val seriesTitle = Uri.decode(backStackEntry.arguments?.getString("seriesTitle") ?: "")
+        ModernOldTimeRadioSeriesDetailScreen(
+            seriesTitle = seriesTitle,
+            onNavigateBack = { navController.popBackStack() },
+            onNavigateToPlayer = { episodeId ->
+                navController.navigate("player/audio/otr?episodeId=$episodeId")
+            }
+        )
+    }
+
+    composable("comic_reader/{uriString}/{fileName}") { backStackEntry ->
+        val uriString = Uri.decode(backStackEntry.arguments?.getString("uriString") ?: "")
+        val fileName = Uri.decode(backStackEntry.arguments?.getString("fileName") ?: "")
+        ModernComicReaderScreen(
+            uriString = uriString,
+            fileName = fileName,
+            onBack = { navController.popBackStack() }
+        )
+    }
+
     composable("webfiction_manager") {
         com.universalmedialibrary.ui.webfiction.WebFictionManagerScreen(
             navController = navController

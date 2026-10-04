@@ -57,3 +57,13 @@ object SampleData {
         MediaKind.Manga to 36, MediaKind.Video to 67, MediaKind.Fanfiction to 15,
     )
 }
+
+/**
+ * Unified UI State wrapper across modern screen surfaces.
+ */
+sealed interface ModernUiState<out T> {
+    object Loading : ModernUiState<Nothing>
+    object Empty : ModernUiState<Nothing>
+    data class Success<out T>(val data: T) : ModernUiState<T>
+    data class Error(val message: String, val cause: Throwable? = null) : ModernUiState<Nothing>
+}

@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.cloud.*
+import com.universalmedialibrary.services.sync.SyncResult
 
 /**
  * Cloud Storage Screen for CleverFerret
@@ -189,7 +190,7 @@ private fun SyncResultRow(
         
         if (result.success) {
             Text(
-                text = "↑${result.uploadedCount} ↓${result.downloadedCount}",
+                text = "${result.itemsSynced} items synced",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Green
             )
