@@ -455,25 +455,6 @@ private fun getFilesInFolder(
 
 // Reuse existing components from original StorageBrowserScreen
 
-@Composable
-private fun QuickAccessChip(
-    label: String,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    AssistChip(
-        onClick = onClick,
-        label = { Text(label) },
-        leadingIcon = {
-            Icon(
-                icon,
-                contentDescription = "Media image",
-                modifier = Modifier.size(18.dp)
-            )
-        }
-    )
-}
-
 
 @Composable
 private fun EmptyFolderView() {
