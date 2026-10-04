@@ -1,5 +1,7 @@
 package com.universalmedialibrary.ui.media.screens
 
+import android.content.Intent
+import android.os.Build
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -17,10 +19,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.utils.PermissionsHandler
+import com.universalmedialibrary.utils.rememberPermissionsHandler
 import kotlinx.coroutines.launch
 
 /**
@@ -233,22 +239,54 @@ private fun FeaturesPage() {
 
 @Composable
 private fun StoragePage() {
-    var hasPermission by remember { mutableStateOf(false) }
-    var selectedFolders by remember { mutableStateOf(listOf<String>()) }
-    
+    val context = LocalContext.current
+    var hasTriggeredScan by remember { mutableStateOf(false) }
+
+    fun triggerScan() {
+        if (!hasTriggeredScan) {
+            hasTriggeredScan = true
+            val intent = Intent(context, MediaScannerService::class.java).apply {
+                action = MediaScannerService.ACTION_SCAN_ALL
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        }
+    }
+
+    val permissionState = rememberPermissionsHandler(
+        onAllPermissionsGranted = {
+            triggerScan()
+        }
+    )
+
+    val hasStoragePermission = PermissionsHandler.hasStoragePermissions(context) || permissionState.hasAllPermissions
+    val scanProgress by MediaScannerService.scanProgress.collectAsState()
+
+    LaunchedEffect(hasStoragePermission) {
+        if (hasStoragePermission) {
+            triggerScan()
+        }
+    }
+
     OnboardingPageContent(
         icon = Icons.Default.Folder,
         iconColor = MediaColors.Warning,
         title = "Set Up Your Library",
-        description = "Grant storage access to scan your media files"
+        description = if (hasStoragePermission) "Scanning and building your media library..." else "Grant storage access to scan your media files"
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
+            verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            if (!hasPermission) {
+            if (!hasStoragePermission) {
                 Button(
-                    onClick = { hasPermission = true },
+                    onClick = {
+                        permissionState.requestPermissions()
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MediaColors.AccentPrimary
                     )
@@ -256,6 +294,16 @@ private fun StoragePage() {
                     Icon(Icons.Default.Security, null)
                     Spacer(modifier = Modifier.width(MediaSpacing.SM))
                     Text("Grant Storage Access")
+                }
+
+                if (permissionState.showRationale) {
+                    Text(
+                        text = "Storage access is required to automatically discover books, music, and videos stored on your device.",
+                        style = MediaTypography.BodySmall,
+                        color = MediaColors.TextSecondary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = MediaSpacing.MD)
+                    )
                 }
             } else {
                 Surface(
@@ -269,55 +317,82 @@ private fun StoragePage() {
                     ) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Media image",
+                            contentDescription = "Access granted",
                             tint = MediaColors.Success
                         )
                         Spacer(modifier = Modifier.width(MediaSpacing.SM))
                         Text(
                             text = "Storage access granted!",
-                            color = MediaColors.Success
+                            color = MediaColors.Success,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(MediaSpacing.MD))
-                
-                OutlinedButton(
-                    onClick = { selectedFolders = selectedFolders + "/storage/emulated/0/Books" }
+
+                Spacer(modifier = Modifier.height(MediaSpacing.SM))
+
+                // Real-time scan progress feedback
+                Surface(
+                    shape = RoundedCornerShape(MediaCorners.MD),
+                    color = MediaColors.BackgroundElevated,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(Icons.Default.Add, null)
-                    Spacer(modifier = Modifier.width(MediaSpacing.SM))
-                    Text("Add Library Folder")
-                }
-                
-                selectedFolders.forEach { folder ->
-                    Surface(
-                        shape = RoundedCornerShape(MediaCorners.SM),
-                        color = MediaColors.BackgroundElevated,
-                        modifier = Modifier.fillMaxWidth()
+                    Column(
+                        modifier = Modifier.padding(MediaSpacing.MD),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
                     ) {
                         Row(
-                            modifier = Modifier.padding(MediaSpacing.MD),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Folder,
-                                contentDescription = "Media image",
-                                tint = MediaColors.AccentPrimary
-                            )
-                            Spacer(modifier = Modifier.width(MediaSpacing.SM))
-                            Text(
-                                text = folder.substringAfterLast("/"),
-                                color = MediaColors.TextPrimary,
-                                modifier = Modifier.weight(1f)
-                            )
-                            IconButton(onClick = { selectedFolders = selectedFolders - folder }) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Remove",
-                                    tint = MediaColors.TextTertiary
+                                    imageVector = if (scanProgress.isScanning) Icons.Default.Sync else Icons.Default.Check,
+                                    contentDescription = "Scan status",
+                                    tint = MediaColors.AccentPrimary
+                                )
+                                Spacer(modifier = Modifier.width(MediaSpacing.SM))
+                                Text(
+                                    text = if (scanProgress.isScanning) "Indexing Media Files" else "Media Scanner Ready",
+                                    style = MediaTypography.BodyMedium,
+                                    color = MediaColors.TextPrimary,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
+                            if (scanProgress.itemsFound > 0) {
+                                Surface(
+                                    shape = RoundedCornerShape(MediaCorners.SM),
+                                    color = MediaColors.AccentPrimary.copy(alpha = 0.2f)
+                                ) {
+                                    Text(
+                                        text = "${scanProgress.itemsFound} items found",
+                                        style = MediaTypography.LabelSmall,
+                                        color = MediaColors.AccentPrimary,
+                                        modifier = Modifier.padding(horizontal = MediaSpacing.SM, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        if (scanProgress.isScanning) {
+                            LinearProgressIndicator(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = MediaSpacing.XS),
+                                color = MediaColors.AccentPrimary,
+                                trackColor = MediaColors.Background
+                            )
+                        }
+
+                        if (scanProgress.statusText.isNotBlank()) {
+                            Text(
+                                text = scanProgress.statusText,
+                                style = MediaTypography.LabelSmall,
+                                color = MediaColors.TextSecondary,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }
