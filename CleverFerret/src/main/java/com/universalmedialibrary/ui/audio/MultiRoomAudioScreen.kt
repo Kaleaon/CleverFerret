@@ -16,6 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.GroupAdd
 import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material3.AlertDialog
@@ -201,7 +203,7 @@ fun AudioGroupCard(
                     Icon(Icons.Default.Delete, "Delete Group")
                 }
                 IconButton(onClick = onOpenChat) {
-                    Icon(Icons.Default.Chat, "Open Room Chat")
+                    Icon(Icons.Default.Comment, "Open Room Chat")
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))

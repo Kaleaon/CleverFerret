@@ -330,10 +330,12 @@ class PodcastDownloadManager @Inject constructor(
             return
         }
         val checksum = computeSha256(file)
+        val fileSize = file.length()
         episodeDao.markDownloadCompletedAtomically(
             episodeId = episodeId,
             filePath = resolvedFilePath,
             checksum = checksum,
+            fileSize = fileSize,
             timestamp = System.currentTimeMillis()
         )
     }
@@ -350,15 +352,60 @@ class PodcastDownloadManager @Inject constructor(
             }
 
             val existingFile = file ?: return@forEach
-            val storedChecksum = episode.localFileChecksum
-            if (!storedChecksum.isNullOrBlank()) {
-                val checksum = computeSha256(existingFile)
-                if (checksum != storedChecksum) {
-                    telemetry.recordChecksumMismatch(episode.id, storedChecksum, checksum)
-                    episodeDao.clearDownloadedState(episode.id)
-                }
+            val actualSize = existingFile.length()
+            if (episode.fileSize > 0L && actualSize != episode.fileSize) {
+                telemetry.recordSizeMismatch(episode.id, episode.fileSize, actualSize)
+                episodeDao.clearDownloadedState(episode.id)
+                return@forEach
+            } else if (actualSize == 0L) {
+                telemetry.recordSizeMismatch(episode.id, episode.fileSize, 0L)
+                episodeDao.clearDownloadedState(episode.id)
+                return@forEach
             }
         }
+    }
+
+    /**
+     * Performs lazy checksum and file validity verification for an episode on demand
+     * (e.g. prior to initiating playback or during background integrity checks).
+     *
+     * @return true if the local file exists, matches expected size, and matches SHA-256 checksum (or has no checksum);
+     *         false if verification fails, in which case downloaded state is cleared and telemetry recorded.
+     */
+    suspend fun verifyEpisodeChecksum(episodeId: Long): Boolean {
+        val episode = episodeDao.getEpisodeByIdOnce(episodeId) ?: return false
+        if (!episode.downloaded) return false
+
+        val localPath = resolveLocalFilePath(episode.localFilePath)
+        val file = localPath?.let(::File)
+        if (file?.exists() != true) {
+            telemetry.recordMissingFileMismatch(episode.id, episode.localFilePath)
+            episodeDao.clearDownloadedState(episode.id)
+            return false
+        }
+
+        val actualSize = file.length()
+        if (episode.fileSize > 0L && actualSize != episode.fileSize) {
+            telemetry.recordSizeMismatch(episode.id, episode.fileSize, actualSize)
+            episodeDao.clearDownloadedState(episode.id)
+            return false
+        } else if (actualSize == 0L) {
+            telemetry.recordSizeMismatch(episode.id, episode.fileSize, 0L)
+            episodeDao.clearDownloadedState(episode.id)
+            return false
+        }
+
+        val storedChecksum = episode.localFileChecksum
+        if (!storedChecksum.isNullOrBlank()) {
+            val calculatedChecksum = computeSha256(file)
+            if (calculatedChecksum != storedChecksum) {
+                telemetry.recordChecksumMismatch(episode.id, storedChecksum, calculatedChecksum)
+                episodeDao.clearDownloadedState(episode.id)
+                return false
+            }
+        }
+
+        return true
     }
 
     private fun resolveLocalFilePath(localPathOrUri: String?): String? {
