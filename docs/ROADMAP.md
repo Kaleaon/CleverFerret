@@ -1,5 +1,12 @@
 # CleverFerret Roadmap (Matrix-Aligned)
 
+## Planning rules (required)
+
+* Every roadmap task must include:
+  * `Owner module(s)` (e.g., `feature/opds`, `core/network`, `core/auth`)
+  * `Path hint(s)` that state whether implementation belongs in `CleverFerret/` or `CleverFerretV2/`.
+* Reviewer requirement: reject feature tasks without module mapping.
+
 **Canonical source:** `CleverFerretV2/docs/v2/feature-matrix.md`  
 **Last verified date:** 2026-04-19  
 **Verifier:** GPT-5.3-Codex

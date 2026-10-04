@@ -7,10 +7,14 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   accessibility:
     name: Lint + Accessibility Regression Checks
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code

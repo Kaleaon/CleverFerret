@@ -18,6 +18,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [Build Toolchain Versions](BUILD_TOOLCHAIN_VERSIONS.md) - Canonical AGP/Kotlin/KSP/Gradle version sources and upgrade steps
 - [Post-Recovery State](POST_RECOVERY_STATE.md) - Branch source-of-truth and safe contribution workflow
 - [Branch Protection Guide](governance/BRANCH_PROTECTION.md) - Protection rules and CODEOWNERS governance
+- [Git Pre-Commit Hooks](governance/GIT_HOOKS.md) - Pre-commit hook setup, Detekt integration, and execution
 - [Documentation Lifecycle Policy](governance/DOC_LIFECYCLE_POLICY.md) - Canonical/derived docs, ownership, archive triggers, and SLA
 
 ---
@@ -101,7 +102,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [Parser Implementation Summary](implementation/PARSER_IMPLEMENTATION_SUMMARY.md) - Current parser implementation status
 - [Parser Integration Guide](implementation/PARSER_INTEGRATION_GUIDE.md) - Active parser integration roadmap
 - [Roadmap](ROADMAP.md) - Product roadmap and milestone sequencing
-- [Improvements Needed](planning/IMPROVEMENTS_NEEDED.md) - App improvement opportunities
+
 
 ### Archived PWA / Historical planning
 - [Archived Improvements Needed](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md) - Former PWA-focused improvement plan (archived)

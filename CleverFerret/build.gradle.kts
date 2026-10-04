@@ -21,6 +21,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.mikepenz.aboutlibraries.plugin") version "13.2.1"
+    alias(libs.plugins.detekt)
     jacoco
 }
 
@@ -478,4 +479,11 @@ afterEvaluate {
             }
         }
     }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    baseline = file("detekt-baseline.xml")
 }

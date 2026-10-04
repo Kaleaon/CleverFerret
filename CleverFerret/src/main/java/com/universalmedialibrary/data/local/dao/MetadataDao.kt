@@ -13,11 +13,17 @@ interface MetadataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMetadataCommon(metadataCommon: MetadataCommon)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMetadataCommonList(items: List<MetadataCommon>)
+
     @Update
     suspend fun updateMetadata(metadataCommon: MetadataCommon)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMetadataBook(metadataBook: MetadataBook)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMetadataBookList(items: List<MetadataBook>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMetadataMovie(metadataMovie: MetadataMovie)
@@ -93,6 +99,9 @@ interface MetadataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItemPersonRole(itemPersonRole: ItemPersonRole)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertItemPersonRoleList(items: List<ItemPersonRole>)
+
     // Series operations
     @Query("SELECT seriesId FROM series WHERE name = :name LIMIT 1")
     suspend fun findSeriesByName(name: String): Long?
@@ -112,6 +121,9 @@ interface MetadataDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItemGenre(itemGenre: ItemGenre)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertItemGenreList(items: List<ItemGenre>)
 
     // Missing methods for MetadataEditorViewModel
     @Query("""
