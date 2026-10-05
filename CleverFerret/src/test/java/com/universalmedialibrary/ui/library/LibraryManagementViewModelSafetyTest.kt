@@ -4,7 +4,7 @@ import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
-import com.universalmedialibrary.data.local.entity.MediaItemEntity
+import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.MetadataFetchRepository
 import com.universalmedialibrary.services.CalibreExportService
@@ -14,7 +14,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -95,19 +94,21 @@ class LibraryManagementViewModelSafetyTest {
         val staleCacheFile = File(cacheDir, "old_thumb.jpg")
         staleCacheFile.createNewFile()
 
-        val mediaItem = MediaItemEntity(
-            id = 100L,
+        val mediaItem = MediaItem(
+            itemId = 100L,
             libraryId = 1L,
-            title = "Test Item",
             filePath = "/path/to/item.epub",
+            fileName = "item.epub",
+            fileExtension = "epub",
+            fileSize = 1000L,
             mediaType = "BOOK",
-            coverPath = staleCacheFile.absolutePath
+            thumbnailPath = staleCacheFile.absolutePath
         )
 
-        coEvery { mediaItemDao.getItemsForLibrary(1L) } returns listOf(mediaItem)
-        coEvery { thumbnailService.generateThumbnail(any(), any()) } returns Result.success("/cache/new_thumb.jpg")
+        coEvery { mediaItemDao.getAllMediaItems() } returns listOf(mediaItem)
+        coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/new_thumb.jpg")
 
-        viewModel.regenerateAllThumbnails(1L)
+        viewModel.regenerateAllThumbnails()
         testDispatcher.scheduler.advanceUntilIdle()
 
         verify { fileSafetyGuardrail.safeDeleteCacheFile(staleCacheFile.absolutePath) }
@@ -118,20 +119,22 @@ class LibraryManagementViewModelSafetyTest {
         val userMediaFile = File(mediaDir, "user_photo.jpg")
         userMediaFile.createNewFile()
 
-        val mediaItem = MediaItemEntity(
-            id = 101L,
+        val mediaItem = MediaItem(
+            itemId = 101L,
             libraryId = 1L,
-            title = "Photo Item",
             filePath = "/path/to/photo.jpg",
+            fileName = "photo.jpg",
+            fileExtension = "jpg",
+            fileSize = 1000L,
             mediaType = "IMAGE",
-            coverPath = userMediaFile.absolutePath
+            thumbnailPath = userMediaFile.absolutePath
         )
 
-        coEvery { mediaItemDao.getItemsForLibrary(1L) } returns listOf(mediaItem)
-        coEvery { thumbnailService.generateThumbnail(any(), any()) } returns Result.success("/cache/new_thumb.jpg")
+        coEvery { mediaItemDao.getAllMediaItems() } returns listOf(mediaItem)
+        coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/new_thumb.jpg")
         every { fileSafetyGuardrail.safeDeleteCacheFile(userMediaFile.absolutePath) } returns false
 
-        viewModel.regenerateAllThumbnails(1L)
+        viewModel.regenerateAllThumbnails()
         testDispatcher.scheduler.advanceUntilIdle()
 
         verify { fileSafetyGuardrail.safeDeleteCacheFile(userMediaFile.absolutePath) }

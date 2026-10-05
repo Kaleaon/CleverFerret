@@ -41,7 +41,7 @@ class SearchViewModelTest {
             SearchResult(
                 itemId = 1L,
                 title = "The latest query result",
-                subtitle = null,
+                subtitle = "",
                 mediaType = "BOOK",
                 thumbnailUrl = null,
                 relevanceScore = 1.0f,
@@ -113,7 +113,7 @@ class SearchViewModelTest {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private class MainDispatcherRule(
+class MainDispatcherRule(
     private val dispatcher: TestDispatcher = StandardTestDispatcher()
 ) : TestWatcher() {
     override fun starting(description: Description) {

@@ -158,10 +158,10 @@ class CloudSyncEngineTest {
 
     @Test
     fun testMergeBookmarksDeduplication() {
-        val b1 = Bookmark(bookmarkId = 1L, itemId = "item_1", title = "Chapter 1", pageNumber = 10, dateCreated = 100L)
-        val b2 = Bookmark(bookmarkId = 2L, itemId = "item_1", title = "Chapter 2", pageNumber = 25, dateCreated = 200L)
-        val b2Remote = Bookmark(bookmarkId = 2L, itemId = "item_1", title = "Chapter 2 Updated", pageNumber = 26, dateCreated = 300L)
-        val b3 = Bookmark(bookmarkId = 3L, itemId = "item_1", title = "Chapter 3", pageNumber = 50, dateCreated = 250L)
+        val b1 = Bookmark(bookmarkId = 1L, itemId = 1L, title = "Chapter 1", page = 10, dateCreated = 100L)
+        val b2 = Bookmark(bookmarkId = 2L, itemId = 1L, title = "Chapter 2", page = 25, dateCreated = 200L)
+        val b2Remote = Bookmark(bookmarkId = 2L, itemId = 1L, title = "Chapter 2 Updated", page = 26, dateCreated = 300L)
+        val b3 = Bookmark(bookmarkId = 3L, itemId = 1L, title = "Chapter 3", page = 50, dateCreated = 250L)
 
         val localBookmarks = listOf(b1, b2)
         val remoteBookmarks = listOf(b2Remote, b3)
