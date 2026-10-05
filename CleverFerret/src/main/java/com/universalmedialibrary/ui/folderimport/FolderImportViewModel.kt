@@ -22,12 +22,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.universalmedialibrary.services.metadata.UnifiedMetadataFacade
 import kotlinx.coroutines.withContext
 import java.net.URI
 import javax.inject.Inject
 
 @HiltViewModel
 class FolderImportViewModel @Inject constructor(
+    private val unifiedMetadataFacade: UnifiedMetadataFacade,
     private val bookMetadataService: BookMetadataService,
     private val audioMetadataService: AudioMetadataService,
     private val comicMetadataService: ComicMetadataService,
