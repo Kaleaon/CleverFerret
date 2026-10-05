@@ -101,7 +101,12 @@ fun SettingsScreen(
                 navigationSection(uiState = uiState, viewModel = viewModel, navController = navController, availableBottomItems = availableBottomItems)
                 apiIntegrationsSection(uiState = uiState, viewModel = viewModel, navController = navController)
                 webContentSection(uiState = uiState, viewModel = viewModel, navController = navController)
-                readingAudioSection(uiState = uiState, viewModel = viewModel, navController = navController)
+                readingAudioSection(
+                    uiState = uiState,
+                    viewModel = viewModel,
+                    navController = navController,
+                    onOpenMiniPlayerBackgroundDialog = { showMiniPlayerBackgroundDialog = true }
+                )
                 ambientSoundsSection(uiState = uiState, viewModel = viewModel, navController = navController)
                 safetyPrivacySection(uiState = uiState, viewModel = viewModel, navController = navController)
                 mediaServersSection(uiState = uiState, viewModel = viewModel, navController = navController)

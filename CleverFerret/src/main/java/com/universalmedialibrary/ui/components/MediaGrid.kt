@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.components.media.MediaCard
 import com.universalmedialibrary.ui.components.media.MediaCardData
 import com.universalmedialibrary.ui.components.media.MediaCardStyle

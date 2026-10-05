@@ -1,5 +1,6 @@
 package com.universalmedialibrary.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
@@ -59,5 +60,6 @@ data class MetadataCommon(
     // User interaction metadata
     val isFavorite: Boolean = false,
     val isDownloaded: Boolean = false,
+    @ColumnInfo(defaultValue = "0")
     val isVerified: Boolean = false
 )

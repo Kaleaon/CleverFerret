@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
@@ -248,8 +249,8 @@ fun MediaCard(
     val cardData = MediaCardData(
         id = mediaItem.id.toString(),
         title = mediaItem.title ?: "Untitled",
-        subtitle = mediaItem.author ?: mediaItem.artist ?: mediaItem.mediaType ?: "",
-        imageUrl = mediaItem.coverUrl ?: mediaItem.thumbnailUrl ?: mediaItem.artworkUrl,
+        subtitle = mediaItem.author ?: mediaItem.mediaType ?: "",
+        imageUrl = mediaItem.thumbnailPath,
         contentRating = mediaItem.contentRating,
         mediaType = mediaItem.mediaType,
         isLocked = contentStatus == ContentStatus.Locked,
@@ -1084,8 +1085,9 @@ private fun Modifier.applyDecoration(
         }
         MediaCardDecoration.ART_DECO -> {
             val ancientColors = ancientArchitectColors()
+            val enablePatterns = geometricPatternsEnabled()
             this.drawBehind {
-                if (geometricPatternsEnabled()) {
+                if (enablePatterns) {
                     with(AncientArchitectPatterns) {
                         drawDiamondGrid(
                             color = ancientColors.stone.text,

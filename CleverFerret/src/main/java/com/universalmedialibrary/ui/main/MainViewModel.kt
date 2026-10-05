@@ -97,6 +97,21 @@ class MainViewModel @Inject constructor(
                 initialValue = true
             )
 
+    val hasCompletedOnboarding: StateFlow<Boolean> =
+        settingsRepository.hasCompletedOnboardingFlow
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = false
+            )
+
+    fun completeOnboarding() {
+        viewModelScope.launch {
+            settingsRepository.setHasCompletedOnboarding(true)
+            settingsRepository.setShowHomeOnboardingTips(false)
+        }
+    }
+
     fun setShowDebugBugButton(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setShowDebugBugButton(enabled)

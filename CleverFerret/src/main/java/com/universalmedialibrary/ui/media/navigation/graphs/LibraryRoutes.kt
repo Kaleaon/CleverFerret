@@ -151,7 +151,7 @@ fun NavGraphBuilder.libraryRoutes(
     
     // Web Fiction with special tabbed view
     composable(MediaRoutes.WEB_FICTION) {
-        com.universalmedialibrary.ui.webfiction.WebFictionManagerScreen(
+        com.universalmedialibrary.ui.webfiction.UnifiedFanfictionHubScreen(
             navController = navController
         )
     }

@@ -55,7 +55,6 @@ import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.Tv
-import androidx.compose.material3.BorderStroke
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -78,6 +77,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.isTraversalGroup
@@ -95,6 +95,7 @@ import com.universalmedialibrary.ui.media.theme.MediaSizes
 import com.universalmedialibrary.ui.media.theme.MediaSpacing
 import com.universalmedialibrary.ui.media.theme.MediaTypography
 import com.universalmedialibrary.ui.media.theme.isReducedMotionEnabled
+import com.universalmedialibrary.utils.PermissionsHandler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,6 +118,8 @@ fun MediaHomeScreen(
     reduceMotionEnabled: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val hasStoragePermissions = remember(state) { PermissionsHandler.hasStoragePermissions(context) }
     val shouldReduceMotion = reduceMotionEnabled || isReducedMotionEnabled()
     val scrollState = rememberLazyListState()
     val showFloatingTopBar by remember {
@@ -220,6 +223,16 @@ fun MediaHomeScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(bottom = MediaSpacing.Huge)
                         ) {
+                            if (!hasStoragePermissions) {
+                                item(key = "storage-permission-card") {
+                                    StoragePermissionCard(
+                                        onPermissionGranted = {
+                                            onRefresh()
+                                        }
+                                    )
+                                }
+                            }
+
                             if (isLibraryEmpty || state.showOnboardingTips) {
                                 item(key = "welcome") {
                                     WelcomeSection(

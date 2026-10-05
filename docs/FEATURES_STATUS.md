@@ -30,7 +30,7 @@ Use this taxonomy exactly (spelling/case) in all status and planning documents:
 | Chromecast validation hardening | Partial | V2.1 |
 | MOBI/AZW/AZW3 integration | Partial | V2.1 |
 | DJVU support completion | Partial | V2.2 |
-| OPDS wiring (catalog + download backend) | Partial | V2.1 |
+| OPDS wiring (catalog + download backend) | Ready | V2.1 |
 | Cloud sync providers (Google Drive/Dropbox/progress sync) | Stub | V2.2 |
 | Advanced AI features (insights/mind maps/recommendations) | Planned | V2.3 |
 | Plex auth/sync hardening | Partial | V2.2 |

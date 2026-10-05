@@ -161,4 +161,31 @@ class DownloadSafetyCheckerTest {
 
         assertThat(verified).isTrue()
     }
+
+    @Test
+    fun `isPinProtectionActive returns true when parental controls enabled and PIN set`() = runTest {
+        coEvery { parentalControlsSettings.currentState() } returns ParentalControlsState(enabled = true, hasPinSet = true)
+
+        val isActive = checker.isPinProtectionActive()
+
+        assertThat(isActive).isTrue()
+    }
+
+    @Test
+    fun `isPinProtectionActive returns false when parental controls disabled`() = runTest {
+        coEvery { parentalControlsSettings.currentState() } returns ParentalControlsState(enabled = false, hasPinSet = true)
+
+        val isActive = checker.isPinProtectionActive()
+
+        assertThat(isActive).isFalse()
+    }
+
+    @Test
+    fun `isPinProtectionActive returns false when PIN is not set`() = runTest {
+        coEvery { parentalControlsSettings.currentState() } returns ParentalControlsState(enabled = true, hasPinSet = false)
+
+        val isActive = checker.isPinProtectionActive()
+
+        assertThat(isActive).isFalse()
+    }
 }
