@@ -2,7 +2,7 @@
 
 **Canonical status source for active planning:** This file is the authoritative source of capability readiness, release targeting, ownership, and validation requirements for active work.
 
-**Last verified date:** 2026-04-19  
+**Last verified date:** 2026-04-19
 **Verifier:** GPT-5.3-Codex
 
 ## Status taxonomy (verbatim)
