@@ -1,5 +1,6 @@
 package com.universalmedialibrary.data.local
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -192,7 +193,11 @@ import com.universalmedialibrary.data.Tag
 
     ],
     version = 46,
-    exportSchema = false
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 44, to = 45),
+        AutoMigration(from = 45, to = 46)
+    ]
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
 abstract class AppDatabase : RoomDatabase() {

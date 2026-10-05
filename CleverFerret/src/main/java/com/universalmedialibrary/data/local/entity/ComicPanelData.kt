@@ -3,6 +3,7 @@ package com.universalmedialibrary.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Index
+import androidx.room.ColumnInfo
 import kotlinx.serialization.Serializable
 
 /**
@@ -117,6 +118,7 @@ data class ComicReadingSession(
     // Reading preferences
     val readingMode: String = "PAGE", // PAGE, PANEL, CONTINUOUS, WEBTOON, PAGE_BY_PAGE
     val isRightToLeft: Boolean = false, // For manga
+    @ColumnInfo(defaultValue = "'LEFT_TO_RIGHT'")
     val readingDirection: String = "LEFT_TO_RIGHT", // LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL
     val zoomLevel: Float = 1.0f,
     
