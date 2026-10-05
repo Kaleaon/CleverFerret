@@ -77,6 +77,9 @@ class MediaItemDetailViewModelSafetyTest {
         cacheDir = tempFolder.newFolder("cache")
         mediaDir = tempFolder.newFolder("user_media")
 
+        coEvery { readingProgressDao.getProgress(any()) } returns flowOf(null)
+        coEvery { tagRepository.getTagsForItem(any()) } returns flowOf(emptyList())
+
         viewModel = MediaItemDetailViewModel(
             mediaItemDao,
             metadataDao,

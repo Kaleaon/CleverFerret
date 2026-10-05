@@ -206,14 +206,11 @@ class MusicMetadataService @Inject constructor(
             val response = centralizedApiClient.musicBrainzApi.searchRecordings(query = query, limit = 1)
             val recording = response.recordings?.firstOrNull() ?: return null
             val rel = recording.releases?.firstOrNull()
-            val artistName = recording.artistCredit?.joinToString(", ") { it.name ?: "" }?.takeIf { it.isNotBlank() } ?: artist
             MusicBrainzTrackInfo(
                 mbid = recording.id,
-                artist = artistName,
-                title = recording.title ?: title,
-                album = rel?.title ?: album,
+                duration = recording.length,
                 releaseDate = rel?.date,
-                duration = recording.length
+                isrc = recording.isrcs?.firstOrNull()
             )
         } catch (e: Exception) {
             null
