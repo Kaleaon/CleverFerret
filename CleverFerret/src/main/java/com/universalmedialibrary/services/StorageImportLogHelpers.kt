@@ -3,24 +3,12 @@ package com.universalmedialibrary.services
 import android.content.Context
 import java.io.File
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
-import com.universalmedialibrary.services.importer.*
-
-val importLogJson = Json {
-    ignoreUnknownKeys = true
-    prettyPrint = true
-}
-
-data class ImportLogInfo(
-    val fileName: String,
-    val importId: String,
-    val startedAt: Long,
-    val finishedAt: Long?,
-    val moveFiles: Boolean,
-    val operationCount: Int,
-    val failedCount: Int
-)
+import kotlinx.serialization.encodeToString
+import com.universalmedialibrary.services.importer.ImportLogInfo
+import com.universalmedialibrary.services.importer.ImportTransactionLog
+import com.universalmedialibrary.services.importer.ImportOperationStatus
+import com.universalmedialibrary.services.importer.importLogJson
 
 fun listImportLogs(context: Context): List<ImportLogInfo> {
     return try {
