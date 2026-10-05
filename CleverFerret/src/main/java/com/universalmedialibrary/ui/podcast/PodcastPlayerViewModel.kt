@@ -7,6 +7,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
+import com.universalmedialibrary.services.podcast.PodcastDownloadManager
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -20,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PodcastPlayerViewModel @Inject constructor(
     private val repository: PodcastRepository,
-    private val audioPlaybackManager: AudioPlaybackManager
+    private val audioPlaybackManager: AudioPlaybackManager,
+    private val downloadManager: PodcastDownloadManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PodcastPlayerUiState())
@@ -75,8 +77,17 @@ class PodcastPlayerViewModel @Inject constructor(
     }
 
     fun play() {
-        _uiState.value.episode?.let { episode ->
-            val uri = Uri.parse(episode.localFilePath ?: episode.audioUrl)
+        val episode = _uiState.value.episode ?: return
+        viewModelScope.launch {
+            var localPathToUse = episode.localFilePath
+            if (episode.downloaded && !localPathToUse.isNullOrBlank()) {
+                val isValid = downloadManager.verifyEpisodeChecksum(episode.id)
+                if (!isValid) {
+                    localPathToUse = null
+                }
+            }
+
+            val uri = Uri.parse(localPathToUse ?: episode.audioUrl)
 
             // Create metadata for the player
             val metadata = MediaMetadata.Builder()
@@ -89,9 +100,7 @@ class PodcastPlayerViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isPlaying = true)
 
             // Update play position in database
-            viewModelScope.launch {
-                repository.updatePlayPosition(episode.id, _uiState.value.currentPosition)
-            }
+            repository.updatePlayPosition(episode.id, _uiState.value.currentPosition)
         }
     }
 
