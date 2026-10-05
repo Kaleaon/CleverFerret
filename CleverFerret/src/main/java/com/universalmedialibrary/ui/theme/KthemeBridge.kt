@@ -21,14 +21,14 @@ object KthemeBridge {
     private val engine = ThemeEngine().apply { registerBuiltInThemes() }
 
     fun resolveColorScheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme {
-        val themeId = theme.toKthemeId()
+        val themeId = theme.toKthemeId(darkTheme)
         engine.setActiveTheme(themeId)
         val activeTheme = engine.getActiveTheme() ?: return legacyColorScheme(theme, darkTheme)
         return activeTheme.colorScheme.toComposeColorScheme(darkTheme)
     }
 
     fun resolveMetallicGradient(theme: CleverFerretTheme): com.universalmedialibrary.ui.theme.MetallicGradient {
-        val themeId = theme.toKthemeId()
+        val themeId = theme.toKthemeId(darkTheme = true)
         engine.setActiveTheme(themeId)
         val activeTheme = engine.getActiveTheme()
         val metallic = activeTheme?.effects?.metallic?.gradient ?: return legacyMetallicGradient(theme)
@@ -112,57 +112,59 @@ object KthemeBridge {
 
     private fun registerBuiltInThemes() {
         CleverFerretTheme.entries.forEach { theme ->
-            val legacyScheme = legacyColorScheme(theme, darkTheme = theme != CleverFerretTheme.PAPER_INK)
-            val metallic = legacyMetallicGradient(theme)
+            listOf(true, false).forEach { dark ->
+                val legacyScheme = legacyColorScheme(theme, darkTheme = dark)
+                val metallic = legacyMetallicGradient(theme)
 
-            engine.registerTheme(
-                Theme(
-                    metadata = ThemeMetadata(
-                        id = theme.toKthemeId(),
-                        name = theme.getConfig().displayName,
-                        description = theme.getConfig().description,
-                        author = "Kaleaon",
-                        version = "1.0.0",
-                        tags = listOf("cleverferret", "ktheme"),
-                        createdAt = "2026-01-01",
-                        updatedAt = "2026-01-01"
-                    ),
-                    darkMode = theme != CleverFerretTheme.PAPER_INK,
-                    colorScheme = legacyScheme.toKthemeColorScheme(),
-                    effects = VisualEffects(
-                        metallic = MetallicEffects(
-                            enabled = true,
-                            variant = theme.name,
-                            gradient = KthemeMetallicGradient(
-                                base = metallic.base.toHex(),
-                                highlight = metallic.highlight.toHex(),
-                                shadow = metallic.shadow.toHex(),
-                                shimmer = (metallic.shimmer ?: metallic.highlight).toHex()
-                            ),
-                            intensity = 0.9f
+                engine.registerTheme(
+                    Theme(
+                        metadata = ThemeMetadata(
+                            id = theme.toKthemeId(darkTheme = dark),
+                            name = "${theme.getConfig().displayName} (${if (dark) "Dark" else "Light"})",
+                            description = theme.getConfig().description,
+                            author = "Kaleaon",
+                            version = "1.0.0",
+                            tags = listOf("cleverferret", "ktheme"),
+                            createdAt = "2026-01-01",
+                            updatedAt = "2026-01-01"
+                        ),
+                        darkMode = dark,
+                        colorScheme = legacyScheme.toKthemeColorScheme(),
+                        effects = VisualEffects(
+                            metallic = MetallicEffects(
+                                enabled = true,
+                                variant = theme.name,
+                                gradient = KthemeMetallicGradient(
+                                    base = metallic.base.toHex(),
+                                    highlight = metallic.highlight.toHex(),
+                                    shadow = metallic.shadow.toHex(),
+                                    shimmer = (metallic.shimmer ?: metallic.highlight).toHex()
+                                ),
+                                intensity = 0.9f
+                            )
                         )
                     )
                 )
-            )
+            }
         }
     }
 
     private fun legacyColorScheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme {
         return when (theme) {
-            CleverFerretTheme.NAVY_GOLD -> NavyGoldUnified.darkScheme
-            CleverFerretTheme.EMERALD_SILVER -> EmeraldSilverUnified.darkScheme
-            CleverFerretTheme.ROYAL_BRONZE -> RoyalBronzeUnified.darkScheme
-            CleverFerretTheme.MIDNIGHT_AMBER -> MidnightAmberUnified.darkScheme
-            CleverFerretTheme.OBSIDIAN_CRIMSON -> ObsidianCrimsonUnified.darkScheme
-            CleverFerretTheme.SLATE_CYAN -> SlateCyanUnified.darkScheme
-            CleverFerretTheme.ROYAL_SILVER -> RoyalSilverUnified.darkScheme
-            CleverFerretTheme.FOREST_COPPER -> ForestCopperUnified.darkScheme
-            CleverFerretTheme.BURGUNDY_ROSE_GOLD -> BurgundyRoseGoldUnified.darkScheme
-            CleverFerretTheme.CHARCOAL_CHAMPAGNE -> CharcoalChampagneUnified.darkScheme
-            CleverFerretTheme.SLATE_GUNMETAL -> SlateGunmetalUnified.darkScheme
-            CleverFerretTheme.DEEP_PURPLE_PLATINUM -> DeepPurplePlatinumUnified.darkScheme
+            CleverFerretTheme.NAVY_GOLD -> if (darkTheme) NavyGoldUnified.darkScheme else NavyGoldUnified.lightScheme
+            CleverFerretTheme.EMERALD_SILVER -> if (darkTheme) EmeraldSilverUnified.darkScheme else EmeraldSilverUnified.lightScheme
+            CleverFerretTheme.ROYAL_BRONZE -> if (darkTheme) RoyalBronzeUnified.darkScheme else RoyalBronzeUnified.lightScheme
+            CleverFerretTheme.MIDNIGHT_AMBER -> if (darkTheme) MidnightAmberUnified.darkScheme else MidnightAmberUnified.lightScheme
+            CleverFerretTheme.OBSIDIAN_CRIMSON -> if (darkTheme) ObsidianCrimsonUnified.darkScheme else ObsidianCrimsonUnified.lightScheme
+            CleverFerretTheme.SLATE_CYAN -> if (darkTheme) SlateCyanUnified.darkScheme else SlateCyanUnified.lightScheme
+            CleverFerretTheme.ROYAL_SILVER -> if (darkTheme) RoyalSilverUnified.darkScheme else RoyalSilverUnified.lightScheme
+            CleverFerretTheme.FOREST_COPPER -> if (darkTheme) ForestCopperUnified.darkScheme else ForestCopperUnified.lightScheme
+            CleverFerretTheme.BURGUNDY_ROSE_GOLD -> if (darkTheme) BurgundyRoseGoldUnified.darkScheme else BurgundyRoseGoldUnified.lightScheme
+            CleverFerretTheme.CHARCOAL_CHAMPAGNE -> if (darkTheme) CharcoalChampagneUnified.darkScheme else CharcoalChampagneUnified.lightScheme
+            CleverFerretTheme.SLATE_GUNMETAL -> if (darkTheme) SlateGunmetalUnified.darkScheme else SlateGunmetalUnified.lightScheme
+            CleverFerretTheme.DEEP_PURPLE_PLATINUM -> if (darkTheme) DeepPurplePlatinumUnified.darkScheme else DeepPurplePlatinumUnified.lightScheme
             CleverFerretTheme.PAPER_INK -> if (darkTheme) PaperInkUnified.darkScheme else PaperInkUnified.lightScheme
-            else -> NavyGoldUnified.darkScheme
+            else -> if (darkTheme) NavyGoldUnified.darkScheme else NavyGoldUnified.lightScheme
         }
     }
 
@@ -186,7 +188,10 @@ object KthemeBridge {
     }
 }
 
-private fun CleverFerretTheme.toKthemeId(): String = name.lowercase().replace('_', '-')
+private fun CleverFerretTheme.toKthemeId(darkTheme: Boolean = true): String {
+    val base = name.lowercase().replace('_', '-')
+    return if (darkTheme) "$base-dark" else "$base-light"
+}
 
 private fun ColorScheme.toKthemeColorScheme(): KthemeColorScheme = KthemeColorScheme(
     primary = primary.toHex(),
@@ -219,6 +224,11 @@ private fun ColorScheme.toKthemeColorScheme(): KthemeColorScheme = KthemeColorSc
     inversePrimary = inversePrimary.toHex()
 )
 
-private fun String.toComposeColor(): Color = Color(AndroidColor.parseColor(this))
+private fun String.toComposeColor(): Color {
+    val hex = removePrefix("#")
+    val longVal = hex.toLong(16)
+    val argb = if (hex.length == 6) (longVal or 0xFF000000L).toInt() else longVal.toInt()
+    return Color(argb)
+}
 
 private fun Color.toHex(): String = String.format("#%08X", toArgb())
