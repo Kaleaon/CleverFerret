@@ -205,25 +205,6 @@ fun StorageBrowserScreen(
 }
 
 @Composable
-internal fun QuickAccessChip(
-    label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit
-) {
-    AssistChip(
-        onClick = onClick,
-        label = { Text(label) },
-        leadingIcon = {
-            Icon(
-                icon,
-                contentDescription = "Media image",
-                modifier = Modifier.size(18.dp)
-            )
-        }
-    )
-}
-
-@Composable
 private fun FileItem(
     file: File,
     viewMode: ViewMode,

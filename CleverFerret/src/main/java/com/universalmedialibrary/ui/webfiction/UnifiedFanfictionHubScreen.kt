@@ -66,6 +66,9 @@ fun UnifiedFanfictionHubScreen(
     val tabs = listOf("Discover", "Library", "Download")
     
     var showQuickDownloadDialog by remember { mutableStateOf(false) }
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showRedditDialog by remember { mutableStateOf(false) }
+    var showSiteInfoDialog by remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
@@ -86,6 +89,11 @@ fun UnifiedFanfictionHubScreen(
                             // Quick download button
                             IconButton(onClick = { showQuickDownloadDialog = true }) {
                                 Icon(Icons.Default.Download, contentDescription = "Quick Download")
+                            }
+                            
+                            // Supported sites info button
+                            IconButton(onClick = { showSiteInfoDialog = true }) {
+                                Icon(Icons.Default.Info, contentDescription = "Supported Sites")
                             }
                             
                             if (selectedTab == HubTabs.DISCOVER && uiState.selectedSite != null) {
@@ -131,6 +139,28 @@ fun UnifiedFanfictionHubScreen(
                                     )
                                 }
                             )
+                        }
+                    }
+                }
+            },
+            floatingActionButton = {
+                if (selectedTab == HubTabs.LIBRARY || selectedTab == HubTabs.DOWNLOAD) {
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        FloatingActionButton(
+                            onClick = { showAddDialog = true },
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ) {
+                            Icon(Icons.Default.Link, contentDescription = "Add from URL")
+                        }
+                        
+                        FloatingActionButton(
+                            onClick = { showRedditDialog = true },
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Icon(Icons.Default.Forum, contentDescription = "Add Reddit Series")
                         }
                     }
                 }
@@ -194,6 +224,35 @@ fun UnifiedFanfictionHubScreen(
             QuickDownloadDialog(
                 downloadViewModel = downloadViewModel,
                 onDismiss = { showQuickDownloadDialog = false }
+            )
+        }
+
+        if (showAddDialog) {
+            AddWebFictionDialog(
+                onDismiss = { showAddDialog = false },
+                validateUrl = { url -> Result.success(url) },
+                onAdd = { url ->
+                    downloadViewModel.downloadFromUrl(url)
+                    showAddDialog = false
+                }
+            )
+        }
+
+        if (showRedditDialog) {
+            AddRedditSeriesDialog(
+                onDismiss = { showRedditDialog = false },
+                onAdd = { subreddit, seriesName, author ->
+                    downloadViewModel.downloadFromUrl("https://www.reddit.com/r/$subreddit/search?q=$seriesName+$author")
+                    showRedditDialog = false
+                }
+            )
+        }
+
+        if (showSiteInfoDialog) {
+            SupportedSitesDialog(
+                adultSitesEnabled = adultSitesEnabled,
+                onDismiss = { showSiteInfoDialog = false },
+                onSiteClick = { _ -> }
             )
         }
 

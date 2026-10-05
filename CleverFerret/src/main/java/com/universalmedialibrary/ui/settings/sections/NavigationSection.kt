@@ -21,8 +21,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
-import com.universalmedialibrary.ui.settings.GearPositionOption
-import com.universalmedialibrary.ui.settings.BottomBarPreferencesCard
 import com.universalmedialibrary.ui.components.NavigationItems
 import com.universalmedialibrary.ui.components.NavigationItem
 import com.universalmedialibrary.ui.components.orderedForEditor

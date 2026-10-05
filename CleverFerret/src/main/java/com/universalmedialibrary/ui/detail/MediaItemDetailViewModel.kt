@@ -16,6 +16,7 @@ import com.universalmedialibrary.data.repository.MetadataFetchResult
 import com.universalmedialibrary.data.repository.CollectionRepository
 import com.universalmedialibrary.data.repository.TagRepository
 import com.universalmedialibrary.services.ai.AIMetadataService
+import com.universalmedialibrary.services.FileSafetyGuardrail
 import com.universalmedialibrary.services.thumbnails.ThumbnailService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +40,8 @@ class MediaItemDetailViewModel @Inject constructor(
     private val collectionRepository: CollectionRepository,
     private val tagRepository: TagRepository,
     private val aiMetadataService: AIMetadataService,
-    private val thumbnailService: ThumbnailService
+    private val thumbnailService: ThumbnailService,
+    private val fileSafetyGuardrail: FileSafetyGuardrail
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MediaItemDetailUiState())
@@ -250,11 +252,7 @@ class MediaItemDetailViewModel @Inject constructor(
 
     private fun cleanupStaleCacheFile(oldPath: String?, newPath: String?) {
         if (oldPath.isNullOrBlank() || oldPath == newPath) return
-        runCatching {
-            if (!oldPath.startsWith("http://") && !oldPath.startsWith("https://")) {
-                File(oldPath).takeIf { it.exists() }?.delete()
-            }
-        }
+        fileSafetyGuardrail.safeDeleteCacheFile(oldPath)
     }
 
     fun clearMetadataFetchStatus() {

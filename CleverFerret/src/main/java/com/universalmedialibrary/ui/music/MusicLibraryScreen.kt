@@ -177,25 +177,64 @@ fun MusicLibraryScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            HivefyPromoCard(
-                onExplore = { navController.navigate("hivefy_music") }
-            )
+            var selectedTopHubTab by remember { mutableIntStateOf(0) }
+            val hubTabs = listOf("Local Library", "Hivefy Discovery", "Free Streams")
 
-            // Tab Row
-            ScrollableTabRow(
-                selectedTabIndex = state.currentTab.ordinal,
-                containerColor = MaterialTheme.colorScheme.surface,
-                edgePadding = 0.dp
+            PrimaryTabRow(
+                selectedTabIndex = selectedTopHubTab,
+                containerColor = MaterialTheme.colorScheme.surface
             ) {
-                MusicTab.values().forEach { tab ->
+                hubTabs.forEachIndexed { index, title ->
                     Tab(
-                        selected = state.currentTab == tab,
-                        onClick = { viewModel.setTab(tab) },
-                        text = { Text(tab.displayName) },
-                        icon = { Icon(tab.icon, null) }
+                        selected = selectedTopHubTab == index,
+                        onClick = { selectedTopHubTab = index },
+                        text = { Text(title) },
+                        icon = {
+                            Icon(
+                                when (index) {
+                                    0 -> Icons.Default.LibraryMusic
+                                    1 -> Icons.Default.Explore
+                                    else -> Icons.Default.Cloud
+                                },
+                                contentDescription = title
+                            )
+                        }
                     )
                 }
             }
+
+            when (selectedTopHubTab) {
+                1 -> {
+                    com.universalmedialibrary.ui.music.hivefy.HivefyMusicScreen(
+                        onBack = { selectedTopHubTab = 0 }
+                    )
+                }
+                2 -> {
+                    com.universalmedialibrary.ui.music.FreeMusicScreen(
+                        onBack = { selectedTopHubTab = 0 }
+                    )
+                }
+                else -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        HivefyPromoCard(
+                            onExplore = { selectedTopHubTab = 1 }
+                        )
+
+                        // Tab Row
+                        ScrollableTabRow(
+                            selectedTabIndex = state.currentTab.ordinal,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            edgePadding = 0.dp
+                        ) {
+                            MusicTab.values().forEach { tab ->
+                                Tab(
+                                    selected = state.currentTab == tab,
+                                    onClick = { viewModel.setTab(tab) },
+                                    text = { Text(tab.displayName) },
+                                    icon = { Icon(tab.icon, null) }
+                                )
+                            }
+                        }
 
             // Filter chips (if any filters applied)
             AnimatedVisibility(
@@ -288,6 +327,9 @@ fun MusicLibraryScreen(
             }
         }
     }
+}
+}
+}
 }
 
 @Composable
