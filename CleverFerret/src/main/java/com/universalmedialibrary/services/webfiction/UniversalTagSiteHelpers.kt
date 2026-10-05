@@ -352,7 +352,7 @@ internal fun extractRoyalRoadTagId(element: org.jsoup.nodes.Element, displayName
 }
 
 internal fun sanitizeTagId(value: String): String {
-    return fileNameSanitizer.sanitizeTagId(value)
+    return value.lowercase(Locale.ROOT).replace(Regex("[^a-z0-9\\-_]"), "-")
 }
 
 internal fun categorizeRoyalRoadTag(tagName: String): TagCategory {

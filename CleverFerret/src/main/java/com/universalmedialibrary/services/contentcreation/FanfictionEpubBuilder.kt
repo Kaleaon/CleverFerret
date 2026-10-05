@@ -13,7 +13,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 private val httpClient = OkHttpClient()
-
 private fun JSONArray?.toStringList(): List<String> {
     if (this == null) return emptyList()
     val list = mutableListOf<String>()
@@ -47,7 +46,7 @@ internal fun parseFicHubStory(meta: JSONObject?, info: String?, url: String): St
 
     val metadata = StoryMetadata(
         fandom = meta?.optString("fandom").takeIf { !it.isNullOrBlank() },
-        characters = meta?.optJSONArray("characters").toStringList(),
+        characters = meta?.optJSONArray("characters")?.let { array -> (0 until array.length()).mapNotNull { array.optString(it).takeIf { s -> s.isNotBlank() } } } ?: emptyList(),
         rating = meta?.optString("rating").takeIf { !it.isNullOrBlank() },
         genre = meta?.optString("genre").takeIf { !it.isNullOrBlank() },
         wordCount = meta?.optInt("words", 0) ?: 0,

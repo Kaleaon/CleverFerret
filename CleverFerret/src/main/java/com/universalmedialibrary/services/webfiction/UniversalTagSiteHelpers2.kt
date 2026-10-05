@@ -245,6 +245,23 @@ internal fun parseScribbleHubId(url: String): String {
         ?: url.hashCode().toString()
 }
 
+internal fun buildSearchResult(
+    criteria: StorySearchCriteria,
+    stories: List<WebFictionStory>
+): StorySearchResult {
+    val sliced = stories.drop(criteria.offset)
+    val limited = sliced.take(criteria.limit)
+    val consumed = criteria.offset + limited.size
+    val hasMore = stories.size > consumed
+    val nextOffset = if (hasMore) consumed else null
+    return StorySearchResult(
+        stories = limited,
+        totalCount = stories.size,
+        hasMore = hasMore,
+        nextOffset = nextOffset
+    )
+}
+
 internal suspend fun browseNiftyByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
     return withContext(Dispatchers.IO) {
         try {

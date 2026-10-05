@@ -22,6 +22,32 @@ import com.universalmedialibrary.utils.ErrorLogger
  * Service for converting fanfiction stories to EPUB format
  * Supports multiple fanfiction platforms
  */
+data class Story(
+    val title: String,
+    val author: String,
+    val summary: String,
+    val chapters: List<Chapter>,
+    val metadata: StoryMetadata
+)
+
+data class Chapter(
+    val number: Int,
+    val title: String,
+    val content: String
+)
+
+data class StoryMetadata(
+    val fandom: String? = null,
+    val characters: List<String> = emptyList(),
+    val rating: String? = null,
+    val genre: String? = null,
+    val wordCount: Int = 0,
+    val publishDate: String? = null,
+    val updateDate: String? = null,
+    val language: String = "en",
+    val status: String? = null
+)
+
 @Singleton
 class FanfictionEpubConversionService @Inject constructor(
     @ApplicationContext private val context: Context
