@@ -11,6 +11,8 @@ on:
 env:
   JAVA_VERSION: '17'
   JAVA_DISTRIBUTION: 'temurin'
+  COMPILE_LOG: 'compile_output.txt'
+  BUILD_LOG: 'build_output.txt'
 
 permissions: {}
 

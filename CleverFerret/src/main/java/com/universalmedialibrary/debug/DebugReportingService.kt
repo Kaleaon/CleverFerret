@@ -49,8 +49,34 @@ class DebugReportingService @Inject constructor(
     private val _errorLogs = MutableStateFlow<List<ErrorLog>>(emptyList())
     val errorLogs: StateFlow<List<ErrorLog>> = _errorLogs.asStateFlow()
     
-    private val _performanceMetrics = MutableStateFlow<PerformanceMetrics>(PerformanceMetrics())
-    val performanceMetrics: StateFlow<PerformanceMetrics> = _performanceMetrics.asStateFlow()
+    /**
+     * Get a current snapshot of performance metrics on demand.
+     */
+    fun getPerformanceSnapshot(): PerformanceMetrics {
+        val runtime = Runtime.getRuntime()
+        val usedMemory = runtime.totalMemory() - runtime.freeMemory()
+        val maxMemory = runtime.maxMemory()
+        
+        return PerformanceMetrics(
+            memoryUsedMB = usedMemory / (1024 * 1024),
+            memoryMaxMB = maxMemory / (1024 * 1024),
+            memoryPercentUsed = if (maxMemory > 0) (usedMemory.toFloat() / maxMemory * 100).toInt() else 0,
+            lastUpdated = System.currentTimeMillis()
+        )
+    }
+
+    fun getPerformanceMetrics(): PerformanceMetrics = getPerformanceSnapshot()
+
+    val performanceMetrics: StateFlow<PerformanceMetrics> = flow {
+        while (true) {
+            emit(getPerformanceSnapshot())
+            kotlinx.coroutines.delay(5000)
+        }
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = PerformanceMetrics()
+    )
     
     private val _notifications = MutableSharedFlow<DebugNotification>()
     val notifications: SharedFlow<DebugNotification> = _notifications.asSharedFlow()
@@ -149,21 +175,6 @@ class DebugReportingService @Inject constructor(
         }
     }
     
-    fun getPerformanceMetrics(): PerformanceMetrics {
-        val runtime = Runtime.getRuntime()
-        val usedMemory = runtime.totalMemory() - runtime.freeMemory()
-        val maxMemory = runtime.maxMemory()
-        
-        val metrics = PerformanceMetrics(
-            memoryUsedMB = usedMemory / (1024 * 1024),
-            memoryMaxMB = maxMemory / (1024 * 1024),
-            memoryPercentUsed = if (maxMemory > 0) (usedMemory.toFloat() / maxMemory * 100).toInt() else 0,
-            lastUpdated = System.currentTimeMillis()
-        )
-        _performanceMetrics.value = metrics
-        return metrics
-    }
-    
     // ==========================================================================
     // LOGGING
     // ==========================================================================
@@ -250,7 +261,7 @@ class DebugReportingService @Inject constructor(
             appInfo = getAppInfo(),
             recentErrors = if (includeLogs) _errorLogs.value.takeLast(50) else emptyList(),
             recentCrashes = if (includeLogs) _crashReports.value.takeLast(5) else emptyList(),
-            performanceSnapshot = getPerformanceMetrics(),
+            performanceSnapshot = getPerformanceSnapshot(),
             screenshotPath = screenshotUri?.toString()
         )
     }
@@ -330,7 +341,7 @@ class DebugReportingService @Inject constructor(
                 appInfo = getAppInfo(),
                 crashes = _crashReports.value,
                 errors = _errorLogs.value,
-                performance = getPerformanceMetrics()
+                performance = getPerformanceSnapshot()
             )
             
             file.writeText(json.encodeToString(export))
