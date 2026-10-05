@@ -6,6 +6,7 @@ import javax.inject.Singleton
 
 interface PodcastDownloadTelemetry {
     fun recordMissingFileMismatch(episodeId: Long, storedPath: String?)
+    fun recordSizeMismatch(episodeId: Long, expectedSize: Long, actualSize: Long)
     fun recordChecksumMismatch(episodeId: Long, storedChecksum: String, calculatedChecksum: String)
 }
 
@@ -13,6 +14,13 @@ interface PodcastDownloadTelemetry {
 class LogcatPodcastDownloadTelemetry @Inject constructor() : PodcastDownloadTelemetry {
     override fun recordMissingFileMismatch(episodeId: Long, storedPath: String?) {
         Log.w(TAG, "download_reconciliation_missing_file episodeId=$episodeId path=$storedPath")
+    }
+
+    override fun recordSizeMismatch(episodeId: Long, expectedSize: Long, actualSize: Long) {
+        Log.w(
+            TAG,
+            "download_reconciliation_size_mismatch episodeId=$episodeId expected=$expectedSize actual=$actualSize"
+        )
     }
 
     override fun recordChecksumMismatch(episodeId: Long, storedChecksum: String, calculatedChecksum: String) {
