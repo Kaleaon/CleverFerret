@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 46,
-    "identityHash": "ba21ae5a337e0960b36c103053858c93",
+    "identityHash": "ea9769ce1308b931b2330fcd53e8c16f",
     "entities": [
       {
         "tableName": "libraries",
@@ -7943,7 +7943,7 @@
       },
       {
         "tableName": "comic_reading_sessions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`comicId` INTEGER NOT NULL, `comicFilePath` TEXT NOT NULL, `comicTitle` TEXT NOT NULL, `currentPage` INTEGER NOT NULL, `currentPanel` INTEGER NOT NULL, `totalPages` INTEGER NOT NULL, `readingMode` TEXT NOT NULL, `isRightToLeft` INTEGER NOT NULL, `zoomLevel` REAL NOT NULL, `enableTranslation` INTEGER NOT NULL, `targetLanguage` TEXT NOT NULL, `lastReadAt` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`comicId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`comicId` INTEGER NOT NULL, `comicFilePath` TEXT NOT NULL, `comicTitle` TEXT NOT NULL, `currentPage` INTEGER NOT NULL, `currentPanel` INTEGER NOT NULL, `totalPages` INTEGER NOT NULL, `readingMode` TEXT NOT NULL, `isRightToLeft` INTEGER NOT NULL, `readingDirection` TEXT NOT NULL DEFAULT 'LEFT_TO_RIGHT', `zoomLevel` REAL NOT NULL, `enableTranslation` INTEGER NOT NULL, `targetLanguage` TEXT NOT NULL, `lastReadAt` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`comicId`))",
         "fields": [
           {
             "fieldPath": "comicId",
@@ -7992,6 +7992,13 @@
             "columnName": "isRightToLeft",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "readingDirection",
+            "columnName": "readingDirection",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'LEFT_TO_RIGHT'"
           },
           {
             "fieldPath": "zoomLevel",
@@ -11277,7 +11284,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ba21ae5a337e0960b36c103053858c93')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ea9769ce1308b931b2330fcd53e8c16f')"
     ]
   }
 }
