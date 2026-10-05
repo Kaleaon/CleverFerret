@@ -1,5 +1,7 @@
 package com.universalmedialibrary.services.podcast
 
+import com.universalmedialibrary.utils.FileNameSanitizer
+
 import java.security.MessageDigest
 import java.net.URI
 import java.net.URISyntaxException
@@ -60,9 +62,6 @@ internal fun deduplicatePodcastResults(results: List<PodcastSearchResult>): List
 }
 
 internal fun hasValidFeedUrl(feedUrl: String?): Boolean = feedUrl.toValidFeedUrlOrNull() != null
-
-private fun firstValidFeedUrl(vararg candidates: String?): String? =
-    candidates.firstNotNullOfOrNull { it.toValidFeedUrlOrNull() }
 
 internal fun firstValidFeedUrl(vararg candidates: String?): String? =
     candidates.firstNotNullOfOrNull { it.toValidFeedUrlOrNull() }
@@ -131,7 +130,7 @@ internal fun generatePodcastId(feedUrl: String): Long {
 }
 
 internal fun sanitizeFileName(name: String): String {
-    return fileNameSanitizer.sanitizeFileName(name)
+    return FileNameSanitizer().sanitizeFileName(name)
 }
 
 internal fun getFileExtension(url: String): String {

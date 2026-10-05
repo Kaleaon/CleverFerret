@@ -79,7 +79,10 @@ class CloudSyncManager @Inject constructor(
                 
                 val result = when (provider) {
                     CloudProvider.GOOGLE_DRIVE -> googleDriveService.syncMedia()
-                    CloudProvider.DROPBOX -> dropboxService.syncMedia()
+                    CloudProvider.DROPBOX -> {
+                        val res = dropboxService.syncMedia()
+                        SyncResult(success = res.success, error = res.error)
+                    }
                     CloudProvider.ONEDRIVE -> oneDriveService.syncMedia()
                     CloudProvider.WEBDAV -> webDavService.syncMedia()
                 }
@@ -105,7 +108,10 @@ class CloudSyncManager @Inject constructor(
     suspend fun syncProvider(provider: CloudProvider): SyncResult {
         return when (provider) {
             CloudProvider.GOOGLE_DRIVE -> googleDriveService.syncMedia()
-            CloudProvider.DROPBOX -> dropboxService.syncMedia()
+            CloudProvider.DROPBOX -> {
+                val res = dropboxService.syncMedia()
+                SyncResult(success = res.success, error = res.error)
+            }
             CloudProvider.ONEDRIVE -> oneDriveService.syncMedia()
             CloudProvider.WEBDAV -> webDavService.syncMedia()
         }

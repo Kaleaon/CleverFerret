@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.webfiction
 
+import com.universalmedialibrary.utils.FileNameSanitizer
 import java.net.URLEncoder
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
@@ -328,7 +329,7 @@ internal fun extractRoyalRoadTagId(element: org.jsoup.nodes.Element, displayName
 }
 
 internal fun sanitizeTagId(value: String): String {
-    return fileNameSanitizer.sanitizeTagId(value)
+    return FileNameSanitizer().sanitizeTagId(value)
 }
 
 internal fun categorizeRoyalRoadTag(tagName: String): TagCategory {
