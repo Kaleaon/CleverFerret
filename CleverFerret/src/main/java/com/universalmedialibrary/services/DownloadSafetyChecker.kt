@@ -136,6 +136,14 @@ class DownloadSafetyChecker @Inject constructor(
         return parentalControlsSettings.verifyPin(pin)
     }
 
+    /**
+     * Check if parental control PIN protection is currently active
+     */
+    suspend fun isPinProtectionActive(): Boolean {
+        val state = parentalControlsSettings.currentState()
+        return state.enabled && state.hasPinSet
+    }
+
 }
 
 data class DownloadContentMetadata(

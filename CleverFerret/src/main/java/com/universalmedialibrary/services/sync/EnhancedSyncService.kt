@@ -217,7 +217,7 @@ class EnhancedSyncService @Inject constructor(
         }
     }
 
-    private suspend fun mergeReadingProgress(conflict: EnhancedSyncConflict) {
+    suspend fun mergeReadingProgress(conflict: EnhancedSyncConflict) {
         // Merge reading progress: use furthest position
         val localProgress = (conflict.localData as? SyncChange)?.data as? ReadingProgress
         val remoteProgress = (conflict.remoteData as? SyncChange)?.data as? ReadingProgress
@@ -237,7 +237,7 @@ class EnhancedSyncService @Inject constructor(
         }
     }
 
-    private suspend fun mergeBookmarks(conflict: EnhancedSyncConflict) {
+    suspend fun mergeBookmarks(conflict: EnhancedSyncConflict) {
         // Merge bookmarks: combine unique bookmarks from both
         // Union of both bookmark lists, deduplicated by bookmarkId
         val localChange = conflict.localData as? SyncChange
@@ -276,7 +276,7 @@ class EnhancedSyncService @Inject constructor(
         }
     }
 
-    private suspend fun mergeMediaItem(conflict: EnhancedSyncConflict) {
+    suspend fun mergeMediaItem(conflict: EnhancedSyncConflict) {
         // Merge metadata: combine non-conflicting fields
         // Keep most complete metadata, prefer non-null fields and newer timestamps
         val localItem = (conflict.localData as? SyncChange)?.data as? MediaItem

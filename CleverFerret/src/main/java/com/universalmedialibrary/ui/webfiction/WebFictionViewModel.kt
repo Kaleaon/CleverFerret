@@ -12,6 +12,7 @@ import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionService.WebFictionRateLimitException
 import com.universalmedialibrary.services.webfiction.WebFictionService.WebFictionSiteChangedException
 import com.universalmedialibrary.services.webfiction.WebFictionService.UnsupportedWebFictionUrlException
+import com.universalmedialibrary.services.webfiction.parseAndValidateSourceUrl
 import com.universalmedialibrary.services.webfiction.WebFictionChapter
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.services.webfiction.parseAndValidateSourceUrl
@@ -238,7 +239,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = message
                 )
-
             }
         }
     }
@@ -290,7 +290,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isCheckingUpdates = false,
                     error = message
                 )
-
             }
         }
     }
@@ -347,7 +346,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isCheckingUpdates = false,
                     error = message
                 )
-
             }
         }
     }
@@ -393,7 +391,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = message
                 )
-
             }
         }
     }
@@ -444,7 +441,6 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = message
                 )
-
             }
         }
     }

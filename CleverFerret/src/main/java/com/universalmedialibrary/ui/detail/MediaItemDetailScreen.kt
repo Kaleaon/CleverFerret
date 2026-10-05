@@ -479,7 +479,7 @@ internal fun formatTime(milliseconds: Long): String {
     }
 }
 
-private fun formatDate(timestamp: Long): String {
+internal fun formatDate(timestamp: Long): String {
     val sdf = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
     return sdf.format(java.util.Date(timestamp))
 }

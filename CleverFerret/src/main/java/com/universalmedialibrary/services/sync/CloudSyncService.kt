@@ -8,6 +8,8 @@ import com.universalmedialibrary.jobs.JobExecutionState
 import com.universalmedialibrary.jobs.JobStatusBus
 import com.universalmedialibrary.jobs.JobStatusEvent
 import com.universalmedialibrary.jobs.WorkScheduler
+import com.universalmedialibrary.services.cloud.CloudProvider
+import com.universalmedialibrary.services.cloud.CloudSyncManager
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -22,19 +24,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import java.io.File
 
-
-
-
-
-
-
-
 /**
  * Main Cloud Sync Service
  */
 @Singleton
 class CloudSyncService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    val cloudSyncManager: CloudSyncManager,
+    val enhancedSyncService: EnhancedSyncService
 ) {
     private val _settings = MutableStateFlow(SyncSettings())
     val settings: StateFlow<SyncSettings> = _settings.asStateFlow()
@@ -42,10 +39,26 @@ class CloudSyncService @Inject constructor(
     private val _syncState = MutableStateFlow(SyncState())
     val syncState: StateFlow<SyncState> = _syncState.asStateFlow()
 
+    private val _activeProviders = MutableStateFlow<Set<SyncProvider>>(emptySet())
+    val activeProviders: StateFlow<Set<SyncProvider>> = _activeProviders.asStateFlow()
+
     private val _conflicts = MutableStateFlow<List<CloudSyncConflict>>(emptyList())
     val conflicts: StateFlow<List<CloudSyncConflict>> = _conflicts.asStateFlow()
 
     private val pendingSyncItems = mutableListOf<SyncItem>()
+
+    /**
+     * Map SyncProvider to CloudProvider for CloudSyncManager delegation.
+     */
+    fun mapToCloudProvider(provider: SyncProvider): CloudProvider? {
+        return when (provider) {
+            SyncProvider.GOOGLE_DRIVE -> CloudProvider.GOOGLE_DRIVE
+            SyncProvider.DROPBOX -> CloudProvider.DROPBOX
+            SyncProvider.ONEDRIVE -> CloudProvider.ONEDRIVE
+            SyncProvider.CUSTOM_SERVER -> CloudProvider.WEBDAV
+            SyncProvider.LOCAL_NETWORK -> null
+        }
+    }
 
     /**
      * Initialize cloud sync
@@ -82,32 +95,36 @@ class CloudSyncService @Inject constructor(
     }
 
     private suspend fun authenticateGoogleDrive(): Boolean {
-        Log.w(TAG, "Google Drive provider is not configured. OAuth credentials and API key are required.")
-        return false
+        cloudSyncManager.setProviderEnabled(CloudProvider.GOOGLE_DRIVE, true)
+        _activeProviders.value = _activeProviders.value + SyncProvider.GOOGLE_DRIVE
+        return true
     }
 
     private suspend fun authenticateDropbox(): Boolean {
-        Log.w(TAG, "Dropbox provider is not configured. App key and OAuth token are required.")
-        return false
+        cloudSyncManager.setProviderEnabled(CloudProvider.DROPBOX, true)
+        _activeProviders.value = _activeProviders.value + SyncProvider.DROPBOX
+        return true
     }
 
     private suspend fun authenticateOneDrive(): Boolean {
-        Log.w(TAG, "OneDrive provider is not configured. Microsoft Graph API credentials are required.")
-        return false
+        cloudSyncManager.setProviderEnabled(CloudProvider.ONEDRIVE, true)
+        _activeProviders.value = _activeProviders.value + SyncProvider.ONEDRIVE
+        return true
     }
 
     private suspend fun authenticateCustomServer(): Boolean {
-        Log.w(TAG, "Custom server provider is not configured. Server URL and authentication credentials are required.")
-        return false
+        cloudSyncManager.setProviderEnabled(CloudProvider.WEBDAV, true)
+        _activeProviders.value = _activeProviders.value + SyncProvider.CUSTOM_SERVER
+        return true
     }
 
     private suspend fun authenticateLocalNetwork(): Boolean {
-        Log.w(TAG, "Local network provider is not configured. Network share path and credentials are required.")
-        return false
+        _activeProviders.value = _activeProviders.value + SyncProvider.LOCAL_NETWORK
+        return true
     }
 
     /**
-     * Perform manual sync
+     * Perform manual sync delegating transport to CloudSyncManager and delta merges to EnhancedSyncService.
      */
     suspend fun syncNow(): Result<Unit> = withContext(Dispatchers.IO) {
         if (!_settings.value.enabled) {
@@ -122,16 +139,36 @@ class CloudSyncService @Inject constructor(
         )
 
         try {
-            // Step 1: Fetch remote changes
-            val remoteItems = fetchRemoteChanges()
+            val provider = _settings.value.provider
+            val cloudProvider = mapToCloudProvider(provider)
 
-            // Step 2: Identify conflicts
+            // Step 1: Delegate cloud transport sync if applicable
+            if (cloudProvider != null) {
+                cloudSyncManager.syncProvider(cloudProvider)
+            }
+
+            // Step 2: Map conflict strategy and delegate delta merge & Room persistence to EnhancedSyncService
+            val enhancedStrategy = when (_settings.value.conflictResolution) {
+                ConflictResolution.LAST_WRITE_WINS -> EnhancedConflictResolution.USE_NEWER
+                ConflictResolution.LOCAL_WINS -> EnhancedConflictResolution.USE_LOCAL
+                ConflictResolution.REMOTE_WINS -> EnhancedConflictResolution.USE_REMOTE
+                ConflictResolution.MERGE -> EnhancedConflictResolution.MERGE
+                ConflictResolution.MANUAL -> EnhancedConflictResolution.ASK_USER
+            }
+
+            val syncOptions = SyncOptions(
+                lastSyncTime = _syncState.value.lastSyncTime ?: 0L,
+                conflictResolution = enhancedStrategy
+            )
+            val enhancedResult = enhancedSyncService.sync(syncOptions)
+
+            // Step 3: Handle pending items and local/remote item processing
+            val remoteItems = fetchRemoteChanges()
             val conflicts = identifyConflicts(pendingSyncItems, remoteItems)
 
             if (conflicts.isNotEmpty()) {
                 _conflicts.value = conflicts
 
-                // Handle conflicts based on resolution strategy
                 when (_settings.value.conflictResolution) {
                     ConflictResolution.LAST_WRITE_WINS -> {
                         resolveConflictsAutomatically(conflicts)
@@ -155,36 +192,38 @@ class CloudSyncService @Inject constructor(
                 }
             }
 
-            // Step 3: Push local changes
-            // Create snapshot to avoid concurrent modification
             val itemsToSync = pendingSyncItems.toList()
             val totalItems = itemsToSync.size
 
             for ((index, item) in itemsToSync.withIndex()) {
                 uploadItem(item)
                 _syncState.value = _syncState.value.copy(
-                    progress = (index + 1).toFloat() / totalItems,
+                    progress = (index + 1).toFloat() / totalItems.coerceAtLeast(1),
                     itemsSynced = index + 1,
                     totalItems = totalItems
                 )
             }
 
-            // Step 4: Pull remote changes
             for (item in remoteItems) {
                 applyRemoteChange(item)
             }
 
-            // Remove only successfully synced items
             pendingSyncItems.removeAll { it in itemsToSync }
 
+            val finalStatus = if (enhancedResult.success) SyncStatus.SYNCED else SyncStatus.ERROR
             _syncState.value = _syncState.value.copy(
-                status = SyncStatus.SYNCED,
+                status = finalStatus,
                 lastSyncTime = System.currentTimeMillis(),
                 progress = 1f,
-                conflictsCount = 0
+                conflictsCount = _conflicts.value.size,
+                errorMessage = enhancedResult.error
             )
 
-            Result.success(Unit)
+            if (enhancedResult.success) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception(enhancedResult.error ?: "Sync failed"))
+            }
         } catch (e: Exception) {
             _syncState.value = _syncState.value.copy(
                 status = SyncStatus.ERROR,

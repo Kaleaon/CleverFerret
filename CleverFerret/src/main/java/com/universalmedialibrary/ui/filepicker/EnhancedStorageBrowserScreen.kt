@@ -455,6 +455,8 @@ private fun getFilesInFolder(
 
 // Reuse existing components from original StorageBrowserScreen
 
+// QuickAccessChip reused from StorageBrowserScreen.kt
+
 
 @Composable
 private fun EmptyFolderView() {
@@ -533,3 +535,4 @@ private fun ErrorView(
         }
     }
 }
+// formatFileSize and formatDate reused from StorageBrowserScreen.kt

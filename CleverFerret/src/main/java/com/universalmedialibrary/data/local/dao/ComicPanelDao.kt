@@ -98,4 +98,10 @@ interface ComicPanelDao {
     
     @Query("UPDATE comic_reading_sessions SET readingMode = :mode WHERE comicId = :comicId")
     suspend fun updateReadingMode(comicId: Long, mode: String)
+
+    @Query("UPDATE comic_reading_sessions SET readingDirection = :direction, isRightToLeft = :isRightToLeft WHERE comicId = :comicId")
+    suspend fun updateReadingDirection(comicId: Long, direction: String, isRightToLeft: Boolean)
+
+    @Query("UPDATE comic_reading_sessions SET isRightToLeft = :isRightToLeft WHERE comicId = :comicId")
+    suspend fun updateIsRightToLeft(comicId: Long, isRightToLeft: Boolean)
 }

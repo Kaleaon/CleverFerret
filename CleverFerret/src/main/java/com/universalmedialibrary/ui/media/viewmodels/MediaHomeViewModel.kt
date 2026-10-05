@@ -70,6 +70,21 @@ class MediaHomeViewModel @Inject constructor(
         loadHomeData()
         checkServiceAvailability()
         observeOnboardingPreference()
+        observeDatabaseChanges()
+    }
+
+    private fun observeDatabaseChanges() {
+        viewModelScope.launch {
+            combine(
+                bookRepository.getAllBooks(),
+                audiobookRepository.getAllAudiobooks(),
+                comicRepository.getAllComics(),
+                videoRepository.getAllVideos(),
+                webFictionRepository.getAllWebFiction()
+            ) { _, _, _, _, _ -> Unit }.collect {
+                loadHomeData()
+            }
+        }
     }
 
     private fun observeOnboardingPreference() {
