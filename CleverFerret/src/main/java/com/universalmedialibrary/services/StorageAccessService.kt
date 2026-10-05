@@ -64,11 +64,6 @@ class StorageAccessService @Inject constructor(
 ) {
     private val importClassifier = StorageImportClassifier()
 
-    private val importLogJson = Json {
-        prettyPrint = true
-        ignoreUnknownKeys = true
-    }
-
     init {
         filebotDataService.warmCache()
     }
@@ -299,6 +294,7 @@ class StorageAccessService @Inject constructor(
         checkpointCallback = checkpointCallback,
         mediaItemDao = mediaItemDao,
         metadataDao = metadataDao,
+        libraryDao = libraryDao,
     )
 
 
@@ -382,7 +378,7 @@ class StorageAccessService @Inject constructor(
 
 
 
-    private sealed class CopyResult {
+    internal sealed class CopyResult {
         data class Copied(val file: DocumentFile) : CopyResult()
         data class Skipped(val reason: String) : CopyResult()
         data class Failed(val reason: String) : CopyResult()
@@ -523,7 +519,7 @@ class StorageAccessService @Inject constructor(
 
 
 
-    private data class DerivedMetadata(
+    internal data class DerivedMetadata(
         val title: String,
         val authorOrArtist: String? = null,
         val album: String? = null,
@@ -538,7 +534,7 @@ class StorageAccessService @Inject constructor(
 
 
 
-    private data class OpfParsed(
+    internal data class OpfParsed(
         val title: String? = null,
         val creator: String? = null,
         val series: String? = null
@@ -552,20 +548,20 @@ class StorageAccessService @Inject constructor(
 
     private suspend fun importRecursively(
         context: Context,
-        srcDir: DocumentFile,
+        input: DocumentFile,
         outputRoot: DocumentFile,
-        rootName: String,
-        rootPath: String,
+        outputRootPath: String,
+        options: ImportSortOptions,
         progressCallback: (String) -> Unit,
-        log: MutableList<String>
-    ) = importRecursivelyImpl(
+        summary: ImportSortSummary
+    ): ImportSortSummary = importRecursivelyImpl(
         context = context,
-        srcDir = srcDir,
+        input = input,
         outputRoot = outputRoot,
-        rootName = rootName,
-        rootPath = rootPath,
+        outputRootPath = outputRootPath,
+        options = options,
         progressCallback = progressCallback,
-        log = log,
+        summary = summary,
         fileNameSanitizer = fileNameSanitizer,
         mediaItemDao = mediaItemDao,
         metadataDao = metadataDao,

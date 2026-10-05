@@ -14,6 +14,7 @@ import com.universalmedialibrary.data.repository.MetadataFetchResult
 import com.universalmedialibrary.services.CalibreExportService
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.services.CalibreImportService
+import com.universalmedialibrary.services.FileSafetyGuardrail
 import com.universalmedialibrary.services.thumbnails.ThumbnailService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,7 +38,8 @@ class LibraryManagementViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao,
     private val metadataFetchRepository: MetadataFetchRepository,
-    private val thumbnailService: ThumbnailService
+    private val thumbnailService: ThumbnailService,
+    private val fileSafetyGuardrail: FileSafetyGuardrail
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LibraryManagementUiState>(LibraryManagementUiState.Success)
@@ -387,11 +389,7 @@ class LibraryManagementViewModel @Inject constructor(
 
     private fun cleanupStaleCacheFile(oldPath: String?, newPath: String?) {
         if (oldPath.isNullOrBlank() || oldPath == newPath) return
-        runCatching {
-            if (!oldPath.startsWith("http://") && !oldPath.startsWith("https://")) {
-                File(oldPath).takeIf { it.exists() }?.delete()
-            }
-        }
+        fileSafetyGuardrail.safeDeleteCacheFile(oldPath)
     }
 }
 

@@ -5,25 +5,34 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.universalmedialibrary.ui.settings.SettingsViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.universalmedialibrary.ui.settings.SettingsViewModel
+import com.universalmedialibrary.ui.viewer.common.ReadingDirection
+import com.universalmedialibrary.ui.viewer.common.ReadingMode
 import kotlinx.coroutines.launch
-
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipFile
@@ -52,7 +61,13 @@ fun ComicReaderScreen(
     var index by remember { mutableStateOf(0) }
     var currentBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var translationsJson by remember { mutableStateOf<String?>(null) }
+    var showSettingsSheet by remember { mutableStateOf(false) }
+    var dragAccumulator by remember { mutableFloatStateOf(0f) }
     val scope = rememberCoroutineScope()
+
+    val uiState by comicReaderViewModel.uiState.collectAsState()
+    val isRtl = uiState.readingDirection == ReadingDirection.RIGHT_TO_LEFT
+    val isWebtoon = uiState.readingMode == ReadingMode.WEBTOON || uiState.readingDirection == ReadingDirection.VERTICAL
 
     // Cleanup bitmap on screen exit to prevent memory leaks
     DisposableEffect(Unit) {
@@ -71,12 +86,49 @@ fun ComicReaderScreen(
                 else -> ExtractedComic()
             }
         } catch (e: Exception) { 
-            android.util.Log.w("ComicReader", "Failed to extract comic images", e)
+            Log.w("ComicReader", "Failed to extract comic images", e)
             ExtractedComic()
         }
-        index = 0
-        currentBitmap?.recycle()
-        currentBitmap = loadBitmap(extractedComic.imageFiles.getOrNull(index))
+        val comicId = uriString.hashCode().toLong()
+        comicReaderViewModel.loadComic(context, uriString, comicId)
+    }
+
+    // Sync current page with session restore once session is loaded
+    LaunchedEffect(uiState.readingSession) {
+        uiState.readingSession?.let { session ->
+            if (session.currentPage in extractedComic.imageFiles.indices) {
+                index = session.currentPage
+            }
+        }
+    }
+
+    // Load bitmap when index changes
+    LaunchedEffect(index, extractedComic) {
+        if (extractedComic.imageFiles.isNotEmpty() && index in extractedComic.imageFiles.indices) {
+            currentBitmap?.recycle()
+            currentBitmap = loadBitmap(extractedComic.imageFiles.getOrNull(index))
+            comicReaderViewModel.reportProgress(index)
+        }
+    }
+
+    // Navigation functions respecting reading direction
+    val canGoNext = if (isRtl) index > 0 else index < extractedComic.imageFiles.size - 1
+    val canGoPrev = if (isRtl) index < extractedComic.imageFiles.size - 1 else index > 0
+
+    fun triggerNextPage() {
+        if (isRtl) {
+            if (index > 0) index -= 1
+        } else {
+            if (index < extractedComic.imageFiles.size - 1) index += 1
+        }
+    }
+
+    fun triggerPrevPage() {
+        if (isRtl) {
+            if (index < extractedComic.imageFiles.size - 1) index += 1
+        } else {
+            if (index > 0) index -= 1
+        }
     }
 
     Scaffold(
@@ -84,7 +136,14 @@ fun ComicReaderScreen(
             TopAppBar(
                 title = { Text(fileName) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showSettingsSheet = true }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
                 }
             )
         }
@@ -94,73 +153,202 @@ fun ComicReaderScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = {
-                        if (index > 0) {
-                            index -= 1
-                            currentBitmap?.recycle()
-                            currentBitmap = loadBitmap(extractedComic.imageFiles.getOrNull(index))
+            if (!isWebtoon) {
+                // Page controls header for page-by-page mode
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = { triggerPrevPage() },
+                        enabled = canGoPrev
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = "Prev page")
+                    }
+
+                    Text("${index + 1} / ${extractedComic.imageFiles.size}")
+
+                    IconButton(
+                        onClick = { triggerNextPage() },
+                        enabled = canGoNext
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Next page")
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f)
+                        .pointerInput(isRtl, index, extractedComic.imageFiles.size) {
+                            detectTapGestures { offset ->
+                                val width = size.width
+                                when {
+                                    offset.x < width * 0.35f -> {
+                                        // Left zone tap
+                                        if (isRtl) triggerNextPage() else triggerPrevPage()
+                                    }
+                                    offset.x > width * 0.65f -> {
+                                        // Right zone tap
+                                        if (isRtl) triggerPrevPage() else triggerNextPage()
+                                    }
+                                }
+                            }
                         }
-                    },
-                    enabled = index > 0
-                ) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = "Prev page") }
-
-                Text("${index + 1} / ${extractedComic.imageFiles.size}")
-
-                IconButton(
-                    onClick = {
-                        if (index < extractedComic.imageFiles.size - 1) {
-                            index += 1
-                            currentBitmap?.recycle()
-                            currentBitmap = loadBitmap(extractedComic.imageFiles.getOrNull(index))
-                        }
-                    },
-                    enabled = index < extractedComic.imageFiles.size - 1
-                ) { Icon(Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Next page") }
-            }
-
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                currentBitmap?.let { bmp ->
-                    Image(bitmap = bmp.asImageBitmap(), contentDescription = "Media image")
-                    val apiSettings = settingsViewModel.apiSettings.collectAsState().value
-                    val enabled = apiSettings.comicApis.geminiBubbleTranslationEnabled
-                    if (enabled && translationsJson != null) {
-                        // Minimal overlay: show a badge indicating translations are available
-                        Surface(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)) {
-                            Text(
-                                text = "Translations",
-                                modifier = Modifier.padding(6.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                textAlign = TextAlign.Center
+                        .pointerInput(isRtl, index, extractedComic.imageFiles.size) {
+                            detectHorizontalDragGestures(
+                                onDragEnd = {
+                                    if (dragAccumulator < -60f) {
+                                        // Dragged left (swipe left)
+                                        if (isRtl) triggerPrevPage() else triggerNextPage()
+                                    } else if (dragAccumulator > 60f) {
+                                        // Dragged right (swipe right)
+                                        if (isRtl) triggerNextPage() else triggerPrevPage()
+                                    }
+                                    dragAccumulator = 0f
+                                },
+                                onHorizontalDrag = { _, dragAmount ->
+                                    dragAccumulator += dragAmount
+                                }
                             )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    currentBitmap?.let { bmp ->
+                        Image(bitmap = bmp.asImageBitmap(), contentDescription = "Media image")
+                        val apiSettings = settingsViewModel.apiSettings.collectAsState().value
+                        val enabled = apiSettings.comicApis.geminiBubbleTranslationEnabled
+                        if (enabled && translationsJson != null) {
+                            Surface(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)) {
+                                Text(
+                                    text = "Translations",
+                                    modifier = Modifier.padding(6.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            // Action row for translation
-            val apiSettings = settingsViewModel.apiSettings.collectAsState().value
-            if (apiSettings.comicApis.geminiBubbleTranslationEnabled) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Button(onClick = {
-                        currentBitmap?.let { bmp ->
-                            scope.launch {
-                                // Translation temporarily disabled
-                                Log.d("ComicReaderScreen", "Translation feature coming in v1.1.0")
-                                translationsJson = null
+                // Action row for translation
+                val apiSettings = settingsViewModel.apiSettings.collectAsState().value
+                if (apiSettings.comicApis.geminiBubbleTranslationEnabled) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Button(onClick = {
+                            currentBitmap?.let { bmp ->
+                                scope.launch {
+                                    Log.d("ComicReaderScreen", "Translation feature coming in v1.1.0")
+                                    translationsJson = null
+                                }
                             }
-                        }
-                    }) { Text("Translate Page") }
+                        }) { Text("Translate Page") }
+                    }
+                }
+            } else {
+                // Webtoon continuous vertical view
+                val listState = rememberLazyListState(initialFirstVisibleItemIndex = index)
+                LaunchedEffect(listState.firstVisibleItemIndex) {
+                    if (extractedComic.imageFiles.isNotEmpty()) {
+                        index = listState.firstVisibleItemIndex
+                        comicReaderViewModel.reportProgress(index)
+                    }
+                }
+
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    itemsIndexed(extractedComic.imageFiles) { pageIdx, file ->
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(file)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = "Comic page ${pageIdx + 1}",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            contentScale = ContentScale.FillWidth
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    if (showSettingsSheet) {
+        ModalBottomSheet(onDismissRequest = { showSettingsSheet = false }) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Reading Settings",
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                Text(
+                    text = "Reading Direction",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    FilterChip(
+                        selected = uiState.readingDirection == ReadingDirection.LEFT_TO_RIGHT,
+                        onClick = { comicReaderViewModel.setReadingDirection(ReadingDirection.LEFT_TO_RIGHT) },
+                        label = { Text("Left to Right") }
+                    )
+                    FilterChip(
+                        selected = uiState.readingDirection == ReadingDirection.RIGHT_TO_LEFT,
+                        onClick = { comicReaderViewModel.setReadingDirection(ReadingDirection.RIGHT_TO_LEFT) },
+                        label = { Text("Right to Left") }
+                    )
+                    FilterChip(
+                        selected = uiState.readingDirection == ReadingDirection.VERTICAL,
+                        onClick = { comicReaderViewModel.setReadingDirection(ReadingDirection.VERTICAL) },
+                        label = { Text("Vertical") }
+                    )
+                }
+
+                Text(
+                    text = "Reading Mode",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    FilterChip(
+                        selected = uiState.readingMode == ReadingMode.PAGE_BY_PAGE && uiState.readingDirection != ReadingDirection.VERTICAL,
+                        onClick = { comicReaderViewModel.setReadingMode(ReadingMode.PAGE_BY_PAGE) },
+                        label = { Text("Page by Page") }
+                    )
+                    FilterChip(
+                        selected = uiState.readingMode == ReadingMode.WEBTOON || uiState.readingDirection == ReadingDirection.VERTICAL,
+                        onClick = { comicReaderViewModel.setReadingMode(ReadingMode.WEBTOON) },
+                        label = { Text("Webtoon") }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = { showSettingsSheet = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Done")
                 }
             }
         }
@@ -209,21 +397,16 @@ private fun copyToTempFile(context: android.content.Context, uri: Uri, suffix: S
 private fun loadBitmap(file: File?, maxWidth: Int = 2048, maxHeight: Int = 2048): Bitmap? {
     return try {
         file?.let {
-            // First decode with inJustDecodeBounds=true to check dimensions
             val options = BitmapFactory.Options().apply {
                 inJustDecodeBounds = true
             }
             BitmapFactory.decodeFile(it.absolutePath, options)
-            
-            // Calculate inSampleSize to reduce memory usage
             options.inSampleSize = calculateInSampleSize(options, maxWidth, maxHeight)
             options.inJustDecodeBounds = false
-            
-            // Now decode with the calculated sample size
             BitmapFactory.decodeFile(it.absolutePath, options)
         }
     } catch (e: Exception) { 
-        android.util.Log.w("ComicReader", "Failed to load bitmap", e)
+        Log.w("ComicReader", "Failed to load bitmap", e)
         null 
     }
 }

@@ -1,5 +1,6 @@
 package com.universalmedialibrary.data.local
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -191,8 +192,12 @@ import com.universalmedialibrary.data.Tag
         StagedMetadataCandidate::class
 
     ],
-    version = 45,
-    exportSchema = false
+    version = 46,
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 44, to = 45),
+        AutoMigration(from = 45, to = 46)
+    ]
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -335,7 +340,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_38_39,
                         AppDatabaseMigrations.MIGRATION_42_43,
                         AppDatabaseMigrations.MIGRATION_43_44,
-                        AppDatabaseMigrations.MIGRATION_44_45
+                        AppDatabaseMigrations.MIGRATION_44_45,
+                        AppDatabaseMigrations.MIGRATION_45_46
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

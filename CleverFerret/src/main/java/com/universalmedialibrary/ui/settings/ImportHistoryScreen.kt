@@ -45,6 +45,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import com.universalmedialibrary.services.listImportLogs
+import com.universalmedialibrary.services.readImportLog
+import com.universalmedialibrary.services.importer.ImportLogInfo
+import com.universalmedialibrary.services.importer.ImportTransactionLog
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportHistoryScreen(
@@ -62,7 +67,7 @@ fun ImportHistoryScreen(
     var reloadToken by remember { mutableStateOf(0) }
     var isUndoing by remember { mutableStateOf(false) }
     var undoingImportId by remember { mutableStateOf<String?>(null) }
-    var selectedImportDetails by remember { mutableStateOf<com.universalmedialibrary.services.importer.ImportTransactionLog?>(null) }
+    var selectedImportDetails by remember { mutableStateOf<ImportTransactionLog?>(null) }
     val df = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
 
     val logs by produceState<List<ImportLogInfo>>(initialValue = emptyList(), key1 = reloadToken) {

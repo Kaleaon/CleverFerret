@@ -3,7 +3,12 @@ package com.universalmedialibrary.services
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import com.universalmedialibrary.services.StorageAccessService.DerivedMetadata
+import com.universalmedialibrary.utils.FileNameSanitizer
 import java.security.MessageDigest
+import java.util.Locale
+
+private val fileNameSanitizer = FileNameSanitizer()
 
 internal fun computeSha256(context: Context, uri: Uri): String? {
     return try {

@@ -519,14 +519,15 @@ class WebFictionService @Inject constructor(
         )
     }
 
-    private fun extractMetabodsId(url: String): String {
-        return Regex("(?:story|s)/(\\d+)").find(url)?.groupValues?.getOrNull(1)
-            ?: url.substringAfterLast("/").substringBefore("?").ifEmpty { url.hashCode().toString() }
-    }
+}
 
-    private fun extractLiteroticaId(url: String): String {
-        return Regex("s/(\\w+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
-    }
+internal fun extractMetabodsId(url: String): String {
+    return Regex("(?:story|s)/(\\d+)").find(url)?.groupValues?.getOrNull(1)
+        ?: url.substringAfterLast("/").substringBefore("?").ifEmpty { url.hashCode().toString() }
+}
+
+internal fun extractLiteroticaId(url: String): String {
+    return Regex("s/(\\w+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
 }
 
 class AdultSitesDisabledException :

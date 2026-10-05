@@ -415,7 +415,7 @@ private fun InfoRow(label: String, value: String) {
 }
 
 @Composable
-private fun Chip(text: String) {
+internal fun Chip(text: String) {
     Surface(
         shape = RoundedCornerShape(8.dp),
         color = MaterialTheme.colorScheme.secondaryContainer
@@ -468,7 +468,7 @@ private fun formatFileSize(bytes: Long): String {
     return DecimalFormat("#,##0.#").format(bytes / 1024.0.pow(digitGroups.toDouble())) + " " + units[digitGroups]
 }
 
-private fun formatTime(milliseconds: Long): String {
+internal fun formatTime(milliseconds: Long): String {
     val seconds = milliseconds / 1000
     val minutes = seconds / 60
     val hours = minutes / 60
@@ -479,7 +479,7 @@ private fun formatTime(milliseconds: Long): String {
     }
 }
 
-private fun formatDate(timestamp: Long): String {
+internal fun formatDate(timestamp: Long): String {
     val sdf = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
     return sdf.format(java.util.Date(timestamp))
 }

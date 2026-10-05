@@ -1,11 +1,11 @@
 package com.universalmedialibrary.services.music
 
-import com.universalmedialibrary.data.LocalMediaItem
+import com.universalmedialibrary.data.local.entity.MediaItem as LocalMediaItem
 
 internal fun createTrackInfo(mediaItem: LocalMediaItem, queuePosition: Int = 0): TrackInfo {
     return TrackInfo(
-        id = mediaItem.itemId.toString(),
-        title = mediaItem.fileName.substringBeforeLast('.'),
+        id = mediaItem.id.toString(),
+        title = mediaItem.title,
         artist = extractArtistFromMetadata(mediaItem),
         album = extractAlbumFromMetadata(mediaItem),
         duration = 0L, // Duration will be updated when media is loaded

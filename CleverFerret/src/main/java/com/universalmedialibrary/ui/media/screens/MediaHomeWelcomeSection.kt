@@ -1,5 +1,8 @@
 package com.universalmedialibrary.ui.media.screens
 
+import android.content.Intent
+import android.os.Build
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,23 +27,34 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.media.theme.MediaCorners
 import com.universalmedialibrary.ui.media.theme.MediaSizes
 import com.universalmedialibrary.ui.media.theme.MediaSpacing
 import com.universalmedialibrary.ui.media.theme.MediaTypography
+import com.universalmedialibrary.utils.PermissionsHandler
+import com.universalmedialibrary.utils.rememberPermissionsHandler
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -105,6 +119,100 @@ internal fun EmptySectionCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+        }
+    }
+}
+
+@Composable
+internal fun StoragePermissionCard(
+    onPermissionGranted: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    var hasTriggeredScan by remember { mutableStateOf(false) }
+
+    fun triggerScan() {
+        if (!hasTriggeredScan) {
+            hasTriggeredScan = true
+            val intent = Intent(context, MediaScannerService::class.java).apply {
+                action = MediaScannerService.ACTION_SCAN_ALL
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+            onPermissionGranted()
+        }
+    }
+
+    val permissionState = rememberPermissionsHandler(
+        onAllPermissionsGranted = {
+            triggerScan()
+        }
+    )
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal, vertical = MediaSpacing.MD),
+        shape = RoundedCornerShape(MediaCorners.Card),
+        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
+    ) {
+        Column(
+            modifier = Modifier.padding(MediaSpacing.LG),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.15f),
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FolderOpen,
+                        contentDescription = "Storage permission required",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(MediaSpacing.SM)
+                    )
+                }
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Enable Storage Access",
+                        style = MediaTypography.TitleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "CleverFerret needs permission to scan and automatically index your local media files.",
+                        style = MediaTypography.BodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(MediaSpacing.MD))
+
+            Button(
+                onClick = {
+                    permissionState.requestPermissions()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Security,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(MediaSpacing.SM))
+                Text("Grant Access & Scan Library")
+            }
         }
     }
 }
