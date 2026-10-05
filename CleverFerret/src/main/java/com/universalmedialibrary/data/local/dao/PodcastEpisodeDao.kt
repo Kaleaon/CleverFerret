@@ -17,6 +17,9 @@ interface PodcastEpisodeDao {
     @Query("SELECT * FROM podcast_episodes WHERE id = :id")
     fun getEpisodeById(id: Long): Flow<PodcastEpisodeEntity?>
 
+    @Query("SELECT * FROM podcast_episodes WHERE id = :id")
+    suspend fun getEpisodeByIdOnce(id: Long): PodcastEpisodeEntity?
+
     @Query("SELECT * FROM podcast_episodes WHERE guid = :guid LIMIT 1")
     suspend fun getEpisodeByGuid(guid: String): PodcastEpisodeEntity?
 
@@ -84,8 +87,8 @@ interface PodcastEpisodeDao {
     @Query("UPDATE podcast_episodes SET downloaded = :downloaded, localFilePath = :filePath, localFileChecksum = :checksum, downloadedAt = :timestamp WHERE id = :id")
     suspend fun updateDownloadStatus(id: Long, downloaded: Boolean, filePath: String?, checksum: String?, timestamp: Long?)
 
-    @Query("UPDATE podcast_episodes SET downloaded = 1, localFilePath = :filePath, localFileChecksum = :checksum, downloadedAt = :timestamp WHERE id = :id")
-    suspend fun setDownloadedWithFilePath(id: Long, filePath: String, checksum: String, timestamp: Long)
+    @Query("UPDATE podcast_episodes SET downloaded = 1, localFilePath = :filePath, localFileChecksum = :checksum, downloadedAt = :timestamp, fileSize = CASE WHEN :fileSize > 0 THEN :fileSize ELSE fileSize END WHERE id = :id")
+    suspend fun setDownloadedWithFilePath(id: Long, filePath: String, checksum: String, timestamp: Long, fileSize: Long = 0L)
 
     @Query("UPDATE podcast_episodes SET downloaded = 0, localFilePath = NULL, localFileChecksum = NULL, downloadedAt = NULL WHERE id = :id")
     suspend fun clearDownloadedState(id: Long)
@@ -148,8 +151,9 @@ interface PodcastEpisodeDao {
         episodeId: Long,
         filePath: String,
         checksum: String,
+        fileSize: Long = 0L,
         timestamp: Long = System.currentTimeMillis()
     ) {
-        setDownloadedWithFilePath(episodeId, filePath, checksum, timestamp)
+        setDownloadedWithFilePath(episodeId, filePath, checksum, timestamp, fileSize)
     }
 }
