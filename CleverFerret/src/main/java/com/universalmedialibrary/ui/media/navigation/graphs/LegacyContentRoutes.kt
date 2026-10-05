@@ -77,15 +77,19 @@ fun NavGraphBuilder.legacyContentRoutes(
     }
 
     composable("webfiction_manager") {
-        com.universalmedialibrary.ui.webfiction.WebFictionManagerScreen(
-            navController = navController
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.WEB_FICTION) {
+                popUpTo("webfiction_manager") { inclusive = true }
+            }
+        }
     }
     
     composable("story_manager") {
-        com.universalmedialibrary.ui.webfiction.StoryManagerRoute(
-            onBack = { navController.popBackStack() }
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.WEB_FICTION) {
+                popUpTo("story_manager") { inclusive = true }
+            }
+        }
     }
     
     composable("webfiction_story/{storyId}") { backStackEntry ->
@@ -108,27 +112,35 @@ fun NavGraphBuilder.legacyContentRoutes(
     }
     
     composable("web_comic_downloader") {
-        com.universalmedialibrary.ui.webfiction.UnifiedFanfictionHubScreen(
-            navController = navController
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.WEB_FICTION) {
+                popUpTo("web_comic_downloader") { inclusive = true }
+            }
+        }
     }
     
     composable("metabods_tag_browser") {
-        com.universalmedialibrary.ui.webfiction.MetabodsTagBrowserScreen(
-            navController = navController
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.WEB_FICTION) {
+                popUpTo("metabods_tag_browser") { inclusive = true }
+            }
+        }
     }
     
     composable("universal_tag_browser") {
-        com.universalmedialibrary.ui.webfiction.UniversalTagBrowserScreen(
-            navController = navController
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.WEB_FICTION) {
+                popUpTo("universal_tag_browser") { inclusive = true }
+            }
+        }
     }
     
     composable("hivefy_music") {
-        com.universalmedialibrary.ui.music.hivefy.HivefyMusicScreen(
-            onBack = { navController.popBackStack() }
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.MUSIC) {
+                popUpTo("hivefy_music") { inclusive = true }
+            }
+        }
     }
     
     composable("opds_catalog") {
@@ -222,9 +234,11 @@ fun NavGraphBuilder.legacyContentRoutes(
     }
     
     composable("free_music") {
-        com.universalmedialibrary.ui.music.FreeMusicScreen(
-            onBack = { navController.popBackStack() }
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.MUSIC) {
+                popUpTo("free_music") { inclusive = true }
+            }
+        }
     }
     
     composable("free_media") {
@@ -281,23 +295,11 @@ fun NavGraphBuilder.legacyContentRoutes(
     }
     
     composable("music") {
-        val viewModel: MusicViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
-        
-        MusicLibraryScreen(
-            state = state,
-            onArtistClick = { artist ->
-                navController.navigate(MediaRoutes.mediaDetailRoute("artist", artist.id))
-            },
-            onAlbumClick = { album ->
-                navController.navigate(MediaRoutes.mediaDetailRoute("album", album.id))
-            },
-            onTrackClick = { track -> viewModel.playTrack(track) },
-            onPlaylistClick = { playlist -> viewModel.playPlaylist(playlist) },
-            onShuffleAll = { viewModel.shuffleAll() },
-            onBackClick = { navController.popBackStack() },
-            onSearchClick = { navController.navigate(MediaRoutes.SEARCH) }
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.MUSIC) {
+                popUpTo("music") { inclusive = true }
+            }
+        }
     }
     
     composable("collections") {
@@ -397,9 +399,11 @@ fun NavGraphBuilder.legacyContentRoutes(
     }
     
     composable("fanfiction_download") {
-        com.universalmedialibrary.ui.fanfiction.FanfictionDownloadScreen(
-            onNavigateBack = { navController.popBackStack() }
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.WEB_FICTION) {
+                popUpTo("fanfiction_download") { inclusive = true }
+            }
+        }
     }
     
     // =====================================================================

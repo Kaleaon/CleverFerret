@@ -64,11 +64,6 @@ class StorageAccessService @Inject constructor(
 ) {
     private val importClassifier = StorageImportClassifier()
 
-    private val importLogJson = Json {
-        prettyPrint = true
-        ignoreUnknownKeys = true
-    }
-
     init {
         filebotDataService.warmCache()
     }
