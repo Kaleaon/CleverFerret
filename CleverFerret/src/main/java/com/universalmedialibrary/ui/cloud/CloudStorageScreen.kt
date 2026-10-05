@@ -276,7 +276,7 @@ private fun CloudProviderCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 Text(
-                    text = "${formatFileSize(storageUsage.used)} used of ${formatFileSize(storageUsage.limit)}",
+                    text = "${formatFileSize(storageUsage.usedBytes)} used of ${formatFileSize(storageUsage.totalBytes)}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
