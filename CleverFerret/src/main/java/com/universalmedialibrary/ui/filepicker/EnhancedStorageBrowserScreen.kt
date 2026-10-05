@@ -455,25 +455,6 @@ private fun getFilesInFolder(
 
 // Reuse existing components from original StorageBrowserScreen
 
-@Composable
-private fun QuickAccessChip(
-    label: String,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    AssistChip(
-        onClick = onClick,
-        label = { Text(label) },
-        leadingIcon = {
-            Icon(
-                icon,
-                contentDescription = "Media image",
-                modifier = Modifier.size(18.dp)
-            )
-        }
-    )
-}
-
 
 @Composable
 private fun EmptyFolderView() {
@@ -551,22 +532,4 @@ private fun ErrorView(
             }
         }
     }
-}
-
-
-private fun formatFileSize(bytes: Long): String {
-    if (bytes <= 0) return "0 B"
-    val units = arrayOf("B", "KB", "MB", "GB", "TB")
-    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt().coerceIn(0, units.lastIndex)
-    return String.format(
-        java.util.Locale.US,
-        "%.1f %s",
-        bytes / 1024.0.pow(digitGroups.toDouble()),
-        units[digitGroups]
-    )
-}
-
-private fun formatDate(timestamp: Long): String {
-    val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    return sdf.format(Date(timestamp))
 }
