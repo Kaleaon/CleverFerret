@@ -44,8 +44,10 @@ fun NavGraphBuilder.onboardingLandseekRoutes(
     onShowSnackbar: (String) -> Unit
 ) {
     composable(MediaRoutes.ONBOARDING) {
+        val mainViewModel: MainViewModel = hiltViewModel()
         OnboardingScreen(
             onComplete = {
+                mainViewModel.completeOnboarding()
                 navController.navigate(MediaRoutes.HOME) {
                     popUpTo(MediaRoutes.ONBOARDING) { inclusive = true }
                 }

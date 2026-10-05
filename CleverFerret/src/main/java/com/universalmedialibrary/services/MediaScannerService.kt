@@ -27,6 +27,10 @@ import com.universalmedialibrary.utils.ErrorLogger
 import com.universalmedialibrary.utils.media.AudioMetadataUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
@@ -79,7 +83,16 @@ class MediaScannerService : Service() {
         val VIDEO_EXTENSIONS = setOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "mpg", "mpeg")
         val IMAGE_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "tiff")
         val COMIC_EXTENSIONS = setOf("cbz", "cbr", "cb7", "cbt")
+
+        private val _scanProgress = MutableStateFlow(ScanProgress())
+        val scanProgress: StateFlow<ScanProgress> = _scanProgress.asStateFlow()
     }
+
+data class ScanProgress(
+    val isScanning: Boolean = false,
+    val statusText: String = "",
+    val itemsFound: Int = 0
+)
 
     private data class ResolvedScanSettings(
         val config: LibraryScanSettings,
@@ -116,6 +129,7 @@ class MediaScannerService : Service() {
         scanJob?.cancel()
         scanJob = serviceScope.launch {
             try {
+                _scanProgress.value = ScanProgress(isScanning = true, statusText = "Scanning device for media files...", itemsFound = 0)
                 updateNotification("Scanning device for media files...")
 
                 // Scan using MediaStore for each media type
@@ -129,11 +143,41 @@ class MediaScannerService : Service() {
                     scanStandardDirectories()
                 }
 
+                _scanProgress.value = ScanProgress(isScanning = false, statusText = "Media scan complete!", itemsFound = _scanProgress.value.itemsFound)
                 updateNotification("Media scan complete!")
                 delay(2000)
                 stopSelf()
             } catch (e: Exception) {
                 ErrorLogger.logMediaScanError("Media scan failed", e)
+                _scanProgress.value = ScanProgress(isScanning = false, statusText = "Scan failed: ${e.message}", itemsFound = _scanProgress.value.itemsFound)
+                updateNotification("Scan failed: ${e.message}")
+                delay(2000)
+                stopSelf()
+            }
+        }
+    }
+
+    private fun scanLibrary(libraryId: Long, scanPath: String?) {
+        scanJob?.cancel()
+        scanJob = serviceScope.launch {
+            try {
+                _scanProgress.value = ScanProgress(isScanning = true, statusText = "Scanning library...", itemsFound = 0)
+                updateNotification("Scanning library...")
+                val library = libraryDao.getLibraryById(libraryId)
+                if (library != null) {
+                    val path = scanPath ?: library.path
+                    val dir = File(path)
+                    if (dir.exists() && dir.isDirectory) {
+                        scanDirectory(dir, forcedLibrary = library)
+                    }
+                }
+                _scanProgress.value = ScanProgress(isScanning = false, statusText = "Library scan complete!", itemsFound = _scanProgress.value.itemsFound)
+                updateNotification("Library scan complete!")
+                delay(2000)
+                stopSelf()
+            } catch (e: Exception) {
+                ErrorLogger.logMediaScanError("Library scan failed", e)
+                _scanProgress.value = ScanProgress(isScanning = false, statusText = "Scan failed: ${e.message}", itemsFound = _scanProgress.value.itemsFound)
                 updateNotification("Scan failed: ${e.message}")
                 delay(2000)
                 stopSelf()
@@ -371,6 +415,13 @@ class MediaScannerService : Service() {
             val newId = mediaItemDao.insertMediaItem(item)
             val inserted = item.copy(itemId = newId)
 
+            _scanProgress.update {
+                it.copy(
+                    statusText = "Found: $displayName",
+                    itemsFound = it.itemsFound + 1
+                )
+            }
+
             metadataDao.insertMetadataCommon(
                 MetadataCommon(
                     itemId = newId,
@@ -563,6 +614,13 @@ class MediaScannerService : Service() {
 
                 val itemId = mediaItemDao.insertMediaItem(mediaItem)
                 val newItem = mediaItem.copy(itemId = itemId)
+
+                _scanProgress.update {
+                    it.copy(
+                        statusText = "Found: ${file.name}",
+                        itemsFound = it.itemsFound + 1
+                    )
+                }
 
                 // Create basic metadata
                   val resolvedTitle = musicInfo?.title?.takeIf { it.isNotBlank() } ?: file.nameWithoutExtension
