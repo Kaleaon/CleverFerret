@@ -99,22 +99,8 @@ fun MediaMainScreen(
 ) {
     val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsState(BottomBarPreferences.Default)
     val gearPosition by mainViewModel.bottomGearPosition.collectAsState(BottomGearPosition.RIGHT)
-
-    // Permissions: request everything the app needs on startup.
-    val permissionState = rememberPermissionsHandler()
-    var permissionRequestedOnce by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        if (!permissionState.hasAllPermissions && !permissionRequestedOnce) {
-            permissionRequestedOnce = true
-            permissionState.requestPermissions()
-        }
-    }
-
-    // Gate the UI until the required runtime permissions are granted.
-    if (!permissionState.hasAllPermissions) {
-        PermissionDialog(permissionState = permissionState)
-        return
-    }
+    val hasCompletedOnboarding by mainViewModel.hasCompletedOnboarding.collectAsState()
+    val startDestination = if (hasCompletedOnboarding) MediaRoutes.HOME else MediaRoutes.ONBOARDING
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -215,6 +201,7 @@ fun MediaMainScreen(
                             snackbarHostState.showSnackbar(message)
                         }
                     },
+                    startDestination = startDestination,
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -281,6 +268,7 @@ fun MediaMainScreen(
                                 snackbarHostState.showSnackbar(message)
                             }
                         },
+                        startDestination = startDestination,
                         modifier = Modifier.padding(paddingValues)
                     )
                 }

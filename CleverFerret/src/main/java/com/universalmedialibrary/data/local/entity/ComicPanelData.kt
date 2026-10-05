@@ -115,8 +115,9 @@ data class ComicReadingSession(
     val totalPages: Int = 0,
     
     // Reading preferences
-    val readingMode: String = "PAGE", // PAGE, PANEL, CONTINUOUS
+    val readingMode: String = "PAGE", // PAGE, PANEL, CONTINUOUS, WEBTOON, PAGE_BY_PAGE
     val isRightToLeft: Boolean = false, // For manga
+    val readingDirection: String = "LEFT_TO_RIGHT", // LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL
     val zoomLevel: Float = 1.0f,
     
     // Translation preferences

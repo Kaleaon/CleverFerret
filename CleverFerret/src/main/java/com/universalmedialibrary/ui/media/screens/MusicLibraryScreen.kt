@@ -62,19 +62,47 @@ fun MusicLibraryScreen(
     onOpenNowPlaying: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val tabs = listOf("Albums", "Artists", "Tracks", "Playlists", "Genres")
-    val pagerState = rememberPagerState(pageCount = { tabs.size })
+    val topTabs = listOf("Local Library", "Hivefy Discovery", "Free Streams")
+    var selectedTopTab by remember { mutableIntStateOf(0) }
+    
+    val localTabs = listOf("Albums", "Artists", "Tracks", "Playlists", "Genres")
+    val pagerState = rememberPagerState(pageCount = { localTabs.size })
     val coroutineScope = rememberCoroutineScope()
     
     Scaffold(
         modifier = modifier.background(MediaColors.Background),
         containerColor = MediaColors.Background,
         topBar = {
-            MusicLibraryTopBar(
-                onBackClick = onBackClick,
-                onSearchClick = onSearchClick,
-                onShuffleAll = onShuffleAll
-            )
+            Column {
+                MusicLibraryTopBar(
+                    onBackClick = onBackClick,
+                    onSearchClick = onSearchClick,
+                    onShuffleAll = onShuffleAll
+                )
+                PrimaryTabRow(
+                    selectedTabIndex = selectedTopTab,
+                    containerColor = MediaColors.Background,
+                    contentColor = MediaColors.AccentPrimary
+                ) {
+                    topTabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTopTab == index,
+                            onClick = { selectedTopTab = index },
+                            text = { Text(title, style = MediaTypography.LabelLarge) },
+                            icon = {
+                                Icon(
+                                    when (index) {
+                                        0 -> Icons.Default.LibraryMusic
+                                        1 -> Icons.Default.Explore
+                                        else -> Icons.Default.Cloud
+                                    },
+                                    contentDescription = title
+                                )
+                            }
+                        )
+                    }
+                }
+            }
         },
         bottomBar = {
             if (state.nowPlaying != null) {
@@ -93,84 +121,99 @@ fun MusicLibraryScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Tab row
-            ScrollableTabRow(
-                selectedTabIndex = pagerState.currentPage,
-                containerColor = Color.Transparent,
-                contentColor = MediaColors.TextPrimary,
-                edgePadding = MediaSpacing.MD,
-                indicator = { tabPositions ->
-                    if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
-                        TabRowDefaults.SecondaryIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentSize(Alignment.BottomStart)
-                                .offset(x = tabPositions[pagerState.currentPage].left)
-                                .width(tabPositions[pagerState.currentPage].width),
-                            color = MediaColors.AccentPrimary
-                        )
-                    }
-                },
-                divider = {}
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(index)
+            when (selectedTopTab) {
+                0 -> {
+                    // Local Library tab with sub-tabs
+                    ScrollableTabRow(
+                        selectedTabIndex = pagerState.currentPage,
+                        containerColor = Color.Transparent,
+                        contentColor = MediaColors.TextPrimary,
+                        edgePadding = MediaSpacing.MD,
+                        indicator = { tabPositions ->
+                            if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
+                                TabRowDefaults.SecondaryIndicator(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentSize(Alignment.BottomStart)
+                                        .offset(x = tabPositions[pagerState.currentPage].left)
+                                        .width(tabPositions[pagerState.currentPage].width),
+                                    color = MediaColors.AccentPrimary
+                                )
                             }
                         },
-                        text = {
-                            Text(
-                                text = title,
-                                style = MediaTypography.LabelLarge,
-                                color = if (pagerState.currentPage == index)
-                                    MediaColors.AccentPrimary
-                                else
-                                    MediaColors.TextSecondary
+                        divider = {}
+                    ) {
+                        localTabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = pagerState.currentPage == index,
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(index)
+                                    }
+                                },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        style = MediaTypography.LabelLarge,
+                                        color = if (pagerState.currentPage == index)
+                                            MediaColors.AccentPrimary
+                                        else
+                                            MediaColors.TextSecondary
+                                    )
+                                }
                             )
                         }
+                    }
+                    
+                    if (state.isLoading) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = MediaColors.AccentPrimary)
+                        }
+                    } else {
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.fillMaxSize()
+                        ) { page ->
+                            when (page) {
+                                0 -> AlbumsPage(
+                                    albums = state.albums,
+                                    onAlbumClick = onAlbumClick
+                                )
+                                1 -> ArtistsPage(
+                                    artists = state.artists,
+                                    onArtistClick = onArtistClick
+                                )
+                                2 -> TracksPage(
+                                    tracks = state.tracks,
+                                    onTrackClick = onTrackClick,
+                                    currentTrack = state.nowPlaying
+                                )
+                                3 -> PlaylistsPage(
+                                    playlists = state.playlists,
+                                    onPlaylistClick = onPlaylistClick
+                                )
+                                4 -> GenresPage(
+                                    genres = state.genres,
+                                    onGenreClick = { /* Navigate to genre */ }
+                                )
+                            }
+                        }
+                    }
+                }
+                1 -> {
+                    // Hivefy Discovery tab
+                    com.universalmedialibrary.ui.music.hivefy.HivefyMusicScreen(
+                        onBack = { selectedTopTab = 0 }
                     )
                 }
-            }
-            
-            // Content pager - show loading state if needed
-            if (state.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = MediaColors.AccentPrimary)
-                }
-            } else {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize()
-                ) { page ->
-                    when (page) {
-                        0 -> AlbumsPage(
-                            albums = state.albums,
-                            onAlbumClick = onAlbumClick
-                        )
-                        1 -> ArtistsPage(
-                            artists = state.artists,
-                            onArtistClick = onArtistClick
-                        )
-                        2 -> TracksPage(
-                            tracks = state.tracks,
-                            onTrackClick = onTrackClick,
-                            currentTrack = state.nowPlaying
-                        )
-                        3 -> PlaylistsPage(
-                            playlists = state.playlists,
-                            onPlaylistClick = onPlaylistClick
-                        )
-                        4 -> GenresPage(
-                            genres = state.genres,
-                            onGenreClick = { /* Navigate to genre */ }
-                        )
-                    }
+                2 -> {
+                    // Free Streams tab
+                    com.universalmedialibrary.ui.music.FreeMusicScreen(
+                        onBack = { selectedTopTab = 0 }
+                    )
                 }
             }
         }
