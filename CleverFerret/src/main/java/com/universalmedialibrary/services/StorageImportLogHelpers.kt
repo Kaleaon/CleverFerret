@@ -8,7 +8,11 @@ import kotlinx.serialization.encodeToString
 import com.universalmedialibrary.services.importer.ImportLogInfo
 import com.universalmedialibrary.services.importer.ImportTransactionLog
 import com.universalmedialibrary.services.importer.ImportOperationStatus
-import com.universalmedialibrary.services.importer.importLogJson
+
+internal val importLogJson = Json {
+    prettyPrint = true
+    ignoreUnknownKeys = true
+}
 
 fun listImportLogs(context: Context): List<ImportLogInfo> {
     return try {
