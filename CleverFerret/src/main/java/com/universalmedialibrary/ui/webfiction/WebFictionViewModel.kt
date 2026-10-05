@@ -230,8 +230,15 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error adding story: ${e.message}")
-                publishError(message = message, retryAction = { addStoryFromUrl(url, bypassPin) })
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                val parentalMsg = mapParentalControlsError(
+                    e,
+                    "Error adding story: ${e.message}"
+                )
+                publishError(message = parentalMsg, retryAction = { addStoryFromUrl(url, bypassPin) })
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = message
+                )
             }
         }
     }
@@ -274,8 +281,15 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
-                publishError(message = message, retryAction = { checkForUpdates(story, bypassPin) })
-                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
+                val parentalMsg = mapParentalControlsError(
+                    e,
+                    "Error checking for updates: ${e.message}"
+                )
+                publishError(message = parentalMsg, retryAction = { checkForUpdates(story, bypassPin) })
+                _uiState.value = _uiState.value.copy(
+                    isCheckingUpdates = false,
+                    error = message
+                )
             }
         }
     }
@@ -323,8 +337,15 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error checking for updates: ${e.message}")
-                publishError(message = message, retryAction = { checkAllForUpdates(bypassPin) })
-                _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
+                val parentalMsg = mapParentalControlsError(
+                    e,
+                    "Error checking for updates: ${e.message}"
+                )
+                publishError(message = parentalMsg, retryAction = { checkAllForUpdates(bypassPin) })
+                _uiState.value = _uiState.value.copy(
+                    isCheckingUpdates = false,
+                    error = message
+                )
             }
         }
     }
@@ -361,8 +382,15 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error downloading story: ${e.message}")
-                publishError(message = message, retryAction = { downloadStory(story, bypassPin) })
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                val parentalMsg = mapParentalControlsError(
+                    e,
+                    "Error downloading story: ${e.message}"
+                )
+                publishError(message = parentalMsg, retryAction = { downloadStory(story, bypassPin) })
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = message
+                )
             }
         }
     }
@@ -404,8 +432,15 @@ class WebFictionManagerScreenViewModel @Inject constructor(
                 }
 
                 val message = mapWebFictionError(e, "Error downloading updates: ${e.message}")
-                publishError(message = message, retryAction = { downloadAllUpdates(bypassPin) })
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                val parentalMsg = mapParentalControlsError(
+                    e,
+                    "Error downloading updates: ${e.message}"
+                )
+                publishError(message = parentalMsg, retryAction = { downloadAllUpdates(bypassPin) })
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = message
+                )
             }
         }
     }
