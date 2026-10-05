@@ -45,7 +45,7 @@ val patchRoomMigrationJar = tasks.register("patchRoomMigrationJar") {
                 while (entries.hasMoreElements()) {
                     val entry = entries.nextElement()
                     val bytes = jarIn.getInputStream(entry).readBytes()
-                    if (entry.name.endsWith("\$\$serializer.class")) {
+                    if (entry.name.endsWith("$$serializer.class")) {
                         val cr = org.objectweb.asm.ClassReader(bytes)
                         val cw = org.objectweb.asm.ClassWriter(cr, 0)
                         val cv = object : org.objectweb.asm.ClassVisitor(org.objectweb.asm.Opcodes.ASM9, cw) {
