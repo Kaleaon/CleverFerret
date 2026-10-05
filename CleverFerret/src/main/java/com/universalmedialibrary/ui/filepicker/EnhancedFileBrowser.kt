@@ -722,3 +722,4 @@ private fun moveFileSafely(source: File, destination: File, overwrite: Boolean):
         MoveResult.FAILED
     }
 }
+// formatFileSize reused from StorageBrowserScreen.kt

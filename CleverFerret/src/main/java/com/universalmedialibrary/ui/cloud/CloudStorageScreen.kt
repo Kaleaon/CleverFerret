@@ -19,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.cloud.*
-import com.universalmedialibrary.services.sync.SyncResult
 
 /**
  * Cloud Storage Screen for CleverFerret
@@ -276,7 +275,7 @@ private fun CloudProviderCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 Text(
-                    text = "${formatFileSize(storageUsage.used)} used of ${formatFileSize(storageUsage.limit)}",
+                    text = "${formatFileSize(storageUsage.usedBytes)} used of ${formatFileSize(storageUsage.totalBytes)}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }

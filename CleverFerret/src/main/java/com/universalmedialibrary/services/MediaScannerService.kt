@@ -62,9 +62,9 @@ class MediaScannerService : Service() {
     @Inject lateinit var metadataDao: MetadataDao
     @Inject lateinit var waveformGenerator: WaveformGenerator
 
-    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    internal val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val scanSettingsCache = mutableMapOf<Long, ResolvedScanSettings>()
-    private var scanJob: Job? = null
+    internal var scanJob: Job? = null
 
     companion object {
         const val ACTION_SCAN_ALL = "com.universalmedialibrary.ACTION_SCAN_ALL"
@@ -94,7 +94,7 @@ data class ScanProgress(
     val itemsFound: Int = 0
 )
 
-    private data class ResolvedScanSettings(
+    internal data class ResolvedScanSettings(
         val config: LibraryScanSettings,
         val includeMatchers: List<String>,
         val excludeMatchers: List<String>
@@ -477,7 +477,7 @@ data class ScanProgress(
         }
     }
 
-    private suspend fun scanDirectory(
+    internal suspend fun scanDirectory(
         directory: File,
         resolvedSettings: ResolvedScanSettings? = null,
         forcedLibrary: Library? = null
@@ -706,7 +706,7 @@ data class ScanProgress(
 
 
 
-    private data class MusicTrackInfo(
+    internal data class MusicTrackInfo(
         val title: String? = null,
         val artist: String? = null,
         val album: String? = null,
@@ -753,7 +753,7 @@ data class ScanProgress(
 
 
 
-    private suspend fun getCachedScanSettings(library: Library): ResolvedScanSettings {
+    internal suspend fun getCachedScanSettings(library: Library): ResolvedScanSettings {
         synchronized(scanSettingsCache) {
             scanSettingsCache[library.libraryId]?.let { return it }
         }
@@ -821,7 +821,7 @@ data class ScanProgress(
         .setOngoing(true)
         .build()
 
-    private fun updateNotification(text: String) {
+    internal fun updateNotification(text: String) {
         val notification = createNotification(text)
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID, notification)
