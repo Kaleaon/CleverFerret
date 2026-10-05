@@ -13,6 +13,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.ui.viewer.common.ReadingDirection
+import com.universalmedialibrary.ui.viewer.common.ReadingMode
 
 /**
  * Readium Navigator Preferences Store
@@ -64,6 +66,7 @@ class ReadiumPreferencesStore @Inject constructor(
         
         // Comic Preferences Keys
         private val COMIC_READING_MODE = stringPreferencesKey("comic_reading_mode")
+        private val COMIC_READING_DIRECTION = stringPreferencesKey("comic_reading_direction")
         private val COMIC_TRANSLATION_ENABLED = booleanPreferencesKey("comic_translation_enabled")
         private val COMIC_TRANSLATION_LANG = stringPreferencesKey("comic_translation_lang")
         
@@ -123,8 +126,21 @@ class ReadiumPreferencesStore @Inject constructor(
      * Get comic preferences
      */
     val comicPreferences: Flow<ComicPreferences> = dataStore.data.map { prefs ->
+        val modeStr = prefs[COMIC_READING_MODE] ?: "PAGE_BY_PAGE"
+        val mode = try {
+            ReadingMode.valueOf(modeStr)
+        } catch (_: Exception) {
+            if (modeStr == "PAGE" || modeStr == "PANEL") ReadingMode.PAGE_BY_PAGE else ReadingMode.WEBTOON
+        }
+        val dirStr = prefs[COMIC_READING_DIRECTION] ?: "LEFT_TO_RIGHT"
+        val direction = try {
+            ReadingDirection.valueOf(dirStr)
+        } catch (_: Exception) {
+            ReadingDirection.LEFT_TO_RIGHT
+        }
         ComicPreferences(
-            readingMode = ReadingMode.valueOf(prefs[COMIC_READING_MODE] ?: "PAGE"),
+            readingMode = mode,
+            readingDirection = direction,
             translationEnabled = prefs[COMIC_TRANSLATION_ENABLED] ?: false,
             translationLanguage = prefs[COMIC_TRANSLATION_LANG] ?: "en"
         )
@@ -187,6 +203,7 @@ class ReadiumPreferencesStore @Inject constructor(
     suspend fun saveComicPreferences(preferences: ComicPreferences) {
         dataStore.edit { prefs ->
             prefs[COMIC_READING_MODE] = preferences.readingMode.name
+            prefs[COMIC_READING_DIRECTION] = preferences.readingDirection.name
             prefs[COMIC_TRANSLATION_ENABLED] = preferences.translationEnabled
             prefs[COMIC_TRANSLATION_LANG] = preferences.translationLanguage
         }
@@ -339,15 +356,11 @@ data class AudiobookPreferences(
  */
 @Serializable
 data class ComicPreferences(
-    val readingMode: ReadingMode = ReadingMode.PAGE,
+    val readingMode: ReadingMode = ReadingMode.PAGE_BY_PAGE,
+    val readingDirection: ReadingDirection = ReadingDirection.LEFT_TO_RIGHT,
     val translationEnabled: Boolean = false,
     val translationLanguage: String = "en"
 )
-
-@Serializable
-enum class ReadingMode {
-    PAGE, PANEL, LONG_STRIP
-}
 
 /**
  * Global App Preferences

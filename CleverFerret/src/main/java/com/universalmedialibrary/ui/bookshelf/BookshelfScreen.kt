@@ -26,7 +26,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
 import com.universalmedialibrary.data.local.entity.BookDetails
+import com.universalmedialibrary.ui.components.permission.StoragePermissionBannerDefaults
 import com.universalmedialibrary.ui.theme.*
+import com.universalmedialibrary.utils.rememberPermissionsHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -63,6 +65,7 @@ fun EnhancedBookshelfScreen(
 
     var showSortMenu by remember { mutableStateOf(false) }
     var showViewModeMenu by remember { mutableStateOf(false) }
+    val permissionState = rememberPermissionsHandler()
 
     LaunchedEffect(libraryId) {
         viewModel.loadBooks(libraryId)
@@ -192,6 +195,13 @@ fun EnhancedBookshelfScreen(
                         navController.navigate("book_details/${book.mediaItem.itemId}")
                     },
                     modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
+            // Inline Permission Banner if storage access is missing
+            if (!permissionState.hasStoragePermissions && books.isEmpty()) {
+                StoragePermissionBannerDefaults.BookshelfPermissionBanner(
+                    onRequestPermission = { permissionState.requestPermissions() }
                 )
             }
 

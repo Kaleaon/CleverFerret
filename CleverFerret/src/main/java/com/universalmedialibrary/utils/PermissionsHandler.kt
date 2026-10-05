@@ -124,6 +124,7 @@ fun rememberPermissionsHandler(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var permissionsGranted by remember { mutableStateOf(PermissionsHandler.hasAllPermissions(context)) }
+    var storagePermissionsGranted by remember { mutableStateOf(PermissionsHandler.hasStoragePermissions(context)) }
     var showRationale by remember { mutableStateOf(false) }
     var deniedPermissions by remember { mutableStateOf<List<String>>(emptyList()) }
 
@@ -134,6 +135,7 @@ fun rememberPermissionsHandler(
                 val nowGranted = PermissionsHandler.hasAllPermissions(context)
                 val wasGranted = permissionsGranted
                 permissionsGranted = nowGranted
+                storagePermissionsGranted = PermissionsHandler.hasStoragePermissions(context)
                 if (nowGranted && !wasGranted) {
                     // Clear any stale rationale once we're good.
                     showRationale = false
@@ -154,6 +156,7 @@ fun rememberPermissionsHandler(
 
         deniedPermissions = denied
         permissionsGranted = PermissionsHandler.hasAllPermissions(context)
+        storagePermissionsGranted = PermissionsHandler.hasStoragePermissions(context)
 
         if (permissionsGranted) onAllPermissionsGranted()
         else {
@@ -164,6 +167,7 @@ fun rememberPermissionsHandler(
 
     return PermissionState(
         hasAllPermissions = permissionsGranted,
+        hasStoragePermissions = storagePermissionsGranted,
         showRationale = showRationale,
         deniedPermissions = deniedPermissions,
         requestPermissions = {
@@ -179,6 +183,7 @@ fun rememberPermissionsHandler(
  */
 data class PermissionState(
     val hasAllPermissions: Boolean,
+    val hasStoragePermissions: Boolean = false,
     val showRationale: Boolean,
     val deniedPermissions: List<String>,
     val requestPermissions: () -> Unit,

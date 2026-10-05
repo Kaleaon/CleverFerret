@@ -25,6 +25,7 @@ private val knownStaticRoutes = setOf(
     MediaRoutes.RADIO,
     MediaRoutes.DOCUMENTS,
     MediaRoutes.DISCOVER,
+    MediaRoutes.DISCOVERY_BASE,
     MediaRoutes.OPDS_BROWSER,
     MediaRoutes.PODCAST_DISCOVER,
     MediaRoutes.COLLECTIONS,
@@ -68,6 +69,7 @@ private val knownParameterizedPrefixes = listOf(
     "tag/",
     "smart_collection/",
     "enhanced_search",
+    "discovery",
     "not-found",
     "room-chat/"
 )

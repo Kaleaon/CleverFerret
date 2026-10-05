@@ -33,32 +33,6 @@ class FanfictionEpubConversionService @Inject constructor(
 
     private val ficHubApiUrl = "https://fichub.net/api/v0/epub"
 
-    data class Story(
-        val title: String,
-        val author: String,
-        val summary: String,
-        val chapters: List<Chapter>,
-        val metadata: StoryMetadata
-    )
-
-    data class Chapter(
-        val number: Int,
-        val title: String,
-        val content: String
-    )
-
-    data class StoryMetadata(
-        val fandom: String? = null,
-        val characters: List<String> = emptyList(),
-        val rating: String? = null,
-        val genre: String? = null,
-        val wordCount: Int = 0,
-        val publishDate: String? = null,
-        val updateDate: String? = null,
-        val language: String = "en",
-        val status: String? = null
-    )
-
     enum class FanfictionSite(val domain: String) {
         FANFICTION_NET("fanfiction.net"),
         ARCHIVE_OF_OUR_OWN("archiveofourown.org"),
@@ -489,13 +463,30 @@ class FanfictionEpubConversionService @Inject constructor(
     /**
      * Create EPUB file from story content
      */
-
-
-
-
-
-
-
-
-
 }
+
+data class Story(
+    val title: String,
+    val author: String,
+    val summary: String,
+    val chapters: List<Chapter>,
+    val metadata: StoryMetadata
+)
+
+data class Chapter(
+    val number: Int,
+    val title: String,
+    val content: String
+)
+
+data class StoryMetadata(
+    val fandom: String? = null,
+    val characters: List<String> = emptyList(),
+    val rating: String? = null,
+    val genre: String? = null,
+    val wordCount: Int = 0,
+    val publishDate: String? = null,
+    val updateDate: String? = null,
+    val language: String = "en",
+    val status: String? = null
+)

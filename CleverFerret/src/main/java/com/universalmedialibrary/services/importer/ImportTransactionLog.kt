@@ -1,6 +1,12 @@
 package com.universalmedialibrary.services.importer
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+
+internal val importLogJson = Json {
+    prettyPrint = true
+    ignoreUnknownKeys = true
+}
 
 @Serializable
 data class ImportTransactionLog(

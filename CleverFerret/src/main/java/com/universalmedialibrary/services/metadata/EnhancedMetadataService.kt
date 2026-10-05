@@ -27,7 +27,8 @@ import javax.inject.Singleton
 @Singleton
 class EnhancedMetadataService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val ffmpegExtractor: FFmpegMetadataExtractor
+    private val ffmpegExtractor: FFmpegMetadataExtractor,
+    private val embeddedTagExtractor: EmbeddedTagExtractor
 ) {
     
     companion object {
@@ -216,19 +217,19 @@ class EnhancedMetadataService @Inject constructor(
     }
     
     private fun parseTrackNumber(trackInfo: String?): Int? {
-        return trackInfo?.split('/')?.firstOrNull()?.toIntOrNull()
+        return EmbeddedTagExtractor.parseTrackNumber(trackInfo)
     }
     
     private fun parseTrackTotal(trackInfo: String?): Int? {
-        return trackInfo?.split('/')?.getOrNull(1)?.toIntOrNull()
+        return EmbeddedTagExtractor.parseTrackTotal(trackInfo)
     }
     
     private fun parseDiscNumber(discInfo: String?): Int? {
-        return discInfo?.split('/')?.firstOrNull()?.toIntOrNull()
+        return EmbeddedTagExtractor.parseDiscNumber(discInfo)
     }
     
     private fun parseDiscTotal(discInfo: String?): Int? {
-        return discInfo?.split('/')?.getOrNull(1)?.toIntOrNull()
+        return EmbeddedTagExtractor.parseDiscTotal(discInfo)
     }
     
     private fun getSampleRate(retriever: MediaMetadataRetriever): Int? {

@@ -42,6 +42,16 @@ class MediaRouteFallbackTest {
     }
 
     @Test
+    fun resolveRouteOrFallback_keepsDiscoveryRoute() {
+        val discoveryBaseResolved = resolveRouteOrFallback(MediaRoutes.DISCOVERY_BASE)
+        assertEquals(MediaRoutes.DISCOVERY_BASE, discoveryBaseResolved)
+
+        val parameterizedDiscovery = MediaRoutes.discoveryRoute(query = "cyberpunk", tags = "sci-fi", type = "book")
+        val resolved = resolveRouteOrFallback(parameterizedDiscovery)
+        assertEquals(parameterizedDiscovery, resolved)
+    }
+
+    @Test
     fun sectionSeeAllDetail_contract_isStable() {
         val section = HomeSectionRouteContract.BOOKS
         val seeAllRoute = section.seeAllRoute()
