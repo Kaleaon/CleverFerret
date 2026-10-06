@@ -150,9 +150,7 @@ android {
 
     val isCiBuild = providers.environmentVariable("CI").orNull.equals("true", ignoreCase = true)
     val isReleaseTaskRequested = gradle.startParameter.taskNames.any { taskName ->
-        taskName.contains("release", ignoreCase = true) ||
-            taskName.equals("assemble", ignoreCase = true) ||
-            taskName.equals("build", ignoreCase = true)
+        taskName.contains("release", ignoreCase = true)
     }
 
     // =========================================================================
