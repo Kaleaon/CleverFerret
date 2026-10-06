@@ -1,3 +1,6 @@
+import org.gradle.api.plugins.JavaPluginExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+
 plugins {
     base
     kotlin("jvm") version "1.9.24" apply false
@@ -16,13 +19,15 @@ subprojects {
         mavenCentral()
     }
 
-    java {
+    val targetJavaVersion = if (JavaVersion.current() == JavaVersion.VERSION_17) 17 else JavaVersion.current().majorVersion.toInt()
+
+    configure<JavaPluginExtension> {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
         }
     }
 
-    kotlin {
-        jvmToolchain(17)
+    configure<KotlinJvmProjectExtension> {
+        jvmToolchain(targetJavaVersion)
     }
 }

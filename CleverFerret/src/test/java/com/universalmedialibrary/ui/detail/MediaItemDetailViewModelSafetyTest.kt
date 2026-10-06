@@ -4,7 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.ReadingProgressDao
-import com.universalmedialibrary.data.local.entity.MediaItemEntity
+import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.repository.CollectionRepository
 import com.universalmedialibrary.data.repository.MetadataFetchRepository
 import com.universalmedialibrary.data.repository.TagRepository
@@ -18,6 +18,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -99,19 +100,26 @@ class MediaItemDetailViewModelSafetyTest {
         val staleCover = File(cacheDir, "old_cover.jpg")
         staleCover.createNewFile()
 
-        val mediaItem = MediaItemEntity(
-            id = 200L,
+        val mediaItem = MediaItem(
+            itemId = 200L,
             libraryId = 1L,
-            title = "Single Item",
             filePath = "/path/book.pdf",
+            fileName = "book.pdf",
+            fileExtension = "pdf",
+            fileSize = 1000L,
             mediaType = "BOOK",
-            coverPath = staleCover.absolutePath
+            thumbnailPath = staleCover.absolutePath
         )
 
-        coEvery { mediaItemDao.getItemById(200L) } returns mediaItem
-        coEvery { thumbnailService.generateThumbnail(any(), any()) } returns Result.success("/cache/new_cover.jpg")
+        coEvery { mediaItemDao.getMediaItemById(200L) } returns mediaItem
+        coEvery { readingProgressDao.getProgress(200L) } returns flowOf(null)
+        coEvery { tagRepository.getTagsForItem(200L) } returns flowOf(emptyList())
+        coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/new_cover.jpg")
 
-        viewModel.regenerateThumbnail(200L)
+        viewModel.loadMediaItem(200L)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.regenerateThumbnail()
         testDispatcher.scheduler.advanceUntilIdle()
 
         verify { fileSafetyGuardrail.safeDeleteCacheFile(staleCover.absolutePath) }
@@ -122,20 +130,27 @@ class MediaItemDetailViewModelSafetyTest {
         val userCoverFile = File(mediaDir, "important_cover.png")
         userCoverFile.createNewFile()
 
-        val mediaItem = MediaItemEntity(
-            id = 201L,
+        val mediaItem = MediaItem(
+            itemId = 201L,
             libraryId = 1L,
-            title = "Protected Item",
             filePath = "/path/music.flac",
+            fileName = "music.flac",
+            fileExtension = "flac",
+            fileSize = 1000L,
             mediaType = "AUDIO",
-            coverPath = userCoverFile.absolutePath
+            thumbnailPath = userCoverFile.absolutePath
         )
 
-        coEvery { mediaItemDao.getItemById(201L) } returns mediaItem
-        coEvery { thumbnailService.generateThumbnail(any(), any()) } returns Result.success("/cache/generated_cover.jpg")
+        coEvery { mediaItemDao.getMediaItemById(201L) } returns mediaItem
+        coEvery { readingProgressDao.getProgress(201L) } returns flowOf(null)
+        coEvery { tagRepository.getTagsForItem(201L) } returns flowOf(emptyList())
+        coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/generated_cover.jpg")
         every { fileSafetyGuardrail.safeDeleteCacheFile(userCoverFile.absolutePath) } returns false
 
-        viewModel.regenerateThumbnail(201L)
+        viewModel.loadMediaItem(201L)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.regenerateThumbnail()
         testDispatcher.scheduler.advanceUntilIdle()
 
         verify { fileSafetyGuardrail.safeDeleteCacheFile(userCoverFile.absolutePath) }
