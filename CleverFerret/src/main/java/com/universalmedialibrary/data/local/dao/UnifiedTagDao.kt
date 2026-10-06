@@ -44,7 +44,7 @@ interface UnifiedTagDao {
     @Query("SELECT * FROM unified_tags WHERE tagId = :tagId")
     suspend fun getTagById(tagId: Long): UnifiedTag?
 
-    @Query("SELECT * FROM unified_tags WHERE name = :name LIMIT 1")
+    @Query("SELECT * FROM unified_tags WHERE LOWER(name) = LOWER(:name) LIMIT 1")
     suspend fun getTagByName(name: String): UnifiedTag?
 
     @Query("SELECT * FROM unified_tags ORDER BY name ASC")
@@ -155,10 +155,12 @@ interface UnifiedTagDao {
     // Find or create tag
     @Transaction
     suspend fun findOrCreateTag(name: String, type: TagType = TagType.USER_DEFINED, color: String? = null): Long {
-        val existing = getTagByName(name)
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return -1L
+        val existing = getTagByName(trimmed)
         return existing?.tagId ?: insertTag(
             UnifiedTag(
-                name = name,
+                name = trimmed,
                 type = type,
                 color = color
             )
