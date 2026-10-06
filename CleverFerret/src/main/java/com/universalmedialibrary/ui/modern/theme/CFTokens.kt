@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
 import com.universalmedialibrary.services.manga.source.MangaState
 import com.universalmedialibrary.services.webfiction.DownloadStatus
 import com.universalmedialibrary.services.webfiction.StoryStatus
@@ -122,6 +123,7 @@ data class CFTokens(
     val typography: FontFamily = FontFamily.Default,
     val status: CFStatusColors = CFStatusColors(),
     val playerControls: CFPlayerControls = CFPlayerControls(),
+    val liveRegion: KthemeThemeAdapterV1.LiveRegionPolicy = KthemeThemeAdapterV1.LiveRegionPolicy(),
 )
 
 val LocalCFTokens = staticCompositionLocalOf<CFTokens> {

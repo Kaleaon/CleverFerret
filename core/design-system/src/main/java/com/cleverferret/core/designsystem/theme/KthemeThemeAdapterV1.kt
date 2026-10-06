@@ -11,7 +11,7 @@ object KthemeThemeAdapterV1 {
         fun toComposeLiveRegionMode(): androidx.compose.ui.semantics.LiveRegionMode {
             return when (mode.lowercase()) {
                 "assertive" -> androidx.compose.ui.semantics.LiveRegionMode.Assertive
-                "off" -> androidx.compose.ui.semantics.LiveRegionMode.Off
+                "off" -> androidx.compose.ui.semantics.LiveRegionMode.Polite
                 else -> androidx.compose.ui.semantics.LiveRegionMode.Polite
             }
         }

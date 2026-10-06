@@ -100,7 +100,12 @@ fun EnhancedMetadataEditorScreen(
             )
         }
     ) { paddingValues ->
-            Row(
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(16.dp)
