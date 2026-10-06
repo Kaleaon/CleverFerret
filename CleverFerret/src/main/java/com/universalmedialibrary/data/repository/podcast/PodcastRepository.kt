@@ -10,6 +10,9 @@ import com.universalmedialibrary.services.podcast.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -324,10 +327,18 @@ class PodcastRepository @Inject constructor(
         if (dateStr.isNullOrEmpty()) return System.currentTimeMillis()
 
         return try {
-            val format = java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", java.util.Locale.ENGLISH)
-            format.parse(dateStr)?.time ?: System.currentTimeMillis()
+            ZonedDateTime.parse(dateStr, rssDateFormatter).toInstant().toEpochMilli()
         } catch (e: Exception) {
-            System.currentTimeMillis()
+            try {
+                ZonedDateTime.parse(dateStr, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli()
+            } catch (e2: Exception) {
+                System.currentTimeMillis()
+            }
         }
+    }
+
+    companion object {
+        private val rssDateFormatter: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
     }
 }

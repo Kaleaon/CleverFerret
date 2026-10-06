@@ -5,12 +5,16 @@ import java.security.MessageDigest
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URL
-import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 private val fileNameSanitizer = FileNameSanitizer()
+
+internal val RSS_DATE_FORMATTER: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
 
 internal fun parsePodcastIndexCredentialsString(raw: String?): PodcastIndexCredentials? {
     if (raw.isNullOrBlank()) return null
@@ -82,12 +86,15 @@ internal fun String?.toValidFeedUrlOrNull(): String? {
 
 internal fun parsePubDateToMillis(pubDate: String?): Long {
     if (pubDate.isNullOrBlank()) return 0L
-    return runCatching {
-        SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
-            .parse(pubDate)
-            ?.time
-            ?: 0L
-    }.getOrDefault(0L)
+    return try {
+        ZonedDateTime.parse(pubDate, RSS_DATE_FORMATTER).toInstant().toEpochMilli()
+    } catch (e: Exception) {
+        try {
+            ZonedDateTime.parse(pubDate, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli()
+        } catch (e2: Exception) {
+            0L
+        }
+    }
 }
 
 internal fun resolveUrl(feedUrl: String, candidate: String?): String? {
@@ -172,14 +179,9 @@ internal fun normalizeEpisodeList(items: List<RSSItem>, feedUrl: String): List<R
 }
 
 internal fun convertRSSItemsToEpisodes(items: List<RSSItem>, podcastId: Long): List<PodcastEpisode> {
-    val dateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
-
     return items.mapIndexed { index, item ->
-        val publishDate = try {
-            dateFormat.parse(item.pubDate ?: "")?.time
-        } catch (e: Exception) {
-            System.currentTimeMillis() // Fallback to current time
-        } ?: System.currentTimeMillis()
+        val parsedDate = if (!item.pubDate.isNullOrBlank()) parsePubDateToMillis(item.pubDate) else 0L
+        val publishDate = if (parsedDate != 0L) parsedDate else System.currentTimeMillis()
 
         val duration = parseDuration(item.duration)
 
