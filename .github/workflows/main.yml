@@ -398,25 +398,18 @@ jobs:
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      run: ./gradlew assembleRelease
+      
+    - name: Verify release APK signature
+      if: steps.build-debug.outcome == 'success'
       run: |
-        if [[ -n "$KEYSTORE_PASSWORD" && -n "$KEY_ALIAS" && -n "$KEY_PASSWORD" ]]; then
-          echo "Signing APK with keystore..."
-          echo "$KEYSTORE_BASE64" | base64 -d > release-keystore.jks
-
-          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
-            -keystore release-keystore.jks \
-            -storepass "$KEYSTORE_PASSWORD" \
-            -keypass "$KEY_PASSWORD" \
-            CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
-            "$KEY_ALIAS"
-
-          $ANDROID_SDK_ROOT/build-tools/34.0.0/zipalign -v 4 \
-            CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
-            CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
-
-          echo "signed=true" >> $GITHUB_OUTPUT
-          echo "APK signed successfully"
+        echo "Verifying release APK signature with apksigner..."
+        
+        RELEASE_APK=""
+        if [[ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release.apk" ]]; then
+          RELEASE_APK="CleverFerret/build/outputs/apk/release/CleverFerret-release.apk"
+        elif [[ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]]; then
+          RELEASE_APK="CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk"
         else
           RELEASE_APK=$(find CleverFerret/build/outputs/apk/release/ -name "*.apk" ! -name "*-unsigned.apk" | head -n 1)
         fi
