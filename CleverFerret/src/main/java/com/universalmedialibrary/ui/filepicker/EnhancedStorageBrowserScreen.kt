@@ -457,7 +457,6 @@ private fun getFilesInFolder(
 
 // QuickAccessChip reused from StorageBrowserScreen.kt
 
-
 @Composable
 private fun EmptyFolderView() {
     Box(

@@ -131,7 +131,7 @@ internal fun generatePodcastId(feedUrl: String): Long {
 }
 
 internal fun sanitizeFileName(name: String): String {
-    return fileNameSanitizer.sanitizeFileName(name)
+    return name.replace(Regex("[^a-zA-Z0-9._-]"), "_").take(100)
 }
 
 internal fun getFileExtension(url: String): String {
