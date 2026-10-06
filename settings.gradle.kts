@@ -45,3 +45,27 @@ include(":core:design-system")
 // docs/planning/PREMIERE_ROADMAP.md and benchmark-macro/build.gradle.kts.
 include(":benchmark-macro")
 
+// CleverFerretV2 core submodules (7)
+val v2CoreModules = listOf(
+    "auth", "common", "data", "database", "media", "network", "ui"
+)
+for (mod in v2CoreModules) {
+    include(":core:$mod")
+    project(":core:$mod").projectDir = file("CleverFerretV2/core/$mod")
+}
+
+// CleverFerretV2 feature submodules (16)
+val v2FeatureModules = listOf(
+    "ai", "audio", "collections", "library", "metadata", "opds", "plex",
+    "podcast", "radio", "reader", "search", "settings", "stats", "sync",
+    "webfiction", "widgets"
+)
+for (mod in v2FeatureModules) {
+    include(":feature:$mod")
+    project(":feature:$mod").projectDir = file("CleverFerretV2/feature/$mod")
+}
+
+// CleverFerretV2 app module
+include(":CleverFerretV2:app")
+
+

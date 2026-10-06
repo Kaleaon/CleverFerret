@@ -64,6 +64,57 @@ allprojects {
     }
 }
 
+subprojects {
+    val isV2Submodule = path.startsWith(":feature:") ||
+            (path.startsWith(":core:") && path != ":core:design-system") ||
+            path.startsWith(":CleverFerretV2")
+
+    if (isV2Submodule) {
+        if (!plugins.hasPlugin("application")) {
+            apply(plugin = "java-library")
+        }
+        apply(plugin = "org.jetbrains.kotlin.jvm")
+
+        group = "com.cleverferret.v2"
+        version = "0.1.0"
+
+        val targetJavaVersion = if (JavaVersion.current() == JavaVersion.VERSION_17) 17 else JavaVersion.current().majorVersion.toInt()
+
+        configure<org.gradle.api.plugins.JavaPluginExtension> {
+            toolchain {
+                languageVersion.set(org.gradle.jvm.toolchain.JavaLanguageVersion.of(targetJavaVersion))
+            }
+        }
+
+        configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
+            jvmToolchain(targetJavaVersion)
+        }
+    }
+
+    afterEvaluate {
+        val isAndroidModule = plugins.hasPlugin("com.android.application") ||
+                plugins.hasPlugin("com.android.library") ||
+                plugins.hasPlugin("com.android.test")
+
+        if (!isAndroidModule) {
+            if (tasks.findByName("compileKotlin") != null && tasks.findByName("compileDebugKotlin") == null) {
+                tasks.register("compileDebugKotlin") {
+                    dependsOn(tasks.named("compileKotlin"))
+                }
+            }
+            if (tasks.findByName("test") != null && tasks.findByName("testDebugUnitTest") == null) {
+                tasks.register("testDebugUnitTest") {
+                    dependsOn(tasks.named("test"))
+                }
+            }
+            if (tasks.findByName("lintDebug") == null) {
+                tasks.register("lintDebug")
+            }
+        }
+    }
+}
+
+
 val hookContent = """
 #!/usr/bin/env bash
 set -euo pipefail
