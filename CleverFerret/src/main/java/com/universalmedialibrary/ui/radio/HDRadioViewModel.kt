@@ -15,7 +15,6 @@ import javax.inject.Inject
 class HDRadioViewModel @Inject constructor(
     private val hdRadioService: HDRadioService,
     private val hdRadioDirectory: HDRadioStationDirectory,
-    @Suppress("unused") private val radioStationDao: com.universalmedialibrary.data.local.dao.RadioStationDao,
     private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 ) : ViewModel() {
     val stations: StateFlow<List<HDRadioStation>> = hdRadioService.hdStations

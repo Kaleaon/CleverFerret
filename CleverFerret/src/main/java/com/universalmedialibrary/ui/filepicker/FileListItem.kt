@@ -110,5 +110,3 @@ internal fun FileListItem(
         }
     }
 }
-
-

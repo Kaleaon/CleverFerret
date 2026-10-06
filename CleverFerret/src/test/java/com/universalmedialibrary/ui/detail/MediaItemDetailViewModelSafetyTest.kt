@@ -77,6 +77,9 @@ class MediaItemDetailViewModelSafetyTest {
         cacheDir = tempFolder.newFolder("cache")
         mediaDir = tempFolder.newFolder("user_media")
 
+        coEvery { readingProgressDao.getProgress(any()) } returns flowOf(null)
+        coEvery { tagRepository.getTagsForItem(any()) } returns flowOf(emptyList())
+
         viewModel = MediaItemDetailViewModel(
             mediaItemDao,
             metadataDao,
@@ -112,6 +115,11 @@ class MediaItemDetailViewModelSafetyTest {
         )
 
         coEvery { mediaItemDao.getMediaItemById(200L) } returns mediaItem
+        coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/new_cover.jpg")
+
+        viewModel.loadMediaItem(200L)
+        testDispatcher.scheduler.advanceUntilIdle()
+
         coEvery { readingProgressDao.getProgress(200L) } returns flowOf(null)
         coEvery { tagRepository.getTagsForItem(200L) } returns flowOf(emptyList())
         coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/new_cover.jpg")

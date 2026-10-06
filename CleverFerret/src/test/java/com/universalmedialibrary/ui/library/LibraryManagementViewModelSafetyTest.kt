@@ -14,7 +14,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -107,6 +106,7 @@ class LibraryManagementViewModelSafetyTest {
         )
 
         coEvery { mediaItemDao.getAllMediaItems() } returns listOf(mediaItem)
+        coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/new_thumb.jpg")
         coEvery { thumbnailService.extractCoverFromEpub(any()) } returns File("/cache/new_thumb.jpg")
 
         viewModel.regenerateAllThumbnails()

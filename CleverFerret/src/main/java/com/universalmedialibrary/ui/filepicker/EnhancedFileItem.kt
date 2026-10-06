@@ -158,5 +158,3 @@ internal fun EnhancedFileItem(
         }
     }
 }
-
-
