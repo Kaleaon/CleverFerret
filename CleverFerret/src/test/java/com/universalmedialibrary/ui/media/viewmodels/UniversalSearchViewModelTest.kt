@@ -33,7 +33,7 @@ import org.junit.runner.Description
 class UniversalSearchViewModelTest {
 
     @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    val mainDispatcherRule = UniversalSearchMainDispatcherRule()
 
     @Test
     fun discoveryRoute_serializesQueryParametersCorrectly() {
@@ -122,25 +122,26 @@ class UniversalSearchViewModelTest {
 
         val dummyStory = DownloadedStory(
             id = "story1",
-            url = "http://example.com",
             title = "War of the Worlds",
             author = "HG Wells",
             site = "Reddit",
+            url = "http://example.com",
             siteStoryId = "story1",
             totalChapters = 1,
             lastKnownChapters = 1,
-            lastUpdated = 0L,
-            lastChecked = 0L,
-            lastDownloaded = 0L,
-            epubFilePath = "/path/to/epub",
-            fileSize = 100L
+            lastUpdated = System.currentTimeMillis(),
+            lastChecked = System.currentTimeMillis(),
+            lastDownloaded = System.currentTimeMillis(),
+            epubFilePath = "/tmp/story1.epub",
+            fileSize = 1000L
         )
         every { storyRepo.getAllStories() } returns flowOf(listOf(dummyStory))
 
         val dummyTag = UnifiedTag(
             tagId = 1L,
             name = "warfare",
-            type = TagType.USER
+            type = TagType.USER_DEFINED,
+            usageCount = 15
         )
         every { tagRepo.getPopularTags(any()) } returns flowOf(listOf(dummyTag))
         every { tagRepo.searchTags("war") } returns flowOf(listOf(dummyTag))
@@ -162,5 +163,18 @@ class UniversalSearchViewModelTest {
         assertThat(state.storyResults.first().title).isEqualTo("War of the Worlds")
         assertThat(state.tagResults).hasSize(1)
         assertThat(state.tagResults.first().name).isEqualTo("warfare")
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class UniversalSearchMainDispatcherRule(
+    private val dispatcher: TestDispatcher = StandardTestDispatcher()
+) : TestWatcher() {
+    override fun starting(description: Description) {
+        Dispatchers.setMain(dispatcher)
+    }
+
+    override fun finished(description: Description) {
+        Dispatchers.resetMain()
     }
 }
