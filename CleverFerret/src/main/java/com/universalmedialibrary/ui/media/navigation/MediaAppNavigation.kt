@@ -27,7 +27,5 @@ fun MediaAppNavHost(
         syncImportRoutes(navController, onShowSnackbar)
         onboardingLandseekRoutes(navController, onShowSnackbar)
         debugMenuRoutes(navController, onShowSnackbar)
-        legacyRoutes(navController, onShowSnackbar)
-        legacyContentRoutes(navController, onShowSnackbar)
     }
 }

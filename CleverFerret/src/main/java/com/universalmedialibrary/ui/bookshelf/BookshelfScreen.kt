@@ -47,13 +47,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 
 import kotlin.math.absoluteValue
 
-@Deprecated(
-    message = "Migrated to ModernBookshelfScreen in ui.modern.books",
-    replaceWith = ReplaceWith(
-        "ModernBookshelfScreen(navController, libraryId)",
-        "com.universalmedialibrary.ui.modern.books.ModernBookshelfScreen"
-    )
-)
+@Deprecated(message = "Migrated to feature:library")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnhancedBookshelfScreen(
