@@ -25,12 +25,12 @@ class UniversalTagService @Inject constructor(
 ) {
 
     companion object {
-        private const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
-        private const val REQUEST_TIMEOUT = 30000
-        private const val SCRIBBLE_HUB_PAGE_SIZE = 25
+        internal const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
+        internal const val REQUEST_TIMEOUT = 30000
+        internal const val SCRIBBLE_HUB_PAGE_SIZE = 25
     }
 
-    private val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
+    internal val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
 
     private suspend fun ensureAdultAccess(siteType: WebFictionSiteType): Result<Unit> {
         if (!siteType.isAdultSite()) return Result.success(Unit)
@@ -135,7 +135,7 @@ class UniversalTagService @Inject constructor(
 
 
 
-    private suspend fun buildSearchResult(
+    internal suspend fun buildSearchResult(
         criteria: StorySearchCriteria,
         stories: List<WebFictionStory>
     ): StorySearchResult {
