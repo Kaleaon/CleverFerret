@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
+import com.universalmedialibrary.R
 import com.universalmedialibrary.data.local.dao.RadioStationDao
 import com.universalmedialibrary.data.local.entity.RadioStation
 import com.universalmedialibrary.services.audio.MusicPlaybackService
@@ -71,15 +73,15 @@ fun FMRadioScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("FM Radio") },
+                title = { Text(stringResource(R.string.fm_radio_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.navigation_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.saveCurrentStation() }) {
-                        Icon(Icons.Default.FavoriteBorder, "Save to Favorites")
+                        Icon(Icons.Default.FavoriteBorder, stringResource(R.string.radio_save_to_favorites))
                     }
                 }
             )
@@ -95,18 +97,18 @@ fun FMRadioScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         Icons.Default.Radio,
-                        contentDescription = "Media image",
+                        contentDescription = stringResource(R.string.cd_media_image),
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "FM Radio Unavailable",
+                        stringResource(R.string.radio_unavailable_title),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.error
                     )
                     Text(
-                        "No FM radio hardware detected or permission denied.",
+                        stringResource(R.string.radio_unavailable_message),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -140,8 +142,8 @@ fun FMRadioScreen(
                         if (displayImage != null) {
                              AsyncImage(
                     
-                                model = displayImage,
-                                contentDescription = "Station Logo / Album Art",
+                                 model = displayImage,
+                                contentDescription = stringResource(R.string.cd_station_logo_album_art),
                                 modifier = Modifier
                                     .size(160.dp)
                                     .clip(RoundedCornerShape(16.dp))
@@ -199,7 +201,7 @@ fun FMRadioScreen(
                                 ) {
                                     Icon(Icons.Default.Search, null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Identify Song", style = MaterialTheme.typography.labelSmall)
+                                    Text(stringResource(R.string.radio_identify_song), style = MaterialTheme.typography.labelSmall)
                                 }
                             }
                         }
@@ -213,7 +215,7 @@ fun FMRadioScreen(
                         ) {
                             Icon(
                                 Icons.Default.SignalCellularAlt,
-                                "Signal",
+                                stringResource(R.string.cd_signal_strength),
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
@@ -226,6 +228,8 @@ fun FMRadioScreen(
                         // Internet Stream Available
                         if (hasInternetStream) {
                             Spacer(modifier = Modifier.height(16.dp))
+                            val fallbackTitle = stringResource(R.string.radio_fallback_internet_title)
+                            val fallbackArtist = stringResource(R.string.radio_fallback_live_stream)
                             Button(
                                 onClick = {
                                     val streamUrl = dnsMetadata?.streamUrl
@@ -234,8 +238,8 @@ fun FMRadioScreen(
                                         val intent = Intent(context, MusicPlaybackService::class.java).apply {
                                             action = MusicPlaybackService.ACTION_PLAY_URI
                                             putExtra(MusicPlaybackService.EXTRA_URI, streamUrl)
-                                            putExtra(MusicPlaybackService.EXTRA_TITLE, dnsMetadata?.name ?: "Internet Radio")
-                                            putExtra(MusicPlaybackService.EXTRA_ARTIST, "Live Stream")
+                                            putExtra(MusicPlaybackService.EXTRA_TITLE, dnsMetadata?.name ?: fallbackTitle)
+                                            putExtra(MusicPlaybackService.EXTRA_ARTIST, fallbackArtist)
                                         }
                                         context.startService(intent)
                                     }
@@ -246,7 +250,7 @@ fun FMRadioScreen(
                             ) {
                                 Icon(Icons.Default.WifiTethering, null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Switch to Internet Radio")
+                                Text(stringResource(R.string.radio_switch_to_internet_radio))
                             }
                         }
                     }
@@ -255,7 +259,7 @@ fun FMRadioScreen(
                 // Similar Items (TasteDive)
                 if (similarItems.isNotEmpty()) {
                     Text(
-                        "You Might Also Like",
+                        stringResource(R.string.radio_you_might_also_like),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 16.dp)
                     )
@@ -321,7 +325,7 @@ fun FMRadioScreen(
                             ) {
                                 Icon(
                                     Icons.Default.SkipPrevious,
-                                    "Scan Down",
+                                    stringResource(R.string.cd_scan_down),
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -332,7 +336,7 @@ fun FMRadioScreen(
                             ) {
                                 Icon(
                                     if (isPlaying) Icons.Default.Stop else Icons.Default.PlayArrow,
-                                    if (isPlaying) "Stop" else "Play",
+                                    if (isPlaying) stringResource(R.string.cd_stop) else stringResource(R.string.cd_play_button),
                                     modifier = Modifier.size(40.dp)
                                 )
                             }
@@ -343,7 +347,7 @@ fun FMRadioScreen(
                             ) {
                                 Icon(
                                     Icons.Default.SkipNext,
-                                    "Scan Up",
+                                    stringResource(R.string.cd_scan_up),
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -356,13 +360,13 @@ fun FMRadioScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { viewModel.tuneDown() }) {
-                                Icon(Icons.Default.Remove, "Tune Down")
+                                Icon(Icons.Default.Remove, stringResource(R.string.cd_tune_down))
                             }
                             
-                            Text("Fine Tune", style = MaterialTheme.typography.labelMedium)
+                            Text(stringResource(R.string.radio_fine_tune), style = MaterialTheme.typography.labelMedium)
                             
                             IconButton(onClick = { viewModel.tuneUp() }) {
-                                Icon(Icons.Default.Add, "Tune Up")
+                                Icon(Icons.Default.Add, stringResource(R.string.cd_tune_up))
                             }
                         }
                     }
@@ -370,7 +374,7 @@ fun FMRadioScreen(
 
                 // Presets
                 Text(
-                    "Favorite Stations",
+                    stringResource(R.string.radio_favorite_stations),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.align(Alignment.Start)
                 )
@@ -417,7 +421,7 @@ fun FMRadioScreen(
                                 if (station.frequencyKhz == currentFrequency && isPlaying) {
                                     Icon(
                                         Icons.Default.GraphicEq,
-                                        "Playing",
+                                        stringResource(R.string.cd_playing),
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                 }

@@ -1,20 +1,57 @@
 package com.universalmedialibrary.ui.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.universalmedialibrary.ui.theme.*
+import com.universalmedialibrary.ui.theme.animatedEntrance
+import com.universalmedialibrary.ui.theme.depthShadow
 
 /**
- * Card shown when an error occurs, with a retry button
+ * Card shown when an error occurs, with a retry button.
  */
 @Composable
 fun ErrorStateCard(
@@ -41,7 +78,7 @@ fun ErrorStateCard(
         ) {
             Icon(
                 imageVector = Icons.Default.Error,
-                contentDescription = "Media image",
+                contentDescription = "Error",
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.error
             )
@@ -63,7 +100,8 @@ fun ErrorStateCard(
             Button(
                 onClick = onRetry,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
                 )
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = "Refresh")
@@ -75,30 +113,17 @@ fun ErrorStateCard(
 }
 
 /**
- * Card shown while loading data
+ * Card shown while loading data.
  */
 @Composable
 fun LoadingStateCard(
     message: String,
     modifier: Modifier = Modifier
 ) {
-    val patternsEnabled = geometricPatternsEnabled()
-    
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .then(
-                if (patternsEnabled) {
-                    Modifier.geometricPattern(
-                        patternColor = MaterialTheme.colorScheme.onSurface,
-                        patternType = PatternType.SUBTLE_GRID,
-                        alpha = 0.03f
-                    )
-                } else {
-                    Modifier
-                }
-            )
             .depthShadow(elevation = 2.dp)
             .animatedEntrance(durationMillis = 300),
         colors = CardDefaults.cardColors(
@@ -117,7 +142,8 @@ fun LoadingStateCard(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(48.dp),
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -132,7 +158,7 @@ fun LoadingStateCard(
 }
 
 /**
- * Card shown when there's no data, with a call-to-action
+ * Card shown when there's no data, with a call-to-action button.
  */
 @Composable
 fun EmptyStateCard(
@@ -160,7 +186,7 @@ fun EmptyStateCard(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = "Media image",
+                contentDescription = title,
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -193,7 +219,7 @@ fun EmptyStateCard(
 }
 
 /**
- * Informational banner with an icon and message
+ * Informational banner with an icon and message.
  */
 @Composable
 fun InfoBanner(
@@ -218,7 +244,7 @@ fun InfoBanner(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = "Media image",
+                contentDescription = "Info",
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
 
@@ -232,14 +258,15 @@ fun InfoBanner(
 }
 
 /**
- * Section header with optional action button
+ * Section header with optional action button.
  */
 @Composable
 fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier,
     actionLabel: String? = null,
-    onActionClick: (() -> Unit)? = null
+    onActionClick: (() -> Unit)? = null,
+    icon: ImageVector? = null
 ) {
     Row(
         modifier = modifier
@@ -248,12 +275,25 @@ fun SectionHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
 
         if (actionLabel != null && onActionClick != null) {
             TextButton(onClick = onActionClick) {
@@ -264,7 +304,7 @@ fun SectionHeader(
 }
 
 /**
- * Card displaying a statistic with an icon
+ * Card displaying a statistic with an icon.
  */
 @Composable
 fun StatsCard(
@@ -288,7 +328,7 @@ fun StatsCard(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = "Media image",
+                contentDescription = label,
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -307,6 +347,55 @@ fun StatsCard(
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
+        }
+    }
+}
+
+/**
+ * Content rating badge component.
+ */
+@Composable
+fun ContentRatingBadge(
+    rating: String,
+    isRestricted: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val backgroundColor = if (isRestricted) {
+        MaterialTheme.colorScheme.errorContainer
+    } else {
+        MaterialTheme.colorScheme.secondaryContainer
+    }
+
+    val textColor = if (isRestricted) {
+        MaterialTheme.colorScheme.onErrorContainer
+    } else {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    }
+
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.small,
+        color = backgroundColor
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (isRestricted) {
+                Icon(
+                    Icons.Default.Lock,
+                    contentDescription = "Content restricted",
+                    tint = textColor,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+            Text(
+                text = rating,
+                style = MaterialTheme.typography.labelSmall,
+                color = textColor,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

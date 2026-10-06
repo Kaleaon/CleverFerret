@@ -207,7 +207,7 @@ private fun CenterTransport(
                 Icon(
                     if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = if (isPlaying) "Pause" else "Play",
-                    tint = Color.Black,
+                    tint = tokens.playerControls.playButtonIcon,
                 )
             }
         }
@@ -219,6 +219,7 @@ private fun CenterTransport(
 
 @Composable
 private fun BottomOverlay(state: ModernVideoPlayerUiState, onSeek: (Float) -> Unit) {
+    val tokens = LocalCFTokens.current
     Column(
         Modifier
             .fillMaxWidth()
@@ -229,9 +230,9 @@ private fun BottomOverlay(state: ModernVideoPlayerUiState, onSeek: (Float) -> Un
             value = state.progress.coerceIn(0f, 1f),
             onValueChange = onSeek,
             colors = SliderDefaults.colors(
-                thumbColor = Color.White,
-                activeTrackColor = MaterialTheme.colorScheme.primary,
-                inactiveTrackColor = Color.White.copy(alpha = 0.3f),
+                thumbColor = tokens.playerControls.thumb,
+                activeTrackColor = tokens.playerControls.activeTrack,
+                inactiveTrackColor = tokens.playerControls.inactiveTrack,
             ),
         )
         Row(Modifier.fillMaxWidth()) {

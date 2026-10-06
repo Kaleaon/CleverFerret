@@ -53,6 +53,11 @@ object DatabaseModule {
         return appDatabase.mediaItemDao()
     }
 
+    @Provides
+    fun provideMediaFtsDao(appDatabase: AppDatabase): MediaFtsDao {
+        return appDatabase.mediaFtsDao()
+    }
+
       @Provides
       fun provideListenHistoryDao(appDatabase: AppDatabase): ListenHistoryDao {
           return appDatabase.listenHistoryDao()
