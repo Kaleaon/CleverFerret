@@ -27,6 +27,9 @@ import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
+import android.content.Context
+import com.universalmedialibrary.jobs.WorkScheduler
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,6 +39,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val apiKeyRepository: APIKeyRepository,
     private val readerSettingsRepository: com.universalmedialibrary.data.repository.ReaderSettingsRepository,
@@ -111,12 +115,26 @@ class SettingsViewModel @Inject constructor(
     fun setAutoDownload(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setAutoDownloadPodcasts(enabled)
+            if (enabled) {
+                WorkScheduler.schedulePodcastAutoDownload(
+                    context = context,
+                    wifiOnly = uiState.value.wifiOnlyDownloads
+                )
+            } else {
+                WorkScheduler.cancelPodcastAutoDownload(context)
+            }
         }
     }
 
     fun setWifiOnlyDownloads(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setWifiOnlyDownloads(enabled)
+            if (uiState.value.autoDownloadPodcasts) {
+                WorkScheduler.schedulePodcastAutoDownload(
+                    context = context,
+                    wifiOnly = enabled
+                )
+            }
         }
     }
 

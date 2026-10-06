@@ -14,6 +14,9 @@ interface PodcastEpisodeDao {
     @Query("SELECT * FROM podcast_episodes WHERE podcastId = :podcastId ORDER BY publishDate DESC")
     fun getEpisodesByPodcast(podcastId: Long): Flow<List<PodcastEpisodeEntity>>
 
+    @Query("SELECT * FROM podcast_episodes WHERE podcastId = :podcastId AND downloaded = 0 ORDER BY publishDate DESC LIMIT :limit")
+    suspend fun getUndownloadedEpisodesByPodcast(podcastId: Long, limit: Int): List<PodcastEpisodeEntity>
+
     @Query("SELECT * FROM podcast_episodes WHERE id = :id")
     fun getEpisodeById(id: Long): Flow<PodcastEpisodeEntity?>
 
