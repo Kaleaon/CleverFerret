@@ -86,7 +86,7 @@ class AppDatabaseMigrationsTest {
     }
 
     @Test
-    fun `migration 47_48 drops password column from opds_catalogs`() {
+    fun `migration 47_48 drops password column from opds_catalogs and creates pdf_ocr_cache table`() {
         val database = mockk<SupportSQLiteDatabase>()
         val executedSql = mutableListOf<String>()
         every { database.execSQL(capture(executedSql)) } just runs
@@ -94,5 +94,7 @@ class AppDatabaseMigrationsTest {
         AppDatabaseMigrations.MIGRATION_47_48.migrate(database)
 
         assertThat(executedSql.any { it.contains("ALTER TABLE opds_catalogs DROP COLUMN password") }).isTrue()
+        assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `pdf_ocr_cache`") }).isTrue()
+        assertThat(executedSql.any { it.contains("PRIMARY KEY(`fileHash`, `pageIndex`)") }).isTrue()
     }
 }

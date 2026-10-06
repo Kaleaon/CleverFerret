@@ -5,7 +5,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * Migration from database version 47 to 48.
- * Removes plain-text password column from opds_catalogs table in favor of OPDSCredentialVault.
+ * Removes plain-text password column from opds_catalogs table in favor of OPDSCredentialVault,
+ * and creates the pdf_ocr_cache table storing extracted OCR text keyed by file Hash and page index.
  */
 val MIGRATION_47_48: Migration = object : Migration(47, 48) {
     override fun migrate(database: SupportSQLiteDatabase) {
@@ -44,5 +45,16 @@ val MIGRATION_47_48: Migration = object : Migration(47, 48) {
             database.execSQL("DROP TABLE opds_catalogs")
             database.execSQL("ALTER TABLE opds_catalogs_new RENAME TO opds_catalogs")
         }
+
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `pdf_ocr_cache` (" +
+            "`fileHash` TEXT NOT NULL, " +
+            "`pageIndex` INTEGER NOT NULL, " +
+            "`text` TEXT NOT NULL, " +
+            "`timestamp` INTEGER NOT NULL, " +
+            "`fileSize` INTEGER NOT NULL DEFAULT 0, " +
+            "`lastModified` INTEGER NOT NULL DEFAULT 0, " +
+            "PRIMARY KEY(`fileHash`, `pageIndex`))"
+        )
     }
 }
