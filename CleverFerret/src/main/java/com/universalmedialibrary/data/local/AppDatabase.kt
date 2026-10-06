@@ -147,6 +147,7 @@ import com.universalmedialibrary.data.Tag
 
         // OCR cache
         OcrCacheEntity::class,
+        PdfOcrCacheEntity::class,
 
         // Ambient sound features
         AmbientSound::class,
@@ -192,7 +193,7 @@ import com.universalmedialibrary.data.Tag
         StagedMetadataCandidate::class
 
     ],
-    version = 46,
+    version = 47,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 44, to = 45),
@@ -296,6 +297,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     // OCR Cache DAO
     abstract fun ocrCacheDao(): OcrCacheDao
+    abstract fun pdfOcrCacheDao(): PdfOcrCacheDao
 
     // Collaborative Session DAO
     abstract fun collaborativeSessionDao(): CollaborativeSessionDao
@@ -341,7 +343,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_42_43,
                         AppDatabaseMigrations.MIGRATION_43_44,
                         AppDatabaseMigrations.MIGRATION_44_45,
-                        AppDatabaseMigrations.MIGRATION_45_46
+                        AppDatabaseMigrations.MIGRATION_45_46,
+                        AppDatabaseMigrations.MIGRATION_46_47
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

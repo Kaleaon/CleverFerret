@@ -72,4 +72,17 @@ class AppDatabaseMigrationsTest {
         assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_metadata_music_track_itemId ON metadata_music_track") }).isTrue()
         assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_extended_metadata_itemId ON extended_metadata") }).isTrue()
     }
+
+    @Test
+    fun `migration 46_47 creates pdf_ocr_cache table`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_46_47.migrate(database)
+
+        assertThat(executedSql).hasSize(1)
+        assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `pdf_ocr_cache`") }).isTrue()
+        assertThat(executedSql.any { it.contains("PRIMARY KEY(`fileHash`, `pageIndex`)") }).isTrue()
+    }
 }
