@@ -633,17 +633,7 @@ fun CleverFerretUnifiedTheme(
         UnifiedThemePalette.PAPER_INK -> PaperInkUnified.lightScheme
     }
 
-    val metallicColors = getMetallicEffectForTheme(palette)
-    val metallicGradient = if (metallicColors.isNotEmpty() && metallicColors.size >= 3) {
-        MetallicGradient(
-            base = metallicColors[0],
-            highlight = metallicColors[1],
-            shadow = metallicColors[2],
-            shimmer = metallicColors.getOrNull(3)
-        )
-    } else {
-        MetallicEffects.Gold
-    }
+    val metallicGradient = getMetallicColorsForVariant(palette.toMetallicVariant())
 
     CompositionLocalProvider(LocalMetallicGradient provides metallicGradient) {
         MaterialTheme(
