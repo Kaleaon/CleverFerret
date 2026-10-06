@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.components.accessibleClickable
 import com.universalmedialibrary.ui.modern.theme.CFSpacing
 import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 
@@ -66,9 +67,11 @@ fun ModernVideoPlayerScreen(
         Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .clickable(interactionSource = interaction, indication = null) {
-                controlsVisible = !controlsVisible
-            },
+            .accessibleClickable(
+                interactionSource = interaction,
+                focusColor = MaterialTheme.colorScheme.primary,
+                onClick = { controlsVisible = !controlsVisible }
+            ),
     ) {
         videoSurface()
 

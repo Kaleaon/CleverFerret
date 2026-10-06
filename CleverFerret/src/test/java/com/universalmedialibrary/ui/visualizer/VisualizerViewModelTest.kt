@@ -4,6 +4,7 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
+import com.universalmedialibrary.services.cast.CastState
 import com.universalmedialibrary.services.cast.ChromecastManager
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
@@ -18,7 +19,9 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -44,23 +47,29 @@ class VisualizerViewModelTest {
     @MockK
     lateinit var advancedMusicPlayerService: AdvancedMusicPlayerService
 
-    private val testDispatcher = StandardTestDispatcher()
+    private val dispatcher = StandardTestDispatcher()
 
     private val mockAudioPlayer = mockk<ExoPlayer>(relaxed = true)
     private val mockAdvancedPlayer = mockk<ExoPlayer>(relaxed = true)
 
     private val visualizerStateFlow = MutableStateFlow(VisualizerState())
+    private val subscriptionCountFlow = MutableStateFlow(0)
+    private val castStateFlow = MutableStateFlow(CastState())
     private val isEnabledFlow = MutableStateFlow(false)
+    private val beatDetectedFlow = MutableStateFlow(false)
+
+    private lateinit var viewModel: VisualizerViewModel
 
     @Before
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        Dispatchers.setMain(testDispatcher)
+        Dispatchers.setMain(dispatcher)
 
         every { audioVisualizerService.visualizerState } returns visualizerStateFlow
+        every { audioVisualizerService.subscriptionCount } returns subscriptionCountFlow
+        every { chromecastManager.castState } returns castStateFlow
         every { audioVisualizerService.isEnabled } returns isEnabledFlow
-        every { audioVisualizerService.beatDetected } returns MutableStateFlow(false)
-        every { chromecastManager.castState } returns MutableStateFlow(mockk(relaxed = true))
+        every { audioVisualizerService.beatDetected } returns beatDetectedFlow
 
         every { audioPlaybackManager.exoPlayer } returns mockAudioPlayer
         every { exoPlayerService.getPlayer() } returns null
@@ -68,6 +77,14 @@ class VisualizerViewModelTest {
 
         every { mockAudioPlayer.isPlaying } returns false
         every { mockAdvancedPlayer.isPlaying } returns false
+
+        viewModel = VisualizerViewModel(
+            audioVisualizerService,
+            chromecastManager,
+            audioPlaybackManager,
+            exoPlayerService,
+            advancedMusicPlayerService
+        )
     }
 
     @After
@@ -77,14 +94,6 @@ class VisualizerViewModelTest {
 
     @Test
     fun `initialize registers player listeners and attaches to active target player`() = runTest {
-        val viewModel = VisualizerViewModel(
-            audioVisualizerService = audioVisualizerService,
-            chromecastManager = chromecastManager,
-            audioPlaybackManager = audioPlaybackManager,
-            exoPlayerService = exoPlayerService,
-            advancedMusicPlayerService = advancedMusicPlayerService
-        )
-
         viewModel.initialize()
 
         // Verify player listeners were added to candidate players
@@ -102,14 +111,6 @@ class VisualizerViewModelTest {
         val listenerSlot = slot<Player.Listener>()
         every { mockAdvancedPlayer.addListener(capture(listenerSlot)) } returns Unit
 
-        val viewModel = VisualizerViewModel(
-            audioVisualizerService = audioVisualizerService,
-            chromecastManager = chromecastManager,
-            audioPlaybackManager = audioPlaybackManager,
-            exoPlayerService = exoPlayerService,
-            advancedMusicPlayerService = advancedMusicPlayerService
-        )
-
         viewModel.initialize()
 
         assertThat(listenerSlot.isCaptured).isTrue()
@@ -124,14 +125,6 @@ class VisualizerViewModelTest {
 
     @Test
     fun `cleanup and onCleared unregisters player listeners cleanly`() = runTest {
-        val viewModel = VisualizerViewModel(
-            audioVisualizerService = audioVisualizerService,
-            chromecastManager = chromecastManager,
-            audioPlaybackManager = audioPlaybackManager,
-            exoPlayerService = exoPlayerService,
-            advancedMusicPlayerService = advancedMusicPlayerService
-        )
-
         viewModel.initialize()
         viewModel.cleanup()
 
@@ -140,5 +133,43 @@ class VisualizerViewModelTest {
         verify { audioVisualizerService.setEnabled(false) }
         verify { chromecastManager.stopCasting() }
         verify { chromecastManager.release() }
+    }
+
+    @Test
+    fun `chromecast visualizer updates do not run when visualizerState has no subscribers`() = runTest {
+        castStateFlow.value = CastState(isConnected = true)
+        viewModel.initialize()
+
+        advanceTimeBy(2000)
+
+        verify(exactly = 0) {
+            chromecastManager.updateVisualizerData(any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `chromecast visualizer updates execute when visualizerState is subscribed and cast is connected`() = runTest {
+        castStateFlow.value = CastState(isConnected = true)
+        subscriptionCountFlow.value = 1
+        viewModel.initialize()
+
+        advanceTimeBy(1000)
+
+        verify(atLeast = 1) {
+            chromecastManager.updateVisualizerData(any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `chromecast visualizer updates stop when no Chromecast device is connected`() = runTest {
+        castStateFlow.value = CastState(isConnected = false)
+        subscriptionCountFlow.value = 1
+        viewModel.initialize()
+
+        advanceTimeBy(1000)
+
+        verify(exactly = 0) {
+            chromecastManager.updateVisualizerData(any(), any(), any(), any())
+        }
     }
 }

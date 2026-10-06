@@ -55,16 +55,10 @@ fun MetallicCard(
                 }
             )
             .depthShadow(elevation = elevation)
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(
-                        interactionSource = interactionSource,
-                        indication = null,
-                        onClick = onClick
-                    )
-                } else {
-                    Modifier
-                }
+            .accessibleClickable(
+                interactionSource = interactionSource,
+                shape = shape,
+                onClick = onClick
             ),
         shape = shape,
         colors = CardDefaults.cardColors(
@@ -156,16 +150,10 @@ fun ElevatedLightCard(
                 ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
                 spotlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
             )
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(
-                        interactionSource = interactionSource,
-                        indication = null,
-                        onClick = onClick
-                    )
-                } else {
-                    Modifier
-                }
+            .accessibleClickable(
+                interactionSource = interactionSource,
+                shape = MaterialTheme.shapes.medium,
+                onClick = onClick
             ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = cardElevation
