@@ -95,6 +95,20 @@ afterEvaluate {
     }
 }
 
+afterEvaluate {
+    tasks.withType(JavaCompile::class.java).matching { it.name.startsWith("hiltJavaCompile") }.configureEach {
+        val variant = name.removePrefix("hiltJavaCompile").replaceFirstChar { it.lowercase() }
+        val kspJavaDir = layout.buildDirectory.dir("generated/ksp/$variant/java")
+        source(project.fileTree(kspJavaDir))
+        classpath += project.files(kspJavaDir)
+        options.compilerArgs.add("-proc:none")
+        val kspTaskName = "ksp${variant.replaceFirstChar { it.uppercase() }}Kotlin"
+        if (tasks.names.contains(kspTaskName)) {
+            dependsOn(kspTaskName)
+        }
+    }
+}
+
 configurations.all {
     resolutionStrategy {
         force("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
@@ -260,6 +274,15 @@ android {
             // Note: Excluding *.properties may remove some library metadata, but is needed to resolve
             // packaging conflicts. If runtime issues occur, consider being more specific.
             excludes += "/META-INF/*.properties"
+        }
+    }
+
+    applicationVariants.all {
+        val variantName = name
+        val kspTaskName = "ksp${variantName.replaceFirstChar { it.uppercase() }}Kotlin"
+        val kspJavaDir = layout.buildDirectory.dir("generated/ksp/$variantName/java")
+        if (tasks.names.contains(kspTaskName)) {
+            registerJavaGeneratingTask(tasks.named(kspTaskName), kspJavaDir.get().asFile)
         }
     }
 
