@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.utils.PermissionState
@@ -42,7 +43,7 @@ fun PermissionDialog(
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                text = "Permissions Required",
+                text = stringResource(R.string.permission_required_title),
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )
@@ -50,7 +51,7 @@ fun PermissionDialog(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "CleverFerret needs access to your storage to browse and play your media files.",
+                text = stringResource(R.string.permission_required_message),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -62,7 +63,7 @@ fun PermissionDialog(
                 onClick = { permissionState.requestPermissions() },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Grant Permissions")
+                Text(stringResource(R.string.permission_grant_button))
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -70,7 +71,7 @@ fun PermissionDialog(
             TextButton(
                 onClick = { /* Could open app settings */ }
             ) {
-                Text("Open App Settings")
+                Text(stringResource(R.string.permission_open_settings_button))
             }
         }
     }

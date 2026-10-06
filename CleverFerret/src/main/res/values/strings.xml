@@ -278,4 +278,57 @@
     <string name="webfiction_browse_coming_soon">Source browsing is coming soon.</string>
     <string name="webfiction_browse_add_by_url_hint">For now, you can still add stories by URL from the Web Fiction screen.</string>
     <string name="webfiction_browse_go_to_web_fiction">Go to Web Fiction</string>
+
+    <!-- File Handler / MainActivity -->
+    <string name="open_file_title">Open File</string>
+    <string name="action_close">Close</string>
+    <string name="unknown_file_type">Unknown File Type</string>
+    <string name="unable_to_open_file">Unable to determine how to open this file.</string>
+    <string name="open_clever_ferret">Open CleverFerret</string>
+    <string name="no_file_to_open">No file to open</string>
+    <string name="open_clever_ferret_app">Open CleverFerret App</string>
+    <string name="unsupported_file_type">Unsupported file type: %1$s</string>
+
+    <!-- Permission Dialog -->
+    <string name="permission_required_title">Permissions Required</string>
+    <string name="permission_required_message">CleverFerret needs access to your storage to browse and play your media files.</string>
+    <string name="permission_grant_button">Grant Permissions</string>
+    <string name="permission_open_settings_button">Open App Settings</string>
+
+    <!-- Crash Activity -->
+    <string name="crash_title">App Crashed</string>
+    <string name="crash_subtitle">Oops! Something went wrong</string>
+    <string name="crash_message">CleverFerret encountered an unexpected error and needs to restart. We apologize for the inconvenience.</string>
+    <string name="crash_show_details">Show Error Details</string>
+    <string name="crash_hide_details">Hide Error Details</string>
+    <string name="crash_details_title">Error Details</string>
+    <string name="crash_copy_details">Copy error details</string>
+    <string name="crash_details_instruction">You can copy this error and report it to the developers.</string>
+    <string name="crash_restart_app">Restart App</string>
+    <string name="crash_close_app">Close App</string>
+
+    <!-- FM Radio Screen -->
+    <string name="fm_radio_title">FM Radio</string>
+    <string name="radio_save_to_favorites">Save to Favorites</string>
+    <string name="radio_unavailable_title">FM Radio Unavailable</string>
+    <string name="radio_unavailable_message">No FM radio hardware detected or permission denied.</string>
+    <string name="radio_identify_song">Identify Song</string>
+    <string name="radio_switch_to_internet_radio">Switch to Internet Radio</string>
+    <string name="radio_you_might_also_like">You Might Also Like</string>
+    <string name="radio_fine_tune">Fine Tune</string>
+    <string name="radio_favorite_stations">Favorite Stations</string>
+    <string name="radio_fallback_internet_title">Internet Radio</string>
+    <string name="radio_fallback_live_stream">Live Stream</string>
+    <string name="cd_media_image">Media image</string>
+    <string name="cd_station_logo_album_art">Station Logo / Album Art</string>
+    <string name="cd_signal_strength">Signal</string>
+    <string name="cd_scan_down">Scan Down</string>
+    <string name="cd_scan_up">Scan Up</string>
+    <string name="cd_tune_down">Tune Down</string>
+    <string name="cd_tune_up">Tune Up</string>
+    <string name="cd_playing">Playing</string>
+    <string name="cd_stop">Stop</string>
+
+    <!-- V2 Navigation -->
+    <string name="nav_domain_discover">Discover</string>
 </resources>
