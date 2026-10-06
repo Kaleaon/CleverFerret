@@ -223,66 +223,37 @@ fun UnifiedCleverFerretTheme(
     enableCrystalGlow: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    // Determine if this is an Ancient Architect theme
-    val isAncientArchitect = theme in listOf(
-        CleverFerretTheme.ANCIENT_BRONZE,
-        CleverFerretTheme.SILVER_ARCHITECT,
-        CleverFerretTheme.OBSIDIAN_TECH
+    val colorScheme = KthemeBridge.resolveColorScheme(theme, darkTheme)
+    val metallicColors = KthemeBridge.resolveMetallicGradient(theme)
+
+    val themeId = theme.name.lowercase().replace('_', '-')
+    val kthemeSnapshot = KthemeThemeAdapterV1.KthemeSnapshot(
+        id = themeId,
+        darkMode = darkTheme,
+        primary = String.format("#%08X", colorScheme.primary.toArgb()),
+        onPrimary = String.format("#%08X", colorScheme.onPrimary.toArgb()),
+        background = String.format("#%08X", colorScheme.background.toArgb()),
+        onBackground = String.format("#%08X", colorScheme.onBackground.toArgb()),
+        surface = String.format("#%08X", colorScheme.surface.toArgb()),
+        onSurface = String.format("#%08X", colorScheme.onSurface.toArgb()),
+        outline = String.format("#%08X", colorScheme.outline.toArgb()),
+        error = String.format("#%08X", colorScheme.error.toArgb()),
+        onError = String.format("#%08X", colorScheme.onError.toArgb())
     )
-    
-    if (isAncientArchitect) {
-        // Use Ancient Architect theme system
-        val variant = when (theme) {
-            CleverFerretTheme.ANCIENT_BRONZE -> AncientArchitectVariant.ANCIENT_BRONZE
-            CleverFerretTheme.SILVER_ARCHITECT -> AncientArchitectVariant.SILVER_ARCHITECT
-            CleverFerretTheme.OBSIDIAN_TECH -> AncientArchitectVariant.OBSIDIAN_TECH
-            else -> AncientArchitectVariant.ANCIENT_BRONZE
-        }
-        
-        AncientArchitectTheme(
-            variant = variant,
-            enableGeometricPatterns = enableGeometricPatterns,
-            enableMetallicShimmer = enableMetallicShimmer,
-            enableCrystalGlow = enableCrystalGlow,
+    val semanticTheme = KthemeThemeAdapterV1.adapt(kthemeSnapshot)
+
+    CompositionLocalProvider(
+        LocalSemanticTheme provides semanticTheme,
+        LocalMetallicColors provides metallicColors,
+        LocalEnableGeometricPatterns provides enableGeometricPatterns,
+        LocalEnableMetallicShimmer provides enableMetallicShimmer,
+        LocalEnableCrystalGlow provides enableCrystalGlow
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AncientArchitectTypography,
             content = content
         )
-    } else {
-        // Use traditional unified theme system WITH advanced effects
-        val colorScheme = getColorSchemeForTheme(theme, darkTheme)
-        val metallicColors = getMetallicColorsForTheme(theme)
-
-        val themeId = theme.name.lowercase().replace('_', '-')
-        val kthemeSnapshot = KthemeThemeAdapterV1.KthemeSnapshot(
-            id = themeId,
-            darkMode = darkTheme,
-            primary = String.format("#%08X", colorScheme.primary.toArgb()),
-            onPrimary = String.format("#%08X", colorScheme.onPrimary.toArgb()),
-            background = String.format("#%08X", colorScheme.background.toArgb()),
-            onBackground = String.format("#%08X", colorScheme.onBackground.toArgb()),
-            surface = String.format("#%08X", colorScheme.surface.toArgb()),
-            onSurface = String.format("#%08X", colorScheme.onSurface.toArgb()),
-            outline = String.format("#%08X", colorScheme.outline.toArgb()),
-            error = String.format("#%08X", colorScheme.error.toArgb()),
-            onError = String.format("#%08X", colorScheme.onError.toArgb())
-        )
-        val semanticTheme = KthemeThemeAdapterV1.adapt(kthemeSnapshot)
-        
-        // Provide advanced effects context for all themes
-        // Note: LocalEnable* composition locals are defined in AncientArchitectTheme.kt
-        // and shared across all themes (same package, no import needed)
-        CompositionLocalProvider(
-            LocalSemanticTheme provides semanticTheme,
-            LocalMetallicColors provides metallicColors,
-            LocalEnableGeometricPatterns provides enableGeometricPatterns,
-            LocalEnableMetallicShimmer provides enableMetallicShimmer,
-            LocalEnableCrystalGlow provides enableCrystalGlow
-        ) {
-            MaterialTheme(
-                colorScheme = colorScheme,
-                typography = AncientArchitectTypography, // Use the same typography
-                content = content
-            )
-        }
     }
 }
 

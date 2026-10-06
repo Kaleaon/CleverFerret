@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 
 /**
  * Clean Media-Centric Web Fiction Screen
@@ -190,24 +191,21 @@ private fun FollowingStoriesPage(
 
 @Composable
 internal fun StatusBadge(status: StoryStatus) {
+    val tokens = LocalCFTokens.current
+    val statusColor = when (status) {
+        StoryStatus.ONGOING -> tokens.status.ongoing
+        StoryStatus.COMPLETED -> tokens.status.completed
+        StoryStatus.HIATUS -> tokens.status.hiatus
+        StoryStatus.DROPPED -> tokens.status.cancelled
+    }
     Surface(
         shape = RoundedCornerShape(MediaCorners.XS),
-        color = when (status) {
-            StoryStatus.ONGOING -> MediaColors.Success.copy(alpha = 0.2f)
-            StoryStatus.COMPLETED -> MediaColors.Info.copy(alpha = 0.2f)
-            StoryStatus.HIATUS -> MediaColors.Warning.copy(alpha = 0.2f)
-            StoryStatus.DROPPED -> MediaColors.Error.copy(alpha = 0.2f)
-        }
+        color = statusColor.copy(alpha = 0.2f)
     ) {
         Text(
             text = status.displayName,
             style = MediaTypography.LabelSmall,
-            color = when (status) {
-                StoryStatus.ONGOING -> MediaColors.Success
-                StoryStatus.COMPLETED -> MediaColors.Info
-                StoryStatus.HIATUS -> MediaColors.Warning
-                StoryStatus.DROPPED -> MediaColors.Error
-            },
+            color = statusColor,
             modifier = Modifier.padding(horizontal = MediaSpacing.XS, vertical = 1.dp)
         )
     }

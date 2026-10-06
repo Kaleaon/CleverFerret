@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -232,12 +233,15 @@ fun ModernVideoPlayerScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
+                val playerControls = LocalCFTokens.current.playerControls
+
                 // Progress bar
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+
                     Text(
                         text = formatTime(uiState.currentPosition),
                         style = MaterialTheme.typography.bodySmall,
@@ -249,9 +253,9 @@ fun ModernVideoPlayerScreen(
                         onValueChange = { viewModel.seekTo(it) },
                         modifier = Modifier.weight(1f),
                         colors = SliderDefaults.colors(
-                            thumbColor = Color.White,
-                            activeTrackColor = Color(0xFF00E5FF),
-                            inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                            thumbColor = playerControls.thumb,
+                            activeTrackColor = playerControls.activeTrack,
+                            inactiveTrackColor = playerControls.inactiveTrack
                         )
                     )
 
@@ -290,14 +294,14 @@ fun ModernVideoPlayerScreen(
 
                     Surface(
                         shape = CircleShape,
-                        color = Color.White,
+                        color = playerControls.playButtonContainer,
                         modifier = Modifier.size(56.dp)
                     ) {
                         IconButton(onClick = { viewModel.togglePlayPause() }) {
                             Icon(
                                 if (uiState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                                 contentDescription = if (uiState.isPlaying) "Pause" else "Play",
-                                tint = Color.Black,
+                                tint = playerControls.playButtonIcon,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -333,7 +337,7 @@ fun ModernVideoPlayerScreen(
                         Icon(
                             Icons.Default.ClosedCaption,
                             contentDescription = "Subtitles",
-                            tint = if (uiState.subtitlesEnabled) Color(0xFF00E5FF) else Color.White.copy(alpha = 0.5f)
+                            tint = if (uiState.subtitlesEnabled) playerControls.activeAccent else Color.White.copy(alpha = 0.5f)
                         )
                     }
 
@@ -387,9 +391,11 @@ private fun VideoSettingsSheet(
     onSubtitlesToggle: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val playerControls = LocalCFTokens.current.playerControls
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF1A1A1A)
+        containerColor = playerControls.sheetBackground
     ) {
         Column(
             modifier = Modifier
@@ -421,8 +427,8 @@ private fun VideoSettingsSheet(
                             onClick = { onSpeedChange(speed) },
                             label = { Text("${speed}x") },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF00E5FF),
-                                selectedLabelColor = Color.Black
+                                selectedContainerColor = playerControls.activeAccent,
+                                selectedLabelColor = playerControls.playButtonIcon
                             )
                         )
                     }
@@ -444,8 +450,8 @@ private fun VideoSettingsSheet(
                     checked = subtitlesEnabled,
                     onCheckedChange = { onSubtitlesToggle() },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = Color(0xFF00E5FF)
+                        checkedThumbColor = playerControls.thumb,
+                        checkedTrackColor = playerControls.activeTrack
                     )
                 )
             }
