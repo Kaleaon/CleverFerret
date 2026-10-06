@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import com.universalmedialibrary.utils.UserFriendlyErrorMapper
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,7 +40,8 @@ class AudiobookPlayerViewModel @Inject constructor(
     private val audiobookService: AudiobookService,
     private val synchronizedReadingService: SynchronizedReadingService,
     private val exoPlayerService: ExoPlayerService,
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val errorMapper: UserFriendlyErrorMapper = UserFriendlyErrorMapper()
 ) : ViewModel() {
 
     // Audiobook state
@@ -101,6 +103,7 @@ class AudiobookPlayerViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 // Handle error
+                _uiEvents.emit(UiEvent.ShowSnackbar(errorMapper.mapToMessage(e)))
             }
         }
     }
@@ -240,7 +243,7 @@ class AudiobookPlayerViewModel @Inject constructor(
             } catch (e: Exception) {
                 // Handle error and log
                 android.util.Log.e("AudiobookPlayerViewModel", "Failed to delete bookmark", e)
-                _uiEvents.emit(UiEvent.ShowSnackbar("Failed to delete bookmark: ${e.message}"))
+                _uiEvents.emit(UiEvent.ShowSnackbar(errorMapper.mapToMessage(e)))
             }
         }
     }
@@ -255,7 +258,7 @@ class AudiobookPlayerViewModel @Inject constructor(
                 _uiEvents.emit(UiEvent.ShowSnackbar("Bookmark created"))
             } catch (e: Exception) {
                 android.util.Log.e("AudiobookPlayerViewModel", "Failed to create bookmark", e)
-                _uiEvents.emit(UiEvent.ShowSnackbar("Failed to create bookmark: ${e.message}"))
+                _uiEvents.emit(UiEvent.ShowSnackbar(errorMapper.mapToMessage(e)))
             }
         }
     }

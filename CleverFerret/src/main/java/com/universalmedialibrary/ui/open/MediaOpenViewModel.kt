@@ -6,6 +6,7 @@ import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
+import com.universalmedialibrary.utils.UserFriendlyErrorMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,8 @@ import javax.inject.Inject
 class MediaOpenViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val musicPlayerService: AdvancedMusicPlayerService,
-    private val exoPlayerService: ExoPlayerService
+    private val exoPlayerService: ExoPlayerService,
+    private val errorMapper: UserFriendlyErrorMapper = UserFriendlyErrorMapper()
 ) : ViewModel() {
 
     data class UiState(
@@ -42,7 +44,7 @@ class MediaOpenViewModel @Inject constructor(
                     _uiState.value = UiState(isLoading = false, mediaItem = item)
                 }
             } catch (e: Exception) {
-                _uiState.value = UiState(isLoading = false, error = e.message ?: "Unknown error")
+                _uiState.value = UiState(isLoading = false, error = errorMapper.mapToMessage(e))
             }
         }
     }
@@ -53,7 +55,7 @@ class MediaOpenViewModel @Inject constructor(
                 musicPlayerService.playTrack(mediaItem)
                 _uiState.value = _uiState.value.copy(audioPlaybackStarted = true)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = "Error playing audio: ${e.message}")
+                _uiState.value = _uiState.value.copy(error = errorMapper.mapToMessage(e))
             }
         }
     }
@@ -71,7 +73,7 @@ class MediaOpenViewModel @Inject constructor(
                 exoPlayerService.play()
                 _uiState.value = _uiState.value.copy(videoPlaybackStarted = true)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = "Error playing video: ${e.message}")
+                _uiState.value = _uiState.value.copy(error = errorMapper.mapToMessage(e))
             }
         }
     }
