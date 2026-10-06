@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App name and basic strings -->
+    <string name="app_name">Clever Ferret Biblioteca Multimedia</string>
+
+    <!-- File Handler / MainActivity -->
+    <string name="open_file_title">Abrir archivo</string>
+    <string name="action_close">Cerrar</string>
+    <string name="unknown_file_type">Tipo de archivo desconocido</string>
+    <string name="unable_to_open_file">No se puede determinar cómo abrir este archivo.</string>
+    <string name="open_clever_ferret">Abrir CleverFerret</string>
+    <string name="no_file_to_open">Sin archivo para abrir</string>
+    <string name="open_clever_ferret_app">Abrir la aplicación CleverFerret</string>
+    <string name="unsupported_file_type">Tipo de archivo no compatible: %1$s</string>
+
+    <!-- Permission Dialog -->
+    <string name="permission_required_title">Permisos requeridos</string>
+    <string name="permission_required_message">CleverFerret necesita acceso a su almacenamiento para examinar y reproducir sus archivos multimedia.</string>
+    <string name="permission_grant_button">Conceder permisos</string>
+    <string name="permission_open_settings_button">Abrir ajustes de la aplicación</string>
+
+    <!-- Crash Activity -->
+    <string name="crash_title">La aplicación falló</string>
+    <string name="crash_subtitle">¡Ups! Algo salió mal</string>
+    <string name="crash_message">CleverFerret encontró un error inesperado y necesita reiniciarse. Pedimos disculpas por las molestias.</string>
+    <string name="crash_show_details">Mostrar detalles del error</string>
+    <string name="crash_hide_details">Ocultar detalles del error</string>
+    <string name="crash_details_title">Detalles del error</string>
+    <string name="crash_copy_details">Copiar detalles del error</string>
+    <string name="crash_details_instruction">Puede copiar este error e informarlo a los desarrolladores.</string>
+    <string name="crash_restart_app">Reiniciar aplicación</string>
+    <string name="crash_close_app">Cerrar aplicación</string>
+
+    <!-- FM Radio Screen -->
+    <string name="fm_radio_title">Radio FM</string>
+    <string name="radio_save_to_favorites">Guardar en favoritos</string>
+    <string name="radio_unavailable_title">Radio FM no disponible</string>
+    <string name="radio_unavailable_message">No se detectó hardware de radio FM o se denegó el permiso.</string>
+    <string name="radio_identify_song">Identificar canción</string>
+    <string name="radio_switch_to_internet_radio">Cambiar a radio por Internet</string>
+    <string name="radio_you_might_also_like">También te podría gustar</string>
+    <string name="radio_fine_tune">Ajuste fino</string>
+    <string name="radio_favorite_stations">Emisoras favoritas</string>
+    <string name="radio_fallback_internet_title">Radio por Internet</string>
+    <string name="radio_fallback_live_stream">Transmisión en vivo</string>
+    <string name="cd_media_image">Imagen multimedia</string>
+    <string name="cd_station_logo_album_art">Logotipo de la emisora / Carátula del álbum</string>
+    <string name="cd_signal_strength">Señal</string>
+    <string name="cd_scan_down">Buscar hacia abajo</string>
+    <string name="cd_scan_up">Buscar hacia arriba</string>
+    <string name="cd_tune_down">Sintonizar hacia abajo</string>
+    <string name="cd_tune_up">Sintonizar hacia arriba</string>
+    <string name="cd_playing">Reproduciendo</string>
+    <string name="cd_stop">Detener</string>
+
+    <!-- V2 Navigation -->
+    <string name="nav_domain_discover">Descubrir</string>
+</resources>
