@@ -475,6 +475,7 @@ dependencies {
     implementation(libs.ktmidi.android)
 
     // Testing
+    testImplementation(enforcedPlatform(libs.androidx.compose.bom))
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
