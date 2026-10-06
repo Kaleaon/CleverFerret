@@ -21,6 +21,7 @@ import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.LibraryScanSettingsDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.repository.MetadataStagingRepository
 import com.universalmedialibrary.data.local.entity.*
 import com.universalmedialibrary.services.audio.WaveformGenerator
 import com.universalmedialibrary.utils.ErrorLogger
@@ -60,6 +61,7 @@ class MediaScannerService : Service() {
     @Inject lateinit var libraryScanSettingsDao: LibraryScanSettingsDao
     @Inject lateinit var mediaItemDao: MediaItemDao
     @Inject lateinit var metadataDao: MetadataDao
+    @Inject lateinit var metadataStagingRepository: MetadataStagingRepository
     @Inject lateinit var waveformGenerator: WaveformGenerator
 
     internal val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -422,8 +424,9 @@ data class ScanProgress(
                 )
             }
 
-            metadataDao.insertMetadataCommon(
-                MetadataCommon(
+            metadataStagingRepository.stageMetadataCommon(
+                itemId = newId,
+                metadata = MetadataCommon(
                     itemId = newId,
                     title = displayName.substringBeforeLast('.'),
                     sortTitle = null,
@@ -443,7 +446,8 @@ data class ScanProgress(
                     lastUpdated = System.currentTimeMillis(),
                     metadataSource = "MediaStore",
                     externalId = null
-                )
+                ),
+                source = "MediaStore"
             )
             inserted
         } catch (e: Exception) {
@@ -645,7 +649,11 @@ data class ScanProgress(
                     metadataSource = null,
                     externalId = null
                 )
-                  metadataDao.insertMetadataCommon(metadata)
+                  metadataStagingRepository.stageMetadataCommon(
+                      itemId = itemId,
+                      metadata = metadata,
+                      source = "MediaScanner"
+                  )
                   if (musicInfo != null) {
                       persistMusicTrackMetadata(newItem, musicInfo)
                   }

@@ -127,19 +127,23 @@ class IngestionPipeline @Inject constructor(
             val deduped = deduplicate(parsed)
             val enriched = enrichMetadata(deduped)
 
-            // If enriched object is MetadataCommon, route exclusively to staged_metadata_candidates
-            if (enriched is com.universalmedialibrary.data.local.entity.MetadataCommon) {
+            // If enriched object is MetadataCommon or StagedMetadataCandidate, route exclusively to staged_metadata_candidates and halt active entity persistence
+            val persisted = if (enriched is com.universalmedialibrary.data.local.entity.MetadataCommon) {
                 stageCandidateMetadata(
                     itemId = enriched.itemId,
                     metadata = enriched,
                     sourceId = sourceId,
                     confidenceScore = 0.80f
                 )
+                @Suppress("UNCHECKED_CAST")
+                enriched as Persisted
             } else if (enriched is com.universalmedialibrary.data.local.entity.StagedMetadataCandidate) {
                 metadataStagingRepository.stageCandidate(enriched)
+                @Suppress("UNCHECKED_CAST")
+                enriched as Persisted
+            } else {
+                persist(enriched)
             }
-
-            val persisted = persist(enriched)
             val token = nextIncrementalToken(persisted)
             if (!token.isNullOrBlank()) {
                 incrementalStateStore.setToken(sourceId, token)
