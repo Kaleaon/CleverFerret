@@ -13,6 +13,7 @@ import com.universalmedialibrary.services.manga.updates.MangaUpdateWorker
 import com.universalmedialibrary.services.sync.SyncWorker
 import com.universalmedialibrary.workers.AutoScanWorker
 import com.universalmedialibrary.workers.ImportPlanWorker
+import com.universalmedialibrary.workers.OfflineBufferingWorker
 import java.util.concurrent.TimeUnit
 
 object WorkScheduler {
@@ -180,6 +181,52 @@ object WorkScheduler {
                 state = JobExecutionState.QUEUED,
                 jobId = jobId,
                 message = message
+            )
+        )
+    }
+
+    fun scheduleOfflineBuffering(context: Context, itemId: Long, wifiOnly: Boolean = true) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED)
+            .build()
+
+        val inputData = Data.Builder()
+            .putLong(OfflineBufferingWorker.KEY_ITEM_ID, itemId)
+            .build()
+
+        val workName = "offline_buffer_$itemId"
+
+        val request = OneTimeWorkRequestBuilder<OfflineBufferingWorker>()
+            .setConstraints(constraints)
+            .setInputData(inputData)
+            .addTag(OfflineBufferingWorker.TAG_OFFLINE_BUFFERING)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            workName,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.OFFLINE_MEDIA_BUFFERING,
+                state = JobExecutionState.QUEUED,
+                jobId = request.id.toString(),
+                message = "Offline buffering scheduled for item $itemId"
+            )
+        )
+    }
+
+    fun cancelOfflineBuffering(context: Context, itemId: Long) {
+        val workName = "offline_buffer_$itemId"
+        WorkManager.getInstance(context).cancelUniqueWork(workName)
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.OFFLINE_MEDIA_BUFFERING,
+                state = JobExecutionState.CANCELLED,
+                jobId = workName,
+                message = "Offline buffering cancelled for item $itemId"
             )
         )
     }

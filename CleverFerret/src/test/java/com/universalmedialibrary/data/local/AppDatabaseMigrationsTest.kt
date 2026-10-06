@@ -84,4 +84,18 @@ class AppDatabaseMigrationsTest {
         assertThat(executedSql.any { it.contains("CREATE VIRTUAL TABLE IF NOT EXISTS `media_fts`") }).isTrue()
         assertThat(executedSql.any { it.contains("media_items_ai") }).isTrue()
     }
+
+    @Test
+    fun `migration 47_48 adds offline buffering columns to media_items`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_47_48.migrate(database)
+
+        assertThat(executedSql).hasSize(3)
+        assertThat(executedSql.any { it.contains("ALTER TABLE media_items ADD COLUMN localCachePath") }).isTrue()
+        assertThat(executedSql.any { it.contains("ALTER TABLE media_items ADD COLUMN downloadStatus") }).isTrue()
+        assertThat(executedSql.any { it.contains("ALTER TABLE media_items ADD COLUMN downloadProgress") }).isTrue()
+    }
 }
