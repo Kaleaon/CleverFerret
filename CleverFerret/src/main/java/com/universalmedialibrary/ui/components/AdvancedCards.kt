@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.LiveRegionMode
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -55,6 +56,7 @@ fun MetallicCard(
                 }
             )
             .depthShadow(elevation = elevation)
+            .dynamicStateDescription(if (isHovered) "Hovered" else "Normal", LiveRegionMode.Polite)
             .accessibleClickable(
                 interactionSource = interactionSource,
                 shape = shape,
@@ -150,6 +152,7 @@ fun ElevatedLightCard(
                 ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
                 spotlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
             )
+            .dynamicStateDescription(if (isHovered) "Hovered" else "Normal", LiveRegionMode.Polite)
             .accessibleClickable(
                 interactionSource = interactionSource,
                 shape = MaterialTheme.shapes.medium,

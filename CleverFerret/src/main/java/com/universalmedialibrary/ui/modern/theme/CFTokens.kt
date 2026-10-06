@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
 
 // ─── Metal accent ─────────────────────────────────────────────────────────
 // CleverFerret's signature: a 4-stop metallic brush used on the wordmark,
@@ -56,6 +57,7 @@ data class CFTokens(
     val lcars: CFLcars? = null,
     val metro: CFMetro? = null,
     val typography: FontFamily = FontFamily.Default,
+    val liveRegion: KthemeThemeAdapterV1.LiveRegionPolicy = KthemeThemeAdapterV1.LiveRegionPolicy(),
 )
 
 val LocalCFTokens = staticCompositionLocalOf<CFTokens> {

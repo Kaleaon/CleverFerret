@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
+import com.cleverferret.core.designsystem.theme.LocalLiveRegionPolicy
 import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
 
 private fun cfTypography(family: FontFamily): Typography = Typography(
@@ -49,14 +50,16 @@ fun CFTheme(
             onSurface = String.format("#%08X", palette.scheme.onSurface.toArgb()),
             outline = String.format("#%08X", palette.scheme.outline.toArgb()),
             error = String.format("#%08X", palette.scheme.error.toArgb()),
-            onError = String.format("#%08X", palette.scheme.onError.toArgb())
+            onError = String.format("#%08X", palette.scheme.onError.toArgb()),
+            liveRegion = palette.tokens.liveRegion
         )
         KthemeThemeAdapterV1.adapt(kthemeSnapshot)
     }
 
     CompositionLocalProvider(
         LocalCFTokens provides palette.tokens,
-        LocalSemanticTheme provides semanticTheme
+        LocalSemanticTheme provides semanticTheme,
+        LocalLiveRegionPolicy provides semanticTheme.liveRegion
     ) {
         MaterialTheme(
             colorScheme = palette.scheme,
