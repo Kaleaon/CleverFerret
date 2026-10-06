@@ -192,11 +192,19 @@ import com.universalmedialibrary.data.Tag
         StagedMetadataCandidate::class,
 
         // FTS Virtual Table
-        MediaFtsEntity::class
+        MediaFtsEntity::class,
+
+        // Media Stream Cache
+        MediaCacheItem::class
 
     ],
     version = 47,
-    exportSchema = false
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 44, to = 45),
+        AutoMigration(from = 45, to = 46),
+        AutoMigration(from = 46, to = 47)
+    ]
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -209,6 +217,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun mediaFtsDao(): MediaFtsDao
+    abstract fun mediaCacheDao(): MediaCacheDao
     abstract fun metadataDao(): MetadataDao
     abstract fun stagedMetadataCandidateDao(): StagedMetadataCandidateDao
     abstract fun extendedMetadataDao(): ExtendedMetadataDao

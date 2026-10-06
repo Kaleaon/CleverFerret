@@ -32,7 +32,8 @@ class PlexSyncService @Inject constructor(
     private val libraryDao: LibraryDao,
     private val authService: PlexAuthService,
     private val ingestionPipeline: IngestionPipeline,
-    private val plexVirtualUriResolver: PlexVirtualUriResolver? = null
+    private val plexVirtualUriResolver: PlexVirtualUriResolver? = null,
+    private val downloadScheduler: com.universalmedialibrary.services.cache.MediaDownloadScheduler? = null
 ) {
 
     companion object {
@@ -254,7 +255,14 @@ class PlexSyncService @Inject constructor(
                             hasThumbnail = !metadata.thumb.isNullOrEmpty(),
                             thumbnailPath = metadata.thumb
                         )
-                        mediaItemDao.insertMediaItem(mediaItem)
+                        val insertedId = mediaItemDao.insertMediaItem(mediaItem)
+                        val downloadUrl = "http://${server.host}:${server.port}/library/metadata/${metadata.ratingKey}?X-Plex-Token=${server.token}"
+                        downloadScheduler?.scheduleDownload(
+                            itemId = insertedId,
+                            remoteUri = path,
+                            downloadUrl = downloadUrl,
+                            fileName = metadata.title
+                        )
                     }
                 }
             }

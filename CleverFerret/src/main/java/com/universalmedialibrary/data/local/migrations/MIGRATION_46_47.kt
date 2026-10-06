@@ -6,7 +6,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 /**
  * Migration from version 46 to 47
  * Adds Room FTS4 virtual table (`media_fts`) with automated database triggers
- * for offline multi-format full-text search across books, movies, music, and synced items.
+ * for offline multi-format full-text search across books, movies, music, and synced items,
+ * and adds media_cache_items table for managing media stream caching and background download queue.
  */
 internal val MIGRATION_46_47: Migration = object : Migration(46, 47) {
     override fun migrate(database: SupportSQLiteDatabase) {
@@ -259,5 +260,32 @@ internal val MIGRATION_46_47: Migration = object : Migration(46, 47) {
                 DELETE FROM media_fts WHERE item_id = OLD.id AND item_source = 'PLEX';
             END;
         """.trimIndent())
+
+        // 5. Create media_cache_items table and indexes
+        database.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `media_cache_items` (
+                `itemId` INTEGER NOT NULL,
+                `remoteUri` TEXT NOT NULL,
+                `downloadUrl` TEXT NOT NULL,
+                `localPath` TEXT NOT NULL,
+                `fileSize` INTEGER NOT NULL,
+                `downloadedBytes` INTEGER NOT NULL,
+                `downloadState` TEXT NOT NULL,
+                `priority` TEXT NOT NULL,
+                `isPinned` INTEGER NOT NULL,
+                `lastAccessed` INTEGER NOT NULL,
+                `createdAt` INTEGER NOT NULL,
+                `errorMessage` TEXT,
+                PRIMARY KEY(`itemId`)
+            )
+            """.trimIndent()
+        )
+
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_media_cache_items_itemId` ON `media_cache_items` (`itemId`)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_media_cache_items_remoteUri` ON `media_cache_items` (`remoteUri`)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_media_cache_items_downloadState` ON `media_cache_items` (`downloadState`)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_media_cache_items_isPinned` ON `media_cache_items` (`isPinned`)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_media_cache_items_lastAccessed` ON `media_cache_items` (`lastAccessed`)")
     }
 }
