@@ -181,12 +181,12 @@ class CloudSyncEngineTest {
     @Test
     fun testLastWriteWinsConflictResolution() {
         val localProgress = ReadingProgress(
-            itemId = "item_1",
+            itemId = 1L,
             currentPage = 50,
             lastModified = 1000L
         )
         val remoteProgress = ReadingProgress(
-            itemId = "item_1",
+            itemId = 1L,
             currentPage = 100,
             lastModified = 2000L
         )
@@ -242,12 +242,12 @@ class CloudSyncEngineTest {
     @Test
     fun testMergeReadingProgressResolution() {
         val localProgress = ReadingProgress(
-            itemId = "book_101",
+            itemId = 101L,
             currentPage = 45,
             lastModified = 1000L
         )
         val remoteProgress = ReadingProgress(
-            itemId = "book_101",
+            itemId = 101L,
             currentPage = 80,
             lastModified = 900L
         )
@@ -264,10 +264,10 @@ class CloudSyncEngineTest {
 
     @Test
     fun testMergeBookmarksDeduplication() {
-        val b1 = Bookmark(bookmarkId = 1L, itemId = "item_1", title = "Chapter 1", pageNumber = 10, dateCreated = 100L)
-        val b2 = Bookmark(bookmarkId = 2L, itemId = "item_1", title = "Chapter 2", pageNumber = 25, dateCreated = 200L)
-        val b2Remote = Bookmark(bookmarkId = 2L, itemId = "item_1", title = "Chapter 2 Updated", pageNumber = 26, dateCreated = 300L)
-        val b3 = Bookmark(bookmarkId = 3L, itemId = "item_1", title = "Chapter 3", pageNumber = 50, dateCreated = 250L)
+        val b1 = Bookmark(bookmarkId = 1L, itemId = 1L, title = "Chapter 1", page = 10, dateCreated = 100L)
+        val b2 = Bookmark(bookmarkId = 2L, itemId = 1L, title = "Chapter 2", page = 25, dateCreated = 200L)
+        val b2Remote = Bookmark(bookmarkId = 2L, itemId = 1L, title = "Chapter 2 Updated", page = 26, dateCreated = 300L)
+        val b3 = Bookmark(bookmarkId = 3L, itemId = 1L, title = "Chapter 3", page = 50, dateCreated = 250L)
 
         val localBookmarks = listOf(b1, b2)
         val remoteBookmarks = listOf(b2Remote, b3)
