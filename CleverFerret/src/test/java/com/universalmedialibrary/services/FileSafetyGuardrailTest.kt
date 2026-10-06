@@ -91,7 +91,7 @@ class FileSafetyGuardrailTest {
 
     @Test
     fun `isCachePath returns false for null, empty, or web URIs`() {
-        assertThat(guardrail.isCachePath(null)).isFalse()
+        assertThat(guardrail.isCachePath(null as String?)).isFalse()
         assertThat(guardrail.isCachePath("")).isFalse()
         assertThat(guardrail.isCachePath("   ")).isFalse()
         assertThat(guardrail.isCachePath("http://example.com/image.jpg")).isFalse()

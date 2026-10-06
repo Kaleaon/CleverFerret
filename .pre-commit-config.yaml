@@ -1,0 +1,40 @@
+# Pre-commit configuration for CleverFerret repository
+exclude: ^(android-sdk/|archive/)
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        files: ^(CleverFerret|CleverFerretV2|scripts|docs|config|\.github)/
+      - id: end-of-file-fixer
+        files: ^(CleverFerret|CleverFerretV2|scripts|docs|config|\.github)/
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: check-no-raw-console
+        name: check-no-raw-console
+        entry: scripts/check-no-raw-console.sh
+        language: script
+        types_or: [kotlin, java, javascript, ts]
+        files: ^(CleverFerret|CleverFerretV2)/src/main/
+
+      - id: check-doc-links
+        name: check-doc-links
+        entry: python3 scripts/ci/check_doc_links.py
+        language: python
+        types: [markdown]
+
+      - id: validate-android14-widgets
+        name: validate-android14-widgets
+        entry: python3 scripts/ci/validate_android14_widget_background_updates.py
+        language: python
+        files: ^CleverFerret/src/main/res/xml/.*widget.*_info\.xml$
+
+      - id: check-kotlin-quality
+        name: check-kotlin-quality
+        entry: scripts/check-kotlin-quality.sh
+        language: script
+        types: [kotlin]

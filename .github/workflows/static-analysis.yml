@@ -97,12 +97,16 @@ jobs:
               const repo = process.env.REPOSITORY;
               const runId = process.env.RUN_ID;
               const body = `### 🔍 Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/${repo}/actions/runs/${runId}) for details.`;
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
+              try {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: body
+                });
+              } catch (error) {
+                console.log('Failed to post lint comment on PR:', error.message);
+              }
             }
 
       - name: Codacy Analysis CLI

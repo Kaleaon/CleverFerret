@@ -30,6 +30,7 @@ import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.services.debug.DebugBugReportService
+import com.universalmedialibrary.ui.components.permission.StoragePermissionBannerDefaults
 import com.universalmedialibrary.utils.PermissionsHandler
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.jobs.WorkScheduler
@@ -102,6 +103,11 @@ fun AutoScanSettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            if (!permissions.hasStoragePermissions) {
+                StoragePermissionBannerDefaults.AutoScanPermissionBanner(
+                    onRequestPermission = { permissions.requestPermissions() }
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

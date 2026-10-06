@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.theme
 
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -77,6 +78,22 @@ object NavyGoldUnified {
         surfaceVariant = Color(0xFF1B2B4D),
         onSurfaceVariant = Color(0xFFB3BFD6)
     )
+
+    val lightScheme = lightColorScheme(
+        primary = GoldDark,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFFFF8DC),
+        onPrimaryContainer = GoldDark,
+        secondary = NavyAccent,
+        onSecondary = Color.White,
+        background = Color(0xFFF4F6FA),
+        onBackground = NavyDeep,
+        surface = Color.White,
+        onSurface = NavyDeep,
+        surfaceVariant = Color(0xFFE3E8F0),
+        onSurfaceVariant = Color(0xFF2C3E55),
+        outline = Color(0xFF7A6F3D)
+    )
 }
 
 // Theme 2: Emerald & Silver (Nature-inspired)
@@ -100,6 +117,22 @@ object EmeraldSilverUnified {
         onSurface = Color(0xFFE8F5ED),
         surfaceVariant = Color(0xFF1A3D28),
         onSurfaceVariant = Color(0xFFB3D9C3)
+    )
+
+    val lightScheme = lightColorScheme(
+        primary = Color(0xFF1B4D3E),
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFE8F5ED),
+        onPrimaryContainer = Color(0xFF0D2618),
+        secondary = Color(0xFF2E6B56),
+        onSecondary = Color.White,
+        background = Color(0xFFF2F7F4),
+        onBackground = EmeraldDeep,
+        surface = Color.White,
+        onSurface = EmeraldDeep,
+        surfaceVariant = Color(0xFFE0EAE5),
+        onSurfaceVariant = Color(0xFF2D4D3A),
+        outline = Color(0xFF5E7A70)
     )
 }
 
@@ -125,6 +158,22 @@ object RoyalBronzeUnified {
         surfaceVariant = Color(0xFF3D1F5C),
         onSurfaceVariant = Color(0xFFD0B3E6)
     )
+
+    val lightScheme = lightColorScheme(
+        primary = BronzeDark,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFF8EFE6),
+        onPrimaryContainer = BronzeDark,
+        secondary = Color(0xFF522A7A),
+        onSecondary = Color.White,
+        background = Color(0xFFF8F5FA),
+        onBackground = PurpleDeep,
+        surface = Color.White,
+        onSurface = PurpleDeep,
+        surfaceVariant = Color(0xFFEFE6F5),
+        onSurfaceVariant = Color(0xFF4A2B6B),
+        outline = Color(0xFF8C5C38)
+    )
 }
 
 // Theme 4: Midnight & Amber (Sophisticated night)
@@ -148,6 +197,22 @@ object MidnightAmberUnified {
         onSurface = Color(0xFFE8EEF5),
         surfaceVariant = Color(0xFF253447),
         onSurfaceVariant = Color(0xFFB8C5D6)
+    )
+
+    val lightScheme = lightColorScheme(
+        primary = AmberDark,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFFFF8E6),
+        onPrimaryContainer = AmberDark,
+        secondary = Color(0xFF2C3B4E),
+        onSecondary = Color.White,
+        background = Color(0xFFF4F6F8),
+        onBackground = MidnightDeep,
+        surface = Color.White,
+        onSurface = MidnightDeep,
+        surfaceVariant = Color(0xFFE4E9ED),
+        onSurfaceVariant = Color(0xFF2E3E50),
+        outline = Color(0xFF8A7338)
     )
 }
 
@@ -173,6 +238,22 @@ object ObsidianCrimsonUnified {
         surfaceVariant = Color(0xFF2D2D2D),
         onSurfaceVariant = Color(0xFFD0D0D0)
     )
+
+    val lightScheme = lightColorScheme(
+        primary = CrimsonDark,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFFFE6EB),
+        onPrimaryContainer = CrimsonDark,
+        secondary = Color(0xFF333333),
+        onSecondary = Color.White,
+        background = Color(0xFFFAF8F8),
+        onBackground = ObsidianDeep,
+        surface = Color.White,
+        onSurface = ObsidianDeep,
+        surfaceVariant = Color(0xFFEFEAEA),
+        onSurfaceVariant = Color(0xFF4A3838),
+        outline = Color(0xFF8C3040)
+    )
 }
 
 // Theme 6: Slate & Cyan (Cool modern)
@@ -196,6 +277,22 @@ object SlateCyanUnified {
         onSurface = Color(0xFFE8F0F5),
         surfaceVariant = Color(0xFF3D4854),
         onSurfaceVariant = Color(0xFFB8CAD6)
+    )
+
+    val lightScheme = lightColorScheme(
+        primary = CyanDark,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFE6F9FF),
+        onPrimaryContainer = CyanDark,
+        secondary = Color(0xFF2A424D),
+        onSecondary = Color.White,
+        background = Color(0xFFF2F6F8),
+        onBackground = SlateDeep,
+        surface = Color.White,
+        onSurface = SlateDeep,
+        surfaceVariant = Color(0xFFE0E8ED),
+        onSurfaceVariant = Color(0xFF2C3E4A),
+        outline = Color(0xFF387A8C)
     )
 }
 
@@ -221,6 +318,22 @@ object RoyalSilverUnified {
         surfaceVariant = Color(0xFF3D2F5C),
         onSurfaceVariant = Color(0xFFC8BFE6)
     )
+
+    val lightScheme = lightColorScheme(
+        primary = Color(0xFF403B6B),
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFF0EBFF),
+        onPrimaryContainer = Color(0xFF1A1535),
+        secondary = Color(0xFF5C528A),
+        onSecondary = Color.White,
+        background = Color(0xFFF6F5FA),
+        onBackground = RoyalDeep,
+        surface = Color.White,
+        onSurface = RoyalDeep,
+        surfaceVariant = Color(0xFFE8E5F2),
+        onSurfaceVariant = Color(0xFF3A325A),
+        outline = Color(0xFF6B658C)
+    )
 }
 
 // Theme 8: Forest Copper
@@ -244,6 +357,22 @@ object ForestCopperUnified {
         onSurface = Color(0xFFE8F5E8),
         surfaceVariant = Color(0xFF2A4D2A),
         onSurfaceVariant = Color(0xFFB8D9B8)
+    )
+
+    val lightScheme = lightColorScheme(
+        primary = CopperDark,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFFDF2E9),
+        onPrimaryContainer = CopperDark,
+        secondary = Color(0xFF1A3D1A),
+        onSecondary = Color.White,
+        background = Color(0xFFF4F8F4),
+        onBackground = ForestDeep,
+        surface = Color.White,
+        onSurface = ForestDeep,
+        surfaceVariant = Color(0xFFE2EBE2),
+        onSurfaceVariant = Color(0xFF2D422D),
+        outline = Color(0xFF7A5C38)
     )
 }
 
@@ -269,6 +398,22 @@ object BurgundyRoseGoldUnified {
         surfaceVariant = Color(0xFF5C2A3D),
         onSurfaceVariant = Color(0xFFE6C0CC)
     )
+
+    val lightScheme = lightColorScheme(
+        primary = RoseGoldDark,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFFFEBF0),
+        onPrimaryContainer = RoseGoldDark,
+        secondary = Color(0xFF4D1A2A),
+        onSecondary = Color.White,
+        background = Color(0xFFFAF4F6),
+        onBackground = BurgundyDeep,
+        surface = Color.White,
+        onSurface = BurgundyDeep,
+        surfaceVariant = Color(0xFFEFE2E6),
+        onSurfaceVariant = Color(0xFF4A2B36),
+        outline = Color(0xFF8C4A5A)
+    )
 }
 
 // Theme 10: Charcoal Champagne
@@ -292,6 +437,22 @@ object CharcoalChampagneUnified {
         onSurface = Color(0xFFF5F5F5),
         surfaceVariant = Color(0xFF3D3D3D),
         onSurfaceVariant = Color(0xFFD0D0D0)
+    )
+
+    val lightScheme = lightColorScheme(
+        primary = Color(0xFF8C7A5E),
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFFFF9EB),
+        onPrimaryContainer = Color(0xFF3D3326),
+        secondary = Color(0xFF3D3D3D),
+        onSecondary = Color.White,
+        background = Color(0xFFF7F7F7),
+        onBackground = CharcoalDeep,
+        surface = Color.White,
+        onSurface = CharcoalDeep,
+        surfaceVariant = Color(0xFFEAEAEA),
+        onSurfaceVariant = Color(0xFF3D3D3D),
+        outline = Color(0xFF7A7063)
     )
 }
 
@@ -317,13 +478,29 @@ object SlateGunmetalUnified {
         surfaceVariant = Color(0xFF3D4854),
         onSurfaceVariant = Color(0xFFB8C5D6)
     )
+
+    val lightScheme = lightColorScheme(
+        primary = GunmetalDark,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFEBF0F5),
+        onPrimaryContainer = SlateDeep,
+        secondary = Color(0xFF2D3844),
+        onSecondary = Color.White,
+        background = Color(0xFFF2F5F8),
+        onBackground = SlateDeep,
+        surface = Color.White,
+        onSurface = SlateDeep,
+        surfaceVariant = Color(0xFFE0E6ED),
+        onSurfaceVariant = Color(0xFF2D3844),
+        outline = Color(0xFF5C6B75)
+    )
 }
 
 // Theme 12: Deep Purple & Platinum (NEW)
 object DeepPurplePlatinumUnified {
     private val Platinum = Color(0xFFE5E4E2)
     private val PlatinumLight = Color(0xFFF5F4F2)
-    private val PlatinumDark = Color(0xFFB8B7B5)
+    private val PlatinumDark = Color(0xFFB8B8B5)
     private val PurpleDeep = Color(0xFF1A0F2E)
     private val PurplePaper = Color(0xFF24153D)
 
@@ -340,6 +517,22 @@ object DeepPurplePlatinumUnified {
         onSurface = Color(0xFFF0EBFF),
         surfaceVariant = Color(0xFF3D2A5C),
         onSurfaceVariant = Color(0xFFD0C0E6)
+    )
+
+    val lightScheme = lightColorScheme(
+        primary = Color(0xFF4A2B6B),
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFF3EBFB),
+        onPrimaryContainer = PurpleDeep,
+        secondary = Color(0xFF3D2A5C),
+        onSecondary = Color.White,
+        background = Color(0xFFF6F4FA),
+        onBackground = PurpleDeep,
+        surface = Color.White,
+        onSurface = PurpleDeep,
+        surfaceVariant = Color(0xFFE8E2F0),
+        onSurfaceVariant = Color(0xFF3B2A52),
+        outline = Color(0xFF6B5880)
     )
 }
 

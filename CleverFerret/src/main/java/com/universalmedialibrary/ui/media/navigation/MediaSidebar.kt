@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
+import com.universalmedialibrary.ui.components.accessibleClickable
 import com.universalmedialibrary.ui.media.theme.*
 
 @Composable
@@ -297,11 +298,11 @@ internal fun SidebarNavItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = MediaSpacing.SM)
-            .clickable(
+            .accessibleClickable(
                 interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-                enabled = isEnabled
+                shape = RoundedCornerShape(MediaCorners.SM),
+                enabled = isEnabled,
+                onClick = onClick
             ),
         shape = RoundedCornerShape(MediaCorners.SM),
         color = backgroundColor

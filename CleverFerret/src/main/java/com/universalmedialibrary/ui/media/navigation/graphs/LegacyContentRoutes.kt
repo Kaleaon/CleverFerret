@@ -121,7 +121,7 @@ fun NavGraphBuilder.legacyContentRoutes(
     
     composable("metabods_tag_browser") {
         LaunchedEffect(Unit) {
-            navController.navigate(MediaRoutes.WEB_FICTION) {
+            navController.navigate(MediaRoutes.discoveryRoute(type = "WEB_FICTION")) {
                 popUpTo("metabods_tag_browser") { inclusive = true }
             }
         }
@@ -129,7 +129,7 @@ fun NavGraphBuilder.legacyContentRoutes(
     
     composable("universal_tag_browser") {
         LaunchedEffect(Unit) {
-            navController.navigate(MediaRoutes.WEB_FICTION) {
+            navController.navigate(MediaRoutes.discoveryRoute(type = "WEB_FICTION")) {
                 popUpTo("universal_tag_browser") { inclusive = true }
             }
         }

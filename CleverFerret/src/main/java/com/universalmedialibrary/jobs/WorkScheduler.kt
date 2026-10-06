@@ -101,6 +101,7 @@ object WorkScheduler {
     fun scheduleFeedCatalogSync(context: Context, intervalMinutes: Long, wifiOnly: Boolean) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED)
+            .setRequiresBatteryNotLow(true)
             .build()
 
         val request = PeriodicWorkRequestBuilder<SyncWorker>(intervalMinutes, TimeUnit.MINUTES)

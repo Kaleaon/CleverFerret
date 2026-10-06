@@ -33,6 +33,7 @@ class AudioVisualizerService @Inject constructor(
 
     private val _visualizerState = MutableStateFlow(VisualizerState())
     val visualizerState: StateFlow<VisualizerState> = _visualizerState.asStateFlow()
+    val subscriptionCount: StateFlow<Int> = _visualizerState.subscriptionCount
 
     private val _isEnabled = MutableStateFlow(false)
     val isEnabled: StateFlow<Boolean> = _isEnabled.asStateFlow()

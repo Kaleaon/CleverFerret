@@ -20,56 +20,15 @@ import javax.inject.Singleton
  */
 @Singleton
 class RealMetadataService @Inject constructor(
-    private val apiKeyRepository: APIKeyRepository
+    private val apiKeyRepository: APIKeyRepository,
+    private val centralizedApiClient: CentralizedMetadataApiClient
 ) {
 
-    private val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(10, TimeUnit.SECONDS)
-        .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BASIC
-        })
-        .build()
-
-    // Google Books API (no key required for basic searches)
-    private val googleBooksApi = Retrofit.Builder()
-        .baseUrl("https://www.googleapis.com/books/v1/")
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(GoogleBooksApi::class.java)
-
-    // Open Library API (completely free, no key required)
-    private val openLibraryApi = Retrofit.Builder()
-        .baseUrl("https://openlibrary.org/")
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(OpenLibraryApi::class.java)
-
-    // TMDB API
-    private val tmdbApi = Retrofit.Builder()
-        .baseUrl("https://api.themoviedb.org/3/")
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(TMDBApi::class.java)
-
-    // OMDb API
-    private val omdbApi = Retrofit.Builder()
-        .baseUrl("https://www.omdbapi.com/")
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(OMDbApi::class.java)
-
-    // MusicBrainz API (no key required)
-    private val musicBrainzApi = Retrofit.Builder()
-        .baseUrl("https://musicbrainz.org/ws/2/")
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(MusicBrainzApi::class.java)
+    private val googleBooksApi get() = centralizedApiClient.googleBooksApi
+    private val openLibraryApi get() = centralizedApiClient.openLibraryApi
+    private val tmdbApi get() = centralizedApiClient.tmdbApi
+    private val omdbApi get() = centralizedApiClient.omdbApi
+    private val musicBrainzApi get() = centralizedApiClient.musicBrainzApi
 
     /**
      * Search for book metadata from multiple sources

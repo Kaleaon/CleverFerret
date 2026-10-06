@@ -46,7 +46,7 @@ class PodcastPlayerViewModelTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(dispatcher)
 
-        every { audioPlaybackManager.state } returns MutableStateFlow(com.universalmedialibrary.services.audio.AudioPlaybackState())
+        every { audioPlaybackManager.state } returns MutableStateFlow(com.universalmedialibrary.services.audio.AudioState())
         every { audioPlaybackManager.exoPlayer } returns mockk(relaxed = true)
 
         viewModel = PodcastPlayerViewModel(
@@ -69,6 +69,7 @@ class PodcastPlayerViewModelTest {
             guid = "guid-123",
             title = "Test Episode",
             audioUrl = "https://example.com/audio.mp3",
+            publishDate = 0L,
             downloaded = true,
             localFilePath = "/path/to/local.mp3"
         )
@@ -95,6 +96,7 @@ class PodcastPlayerViewModelTest {
             guid = "guid-124",
             title = "Corrupt Episode",
             audioUrl = "https://example.com/stream.mp3",
+            publishDate = 0L,
             downloaded = true,
             localFilePath = "/path/to/corrupt.mp3"
         )
