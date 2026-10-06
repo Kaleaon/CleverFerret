@@ -47,7 +47,8 @@ class UnifiedReaderService @Inject constructor(
     private val readiumAudiobookService: ReadiumAudiobookService,
     private val geminiComicService: GeminiComicService,
     private val audioPlaybackManager: AudioPlaybackManager,
-    private val formatRegistry: FormatRegistry
+    private val formatRegistry: FormatRegistry,
+    private val plexVirtualUriResolver: com.universalmedialibrary.services.plex.PlexVirtualUriResolver? = null
 ) {
     private val TAG = "UnifiedReaderService"
 
@@ -59,12 +60,29 @@ class UnifiedReaderService @Inject constructor(
      */
     suspend fun openPublication(filePath: String): ReaderType = withContext(Dispatchers.IO) {
         try {
-            val file = File(filePath)
-            if (!file.exists()) {
-                return@withContext ReaderType.Error("File not found: $filePath")
+            val targetPath = if (plexVirtualUriResolver?.isVirtualUri(filePath) == true) {
+                val resolveResult = plexVirtualUriResolver.resolveUri(filePath)
+                if (resolveResult.isFailure) {
+                    val ex = resolveResult.exceptionOrNull()
+                    return@withContext ReaderType.Error("Plex media unavailable: ${ex?.message ?: "Unable to resolve virtual URI"}")
+                }
+                resolveResult.getOrThrow().absolutePath
+            } else {
+                filePath
             }
 
-            val extension = file.extension.lowercase()
+            val file = File(targetPath)
+            if (!file.exists()) {
+                return@withContext ReaderType.Error("File not found: $targetPath")
+            }
+
+            var extension = file.extension.lowercase()
+            if (extension == "cached" || extension.isEmpty()) {
+                val originalExt = filePath.substringAfterLast('.', "").lowercase()
+                if (originalExt.isNotEmpty() && originalExt != "cached") {
+                    extension = originalExt
+                }
+            }
             
             // 1. Specialized Readers (Readium, ExoPlayer, Gemini)
             when (extension) {
@@ -235,13 +253,18 @@ class UnifiedReaderService @Inject constructor(
      */
     suspend fun extractCover(filePath: String): Bitmap? = withContext(Dispatchers.IO) {
         try {
-            val file = File(filePath)
+            val resolvedPath = if (plexVirtualUriResolver?.isVirtualUri(filePath) == true) {
+                plexVirtualUriResolver.resolveUri(filePath).getOrNull()?.absolutePath ?: return@withContext null
+            } else {
+                filePath
+            }
+            val file = File(resolvedPath)
             val extension = file.extension.lowercase()
             
             when (extension) {
-                "epub" -> readiumEpubService.extractCover(filePath)
-                "pdf" -> readiumPdfService.extractThumbnail(filePath)
-                "audiobook", "lcpa" -> readiumAudiobookService.extractCover(filePath)
+                "epub" -> readiumEpubService.extractCover(resolvedPath)
+                "pdf" -> readiumPdfService.extractThumbnail(resolvedPath)
+                "audiobook", "lcpa" -> readiumAudiobookService.extractCover(resolvedPath)
                 else -> null
             }
         } catch (e: Exception) {
