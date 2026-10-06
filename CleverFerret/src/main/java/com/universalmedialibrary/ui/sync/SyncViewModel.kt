@@ -1,24 +1,27 @@
 package com.universalmedialibrary.ui.sync
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.jobs.WorkScheduler
 import com.universalmedialibrary.services.sync.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SyncViewModel @Inject constructor(
-    private val syncService: EnhancedSyncService
+    private val cloudSyncEngine: CloudSyncEngine,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SyncUiState())
     val uiState: StateFlow<SyncUiState> = _uiState.asStateFlow()
 
-    // PERFORMANCE FIX: Use WhileSubscribed to stop collecting when no UI is observing
-    val syncState: StateFlow<EnhancedSyncState> = syncService.syncState
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), EnhancedSyncState())
+    val syncState: StateFlow<SyncState> = cloudSyncEngine.syncState
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SyncState())
 
     private val _syncOptions = MutableStateFlow(SyncOptions())
     val syncOptions: StateFlow<SyncOptions> = _syncOptions.asStateFlow()
@@ -36,8 +39,8 @@ class SyncViewModel @Inject constructor(
                     currentConflict = null
                 )
 
-                val result = syncService.sync(options)
-                
+                val result = cloudSyncEngine.sync(options)
+
                 _uiState.value = _uiState.value.copy(
                     isSyncing = false,
                     lastSyncResult = result,
@@ -54,11 +57,10 @@ class SyncViewModel @Inject constructor(
         }
     }
 
-    fun handleConflict(conflict: EnhancedSyncConflict, resolution: EnhancedConflictResolution) {
+    fun handleConflict(conflict: SyncConflict, resolution: ConflictResolutionStrategy) {
         viewModelScope.launch {
             try {
-                // Implement conflict resolution logic here
-                // syncService.resolveConflict(conflict, resolution)
+                cloudSyncEngine.resolveConflict(conflict.itemId, resolution == ConflictResolutionStrategy.USE_LOCAL)
                 _uiState.value = _uiState.value.copy(currentConflict = null)
                 if (_uiState.value.isSyncing) startSync()
             } catch (e: Exception) {
@@ -72,13 +74,11 @@ class SyncViewModel @Inject constructor(
     }
 
     fun toggleAutoSync(enabled: Boolean) {
-        // Interpret this as "WiFi Only" toggle for sync
         _syncOptions.value = _syncOptions.value.copy(syncOnlyOnWifi = enabled)
-        // Implemented auto-sync scheduling using WorkManager
         scheduleAutoSync(enabled)
     }
 
-    fun setConflictResolution(strategy: EnhancedConflictResolution) {
+    fun setConflictResolution(strategy: ConflictResolutionStrategy) {
         _syncOptions.value = _syncOptions.value.copy(conflictResolution = strategy)
     }
 
@@ -93,8 +93,7 @@ class SyncViewModel @Inject constructor(
     private fun loadLastSyncInfo() {
         viewModelScope.launch {
             try {
-                // Implemented: Get last sync time from sync service state
-                val lastSync = syncService.syncState.value.lastSyncTime
+                val lastSync = cloudSyncEngine.syncState.value.lastSyncTime
                 _uiState.value = _uiState.value.copy(lastSyncTime = lastSync)
             } catch (e: Exception) {
                 // Continue without last sync info
@@ -105,9 +104,7 @@ class SyncViewModel @Inject constructor(
     fun getConflicts() {
         viewModelScope.launch {
             try {
-                // Implemented: For now, return empty conflicts list
-                // In a full implementation, this would fetch from sync service
-                val conflicts = emptyList<EnhancedSyncConflict>()
+                val conflicts = cloudSyncEngine.conflicts.value
                 _uiState.value = _uiState.value.copy(
                     pendingConflicts = conflicts,
                     currentConflict = conflicts.firstOrNull()
@@ -131,36 +128,20 @@ class SyncViewModel @Inject constructor(
     }
 
     /**
-     * Schedule auto-sync using WorkManager
+     * Schedule auto-sync using WorkScheduler
      */
     private fun scheduleAutoSync(enabled: Boolean) {
         try {
             if (enabled) {
-                // In a real implementation, this would schedule periodic work
-                // using WorkManager for background sync
-                
-                // Example implementation (would require WorkManager dependency):
-                // val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-                //     6, TimeUnit.HOURS // Repeat every 6 hours
-                // ).setConstraints(
-                //     Constraints.Builder()
-                //         .setRequiredNetworkType(NetworkType.UNMETERED) // WiFi only
-                //         .setRequiresBatteryNotLow(true)
-                //         .build()
-                // ).build()
-                //
-                // WorkManager.getInstance().enqueueUniquePeriodicWork(
-                //     "auto_sync",
-                //     ExistingPeriodicWorkPolicy.UPDATE,
-                //     syncRequest
-                // )
-                
-                // For now, just log that auto-sync is enabled
-                android.util.Log.i("SyncViewModel", "Auto-sync scheduling would be enabled here")
+                WorkScheduler.scheduleFeedCatalogSync(
+                    context = context,
+                    intervalMinutes = 30,
+                    wifiOnly = _syncOptions.value.syncOnlyOnWifi
+                )
+                android.util.Log.i("SyncViewModel", "Auto-sync scheduled via WorkScheduler")
             } else {
-                // Cancel existing work
-                // WorkManager.getInstance().cancelUniqueWork("auto_sync")
-                android.util.Log.i("SyncViewModel", "Auto-sync scheduling would be disabled here")
+                WorkScheduler.cancelFeedCatalogSync(context)
+                android.util.Log.i("SyncViewModel", "Auto-sync cancelled via WorkScheduler")
             }
         } catch (e: Exception) {
             android.util.Log.e("SyncViewModel", "Failed to schedule auto-sync: ${e.message}")
@@ -172,8 +153,8 @@ data class SyncUiState(
     val isSyncing: Boolean = false,
     val lastSyncTime: Long? = null,
     val lastSyncResult: SyncResult? = null,
-    val currentConflict: EnhancedSyncConflict? = null,
-    val pendingConflicts: List<EnhancedSyncConflict> = emptyList(),
+    val currentConflict: SyncConflict? = null,
+    val pendingConflicts: List<SyncConflict> = emptyList(),
     val showSyncComplete: Boolean = false,
     val error: String? = null
 )

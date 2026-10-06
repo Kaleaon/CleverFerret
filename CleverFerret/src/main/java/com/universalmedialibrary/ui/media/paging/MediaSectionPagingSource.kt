@@ -12,7 +12,7 @@ class MediaSectionPagingSource<T : Any>(
             val offset = params.key ?: 0
             val pageSize = params.loadSize
             val items = loader(pageSize, offset)
-            val nextKey = if (items.isEmpty()) null else offset + items.size
+            val nextKey = if (items.size < pageSize) null else offset + items.size
             val prevKey = if (offset == 0) null else (offset - pageSize).coerceAtLeast(0)
             LoadResult.Page(
                 data = items,

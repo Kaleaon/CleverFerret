@@ -75,30 +75,10 @@ fun NavGraphBuilder.legacyRoutes(
     }
     
     composable("music_player") {
-        val viewModel: AudioPlayerViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
-        
-        UiErrorBoundary(
-            boundaryName = "AudioPlayerBoundary",
-            onGoHome = { navController.navigate(MediaRoutes.HOME) },
-        ) {
-            MediaAudioPlayerScreen(
-                state = state,
-                onPlayPause = { viewModel.playPause() },
-                onSeek = { viewModel.seek(it) },
-                onSkipPrevious = { viewModel.skipPrevious() },
-                onSkipNext = { viewModel.skipNext() },
-                onRewind = { viewModel.rewind() },
-                onFastForward = { viewModel.fastForward() },
-                onSpeedChange = { viewModel.setPlaybackSpeed(it) },
-                onShuffleToggle = { viewModel.toggleShuffle() },
-                onRepeatToggle = { viewModel.toggleRepeat() },
-                onSleepTimer = { /* Show sleep timer dialog */ },
-                onQueueOpen = { /* Handled by sheet in screen */ },
-                onChaptersOpen = { /* Handled by sheet in screen */ },
-                onCastClick = { /* Start casting */ },
-                onClose = { navController.popBackStack() }
-            )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.audioPlayerRoute("music")) {
+                popUpTo("music_player") { inclusive = true }
+            }
         }
     }
     
@@ -402,26 +382,11 @@ fun NavGraphBuilder.legacyRoutes(
     }
     
     composable("musicplayer/{mediaId}") { backStackEntry ->
-        val viewModel: AudioPlayerViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
-        
-        MediaAudioPlayerScreen(
-            state = state,
-            onPlayPause = { viewModel.playPause() },
-            onSeek = { viewModel.seek(it) },
-            onSkipPrevious = { viewModel.skipPrevious() },
-            onSkipNext = { viewModel.skipNext() },
-            onRewind = { viewModel.rewind() },
-            onFastForward = { viewModel.fastForward() },
-            onSpeedChange = { viewModel.setPlaybackSpeed(it) },
-            onShuffleToggle = { viewModel.toggleShuffle() },
-            onRepeatToggle = { viewModel.toggleRepeat() },
-            onSleepTimer = { },
-            onQueueOpen = { },
-            onChaptersOpen = { },
-            onCastClick = { },
-            onClose = { navController.popBackStack() }
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.audioPlayerRoute("music")) {
+                popUpTo("musicplayer/{mediaId}") { inclusive = true }
+            }
+        }
     }
     
     composable("podcastplayer/{mediaId}") { backStackEntry ->

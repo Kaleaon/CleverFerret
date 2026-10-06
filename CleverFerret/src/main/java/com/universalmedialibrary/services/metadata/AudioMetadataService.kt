@@ -39,7 +39,9 @@ import javax.inject.Singleton
  */
 @Singleton
 class AudioMetadataService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val centralizedApiClient: CentralizedMetadataApiClient,
+    private val embeddedTagExtractor: EmbeddedTagExtractor
 ) {
     companion object {
         private const val TAG = "AudioMetadataService"
@@ -86,58 +88,10 @@ class AudioMetadataService @Inject constructor(
     private var lastRequestTime = 0L
     
     /**
-     * Read embedded metadata from an audio file using Android's MediaMetadataRetriever.
-     * This is a fallback when TagLib is not available.
+     * Read embedded metadata from an audio file using EmbeddedTagExtractor.
      */
     suspend fun readEmbeddedMetadata(uri: Uri): AudioMetadata? = withContext(Dispatchers.IO) {
-        val retriever = MediaMetadataRetriever()
-        try {
-            retriever.setDataSource(context, uri)
-            
-            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-            val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-            val albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
-            val trackNumber = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)
-            val discNumber = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER)
-            val year = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)
-            val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
-            val composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER)
-            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
-            val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toIntOrNull()
-            val sampleRate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)?.toIntOrNull()
-            val mimeType = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
-            
-            // Extract embedded album art
-            val embeddedArt = retriever.embeddedPicture
-            
-            AudioMetadata(
-                title = title,
-                artist = artist,
-                album = album,
-                albumArtist = albumArtist,
-                trackNumber = parseTrackNumber(trackNumber),
-                discNumber = parseTrackNumber(discNumber),
-                year = year?.toIntOrNull(),
-                genre = genre,
-                composer = composer,
-                duration = duration,
-                bitrate = bitrate,
-                sampleRate = sampleRate,
-                mimeType = mimeType,
-                embeddedArtwork = embeddedArt,
-                source = AudioMetadataSource.EMBEDDED
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Error reading embedded metadata", e)
-            null
-        } finally {
-            try {
-                retriever.release()
-            } catch (e: Exception) {
-                Log.w(TAG, "Error releasing MediaMetadataRetriever", e)
-            }
-        }
+        embeddedTagExtractor.extractMetadataFromUri(uri)
     }
     
     /**
@@ -534,11 +488,7 @@ class AudioMetadataService @Inject constructor(
     }
     
     private fun parseTrackNumber(value: String?): Int? {
-        if (value.isNullOrBlank()) return null
-        
-        // Handle "1/12" format
-        val parts = value.split("/")
-        return parts.firstOrNull()?.trim()?.toIntOrNull()
+        return EmbeddedTagExtractor.parseTrackNumber(value)
     }
     
     private fun escapeLucene(input: String): String {

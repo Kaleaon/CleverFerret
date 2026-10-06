@@ -8,9 +8,15 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   JAVA_VERSION: '17'
   JAVA_DISTRIBUTION: 'temurin'
+  COMPILE_LOG: 'compile_output.txt'
+  BUILD_LOG: 'build_output.txt'
 
 permissions: {}
 
@@ -32,6 +38,7 @@ jobs:
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
+        cache: 'gradle'
         
     - name: Set up Android SDK
       uses: android-actions/setup-android@v4
@@ -48,7 +55,7 @@ jobs:
     - name: Install required Android SDK packages
       run: |
         yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;33.0.2" "platform-tools"
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;34.0.0" "platform-tools"
         echo "Installed SDK packages:"
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
@@ -80,6 +87,7 @@ jobs:
         # Using --warning-mode all to show warnings without excessive info
         COMPILE_LOG="compile_output_${GITHUB_SHA:0:8}_${GITHUB_RUN_ATTEMPT}.txt"
         echo "COMPILE_LOG=$COMPILE_LOG" >> "$GITHUB_ENV"
+        touch "$COMPILE_LOG"
         ./gradlew compileDebugKotlin --stacktrace --warning-mode all 2>&1 | tee "$COMPILE_LOG"
         exit_code=${PIPESTATUS[0]}
         
@@ -120,7 +128,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: compile-log-${{ github.sha }}-${{ github.run_attempt }}
-        path: ${{ env.COMPILE_LOG }}
+        path: ${{ env.COMPILE_LOG || 'compile_output.txt' }}
         if-no-files-found: ignore
     
     - name: Run unit tests
@@ -197,6 +205,7 @@ jobs:
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
+        cache: 'gradle'
         
     - name: Set up Android SDK
       uses: android-actions/setup-android@v4
@@ -213,7 +222,7 @@ jobs:
     - name: Install required Android SDK packages
       run: |
         yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;33.0.2" "platform-tools"
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;34.0.0" "platform-tools"
         echo "Installed SDK packages:"
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
@@ -247,6 +256,7 @@ jobs:
         # Run build with reduced verbosity for readable error output
         BUILD_LOG="build_output_${GITHUB_SHA:0:8}_${GITHUB_RUN_ATTEMPT}.txt"
         echo "BUILD_LOG=$BUILD_LOG" >> "$GITHUB_ENV"
+        touch "$BUILD_LOG"
         ./gradlew assembleDebug --stacktrace --warning-mode all \
           -PDEBUG_REPORTING_ENABLED=true \
           -PCRASH_REPORTING_ENABLED=true \
@@ -289,7 +299,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-log-${{ github.sha }}-${{ github.run_attempt }}
-        path: ${{ env.BUILD_LOG }}
+        path: ${{ env.BUILD_LOG || 'build_output.txt' }}
         if-no-files-found: ignore
       
     - name: Build release APK (unsigned)
@@ -315,7 +325,7 @@ jobs:
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             "$KEY_ALIAS"
             
-          $ANDROID_SDK_ROOT/build-tools/33.0.2/zipalign -v 4 \
+          $ANDROID_SDK_ROOT/build-tools/34.0.0/zipalign -v 4 \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
             
@@ -414,9 +424,10 @@ jobs:
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
+        cache: 'gradle'
 
     - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
+      uses: android-actions/setup-android@v4
       with:
         cmdline-tools-version: 11076708
 

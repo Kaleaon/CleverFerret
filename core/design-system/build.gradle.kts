@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -6,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.cleverferret.core.designsystem"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

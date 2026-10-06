@@ -7,10 +7,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
+import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
 
 private fun cfTypography(family: FontFamily): Typography = Typography(
     displayLarge   = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 44.sp, letterSpacing = (-1.0).sp),
@@ -33,7 +37,27 @@ fun CFTheme(
     palette: CFPalette = CFThemes.NavyGold,
     content: @Composable () -> Unit,
 ) {
-    CompositionLocalProvider(LocalCFTokens provides palette.tokens) {
+    val semanticTheme = remember(palette) {
+        val kthemeSnapshot = KthemeThemeAdapterV1.KthemeSnapshot(
+            id = palette.tokens.id,
+            darkMode = palette.tokens.id != "paper-ink",
+            primary = String.format("#%08X", palette.scheme.primary.toArgb()),
+            onPrimary = String.format("#%08X", palette.scheme.onPrimary.toArgb()),
+            background = String.format("#%08X", palette.scheme.background.toArgb()),
+            onBackground = String.format("#%08X", palette.scheme.onBackground.toArgb()),
+            surface = String.format("#%08X", palette.scheme.surface.toArgb()),
+            onSurface = String.format("#%08X", palette.scheme.onSurface.toArgb()),
+            outline = String.format("#%08X", palette.scheme.outline.toArgb()),
+            error = String.format("#%08X", palette.scheme.error.toArgb()),
+            onError = String.format("#%08X", palette.scheme.onError.toArgb())
+        )
+        KthemeThemeAdapterV1.adapt(kthemeSnapshot)
+    }
+
+    CompositionLocalProvider(
+        LocalCFTokens provides palette.tokens,
+        LocalSemanticTheme provides semanticTheme
+    ) {
         MaterialTheme(
             colorScheme = palette.scheme,
             typography = cfTypography(palette.tokens.typography),

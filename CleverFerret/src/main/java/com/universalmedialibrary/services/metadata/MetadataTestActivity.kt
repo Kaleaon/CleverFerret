@@ -28,12 +28,15 @@ class MetadataTestActivity : ComponentActivity() {
     @Inject
     lateinit var apiKeyRepository: APIKeyRepository
 
+    @Inject
+    lateinit var centralizedApiClient: CentralizedMetadataApiClient
+
     private lateinit var realMetadataService: RealMetadataService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        realMetadataService = RealMetadataService(apiKeyRepository)
+        realMetadataService = RealMetadataService(apiKeyRepository, centralizedApiClient)
 
         setContent {
             MetadataTestScreen(

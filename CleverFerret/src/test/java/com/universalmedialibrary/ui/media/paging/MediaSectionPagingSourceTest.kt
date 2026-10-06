@@ -18,7 +18,8 @@ class MediaSectionPagingSourceTest {
             PagingSource.LoadParams.Refresh(key = null, loadSize = 20, placeholdersEnabled = false)
         ) as PagingSource.LoadResult.Page
         val page2 = pagingSource.load(
-            PagingSource.LoadParams.Append(key = page1.nextKey, loadSize = 20, placeholdersEnabled = false)
+            PagingSource.LoadParams.Append(key = page1.nextKey!!, loadSize = 20, placeholdersEnabled = false)
+            PagingSource.LoadParams.Append(key = requireNotNull(page1.nextKey), loadSize = 20, placeholdersEnabled = false)
         ) as PagingSource.LoadResult.Page
 
         assertThat(page1.data).hasSize(20)

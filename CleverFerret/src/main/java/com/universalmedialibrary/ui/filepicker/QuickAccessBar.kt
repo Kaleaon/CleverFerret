@@ -92,3 +92,16 @@ internal fun QuickAccessBar(
         )
     }
 }
+
+@Composable
+internal fun QuickAccessChip(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit
+) {
+    AssistChip(
+        onClick = onClick,
+        label = { Text(label) },
+        leadingIcon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) }
+    )
+}

@@ -30,6 +30,19 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import com.universalmedialibrary.services.DownloadSafetyChecker
+import com.universalmedialibrary.services.FileSafetyGuardrail
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface FileBrowserEntryPoint {
+    fun downloadSafetyChecker(): DownloadSafetyChecker
+    fun fileSafetyGuardrail(): FileSafetyGuardrail
+}
 
 
 enum class SortMode {
@@ -69,11 +82,24 @@ fun EnhancedFileBrowser(
     onFileSelected: (File) -> Unit,
     onFolderSelected: (File) -> Unit = {},
     allowMultipleSelection: Boolean = false,
+    downloadSafetyChecker: DownloadSafetyChecker? = null,
+    fileSafetyGuardrail: FileSafetyGuardrail? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     
+    val entryPoint = remember(context) {
+        runCatching {
+            EntryPointAccessors.fromApplication(
+                context.applicationContext,
+                FileBrowserEntryPoint::class.java
+            )
+        }.getOrNull()
+    }
+    val activeDownloadSafetyChecker = downloadSafetyChecker ?: entryPoint?.downloadSafetyChecker()
+    val activeFileSafetyGuardrail = fileSafetyGuardrail ?: entryPoint?.fileSafetyGuardrail()
+
     var currentPath by remember {
         mutableStateOf(
             initialPath ?: context.getExternalFilesDir(null)?.absolutePath 
@@ -89,6 +115,10 @@ fun EnhancedFileBrowser(
     var showCopyDialog by remember { mutableStateOf(false) }
     var showMoveDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var showPinPromptForDelete by remember { mutableStateOf(false) }
+    var showPinPromptForMove by remember { mutableStateOf(false) }
+    var enteredPin by remember { mutableStateOf("") }
+    var pinError by remember { mutableStateOf<String?>(null) }
     var conflictRequest by remember { mutableStateOf<FileConflictRequest?>(null) }
     var fileItems by remember { mutableStateOf<List<FileItem>>(emptyList()) }
     var loadingError by remember { mutableStateOf<String?>(null) }
@@ -333,6 +363,82 @@ fun EnhancedFileBrowser(
             )
         }
         
+        val executeBatchDelete: () -> Unit = {
+            scope.launch(Dispatchers.IO) {
+                selectedFiles.forEach { file ->
+                    try {
+                        file.delete()
+                    } catch (e: Exception) {
+                        android.util.Log.e("FileBrowser", "Failed to delete ${file.name}: ${e.message}")
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    selectedFiles = emptySet()
+                    showDeleteConfirmation = false
+                    showPinPromptForDelete = false
+                    enteredPin = ""
+                    pinError = null
+                    fileItems = withContext(Dispatchers.IO) {
+                        loadFileItems(currentDirectory, settings)
+                    }
+                }
+            }
+        }
+
+        val executeMove: () -> Unit = {
+            val filesToProcess = selectedFiles.toList()
+            scope.launch {
+                val errors = withContext(Dispatchers.IO) {
+                    val operationErrors = mutableListOf<String>()
+                    filesToProcess.forEach { file ->
+                        try {
+                            val destFile = File(currentDirectory, file.name)
+                            val moveResult = if (destFile.exists()) {
+                                when (awaitConflictChoice(file)) {
+                                    FileConflictChoice.REPLACE -> moveFileSafely(file, destFile, overwrite = true, fileSafetyGuardrail = activeFileSafetyGuardrail)
+                                    FileConflictChoice.KEEP_BOTH -> {
+                                        val target = generateNonConflictingFile(currentDirectory, file)
+                                        moveFileSafely(file, target, overwrite = false, fileSafetyGuardrail = activeFileSafetyGuardrail)
+                                    }
+                                    FileConflictChoice.SKIP -> MoveResult.SKIPPED
+                                }
+                            } else {
+                                moveFileSafely(file, destFile, overwrite = false, fileSafetyGuardrail = activeFileSafetyGuardrail)
+                            }
+                            if (moveResult == MoveResult.PARTIAL_COPY_LEFT_SOURCE || moveResult == MoveResult.FAILED) {
+                                val errorMessage = when (moveResult) {
+                                    MoveResult.PARTIAL_COPY_LEFT_SOURCE ->
+                                        "Copied ${file.name}, but couldn't remove the source file."
+                                    MoveResult.FAILED -> "Failed to move ${file.name}"
+                                    MoveResult.SUCCESS, MoveResult.SKIPPED, MoveResult.NO_OP -> ""
+                                }
+                                if (errorMessage.isNotEmpty()) {
+                                    operationErrors += errorMessage
+                                    android.util.Log.e("FileBrowser", errorMessage)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            operationErrors += "Failed to move ${file.name}: ${e.message}"
+                            android.util.Log.e("FileBrowser", "Failed to move ${file.name}: ${e.message}")
+                        }
+                    }
+                    operationErrors
+                }
+                selectedFiles = emptySet()
+                showMoveDialog = false
+                showPinPromptForMove = false
+                enteredPin = ""
+                pinError = null
+                conflictRequest = null
+                if (errors.isNotEmpty()) {
+                    loadingError = "Some files failed to move. Check logs for details."
+                }
+                fileItems = withContext(Dispatchers.IO) {
+                    loadFileItems(currentDirectory, settings)
+                }
+            }
+        }
+
         // Move dialog
         if (showMoveDialog) {
             FormDialog(
@@ -351,53 +457,13 @@ fun EnhancedFileBrowser(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            val filesToProcess = selectedFiles.toList()
                             scope.launch {
-                                val errors = withContext(Dispatchers.IO) {
-                                    val operationErrors = mutableListOf<String>()
-                                    filesToProcess.forEach { file ->
-                                        try {
-                                            val destFile = File(currentDirectory, file.name)
-                                            val moveResult = if (destFile.exists()) {
-                                                when (awaitConflictChoice(file)) {
-                                                    FileConflictChoice.REPLACE -> moveFileSafely(file, destFile, overwrite = true)
-                                                    FileConflictChoice.KEEP_BOTH -> {
-                                                        val target = generateNonConflictingFile(currentDirectory, file)
-                                                        moveFileSafely(file, target, overwrite = false)
-                                                    }
-                                                    FileConflictChoice.SKIP -> MoveResult.SKIPPED
-                                                }
-                                            } else {
-                                                moveFileSafely(file, destFile, overwrite = false)
-                                            }
-                                            if (moveResult == MoveResult.PARTIAL_COPY_LEFT_SOURCE || moveResult == MoveResult.FAILED) {
-                                                val errorMessage = when (moveResult) {
-                                                    MoveResult.PARTIAL_COPY_LEFT_SOURCE ->
-                                                        "Copied ${file.name}, but couldn't remove the source file."
-                                                    MoveResult.FAILED -> "Failed to move ${file.name}"
-                                                    MoveResult.SUCCESS, MoveResult.SKIPPED, MoveResult.NO_OP -> ""
-                                                }
-                                                if (errorMessage.isNotEmpty()) {
-                                                    operationErrors += errorMessage
-                                                    android.util.Log.e("FileBrowser", errorMessage)
-                                                }
-                                            }
-                                        } catch (e: Exception) {
-                                            operationErrors += "Failed to move ${file.name}: ${e.message}"
-                                            android.util.Log.e("FileBrowser", "Failed to move ${file.name}: ${e.message}")
-                                        }
-                                    }
-                                    operationErrors
-                                }
-                                selectedFiles = emptySet()
-                                showMoveDialog = false
-                                conflictRequest = null
-                                if (errors.isNotEmpty()) {
-                                    loadingError = "Some files failed to move. Check logs for details."
-                                }
-                                // Reload file list
-                                fileItems = withContext(Dispatchers.IO) {
-                                    loadFileItems(currentDirectory, settings)
+                                val isPinActive = activeDownloadSafetyChecker?.isPinProtectionActive() == true
+                                if (isPinActive) {
+                                    showMoveDialog = false
+                                    showPinPromptForMove = true
+                                } else {
+                                    executeMove()
                                 }
                             }
                         }
@@ -476,22 +542,13 @@ fun EnhancedFileBrowser(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            scope.launch(Dispatchers.IO) {
-                                selectedFiles.forEach { file ->
-                                    try {
-                                        file.delete()
-                                    } catch (e: Exception) {
-                                        // Log error but continue with other files
-                                        android.util.Log.e("FileBrowser", "Failed to delete ${file.name}: ${e.message}")
-                                    }
-                                }
-                                withContext(Dispatchers.Main) {
-                                    selectedFiles = emptySet()
+                            scope.launch {
+                                val isPinActive = activeDownloadSafetyChecker?.isPinProtectionActive() == true
+                                if (isPinActive) {
                                     showDeleteConfirmation = false
-                                    // Reload file list
-                                    fileItems = withContext(Dispatchers.IO) {
-                                        loadFileItems(currentDirectory, settings)
-                                    }
+                                    showPinPromptForDelete = true
+                                } else {
+                                    executeBatchDelete()
                                 }
                             }
                         }
@@ -501,6 +558,118 @@ fun EnhancedFileBrowser(
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteConfirmation = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        if (showPinPromptForDelete) {
+            AlertDialog(
+                onDismissRequest = {
+                    showPinPromptForDelete = false
+                    enteredPin = ""
+                    pinError = null
+                },
+                title = { Text("Parental Control PIN Required") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Enter parental control PIN to confirm deleting ${selectedFiles.size} file(s).")
+                        OutlinedTextField(
+                            value = enteredPin,
+                            onValueChange = { 
+                                enteredPin = it 
+                                pinError = null
+                            },
+                            label = { Text("PIN") },
+                            isError = pinError != null,
+                            singleLine = true
+                        )
+                        pinError?.let {
+                            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            scope.launch {
+                                val verified = activeDownloadSafetyChecker?.verifyPinForDownload(enteredPin) == true
+                                if (verified) {
+                                    executeBatchDelete()
+                                } else {
+                                    pinError = "Incorrect PIN"
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Verify & Delete", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showPinPromptForDelete = false
+                            enteredPin = ""
+                            pinError = null
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        if (showPinPromptForMove) {
+            AlertDialog(
+                onDismissRequest = {
+                    showPinPromptForMove = false
+                    enteredPin = ""
+                    pinError = null
+                },
+                title = { Text("Parental Control PIN Required") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Enter parental control PIN to confirm moving ${selectedFiles.size} file(s).")
+                        OutlinedTextField(
+                            value = enteredPin,
+                            onValueChange = { 
+                                enteredPin = it 
+                                pinError = null
+                            },
+                            label = { Text("PIN") },
+                            isError = pinError != null,
+                            singleLine = true
+                        )
+                        pinError?.let {
+                            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            scope.launch {
+                                val verified = activeDownloadSafetyChecker?.verifyPinForDownload(enteredPin) == true
+                                if (verified) {
+                                    executeMove()
+                                } else {
+                                    pinError = "Incorrect PIN"
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Verify & Move")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showPinPromptForMove = false
+                            enteredPin = ""
+                            pinError = null
+                        }
+                    ) {
                         Text("Cancel")
                     }
                 }
@@ -553,7 +722,7 @@ fun EnhancedFileBrowser(
 
 
 @Composable
-private fun QuickAccessButton(
+internal fun QuickAccessButton(
     label: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit
@@ -698,7 +867,12 @@ private fun generateNonConflictingFile(directory: File, sourceFile: File): File 
     return candidate
 }
 
-private fun moveFileSafely(source: File, destination: File, overwrite: Boolean): MoveResult {
+private fun moveFileSafely(
+    source: File, 
+    destination: File, 
+    overwrite: Boolean,
+    fileSafetyGuardrail: FileSafetyGuardrail? = null
+): MoveResult {
     val isSameFile = runCatching { source.canonicalPath == destination.canonicalPath }
         .getOrElse { source.absolutePath == destination.absolutePath }
     if (isSameFile) {
@@ -710,10 +884,11 @@ private fun moveFileSafely(source: File, destination: File, overwrite: Boolean):
             MoveResult.SUCCESS
         } else {
             source.copyTo(destination, overwrite = overwrite)
-            if (source.delete()) {
+            val canDeleteSource = fileSafetyGuardrail == null || fileSafetyGuardrail.isCachePath(source)
+            if (canDeleteSource && source.delete()) {
                 MoveResult.SUCCESS
             } else {
-                android.util.Log.w("FileBrowser", "Copied ${source.name}, but failed to delete source file.")
+                android.util.Log.w("FileBrowser", "Copied ${source.name}, but safety guardrail prevented deleting source file.")
                 MoveResult.PARTIAL_COPY_LEFT_SOURCE
             }
         }
@@ -722,12 +897,4 @@ private fun moveFileSafely(source: File, destination: File, overwrite: Boolean):
         MoveResult.FAILED
     }
 }
-
-private fun formatFileSize(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "$bytes B"
-        bytes < 1024 * 1024 -> "${bytes / 1024} KB"
-        bytes < 1024 * 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
-        else -> "${bytes / (1024 * 1024 * 1024)} GB"
-    }
-}
+// formatFileSize reused from StorageBrowserScreen.kt

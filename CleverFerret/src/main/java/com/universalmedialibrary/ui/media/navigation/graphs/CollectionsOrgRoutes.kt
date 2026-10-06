@@ -82,11 +82,22 @@ fun NavGraphBuilder.collectionsOrgRoutes(
         )
     }
     
-    // Tag Explorer - Browse and filter by tags
+    // Tag Explorer - redirected to Unified Discovery Screen
     composable(MediaRoutes.TAG_EXPLORER) {
-        com.universalmedialibrary.ui.tags.UniversalTagExplorerScreen(
-            navController = navController
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.discoveryRoute(type = "TAGS")) {
+                popUpTo(MediaRoutes.TAG_EXPLORER) { inclusive = true }
+            }
+        }
+    }
+    
+    // Legacy route: TAGS
+    composable(MediaRoutes.TAGS) {
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.discoveryRoute(type = "TAGS")) {
+                popUpTo(MediaRoutes.TAGS) { inclusive = true }
+            }
+        }
     }
     
     // Smart Collections - Auto-suggested playlists, series, and collections
@@ -102,14 +113,13 @@ fun NavGraphBuilder.collectionsOrgRoutes(
         arguments = listOf(navArgument("ruleId") { type = NavType.LongType })
     ) { backStackEntry ->
         val ruleId = backStackEntry.arguments?.getLong("ruleId") ?: 0L
-        // Would create a SmartCollectionDetailScreen to show items in the smart collection
         // For now, navigate back
         LaunchedEffect(Unit) {
             navController.popBackStack()
         }
     }
     
-    // Enhanced Search with filters
+    // Enhanced Search - redirected to Unified Discovery Screen with preserved query arguments
     composable(
         route = MediaRoutes.ENHANCED_SEARCH,
         arguments = listOf(
@@ -129,17 +139,25 @@ fun NavGraphBuilder.collectionsOrgRoutes(
                 defaultValue = null
             }
         )
-    ) {
-        com.universalmedialibrary.ui.search.EnhancedSearchScreen(
-            navController = navController
-        )
+    ) { backStackEntry ->
+        val query = backStackEntry.arguments?.getString("query")
+        val tags = backStackEntry.arguments?.getString("tags")
+        val mediaTypes = backStackEntry.arguments?.getString("mediaTypes")
+        
+        LaunchedEffect(query, tags, mediaTypes) {
+            navController.navigate(MediaRoutes.discoveryRoute(query = query, tags = tags, type = mediaTypes)) {
+                popUpTo(MediaRoutes.ENHANCED_SEARCH) { inclusive = true }
+            }
+        }
     }
     
-    // Universal Search - Search across formats, tags, and media
+    // Universal Search - redirected to Unified Discovery Screen
     composable(MediaRoutes.UNIVERSAL_SEARCH) {
-        com.universalmedialibrary.ui.search.UniversalSearchScreen(
-            navController = navController
-        )
+        LaunchedEffect(Unit) {
+            navController.navigate(MediaRoutes.discoveryRoute()) {
+                popUpTo(MediaRoutes.UNIVERSAL_SEARCH) { inclusive = true }
+            }
+        }
     }
     
     // =====================================================================

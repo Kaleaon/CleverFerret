@@ -19,6 +19,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.preferences.*
 import com.universalmedialibrary.data.services.SettingsBackupService
+import com.universalmedialibrary.ui.viewer.common.ReadingDirection
+import com.universalmedialibrary.ui.viewer.common.ReadingMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -176,6 +178,13 @@ fun ReadingPreferencesScreen(
                     onValueChange = { viewModel.updateComicReadingMode(it) }
                 )
                 
+                DropdownPreference(
+                    label = "Reading Direction",
+                    value = comicPrefs.readingDirection,
+                    options = ReadingDirection.values().toList(),
+                    onValueChange = { viewModel.updateComicReadingDirection(it) }
+                )
+
                 SwitchPreference(
                     label = "AI Translation",
                     checked = comicPrefs.translationEnabled,
@@ -441,6 +450,13 @@ class ReadingPreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             val current = comicPreferences.value
             preferencesStore.saveComicPreferences(current.copy(readingMode = mode))
+        }
+    }
+
+    fun updateComicReadingDirection(direction: ReadingDirection) {
+        viewModelScope.launch {
+            val current = comicPreferences.value
+            preferencesStore.saveComicPreferences(current.copy(readingDirection = direction))
         }
     }
 
