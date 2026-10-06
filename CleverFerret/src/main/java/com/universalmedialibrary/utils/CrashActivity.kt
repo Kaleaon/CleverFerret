@@ -17,9 +17,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash
+import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 
 /**
@@ -73,7 +75,7 @@ private fun CrashScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("App Crashed") },
+                title = { Text(stringResource(R.string.crash_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     titleContentColor = MaterialTheme.colorScheme.onErrorContainer
@@ -93,22 +95,21 @@ private fun CrashScreen(
             // Error icon
             Icon(
                 imageVector = Icons.Default.ErrorOutline,
-                contentDescription = "Error",
+                contentDescription = stringResource(R.string.crash_title),
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )
             
             // Error title
             Text(
-                text = "Oops! Something went wrong",
+                text = stringResource(R.string.crash_subtitle),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
             
             // Error message
             Text(
-                text = "CleverFerret encountered an unexpected error and needs to restart. " +
-                        "We apologize for the inconvenience.",
+                text = stringResource(R.string.crash_message),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -127,7 +128,7 @@ private fun CrashScreen(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(if (showErrorDetails) "Hide Error Details" else "Show Error Details")
+                Text(if (showErrorDetails) stringResource(R.string.crash_hide_details) else stringResource(R.string.crash_show_details))
             }
             
             // Error details card
@@ -146,7 +147,7 @@ private fun CrashScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Error Details",
+                                text = stringResource(R.string.crash_details_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -161,7 +162,7 @@ private fun CrashScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ContentCopy,
-                                    contentDescription = "Copy error details",
+                                    contentDescription = stringResource(R.string.crash_copy_details),
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -189,7 +190,7 @@ private fun CrashScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         Text(
-                            text = "You can copy this error and report it to the developers.",
+                            text = stringResource(R.string.crash_details_instruction),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -214,7 +215,7 @@ private fun CrashScreen(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Restart App")
+                    Text(stringResource(R.string.crash_restart_app))
                 }
                 
                 OutlinedButton(
@@ -227,7 +228,7 @@ private fun CrashScreen(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Close App")
+                    Text(stringResource(R.string.crash_close_app))
                 }
             }
         }

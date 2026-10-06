@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App name and basic strings -->
+    <string name="app_name">Clever Ferret Medienbibliothek</string>
+
+    <!-- File Handler / MainActivity -->
+    <string name="open_file_title">Datei öffnen</string>
+    <string name="action_close">Schließen</string>
+    <string name="unknown_file_type">Unbekannter Dateityp</string>
+    <string name="unable_to_open_file">Dateityp konnte nicht bestimmt werden.</string>
+    <string name="open_clever_ferret">CleverFerret öffnen</string>
+    <string name="no_file_to_open">Keine Datei zum Öffnen</string>
+    <string name="open_clever_ferret_app">CleverFerret-App öffnen</string>
+    <string name="unsupported_file_type">Nicht unterstützter Dateityp: %1$s</string>
+
+    <!-- Permission Dialog -->
+    <string name="permission_required_title">Berechtigungen erforderlich</string>
+    <string name="permission_required_message">CleverFerret benötigt Zugriff auf Ihren Speicher, um Ihre Mediendateien zu durchsuchen und abzuspielen.</string>
+    <string name="permission_grant_button">Berechtigungen erteilen</string>
+    <string name="permission_open_settings_button">App-Einstellungen öffnen</string>
+
+    <!-- Crash Activity -->
+    <string name="crash_title">App abgestürzt</string>
+    <string name="crash_subtitle">Hoppla! Etwas ist schiefgelaufen</string>
+    <string name="crash_message">CleverFerret ist auf einen unerwarteten Fehler gestoßen und muss neu gestartet werden. Wir entschuldigen uns für die Unannehmlichkeiten.</string>
+    <string name="crash_show_details">Fehlerdetails anzeigen</string>
+    <string name="crash_hide_details">Fehlerdetails ausblenden</string>
+    <string name="crash_details_title">Fehlerdetails</string>
+    <string name="crash_copy_details">Fehlerdetails kopieren</string>
+    <string name="crash_details_instruction">Sie können diesen Fehler kopieren und an die Entwickler melden.</string>
+    <string name="crash_restart_app">App neu starten</string>
+    <string name="crash_close_app">App schließen</string>
+
+    <!-- FM Radio Screen -->
+    <string name="fm_radio_title">UKW-Radio</string>
+    <string name="radio_save_to_favorites">Zu Favoriten hinzufügen</string>
+    <string name="radio_unavailable_title">UKW-Radio nicht verfügbar</string>
+    <string name="radio_unavailable_message">Keine UKW-Radio-Hardware erkannt oder Berechtigung verweigert.</string>
+    <string name="radio_identify_song">Titel erkennnen</string>
+    <string name="radio_switch_to_internet_radio">Zu Internetradio wechseln</string>
+    <string name="radio_you_might_also_like">Das könnte Ihnen auch gefallen</string>
+    <string name="radio_fine_tune">Feineinstellung</string>
+    <string name="radio_favorite_stations">Lieblingssender</string>
+    <string name="radio_fallback_internet_title">Internetradio</string>
+    <string name="radio_fallback_live_stream">Live-Stream</string>
+    <string name="cd_media_image">Medienbild</string>
+    <string name="cd_station_logo_album_art">Senderlogo / Album-Cover</string>
+    <string name="cd_signal_strength">Signal</string>
+    <string name="cd_scan_down">Rückwärts suchen</string>
+    <string name="cd_scan_up">Vorwärts suchen</string>
+    <string name="cd_tune_down">Frequenz verringern</string>
+    <string name="cd_tune_up">Frequenz erhöhen</string>
+    <string name="cd_playing">Wiedergabe</string>
+    <string name="cd_stop">Stopp</string>
+
+    <!-- V2 Navigation -->
+    <string name="nav_domain_discover">Entdecken</string>
+</resources>

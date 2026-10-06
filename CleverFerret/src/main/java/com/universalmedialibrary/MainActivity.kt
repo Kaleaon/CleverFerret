@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.ui.main.MainViewModel
@@ -188,7 +189,7 @@ private fun FileReaderScreen(
         }
         else -> {
             // Unsupported file type - show error
-            Text("Unsupported file type: $mimeType")
+            Text(stringResource(R.string.unsupported_file_type, mimeType))
         }
     }
 }
@@ -203,10 +204,10 @@ private fun UnknownFileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Open File") },
+                title = { Text(stringResource(R.string.open_file_title)) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Close")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_close))
                     }
                 }
             )
@@ -221,12 +222,12 @@ private fun UnknownFileScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Unknown File Type",
+                text = stringResource(R.string.unknown_file_type),
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Unable to determine how to open this file.",
+                text = stringResource(R.string.unable_to_open_file),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -239,10 +240,10 @@ private fun UnknownFileScreen(
             Spacer(modifier = Modifier.height(32.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedButton(onClick = onClose) {
-                    Text("Close")
+                    Text(stringResource(R.string.action_close))
                 }
                 Button(onClick = onOpenInApp) {
-                    Text("Open CleverFerret")
+                    Text(stringResource(R.string.open_clever_ferret))
                 }
             }
         }
@@ -254,7 +255,7 @@ private fun UnknownFileScreen(
 private fun NoFileScreen(onOpenApp: () -> Unit) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("CleverFerret") })
+            TopAppBar(title = { Text(stringResource(R.string.app_name)) })
         }
     ) { padding ->
         Column(
@@ -266,12 +267,12 @@ private fun NoFileScreen(onOpenApp: () -> Unit) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "No file to open",
+                text = stringResource(R.string.no_file_to_open),
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = onOpenApp) {
-                Text("Open CleverFerret App")
+                Text(stringResource(R.string.open_clever_ferret_app))
             }
         }
     }

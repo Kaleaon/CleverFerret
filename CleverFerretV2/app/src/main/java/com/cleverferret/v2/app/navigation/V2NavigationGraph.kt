@@ -1,14 +1,16 @@
 package com.cleverferret.v2.app.navigation
 
 object V2NavigationGraph {
-    enum class TopLevelDomain(val route: String, val displayName: String) {
-        LIBRARY("library", "Library"),
-        READER("reader", "Reader"),
-        AUDIO("audio", "Audio"),
-        RADIO("radio", "Radio"),
-        DISCOVER("discover", "Discover"),
-        SYNC("sync", "Sync"),
-        SETTINGS("settings", "Settings"),
+    enum class TopLevelDomain(val route: String, val displayNameKey: String) {
+        LIBRARY("library", "navigation_library"),
+        READER("reader", "reader_title"),
+        AUDIO("audio", "audio_player_title"),
+        RADIO("radio", "fm_radio_title"),
+        DISCOVER("discover", "nav_domain_discover"),
+        SYNC("sync", "notification_sync_progress"),
+        SETTINGS("settings", "navigation_settings");
+
+        val displayName: String get() = displayNameKey
     }
 
     val CANONICAL_ROUTES: Map<TopLevelDomain, List<String>> = AppNavigationCatalog.topLevelDestinations
