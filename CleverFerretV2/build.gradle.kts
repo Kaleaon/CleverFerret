@@ -13,15 +13,14 @@ subprojects {
     group = "com.cleverferret.v2"
     version = "0.1.0"
 
-    val targetJavaVersion = if (JavaVersion.current() == JavaVersion.VERSION_17) 17 else JavaVersion.current().majorVersion.toInt()
-
     configure<JavaPluginExtension> {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
-        }
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     configure<KotlinJvmProjectExtension> {
-        jvmToolchain(targetJavaVersion)
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
 }
