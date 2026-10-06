@@ -33,18 +33,18 @@ data class MediaItem(
     @PrimaryKey(autoGenerate = true)
     val itemId: Long = 0,
 
-    val libraryId: Long,
+    val libraryId: Long = 0L,
     val filePath: String,
     val fileName: String,
-    val fileExtension: String,
-    val fileSize: Long,
+    val fileExtension: String = "",
+    val fileSize: Long = 0L,
     val fileHash: String? = null,
 
     val dateAdded: Long = System.currentTimeMillis(),
     val lastScanned: Long = System.currentTimeMillis(),
     val lastModified: Long = 0,
 
-    val mediaType: String, // BOOK, MOVIE, TV_SHOW, MUSIC_TRACK, etc.
+    val mediaType: String = "UNKNOWN", // BOOK, MOVIE, TV_SHOW, MUSIC_TRACK, etc.
     val mimeType: String? = null,
 
     val isAvailable: Boolean = true,

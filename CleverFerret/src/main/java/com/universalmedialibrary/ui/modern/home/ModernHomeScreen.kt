@@ -99,7 +99,7 @@ fun ModernHomeScreen(
                     CFSectionHeader("Quick actions")
                     Spacer(Modifier.height(CFSpacing.sm))
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
+                        columns = GridCells.Adaptive(minSize = CFSpacing.quickActionMinWidth),
                         horizontalArrangement = Arrangement.spacedBy(CFSpacing.sm),
                         verticalArrangement = Arrangement.spacedBy(CFSpacing.sm),
                         modifier = Modifier.heightIn(max = 200.dp),

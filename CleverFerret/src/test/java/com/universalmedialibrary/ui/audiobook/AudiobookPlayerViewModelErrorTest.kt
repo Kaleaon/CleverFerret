@@ -32,7 +32,7 @@ class AudiobookPlayerViewModelErrorTest {
 
     @Test
     fun deleteBookmark_onDatabaseError_emitsUserFriendlySnackbarEvent() = runTest {
-        val bookmark = AudiobookBookmark(id = 1L, positionMs = 12000L)
+        val bookmark = AudiobookBookmark(id = "1", position = 12000L)
         coEvery { audiobookService.deleteBookmark(any()) } throws SQLiteException("Disk write failed")
 
         val viewModel = AudiobookPlayerViewModel(

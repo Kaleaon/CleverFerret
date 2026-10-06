@@ -7,6 +7,7 @@ import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.MetadataFetchRepository
+import com.universalmedialibrary.data.repository.MetadataFetchResult
 import com.universalmedialibrary.services.CalibreExportService
 import com.universalmedialibrary.services.FileSafetyGuardrail
 import com.universalmedialibrary.services.thumbnails.ThumbnailService
@@ -144,8 +145,24 @@ class LibraryManagementViewModelSafetyTest {
 
     @Test
     fun `bulkFetchMetadata processes items concurrently and updates task state`() = runTest {
-        val mediaItem1 = MediaItem(itemId = 1L, libraryId = 1L, filePath = "/book1.epub", fileName = "book1.epub", fileExtension = "epub", fileSize = 100L, mediaType = "BOOK")
-        val mediaItem2 = MediaItem(itemId = 2L, libraryId = 1L, filePath = "/book2.epub", fileName = "book2.epub", fileExtension = "epub", fileSize = 100L, mediaType = "BOOK")
+        val mediaItem1 = MediaItem(
+            itemId = 1L,
+            libraryId = 1L,
+            filePath = "/book1.epub",
+            fileName = "book1.epub",
+            fileExtension = "epub",
+            fileSize = 100L,
+            mediaType = "BOOK"
+        )
+        val mediaItem2 = MediaItem(
+            itemId = 2L,
+            libraryId = 1L,
+            filePath = "/book2.epub",
+            fileName = "book2.epub",
+            fileExtension = "epub",
+            fileSize = 100L,
+            mediaType = "BOOK"
+        )
 
         coEvery { mediaItemDao.getAllMediaItems() } returns listOf(mediaItem1, mediaItem2)
         coEvery { metadataFetchRepository.fetchMetadataForItem(any()) } returns MetadataFetchResult.Success(
@@ -163,7 +180,15 @@ class LibraryManagementViewModelSafetyTest {
 
     @Test
     fun `bulkFetchMetadata handles failures and updates task state to failed`() = runTest {
-        val mediaItem1 = MediaItem(itemId = 1L, libraryId = 1L, filePath = "/book1.epub", fileName = "book1.epub", fileExtension = "epub", fileSize = 100L, mediaType = "BOOK")
+        val mediaItem1 = MediaItem(
+            itemId = 1L,
+            libraryId = 1L,
+            filePath = "/book1.epub",
+            fileName = "book1.epub",
+            fileExtension = "epub",
+            fileSize = 100L,
+            mediaType = "BOOK"
+        )
 
         coEvery { mediaItemDao.getAllMediaItems() } returns listOf(mediaItem1)
         coEvery { metadataFetchRepository.fetchMetadataForItem(1L) } returns MetadataFetchResult.Error("API Limit")

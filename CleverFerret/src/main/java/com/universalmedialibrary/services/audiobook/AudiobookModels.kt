@@ -64,11 +64,11 @@ data class Audiobook(
  */
 data class AudiobookBookmark(
     val id: String,
-    val audiobookId: String,
-    val chapterIndex: Int,
-    val position: Long, // milliseconds
-    val currentPosition: Long, // milliseconds (alternative name)
-    val title: String,
+    val audiobookId: String = "",
+    val chapterIndex: Int = 0,
+    val position: Long = 0L, // milliseconds
+    val currentPosition: Long = 0L, // milliseconds (alternative name)
+    val title: String = "",
     val note: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )

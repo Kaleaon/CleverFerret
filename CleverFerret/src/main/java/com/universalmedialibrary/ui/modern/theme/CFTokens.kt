@@ -13,6 +13,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.services.manga.source.MangaState
 import com.universalmedialibrary.services.webfiction.DownloadStatus
@@ -103,6 +104,13 @@ data class CFMetro(
 
 enum class CFLayout { Compose, Lcars, Metro }
 
+data class CFGridMinItemWidth(
+    val quickAction: Dp = 100.dp,
+    val poster: Dp = 160.dp,
+    val squareCard: Dp = 140.dp,
+    val dialogChip: Dp = 120.dp,
+)
+
 // Bundle of everything that isn't already in Material3's ColorScheme.
 data class CFTokens(
     val id: String,
@@ -114,6 +122,7 @@ data class CFTokens(
     val typography: FontFamily = FontFamily.Default,
     val status: CFStatusColors = CFStatusColors(),
     val playerControls: CFPlayerControls = CFPlayerControls(),
+    val gridMinItemWidth: CFGridMinItemWidth = CFGridMinItemWidth(),
 )
 
 val LocalCFTokens = staticCompositionLocalOf<CFTokens> {
@@ -568,4 +577,10 @@ object CFSpacing {
     val lg = 16.dp; val xl = 24.dp; val xxl = 32.dp
     val lcarsGutter = 6.dp
     val metroGutter = 10.dp
+
+    // Adaptive grid minimum item width tokens
+    val quickActionMinWidth: Dp = 100.dp
+    val posterMinWidth: Dp = 160.dp
+    val squareCardMinWidth: Dp = 140.dp
+    val dialogChipMinWidth: Dp = 120.dp
 }
