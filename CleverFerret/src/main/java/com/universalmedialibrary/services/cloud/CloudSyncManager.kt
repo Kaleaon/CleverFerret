@@ -268,6 +268,8 @@ data class ConflictResolution(
     val resolved: Boolean
 )
 
+
+
 data class SyncStatistics(
     val totalUploaded: Int,
     val totalDownloaded: Int,

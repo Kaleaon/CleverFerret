@@ -12,6 +12,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,8 +47,14 @@ class PodcastPlayerViewModelTest {
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(dispatcher)
+        mockkStatic(Uri::class)
+        every { Uri.parse(any()) } answers {
+            val uriString = firstArg<String>()
+            mockk<Uri> { every { toString() } returns uriString }
+        }
 
-        every { audioPlaybackManager.state } returns MutableStateFlow(com.universalmedialibrary.services.audio.AudioPlaybackState())
+        every { audioPlaybackManager.state } returns MutableStateFlow(AudioPlaybackManager.AudioState())
+        every { audioPlaybackManager.state } returns MutableStateFlow(com.universalmedialibrary.services.audio.AudioState())
         every { audioPlaybackManager.exoPlayer } returns mockk(relaxed = true)
 
         viewModel = PodcastPlayerViewModel(
@@ -58,6 +66,7 @@ class PodcastPlayerViewModelTest {
 
     @After
     fun tearDown() {
+        unmockkStatic(Uri::class)
         Dispatchers.resetMain()
     }
 
@@ -69,6 +78,7 @@ class PodcastPlayerViewModelTest {
             guid = "guid-123",
             title = "Test Episode",
             audioUrl = "https://example.com/audio.mp3",
+            publishDate = 0L,
             downloaded = true,
             localFilePath = "/path/to/local.mp3"
         )
@@ -95,6 +105,7 @@ class PodcastPlayerViewModelTest {
             guid = "guid-124",
             title = "Corrupt Episode",
             audioUrl = "https://example.com/stream.mp3",
+            publishDate = 0L,
             downloaded = true,
             localFilePath = "/path/to/corrupt.mp3"
         )

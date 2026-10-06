@@ -227,12 +227,12 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideMetadataFetchRepository(
-        realMetadataService: RealMetadataService,
+        unifiedMetadataFacade: com.universalmedialibrary.services.metadata.UnifiedMetadataFacade,
         mediaItemDao: MediaItemDao,
         metadataDao: MetadataDao,
         metadataStagingRepository: com.universalmedialibrary.data.repository.MetadataStagingRepository
     ): MetadataFetchRepository {
-        return MetadataFetchRepository(realMetadataService, mediaItemDao, metadataDao, metadataStagingRepository)
+        return MetadataFetchRepository(unifiedMetadataFacade, mediaItemDao, metadataDao, metadataStagingRepository)
     }
 
     // Search Repository

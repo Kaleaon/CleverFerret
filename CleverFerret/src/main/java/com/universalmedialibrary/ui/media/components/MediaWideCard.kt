@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.components.accessibleClickable
 import com.universalmedialibrary.ui.media.theme.*
 
 /**
@@ -90,9 +91,9 @@ fun MediaWideCard(
             .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
             .clip(RoundedCornerShape(MediaCorners.Card))
             .background(MediaColors.BackgroundSurface)
-            .clickable(
+            .accessibleClickable(
                 interactionSource = interactionSource,
-                indication = null,
+                shape = RoundedCornerShape(MediaCorners.Card),
                 onClick = onClick
             )
     ) {

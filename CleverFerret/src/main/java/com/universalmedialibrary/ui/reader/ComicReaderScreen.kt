@@ -44,6 +44,13 @@ private data class ExtractedComic(
     val cleanupDir: File? = null
 )
 
+@Deprecated(
+    message = "Migrated to ModernComicReaderScreen in ui.modern.reader",
+    replaceWith = ReplaceWith(
+        "ModernComicReaderScreen(uriString, fileName, onBack)",
+        "com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen"
+    )
+)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ComicReaderScreen(

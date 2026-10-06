@@ -6,8 +6,12 @@
  */
 
 import java.io.File
+import java.io.FileOutputStream
 import java.util.Base64
 import java.util.Properties
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
@@ -23,6 +27,86 @@ plugins {
     id("com.mikepenz.aboutlibraries.plugin") version "13.2.1"
     alias(libs.plugins.detekt)
     jacoco
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+val patchRoomMigrationJar = tasks.register("patchRoomMigrationJar") {
+    doLast {
+        val originalJar = configurations.getByName("kspDebugKotlinProcessorClasspath")
+            .files.firstOrNull { it.name.startsWith("room-migration-jvm") } ?: return@doLast
+        val patchedJar = File(layout.buildDirectory.asFile.get(), "patched-room-migration-jvm.jar")
+        patchedJar.parentFile.mkdirs()
+        JarFile(originalJar).use { jarIn ->
+            JarOutputStream(FileOutputStream(patchedJar)).use { jarOut ->
+                val entries = jarIn.entries()
+                while (entries.hasMoreElements()) {
+                    val entry = entries.nextElement()
+                    val bytes = jarIn.getInputStream(entry).readBytes()
+                    if (entry.name.endsWith("\$\$serializer.class")) {
+                        val cr = org.objectweb.asm.ClassReader(bytes)
+                        val cw = org.objectweb.asm.ClassWriter(cr, 0)
+                        val cv = object : org.objectweb.asm.ClassVisitor(org.objectweb.asm.Opcodes.ASM9, cw) {
+                            override fun visitEnd() {
+                                val mv = cv.visitMethod(
+                                    org.objectweb.asm.Opcodes.ACC_PUBLIC,
+                                    "typeParametersSerializers",
+                                    "()[Lkotlinx/serialization/KSerializer;",
+                                    "()[Lkotlinx/serialization/KSerializer<*>;",
+                                    null
+                                )
+                                mv.visitCode()
+                                mv.visitInsn(org.objectweb.asm.Opcodes.ICONST_0)
+                                mv.visitTypeInsn(org.objectweb.asm.Opcodes.ANEWARRAY, "kotlinx/serialization/KSerializer")
+                                mv.visitInsn(org.objectweb.asm.Opcodes.ARETURN)
+                                mv.visitMaxs(1, 1)
+                                mv.visitEnd()
+                                super.visitEnd()
+                            }
+                        }
+                        cr.accept(cv, 0)
+                        val patchedBytes = cw.toByteArray()
+                        val newEntry = JarEntry(entry.name)
+                        jarOut.putNextEntry(newEntry)
+                        jarOut.write(patchedBytes)
+                        jarOut.closeEntry()
+                    } else {
+                        val newEntry = JarEntry(entry.name)
+                        jarOut.putNextEntry(newEntry)
+                        jarOut.write(bytes)
+                        jarOut.closeEntry()
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.matching { it.name.startsWith("ksp") }.configureEach {
+    dependsOn(patchRoomMigrationJar)
+}
+
+afterEvaluate {
+    configurations.findByName("kspDebugKotlinProcessorClasspath")?.let { config ->
+        val patchedJar = layout.buildDirectory.file("patched-room-migration-jvm.jar").get().asFile
+        config.dependencies.add(project.dependencies.create(files(patchedJar)))
+    }
+}
+
+afterEvaluate {
+    tasks.withType(JavaCompile::class.java).matching { it.name.startsWith("hiltJavaCompile") }.configureEach {
+        val variant = name.removePrefix("hiltJavaCompile").replaceFirstChar { it.lowercase() }
+        val kspJavaDir = layout.buildDirectory.dir("generated/ksp/$variant/java")
+        source(project.fileTree(kspJavaDir))
+        classpath += project.files(kspJavaDir)
+        options.compilerArgs.add("-proc:none")
+        val kspTaskName = "ksp${variant.replaceFirstChar { it.uppercase() }}Kotlin"
+        if (tasks.names.contains(kspTaskName)) {
+            dependsOn(kspTaskName)
+        }
+    }
 }
 
 configurations.all {
@@ -117,7 +201,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 89
+        versionCode = 90
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -190,6 +274,15 @@ android {
             // Note: Excluding *.properties may remove some library metadata, but is needed to resolve
             // packaging conflicts. If runtime issues occur, consider being more specific.
             excludes += "/META-INF/*.properties"
+        }
+    }
+
+    applicationVariants.all {
+        val variantName = name
+        val kspTaskName = "ksp${variantName.replaceFirstChar { it.uppercase() }}Kotlin"
+        val kspJavaDir = layout.buildDirectory.dir("generated/ksp/$variantName/java")
+        if (tasks.names.contains(kspTaskName)) {
+            registerJavaGeneratingTask(tasks.named(kspTaskName), kspJavaDir.get().asFile)
         }
     }
 
@@ -396,6 +489,7 @@ dependencies {
     testImplementation(libs.mockk.android)
     testImplementation(libs.robolectric)
     testImplementation(libs.turbine)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)

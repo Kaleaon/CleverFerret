@@ -5,6 +5,7 @@ import com.universalmedialibrary.services.analysis.ArchiveMatch
 import com.universalmedialibrary.services.analysis.ArchiveMatchType
 import com.universalmedialibrary.services.analysis.ExtractedMetadata
 import com.universalmedialibrary.services.metadata.ComprehensiveMetadataService
+import com.universalmedialibrary.services.metadata.UnifiedMetadataFacade
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -20,6 +21,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class ArchiveComparator @Inject constructor(
+    private val unifiedMetadataFacade: UnifiedMetadataFacade,
     private val metadataService: ComprehensiveMetadataService
 ) {
 

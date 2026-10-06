@@ -84,7 +84,7 @@ object MediaNavDestinations {
         label = "Search",
         icon = Icons.Outlined.Search,
         selectedIcon = Icons.Filled.Search,
-        route = MediaRoutes.SEARCH,
+        route = MediaRoutes.discoveryRoute(),
         section = NavSection.HOME
     )
 

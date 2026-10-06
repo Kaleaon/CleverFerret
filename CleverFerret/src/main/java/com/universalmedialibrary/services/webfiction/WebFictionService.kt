@@ -46,6 +46,24 @@ class WebFictionService @Inject constructor(
         val siteType: WebFictionSiteType
     )
 
+    fun parseAndValidateSourceUrl(url: String): ValidatedWebFictionUrl {
+        val trimmed = url.trim()
+        if (trimmed.isBlank()) {
+            throw UnsupportedWebFictionUrlException("URL cannot be empty")
+        }
+        val siteType = WebFictionSiteType.values().firstOrNull { site ->
+            try {
+                site.baseUrl.isNotBlank() && trimmed.lowercase().contains(URI(site.baseUrl).host?.lowercase() ?: "")
+            } catch (_: Exception) {
+                false
+            }
+        } ?: WebFictionSiteType.GENERIC
+        return ValidatedWebFictionUrl(
+            normalizedUrl = trimmed,
+            siteType = siteType
+        )
+    }
+
     class UnsupportedWebFictionUrlException(message: String) : IllegalArgumentException(message)
     class WebFictionRateLimitException(message: String) : IllegalStateException(message)
     class WebFictionSiteChangedException(message: String) : IllegalStateException(message)
@@ -500,14 +518,13 @@ class WebFictionService @Inject constructor(
             )
         )
     }
-
 }
+
 
 internal fun extractMetabodsId(url: String): String {
     return Regex("(?:story|s)/(\\d+)").find(url)?.groupValues?.getOrNull(1)
         ?: url.substringAfterLast("/").substringBefore("?").ifEmpty { url.hashCode().toString() }
 }
-
 internal fun extractLiteroticaId(url: String): String {
     return Regex("s/(\\w+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
 }

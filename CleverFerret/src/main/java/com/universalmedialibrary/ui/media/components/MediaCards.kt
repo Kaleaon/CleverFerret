@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.components.accessibleClickable
 import com.universalmedialibrary.ui.media.theme.*
 
 /**
@@ -153,9 +154,9 @@ fun MediaListItem(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(
+            .accessibleClickable(
                 interactionSource = interactionSource,
-                indication = null,
+                shape = RoundedCornerShape(MediaCorners.SM),
                 onClick = onClick
             ),
         color = if (isHovered) MediaColors.BackgroundHover else Color.Transparent,
