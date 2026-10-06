@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.modern.tags
 
-import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ModernTagExplorerScreenTest {
@@ -17,7 +18,7 @@ class ModernTagExplorerScreenTest {
         val filtered = if (state.query.isBlank()) state.tags
         else state.tags.filter { it.name.contains(state.query, ignoreCase = true) }
 
-        assertThat(filtered.map { it.name }).containsExactly("Sci-Fi", "Science")
+        assertEquals(listOf("Sci-Fi", "Science"), filtered.map { it.name })
     }
 
     @Test
@@ -31,7 +32,7 @@ class ModernTagExplorerScreenTest {
         val filtered = if (state.query.isBlank()) state.tags
         else state.tags.filter { it.name.contains(state.query, ignoreCase = true) }
 
-        assertThat(filtered).containsExactlyElementsIn(tags)
+        assertEquals(tags, filtered)
     }
 
     @Test
@@ -41,14 +42,14 @@ class ModernTagExplorerScreenTest {
         val filtered = if (state.query.isBlank()) state.tags
         else state.tags.filter { it.name.contains(state.query, ignoreCase = true) }
 
-        assertThat(filtered).isEmpty()
+        assertTrue(filtered.isEmpty())
     }
 
     @Test
     fun maxCountCalculation_returnsMaxTagCountOrFallbackOne() {
         val emptyState = ModernTagExplorerUiState(query = "", tags = emptyList())
         val emptyMaxCount = (emptyState.tags.maxOfOrNull { it.count } ?: 1).coerceAtLeast(1)
-        assertThat(emptyMaxCount).isEqualTo(1)
+        assertEquals(1, emptyMaxCount)
 
         val tags = listOf(
             UiTag(id = "1", name = "A", count = 15),
@@ -57,7 +58,7 @@ class ModernTagExplorerScreenTest {
         )
         val populatedState = ModernTagExplorerUiState(query = "", tags = tags)
         val populatedMaxCount = (populatedState.tags.maxOfOrNull { it.count } ?: 1).coerceAtLeast(1)
-        assertThat(populatedMaxCount).isEqualTo(42)
+        assertEquals(42, populatedMaxCount)
     }
 
     @Test
@@ -66,7 +67,7 @@ class ModernTagExplorerScreenTest {
             query = "",
             tags = emptyList(),
         )
-        assertThat(state.recent).isEmpty()
+        assertTrue(state.recent.isEmpty())
 
         val recentTag = UiTag(id = "r1", name = "Recent", count = 3)
         val stateWithRecent = ModernTagExplorerUiState(
@@ -74,6 +75,6 @@ class ModernTagExplorerScreenTest {
             tags = listOf(recentTag),
             recent = listOf(recentTag),
         )
-        assertThat(stateWithRecent.recent).containsExactly(recentTag)
+        assertEquals(listOf(recentTag), stateWithRecent.recent)
     }
 }
