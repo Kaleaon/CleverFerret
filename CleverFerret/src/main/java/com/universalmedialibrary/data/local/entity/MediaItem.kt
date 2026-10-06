@@ -1,5 +1,6 @@
 package com.universalmedialibrary.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
@@ -52,10 +53,20 @@ data class MediaItem(
     val hasThumbnail: Boolean = false,
     val thumbnailPath: String? = null,
        
-       // Playback and user preference fields
-       val isFavorite: Boolean = false,
-       val playCount: Int = 0,
-       val lastPlayed: Long = 0L
+    // Playback and user preference fields
+    val isFavorite: Boolean = false,
+    val playCount: Int = 0,
+    val lastPlayed: Long = 0L,
+
+    // Offline buffering and local cache tracking
+    @ColumnInfo(defaultValue = "NULL")
+    val localCachePath: String? = null,
+
+    @ColumnInfo(defaultValue = "'NOT_DOWNLOADED'")
+    val downloadStatus: String = "NOT_DOWNLOADED",
+
+    @ColumnInfo(defaultValue = "0.0")
+    val downloadProgress: Float = 0.0f
 ) {
     // Computed properties for compatibility with UI - these need to be fetched from metadata tables
     val creator: String? get() = null // Should be fetched from MetadataCommon
