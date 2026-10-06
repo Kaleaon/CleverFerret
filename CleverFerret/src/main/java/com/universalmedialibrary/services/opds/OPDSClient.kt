@@ -31,11 +31,18 @@ class OPDSClient @Inject constructor(
     private val okHttpClient: OkHttpClient
 ) {
 
-    suspend fun fetchFeed(url: String): OPDSFeed = withContext(Dispatchers.IO) {
-        val request = Request.Builder()
+    suspend fun fetchFeed(url: String, authContext: OPDSAuthContext? = null): OPDSFeed = withContext(Dispatchers.IO) {
+        val requestBuilder = Request.Builder()
             .url(url)
             .header("User-Agent", USER_AGENT)
-            .build()
+
+        if (authContext != null) {
+            requestBuilder.tag(OPDSAuthContext::class.java, authContext)
+            if (authContext.isBackground) {
+                requestBuilder.header("X-OPDS-Background", "true")
+            }
+        }
+        val request = requestBuilder.build()
 
         executeWithRetry(url) {
             okHttpClient.newCall(request).execute().use { response ->
@@ -270,7 +277,12 @@ class OPDSClient @Inject constructor(
 
     private fun XmlPullParser.nextTextOrEmpty(): String {
         return try {
-            nextText()?.trim().orEmpty()
+            val raw = nextText()?.trim().orEmpty()
+            raw.replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"")
+                .replace("&apos;", "'")
         } catch (e: Exception) {
             ""
         }
@@ -333,10 +345,6 @@ class OPDSClient @Inject constructor(
      * ampersands in URLs or text content, causing parser failures.
      */
     private fun sanitizeXmlEntities(xmlContent: String): String {
-        val escapedAmpersands = xmlContent.replace(INVALID_AMPERSAND_REGEX, "&amp;")
-        val fixedNumericEntityPrefixes = escapedAmpersands.replace(INVALID_NUMERIC_ENTITY_REGEX, "&amp;#")
-        return fixedNumericEntityPrefixes.replace(INVALID_NAMED_ENTITY_REGEX) { match ->
-            "&amp;${match.groupValues[1]}"
-        }
+        return xmlContent.replace(INVALID_AMPERSAND_REGEX, "&amp;")
     }
 }

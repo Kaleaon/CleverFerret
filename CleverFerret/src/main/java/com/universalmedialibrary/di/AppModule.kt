@@ -38,8 +38,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(
+        opdsChallengeAuthenticator: com.universalmedialibrary.services.opds.OPDSChallengeAuthenticator
+    ): OkHttpClient {
         return OkHttpClient.Builder()
+            .authenticator(opdsChallengeAuthenticator)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
