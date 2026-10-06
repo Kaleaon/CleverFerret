@@ -48,6 +48,7 @@ import com.universalmedialibrary.services.webfiction.DownloadStatus
 import com.universalmedialibrary.services.webfiction.StoryStatus
 import com.universalmedialibrary.services.webfiction.WebFictionChapter
 import com.universalmedialibrary.services.webfiction.WebFictionStory
+import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import java.text.NumberFormat
@@ -505,24 +506,14 @@ private fun StoryChaptersSection(
 
 @Composable
 private fun statusColor(status: StoryStatus): androidx.compose.ui.graphics.Color {
-    return when (status) {
-        StoryStatus.COMPLETED -> androidx.compose.ui.graphics.Color(0xFF2E7D32)
-        StoryStatus.ONGOING -> androidx.compose.ui.graphics.Color(0xFF1565C0)
-        StoryStatus.HIATUS -> androidx.compose.ui.graphics.Color(0xFFF9A825)
-        StoryStatus.CANCELLED -> androidx.compose.ui.graphics.Color(0xFFC62828)
-        StoryStatus.UNKNOWN -> MaterialTheme.colorScheme.primary
-    }
+    val tokens = LocalCFTokens.current
+    return tokens.status.forStoryStatus(status)
 }
 
 @Composable
 private fun downloadStatusColor(status: DownloadStatus): androidx.compose.ui.graphics.Color {
-    return when (status) {
-        DownloadStatus.DOWNLOADED -> androidx.compose.ui.graphics.Color(0xFF2E7D32)
-        DownloadStatus.DOWNLOADING -> androidx.compose.ui.graphics.Color(0xFF1565C0)
-        DownloadStatus.OUTDATED -> androidx.compose.ui.graphics.Color(0xFFF9A825)
-        DownloadStatus.FAILED -> androidx.compose.ui.graphics.Color(0xFFC62828)
-        DownloadStatus.NOT_DOWNLOADED -> MaterialTheme.colorScheme.primary
-    }
+    val tokens = LocalCFTokens.current
+    return tokens.status.forDownloadStatus(status)
 }
 
 @Composable
