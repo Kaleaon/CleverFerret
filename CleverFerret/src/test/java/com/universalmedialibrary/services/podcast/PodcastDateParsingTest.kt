@@ -28,6 +28,20 @@ class PodcastDateParsingTest {
     }
 
     @Test
+    fun parsePubDateToMillis_withSingleDigitDayAndEstTimezone_returnsCorrectMillis() {
+        val pubDate = "Tue, 6 Oct 2026 10:18:48 EST"
+        val millis = parsePubDateToMillis(pubDate)
+        assertEquals(1791296328000L, millis)
+    }
+
+    @Test
+    fun parsePubDateToMillis_withIsoOffsetAndNoDayOfWeek_returnsCorrectMillis() {
+        val pubDate = "06 Oct 2026 10:18:48 +00:00"
+        val millis = parsePubDateToMillis(pubDate)
+        assertEquals(1791281928000L, millis)
+    }
+
+    @Test
     fun parsePubDateToMillis_withNullInput_returnsZero() {
         val millis = parsePubDateToMillis(null)
         assertEquals(0L, millis)

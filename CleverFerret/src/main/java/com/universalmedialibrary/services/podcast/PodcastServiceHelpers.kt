@@ -14,7 +14,7 @@ import javax.crypto.spec.SecretKeySpec
 private val fileNameSanitizer = FileNameSanitizer()
 
 internal val RSS_DATE_FORMATTER: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
+    DateTimeFormatter.ofPattern("[EEE, ]d MMM yyyy HH:mm[:ss] [z][Z][x][X][XXX]", Locale.ENGLISH)
 
 internal fun parsePodcastIndexCredentialsString(raw: String?): PodcastIndexCredentials? {
     if (raw.isNullOrBlank()) return null

@@ -339,6 +339,6 @@ class PodcastRepository @Inject constructor(
 
     companion object {
         private val rssDateFormatter: DateTimeFormatter =
-            DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
+            DateTimeFormatter.ofPattern("[EEE, ]d MMM yyyy HH:mm[:ss] [z][Z][x][X][XXX]", Locale.ENGLISH)
     }
 }
