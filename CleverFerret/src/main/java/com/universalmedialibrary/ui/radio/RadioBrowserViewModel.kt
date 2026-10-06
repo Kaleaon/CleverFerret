@@ -6,6 +6,7 @@ import com.universalmedialibrary.data.local.dao.RadioStationDao
 import com.universalmedialibrary.data.local.entity.RadioStation
 import com.universalmedialibrary.services.radio.RadioBrowserService
 import com.universalmedialibrary.services.radio.RadioLogoService
+import com.universalmedialibrary.utils.UserFriendlyErrorMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,8 @@ import java.io.File
 class RadioBrowserViewModel @Inject constructor(
     private val radioBrowserService: RadioBrowserService,
     private val radioStationDao: RadioStationDao,
-    private val radioLogoService: RadioLogoService
+    private val radioLogoService: RadioLogoService,
+    private val errorMapper: UserFriendlyErrorMapper = UserFriendlyErrorMapper()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RadioBrowserUiState())
@@ -38,7 +40,7 @@ class RadioBrowserViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to load stations: ${e.message}"
+                    error = errorMapper.mapToMessage(e)
                 )
             }
         }
@@ -57,7 +59,7 @@ class RadioBrowserViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Search failed: ${e.message}"
+                    error = errorMapper.mapToMessage(e)
                 )
             }
         }
@@ -65,13 +67,17 @@ class RadioBrowserViewModel @Inject constructor(
 
     fun addStation(station: RadioStation, cacheDir: File) {
         viewModelScope.launch {
-            // Save to DB
-            val id = radioStationDao.insertStation(station)
-            
-            // Ensure logo is cached
-            radioLogoService.ensureStationLogo(station.copy(id = id), cacheDir)
-            
-            _uiState.value = _uiState.value.copy(message = "Station added to library")
+            try {
+                // Save to DB
+                val id = radioStationDao.insertStation(station)
+                
+                // Ensure logo is cached
+                radioLogoService.ensureStationLogo(station.copy(id = id), cacheDir)
+                
+                _uiState.value = _uiState.value.copy(message = "Station added to library")
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = errorMapper.mapToMessage(e))
+            }
         }
     }
 }
