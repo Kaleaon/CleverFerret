@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
@@ -267,6 +268,9 @@ fun UnifiedCleverFerretTheme(
         )
         val semanticTheme = KthemeThemeAdapterV1.adapt(kthemeSnapshot)
         
+        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+        val reduceMotion = remember(configuration) { com.universalmedialibrary.ui.media.theme.MediaMotion.isReducedMotionEnabled() }
+
         // Provide advanced effects context for all themes
         // Note: LocalEnable* composition locals are defined in AncientArchitectTheme.kt
         // and shared across all themes (same package, no import needed)
@@ -275,7 +279,8 @@ fun UnifiedCleverFerretTheme(
             LocalMetallicColors provides metallicColors,
             LocalEnableGeometricPatterns provides enableGeometricPatterns,
             LocalEnableMetallicShimmer provides enableMetallicShimmer,
-            LocalEnableCrystalGlow provides enableCrystalGlow
+            LocalEnableCrystalGlow provides enableCrystalGlow,
+            LocalReduceMotion provides reduceMotion
         ) {
             MaterialTheme(
                 colorScheme = colorScheme,

@@ -30,26 +30,35 @@ fun EnhancedLoadingState(
     icon: ImageVector = Icons.Default.HourglassEmpty,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "loading")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
-    
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
+    val reduceMotion = com.universalmedialibrary.ui.theme.LocalReduceMotion.current
+    val scale: Float
+    val alpha: Float
+    if (reduceMotion) {
+        scale = 1f
+        alpha = 1f
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "loading")
+        val animScale by infiniteTransition.animateFloat(
+            initialValue = 0.8f,
+            targetValue = 1.2f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "scale"
+        )
+        val animAlpha by infiniteTransition.animateFloat(
+            initialValue = 0.4f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "alpha"
+        )
+        scale = animScale
+        alpha = animAlpha
+    }
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -103,22 +112,29 @@ fun EnhancedLoadingState(
 fun ShimmerListItem(
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
-    val shimmerAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "shimmerAlpha"
-    )
-
-    val shimmerColors = listOf(
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha),
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha * 0.5f),
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha)
-    )
+    val reduceMotion = com.universalmedialibrary.ui.theme.LocalReduceMotion.current
+    val shimmerColors = if (reduceMotion) {
+        listOf(
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.surfaceVariant
+        )
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+        val shimmerAlpha by infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 0.7f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "shimmerAlpha"
+        )
+        listOf(
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha),
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha * 0.5f),
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha)
+        )
+    }
 
     Card(
         modifier = modifier
@@ -194,22 +210,29 @@ fun ShimmerListItem(
 fun ShimmerGridItem(
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
-    val shimmerAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "shimmerAlpha"
-    )
-
-    val shimmerColors = listOf(
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha),
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha * 0.5f),
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha)
-    )
+    val reduceMotion = com.universalmedialibrary.ui.theme.LocalReduceMotion.current
+    val shimmerColors = if (reduceMotion) {
+        listOf(
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.surfaceVariant
+        )
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+        val shimmerAlpha by infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 0.7f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "shimmerAlpha"
+        )
+        listOf(
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha),
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha * 0.5f),
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = shimmerAlpha)
+        )
+    }
 
     Card(
         modifier = modifier

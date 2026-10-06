@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
@@ -343,13 +344,17 @@ fun AncientArchitectTheme(
     )
     val semanticTheme = KthemeThemeAdapterV1.adapt(kthemeSnapshot)
 
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val reduceMotion = remember(configuration) { com.universalmedialibrary.ui.media.theme.MediaMotion.isReducedMotionEnabled() }
+
     CompositionLocalProvider(
         LocalSemanticTheme provides semanticTheme,
         LocalAncientArchitectColors provides ancientColors,
         LocalEnableGeometricPatterns provides enableGeometricPatterns,
         LocalEnableMetallicShimmer provides enableMetallicShimmer,
         LocalEnableCrystalGlow provides enableCrystalGlow,
-        LocalIsAncientArchitect provides true
+        LocalIsAncientArchitect provides true,
+        LocalReduceMotion provides reduceMotion
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme,

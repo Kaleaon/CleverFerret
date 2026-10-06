@@ -19,6 +19,8 @@ object MediaMotion {
     private const val SECTION_STAGGER_CAP_MS = 180
     private const val SECTION_SLIDE_OFFSET_DIVISOR = 10
 
+    fun isReducedMotionEnabled(): Boolean = !ValueAnimator.areAnimatorsEnabled()
+
     fun sectionEnter(sectionIndex: Int, reducedMotionEnabled: Boolean): EnterTransition {
         if (reducedMotionEnabled) return EnterTransition.None
         val delay = (sectionIndex * SECTION_BASE_STAGGER_MS).coerceAtMost(SECTION_STAGGER_CAP_MS)
@@ -40,5 +42,7 @@ object MediaMotion {
     }
 }
 
+val LocalReduceMotion = com.universalmedialibrary.ui.theme.LocalReduceMotion
+
 @Composable
-fun isReducedMotionEnabled(): Boolean = !ValueAnimator.areAnimatorsEnabled()
+fun isReducedMotionEnabled(): Boolean = MediaMotion.isReducedMotionEnabled()
