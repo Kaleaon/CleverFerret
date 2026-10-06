@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
 import com.universalmedialibrary.data.local.entity.OPDSCatalog
 import com.universalmedialibrary.services.opds.*
@@ -56,6 +57,7 @@ fun OPDSCatalogBrowserScreen(
                 title = { 
                     Text(
                         text = selectedCatalog?.name ?: "OPDS Catalogs",
+                        modifier = Modifier.headingSemantics(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -533,7 +535,7 @@ private fun AddCatalogDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add OPDS Catalog") },
+        title = { Text("Add OPDS Catalog", modifier = Modifier.headingSemantics()) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -577,7 +579,7 @@ private fun SearchDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Search Catalog") },
+        title = { Text("Search Catalog", modifier = Modifier.headingSemantics()) },
         text = {
             OutlinedTextField(
                 value = query,

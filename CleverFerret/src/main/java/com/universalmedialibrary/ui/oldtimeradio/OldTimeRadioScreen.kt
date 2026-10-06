@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.data.oldtimeradio.OTRSeries
 
 /**
@@ -36,7 +37,7 @@ fun OldTimeRadioScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Old Time Radio") },
+                title = { Text("Old Time Radio", modifier = Modifier.headingSemantics()) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
@@ -119,6 +120,7 @@ private fun OTREmptyState(onImport: () -> Unit) {
             )
             Text(
                 text = "No Old Time Radio Shows",
+                modifier = Modifier.headingSemantics(),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -143,6 +145,7 @@ private fun OTREmptyState(onImport: () -> Unit) {
             ) {
                 Text(
                     text = "Popular Series:",
+                    modifier = Modifier.headingSemantics(),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -191,7 +194,9 @@ private fun CategoriesTab(
                     text = category.displayName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    modifier = Modifier
+                        .headingSemantics()
+                        .padding(vertical = 8.dp)
                 )
             }
             

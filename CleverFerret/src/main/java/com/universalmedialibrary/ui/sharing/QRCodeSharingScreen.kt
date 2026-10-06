@@ -20,6 +20,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.services.media.*
 import com.universalmedialibrary.services.sharing.ConnectedDevice
 import com.universalmedialibrary.services.sharing.SharingMode
@@ -50,7 +51,7 @@ fun QRCodeSharingScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("QR Code Sharing") },
+                title = { Text("QR Code Sharing", modifier = Modifier.headingSemantics()) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -119,6 +120,7 @@ private fun IdleSharingScreen(
         
         Text(
             text = "Share Your Media",
+            modifier = Modifier.headingSemantics(),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -205,6 +207,7 @@ private fun ActiveSharingScreen(
                     Column {
                         Text(
                             text = "Sharing Active",
+                            modifier = Modifier.headingSemantics(),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer

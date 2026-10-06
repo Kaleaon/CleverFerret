@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.data.oldtimeradio.OldTimeRadioEpisode
 
 @Deprecated(
@@ -45,6 +46,7 @@ fun OldTimeRadioSeriesDetailScreen(
                 title = { 
                     Text(
                         text = seriesTitle,
+                        modifier = Modifier.headingSemantics(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     ) 
