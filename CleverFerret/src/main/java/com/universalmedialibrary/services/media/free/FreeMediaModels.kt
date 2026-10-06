@@ -1,5 +1,8 @@
 package com.universalmedialibrary.services.media.free
 
+typealias MediaItemResult = FreeMediaItem
+typealias MediaDownloadOption = FreeMediaDownloadOption
+
 data class FreeMediaItem(
     val id: String,
     val type: FreeMediaType,

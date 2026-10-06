@@ -20,7 +20,7 @@ import com.universalmedialibrary.ui.media.MediaMainActivity
 import com.universalmedialibrary.ui.open.MediaOpenScreen
 import com.universalmedialibrary.ui.reader.EnhancedEReaderScreen
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
-import com.universalmedialibrary.ui.reader.ComicReaderScreen
+import com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.utils.ScreenTimeoutManager
@@ -172,7 +172,7 @@ private fun FileReaderScreen(
             )
         }
         "application/x-cbz", "application/x-cbr" -> {
-            ComicReaderScreen(
+            ModernComicReaderScreen(
                 uriString = uriString,
                 fileName = fileName,
                 onBack = onClose

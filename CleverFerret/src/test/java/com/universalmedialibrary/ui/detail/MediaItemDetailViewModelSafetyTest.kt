@@ -120,6 +120,13 @@ class MediaItemDetailViewModelSafetyTest {
         viewModel.loadMediaItem(200L)
         testDispatcher.scheduler.advanceUntilIdle()
 
+        coEvery { readingProgressDao.getProgress(200L) } returns flowOf(null)
+        coEvery { tagRepository.getTagsForItem(200L) } returns flowOf(emptyList())
+        coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/new_cover.jpg")
+
+        viewModel.loadMediaItem(200L)
+        testDispatcher.scheduler.advanceUntilIdle()
+
         viewModel.regenerateThumbnail()
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -143,6 +150,8 @@ class MediaItemDetailViewModelSafetyTest {
         )
 
         coEvery { mediaItemDao.getMediaItemById(201L) } returns mediaItem
+        coEvery { readingProgressDao.getProgress(201L) } returns flowOf(null)
+        coEvery { tagRepository.getTagsForItem(201L) } returns flowOf(emptyList())
         coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/generated_cover.jpg")
         every { fileSafetyGuardrail.safeDeleteCacheFile(userCoverFile.absolutePath) } returns false
 

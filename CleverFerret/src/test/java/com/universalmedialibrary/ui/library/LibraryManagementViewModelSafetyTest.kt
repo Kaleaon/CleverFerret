@@ -107,6 +107,7 @@ class LibraryManagementViewModelSafetyTest {
 
         coEvery { mediaItemDao.getAllMediaItems() } returns listOf(mediaItem)
         coEvery { thumbnailService.generatePlaceholder(any()) } returns File("/cache/new_thumb.jpg")
+        coEvery { thumbnailService.extractCoverFromEpub(any()) } returns File("/cache/new_thumb.jpg")
 
         viewModel.regenerateAllThumbnails()
         testDispatcher.scheduler.advanceUntilIdle()

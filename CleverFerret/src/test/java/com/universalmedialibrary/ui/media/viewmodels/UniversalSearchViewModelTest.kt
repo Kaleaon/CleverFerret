@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.media.viewmodels
 import androidx.lifecycle.SavedStateHandle
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.entity.DownloadedStory
+import com.universalmedialibrary.data.local.entity.TagType
 import com.universalmedialibrary.data.local.entity.UnifiedTag
 import com.universalmedialibrary.data.repository.MediaItemWithMetadata
 import com.universalmedialibrary.data.repository.SearchRepository
@@ -120,19 +121,26 @@ class UniversalSearchViewModelTest {
         )
 
         val dummyStory = DownloadedStory(
-            storyId = "story1",
+            id = "story1",
+            url = "http://example.com",
             title = "War of the Worlds",
             author = "HG Wells",
-            summary = "Classic alien story",
             site = "Reddit",
-            url = "http://example.com"
+            siteStoryId = "story1",
+            totalChapters = 1,
+            lastKnownChapters = 1,
+            lastUpdated = 0L,
+            lastChecked = 0L,
+            lastDownloaded = 0L,
+            epubFilePath = "/path/to/epub",
+            fileSize = 100L
         )
         every { storyRepo.getAllStories() } returns flowOf(listOf(dummyStory))
 
         val dummyTag = UnifiedTag(
             tagId = 1L,
             name = "warfare",
-            usageCount = 15
+            type = TagType.USER
         )
         every { tagRepo.getPopularTags(any()) } returns flowOf(listOf(dummyTag))
         every { tagRepo.searchTags("war") } returns flowOf(listOf(dummyTag))
@@ -154,18 +162,5 @@ class UniversalSearchViewModelTest {
         assertThat(state.storyResults.first().title).isEqualTo("War of the Worlds")
         assertThat(state.tagResults).hasSize(1)
         assertThat(state.tagResults.first().name).isEqualTo("warfare")
-    }
-}
-
-@OptIn(ExperimentalCoroutinesApi::class)
-private class MainDispatcherRule(
-    private val dispatcher: TestDispatcher = StandardTestDispatcher()
-) : TestWatcher() {
-    override fun starting(description: Description) {
-        Dispatchers.setMain(dispatcher)
-    }
-
-    override fun finished(description: Description) {
-        Dispatchers.resetMain()
     }
 }

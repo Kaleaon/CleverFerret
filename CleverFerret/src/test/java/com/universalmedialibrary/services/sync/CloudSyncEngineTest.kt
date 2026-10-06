@@ -1,17 +1,123 @@
 package com.universalmedialibrary.services.sync
 
 import com.universalmedialibrary.data.local.entity.Bookmark
-import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.ReadingProgress
 import com.universalmedialibrary.services.cloud.CloudProvider
-import com.universalmedialibrary.services.cloud.CloudSyncManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import org.junit.Assert.*
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import java.security.MessageDigest
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CloudSyncEngineTest {
+
+    private val testDispatcher = StandardTestDispatcher()
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun testSyncStateDefaultsAndAliases() {
+        val syncState = SyncState()
+        assertFalse(syncState.isLoading)
+        assertEquals(SyncStatus.IDLE, syncState.syncStatus)
+        assertEquals(0, syncState.itemsSynced)
+        assertEquals(0, syncState.conflictsCount)
+
+        // Test alias equivalence
+        val enhancedState: EnhancedSyncState = syncState
+        assertEquals(enhancedState, syncState)
+    }
+
+    @Test
+    fun testSyncSettingsDefaults() {
+        val settings = SyncSettings()
+        assertFalse(settings.enabled)
+        assertTrue(settings.autoSync)
+        assertEquals(30L, settings.syncInterval)
+        assertTrue(settings.syncOnWifiOnly)
+        assertEquals(ConflictResolutionStrategy.USE_NEWER, settings.conflictResolution)
+    }
+
+    @Test
+    fun testConflictResolutionStrategies() {
+        val localWins: EnhancedConflictResolution = ConflictResolutionStrategy.USE_LOCAL
+        val remoteWins: EnhancedConflictResolution = ConflictResolutionStrategy.USE_REMOTE
+        val newerWins: EnhancedConflictResolution = ConflictResolutionStrategy.USE_NEWER
+        val mergeStrategy: EnhancedConflictResolution = ConflictResolutionStrategy.MERGE
+        val askUser: EnhancedConflictResolution = ConflictResolutionStrategy.ASK_USER
+
+        assertEquals(ConflictResolutionStrategy.USE_LOCAL, localWins)
+        assertEquals(ConflictResolutionStrategy.USE_REMOTE, remoteWins)
+        assertEquals(ConflictResolutionStrategy.USE_NEWER, newerWins)
+        assertEquals(ConflictResolutionStrategy.MERGE, mergeStrategy)
+        assertEquals(ConflictResolutionStrategy.ASK_USER, askUser)
+    }
+
+    @Test
+    fun testSyncConflictModel() {
+        val conflict = SyncConflict(
+            itemId = "item_123",
+            itemType = "READING_PROGRESS",
+            localData = "local_progress",
+            remoteData = "remote_progress",
+            localTimestamp = 1000L,
+            remoteTimestamp = 2000L,
+            conflictType = ConflictType.MODIFY_MODIFY,
+            resolution = ConflictResolutionStrategy.USE_NEWER
+        )
+
+        assertEquals("item_123", conflict.itemId)
+        assertEquals("READING_PROGRESS", conflict.itemType)
+        assertEquals(1000L, conflict.localTimestamp)
+        assertEquals(2000L, conflict.remoteTimestamp)
+        assertEquals(ConflictType.MODIFY_MODIFY, conflict.conflictType)
+        assertEquals(ConflictResolutionStrategy.USE_NEWER, conflict.resolution)
+
+        // Check alias equivalence
+        val cloudConflict: CloudSyncConflict = conflict
+        assertEquals("item_123", cloudConflict.itemId)
+    }
+
+    @Test
+    fun testSyncResultModel() {
+        val result = SyncResult(
+            success = true,
+            itemsSynced = 5,
+            uploadedCount = 3,
+            downloadedCount = 2,
+            conflictsDetected = 1,
+            conflictsResolved = 1,
+            timestamp = 123456789L
+        )
+
+        assertTrue(result.success)
+        assertEquals(5, result.itemsSynced)
+        assertEquals(3, result.uploadedCount)
+        assertEquals(2, result.downloadedCount)
+        assertEquals(1, result.conflictsDetected)
+        assertEquals(1, result.conflictsResolved)
+        assertEquals(123456789L, result.timestamp)
+    }
 
     @Test
     fun testSerializationWithUnknownKeys() {
@@ -37,7 +143,7 @@ class CloudSyncEngineTest {
         val settings = SyncSettings(
             enabled = true,
             provider = SyncProvider.DROPBOX,
-            conflictResolution = ConflictResolution.MERGE
+            conflictResolution = ConflictResolutionStrategy.MERGE
         )
 
         val json = cloudSyncJson.encodeToString(settings)
@@ -52,44 +158,44 @@ class CloudSyncEngineTest {
     fun testConflictResolutionMapping() {
         assertEquals(
             EnhancedConflictResolution.USE_NEWER,
-            mapConflictResolution(ConflictResolution.LAST_WRITE_WINS)
+            mapConflictResolution(ConflictResolutionStrategy.USE_NEWER)
         )
         assertEquals(
             EnhancedConflictResolution.USE_LOCAL,
-            mapConflictResolution(ConflictResolution.LOCAL_WINS)
+            mapConflictResolution(ConflictResolutionStrategy.USE_LOCAL)
         )
         assertEquals(
             EnhancedConflictResolution.USE_REMOTE,
-            mapConflictResolution(ConflictResolution.REMOTE_WINS)
+            mapConflictResolution(ConflictResolutionStrategy.USE_REMOTE)
         )
         assertEquals(
             EnhancedConflictResolution.MERGE,
-            mapConflictResolution(ConflictResolution.MERGE)
+            mapConflictResolution(ConflictResolutionStrategy.MERGE)
         )
         assertEquals(
             EnhancedConflictResolution.ASK_USER,
-            mapConflictResolution(ConflictResolution.MANUAL)
+            mapConflictResolution(ConflictResolutionStrategy.ASK_USER)
         )
     }
 
     @Test
     fun testLastWriteWinsConflictResolution() {
         val localProgress = ReadingProgress(
-            itemId = "item_1",
+            itemId = 1L,
             currentPage = 50,
             lastModified = 1000L
         )
         val remoteProgress = ReadingProgress(
-            itemId = "item_1",
+            itemId = 1L,
             currentPage = 100,
             lastModified = 2000L
         )
 
         val conflict = EnhancedSyncConflict(
-            itemId = 1L,
+            itemId = "1",
             itemType = "READING_PROGRESS",
-            localData = SyncChange(1L, "READING_PROGRESS", ChangeOperation.MODIFY, 1000L, localProgress),
-            remoteData = SyncChange(1L, "READING_PROGRESS", ChangeOperation.MODIFY, 2000L, remoteProgress),
+            localData = SyncChange("1", "READING_PROGRESS", ChangeOperation.MODIFY, 1000L, localProgress),
+            remoteData = SyncChange("1", "READING_PROGRESS", ChangeOperation.MODIFY, 2000L, remoteProgress),
             localTimestamp = 1000L,
             remoteTimestamp = 2000L
         )
@@ -106,7 +212,7 @@ class CloudSyncEngineTest {
     @Test
     fun testLocalWinsConflictResolution() {
         val conflict = EnhancedSyncConflict(
-            itemId = 1L,
+            itemId = "1",
             itemType = "READING_PROGRESS",
             localData = "local_value",
             remoteData = "remote_value",
@@ -121,7 +227,7 @@ class CloudSyncEngineTest {
     @Test
     fun testRemoteWinsConflictResolution() {
         val conflict = EnhancedSyncConflict(
-            itemId = 1L,
+            itemId = "1",
             itemType = "READING_PROGRESS",
             localData = "local_value",
             remoteData = "remote_value",
@@ -136,12 +242,12 @@ class CloudSyncEngineTest {
     @Test
     fun testMergeReadingProgressResolution() {
         val localProgress = ReadingProgress(
-            itemId = "book_101",
+            itemId = 101L,
             currentPage = 45,
             lastModified = 1000L
         )
         val remoteProgress = ReadingProgress(
-            itemId = "book_101",
+            itemId = 101L,
             currentPage = 80,
             lastModified = 900L
         )
@@ -211,13 +317,7 @@ class CloudSyncEngineTest {
         }
     }
 
-    private fun mapConflictResolution(strategy: ConflictResolution): EnhancedConflictResolution {
-        return when (strategy) {
-            ConflictResolution.LAST_WRITE_WINS -> EnhancedConflictResolution.USE_NEWER
-            ConflictResolution.LOCAL_WINS -> EnhancedConflictResolution.USE_LOCAL
-            ConflictResolution.REMOTE_WINS -> EnhancedConflictResolution.USE_REMOTE
-            ConflictResolution.MERGE -> EnhancedConflictResolution.MERGE
-            ConflictResolution.MANUAL -> EnhancedConflictResolution.ASK_USER
-        }
+    private fun mapConflictResolution(strategy: ConflictResolutionStrategy): EnhancedConflictResolution {
+        return strategy
     }
 }

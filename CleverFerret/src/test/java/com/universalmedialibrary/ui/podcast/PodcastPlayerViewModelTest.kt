@@ -54,6 +54,7 @@ class PodcastPlayerViewModelTest {
         }
 
         every { audioPlaybackManager.state } returns MutableStateFlow(AudioPlaybackManager.AudioState())
+        every { audioPlaybackManager.state } returns MutableStateFlow(com.universalmedialibrary.services.audio.AudioState())
         every { audioPlaybackManager.exoPlayer } returns mockk(relaxed = true)
 
         viewModel = PodcastPlayerViewModel(

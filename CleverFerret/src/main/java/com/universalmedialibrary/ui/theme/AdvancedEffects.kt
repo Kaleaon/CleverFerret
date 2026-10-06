@@ -42,6 +42,13 @@ fun Modifier.metallicShimmer(
     angle: Float = 45f
 ): Modifier = if (enabled) {
     composed {
+        val shimmerColors = remember(highlightColor) {
+            listOf(
+                Color.Transparent,
+                highlightColor,
+                Color.Transparent
+            )
+        }
         val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
         val shimmerOffset by infiniteTransition.animateFloat(
             initialValue = -1f,
@@ -64,11 +71,7 @@ fun Modifier.metallicShimmer(
             
             drawRect(
                 brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        highlightColor,
-                        Color.Transparent
-                    ),
+                    colors = shimmerColors,
                     start = Offset(shimmerX - shimmerWidth, shimmerY - shimmerWidth),
                     end = Offset(shimmerX + shimmerWidth, shimmerY + shimmerWidth)
                 ),
@@ -90,6 +93,7 @@ fun Modifier.crystalGlow(
     pulseSpeed: Int = 3000 // Slower pulse
 ): Modifier = if (enabled) {
     composed {
+        val transparentColor = remember { Color.Transparent }
         val infiniteTransition = rememberInfiniteTransition(label = "glow")
         val glowAlpha by infiniteTransition.animateFloat(
             initialValue = intensity * 0.3f,
@@ -109,7 +113,7 @@ fun Modifier.crystalGlow(
                     colors = listOf(
                         glowColor.copy(alpha = glowAlpha),
                         glowColor.copy(alpha = glowAlpha * 0.5f),
-                        Color.Transparent
+                        transparentColor
                     ),
                     radius = size.maxDimension / 1.5f
                 )
@@ -128,20 +132,28 @@ fun Modifier.depthShadow(
     color: Color = Color.Black,
     alpha: Float = 0.25f,
     shape: Shape = RectangleShape
-): Modifier = drawBehind {
-    val shadowColor = color.copy(alpha = alpha)
-    val elevationPx = elevation.toPx()
+): Modifier = composed {
+    val shadowColor = remember(color, alpha) { color.copy(alpha = alpha) }
+    val shadowLayers = remember(shadowColor, alpha) {
+        List(4) { i ->
+            val layerAlpha = alpha * (1f - i / 4f)
+            shadowColor.copy(alpha = layerAlpha)
+        }
+    }
     
-    // Draw multiple shadow layers for depth
-    for (i in 0..3) {
-        val offset = elevationPx * (i + 1) / 4f
-        val layerAlpha = alpha * (1f - i / 4f)
+    drawBehind {
+        val elevationPx = elevation.toPx()
         
-        drawRect(
-            color = shadowColor.copy(alpha = layerAlpha),
-            topLeft = Offset(offset / 2f, offset),
-            size = size
-        )
+        // Draw multiple shadow layers for depth
+        for (i in 0..3) {
+            val offset = elevationPx * (i + 1) / 4f
+            
+            drawRect(
+                color = shadowLayers[i],
+                topLeft = Offset(offset / 2f, offset),
+                size = size
+            )
+        }
     }
 }
 
@@ -153,21 +165,27 @@ fun Modifier.gradientOverlay(
     angle: Float = 45f,
     blendMode: BlendMode = BlendMode.Overlay,
     alpha: Float = 0.2f
-): Modifier = drawWithContent {
-    drawContent()
+): Modifier = composed {
+    val overlayColors = remember(gradient, alpha) {
+        gradient.map { it.copy(alpha = alpha) }
+    }
     
-    val angleRad = angle * PI / 180f
-    val endX = size.width * cos(angleRad).toFloat()
-    val endY = size.height * sin(angleRad).toFloat()
-    
-    drawRect(
-        brush = Brush.linearGradient(
-            colors = gradient.map { it.copy(alpha = alpha) },
-            start = Offset.Zero,
-            end = Offset(endX, endY)
-        ),
-        blendMode = blendMode
-    )
+    drawWithContent {
+        drawContent()
+        
+        val angleRad = angle * PI / 180f
+        val endX = size.width * cos(angleRad).toFloat()
+        val endY = size.height * sin(angleRad).toFloat()
+        
+        drawRect(
+            brush = Brush.linearGradient(
+                colors = overlayColors,
+                start = Offset.Zero,
+                end = Offset(endX, endY)
+            ),
+            blendMode = blendMode
+        )
+    }
 }
 
 /**
@@ -178,14 +196,17 @@ fun Modifier.glassEffect(
     backgroundColor: Color,
     alpha: Float = 0.7f,
     borderColor: Color = Color.White.copy(alpha = 0.2f)
-): Modifier = background(
-    brush = Brush.linearGradient(
-        colors = listOf(
-            backgroundColor.copy(alpha = alpha),
-            backgroundColor.copy(alpha = alpha * 0.8f)
+): Modifier = composed {
+    val brush = remember(backgroundColor, alpha) {
+        Brush.linearGradient(
+            colors = listOf(
+                backgroundColor.copy(alpha = alpha),
+                backgroundColor.copy(alpha = alpha * 0.8f)
+            )
         )
-    )
-)
+    }
+    background(brush = brush)
+}
 
 /**
  * Apply metallic gradient background
@@ -193,24 +214,30 @@ fun Modifier.glassEffect(
 fun Modifier.metallicGradient(
     metallicColors: MetallicGradient,
     angle: Float = 135f
-): Modifier = drawBehind {
-    val angleRad = angle * PI / 180f
-    val endX = size.width * cos(angleRad).toFloat()
-    val endY = size.height * sin(angleRad).toFloat()
-    
-    drawRect(
-        brush = Brush.linearGradient(
-            colors = listOf(
-                metallicColors.highlight,
-                metallicColors.base,
-                metallicColors.shadow,
-                metallicColors.base,
-                metallicColors.highlight
-            ),
-            start = Offset.Zero,
-            end = Offset(endX, endY)
+): Modifier = composed {
+    val colorsList = remember(metallicColors) {
+        listOf(
+            metallicColors.highlight,
+            metallicColors.base,
+            metallicColors.shadow,
+            metallicColors.base,
+            metallicColors.highlight
         )
-    )
+    }
+    
+    drawBehind {
+        val angleRad = angle * PI / 180f
+        val endX = size.width * cos(angleRad).toFloat()
+        val endY = size.height * sin(angleRad).toFloat()
+        
+        drawRect(
+            brush = Brush.linearGradient(
+                colors = colorsList,
+                start = Offset.Zero,
+                end = Offset(endX, endY)
+            )
+        )
+    }
 }
 
 /**
@@ -245,21 +272,23 @@ fun Modifier.advancedLighting(
     ambientColor: Color = Color.White.copy(alpha = 0.05f),
     spotlightColor: Color = Color.White.copy(alpha = 0.15f),
     spotlightPosition: Offset = Offset(0.3f, 0.2f)
-): Modifier = drawBehind {
-    // Ambient light
-    drawRect(color = ambientColor)
+): Modifier = composed {
+    val spotlightColors = remember(spotlightColor) {
+        listOf(spotlightColor, Color.Transparent)
+    }
     
-    // Radial spotlight
-    val spotlightX = size.width * spotlightPosition.x
-    val spotlightY = size.height * spotlightPosition.y
-    val maxRadius = maxOf(size.width, size.height)
-    
+    drawBehind {
+        // Ambient light
+        drawRect(color = ambientColor)
+        
+        // Radial spotlight
+        val spotlightX = size.width * spotlightPosition.x
+        val spotlightY = size.height * spotlightPosition.y
+        val maxRadius = maxOf(size.width, size.height)
+        
         drawCircle(
             brush = Brush.radialGradient(
-                colors = listOf(
-                    spotlightColor,
-                    Color.Transparent
-                ),
+                colors = spotlightColors,
                 center = Offset(spotlightX, spotlightY),
                 radius = maxRadius * 0.8f
             ),
@@ -267,6 +296,7 @@ fun Modifier.advancedLighting(
             radius = maxRadius * 0.8f,
             blendMode = BlendMode.Screen
         )
+    }
 }
 
 /**
