@@ -55,6 +55,9 @@ interface MediaItemDao {
     @Query("UPDATE media_items SET isAvailable = :isAvailable WHERE filePath = :filePath")
     suspend fun updateAvailability(filePath: String, isAvailable: Boolean)
 
+    @Query("UPDATE media_items SET isAvailable = :isAvailable WHERE itemId = :itemId")
+    suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean)
+
     @Delete
     suspend fun deleteMediaItem(mediaItem: MediaItem)
 

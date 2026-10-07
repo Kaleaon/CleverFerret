@@ -1,6 +1,5 @@
 package com.universalmedialibrary.data.local
 
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -192,7 +191,10 @@ import com.universalmedialibrary.data.Tag
         StagedMetadataCandidate::class,
 
         // FTS Virtual Table
-        MediaFtsEntity::class
+        MediaFtsEntity::class,
+
+        // Media Stream Cache
+        MediaCacheItem::class
 
     ],
     version = 47,
@@ -209,6 +211,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun mediaFtsDao(): MediaFtsDao
+    abstract fun mediaCacheDao(): MediaCacheDao
     abstract fun metadataDao(): MetadataDao
     abstract fun stagedMetadataCandidateDao(): StagedMetadataCandidateDao
     abstract fun extendedMetadataDao(): ExtendedMetadataDao
