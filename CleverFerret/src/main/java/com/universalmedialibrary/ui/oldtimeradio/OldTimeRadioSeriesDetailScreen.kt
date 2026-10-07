@@ -18,13 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.data.oldtimeradio.OldTimeRadioEpisode
 
-@Deprecated(
-    message = "Migrated to ModernOldTimeRadioSeriesDetailScreen in ui.modern.radio",
-    replaceWith = ReplaceWith(
-        "ModernOldTimeRadioSeriesDetailScreen(seriesTitle, onNavigateBack, onNavigateToPlayer)",
-        "com.universalmedialibrary.ui.modern.radio.ModernOldTimeRadioSeriesDetailScreen"
-    )
-)
+@Deprecated(message = "The unreachable ui.modern series detail screen was removed with the legacy routes")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OldTimeRadioSeriesDetailScreen(

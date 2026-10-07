@@ -9,58 +9,13 @@ could be resolved statically (dynamic targets such as `item.route` are not liste
 
 ## Summary
 
-- Registered routes: 90 current, 45 legacy
-- Resolvable `navigate` calls: 156 (156 reach a current route, 0 reach only a legacy route, 0 match no registered route)
+- Registered routes: 90 current, 0 legacy
+- Resolvable `navigate` calls: 115 (115 reach a current route, 0 reach only a legacy route, 0 match no registered route)
 
 ## Legacy routes
 
 | Route | Replacement | Kind | Registered in | Call sites reaching only legacy |
 | --- | --- | --- | --- | --- |
-| `album/{albumId}` | `MediaRoutes.mediaDetailRoute("album", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:201` | _none_ |
-| `ambient` | `MediaRoutes.AMBIENT_SOUNDS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:282` | _none_ |
-| `artist/{artistId}` | `MediaRoutes.mediaDetailRoute("artist", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:231` | _none_ |
-| `audio_player/{path}` | `MediaRoutes.audioPlayerRoute("music")` | unclear | `ui/media/navigation/graphs/LegacyRoutes.kt:112` | _none_ |
-| `audioplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("audiobook")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:339` | _none_ |
-| `book_details/{bookId}` | `MediaRoutes.mediaDetailRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:171` | _none_ |
-| `bookshelf` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:50` | _none_ |
-| `collections` | `MediaRoutes.COLLECTIONS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:304` | _none_ |
-| `comic_reader/{uriString}/{fileName}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:68` | _none_ |
-| `detail/{itemId}` | `MediaRoutes.mediaDetailRoute(type, id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:360` | _none_ |
-| `documentviewer/{mediaId}` | `MediaRoutes.readerRoute("document", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:432` | _none_ |
-| `epub_reader/{path}` | `MediaRoutes.epubReaderRoute(path)` | new-route | `ui/media/navigation/graphs/LegacyRoutes.kt:300` | _none_ |
-| `ereader/{mediaId}` | `MediaRoutes.readerRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:320` | _none_ |
-| `fanfiction_download` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:400` | _none_ |
-| `free_audiobooks` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:228` | _none_ |
-| `free_media` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:243` | _none_ |
-| `free_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:235` | _none_ |
-| `genre/{genreId}` | `MediaRoutes.libraryRoute("music")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:261` | _none_ |
-| `hivefy_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:137` | _none_ |
-| `library_details/{typeId}` | `MediaRoutes.libraryRoute(type)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:319` | _none_ |
-| `magazinereader/{mediaId}` | `MediaRoutes.readerRoute("document", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:414` | _none_ |
-| `metabods_tag_browser` | `MediaRoutes.discoveryRoute(type = "WEB_FICTION")` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:121` | _none_ |
-| `metadata_editor/{itemId}` | `MediaRoutes.metadataEditorRoute(id)` | new-route | `ui/media/navigation/graphs/LegacyContentRoutes.kt:391` | _none_ |
-| `music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:296` | _none_ |
-| `music_player` | `MediaRoutes.audioPlayerRoute("music")` | redirect | `ui/media/navigation/graphs/LegacyRoutes.kt:76` | _none_ |
-| `musicplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("music")` | redirect | `ui/media/navigation/graphs/LegacyRoutes.kt:383` | _none_ |
-| `opds_catalog` | `MediaRoutes.OPDS_BROWSER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:145` | _none_ |
-| `otr_series_detail/{seriesTitle}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:57` | _none_ |
-| `pdf_reader/{path}` | `MediaRoutes.pdfReaderRoute(path)` | new-route | `ui/media/navigation/graphs/LegacyRoutes.kt:308` | _none_ |
-| `podcast_detail/{podcastId}` | `MediaRoutes.mediaDetailRoute("podcast", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:141` | _none_ |
-| `podcast_player/{episodeId}` | `MediaRoutes.audioPlayerRoute("podcast")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:84` | _none_ |
-| `podcastplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("podcast")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:391` | _none_ |
-| `podcasts` | `MediaRoutes.PODCASTS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:249` | _none_ |
-| `radio` | `MediaRoutes.RADIO` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:270` | _none_ |
-| `reader/{mediaId}` | `MediaRoutes.readerRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:281` | _none_ |
-| `reading_statistics` | `(delete)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:210` | _none_ |
-| `storage_browser` | `MediaRoutes.ENHANCED_FILE_BROWSER` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:169` | _none_ |
-| `story_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:86` | _none_ |
-| `universal_tag_browser` | `MediaRoutes.discoveryRoute(type = "WEB_FICTION")` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:129` | _none_ |
-| `video_player/{videoId}` | `MediaRoutes.videoPlayerRoute(id)` | duplicate | `ui/media/navigation/graphs/LegacyRoutes.kt:49` | _none_ |
-| `videoplayer/{mediaId}` | `MediaRoutes.videoPlayerRoute(id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:362` | _none_ |
-| `visualizer` | `MediaRoutes.VISUALIZER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:276` | _none_ |
-| `web_comic_downloader` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:113` | _none_ |
-| `webfiction_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:78` | _none_ |
-| `webfiction_story/{storyId}` | `MediaRoutes.readerRoute("webfiction", id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:94` | _none_ |
 
 Kinds: `redirect` (already forwards to the live route), `duplicate` (live route hosts the
 same destination), `remap` (live route exists but arguments differ), `new-route` (live
@@ -69,48 +24,6 @@ route added for this migration), `unclear` (needs a decision; see the note in
 
 ### Notes
 
-- `album/{albumId}`: Legacy view model reads mediaType/mediaId, which this route does not supply. Caller passes album.name, not an id
-- `ambient`: Same path as the live route. Shadowing: see inventory
-- `artist/{artistId}`: Legacy view model reads mediaType/mediaId, which this route does not supply. Caller passes artist.name, not an id
-- `audio_player/{path}`: No call sites; path argument unused. Candidate for plain deletion
-- `audioplayer/{mediaId}`: Live player ignores the media id; it plays the current queue
-- `book_details/{bookId}`: Legacy view model reads mediaType/mediaId, which this route does not supply
-- `bookshelf`: Hosts ModernBookshelfScreen (PR 4 moves it); live equivalent is MediaRoutes.BOOKS
-- `collections`: Same path as the live route. Shadowing: see inventory
-- `comic_reader/{uriString}/{fileName}`: Hosts ModernComicReaderScreen (PR 4)
-- `detail/{itemId}`: Callers must supply a media type; legacy uses MediaType.UNKNOWN
-- `epub_reader/{path}`: Added in PR 2
-- `fanfiction_download`: Already redirects
-- `free_audiobooks`: Hosts MediaDiscoverScreen; no call sites
-- `free_media`: Hosts FreeMediaScreen; no call sites
-- `free_music`: Already redirects
-- `genre/{genreId}`: Legacy ignored genreId, so the library route loses nothing; a genre filter route is future work. Call sites repointed in PR 3
-- `hivefy_music`: Already redirects
-- `library_details/{typeId}`: typeId 1..7 maps to book, audiobook, comic, movie, tv_show, (6 unused), document
-- `magazinereader/{mediaId}`: ReaderViewModel loads the "document" type through loadBook, the same path the legacy route used. Call sites repointed in PR 3
-- `metabods_tag_browser`: Already redirects
-- `metadata_editor/{itemId}`: Added in PR 2
-- `music`: Already redirects
-- `music_player`: Already redirects to the live player
-- `musicplayer/{mediaId}`: Already redirects to the live player
-- `opds_catalog`: Live route hosts the OPDS browser
-- `otr_series_detail/{seriesTitle}`: Hosts ModernOldTimeRadioSeriesDetailScreen (PR 4)
-- `pdf_reader/{path}`: Added in PR 2
-- `podcast_detail/{podcastId}`: Legacy view model reads mediaType/mediaId, which this route does not supply
-- `podcast_player/{episodeId}`: Decision: use the live player. Legacy screen ignored episodeId, so nothing is lost. Call sites repointed in PR 3
-- `podcastplayer/{mediaId}`: Decision: use the live player (see podcast_player/{episodeId}). Call sites repointed in PR 3
-- `podcasts`: Live route exists; screens differ
-- `radio`: Live route exists; screens differ
-- `reader/{mediaId}`: Legacy view model defaults mediaType to book
-- `reading_statistics`: Placeholder screen with no call sites
-- `storage_browser`: Legacy imports the picked file and opens document-reader; confirm the live browser does the same
-- `story_manager`: Already redirects
-- `universal_tag_browser`: Already redirects
-- `video_player/{videoId}`: Same screen and view model as the live route
-- `visualizer`: Same path as the live route. Shadowing: see inventory
-- `web_comic_downloader`: Already redirects
-- `webfiction_manager`: Already redirects
-- `webfiction_story/{storyId}`: Legacy view model reads mediaId, which this route does not supply
 
 ### Legacy routes sharing a path with a live route
 
@@ -118,9 +31,7 @@ Both are registered in the same `NavHost`, and the legacy graphs are added last 
 `MediaAppNavigation`, so the legacy destination is the one that is reachable. Removing the
 legacy registration changes which screen opens.
 
-- `ambient` shadows `ambient`
-- `collections` shadows `collections`
-- `visualizer` shadows `visualizer`
+- _none_
 
 ## Navigation targets that match no registered route
 

@@ -10,8 +10,6 @@ import com.universalmedialibrary.ui.media.navigation.graphs.collectionsOrgRoutes
 import com.universalmedialibrary.ui.media.navigation.graphs.debugMenuRoutes
 import com.universalmedialibrary.ui.media.navigation.graphs.detailRoutes
 import com.universalmedialibrary.ui.media.navigation.graphs.discoveryRoutes
-import com.universalmedialibrary.ui.media.navigation.graphs.legacyContentRoutes
-import com.universalmedialibrary.ui.media.navigation.graphs.legacyRoutes
 import com.universalmedialibrary.ui.media.navigation.graphs.libraryRoutes
 import com.universalmedialibrary.ui.media.navigation.graphs.mainSectionRoutes
 import com.universalmedialibrary.ui.media.navigation.graphs.onboardingLandseekRoutes
@@ -40,7 +38,5 @@ fun MediaAppNavHost(
         syncImportRoutes(navController, onShowSnackbar)
         onboardingLandseekRoutes(navController, onShowSnackbar)
         debugMenuRoutes(navController, onShowSnackbar)
-        legacyRoutes(navController, onShowSnackbar)
-        legacyContentRoutes(navController, onShowSnackbar)
     }
 }
