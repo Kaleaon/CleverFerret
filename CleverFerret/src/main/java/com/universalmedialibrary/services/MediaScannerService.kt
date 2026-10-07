@@ -627,7 +627,8 @@ data class ScanProgress(
                 }
 
                 // Create basic metadata
-                  val resolvedTitle = musicInfo?.title?.takeIf { it.isNotBlank() } ?: file.nameWithoutExtension
+                val titleFromMusic = musicInfo?.title
+                val resolvedTitle = if (!titleFromMusic.isNullOrBlank()) titleFromMusic else file.nameWithoutExtension
                   val metadata = MetadataCommon(
                       itemId = itemId,
                       title = resolvedTitle,

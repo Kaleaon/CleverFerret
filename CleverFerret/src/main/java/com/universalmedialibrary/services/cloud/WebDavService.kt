@@ -162,7 +162,6 @@ class WebDavService @Inject constructor(
                 WebDavFile(
                     name = file.name,
                     path = file.path,
-                    isDirectory = file.isDirectory,
                     size = file.size,
                     modifiedTime = file.lastModified.toLongOrNull() ?: 0L
                 )

@@ -565,7 +565,7 @@ class StorageAccessService @Inject constructor(
         fileNameSanitizer = fileNameSanitizer,
         mediaItemDao = mediaItemDao,
         metadataDao = metadataDao,
-        libraryDao = libraryDao,
+        libraryDao = libraryDao
     )
 
 

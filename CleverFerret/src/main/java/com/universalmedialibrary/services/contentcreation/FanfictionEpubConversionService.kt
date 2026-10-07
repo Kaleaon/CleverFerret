@@ -181,14 +181,6 @@ class FanfictionEpubConversionService @Inject constructor(
     }
 
 
-
-    private fun org.json.JSONArray?.toStringList(): List<String> {
-        val array = this ?: return emptyList()
-        return (0 until array.length())
-            .mapNotNull { idx -> array.optString(idx).takeIf { it.isNotBlank() } }
-    }
-
-
     /**
      * Fetch story from FanFiction.Net
      */
