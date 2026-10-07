@@ -7,6 +7,8 @@ import com.universalmedialibrary.data.local.dao.StagedMetadataCandidateDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.StagedMetadataCandidate
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -16,9 +18,12 @@ import org.junit.Test
 class MetadataStagingRepositoryTest {
 
     private lateinit var stagedDao: FakeStagedMetadataCandidateDao
-    private lateinit var metadataDao: FakeMetadataDao
-    private lateinit var mediaItemDao: FakeMediaItemDao
+    private lateinit var metadataDao: MetadataDao
+    private lateinit var mediaItemDao: MediaItemDao
     private lateinit var repository: MetadataStagingRepository
+
+    private val itemMap = mutableMapOf<Long, MediaItem>()
+    private val metaMap = mutableMapOf<Long, MetadataCommon>()
 
     @Before
     fun setup() {
