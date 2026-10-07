@@ -12,7 +12,6 @@ import kotlinx.serialization.Serializable
 @Entity(
     tableName = "media_cache_items",
     indices = [
-        Index(value = ["itemId"], unique = true),
         Index(value = ["remoteUri"]),
         Index(value = ["downloadState"]),
         Index(value = ["isPinned"]),

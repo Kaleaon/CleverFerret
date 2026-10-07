@@ -11437,15 +11437,6 @@
         },
         "indices": [
           {
-            "name": "index_media_cache_items_itemId",
-            "unique": true,
-            "columnNames": [
-              "itemId"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_media_cache_items_itemId` ON `${TABLE_NAME}` (`itemId`)"
-          },
-          {
             "name": "index_media_cache_items_remoteUri",
             "unique": false,
             "columnNames": [

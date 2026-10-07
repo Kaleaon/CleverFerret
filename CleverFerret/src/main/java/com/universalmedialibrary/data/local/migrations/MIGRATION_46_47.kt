@@ -282,7 +282,6 @@ internal val MIGRATION_46_47: Migration = object : Migration(46, 47) {
             """.trimIndent()
         )
 
-        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_media_cache_items_itemId` ON `media_cache_items` (`itemId`)")
         database.execSQL("CREATE INDEX IF NOT EXISTS `index_media_cache_items_remoteUri` ON `media_cache_items` (`remoteUri`)")
         database.execSQL("CREATE INDEX IF NOT EXISTS `index_media_cache_items_downloadState` ON `media_cache_items` (`downloadState`)")
         database.execSQL("CREATE INDEX IF NOT EXISTS `index_media_cache_items_isPinned` ON `media_cache_items` (`isPinned`)")

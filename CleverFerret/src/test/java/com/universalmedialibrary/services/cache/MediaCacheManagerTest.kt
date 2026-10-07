@@ -1,9 +1,7 @@
 package com.universalmedialibrary.services.cache
 
-import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.MediaCacheDao
-import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.DownloadPriority
 import com.universalmedialibrary.data.local.entity.DownloadState
 import com.universalmedialibrary.data.local.entity.MediaCacheItem
@@ -30,13 +28,7 @@ class MediaCacheManagerTest {
     val tempFolder = TemporaryFolder()
 
     @MockK
-    lateinit var context: Context
-
-    @MockK
     lateinit var mediaCacheDao: MediaCacheDao
-
-    @MockK
-    lateinit var mediaItemDao: MediaItemDao
 
     @MockK
     lateinit var cacheManager: CacheManager

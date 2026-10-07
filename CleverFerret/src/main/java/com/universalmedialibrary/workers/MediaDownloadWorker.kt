@@ -35,8 +35,6 @@ class MediaDownloadWorker @AssistedInject constructor(
         const val KEY_REMOTE_URI = "remote_uri"
         const val KEY_DOWNLOAD_URL = "download_url"
         const val KEY_LOCAL_PATH = "local_path"
-        const val CHANNEL_ID = "media_download_channel"
-        const val NOTIFICATION_ID = 905
     }
 
     override suspend fun doWork(): Result {
