@@ -18,12 +18,19 @@ import com.universalmedialibrary.services.FileSafetyGuardrail
 import com.universalmedialibrary.services.thumbnails.ThumbnailService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import android.net.Uri
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 /**
@@ -261,9 +268,17 @@ class LibraryManagementViewModel @Inject constructor(
         }
     }
 
-    fun refreshAllMetadata() {
+    /**
+     * Concurrently fetches metadata for items in bulk using bounded coroutine execution (Semaphore limit 4).
+     */
+    fun bulkFetchMetadata(libraryId: Long? = null) {
         viewModelScope.launch {
-            val items = mediaItemDao.getAllMediaItems()
+            val items = if (libraryId != null) {
+                mediaItemDao.getMediaItemsByLibrary(libraryId).first()
+            } else {
+                mediaItemDao.getAllMediaItems()
+            }
+
             if (items.isEmpty()) {
                 _bulkMetadataTask.value = LibraryBackgroundTaskState.success(
                     label = "Bulk metadata refresh",
@@ -271,37 +286,67 @@ class LibraryManagementViewModel @Inject constructor(
                 )
                 return@launch
             }
+
             _bulkMetadataTask.value = LibraryBackgroundTaskState.queued("Bulk metadata refresh")
-            var completed = 0
-            var successCount = 0
-            var errorCount = 0
             _bulkMetadataTask.value = LibraryBackgroundTaskState.running("Bulk metadata refresh", 0f, "Starting...")
 
-            items.forEach { item ->
-                when (val result = metadataFetchRepository.fetchMetadataForItem(item.itemId)) {
-                    is MetadataFetchResult.Success -> successCount++
-                    is MetadataFetchResult.Error -> errorCount++
-                }
-                completed++
-                _bulkMetadataTask.value = LibraryBackgroundTaskState.running(
-                    label = "Bulk metadata refresh",
-                    progress = completed.toFloat() / items.size.coerceAtLeast(1),
-                    message = "Processed $completed/${items.size} • Success: $successCount • Failed: $errorCount"
-                )
+            val total = items.size
+            val completedCount = AtomicInteger(0)
+            val successCount = AtomicInteger(0)
+            val errorCount = AtomicInteger(0)
+            val semaphore = Semaphore(4)
+
+            coroutineScope {
+                items.map { item ->
+                    async {
+                        semaphore.withPermit {
+                            val result = try {
+                                metadataFetchRepository.fetchMetadataForItem(item.itemId)
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                MetadataFetchResult.Error(e.message ?: "Fetch failed")
+                            }
+
+                            if (result is MetadataFetchResult.Success) {
+                                successCount.incrementAndGet()
+                            } else {
+                                errorCount.incrementAndGet()
+                            }
+
+                            val completed = completedCount.incrementAndGet()
+                            val currentSuccess = successCount.get()
+                            val currentError = errorCount.get()
+
+                            _bulkMetadataTask.value = LibraryBackgroundTaskState.running(
+                                label = "Bulk metadata refresh",
+                                progress = completed.toFloat() / total,
+                                message = "Processed $completed/$total • Success: $currentSuccess • Failed: $currentError"
+                            )
+                        }
+                    }
+                }.awaitAll()
             }
 
-            _bulkMetadataTask.value = if (errorCount > 0) {
+            val finalSuccess = successCount.get()
+            val finalError = errorCount.get()
+
+            _bulkMetadataTask.value = if (finalError > 0) {
                 LibraryBackgroundTaskState.failed(
                     label = "Bulk metadata refresh",
-                    message = "Completed with $errorCount failures ($successCount succeeded)"
+                    message = "Completed with $finalError failures ($finalSuccess succeeded)"
                 )
             } else {
                 LibraryBackgroundTaskState.success(
                     label = "Bulk metadata refresh",
-                    message = "Updated metadata for $successCount items"
+                    message = "Updated metadata for $finalSuccess items"
                 )
             }
         }
+    }
+
+    fun refreshAllMetadata() {
+        bulkFetchMetadata(libraryId = null)
     }
 
     fun regenerateAllThumbnails() {
