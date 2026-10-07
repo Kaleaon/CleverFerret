@@ -34,7 +34,6 @@ import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.media.theme.MediaColors
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -70,7 +69,7 @@ private fun MediaAppRoot(
     playbackStateManager: PlaybackStateManager
 ) {
     val mainViewModel: MainViewModel = hiltViewModel()
-    val palette by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
+    val palette by mainViewModel.selectedTheme.collectAsState(CleverFerretTheme.NAVY_GOLD)
     val darkMode by mainViewModel.darkMode.collectAsState(true)
 
     CleverFerretTheme(
@@ -112,12 +111,12 @@ fun MediaMainScreen(
                 if (mediaType.isNullOrBlank()) MediaRoutes.LIBRARY else MediaRoutes.libraryRoute(mediaType)
             }
             else -> currentRoute
-        } ?: MediaRoutes.HOME
+        } ?: startDestination
     }
     
-    // Check if we should show navigation (hide during player screens)
+    // Check if we should show navigation (hide during onboarding or player screens)
     val showNavigation = remember(currentRoute) {
-        currentRoute != null && !currentRoute.startsWith("player/") && !currentRoute.startsWith("reader/")
+        currentRoute != null && currentRoute != MediaRoutes.ONBOARDING && !currentRoute.startsWith("player/") && !currentRoute.startsWith("reader/")
     }
     
     // Check if we should show mini player
@@ -196,12 +195,12 @@ fun MediaMainScreen(
             ) {
                 MediaAppNavHost(
                     navController = navController,
+                    startDestination = startDestination,
                     onShowSnackbar = { message ->
                         scope.launch {
                             snackbarHostState.showSnackbar(message)
                         }
                     },
-                    startDestination = startDestination,
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -263,12 +262,12 @@ fun MediaMainScreen(
                 ) {
                     MediaAppNavHost(
                         navController = navController,
+                        startDestination = startDestination,
                         onShowSnackbar = { message ->
                             scope.launch {
                                 snackbarHostState.showSnackbar(message)
                             }
                         },
-                        startDestination = startDestination,
                         modifier = Modifier.padding(paddingValues)
                     )
                 }

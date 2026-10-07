@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.music
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import android.text.format.DateUtils
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.modern.theme.CFSpacing
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -312,13 +314,13 @@ fun MusicLibraryScreen(
                         .fillMaxWidth()
                 ) {
                     MiniPlayer(
-                        onClick = { navController.navigate("music_player") }
+                        onClick = { navController.navigate(MediaRoutes.audioPlayerRoute("music")) }
                     )
                 }
                 
                 // Now Playing FAB
                 NowPlayingFab(
-                    onClick = { navController.navigate("music_player") },
+                    onClick = { navController.navigate(MediaRoutes.audioPlayerRoute("music")) },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(16.dp)
@@ -376,7 +378,7 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
         MusicViewMode.GRID -> {
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Adaptive(minSize = 160.dp),
+                columns = GridCells.Adaptive(minSize = CFSpacing.squareCardMinWidth),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -384,7 +386,7 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
                 items(state.tracks) { track ->
                     TrackGridItem(track = track, onClick = { 
                         viewModel.playTrack(track)
-                        navController.navigate("music_player")
+                        navController.navigate(MediaRoutes.audioPlayerRoute("music"))
                     })
                 }
             }
@@ -401,7 +403,7 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
                         compact = state.viewMode == MusicViewMode.COMPACT,
                         onClick = { 
                             viewModel.playTrack(track)
-                            navController.navigate("music_player")
+                            navController.navigate(MediaRoutes.audioPlayerRoute("music"))
                         }
                     )
                 }
@@ -414,14 +416,14 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
 private fun AlbumsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel, navController: androidx.navigation.NavController) {
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Adaptive(minSize = 160.dp),
+        columns = GridCells.Adaptive(minSize = CFSpacing.squareCardMinWidth),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(state.albums) { album ->
             AlbumGridItem(album = album, onClick = { 
-                navController.navigate("album/${album.name}")
+                navController.navigate(MediaRoutes.mediaDetailRoute("album", album.name))
             })
         }
     }
@@ -436,7 +438,7 @@ private fun ArtistsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMo
     ) {
         items(state.artists) { artist ->
             ArtistListItem(artist = artist, onClick = { 
-                navController.navigate("artist/${artist.name}")
+                navController.navigate(MediaRoutes.mediaDetailRoute("artist", artist.name))
             })
         }
     }
@@ -451,7 +453,7 @@ private fun GenresTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMod
     ) {
         items(state.genres) { genre ->
             GenreListItem(genre = genre, onClick = { 
-                navController.navigate("genre/${genre.name}")
+                navController.navigate(MediaRoutes.libraryRoute("music"))
             })
         }
     }

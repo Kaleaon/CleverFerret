@@ -18,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.LiveRegionMode
 import coil.compose.AsyncImage
 
 /**
@@ -37,9 +38,14 @@ fun MiniPlayerBar(
     onExpand: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val playStateText = if (isPlaying) "Playing" else "Paused"
+    val progressPercent = (progress * 100).toInt()
+    val playerStateDesc = "$playStateText - $progressPercent% complete"
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .dynamicStateDescription(playerStateDesc, LiveRegionMode.Polite)
             .clickable(onClick = onExpand),
         tonalElevation = 8.dp,
         shadowElevation = 8.dp
@@ -200,9 +206,13 @@ fun CompactMiniPlayer(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val playStateText = if (isPlaying) "Playing" else "Paused"
+    val compactStateDesc = "$playStateText - $title"
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .dynamicStateDescription(compactStateDesc, LiveRegionMode.Polite)
             .clickable(onClick = onClick),
         tonalElevation = 4.dp
     ) {

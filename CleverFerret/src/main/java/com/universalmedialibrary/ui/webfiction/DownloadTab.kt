@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.webfiction
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,7 +25,6 @@ import androidx.navigation.NavController
 import com.universalmedialibrary.services.webfiction.*
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import java.util.Locale
 import com.universalmedialibrary.ui.fanfiction.FanfictionViewModel
 import com.universalmedialibrary.data.local.entity.FanfictionStoryEntity
@@ -348,7 +348,7 @@ internal fun DownloadTab(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer
                 ),
-                onClick = { navController.navigate("web_comic_downloader") }
+                onClick = { navController.navigate(MediaRoutes.WEB_FICTION) }
             ) {
                 Row(
                     modifier = Modifier

@@ -3,6 +3,7 @@ package com.universalmedialibrary.services
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import com.universalmedialibrary.data.local.entity.ItemPersonRole
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataBook

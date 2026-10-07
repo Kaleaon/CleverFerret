@@ -7,6 +7,8 @@ import com.universalmedialibrary.data.local.dao.StagedMetadataCandidateDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.StagedMetadataCandidate
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -16,16 +18,19 @@ import org.junit.Test
 class MetadataStagingRepositoryTest {
 
     private lateinit var stagedDao: FakeStagedMetadataCandidateDao
-    private lateinit var metadataDao: FakeMetadataDao
-    private lateinit var mediaItemDao: FakeMediaItemDao
+    private lateinit var metadataDao: MetadataDao
+    private lateinit var mediaItemDao: MediaItemDao
     private lateinit var repository: MetadataStagingRepository
+
+    private val itemMap = mutableMapOf<Long, MediaItem>()
+    private val metaMap = mutableMapOf<Long, MetadataCommon>()
 
     @Before
     fun setup() {
         stagedDao = FakeStagedMetadataCandidateDao()
         metadataDao = FakeMetadataDao()
         mediaItemDao = FakeMediaItemDao()
-        repository = MetadataStagingRepository(stagedDao, metadataDao, mediaItemDao)
+        repository = MetadataStagingRepository(stagedDao, metadataDao, mediaItemDao, kotlinx.coroutines.test.UnconfinedTestDispatcher())
     }
 
     @Test
@@ -298,60 +303,31 @@ class MetadataStagingRepositoryTest {
             return mediaItem.itemId
         }
 
-        override fun getMediaItemsForLibrary(libraryId: Long): Flow<List<MediaItem>> = MutableStateFlow(map.values.filter { it.libraryId == libraryId })
+        override fun getMediaItemsForLibrary(libraryId: Long): Flow<List<MediaItem>> =
+            MutableStateFlow(map.values.filter { it.libraryId == libraryId })
         override suspend fun getMediaItemById(itemId: Long): MediaItem? = map[itemId]
-        override suspend fun getMediaItemByFilePath(filePath: String): MediaItem? = map.values.find { it.filePath == filePath }
-        override suspend fun getExistingFilePaths(filePaths: List<String>): List<String> = filePaths.filter { path -> map.values.any { it.filePath == path } }
+        override suspend fun getMediaItemByFilePath(filePath: String): MediaItem? =
+            map.values.find { it.filePath == filePath }
+        override suspend fun getExistingFilePaths(filePaths: List<String>): List<String> =
+            filePaths.filter { path -> map.values.any { it.filePath == path } }
         override suspend fun getItemByPath(path: String): MediaItem? = map.values.find { it.filePath == path }
         override suspend fun getItemCountForLibrary(libraryId: Long): Int = map.values.count { it.libraryId == libraryId }
         override suspend fun getMediaItemCount(): Int = map.size
-        override fun getMediaItemsByLibrary(libraryId: Long): Flow<List<MediaItem>> = MutableStateFlow(map.values.filter { it.libraryId == libraryId })
+        override fun getMediaItemsByLibrary(libraryId: Long): Flow<List<MediaItem>> =
+            MutableStateFlow(map.values.filter { it.libraryId == libraryId })
         override suspend fun getMediaItemByPath(filePath: String): MediaItem? = map.values.find { it.filePath == filePath }
-        override fun getMediaItemsByType(mediaType: String): Flow<List<MediaItem>> = MutableStateFlow(map.values.filter { it.mediaType == mediaType })
+        override fun getMediaItemsByType(mediaType: String): Flow<List<MediaItem>> =
+            MutableStateFlow(map.values.filter { it.mediaType == mediaType })
 
         override suspend fun updateMediaItem(mediaItem: MediaItem) {
             map[mediaItem.itemId] = mediaItem
         }
 
-        override suspend fun getMediaItemCount(): Int = map.size
-
-        override suspend fun getAllMediaItems(): List<MediaItem> = map.values.toList()
-
-        override fun getMediaItemsForLibrary(libraryId: Long): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getMediaItemByFilePath(filePath: String): MediaItem? = map.values.firstOrNull { it.filePath == filePath }
-        override suspend fun getExistingFilePaths(paths: List<String>): List<String> = paths.filter { path -> map.values.any { it.filePath == path } }
-        override suspend fun getItemByPath(path: String): MediaItem? = map.values.firstOrNull { it.filePath == path }
-        override suspend fun getItemCountForLibrary(libraryId: Long): Int = 0
-        override fun getMediaItemsByLibrary(libraryId: Long): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getMediaItemByPath(filePath: String): MediaItem? = map.values.firstOrNull { it.filePath == filePath }
-        override fun getMediaItemsByType(mediaType: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun setFavorite(itemId: Long, isFavorite: Boolean) {}
-        override suspend fun deleteMediaItem(mediaItem: MediaItem) { map.remove(mediaItem.itemId) }
-        override suspend fun searchMediaItems(query: String, limit: Int): List<MediaItem> = emptyList()
-        override suspend fun searchMediaItems(query: String, mediaTypes: List<String>?, minRating: Float?, maxRating: Float?, isFavorite: Boolean?, limit: Int): List<MediaItem> = emptyList()
-        override fun getAllMediaItemsFlow(): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(map.values.toList())
-        override suspend fun getMediaItemsWithTags(tagIds: List<Long>, limit: Int): List<MediaItem> = emptyList()
-        override suspend fun getMediaItemsByTypes(mediaTypes: List<String>, limit: Int): List<MediaItem> = emptyList()
-        override suspend fun insertMediaItems(mediaItems: List<MediaItem>) { mediaItems.forEach { map[it.itemId] = it } }
-        override suspend fun getItemCountByLibrary(libraryId: Long): Int = 0
-        override suspend fun findDuplicateByNameAndSize(libraryId: Long, fileName: String, fileSize: Long): MediaItem? = null
-        override suspend fun findDuplicateByHash(libraryId: Long, fileHash: String): MediaItem? = null
-        override fun getFavoriteMediaItems(): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getItemCountByType(mediaType: String): Int = 0
-        override suspend fun getItemCountsByTypeForLibrary(libraryId: Long): List<com.universalmedialibrary.data.local.dao.MediaTypeCount> = emptyList()
-        override fun getBookDetailsForLibrary(libraryId: Long): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getBookDetailsById(bookId: Long): MediaItem? = null
-        override suspend fun getBooksBySeries(seriesName: String): List<MediaItem> = emptyList()
-        override suspend fun getBooksWithSeries(): List<MediaItem> = emptyList()
-        override fun getMediaItemsByGenre(genreName: String, mediaType: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override fun getMediaItemsByGenres(genreNames: List<String>, mediaType: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override fun getMediaItemsByAuthor(authorName: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override fun getMediaItemsByDirector(directorName: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getByType(mediaType: String, limit: Int, offset: Int): List<MediaItem> = emptyList()
-        override suspend fun getCountByType(mediaType: String): Int = 0
         override suspend fun setFavorite(itemId: Long, isFavorite: Boolean) {
             map[itemId]?.let { map[itemId] = it.copy(isFavorite = isFavorite) }
         }
+
+        override suspend fun updateAvailability(filePath: String, isAvailable: Boolean) {}
 
         override suspend fun deleteMediaItem(mediaItem: MediaItem) {
             map.remove(mediaItem.itemId)
@@ -379,19 +355,28 @@ class MetadataStagingRepositoryTest {
         override suspend fun findDuplicateByHash(libraryId: Long, fileHash: String): MediaItem? = null
         override fun getFavoriteMediaItems(): Flow<List<MediaItem>> = MutableStateFlow(map.values.filter { it.isFavorite })
         override suspend fun getItemCountByType(mediaType: String): Int = map.values.count { it.mediaType == mediaType }
-        override suspend fun getItemCountsByTypeForLibrary(libraryId: Long): List<com.universalmedialibrary.data.local.dao.MediaTypeCount> = emptyList()
+        override suspend fun getItemCountsByTypeForLibrary(
+            libraryId: Long
+        ): List<com.universalmedialibrary.data.local.dao.MediaTypeCount> = emptyList()
         override fun getBookDetailsForLibrary(libraryId: Long): Flow<List<MediaItem>> = MutableStateFlow(emptyList())
         override suspend fun getBookDetailsById(bookId: Long): MediaItem? = map[bookId]
-        override suspend fun getAllMediaItems(): List<MediaItem> = map.values.toList()
         override suspend fun getBooksBySeries(seriesName: String): List<MediaItem> = emptyList()
         override suspend fun getBooksWithSeries(): List<MediaItem> = emptyList()
         override fun getMediaItemsByGenre(genreName: String, mediaType: String): Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override fun getMediaItemsByGenres(genreNames: List<String>, mediaType: String): Flow<List<MediaItem>> = MutableStateFlow(emptyList())
+        override fun getMediaItemsByGenres(
+            genreNames: List<String>,
+            mediaType: String
+        ): Flow<List<MediaItem>> = MutableStateFlow(emptyList())
         override fun getMediaItemsByAuthor(authorName: String): Flow<List<MediaItem>> = MutableStateFlow(emptyList())
         override fun getMediaItemsByDirector(directorName: String): Flow<List<MediaItem>> = MutableStateFlow(emptyList())
         override suspend fun getByType(mediaType: String, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getCountByType(mediaType: String): Int = map.values.count { it.mediaType == mediaType }
-        override suspend fun searchByTypeAndQuery(mediaType: String, query: String, limit: Int, offset: Int): List<MediaItem> = emptyList()
+        override suspend fun searchByTypeAndQuery(
+            mediaType: String,
+            query: String,
+            limit: Int,
+            offset: Int
+        ): List<MediaItem> = emptyList()
         override suspend fun searchByQuery(query: String, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getRecentItems(limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getByAuthor(author: String, limit: Int, offset: Int): List<MediaItem> = emptyList()

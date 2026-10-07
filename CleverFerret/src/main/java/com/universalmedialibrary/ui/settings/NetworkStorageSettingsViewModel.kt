@@ -21,11 +21,11 @@ class NetworkStorageSettingsViewModel @Inject constructor(
     private val settingsRepository: com.universalmedialibrary.data.repository.SettingsRepository
 ) : ViewModel() {
 
-    val selectedTheme: StateFlow<com.universalmedialibrary.ui.theme.ThemePalette> = settingsRepository.themeFlow
+    val selectedTheme: StateFlow<com.universalmedialibrary.ui.theme.CleverFerretTheme> = settingsRepository.themeFlow
         .stateIn(
             scope = viewModelScope,
             started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
-            initialValue = com.universalmedialibrary.ui.theme.ThemePalette.NAVY_GOLD
+            initialValue = com.universalmedialibrary.ui.theme.CleverFerretTheme.NAVY_GOLD
         )
 
     val darkMode: StateFlow<Boolean> = settingsRepository.darkModeFlow

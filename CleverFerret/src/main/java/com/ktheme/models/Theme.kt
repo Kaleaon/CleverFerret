@@ -60,9 +60,20 @@ data class ThemeMetadata(
     val updatedAt: String
 )
 
+data class LiveRegionConfig(
+    val mode: String = "polite",
+    val atomic: Boolean = true,
+    val relevant: String = "all"
+)
+
+data class LayoutConfig(
+    val liveRegion: LiveRegionConfig = LiveRegionConfig()
+)
+
 data class Theme(
     val metadata: ThemeMetadata,
     val darkMode: Boolean,
     val colorScheme: ColorScheme,
-    val effects: VisualEffects? = null
+    val effects: VisualEffects? = null,
+    val layout: LayoutConfig? = LayoutConfig()
 )

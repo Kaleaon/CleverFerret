@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Bridge adapter that replaces the legacy in-app theme registry with Ktheme's API.
  */
 object KthemeBridge {
-    private val engine = ThemeEngine().apply { registerBuiltInThemes() }
+    private val engine = ThemeEngine().also { registerBuiltInThemes(it) }
     private val colorSchemeCache = ConcurrentHashMap<Pair<CleverFerretTheme, Boolean>, ColorScheme>()
     private val metallicGradientCache = ConcurrentHashMap<CleverFerretTheme, MetallicGradient>()
 
@@ -141,7 +141,7 @@ object KthemeBridge {
         }
     }
 
-    private fun registerBuiltInThemes() {
+    private fun registerBuiltInThemes(engine: ThemeEngine) {
         CleverFerretTheme.entries.forEach { theme ->
             listOf(true, false).forEach { dark ->
                 val legacyScheme = legacyColorScheme(theme, darkTheme = dark)
@@ -172,6 +172,13 @@ object KthemeBridge {
                                     shimmer = (metallic.shimmer ?: metallic.highlight).toHex()
                                 ),
                                 intensity = 0.9f
+                            )
+                        ),
+                        layout = com.ktheme.models.LayoutConfig(
+                            liveRegion = com.ktheme.models.LiveRegionConfig(
+                                mode = "polite",
+                                atomic = true,
+                                relevant = "all"
                             )
                         )
                     )

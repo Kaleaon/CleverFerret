@@ -31,7 +31,6 @@ import com.universalmedialibrary.ui.components.NavigationItems
 import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.EPUBReaderScreen
@@ -102,5 +101,17 @@ fun NavGraphBuilder.detailRoutes(
         )
     }
     
+    composable(
+        route = MediaRoutes.METADATA_EDITOR,
+        arguments = listOf(navArgument("itemId") { type = NavType.StringType })
+    ) { backStackEntry ->
+        val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
+        com.universalmedialibrary.ui.metadata.MetadataEditorScreen(
+            itemId = itemId.toLongOrNull() ?: 0L,
+            onSave = { navController.popBackStack() },
+            onCancel = { navController.popBackStack() }
+        )
+    }
+
     // =====================================================================
 }

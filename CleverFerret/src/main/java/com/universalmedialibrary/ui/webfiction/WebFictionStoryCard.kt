@@ -41,7 +41,6 @@ import com.universalmedialibrary.ui.components.showUserFeedback
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
 
 @Composable

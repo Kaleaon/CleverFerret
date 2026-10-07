@@ -30,7 +30,8 @@ import androidx.media3.common.AudioAttributes
 @androidx.media3.common.util.UnstableApi
 class UniversalMediaPlayerService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val mediaSessionManager: MediaSessionManager
+    private val mediaSessionManager: MediaSessionManager,
+    private val mediaContentResolver: MediaContentResolver
 ) {
 
     private var exoPlayer: ExoPlayer? = null
@@ -45,10 +46,23 @@ class UniversalMediaPlayerService @Inject constructor(
         return try {
             releaseCurrentPlayer()
 
-            val file = File(mediaItem.filePath)
-            if (!file.exists()) {
-                updatePlaybackState(error = "File not found: ${mediaItem.filePath}")
-                return false
+            val resolved = kotlinx.coroutines.runBlocking { mediaContentResolver.resolve(mediaItem) }
+            val mediaUri: Uri = when (resolved) {
+                is ResolvedContent.LocalFile -> Uri.fromFile(resolved.file)
+                is ResolvedContent.StreamUrl -> {
+                    if (mediaContentResolver.isVirtualUri(mediaItem.filePath)) {
+                        com.universalmedialibrary.jobs.WorkScheduler.scheduleOfflineBuffering(context, mediaItem.itemId)
+                    }
+                    Uri.parse(resolved.url)
+                }
+                is ResolvedContent.OfflineUnbuffered -> {
+                    updatePlaybackState(error = resolved.message)
+                    return false
+                }
+                is ResolvedContent.Error -> {
+                    updatePlaybackState(error = resolved.message)
+                    return false
+                }
             }
 
             val player = ensurePlayer()
@@ -58,7 +72,7 @@ class UniversalMediaPlayerService @Inject constructor(
             mediaItem.author?.let { metadataBuilder.setArtist(it) }
 
             val exoMediaItem = Media3MediaItem.Builder()
-                .setUri(Uri.fromFile(file))
+                .setUri(mediaUri)
                 .setMediaMetadata(metadataBuilder.build())
                 .build()
 

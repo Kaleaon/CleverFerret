@@ -19,8 +19,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.components.media.MediaCard
+import com.universalmedialibrary.ui.components.media.MediaCardData
+import com.universalmedialibrary.ui.components.media.MediaCardStyle
+import com.universalmedialibrary.ui.modern.theme.CFSpacing
 
 /**
  * Media-Centric Media Grid Component
@@ -49,22 +54,25 @@ data class MediaItemData(
 @Composable
 fun MediaGrid(
     items: List<MediaItemData>,
-    columns: Int = 4,
+    minItemWidth: Dp = CFSpacing.posterMinWidth,
     onItemClick: (MediaItemData) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (items.isEmpty()) {
-        EmptyStateCard(
-            icon = Icons.AutoMirrored.Filled.LibraryBooks,
-            title = "No Media Items",
-            description = "Your library is empty. Add some media to get started!",
-            actionLabel = "Scan Library",
+        MediaCard(
+            data = MediaCardData(
+                icon = Icons.AutoMirrored.Filled.LibraryBooks,
+                title = "No Media Items",
+                description = "Your library is empty. Add some media to get started!",
+                actionLabel = "Scan Library"
+            ),
+            style = MediaCardStyle.STATE_EMPTY,
             onActionClick = { /* Trigger library scan */ },
             modifier = modifier
         )
     } else {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(columns),
+            columns = GridCells.Adaptive(minSize = minItemWidth),
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),

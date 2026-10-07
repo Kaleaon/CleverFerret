@@ -26,7 +26,6 @@ import androidx.navigation.NavController
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
 import com.universalmedialibrary.ui.components.PinEntryDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import java.util.Locale
 
 @Composable

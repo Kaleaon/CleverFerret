@@ -95,8 +95,8 @@ fun LazyListScope.navigationSection(
             BottomBarPreferencesCard(
                 availableItems = availableBottomItems,
                 preferences = uiState.bottomBarPreferences,
-                onOrderChanged = { order, hidden ->
-                    viewModel.updateBottomBarPreferences(order, hidden)
+                onOrderChanged = { order, hidden, pinned ->
+                    viewModel.updateBottomBarPreferences(order, hidden, pinned)
                 },
                 onReset = viewModel::resetBottomBarPreferences
             )

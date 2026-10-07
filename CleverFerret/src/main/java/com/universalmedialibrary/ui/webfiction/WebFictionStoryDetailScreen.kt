@@ -50,7 +50,6 @@ import com.universalmedialibrary.services.webfiction.WebFictionChapter
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import java.text.NumberFormat
 import java.util.Date
 import java.util.Locale

@@ -4,8 +4,21 @@ import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.universalmedialibrary.data.local.AppDatabase
-import com.universalmedialibrary.data.local.dao.*
-import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.PlexMediaItemDao
+import com.universalmedialibrary.data.local.dao.PlexServerDao
+import com.universalmedialibrary.data.local.dao.PlexSyncDao
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.PlexCollection
+import com.universalmedialibrary.data.local.entity.PlexCollectionItem
+import com.universalmedialibrary.data.local.entity.PlexLibrary
+import com.universalmedialibrary.data.local.entity.PlexMediaItem
+import com.universalmedialibrary.data.local.entity.PlexMetadata
+import com.universalmedialibrary.data.local.entity.PlexProgress
+import com.universalmedialibrary.data.local.entity.PlexRating
+import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.ingestion.IngestionPipeline
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +45,8 @@ class PlexSyncService @Inject constructor(
     private val libraryDao: LibraryDao,
     private val authService: PlexAuthService,
     private val ingestionPipeline: IngestionPipeline,
-    private val plexVirtualUriResolver: PlexVirtualUriResolver? = null
+    private val plexVirtualUriResolver: PlexVirtualUriResolver? = null,
+    private val downloadScheduler: com.universalmedialibrary.services.cache.MediaDownloadScheduler? = null
 ) {
 
     companion object {
@@ -254,7 +268,14 @@ class PlexSyncService @Inject constructor(
                             hasThumbnail = !metadata.thumb.isNullOrEmpty(),
                             thumbnailPath = metadata.thumb
                         )
-                        mediaItemDao.insertMediaItem(mediaItem)
+                        val insertedId = mediaItemDao.insertMediaItem(mediaItem)
+                        val downloadUrl = "http://${server.host}:${server.port}/library/metadata/${metadata.ratingKey}?X-Plex-Token=${server.token}"
+                        downloadScheduler?.scheduleDownload(
+                            itemId = insertedId,
+                            remoteUri = path,
+                            downloadUrl = downloadUrl,
+                            fileName = metadata.title
+                        )
                     }
                 }
             }

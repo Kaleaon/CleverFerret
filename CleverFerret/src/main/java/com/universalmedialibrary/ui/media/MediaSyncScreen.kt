@@ -15,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.plex.PlexSyncStatus
+import com.universalmedialibrary.ui.components.media.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import java.text.SimpleDateFormat
 import java.util.*
@@ -99,8 +100,15 @@ fun MediaSyncScreen(
 
         // Server List
         if (servers.isEmpty()) {
-            EmptyStateCard(
-                onAddServer = { viewModel.showAddServerDialog() }
+            MediaCard(
+                data = MediaCardData(
+                    icon = PhosphorIcons.CloudSync,
+                    title = "No Plex Servers",
+                    description = "Add a Plex server to enable sync across devices",
+                    actionLabel = "Add Plex Server"
+                ),
+                style = MediaCardStyle.STATE_EMPTY,
+                onActionClick = { viewModel.showAddServerDialog() }
             )
         } else {
             LazyColumn(
@@ -240,48 +248,7 @@ private fun PlexServerCard(
     }
 }
 
-@Composable
-private fun EmptyStateCard(
-    onAddServer: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(32.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = PhosphorIcons.CloudSync,
-                contentDescription = "No servers configured",
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "No Plex Servers",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = "Add a Plex server to start syncing your progress, ratings, and collections",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            FilledTonalButton(onClick = onAddServer) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add server"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Add Server")
-            }
-        }
-    }
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

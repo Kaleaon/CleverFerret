@@ -32,7 +32,8 @@ import javax.inject.Singleton
 @Singleton
 class EmbySyncService @Inject constructor(
     private val database: AppDatabase,
-    private val embyIntegration: EmbyIntegrationService
+    private val embyIntegration: EmbyIntegrationService,
+    private val downloadScheduler: com.universalmedialibrary.services.cache.MediaDownloadScheduler? = null
 ) {
     private val embyServerDao = database.embyServerDao()
     private val libraryDao = database.libraryDao()
@@ -276,6 +277,14 @@ class EmbySyncService @Inject constructor(
                             )
 
                             metadataDao.insertMetadataCommon(metadata)
+                            val streamDownloadUrl = "$serverUrl/Items/$itemId/Download?api_key=${server.apiKey ?: ""}"
+                            downloadScheduler?.scheduleDownload(
+                                itemId = localItemId,
+                                remoteUri = path,
+                                downloadUrl = streamDownloadUrl,
+                                fileName = fileName,
+                                fileExtension = fileExtension
+                            )
                             syncedCount++
                         }
                     }

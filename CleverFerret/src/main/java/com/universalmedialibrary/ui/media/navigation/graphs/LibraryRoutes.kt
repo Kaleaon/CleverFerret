@@ -32,7 +32,6 @@ import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.media.navigation.HomeSectionRouteContract
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.EPUBReaderScreen

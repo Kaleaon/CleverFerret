@@ -11,6 +11,7 @@ import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.MediaRepository
+import com.universalmedialibrary.data.repository.MetadataStagingRepository
 import com.universalmedialibrary.services.metadata.AudioMetadataService
 import com.universalmedialibrary.services.metadata.BookMetadataService
 import com.universalmedialibrary.services.metadata.ComicMetadataService
@@ -35,7 +36,8 @@ class FolderImportViewModel @Inject constructor(
     private val comicMetadataService: ComicMetadataService,
     private val fanfictionMetadataService: FanfictionMetadataService,
     private val mediaRepository: MediaRepository,
-    private val libraryRepository: LibraryRepository
+    private val libraryRepository: LibraryRepository,
+    private val metadataStagingRepository: MetadataStagingRepository
 ) : ViewModel() {
     enum class FileAccessState {
         IDLE,
@@ -602,7 +604,7 @@ class FolderImportViewModel @Inject constructor(
             fileSize = fileSize,
             lastModified = lastModified,
             mediaType = mapMediaType(file.type),
-            hasMetadata = file.metadata != null
+            hasMetadata = false
         )
 
         val itemId = mediaRepository.createMediaItem(mediaItem)
@@ -614,7 +616,11 @@ class FolderImportViewModel @Inject constructor(
                 summary = metadata.description,
                 metadataSource = "Folder Import"
             )
-            mediaRepository.saveCommonMetadata(common)
+            metadataStagingRepository.stageMetadataCommon(
+                itemId = itemId,
+                metadata = common,
+                source = "Folder Import"
+            )
         }
     }
 
