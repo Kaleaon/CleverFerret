@@ -30,9 +30,9 @@ import org.burnoutcrew.reorderable.reorderable
 
 @Composable
 internal fun ThemePickerDialog(
-    currentTheme: ThemePalette,
+    currentTheme: CleverFerretTheme,
     onDismiss: () -> Unit,
-    onSelect: (ThemePalette) -> Unit
+    onSelect: (CleverFerretTheme) -> Unit
 ) {
     // Show enhanced theme picker with all available themes
     // Note: Only the 6 original themes can be persisted with current ViewModel
@@ -72,12 +72,12 @@ internal fun ThemePickerDialog(
                     items(themes.size) { index ->
                         val theme = themes[index]
                         val config = theme.getConfig()
-                        val isSelected = theme.name == currentTheme.toCleverFerretTheme().name
+                        val isSelected = theme.name == currentTheme.name
                         
                         Card(
                             onClick = { 
-                                // Convert CleverFerretTheme to ThemePalette
-                                onSelect(theme.toThemePalette())
+                                // Convert CleverFerretTheme to CleverFerretTheme
+                                onSelect(theme)
                             },
                             colors = CardDefaults.cardColors(
                                 containerColor = if (isSelected)
