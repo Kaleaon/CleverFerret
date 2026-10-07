@@ -29,7 +29,7 @@ class MediaOpenViewModelErrorTest {
 
     @Test
     fun playAudioFile_onFileNotFound_setsPlainLanguageErrorMessage() = runTest {
-        val testItem = MediaItem(itemId = 1L, fileName = "missing.mp3", filePath = "/sdcard/missing.mp3")
+        val testItem = MediaItem(itemId = 1L, libraryId = 1L, fileName = "missing.mp3", filePath = "/sdcard/missing.mp3", fileExtension = "mp3", fileSize = 1000L, mediaType = "MUSIC_TRACK")
         coEvery { musicPlayerService.playTrack(any()) } throws FileNotFoundException("/sdcard/missing.mp3 not found")
 
         val viewModel = MediaOpenViewModel(
@@ -48,7 +48,7 @@ class MediaOpenViewModelErrorTest {
 
     @Test
     fun playVideoFile_onFileNotFound_setsPlainLanguageErrorMessage() = runTest {
-        val testItem = MediaItem(itemId = 2L, fileName = "video.mp4", filePath = "/sdcard/video.mp4")
+        val testItem = MediaItem(itemId = 2L, libraryId = 1L, fileName = "video.mp4", filePath = "/sdcard/video.mp4", fileExtension = "mp4", fileSize = 10000L, mediaType = "MOVIE")
         coEvery { exoPlayerService.initialize() } throws FileNotFoundException("/sdcard/video.mp4 missing")
 
         val viewModel = MediaOpenViewModel(
