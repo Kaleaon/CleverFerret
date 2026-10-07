@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,9 +53,13 @@ fun ModernTagExplorerScreen(
     onLongPressTag: (UiTag) -> Unit,
 ) {
     val cs = MaterialTheme.colorScheme
-    val maxCount = (state.tags.maxOfOrNull { it.count } ?: 1).coerceAtLeast(1)
-    val displayed = if (state.query.isBlank()) state.tags
-                    else state.tags.filter { it.name.contains(state.query, ignoreCase = true) }
+    val maxCount = remember(state.tags) {
+        (state.tags.maxOfOrNull { it.count } ?: 1).coerceAtLeast(1)
+    }
+    val displayed = remember(state.tags, state.query) {
+        if (state.query.isBlank()) state.tags
+        else state.tags.filter { it.name.contains(state.query, ignoreCase = true) }
+    }
 
     Scaffold(
         topBar = {
