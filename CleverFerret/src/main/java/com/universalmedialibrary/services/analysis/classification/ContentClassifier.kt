@@ -46,12 +46,13 @@ class ContentClassifier @Inject constructor() {
     suspend fun classifyDocument(text: String): ContentClassification = withContext(Dispatchers.IO) {
         val normalizedText = text.lowercase()
         val words = normalizedText.split("\\s+".toRegex()).filter { it.length > 2 }
+        val wordCounts = words.groupingBy { it }.eachCount()
 
         // Genre classification
         val genreScores = mutableMapOf<String, Int>()
         for ((genre, keywords) in genreClassifiers) {
             val score = keywords.sumOf { keyword ->
-                words.count { it.contains(keyword) }
+                wordCounts[keyword] ?: 0
             }
             if (score > 0) {
                 genreScores[genre] = score
@@ -201,6 +202,7 @@ class ContentClassifier @Inject constructor() {
     }
 
     private fun extractTopics(words: List<String>): List<String> {
+        val wordCounts = words.groupingBy { it }.eachCount()
         val topicKeywords = mapOf(
             "technology" to listOf("computer", "internet", "software", "digital", "tech"),
             "politics" to listOf("government", "election", "policy", "political", "democracy"),
@@ -215,7 +217,7 @@ class ContentClassifier @Inject constructor() {
         val topicScores = mutableMapOf<String, Int>()
         for ((topic, keywords) in topicKeywords) {
             val score = keywords.sumOf { keyword ->
-                words.count { it.contains(keyword) }
+                wordCounts[keyword] ?: 0
             }
             if (score > 0) {
                 topicScores[topic] = score
