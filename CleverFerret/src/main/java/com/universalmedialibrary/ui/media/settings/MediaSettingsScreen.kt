@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.api.plugin.*
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
 
 /**
@@ -86,8 +87,8 @@ private fun SettingsSection.toRoute(): String {
         SettingsSection.METADATA -> "settings/metadata"
         SettingsSection.THEME -> "settings/appearance"
         SettingsSection.DISPLAY -> "settings/display"
-        SettingsSection.TEXT_SIZE -> "settings/text-size"
-        SettingsSection.AUDIO -> "settings/audio_effects"
+        SettingsSection.TEXT_SIZE -> MediaRoutes.SETTINGS_READER
+        SettingsSection.AUDIO -> MediaRoutes.SETTINGS_PLAYBACK
         SettingsSection.TTS -> "settings/tts_provider"
         SettingsSection.READER -> "settings/reader"
         SettingsSection.CASTING -> "settings/casting"
