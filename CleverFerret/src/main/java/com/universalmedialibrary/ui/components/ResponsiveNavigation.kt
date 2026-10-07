@@ -39,6 +39,8 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Storage
@@ -105,12 +107,27 @@ import com.universalmedialibrary.ui.theme.LocalIsAncientArchitect
  * Standard bottom navigation bar used on compact width devices.
  */
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(
+    navController: NavController,
+    preferences: com.universalmedialibrary.data.settings.BottomBarPreferences = com.universalmedialibrary.data.settings.BottomBarPreferences.Default
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    var showOverflowSheet by remember { mutableStateOf(false) }
+
+    val layout = remember(preferences) {
+        NavigationItems.bottomNavItems.resolveBottomBarLayout(preferences)
+    }
+
+    val primaryItems = layout.primaryItems
+    val overflowItems = layout.overflowItems
+
+    val isOverflowActive = remember(currentDestination, overflowItems) {
+        overflowItems.any { currentDestination.isDestinationSelected(it) }
+    }
 
     NavigationBar(modifier = Modifier.fillMaxWidth()) {
-        NavigationItems.bottomNavItems.forEach { item ->
+        primaryItems.forEach { item ->
             val selected = currentDestination.isDestinationSelected(item)
             NavigationBarItem(
                 icon = { if (selected) item.selectedIcon() else item.icon() },
@@ -127,6 +144,35 @@ fun BottomNavigationBar(navController: NavController) {
                 }
             )
         }
+
+        NavigationBarItem(
+            icon = {
+                Icon(
+                    imageVector = if (isOverflowActive) Icons.Filled.MoreHoriz else Icons.Outlined.MoreHoriz,
+                    contentDescription = "More"
+                )
+            },
+            label = { Text("More") },
+            selected = isOverflowActive,
+            onClick = { showOverflowSheet = true }
+        )
+    }
+
+    if (showOverflowSheet) {
+        NavigationOverflowSheet(
+            items = overflowItems,
+            currentRoute = currentDestination?.route,
+            onDismissRequest = { showOverflowSheet = false },
+            onItemClick = { item ->
+                navController.navigate(item.route) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        )
     }
 }
 

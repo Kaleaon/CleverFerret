@@ -174,10 +174,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateBottomBarPreferences(order: List<String>, hidden: Set<String>) {
+    fun updateBottomBarPreferences(
+        order: List<String>,
+        hidden: Set<String>,
+        pinned: List<String> = emptyList()
+    ) {
         viewModelScope.launch {
+            val pinnedItems = if (pinned.isNotEmpty()) pinned else order.filter { it !in hidden }.take(4)
             settingsRepository.setBottomBarPreferences(
-                BottomBarPreferences(order = order, hidden = hidden)
+                BottomBarPreferences(order = order, hidden = hidden, pinned = pinnedItems)
             )
         }
     }

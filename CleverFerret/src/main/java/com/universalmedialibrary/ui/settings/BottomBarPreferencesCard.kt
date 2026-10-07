@@ -32,7 +32,7 @@ import org.burnoutcrew.reorderable.reorderable
 internal fun BottomBarPreferencesCard(
     availableItems: List<NavigationItem>,
     preferences: BottomBarPreferences,
-    onOrderChanged: (List<String>, Set<String>) -> Unit,
+    onOrderChanged: (List<String>, Set<String>, List<String>) -> Unit,
     onReset: () -> Unit
 ) {
     MetallicCard {
