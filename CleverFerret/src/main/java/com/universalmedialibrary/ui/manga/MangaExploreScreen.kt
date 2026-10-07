@@ -31,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.manga.source.MangaSource
 import com.universalmedialibrary.services.manga.source.OnlineManga
+import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 
 /**
  * Manga Explore Screen
@@ -337,24 +338,19 @@ private fun MangaCard(
                 
                 // State badge
                 if (manga.state != com.universalmedialibrary.services.manga.source.MangaState.UNKNOWN) {
+                    val tokens = LocalCFTokens.current
                     Surface(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(4.dp),
-                        color = when (manga.state) {
-                            com.universalmedialibrary.services.manga.source.MangaState.ONGOING -> 
-                                Color(0xFF4CAF50)
-                            com.universalmedialibrary.services.manga.source.MangaState.FINISHED -> 
-                                Color(0xFF2196F3)
-                            else -> MaterialTheme.colorScheme.surfaceVariant
-                        },
+                        color = tokens.status.forMangaState(manga.state),
                         shape = RoundedCornerShape(4.dp)
                     ) {
                         Text(
                             text = manga.state.name.take(3),
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                             fontSize = 10.sp,
-                            color = Color.White
+                            color = tokens.playerControls.playButtonIcon
                         )
                     }
                 }

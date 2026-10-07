@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.audio.AudioPlaybackManager.AudioQueueEntry
+import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 import com.universalmedialibrary.ui.player.WaveformSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -60,9 +61,12 @@ internal fun PlaybackControls(
     onRepeat: () -> Unit,
     isShuffleEnabled: Boolean,
     repeatMode: RepeatMode,
-    iconTint: Color,
-    highlightColor: Color
+    iconTint: Color = LocalCFTokens.current.playerControls.controlIcon,
+    highlightColor: Color = LocalCFTokens.current.playerControls.activeAccent
 ) {
+    val tokens = LocalCFTokens.current
+    val playerControls = tokens.playerControls
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -81,7 +85,7 @@ internal fun PlaybackControls(
         // Previous
         Surface(
             shape = CircleShape,
-            color = Color.White.copy(alpha = 0.1f),
+            color = playerControls.secondaryControlContainer,
             modifier = Modifier.size(64.dp)
         ) {
             IconButton(onClick = onPrevious) {
@@ -103,7 +107,7 @@ internal fun PlaybackControls(
 
         Surface(
             shape = CircleShape,
-            color = Color.White,
+            color = playerControls.playButtonContainer,
             modifier = Modifier
                 .size(80.dp)
                 .scale(scale),
@@ -114,7 +118,7 @@ internal fun PlaybackControls(
                 Icon(
                     if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = if (isPlaying) "Pause" else "Play",
-                    tint = Color(0xFF1A1A2E),
+                    tint = playerControls.playButtonIcon,
                     modifier = Modifier.size(40.dp)
                 )
             }
@@ -123,7 +127,7 @@ internal fun PlaybackControls(
         // Next
         Surface(
             shape = CircleShape,
-            color = Color.White.copy(alpha = 0.1f),
+            color = playerControls.secondaryControlContainer,
             modifier = Modifier.size(64.dp)
         ) {
             IconButton(onClick = onNext) {

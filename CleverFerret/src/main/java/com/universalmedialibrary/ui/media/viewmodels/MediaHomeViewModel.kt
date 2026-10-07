@@ -19,6 +19,7 @@ import com.universalmedialibrary.ui.media.screens.QuickAccessItem
 import com.universalmedialibrary.ui.media.screens.defaultQuickAccessItems
 import com.universalmedialibrary.ui.media.theme.MediaColors
 import com.universalmedialibrary.data.settings.QuickAccessPreferences
+import com.universalmedialibrary.utils.UserFriendlyErrorMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
@@ -49,7 +50,8 @@ class MediaHomeViewModel @Inject constructor(
     private val podcastRepository: PodcastRepository,
     private val webFictionRepository: WebFictionRepository,
     private val serviceAvailabilityManager: ServiceAvailabilityManager,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val errorMapper: UserFriendlyErrorMapper = UserFriendlyErrorMapper()
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(MediaHomeState(isLoading = true))
@@ -234,7 +236,7 @@ class MediaHomeViewModel @Inject constructor(
                 _uiState.update {
                     MediaHomeState(
                         isLoading = false,
-                        error = "Failed to load library: ${e.message ?: "Unknown error"}",
+                        error = errorMapper.mapToMessage(e),
                         // Keep any existing data
                         featuredItems = it.featuredItems,
                         continueItems = it.continueItems,
