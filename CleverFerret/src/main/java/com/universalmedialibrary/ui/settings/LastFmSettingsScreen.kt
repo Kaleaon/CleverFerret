@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.services.music.LastFmScrobblerService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,7 +41,7 @@ fun LastFmSettingsScreen(
     onNavigateBack: () -> Unit,
     viewModel: LastFmSettingsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showApiKeyDialog by remember { mutableStateOf(false) }
     
     Scaffold(

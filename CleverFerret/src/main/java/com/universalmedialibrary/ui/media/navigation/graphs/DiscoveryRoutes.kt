@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
@@ -45,7 +46,7 @@ fun NavGraphBuilder.discoveryRoutes(
 ) {
     composable(MediaRoutes.OPDS_BROWSER) {
         val viewModel: OPDSViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         OPDSBrowserScreen(
             state = state,
@@ -154,7 +155,7 @@ fun NavGraphBuilder.discoveryRoutes(
     
     composable(MediaRoutes.AMBIENT_SOUNDS) {
         val viewModel: AmbientViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         MediaAmbientScreen(
             state = state,

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.duplicates.DuplicateGroup
@@ -23,9 +24,9 @@ fun DuplicateDetectionScreen(
     viewModel: OrganizationViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit
 ) {
-    val duplicateGroups by viewModel.duplicateGroups.collectAsState()
-    val isScanning by viewModel.isScanning.collectAsState()
-    val threshold by viewModel.duplicateThreshold.collectAsState()
+    val duplicateGroups by viewModel.duplicateGroups.collectAsStateWithLifecycle()
+    val isScanning by viewModel.isScanning.collectAsStateWithLifecycle()
+    val threshold by viewModel.duplicateThreshold.collectAsStateWithLifecycle()
     
     var showThresholdDialog by remember { mutableStateOf(false) }
     

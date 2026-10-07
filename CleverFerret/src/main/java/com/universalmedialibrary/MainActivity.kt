@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.media.MediaMainActivity
 import com.universalmedialibrary.ui.open.MediaOpenScreen
@@ -63,8 +64,8 @@ class MainActivity : ComponentActivity() {
         
         setContent {
             val mainViewModel: MainViewModel = hiltViewModel()
-            val selectedTheme by mainViewModel.selectedTheme.collectAsState(CleverFerretTheme.NAVY_GOLD)
-            val darkMode by mainViewModel.darkMode.collectAsState(true)
+            val selectedTheme by mainViewModel.selectedTheme.collectAsStateWithLifecycle(ThemePalette.NAVY_GOLD)
+            val darkMode by mainViewModel.darkMode.collectAsStateWithLifecycle(true)
             
             CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
                 Surface(

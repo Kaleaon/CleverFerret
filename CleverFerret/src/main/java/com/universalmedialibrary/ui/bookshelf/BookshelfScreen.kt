@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.ViewCarousel
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 import kotlin.math.absoluteValue
 
@@ -61,14 +62,14 @@ fun EnhancedBookshelfScreen(
     libraryId: Long = 1L,
     viewModel: BookshelfViewModel = hiltViewModel()
 ) {
-    val books by viewModel.books.collectAsState()
-    val favorites by viewModel.favorites.collectAsState()
-    val progressMap by viewModel.progressMap.collectAsState()
-    val viewMode by viewModel.viewMode.collectAsState()
-    val sortOption by viewModel.sortOption.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val selectedGenre by viewModel.selectedGenre.collectAsState()
-    val showFilters by viewModel.showFilters.collectAsState()
+    val books by viewModel.books.collectAsStateWithLifecycle()
+    val favorites by viewModel.favorites.collectAsStateWithLifecycle()
+    val progressMap by viewModel.progressMap.collectAsStateWithLifecycle()
+    val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
+    val sortOption by viewModel.sortOption.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
+    val showFilters by viewModel.showFilters.collectAsStateWithLifecycle()
 
     var showSortMenu by remember { mutableStateOf(false) }
     var showViewModeMenu by remember { mutableStateOf(false) }
@@ -174,7 +175,7 @@ fun EnhancedBookshelfScreen(
                     .padding(paddingValues)
             ) {
             // Search Bar
-            AnimatedVisibility(visible = searchQuery.isNotEmpty() || viewModel.searchActive.collectAsState().value) {
+            AnimatedVisibility(visible = searchQuery.isNotEmpty() || viewModel.searchActive.collectAsStateWithLifecycle().value) {
                 SearchTextField(
                     query = searchQuery,
                     onQueryChange = viewModel::setSearchQuery,

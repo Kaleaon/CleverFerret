@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.util.Locale
 
 /**
@@ -30,7 +31,7 @@ fun EnhancedEpubReaderSettingsScreen(
     onBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val readerSettings by viewModel.readerSettings.collectAsState()
+    val readerSettings by viewModel.readerSettings.collectAsStateWithLifecycle()
     
     Scaffold(
         topBar = {

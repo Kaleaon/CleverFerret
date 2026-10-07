@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.junrar.Archive
 import com.github.junrar.rarfile.FileHeader
 import com.universalmedialibrary.ui.media.components.MediaPosterCardSkeleton
@@ -218,7 +219,7 @@ fun ModernComicReaderScreen(
                                 bitmap = bmp.asImageBitmap(),
                                 contentDescription = "Comic Page ${pageIndex + 1}"
                             )
-                            val apiSettings = settingsViewModel.apiSettings.collectAsState().value
+                            val apiSettings = settingsViewModel.apiSettings.collectAsStateWithLifecycle().value
                             val enabled = apiSettings.comicApis.geminiBubbleTranslationEnabled
                             if (enabled && translationsJson != null) {
                                 Surface(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)) {
@@ -233,7 +234,7 @@ fun ModernComicReaderScreen(
                         }
                     }
 
-                    val apiSettings = settingsViewModel.apiSettings.collectAsState().value
+                    val apiSettings = settingsViewModel.apiSettings.collectAsStateWithLifecycle().value
                     if (apiSettings.comicApis.geminiBubbleTranslationEnabled) {
                         Row(
                             modifier = Modifier

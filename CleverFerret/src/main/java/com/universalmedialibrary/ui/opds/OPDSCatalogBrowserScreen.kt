@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
@@ -42,13 +43,13 @@ fun OPDSCatalogBrowserScreen(
     onBack: () -> Unit,
     viewModel: OPDSCatalogBrowserViewModel = hiltViewModel()
 ) {
-    val catalogs by viewModel.catalogs.collectAsState()
-    val selectedCatalog by viewModel.selectedCatalog.collectAsState()
-    val feedResult by viewModel.currentFeed.collectAsState()
-    val downloads by viewModel.activeDownloads.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val transientMessage by viewModel.userMessage.collectAsState()
-    val activeAuthChallenge by viewModel.activeAuthChallenge.collectAsState()
+    val catalogs by viewModel.catalogs.collectAsStateWithLifecycle()
+    val selectedCatalog by viewModel.selectedCatalog.collectAsStateWithLifecycle()
+    val feedResult by viewModel.currentFeed.collectAsStateWithLifecycle()
+    val downloads by viewModel.activeDownloads.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val transientMessage by viewModel.userMessage.collectAsStateWithLifecycle()
+    val activeAuthChallenge by viewModel.activeAuthChallenge.collectAsStateWithLifecycle()
     
     var showAddCatalogDialog by remember { mutableStateOf(false) }
     var showSearchDialog by remember { mutableStateOf(false) }

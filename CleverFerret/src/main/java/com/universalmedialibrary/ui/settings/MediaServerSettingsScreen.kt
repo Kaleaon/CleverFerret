@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -27,7 +28,7 @@ fun MediaServerSettingsScreen(
     onBack: () -> Unit,
     viewModel: MediaServerSettingsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showAddServerDialog by remember { mutableStateOf(false) }
     var selectedServerType by remember { mutableStateOf(ServerType.JELLYFIN) }
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.modern.theme.CFSpacing
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.theme.*
 
@@ -35,7 +36,7 @@ fun MusicLibraryScreen(
     navController: NavController,
     viewModel: MusicLibraryViewModel = hiltViewModel()
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {

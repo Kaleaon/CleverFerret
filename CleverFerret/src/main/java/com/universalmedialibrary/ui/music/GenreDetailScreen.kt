@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.repository.MusicRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -39,8 +40,8 @@ fun GenreDetailScreen(
     onNavigateToPlayer: () -> Unit,
     viewModel: GenreDetailViewModel = hiltViewModel()
 ) {
-    val genre by viewModel.genre.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val genre by viewModel.genre.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     LaunchedEffect(genreName) {
         viewModel.loadGenre(genreName)

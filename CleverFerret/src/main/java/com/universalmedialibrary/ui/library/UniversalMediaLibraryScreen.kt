@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.MediaType
 import kotlinx.coroutines.launch
 
@@ -43,12 +44,12 @@ fun UniversalMediaLibraryScreen(
     libraryId: Long = 1L,
     viewModel: UniversalMediaLibraryViewModel = hiltViewModel()
 ) {
-    val mediaItems by viewModel.mediaItems.collectAsState()
-    val viewMode by viewModel.viewMode.collectAsState()
-    val sortOption by viewModel.sortOption.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val selectedMediaType by viewModel.selectedMediaType.collectAsState()
-    val showFilters by viewModel.showFilters.collectAsState()
+    val mediaItems by viewModel.mediaItems.collectAsStateWithLifecycle()
+    val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
+    val sortOption by viewModel.sortOption.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val selectedMediaType by viewModel.selectedMediaType.collectAsStateWithLifecycle()
+    val showFilters by viewModel.showFilters.collectAsStateWithLifecycle()
 
     var showSortMenu by remember { mutableStateOf(false) }
     var showViewModeMenu by remember { mutableStateOf(false) }

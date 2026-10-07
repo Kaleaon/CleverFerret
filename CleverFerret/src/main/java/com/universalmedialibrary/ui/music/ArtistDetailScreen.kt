@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.repository.MusicRepository
 import com.universalmedialibrary.services.music.ArtistInfo
 import com.universalmedialibrary.services.music.ArtistInfoService
@@ -36,11 +37,11 @@ fun ArtistDetailScreen(
     onNavigateToAlbum: (String) -> Unit = {},
     viewModel: ArtistDetailViewModel = hiltViewModel()
 ) {
-    val artist by viewModel.artist.collectAsState()
-    val albums by viewModel.albums.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val artistInfo by viewModel.artistInfo.collectAsState()
-    val infoLoading by viewModel.infoLoading.collectAsState()
+    val artist by viewModel.artist.collectAsStateWithLifecycle()
+    val albums by viewModel.albums.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val artistInfo by viewModel.artistInfo.collectAsStateWithLifecycle()
+    val infoLoading by viewModel.infoLoading.collectAsStateWithLifecycle()
 
     LaunchedEffect(artistName) {
         viewModel.loadArtist(artistName)

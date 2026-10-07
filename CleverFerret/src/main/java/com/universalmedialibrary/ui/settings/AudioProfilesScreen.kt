@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 import com.universalmedialibrary.services.music.AudioDeviceType
 import com.universalmedialibrary.services.music.AudioProfile
@@ -104,9 +105,9 @@ fun AudioProfilesScreen(
     viewModel: AudioProfilesViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {}
 ) {
-    val currentDevice by viewModel.currentDeviceType.collectAsState()
-    val autoSwitchEnabled by viewModel.autoSwitchEnabled.collectAsState()
-    val profiles by viewModel.profiles.collectAsState()
+    val currentDevice by viewModel.currentDeviceType.collectAsStateWithLifecycle()
+    val autoSwitchEnabled by viewModel.autoSwitchEnabled.collectAsStateWithLifecycle()
+    val profiles by viewModel.profiles.collectAsStateWithLifecycle()
     
     var expandedDevice by remember { mutableStateOf<AudioDeviceType?>(currentDevice) }
     

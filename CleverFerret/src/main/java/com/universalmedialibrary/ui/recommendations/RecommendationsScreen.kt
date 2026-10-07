@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.recommendations.Recommendation
 import com.universalmedialibrary.services.recommendations.RecommendationsState
 import coil.compose.AsyncImage
@@ -30,9 +31,9 @@ fun RecommendationsScreen(
     navController: NavController,
     viewModel: RecommendationsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val recommendationsState by viewModel.recommendationsState.collectAsState()
-    val options by viewModel.options.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val recommendationsState by viewModel.recommendationsState.collectAsStateWithLifecycle()
+    val options by viewModel.options.collectAsStateWithLifecycle()
 
     var showOptions by remember { mutableStateOf(false) }
 

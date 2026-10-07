@@ -74,6 +74,9 @@ jobs:
     - name: Check docs local links
       run: ./scripts/ci/check_doc_links.py
 
+    - name: Check lifecycle flow collection
+      run: ./gradlew checkLifecycleFlowCollection --stacktrace
+
     - name: Run Detekt and Android Lint
       run: ./gradlew detekt lintDebug -Plint.abortOnError=true --stacktrace
 
