@@ -15,6 +15,8 @@ Usage:
   scripts/ci/check_nav_routes.py --update-baseline
 
 Check rules (exit 1 on failure):
+  * every legacy route needs an entry in scripts/ci/legacy_route_map.json
+    (replacement, kind, note), and entries for routes that are gone must go;
   * a navigate() target that matches no registered route and is not in the
     baseline is a new broken navigation target;
   * a baseline entry that no longer reproduces must be removed, so the
@@ -25,6 +27,7 @@ fail the check.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from collections import defaultdict
@@ -35,6 +38,7 @@ SRC = ROOT / "CleverFerret/src/main"
 ROUTES_FILE = SRC / "java/com/universalmedialibrary/ui/media/navigation/MediaRoutes.kt"
 BASELINE = ROOT / "scripts/ci/nav_route_baseline.txt"
 INVENTORY = ROOT / "docs/navigation/ROUTE_INVENTORY.md"
+ROUTE_MAP = ROOT / "scripts/ci/legacy_route_map.json"
 
 STRING = r'"((?:[^"\\]|\\.)*)"'
 
@@ -171,6 +175,22 @@ def matches(call: str, reg: str) -> bool:
     )
 
 
+def normalize(pattern: str) -> str:
+    return re.sub(r"\{[^}]*\}", "{}", pattern)
+
+
+def load_route_map() -> dict:
+    if not ROUTE_MAP.exists():
+        return {}
+    return json.loads(ROUTE_MAP.read_text(encoding="utf8"))
+
+
+def shadowed(registrations) -> list[tuple[str, str]]:
+    """Legacy registrations whose path equals a live registration's path."""
+    live = {normalize(r[0]): r[0] for r in registrations if not r[3]}
+    return [(r[0], live[normalize(r[0])]) for r in registrations if r[3] and normalize(r[0]) in live]
+
+
 def classify(calls, registrations):
     live = [r for r in registrations if not r[3]]
     legacy = [r for r in registrations if r[3]]
@@ -223,18 +243,47 @@ def write_inventory(registrations, rows) -> None:
         "",
         "## Legacy routes",
         "",
-        "| Route | Registered in | Call sites reaching only legacy |",
-        "| --- | --- | --- |",
+        "| Route | Replacement | Kind | Registered in | Call sites reaching only legacy |",
+        "| --- | --- | --- | --- | --- |",
     ]
+    route_map = load_route_map()
     for pattern, file, line, _ in sorted(legacy):
         users = [
             f"`{short(f)}:{ln}`"
             for p, f, ln, s in rows
             if s == "legacy" and matches(p, pattern)
         ]
+        entry = route_map.get(pattern, {})
+        repl = entry.get("replacement", "_unmapped_")
         lines.append(
-            f"| `{pattern}` | `{short(file)}:{line}` | {', '.join(users) if users else '_none_'} |"
+            f"| `{pattern}` | `{repl}` | {entry.get('kind', '')} | `{short(file)}:{line}` "
+            f"| {', '.join(users) if users else '_none_'} |"
         )
+    lines += [
+        "",
+        "Kinds: `redirect` (already forwards to the live route), `duplicate` (live route hosts the",
+        "same destination), `remap` (live route exists but arguments differ), `new-route` (live",
+        "route added for this migration), `unclear` (needs a decision; see the note in",
+        "`scripts/ci/legacy_route_map.json`).",
+        "",
+        "### Notes",
+        "",
+    ]
+    for pattern in sorted(route_map):
+        note = route_map[pattern].get("note")
+        if note:
+            lines.append(f"- `{pattern}`: {note}")
+    lines += [
+        "",
+        "### Legacy routes sharing a path with a live route",
+        "",
+        "Both are registered in the same `NavHost`, and the legacy graphs are added last in",
+        "`MediaAppNavigation`, so the legacy destination is the one that is reachable. Removing the",
+        "legacy registration changes which screen opens.",
+        "",
+    ]
+    same = shadowed(registrations)
+    lines += [f"- `{l}` shadows `{v}`" for l, v in sorted(same)] or ["- _none_"]
     lines += [
         "",
         "## Navigation targets that match no registered route",
@@ -303,6 +352,10 @@ def main() -> int:
     baseline = read_baseline()
     new = sorted(unmatched - baseline)
     stale = sorted(baseline - unmatched)
+    route_map = load_route_map()
+    legacy_patterns = {r[0] for r in registrations if r[3]}
+    unmapped = sorted(legacy_patterns - set(route_map))
+    gone = sorted(set(route_map) - legacy_patterns)
     legacy_calls = sum(1 for r in rows if r[3] == "legacy")
     print(
         f"{len(registrations)} registered routes, {len(rows)} resolvable navigate() calls, "
@@ -321,6 +374,16 @@ def main() -> int:
               f"{rel(BASELINE)} or run --update-baseline):")
         for k in stale:
             print("  " + k.replace("\t", "   in "))
+    if unmapped:
+        failed = True
+        print(f"\nERROR: legacy routes missing from {rel(ROUTE_MAP)}:")
+        for k in unmapped:
+            print("  " + k)
+    if gone:
+        failed = True
+        print(f"\nERROR: {rel(ROUTE_MAP)} lists routes that are no longer registered as legacy:")
+        for k in gone:
+            print("  " + k)
     if INVENTORY.exists():
         before = INVENTORY.read_text(encoding="utf8")
         write_inventory(registrations, rows)
