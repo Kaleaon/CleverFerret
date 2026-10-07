@@ -131,6 +131,19 @@ object MediaRoutes {
     const val NOT_FOUND = "not-found?path={path}"
     
     // Helper functions for navigation
+    /** Maps a stored media type (e.g. MUSIC_TRACK) to the route segment used by detail/reader routes. */
+    fun routeNameForMediaType(storedType: String): String = when (storedType.uppercase()) {
+        "BOOK", "EBOOK" -> "book"
+        "AUDIOBOOK" -> "audiobook"
+        "MOVIE", "DOCUMENTARY" -> "movie"
+        "TV_SHOW" -> "tv_show"
+        "MUSIC", "MUSIC_TRACK", "MUSIC_ALBUM" -> "music"
+        "PODCAST", "PODCAST_EPISODE", "PODCAST_SERIES" -> "podcast"
+        "COMIC" -> "comic"
+        "RADIO" -> "radio"
+        "MAGAZINE", "NEWSPAPER", "DOCUMENT" -> "document"
+        else -> storedType.lowercase()
+    }
     fun libraryRoute(mediaType: String) = "library/$mediaType"
     fun mediaDetailRoute(mediaType: String, mediaId: String) = "detail/$mediaType/$mediaId"
     fun readerRoute(mediaType: String, mediaId: String) = "reader/$mediaType/$mediaId"

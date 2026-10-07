@@ -21,8 +21,8 @@ Check rules (exit 1 on failure):
     baseline is a new broken navigation target;
   * a baseline entry that no longer reproduces must be removed, so the
     baseline can only shrink.
-Navigation targets that reach only legacy registrations are reported but do not
-fail the check.
+Navigation targets that reach only legacy registrations fail the check: all call
+sites were migrated off the legacy routes, so none may be added back.
 """
 from __future__ import annotations
 
@@ -374,6 +374,13 @@ def main() -> int:
               f"{rel(BASELINE)} or run --update-baseline):")
         for k in stale:
             print("  " + k.replace("\t", "   in "))
+    if legacy_calls:
+        failed = True
+        print("\nERROR: navigate() targets that reach only a legacy route (use the replacement in "
+              f"{rel(ROUTE_MAP)}):")
+        for p, f, ln, st in rows:
+            if st == "legacy":
+                print(f"  {p}   in {short(f)}:{ln}")
     if unmapped:
         failed = True
         print(f"\nERROR: legacy routes missing from {rel(ROUTE_MAP)}:")

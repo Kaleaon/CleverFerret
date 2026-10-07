@@ -85,8 +85,8 @@
     "replacement": "MediaRoutes.MUSIC"
   },
   "genre/{genreId}": {
-    "kind": "unclear",
-    "note": "Legacy ignores genreId. Caller passes genre.name; a genre filter has no live route yet",
+    "kind": "remap",
+    "note": "Legacy ignored genreId, so the library route loses nothing; a genre filter route is future work. Call sites repointed in PR 3",
     "replacement": "MediaRoutes.libraryRoute(\"music\")"
   },
   "hivefy_music": {
@@ -100,8 +100,8 @@
     "replacement": "MediaRoutes.libraryRoute(type)"
   },
   "magazinereader/{mediaId}": {
-    "kind": "unclear",
-    "note": "ReaderViewModel has no magazine type; check its mediaType handling before repointing",
+    "kind": "remap",
+    "note": "ReaderViewModel loads the \"document\" type through loadBook, the same path the legacy route used. Call sites repointed in PR 3",
     "replacement": "MediaRoutes.readerRoute(\"document\", id)"
   },
   "metabods_tag_browser": {
@@ -150,13 +150,13 @@
     "replacement": "MediaRoutes.mediaDetailRoute(\"podcast\", id)"
   },
   "podcast_player/{episodeId}": {
-    "kind": "unclear",
-    "note": "Legacy shows MediaAudioPlayerScreen and ignores episodeId; live shows UnifiedMusicPlayerScreen. Needs product confirmation",
+    "kind": "remap",
+    "note": "Decision: use the live player. Legacy screen ignored episodeId, so nothing is lost. Call sites repointed in PR 3",
     "replacement": "MediaRoutes.audioPlayerRoute(\"podcast\")"
   },
   "podcastplayer/{mediaId}": {
-    "kind": "unclear",
-    "note": "Same open question as podcast_player/{episodeId}",
+    "kind": "remap",
+    "note": "Decision: use the live player (see podcast_player/{episodeId}). Call sites repointed in PR 3",
     "replacement": "MediaRoutes.audioPlayerRoute(\"podcast\")"
   },
   "podcasts": {

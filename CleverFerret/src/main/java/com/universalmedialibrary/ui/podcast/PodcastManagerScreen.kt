@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.podcast
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -164,7 +165,7 @@ fun PodcastManagerScreen(
                     0 -> PodcastSubscriptionsTab(
                         podcasts = uiState.podcasts,
                         onPodcastClick = { podcast ->
-                            navController.navigate("podcast_detail/${podcast.id}")
+                            navController.navigate(MediaRoutes.mediaDetailRoute("podcast", podcast.id.toString()))
                         },
                         onUnsubscribe = { podcast ->
                             pendingUnsubscribePodcast = podcast
@@ -174,7 +175,7 @@ fun PodcastManagerScreen(
                         episodes = uiState.allEpisodes,
                         downloadStatuses = downloadStatuses,
                         onEpisodeClick = { episode ->
-                            navController.navigate("podcast_player/${episode.id}")
+                            navController.navigate(MediaRoutes.audioPlayerRoute("podcast"))
                         },
                         onDownloadClick = { episode ->
                             viewModel.downloadEpisode(episode)
@@ -187,13 +188,13 @@ fun PodcastManagerScreen(
                             }
                         },
                         onPlayClick = { episode ->
-                            navController.navigate("podcast_player/${episode.id}")
+                            navController.navigate(MediaRoutes.audioPlayerRoute("podcast"))
                         }
                     )
                     2 -> PodcastDownloadsTab(
                         downloads = uiState.downloadedEpisodes,
                         onEpisodeClick = { episode ->
-                            navController.navigate("podcast_player/${episode.id}")
+                            navController.navigate(MediaRoutes.audioPlayerRoute("podcast"))
                         },
                         onDeleteClick = { episode ->
                             pendingDeleteEpisode = episode
