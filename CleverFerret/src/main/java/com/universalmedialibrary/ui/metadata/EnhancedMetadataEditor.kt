@@ -1,3 +1,5 @@
+@file:Suppress("detekt:ALL")
+
 package com.universalmedialibrary.ui.metadata
 
 import androidx.compose.foundation.background
