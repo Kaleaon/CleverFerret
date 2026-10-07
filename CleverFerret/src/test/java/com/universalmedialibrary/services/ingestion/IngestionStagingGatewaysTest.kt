@@ -444,5 +444,10 @@ class IngestionStagingGatewaysTest {
         override suspend fun getByGenre(genre: String, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getHighlyRated(mediaType: String?, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getBySeries(seriesId: Long, limit: Int, offset: Int): List<MediaItem> = emptyList()
+        override suspend fun updateAvailability(filePath: String, isAvailable: Boolean) {
+            map.values.find { it.filePath == filePath }?.let { item ->
+                map[item.itemId] = item.copy(isAvailable = isAvailable)
+            }
+        }
     }
 }
