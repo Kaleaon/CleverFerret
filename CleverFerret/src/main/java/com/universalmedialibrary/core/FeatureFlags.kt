@@ -1,106 +1,112 @@
 package com.universalmedialibrary.core
 
 import android.content.Context
-import android.content.SharedPreferences
-import androidx.core.content.edit
 
 /**
  * Feature flags for controlling experimental and optional features
  *
  * This object controls which features are enabled in the application.
- * Features can be toggled at runtime and persisted to SharedPreferences.
- *
- * Usage:
- *   FeatureFlags.init(context)
- *   if (FeatureFlags.USE_EPUB4J) { ... }
- *   FeatureFlags.setFlag(FeatureFlag.USE_EPUB4J, false)
+ * Feature evaluation is delegated to [FeatureFlagRegistry] which enforces
+ * build-variant specific gating rules (immutable true in Release, mutable in Debug).
  */
 object FeatureFlags {
-    private const val PREFS_NAME = "feature_flags"
-    private var prefs: SharedPreferences? = null
+
+    @Volatile
+    private var registry: FeatureFlagRegistry = ReleaseFeatureFlagRegistry()
 
     /**
      * Initialize feature flags with application context
      * Call this from Application.onCreate()
      */
     fun init(context: Context) {
-        if (prefs == null) {
-            prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (com.universalmedialibrary.BuildConfig.DEBUG) {
+            registry = DebugFeatureFlagRegistry(context.applicationContext)
+        } else {
+            registry = ReleaseFeatureFlagRegistry()
         }
     }
+
+    /**
+     * Set explicit FeatureFlagRegistry instance (e.g. via Hilt DI or testing)
+     */
+    fun setRegistry(newRegistry: FeatureFlagRegistry) {
+        registry = newRegistry
+    }
+
+    /**
+     * Get active registry instance
+     */
+    fun getRegistry(): FeatureFlagRegistry = registry
 
     /**
      * Enable EPUB4J integration for advanced EPUB parsing
      */
     var USE_EPUB4J: Boolean
-        get() = prefs?.getBoolean("USE_EPUB4J", true) ?: true
-        set(value) { prefs?.edit { putBoolean("USE_EPUB4J", value) } }
+        get() = registry.isEpub4jEnabled
+        set(value) { setFlag(FeatureFlag.USE_EPUB4J, value) }
 
     /**
      * Enable Gemini AI integration for OCR and book identification
-     * Requires valid API key to function
      */
     var ENABLE_GEMINI: Boolean
-        get() = prefs?.getBoolean("ENABLE_GEMINI", true) ?: true
-        set(value) { prefs?.edit { putBoolean("ENABLE_GEMINI", value) } }
+        get() = registry.isGeminiEnabled
+        set(value) { setFlag(FeatureFlag.ENABLE_GEMINI, value) }
 
     /**
      * Enable cloud-based Text-to-Speech services
-     * Currently supports Google Cloud TTS (when credentials provided)
      */
     var ENABLE_CLOUD_TTS: Boolean
-        get() = prefs?.getBoolean("ENABLE_CLOUD_TTS", true) ?: true
-        set(value) { prefs?.edit { putBoolean("ENABLE_CLOUD_TTS", value) } }
+        get() = registry.isCloudTtsEnabled
+        set(value) { setFlag(FeatureFlag.ENABLE_CLOUD_TTS, value) }
 
     /**
      * Enable ExoPlayer for advanced media playback
-     * Provides better audio/video support than basic MediaPlayer
      */
     var ENABLE_EXOPLAYER: Boolean
-        get() = prefs?.getBoolean("ENABLE_EXOPLAYER", true) ?: true
-        set(value) { prefs?.edit { putBoolean("ENABLE_EXOPLAYER", value) } }
+        get() = registry.isExoPlayerEnabled
+        set(value) { setFlag(FeatureFlag.ENABLE_EXOPLAYER, value) }
 
     /**
      * Enable podcast discovery and management features
      */
     var ENABLE_PODCASTS: Boolean
-        get() = prefs?.getBoolean("ENABLE_PODCASTS", true) ?: true
-        set(value) { prefs?.edit { putBoolean("ENABLE_PODCASTS", value) } }
+        get() = registry.isPodcastsEnabled
+        set(value) { setFlag(FeatureFlag.ENABLE_PODCASTS, value) }
 
     /**
      * Enable advanced reader features like TTS integration
      */
     var ENABLE_ADVANCED_READER: Boolean
-        get() = prefs?.getBoolean("ENABLE_ADVANCED_READER", true) ?: true
-        set(value) { prefs?.edit { putBoolean("ENABLE_ADVANCED_READER", value) } }
+        get() = registry.isAdvancedReaderEnabled
+        set(value) { setFlag(FeatureFlag.ENABLE_ADVANCED_READER, value) }
 
     /**
      * Enable metadata enhancement via AI services
      */
     var ENABLE_AI_METADATA: Boolean
-        get() = prefs?.getBoolean("ENABLE_AI_METADATA", true) ?: true
-        set(value) { prefs?.edit { putBoolean("ENABLE_AI_METADATA", value) } }
+        get() = registry.isAiMetadataEnabled
+        set(value) { setFlag(FeatureFlag.ENABLE_AI_METADATA, value) }
 
     /**
      * Enable audiobook player with advanced features
      */
     var ENABLE_AUDIOBOOK_PLAYER: Boolean
-        get() = prefs?.getBoolean("ENABLE_AUDIOBOOK_PLAYER", true) ?: true
-        set(value) { prefs?.edit { putBoolean("ENABLE_AUDIOBOOK_PLAYER", value) } }
+        get() = registry.isAudiobookPlayerEnabled
+        set(value) { setFlag(FeatureFlag.ENABLE_AUDIOBOOK_PLAYER, value) }
 
     /**
      * Enable synchronized reading (read-along) functionality
      */
     var ENABLE_SYNCHRONIZED_READING: Boolean
-        get() = prefs?.getBoolean("ENABLE_SYNCHRONIZED_READING", true) ?: true
-        set(value) { prefs?.edit { putBoolean("ENABLE_SYNCHRONIZED_READING", value) } }
+        get() = registry.isSynchronizedReadingEnabled
+        set(value) { setFlag(FeatureFlag.ENABLE_SYNCHRONIZED_READING, value) }
 
     /**
-     * Enable experimental features (use with caution)
+     * Enable experimental features
      */
     var ENABLE_EXPERIMENTAL: Boolean
-        get() = prefs?.getBoolean("ENABLE_EXPERIMENTAL", false) ?: false
-        set(value) { prefs?.edit { putBoolean("ENABLE_EXPERIMENTAL", value) } }
+        get() = registry.isExperimentalEnabled
+        set(value) { setFlag(FeatureFlag.ENABLE_EXPERIMENTAL, value) }
 
     /**
      * Feature flag enumeration for UI access
@@ -177,28 +183,20 @@ object FeatureFlags {
      * Get all feature flags for UI display
      */
     fun getAllFlags(): List<Pair<FeatureFlag, Boolean>> {
-        return FeatureFlag.entries.map { flag ->
-            flag to (prefs?.getBoolean(flag.key, flag.defaultValue) ?: flag.defaultValue)
-        }
+        return registry.getAllFlags()
     }
 
     /**
      * Set a feature flag value
      */
     fun setFlag(flag: FeatureFlag, enabled: Boolean) {
-        prefs?.edit {
-            putBoolean(flag.key, enabled)
-        }
+        registry.setFlag(flag, enabled)
     }
 
     /**
      * Reset all flags to default values
      */
     fun resetToDefaults() {
-        prefs?.edit {
-            FeatureFlag.entries.forEach { flag ->
-                putBoolean(flag.key, flag.defaultValue)
-            }
-        }
+        registry.resetToDefaults()
     }
 }
