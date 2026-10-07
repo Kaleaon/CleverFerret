@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:AiProviderGatewayAdapters.kt$GeminiProviderGatewayAdapter$4</ID>
+    <ID>MagicNumber:AiProviderGatewayAdapters.kt$OllamaProviderGatewayAdapter$3</ID>
+    <ID>MagicNumber:AiProviderGatewayAdapters.kt$OllamaProviderGatewayAdapter$5</ID>
+    <ID>MagicNumber:AiProviderGatewayAdapters.kt$OpenAiProviderGatewayAdapter$4</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$408</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$429</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$500</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$502</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$503</ID>
+    <ID>MagicNumber:JitteredExponentialRetryPolicy.kt$JitteredExponentialRetryPolicy$504</ID>
+    <ID>MaxLineLength:IdempotentRetryPolicy.kt$IdempotentRetryPolicy$attempt &lt; retryMaxAttempts &amp;&amp; (error is AppError.TransportFailure || error is AppError.RateLimitFailure || error is AppError.ExternalServiceFailure)</ID>
+    <ID>MaxLineLength:TelemetryEventFactory.kt$TelemetryEventFactory$TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, params.eventName, params.integration, params.operation, params.requestId, Instant.now(), false, params.error::class.simpleName, params.state.name, params.attributes)</ID>
+    <ID>MaxLineLength:TelemetryEventFactory.kt$TelemetryEventFactory$TelemetryEvent(TelemetryEvent.SCHEMA_VERSION, params.eventName, params.integration, params.operation, params.requestId, Instant.now(), true, null, null, params.attributes)</ID>
+  </CurrentIssues>
+</SmellBaseline>

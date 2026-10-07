@@ -2,6 +2,7 @@ package com.universalmedialibrary.data.repository
 
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.dao.UnifiedTagDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import kotlinx.coroutines.Dispatchers
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +21,8 @@ import javax.inject.Singleton
 @Singleton
 class SearchRepository @Inject constructor(
     private val mediaItemDao: MediaItemDao,
-    private val metadataDao: MetadataDao
+    private val metadataDao: MetadataDao,
+    private val tagDao: UnifiedTagDao
 ) {
 
     /**
@@ -28,6 +31,7 @@ class SearchRepository @Inject constructor(
     suspend fun searchMedia(
         query: String,
         mediaTypes: List<String> = emptyList(),
+        tags: List<String> = emptyList(),
         minRating: Float? = null,
         maxRating: Float? = null,
         yearFrom: Int? = null,
@@ -35,16 +39,10 @@ class SearchRepository @Inject constructor(
         hasMetadata: Boolean? = null,
         libraryId: Long? = null
     ): List<MediaItemWithMetadata> = withContext(Dispatchers.IO) {
-        // Get all media items - collect Flow to get List
         val itemsFlow = if (libraryId != null) {
             mediaItemDao.getMediaItemsByLibrary(libraryId)
         } else {
-            // For null libraryId, we need to get all items - use a Flow that gets all
-            kotlinx.coroutines.flow.flow {
-                // Since there's no "get all" method, we'll return empty for now
-                // This should ideally have a getAllMediaItems() method in DAO
-                emit(emptyList<MediaItem>())
-            }
+            mediaItemDao.getAllMediaItemsFlow()
         }
         
         val items = itemsFlow.first()
@@ -56,6 +54,18 @@ class SearchRepository @Inject constructor(
         if (mediaTypes.isNotEmpty()) {
             filteredItems = filteredItems.filter { item ->
                 mediaTypes.any { it.equals(item.mediaType, ignoreCase = true) }
+            }
+        }
+
+        // Filter by tags
+        if (tags.isNotEmpty()) {
+            val normalizedTags = tags.map { it.trim().lowercase(Locale.getDefault()) }.filter { it.isNotEmpty() }
+            if (normalizedTags.isNotEmpty()) {
+                filteredItems = filteredItems.filter { item ->
+                    val itemTags = tagDao.getTagsForItemSync(item.itemId)
+                        .map { it.name.lowercase(Locale.getDefault()) }
+                    itemTags.containsAll(normalizedTags)
+                }
             }
         }
 

@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.universalmedialibrary.ui.modern.theme.CFSpacing
 
 /**
  * Dialog for creating a new media library
@@ -104,7 +105,7 @@ fun CreateLibraryDialog(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
+                            columns = GridCells.Adaptive(minSize = CFSpacing.dialogChipMinWidth),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.height(200.dp)

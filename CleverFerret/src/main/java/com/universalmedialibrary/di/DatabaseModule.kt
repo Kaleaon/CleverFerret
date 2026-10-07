@@ -240,9 +240,10 @@ object DatabaseModule {
     @Singleton
     fun provideSearchRepository(
         mediaItemDao: MediaItemDao,
-        metadataDao: MetadataDao
+        metadataDao: MetadataDao,
+        tagDao: UnifiedTagDao
     ): SearchRepository {
-        return SearchRepository(mediaItemDao, metadataDao)
+        return SearchRepository(mediaItemDao, metadataDao, tagDao)
     }
 
     // Import/Export Repository

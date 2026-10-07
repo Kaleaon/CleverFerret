@@ -31,7 +31,6 @@ import com.universalmedialibrary.ui.components.NavigationItems
 import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.EPUBReaderScreen
@@ -53,7 +52,7 @@ fun NavGraphBuilder.debugMenuRoutes(
 }
 
 // Extension to get route name from MediaType
-val MediaType.routeName: String
+internal val MediaType.routeName: String
     get() = when (this) {
         MediaType.BOOK -> "book"
         MediaType.AUDIOBOOK -> "audiobook"

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.ui.modern.theme.CFSpacing
 
 data class LibraryMediaTypeOption(
     val routeType: String,
@@ -274,13 +275,13 @@ private fun LibraryGridView(
     mediaType: MediaType,
     onItemClick: (MediaItem) -> Unit
 ) {
-    val columns = when (mediaType) {
-        MediaType.MUSIC, MediaType.PODCAST, MediaType.RADIO -> 3
-        else -> 3
+    val minSize = when (mediaType) {
+        MediaType.MUSIC, MediaType.PODCAST, MediaType.RADIO -> CFSpacing.squareCardMinWidth
+        else -> CFSpacing.posterMinWidth
     }
     
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
+        columns = GridCells.Adaptive(minSize = minSize),
         contentPadding = PaddingValues(MediaSpacing.ScreenHorizontal),
         horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
         verticalArrangement = Arrangement.spacedBy(MediaSpacing.LG),
@@ -355,7 +356,7 @@ private fun LibraryLoadingState(viewMode: LibraryViewMode) {
     when (viewMode) {
         LibraryViewMode.GRID -> {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
+                columns = GridCells.Adaptive(minSize = CFSpacing.posterMinWidth),
                 contentPadding = PaddingValues(MediaSpacing.ScreenHorizontal),
                 horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
                 verticalArrangement = Arrangement.spacedBy(MediaSpacing.LG),

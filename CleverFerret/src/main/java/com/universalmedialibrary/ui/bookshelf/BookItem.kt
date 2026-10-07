@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.universalmedialibrary.ui.modern.theme.CFSpacing
 import coil.compose.AsyncImage
 
 /**
@@ -309,7 +310,7 @@ fun EnhancedBookshelfScreenDemo(
             when (viewMode) {
                 ViewMode.GRID_SMALL, ViewMode.GRID_LARGE -> {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(if (viewMode == ViewMode.GRID_SMALL) 3 else 2),
+                        columns = GridCells.Adaptive(minSize = if (viewMode == ViewMode.GRID_SMALL) CFSpacing.squareCardMinWidth else CFSpacing.posterMinWidth),
                         contentPadding = PaddingValues(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
