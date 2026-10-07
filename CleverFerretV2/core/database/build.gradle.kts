@@ -1,4 +1,4 @@
 dependencies {
-    api(project(":core:common"))
-    api(project(":core:data"))
+    api(project(":CleverFerretV2:core:common"))
+    api(project(":CleverFerretV2:core:data"))
 }

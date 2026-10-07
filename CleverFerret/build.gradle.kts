@@ -321,6 +321,7 @@ fun getGitCommitHash(): String {
 
 dependencies {
     implementation(project(":core:design-system"))
+    implementation(project(":CleverFerretV2:feature:opds"))
 
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
@@ -474,6 +475,7 @@ dependencies {
     implementation(libs.ktmidi.android)
 
     // Testing
+    testImplementation(enforcedPlatform(libs.androidx.compose.bom))
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
