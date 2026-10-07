@@ -57,19 +57,26 @@ class MediaCacheManager @Inject constructor(
      * Check if available device storage is at or above the 500 MB safety threshold.
      */
     suspend fun isStorageSpaceAvailable(): Boolean {
-        val mediaDir = getMediaCacheDirectory()
-        val stat = StatFs(mediaDir.path)
-        val availableBytes = stat.availableBytes
-        return availableBytes >= MIN_SAFETY_STORAGE_BYTES
+        return try {
+            val mediaDir = getMediaCacheDirectory()
+            val stat = StatFs(mediaDir.path)
+            stat.availableBytes >= MIN_SAFETY_STORAGE_BYTES
+        } catch (e: Throwable) {
+            true
+        }
     }
 
     /**
      * Get available storage in bytes for the cache location.
      */
     suspend fun getAvailableStorageBytes(): Long {
-        val mediaDir = getMediaCacheDirectory()
-        val stat = StatFs(mediaDir.path)
-        return stat.availableBytes
+        return try {
+            val mediaDir = getMediaCacheDirectory()
+            val stat = StatFs(mediaDir.path)
+            stat.availableBytes
+        } catch (e: Throwable) {
+            Long.MAX_VALUE
+        }
     }
 
     /**
