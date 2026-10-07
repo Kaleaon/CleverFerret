@@ -19,7 +19,11 @@ object MediaMotion {
     private const val SECTION_STAGGER_CAP_MS = 180
     private const val SECTION_SLIDE_OFFSET_DIVISOR = 10
 
-    fun isReducedMotionEnabled(): Boolean = !ValueAnimator.areAnimatorsEnabled()
+    fun isReducedMotionEnabled(): Boolean = try {
+        !ValueAnimator.areAnimatorsEnabled()
+    } catch (e: Throwable) {
+        false
+    }
 
     fun sectionEnter(sectionIndex: Int, reducedMotionEnabled: Boolean): EnterTransition {
         if (reducedMotionEnabled) return EnterTransition.None

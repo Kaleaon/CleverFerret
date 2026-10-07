@@ -24,4 +24,10 @@ class MediaReduceMotionTest {
     fun testLocalReduceMotionKeyExists() {
         assertNotNull(LocalReduceMotion)
     }
+
+    @Test
+    fun testIsReducedMotionEnabled_fallbackInTestEnvironment_doesNotCrash() {
+        val result = MediaMotion.isReducedMotionEnabled()
+        assertEquals(false, result)
+    }
 }
