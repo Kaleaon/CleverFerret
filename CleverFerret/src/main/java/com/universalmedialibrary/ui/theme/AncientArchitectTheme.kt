@@ -289,44 +289,13 @@ fun AncientArchitectTheme(
         AncientArchitectVariant.OBSIDIAN_TECH -> obsidianTechColors()
     }
     
-    // Convert to Material 3 ColorScheme
-    val materialColorScheme = darkColorScheme(
-        primary = ancientColors.metal.primary,
-        onPrimary = Color.Black,
-        primaryContainer = ancientColors.metal.primaryDark,
-        onPrimaryContainer = ancientColors.metal.primaryLight,
-        
-        secondary = ancientColors.metal.secondary,
-        onSecondary = Color.Black,
-        secondaryContainer = ancientColors.metal.secondaryDark,
-        onSecondaryContainer = ancientColors.metal.secondaryLight,
-        
-        tertiary = ancientColors.crystal.primary,
-        onTertiary = Color.Black,
-        tertiaryContainer = ancientColors.crystal.primaryDim,
-        onTertiaryContainer = ancientColors.crystal.primary,
-        
-        background = ancientColors.stone.background,
-        onBackground = ancientColors.stone.text,
-        
-        surface = ancientColors.stone.surface,
-        onSurface = ancientColors.stone.text,
-        surfaceVariant = ancientColors.stone.elevated,
-        onSurfaceVariant = ancientColors.stone.text.copy(alpha = 0.8f),
-        
-        surfaceTint = ancientColors.crystal.primary,
-        inverseSurface = ancientColors.stone.text,
-        inverseOnSurface = ancientColors.stone.background,
-        
-        error = ancientColors.accent.error,
-        onError = Color.White,
-        errorContainer = ancientColors.crystal.error,
-        onErrorContainer = Color.White,
-        
-        outline = ancientColors.stone.border,
-        outlineVariant = ancientColors.stone.border.copy(alpha = 0.5f),
-        scrim = ancientColors.stone.shadow.copy(alpha = 0.5f)
-    )
+    val cfTheme = when (variant) {
+        AncientArchitectVariant.ANCIENT_BRONZE -> CleverFerretTheme.ANCIENT_BRONZE
+        AncientArchitectVariant.SILVER_ARCHITECT -> CleverFerretTheme.SILVER_ARCHITECT
+        AncientArchitectVariant.OBSIDIAN_TECH -> CleverFerretTheme.OBSIDIAN_TECH
+    }
+
+    val materialColorScheme = KthemeBridge.resolveColorScheme(cfTheme, darkTheme = true)
     
     val themeId = variant.name.lowercase().replace('_', '-')
     val kthemeSnapshot = KthemeThemeAdapterV1.KthemeSnapshot(
@@ -359,13 +328,6 @@ fun AncientArchitectTheme(
         MaterialTheme(
             colorScheme = materialColorScheme,
             typography = AncientArchitectTypography,
-            // shapes = Shapes(
-            //     extraSmall = AncientArchitectShapes.beveledSmall,
-            //     small = AncientArchitectShapes.beveledMedium,
-            //     medium = AncientArchitectShapes.steppedMedium,
-            //     large = AncientArchitectShapes.steppedLarge,
-            //     extraLarge = AncientArchitectShapes.steppedLarge
-            // ),
             content = content
         )
     }
