@@ -31,7 +31,8 @@ import javax.inject.Singleton
 @Singleton
 class JellyfinSyncService @Inject constructor(
     private val database: AppDatabase,
-    private val jellyfinIntegration: JellyfinIntegrationService
+    private val jellyfinIntegration: JellyfinIntegrationService,
+    private val downloadScheduler: com.universalmedialibrary.services.cache.MediaDownloadScheduler? = null
 ) {
     private val jellyfinServerDao = database.jellyfinServerDao()
     private val libraryDao = database.libraryDao()
@@ -256,6 +257,13 @@ class JellyfinSyncService @Inject constructor(
                             )
 
                             metadataDao.insertMetadataCommon(metadata)
+                            val streamDownloadUrl = "$serverUrl/Items/$itemId/Download?api_key=${server.apiKey ?: ""}"
+                            downloadScheduler?.scheduleDownload(
+                                itemId = localItemId,
+                                remoteUri = path,
+                                downloadUrl = streamDownloadUrl,
+                                fileName = name
+                            )
                             syncedCount++
                         }
                     }

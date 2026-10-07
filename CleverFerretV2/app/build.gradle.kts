@@ -2,12 +2,9 @@ plugins {
     application
 }
 
-val targetJavaVersion = if (JavaVersion.current() == JavaVersion.VERSION_17) 17 else JavaVersion.current().majorVersion.toInt()
-
 java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
-    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 application {
@@ -16,27 +13,27 @@ application {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation(project(":core:common"))
-    implementation(project(":core:ui"))
-    implementation(project(":core:data"))
-    implementation(project(":core:network"))
-    implementation(project(":core:database"))
-    implementation(project(":core:media"))
-    implementation(project(":core:auth"))
+    implementation(project(":CleverFerretV2:core:common"))
+    implementation(project(":CleverFerretV2:core:ui"))
+    implementation(project(":CleverFerretV2:core:data"))
+    implementation(project(":CleverFerretV2:core:network"))
+    implementation(project(":CleverFerretV2:core:database"))
+    implementation(project(":CleverFerretV2:core:media"))
+    implementation(project(":CleverFerretV2:core:auth"))
 
-    implementation(project(":feature:library"))
-    implementation(project(":feature:reader"))
-    implementation(project(":feature:audio"))
-    implementation(project(":feature:radio"))
-    implementation(project(":feature:podcast"))
-    implementation(project(":feature:webfiction"))
-    implementation(project(":feature:metadata"))
-    implementation(project(":feature:sync"))
-    implementation(project(":feature:opds"))
-    implementation(project(":feature:plex"))
-    implementation(project(":feature:settings"))
-    implementation(project(":feature:search"))
-    implementation(project(":feature:collections"))
-    implementation(project(":feature:stats"))
-    implementation(project(":feature:widgets"))
+    implementation(project(":CleverFerretV2:feature:library"))
+    implementation(project(":CleverFerretV2:feature:reader"))
+    implementation(project(":CleverFerretV2:feature:audio"))
+    implementation(project(":CleverFerretV2:feature:radio"))
+    implementation(project(":CleverFerretV2:feature:podcast"))
+    implementation(project(":CleverFerretV2:feature:webfiction"))
+    implementation(project(":CleverFerretV2:feature:metadata"))
+    implementation(project(":CleverFerretV2:feature:sync"))
+    implementation(project(":CleverFerretV2:feature:opds"))
+    implementation(project(":CleverFerretV2:feature:plex"))
+    implementation(project(":CleverFerretV2:feature:settings"))
+    implementation(project(":CleverFerretV2:feature:search"))
+    implementation(project(":CleverFerretV2:feature:collections"))
+    implementation(project(":CleverFerretV2:feature:stats"))
+    implementation(project(":CleverFerretV2:feature:widgets"))
 }

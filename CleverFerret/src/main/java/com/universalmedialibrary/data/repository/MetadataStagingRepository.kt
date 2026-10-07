@@ -5,6 +5,7 @@ import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.StagedMetadataCandidateDao
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.StagedMetadataCandidate
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -15,7 +16,8 @@ import javax.inject.Singleton
 class MetadataStagingRepository @Inject constructor(
     private val stagedMetadataCandidateDao: StagedMetadataCandidateDao,
     private val metadataDao: MetadataDao,
-    private val mediaItemDao: MediaItemDao
+    private val mediaItemDao: MediaItemDao,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
     /**
@@ -28,14 +30,14 @@ class MetadataStagingRepository @Inject constructor(
     /**
      * Get pending candidates list directly
      */
-    suspend fun getPendingCandidates(): List<StagedMetadataCandidate> = withContext(Dispatchers.IO) {
+    suspend fun getPendingCandidates(): List<StagedMetadataCandidate> = withContext(ioDispatcher) {
         stagedMetadataCandidateDao.getPendingCandidates()
     }
 
     /**
      * Save a generic staged metadata candidate
      */
-    suspend fun stageCandidate(candidate: StagedMetadataCandidate): Long = withContext(Dispatchers.IO) {
+    suspend fun stageCandidate(candidate: StagedMetadataCandidate): Long = withContext(ioDispatcher) {
         stagedMetadataCandidateDao.insertCandidate(candidate)
     }
 
@@ -48,7 +50,7 @@ class MetadataStagingRepository @Inject constructor(
         source: String = "AUTOMATED_INGESTION",
         confidenceScore: Float = 0.80f,
         tags: String? = null
-    ): Long = withContext(Dispatchers.IO) {
+    ): Long = withContext(ioDispatcher) {
         val candidate = StagedMetadataCandidate(
             itemId = itemId,
             title = metadata.title,
@@ -80,7 +82,7 @@ class MetadataStagingRepository @Inject constructor(
         tags: List<String>,
         confidenceScore: Float = 0.85f,
         source: String = "AI:TagSuggestion"
-    ): Long = withContext(Dispatchers.IO) {
+    ): Long = withContext(ioDispatcher) {
         val candidate = StagedMetadataCandidate(
             itemId = itemId,
             tags = tags.joinToString(", "),
@@ -95,7 +97,7 @@ class MetadataStagingRepository @Inject constructor(
      * Approve a candidate by ID: merges proposed values into MetadataCommon with isVerified = true,
      * updates media item status, and deletes the staged candidate entry.
      */
-    suspend fun approveCandidate(candidateId: Long): Boolean = withContext(Dispatchers.IO) {
+    suspend fun approveCandidate(candidateId: Long): Boolean = withContext(ioDispatcher) {
         val candidate = stagedMetadataCandidateDao.getCandidateById(candidateId) ?: return@withContext false
         val existing = metadataDao.getMetadataCommonByItemId(candidate.itemId)
 
@@ -155,7 +157,7 @@ class MetadataStagingRepository @Inject constructor(
     /**
      * Edit candidate proposed values and approve
      */
-    suspend fun editAndApproveCandidate(candidate: StagedMetadataCandidate): Boolean = withContext(Dispatchers.IO) {
+    suspend fun editAndApproveCandidate(candidate: StagedMetadataCandidate): Boolean = withContext(ioDispatcher) {
         stagedMetadataCandidateDao.updateCandidate(candidate)
         approveCandidate(candidate.candidateId)
     }
@@ -163,7 +165,7 @@ class MetadataStagingRepository @Inject constructor(
     /**
      * Batch approve candidates
      */
-    suspend fun approveCandidates(candidateIds: List<Long>): Int = withContext(Dispatchers.IO) {
+    suspend fun approveCandidates(candidateIds: List<Long>): Int = withContext(ioDispatcher) {
         var count = 0
         for (id in candidateIds) {
             if (approveCandidate(id)) count++
@@ -174,21 +176,21 @@ class MetadataStagingRepository @Inject constructor(
     /**
      * Discard a pending candidate record without changing library metadata
      */
-    suspend fun discardCandidate(candidateId: Long) = withContext(Dispatchers.IO) {
+    suspend fun discardCandidate(candidateId: Long) = withContext(ioDispatcher) {
         stagedMetadataCandidateDao.deleteCandidate(candidateId)
     }
 
     /**
      * Batch discard candidates
      */
-    suspend fun discardCandidates(candidateIds: List<Long>) = withContext(Dispatchers.IO) {
+    suspend fun discardCandidates(candidateIds: List<Long>) = withContext(ioDispatcher) {
         stagedMetadataCandidateDao.deleteCandidates(candidateIds)
     }
 
     /**
      * Delete expired candidates to prevent unbounded storage growth
      */
-    suspend fun cleanExpiredCandidates(): Int = withContext(Dispatchers.IO) {
+    suspend fun cleanExpiredCandidates(): Int = withContext(ioDispatcher) {
         stagedMetadataCandidateDao.deleteExpiredCandidates()
     }
 }

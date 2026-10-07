@@ -19,12 +19,12 @@ publishing {
             artifactId = 'cleverferret'
             version = project.findProperty('versionName') ?: android.defaultConfig.versionName
             
-            artifact("$buildDir/outputs/apk/release/CleverFerret-release-unsigned.apk") {
+            artifact("${layout.buildDirectory.get()}/outputs/apk/release/CleverFerret-release-unsigned.apk") {
                 classifier = 'release'
                 extension = 'apk'
             }
             
-            artifact("$buildDir/outputs/apk/debug/CleverFerret-debug.apk") {
+            artifact("${layout.buildDirectory.get()}/outputs/apk/debug/CleverFerret-debug.apk") {
                 classifier = 'debug'  
                 extension = 'apk'
             }

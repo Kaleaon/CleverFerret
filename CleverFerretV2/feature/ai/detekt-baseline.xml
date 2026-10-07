@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$0.015</ID>
+    <ID>MagicNumber:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$0.02</ID>
+    <ID>MagicNumber:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$0.025</ID>
+    <ID>MagicNumber:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$0.03</ID>
+    <ID>MagicNumber:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$1200</ID>
+    <ID>MagicNumber:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$1400</ID>
+    <ID>MagicNumber:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$1600</ID>
+    <ID>MagicNumber:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$4</ID>
+    <ID>MagicNumber:GeminiAiProvider.kt$GeminiAiProvider$0.002</ID>
+    <ID>MagicNumber:GeminiAiProvider.kt$GeminiAiProvider$4</ID>
+    <ID>MagicNumber:LocalModelProvider.kt$LocalModelProvider$3</ID>
+    <ID>MagicNumber:LocalModelProvider.kt$LocalModelProvider$5</ID>
+    <ID>MagicNumber:OpenAiProvider.kt$OpenAiProvider$0.003</ID>
+    <ID>MagicNumber:OpenAiProvider.kt$OpenAiProvider$4</ID>
+    <ID>MaxLineLength:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$override fun recommendFromMetadata(requester: String, metadataText: String)</ID>
+    <ID>MaxLineLength:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$override fun summarizeMetadata(requester: String, metadataText: String)</ID>
+    <ID>MaxLineLength:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$private</ID>
+    <ID>MaxLineLength:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$return IntegrationResult.failure(AppError.AuthorizationFailure("User has not consented to outbound AI requests", featureKey()), UserFacingState.PERMISSION_DENIED)</ID>
+    <ID>MaxLineLength:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$return IntegrationResult.failure(AppError.Throttled("Budget check failed: ${budgetDecision.reason}", featureKey()), UserFacingState.RATE_LIMITED)</ID>
+    <ID>MaxLineLength:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$return IntegrationResult.failure(AppError.Throttled("Capability is disabled: $capability", featureKey()), UserFacingState.TEMPORARILY_DEGRADED)</ID>
+    <ID>MaxLineLength:GeminiAiProvider.kt$GeminiAiProvider$if (!available) return IntegrationResult.failure(AppError.ExternalServiceFailure("Gemini is unavailable", providerKey(), "AI_PROVIDER_UNAVAILABLE"), UserFacingState.TEMPORARILY_DEGRADED)</ID>
+    <ID>MaxLineLength:GeminiAiProvider.kt$GeminiAiProvider$return IntegrationResult.success(AiGenerationResult("Gemini output for: ${request.capability}", providerKey(), max(1, request.prompt.length / 4), max(1, request.maxTokens / 2), 0.002, false))</ID>
+    <ID>MaxLineLength:LocalModelProvider.kt$LocalModelProvider$if (!modelLoaded) return IntegrationResult.failure(AppError.ExternalServiceFailure("Local model unavailable", providerKey(), "AI_PROVIDER_UNAVAILABLE"), UserFacingState.TEMPORARILY_DEGRADED)</ID>
+    <ID>MaxLineLength:LocalModelProvider.kt$LocalModelProvider$return IntegrationResult.success(AiGenerationResult("Local model output for: ${request.capability}", providerKey(), max(1, request.prompt.length / 5), max(1, request.maxTokens / 3), 0.0, false))</ID>
+    <ID>MaxLineLength:OpenAiProvider.kt$OpenAiProvider$if (!available) return IntegrationResult.failure(AppError.ExternalServiceFailure("OpenAI is unavailable", providerKey(), "AI_PROVIDER_UNAVAILABLE"), UserFacingState.TEMPORARILY_DEGRADED)</ID>
+    <ID>MaxLineLength:OpenAiProvider.kt$OpenAiProvider$return IntegrationResult.success(AiGenerationResult("OpenAI output for: ${request.capability}", providerKey(), max(1, request.prompt.length / 4), max(1, request.maxTokens / 2), 0.003, false))</ID>
+    <ID>ReturnCount:DefaultAiFeatureApi.kt$DefaultAiFeatureApi$private fun execute(requester: String, capability: AiCapability, prompt: String, maxTokens: Int, maxCostUsd: Double): IntegrationResult&lt;AiGenerationResult&gt;</ID>
+    <ID>ReturnCount:TokenCostBudgeter.kt$TokenCostBudgeter$fun evaluate(promptTokens: Int, completionTokens: Int, expectedCostUsd: Double): BudgetDecision</ID>
+    <ID>WildcardImport:DefaultAiFeatureApi.kt$import com.cleverferret.v2.feature.ai.model.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

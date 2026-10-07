@@ -140,8 +140,7 @@ class UniversalSearchViewModelTest {
         val dummyTag = UnifiedTag(
             tagId = 1L,
             name = "warfare",
-            type = TagType.USER_DEFINED,
-            usageCount = 15
+            type = TagType.USER_DEFINED
         )
         every { tagRepo.getPopularTags(any()) } returns flowOf(listOf(dummyTag))
         every { tagRepo.searchTags("war") } returns flowOf(listOf(dummyTag))

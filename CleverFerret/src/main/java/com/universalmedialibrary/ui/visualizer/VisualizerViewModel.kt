@@ -148,6 +148,7 @@ class VisualizerViewModel @Inject constructor(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
     private fun unregisterPlayerListeners() {
         for (player in registeredPlayers) {
             try {

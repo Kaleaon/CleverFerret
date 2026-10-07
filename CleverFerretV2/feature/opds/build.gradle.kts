@@ -1,7 +1,7 @@
 dependencies {
-    api(project(":core:common"))
-    api(project(":core:data"))
-    implementation(project(":core:network"))
+    api(project(":CleverFerretV2:core:common"))
+    api(project(":CleverFerretV2:core:data"))
+    implementation(project(":CleverFerretV2:core:network"))
 
     testImplementation(kotlin("test"))
 }

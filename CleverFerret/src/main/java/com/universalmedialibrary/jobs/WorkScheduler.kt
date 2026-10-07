@@ -13,12 +13,21 @@ import com.universalmedialibrary.services.manga.updates.MangaUpdateWorker
 import com.universalmedialibrary.services.sync.SyncWorker
 import com.universalmedialibrary.workers.AutoScanWorker
 import com.universalmedialibrary.workers.ImportPlanWorker
+import com.universalmedialibrary.workers.OfflineBufferingWorker
 import java.util.concurrent.TimeUnit
 
 object WorkScheduler {
     private const val IMPORT_WORK_NAME = "import_sorter"
     private const val CLOUD_SYNC_WORK_NAME = "cloud_sync"
     private const val MANGA_UPDATE_WORK_NAME = "manga_update_check"
+    private const val PODCAST_AUTO_DOWNLOAD_WORK_NAME = "podcast_auto_download"
+
+    val podcastAutoDownloadContract = JobContract(
+        type = JobContractType.PODCAST_AUTO_DOWNLOAD,
+        uniqueName = PODCAST_AUTO_DOWNLOAD_WORK_NAME,
+        trigger = JobTrigger.PERIODIC,
+        tags = setOf("podcast_auto_download")
+    )
 
     val importContract = JobContract(
         type = JobContractType.ONE_OFF_IMPORT,
@@ -173,6 +182,44 @@ object WorkScheduler {
         )
     }
 
+    fun schedulePodcastAutoDownload(context: Context, intervalHours: Long = 24L, wifiOnly: Boolean = true) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED)
+            .build()
+
+        val request = PeriodicWorkRequestBuilder<PodcastAutoDownloadWorker>(intervalHours, TimeUnit.HOURS)
+            .setConstraints(constraints)
+            .addTag("podcast_auto_download")
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            PODCAST_AUTO_DOWNLOAD_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
+        )
+
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.PODCAST_AUTO_DOWNLOAD,
+                state = JobExecutionState.QUEUED,
+                jobId = request.id.toString(),
+                message = "Podcast auto-download scheduled"
+            )
+        )
+    }
+
+    fun cancelPodcastAutoDownload(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(PODCAST_AUTO_DOWNLOAD_WORK_NAME)
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.PODCAST_AUTO_DOWNLOAD,
+                state = JobExecutionState.CANCELLED,
+                jobId = PODCAST_AUTO_DOWNLOAD_WORK_NAME,
+                message = "Podcast auto-download cancelled"
+            )
+        )
+    }
+
     fun queueThumbnailPreviewGeneration(jobId: String, message: String = "Queued thumbnail/preview generation") {
         JobStatusBus.publish(
             JobStatusEvent(
@@ -180,6 +227,52 @@ object WorkScheduler {
                 state = JobExecutionState.QUEUED,
                 jobId = jobId,
                 message = message
+            )
+        )
+    }
+
+    fun scheduleOfflineBuffering(context: Context, itemId: Long, wifiOnly: Boolean = true) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED)
+            .build()
+
+        val inputData = Data.Builder()
+            .putLong(OfflineBufferingWorker.KEY_ITEM_ID, itemId)
+            .build()
+
+        val workName = "offline_buffer_$itemId"
+
+        val request = OneTimeWorkRequestBuilder<OfflineBufferingWorker>()
+            .setConstraints(constraints)
+            .setInputData(inputData)
+            .addTag(OfflineBufferingWorker.TAG_OFFLINE_BUFFERING)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            workName,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.OFFLINE_MEDIA_BUFFERING,
+                state = JobExecutionState.QUEUED,
+                jobId = request.id.toString(),
+                message = "Offline buffering scheduled for item $itemId"
+            )
+        )
+    }
+
+    fun cancelOfflineBuffering(context: Context, itemId: Long) {
+        val workName = "offline_buffer_$itemId"
+        WorkManager.getInstance(context).cancelUniqueWork(workName)
+        JobStatusBus.publish(
+            JobStatusEvent(
+                contractType = JobContractType.OFFLINE_MEDIA_BUFFERING,
+                state = JobExecutionState.CANCELLED,
+                jobId = workName,
+                message = "Offline buffering cancelled for item $itemId"
             )
         )
     }

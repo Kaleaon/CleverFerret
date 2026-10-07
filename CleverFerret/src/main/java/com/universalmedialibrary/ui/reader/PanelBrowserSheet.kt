@@ -45,7 +45,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.viewer.common.ComicSettings
 import com.universalmedialibrary.ui.viewer.common.FitMode
 import com.universalmedialibrary.ui.viewer.common.ReadingDirection

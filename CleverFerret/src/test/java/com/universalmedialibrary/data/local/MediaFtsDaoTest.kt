@@ -7,7 +7,14 @@ import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.Tag
 import com.universalmedialibrary.data.local.dao.MediaFtsDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
-import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MetadataBook
+import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.local.entity.MetadataMovie
+import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
+import com.universalmedialibrary.data.local.entity.PlexMediaItem
+import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.data.local.migrations.MIGRATION_46_47
 import com.universalmedialibrary.services.search.EnhancedSearchService
 import com.universalmedialibrary.services.search.SearchQuery
@@ -72,7 +79,7 @@ class MediaFtsDaoTest {
     fun `fts search returns matching items across books, movies, music, and synced items`() = runBlocking {
         // Create library
         val libId = database.libraryDao().insertLibrary(
-            Library(name = "Main Library", type = "MIXED", path = "/storage/media")
+            Library(name = "Main Library", type = "GENERAL", path = "/storage/media")
         )
 
         // Insert Book
@@ -80,7 +87,11 @@ class MediaFtsDaoTest {
             MediaItem(libraryId = libId, filePath = "/books/tolkien.epub", fileName = "The Hobbit.epub", fileExtension = "epub", fileSize = 1000, mediaType = "BOOK")
         )
         database.metadataDao().insertMetadataCommon(
-            MetadataCommon(itemId = bookItemId, title = "The Hobbit", summary = "In a hole in the ground there lived a hobbit.")
+            MetadataCommon(
+                itemId = bookItemId,
+                title = "The Hobbit",
+                summary = "In a hole in the ground there lived a hobbit."
+            )
         )
         database.metadataDao().insertMetadataBook(
             MetadataBook(itemId = bookItemId, series = "Middle-earth", additionalAuthors = "J.R.R. Tolkien")
@@ -91,7 +102,11 @@ class MediaFtsDaoTest {
             MediaItem(libraryId = libId, filePath = "/movies/lotr.mp4", fileName = "The Lord of the Rings.mp4", fileExtension = "mp4", fileSize = 5000, mediaType = "MOVIE")
         )
         database.metadataDao().insertMetadataCommon(
-            MetadataCommon(itemId = movieItemId, title = "The Lord of the Rings", summary = "An epic fantasy film directed by Peter Jackson.")
+            MetadataCommon(
+                itemId = movieItemId,
+                title = "The Lord of the Rings",
+                summary = "An epic fantasy film directed by Peter Jackson."
+            )
         )
         database.metadataDao().insertMetadataMovie(
             MetadataMovie(itemId = movieItemId, franchise = "Middle-earth")
@@ -113,7 +128,7 @@ class MediaFtsDaoTest {
             PlexServer(name = "Plex Home", host = "localhost", port = 32400, token = "p123")
         )
         database.plexMediaItemDao().insertMediaItem(
-            PlexMediaItem(serverId = plexServerId, plexRatingKey = "rk999", title = "Tolkien Documentary", type = "MOVIE", libraryName = "Plex Movies", librarySectionId = "sec1")
+            PlexMediaItem(serverId = plexServerId, plexRatingKey = "rk999", title = "Tolkien Documentary", type = "MOVIE", libraryName = "Plex Movies", librarySectionId = "1")
         )
 
         // Perform FTS prefix query for "Middle-earth"
@@ -133,7 +148,7 @@ class MediaFtsDaoTest {
 
     @Test
     fun `triggers automated update on metadata change`() = runBlocking {
-        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", type = "BOOK", path = "/path"))
+        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", type = "GENERAL", path = "/path"))
         val itemId = mediaItemDao.insertMediaItem(
             MediaItem(libraryId = libId, filePath = "/books/dune.epub", fileName = "Dune.epub", fileExtension = "epub", fileSize = 100, mediaType = "BOOK")
         )
@@ -159,7 +174,7 @@ class MediaFtsDaoTest {
 
     @Test
     fun `triggers automated delete on media item delete`() = runBlocking {
-        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", type = "MOVIE", path = "/path"))
+        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", type = "GENERAL", path = "/path"))
         val item = MediaItem(libraryId = libId, filePath = "/media/delete_me.mp4", fileName = "ToDelete.mp4", fileExtension = "mp4", fileSize = 50, mediaType = "MOVIE")
         val itemId = mediaItemDao.insertMediaItem(item)
 
@@ -177,12 +192,16 @@ class MediaFtsDaoTest {
 
     @Test
     fun `user preference updates do not clear fts records`() = runBlocking {
-        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", type = "BOOK", path = "/path"))
+        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", type = "GENERAL", path = "/path"))
         val itemId = mediaItemDao.insertMediaItem(
             MediaItem(libraryId = libId, filePath = "/books/starwars.epub", fileName = "Star Wars.epub", fileExtension = "epub", fileSize = 100, mediaType = "BOOK")
         )
         database.metadataDao().insertMetadataCommon(
-            MetadataCommon(itemId = itemId, title = "Star Wars: Heir to the Empire", summary = "Grand Admiral Thrawn attacks.")
+            MetadataCommon(
+                itemId = itemId,
+                title = "Star Wars: Heir to the Empire",
+                summary = "Grand Admiral Thrawn attacks."
+            )
         )
 
         var results = mediaFtsDao.searchFts("Thrawn*")
