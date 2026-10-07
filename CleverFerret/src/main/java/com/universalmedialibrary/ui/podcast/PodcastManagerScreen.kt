@@ -28,6 +28,7 @@ import com.universalmedialibrary.services.podcast.PodcastSearchResult
 import com.universalmedialibrary.services.podcast.DownloadStatus
 import com.universalmedialibrary.ui.components.ConfirmationDialog
 import com.universalmedialibrary.ui.components.PinAccessDialog
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import com.universalmedialibrary.ui.theme.MetallicFAB
 import com.universalmedialibrary.ui.theme.MetallicTopAppBar
 import kotlinx.coroutines.flow.collectLatest
@@ -376,23 +377,41 @@ fun AddPodcastFeedDialog(
     onAdd: (String) -> Unit
 ) {
     var feedUrl by remember { mutableStateOf("") }
+    var hasSubmitted by remember { mutableStateOf(false) }
+
+    val errorMessage = when {
+        feedUrl.isNotBlank() && !feedUrl.startsWith("http://", ignoreCase = true) &&
+                !feedUrl.startsWith("https://", ignoreCase = true) &&
+                !feedUrl.startsWith("feed://", ignoreCase = true) ->
+            "Error: Invalid RSS feed URL scheme (must start with http or https)"
+        hasSubmitted && feedUrl.isBlank() -> "RSS feed URL cannot be empty"
+        else -> null
+    }
+
+    val isValid = errorMessage == null && feedUrl.isNotBlank()
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Podcast Feed") },
         text = {
-            OutlinedTextField(
+            AccessibleOutlinedTextField(
                 value = feedUrl,
                 onValueChange = { feedUrl = it },
                 label = { Text("RSS Feed URL") },
                 placeholder = { Text("https://example.com/podcast/feed.xml") },
+                errorMessage = errorMessage,
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
         },
         confirmButton = {
             Button(
-                onClick = { onAdd(feedUrl) },
-                enabled = feedUrl.isNotBlank()
+                onClick = {
+                    hasSubmitted = true
+                    if (isValid) {
+                        onAdd(feedUrl)
+                    }
+                }
             ) {
                 Text("Add")
             }

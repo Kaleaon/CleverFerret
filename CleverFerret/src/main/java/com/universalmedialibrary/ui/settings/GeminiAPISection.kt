@@ -26,17 +26,27 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
+
+@Suppress("LongParameterList")
 @Composable
 internal fun GeminiAPISection(
     apiKey: String,
     onSaveKey: (String) -> Unit,
     onTestKey: (String) -> Unit,
     isLoading: Boolean,
-    testResult: String?
+    testResult: String?,
+    errorMessage: String? = null
 ) {
     var currentKey by remember(apiKey) { mutableStateOf(apiKey) }
     var showKey by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
+    val computedError = errorMessage ?: if (testResult != null && !testResult.contains("success", ignoreCase = true)) {
+        testResult
+    } else {
+        null
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -61,12 +71,13 @@ internal fun GeminiAPISection(
             Spacer(modifier = Modifier.height(16.dp))
 
             // API Key Input + Info
-            OutlinedTextField(
+            AccessibleOutlinedTextField(
                 value = currentKey,
                 onValueChange = { currentKey = it },
                 label = { Text("Gemini API Key") },
                 placeholder = { Text("Enter your Gemini API key") },
                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
+                errorMessage = computedError,
                 trailingIcon = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = {
@@ -122,17 +133,13 @@ internal fun GeminiAPISection(
                 }
             }
 
-            // Test Result
-            if (testResult != null) {
+            // Test Result Success banner
+            if (testResult != null && testResult.contains("success", ignoreCase = true)) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = testResult,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (testResult.contains("success", ignoreCase = true)) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.error
-                    }
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
