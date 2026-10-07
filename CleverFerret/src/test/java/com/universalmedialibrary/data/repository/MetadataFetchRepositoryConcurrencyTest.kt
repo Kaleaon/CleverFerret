@@ -123,9 +123,9 @@ class MetadataFetchRepositoryConcurrencyTest {
         items.forEach { item ->
             coEvery { mediaItemDao.getMediaItemById(item.itemId) } returns item
             if (item.itemId % 2L == 0L) {
-                coEvery { unifiedMetadataFacade.searchBookMetadata(title = "book_${item.itemId}", any(), any()) } throws RuntimeException("Network error")
+                coEvery { unifiedMetadataFacade.searchBookMetadata(query = any(), isbn = any(), title = eq("book_${item.itemId}"), author = any()) } throws RuntimeException("Network error")
             } else {
-                coEvery { unifiedMetadataFacade.searchBookMetadata(title = "book_${item.itemId}", any(), any()) } returns BookMetadataResult(
+                coEvery { unifiedMetadataFacade.searchBookMetadata(query = any(), isbn = any(), title = eq("book_${item.itemId}"), author = any()) } returns BookMetadataResult(
                     metadata = BookMetadata(title = "Title ${item.itemId}", source = "Test"),
                     sources = listOf("Test")
                 )
