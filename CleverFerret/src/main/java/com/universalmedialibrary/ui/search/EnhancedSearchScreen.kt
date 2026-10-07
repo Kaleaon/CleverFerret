@@ -1,6 +1,9 @@
 package com.universalmedialibrary.ui.search
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -24,6 +28,7 @@ import com.universalmedialibrary.services.search.SearchResult
 import com.universalmedialibrary.services.search.SortBy
 import com.universalmedialibrary.services.search.SearchFilters
 import com.universalmedialibrary.data.local.entity.SearchHistory
+import com.universalmedialibrary.ui.components.ShimmerLoadingList
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,18 +63,26 @@ fun EnhancedSearchScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when {
-                uiState.isSearching -> {
-                    LoadingState()
-                }
-                uiState.error != null -> {
-                    ErrorState(
+            AnimatedContent(
+                targetState = when {
+                    uiState.isSearching -> 0
+                    uiState.error != null -> 1
+                    !uiState.hasSearched -> 2
+                    uiState.results.isEmpty() -> 3
+                    else -> 4
+                },
+                transitionSpec = {
+                    fadeIn() togetherWith fadeOut()
+                },
+                label = "EnhancedSearchContentTransition"
+            ) { stateKey ->
+                when (stateKey) {
+                    0 -> LoadingState()
+                    1 -> ErrorState(
                         error = uiState.error!!,
                         onRetry = { viewModel.onSearchQueryChange(searchQuery) }
                     )
-                }
-                !uiState.hasSearched -> {
-                    InitialState(
+                    2 -> InitialState(
                         suggestions = uiState.suggestions,
                         searchHistory = uiState.searchHistory,
                         onSuggestionClick = viewModel::selectSuggestion,
@@ -77,12 +90,8 @@ fun EnhancedSearchScreen(
                         onDeleteHistoryItem = viewModel::deleteHistoryItem,
                         onClearHistory = viewModel::clearSearchHistory
                     )
-                }
-                uiState.results.isEmpty() -> {
-                    EmptyResultsState(query = searchQuery)
-                }
-                else -> {
-                    SearchResults(
+                    3 -> EmptyResultsState(query = searchQuery)
+                    else -> SearchResults(
                         results = uiState.results,
                         facets = uiState.facets,
                         onResultClick = { result ->
@@ -181,16 +190,7 @@ private fun SearchTopBar(
 
 @Composable
 private fun LoadingState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Searching...", style = MaterialTheme.typography.bodyMedium)
-        }
-    }
+    ShimmerLoadingList()
 }
 
 @Composable
@@ -615,5 +615,13 @@ private fun SortBottomSheet(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EnhancedSearchShimmerLoadingPreview() {
+    MaterialTheme {
+        ShimmerLoadingList()
     }
 }

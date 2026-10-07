@@ -201,7 +201,6 @@ fun EnhancedMetadataEditorScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             AsyncImage(
-                
                                 model = coverUrl.ifEmpty { "https://via.placeholder.com/300x450/2d3136/e5a00d?text=No+Cover" },
                                 contentDescription = "Cover",
                                 modifier = Modifier
@@ -340,108 +339,123 @@ fun EnhancedMetadataEditorScreen(
 
     // Search results dialog
     if (showSearchDialog) {
-        AlertDialog(
-            onDismissRequest = { showSearchDialog = false },
-            title = {
-                Text(
-                    "Search Results for \"$searchQuery\"",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            },
-            text = {
-                LazyColumn(
-                    modifier = Modifier.height(400.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(searchResults) { result ->
+        SearchResultsDialog(
+            searchQuery = searchQuery,
+            searchResults = searchResults,
+            isSearching = isSearching,
+            onDismiss = { showSearchDialog = false },
+            onSelectResult = { result ->
+                title = result.title
+                author = result.author ?: result.director ?: result.artist ?: ""
+                year = result.year?.toString() ?: ""
+                description = result.description ?: ""
+                coverUrl = result.coverUrl ?: ""
+                rating = result.rating ?: 0f
+                if (result.isbn != null) isbn = result.isbn
+                showSearchDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+private fun SearchResultsDialog(
+    searchQuery: String,
+    searchResults: List<SearchResult>,
+    isSearching: Boolean,
+    onDismiss: () -> Unit,
+    onSelectResult: (SearchResult) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                "Search Results for \"$searchQuery\"",
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        text = {
+            LazyColumn(
+                modifier = Modifier.height(400.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(searchResults) { result ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelectResult(result) },
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            AsyncImage(
+                                model = result.coverUrl ?: "https://via.placeholder.com/60x80/2d3136/e5a00d?text=?",
+                                contentDescription = "Media image",
+                                modifier = Modifier
+                                    .size(40.dp, 60.dp)
+                                    .clip(MaterialTheme.shapes.small),
+                                contentScale = ContentScale.Crop
+                            )
+
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = result.title,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = result.author ?: result.director ?: result.artist ?: "Unknown",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                if (result.year != null) {
+                                    Text(
+                                        text = result.year.toString(),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Text(
+                                    text = "Source: ${result.source}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (searchResults.isEmpty() && !isSearching) {
+                    item {
                         Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    // Apply search result to form
-                                    title = result.title
-                                    author = result.author ?: result.director ?: result.artist ?: ""
-                                    year = result.year?.toString() ?: ""
-                                    description = result.description ?: ""
-                                    coverUrl = result.coverUrl ?: ""
-                                    rating = result.rating ?: 0f
-                                    if (result.isbn != null) isbn = result.isbn
-                                    showSearchDialog = false
-                                },
+                            modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                AsyncImage(
-                
-                                    model = result.coverUrl ?: "https://via.placeholder.com/60x80/2d3136/e5a00d?text=?",
-                                    contentDescription = "Media image",
-                                    modifier = Modifier
-                                        .size(40.dp, 60.dp)
-                                        .clip(MaterialTheme.shapes.small),
-                                    contentScale = ContentScale.Crop
-                                )
-
-                                Column(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        text = result.title,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Medium,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    Text(
-                                        text = result.author ?: result.director ?: result.artist ?: "Unknown",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    if (result.year != null) {
-                                        Text(
-                                            text = result.year.toString(),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                    Text(
-                                        text = "Source: ${result.source}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
+                            Text(
+                                text = "No results found. Try a different search term.",
+                                modifier = Modifier.padding(16.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
-
-                    if (searchResults.isEmpty() && !isSearching) {
-                        item {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                )
-                            ) {
-                                Text(
-                                    text = "No results found. Try a different search term.",
-                                    modifier = Modifier.padding(16.dp),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showSearchDialog = false }) {
-                    Text("Close")
                 }
             }
-        )
-    }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }
