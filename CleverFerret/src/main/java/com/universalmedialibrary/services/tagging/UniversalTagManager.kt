@@ -24,7 +24,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class UniversalTagManager @Inject constructor(
-    private val dataTagRepository: DataTagRepository
+    private val dataTagRepository: DataTagRepository,
+    private val legacyMusicTagMigrator: LegacyMusicTagMigrator
 ) {
     
     private val _allTags = MutableStateFlow<List<UniversalTag>>(emptyList())
@@ -234,6 +235,8 @@ class UniversalTagManager @Inject constructor(
 
     private suspend fun loadTags() {
         try {
+            legacyMusicTagMigrator.migrateLegacyMusicTags()
+            dataTagRepository.recalculateAllUsageCounts()
             val tags = dataTagRepository.getAllTags().first()
             _allTags.value = tags.map { it.toUniversalTag() }
         } catch (e: Exception) {
