@@ -21,24 +21,27 @@ jobs:
 
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.x'
 
       - name: Compute base/head version codes
         id: versions
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
-          git fetch origin "${{ github.base_ref }}:${{ github.base_ref }}"
+          git fetch origin "$BASE_REF:$BASE_REF"
           BASE_CODE=$(python3 - <<'PY'
-          import re, subprocess, sys
-          txt = subprocess.check_output(["git","show","${{ github.base_ref }}:CleverFerret/build.gradle.kts"], text=True)
+          import os, re, subprocess, sys
+          base_ref = os.environ.get("BASE_REF", "")
+          txt = subprocess.check_output(["git", "show", f"{base_ref}:CleverFerret/build.gradle.kts"], text=True)
           m = re.search(r"(?m)^\s*versionCode\s*=\s*(\d+)\s*$", txt)
           if not m: 
               print("0")
@@ -54,10 +57,11 @@ jobs:
 
       - name: Bump versionCode to be > base
         id: bump
+        env:
+          BASE: ${{ steps.versions.outputs.base }}
+          HEAD: ${{ steps.versions.outputs.head }}
         run: |
           set -euo pipefail
-          BASE="${{ steps.versions.outputs.base }}"
-          HEAD="${{ steps.versions.outputs.head }}"
           if [ "$HEAD" -le "$BASE" ]; then
             NEW=$((BASE + 1))
             python3 tooling/scripts/bump_version_code.py --file CleverFerret/build.gradle.kts --set "$NEW"
@@ -69,6 +73,8 @@ jobs:
 
       - name: Commit & push (only if changed)
         if: ${{ steps.bump.outputs.new != '' }}
+        env:
+          NEW_VERSION: ${{ steps.bump.outputs.new }}
         run: |
           set -euo pipefail
           if git diff --quiet; then
@@ -78,5 +84,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add CleverFerret/build.gradle.kts
-          git commit -m "chore: bump versionCode to ${{ steps.bump.outputs.new }}"
+          git commit -m "chore: bump versionCode to $NEW_VERSION"
           git push
