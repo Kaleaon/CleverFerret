@@ -50,8 +50,8 @@ class UnifiedReaderService @Inject constructor(
     private val geminiComicService: GeminiComicService,
     private val audioPlaybackManager: AudioPlaybackManager,
     private val formatRegistry: FormatRegistry,
-    private val plexVirtualUriResolver: com.universalmedialibrary.services.plex.PlexVirtualUriResolver? = null,
-    private val mediaContentResolver: MediaContentResolver
+    private val mediaContentResolver: MediaContentResolver,
+    private val plexVirtualUriResolver: com.universalmedialibrary.services.plex.PlexVirtualUriResolver? = null
 ) {
     private val TAG = "UnifiedReaderService"
 

@@ -5,8 +5,8 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.hasKey
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.universalmedialibrary.ui.modern.components.CFEmptyState
@@ -39,7 +39,7 @@ class HeadingSemanticsTest {
         }
 
         composeTestRule.onNodeWithText("Standalone Title")
-            .assert(hasKey(SemanticsProperties.Heading))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
     }
 
     @Test
@@ -49,7 +49,7 @@ class HeadingSemanticsTest {
         }
 
         composeTestRule.onNodeWithText("App Top Bar Header")
-            .assert(hasKey(SemanticsProperties.Heading))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
     }
 
     @Test
@@ -63,11 +63,11 @@ class HeadingSemanticsTest {
 
         // Title should have heading semantics
         composeTestRule.onNodeWithText("Main Section Title")
-            .assert(hasKey(SemanticsProperties.Heading))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
 
         // Subtitle should NOT have heading semantics so screen reader navigation skips it
         composeTestRule.onNodeWithText("Decorative Subtitle Caption")
-            .assert(hasKey(SemanticsProperties.Heading).takeOrElse { true }.not())
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading).not())
     }
 
     @Test
@@ -82,10 +82,10 @@ class HeadingSemanticsTest {
 
         // Empty state title should have heading semantics
         composeTestRule.onNodeWithText("Empty Section Title")
-            .assert(hasKey(SemanticsProperties.Heading))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
 
         // Body message should NOT have heading semantics
         composeTestRule.onNodeWithText("Body description explanation")
-            .assert(hasKey(SemanticsProperties.Heading).takeOrElse { true }.not())
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading).not())
     }
 }
