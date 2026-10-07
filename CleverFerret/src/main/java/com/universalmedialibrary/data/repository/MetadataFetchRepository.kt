@@ -6,10 +6,17 @@ import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.services.metadata.UnifiedMetadataFacade
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.util.Collections
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -275,30 +282,61 @@ class MetadataFetchRepository @Inject constructor(
     }
 
     /**
-     * Batch fetch metadata for multiple items
+     * Batch fetch metadata for multiple items concurrently using bounded coroutines (max 4 parallel requests).
      */
-    suspend fun fetchMetadataForLibrary(libraryId: Long): BatchMetadataFetchResult = withContext(Dispatchers.IO) {
+    suspend fun fetchMetadataForLibrary(
+        libraryId: Long,
+        onProgress: ((completed: Int, total: Int) -> Unit)? = null
+    ): BatchMetadataFetchResult = withContext(Dispatchers.IO) {
         val items = mediaItemDao.getMediaItemsByLibrary(libraryId).first()
-        val results = mutableListOf<MetadataFetchResult>()
-        var successCount = 0
-        var failureCount = 0
+        val itemsToFetch = items.filter { !it.hasMetadata }
+        val totalToFetch = itemsToFetch.size
 
-        items.forEach { item ->
-            if (!item.hasMetadata) {
-                val result = fetchMetadataForItem(item.itemId)
-                results.add(result)
-                when (result) {
-                    is MetadataFetchResult.Success -> successCount++
-                    is MetadataFetchResult.Error -> failureCount++
+        if (totalToFetch == 0) {
+            return@withContext BatchMetadataFetchResult(
+                totalItems = items.size,
+                successCount = 0,
+                failureCount = 0,
+                results = emptyList()
+            )
+        }
+
+        val semaphore = Semaphore(4)
+        val results = Collections.synchronizedList(mutableListOf<MetadataFetchResult>())
+        val successCount = AtomicInteger(0)
+        val failureCount = AtomicInteger(0)
+        val completedCount = AtomicInteger(0)
+
+        coroutineScope {
+            itemsToFetch.map { item ->
+                async {
+                    semaphore.withPermit {
+                        val result = try {
+                            fetchMetadataForItem(item.itemId)
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            MetadataFetchResult.Error(e.message ?: "Failed to fetch metadata")
+                        }
+
+                        results.add(result)
+                        when (result) {
+                            is MetadataFetchResult.Success -> successCount.incrementAndGet()
+                            is MetadataFetchResult.Error -> failureCount.incrementAndGet()
+                        }
+
+                        val completed = completedCount.incrementAndGet()
+                        onProgress?.invoke(completed, totalToFetch)
+                    }
                 }
-            }
+            }.awaitAll()
         }
 
         BatchMetadataFetchResult(
             totalItems = items.size,
-            successCount = successCount,
-            failureCount = failureCount,
-            results = results
+            successCount = successCount.get(),
+            failureCount = failureCount.get(),
+            results = results.toList()
         )
     }
 

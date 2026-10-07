@@ -141,4 +141,38 @@ class LibraryManagementViewModelSafetyTest {
         verify { fileSafetyGuardrail.safeDeleteCacheFile(userMediaFile.absolutePath) }
         assertThat(userMediaFile.exists()).isTrue()
     }
+
+    @Test
+    fun `bulkFetchMetadata processes items concurrently and updates task state`() = runTest {
+        val mediaItem1 = MediaItem(itemId = 1L, libraryId = 1L, filePath = "/book1.epub", fileName = "book1.epub", fileExtension = "epub", fileSize = 100L, mediaType = "BOOK")
+        val mediaItem2 = MediaItem(itemId = 2L, libraryId = 1L, filePath = "/book2.epub", fileName = "book2.epub", fileExtension = "epub", fileSize = 100L, mediaType = "BOOK")
+
+        coEvery { mediaItemDao.getAllMediaItems() } returns listOf(mediaItem1, mediaItem2)
+        coEvery { metadataFetchRepository.fetchMetadataForItem(any()) } returns MetadataFetchResult.Success(
+            sources = listOf("Google Books"),
+            metadata = com.universalmedialibrary.data.local.entity.MetadataCommon(itemId = 1L, title = "Test")
+        )
+
+        viewModel.bulkFetchMetadata()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val taskState = viewModel.bulkMetadataTask.value
+        assertThat(taskState?.status).isEqualTo(LibraryBackgroundTaskStatus.SUCCESS)
+        assertThat(taskState?.message).contains("Updated metadata for 2 items")
+    }
+
+    @Test
+    fun `bulkFetchMetadata handles failures and updates task state to failed`() = runTest {
+        val mediaItem1 = MediaItem(itemId = 1L, libraryId = 1L, filePath = "/book1.epub", fileName = "book1.epub", fileExtension = "epub", fileSize = 100L, mediaType = "BOOK")
+
+        coEvery { mediaItemDao.getAllMediaItems() } returns listOf(mediaItem1)
+        coEvery { metadataFetchRepository.fetchMetadataForItem(1L) } returns MetadataFetchResult.Error("API Limit")
+
+        viewModel.bulkFetchMetadata()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val taskState = viewModel.bulkMetadataTask.value
+        assertThat(taskState?.status).isEqualTo(LibraryBackgroundTaskStatus.FAILED)
+        assertThat(taskState?.message).contains("Completed with 1 failures")
+    }
 }

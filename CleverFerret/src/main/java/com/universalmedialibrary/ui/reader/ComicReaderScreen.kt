@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.ui.settings.SettingsViewModel
 import com.universalmedialibrary.ui.viewer.common.ReadingDirection
 import com.universalmedialibrary.ui.viewer.common.ReadingMode
@@ -141,7 +142,7 @@ fun ComicReaderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(fileName) },
+                title = { Text(fileName, modifier = Modifier.headingSemantics()) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")

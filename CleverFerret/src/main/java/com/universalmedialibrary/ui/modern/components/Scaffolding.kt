@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.ui.modern.theme.CFSpacing
 import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 
@@ -40,12 +41,15 @@ fun CFTopBar(
     title: String,
     onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     val tokens = LocalCFTokens.current
     TopAppBar(
+        modifier = modifier,
         title = {
             Text(
                 title,
+                modifier = Modifier.headingSemantics(),
                 style = MaterialTheme.typography.titleLarge.copy(
                     brush = tokens.metal.brush(),
                     fontWeight = FontWeight.Black,
@@ -83,7 +87,7 @@ fun CFSectionHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleLarge)
+            Text(title, modifier = Modifier.headingSemantics(), style = MaterialTheme.typography.titleLarge)
             subtitle?.let {
                 Text(
                     it,
@@ -223,7 +227,7 @@ fun CFEmptyState(
                 .background(cs.surfaceVariant),
             contentAlignment = Alignment.Center,
         ) { Icon(icon, contentDescription = null, tint = cs.onSurfaceVariant) }
-        Text(title, style = MaterialTheme.typography.titleLarge)
+        Text(title, modifier = Modifier.headingSemantics(), style = MaterialTheme.typography.titleLarge)
         Text(
             body,
             style = MaterialTheme.typography.bodyMedium,

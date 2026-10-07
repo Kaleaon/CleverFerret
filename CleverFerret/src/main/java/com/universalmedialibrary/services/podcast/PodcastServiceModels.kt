@@ -27,7 +27,6 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.net.URL
 import java.security.MessageDigest
-import java.text.SimpleDateFormat
 import java.util.*
 import com.universalmedialibrary.utils.FileNameSanitizer
 import com.universalmedialibrary.services.ingestion.IngestionPipeline

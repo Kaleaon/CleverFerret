@@ -52,6 +52,9 @@ interface MediaItemDao {
     @Query("UPDATE media_items SET isFavorite = :isFavorite WHERE itemId = :itemId")
     suspend fun setFavorite(itemId: Long, isFavorite: Boolean)
 
+    @Query("UPDATE media_items SET isAvailable = :isAvailable WHERE filePath = :filePath")
+    suspend fun updateAvailability(filePath: String, isAvailable: Boolean)
+
     @Delete
     suspend fun deleteMediaItem(mediaItem: MediaItem)
 

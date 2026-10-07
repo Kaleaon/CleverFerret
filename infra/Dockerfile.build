@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # PERMANENT FIX: Set optimal build environment variables
 ENV ANDROID_HOME=/opt/android-sdk
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
-ENV BUILD_TOOLS_VERSION=33.0.2
+ENV BUILD_TOOLS_VERSION=34.0.0
 ENV COMPILE_SDK_VERSION=34
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
