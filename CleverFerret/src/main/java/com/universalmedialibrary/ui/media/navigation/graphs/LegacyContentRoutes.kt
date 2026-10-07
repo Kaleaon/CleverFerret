@@ -273,26 +273,6 @@ fun NavGraphBuilder.legacyContentRoutes(
         )
     }
     
-    composable("visualizer") {
-        com.universalmedialibrary.ui.visualizer.VisualizerScreen(
-            onBack = { navController.popBackStack() }
-        )
-    }
-    
-    composable("ambient") {
-        val viewModel: AmbientViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
-        
-        MediaAmbientScreen(
-            state = state,
-            onSoundToggle = { sound -> viewModel.toggleSound(sound) },
-            onVolumeChange = { sound, volume -> viewModel.setVolume(sound, volume) },
-            onPresetSelect = { preset -> viewModel.applyPreset(preset) },
-            onSavePreset = { name -> viewModel.savePreset(name) },
-            onBackClick = { navController.popBackStack() }
-        )
-    }
-    
     composable("music") {
         LaunchedEffect(Unit) {
             navController.navigate(MediaRoutes.MUSIC) {
@@ -301,19 +281,6 @@ fun NavGraphBuilder.legacyContentRoutes(
         }
     }
     
-    composable("collections") {
-        val viewModel: CollectionsViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
-        
-        MediaCollectionsScreen(
-            state = state,
-            onCollectionClick = { collection ->
-                navController.navigate(MediaRoutes.collectionDetailRoute(collection.id))
-            },
-            onCreateCollection = { name -> viewModel.createCollection(name) },
-            onBackClick = { navController.popBackStack() }
-        )
-    }
     
     // Legacy library detail routes (library_details/{typeId} pattern)
     composable("library_details/{typeId}") { backStackEntry ->

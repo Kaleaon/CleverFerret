@@ -4,11 +4,6 @@
     "note": "Legacy view model reads mediaType/mediaId, which this route does not supply. Caller passes album.name, not an id",
     "replacement": "MediaRoutes.mediaDetailRoute(\"album\", id)"
   },
-  "ambient": {
-    "kind": "duplicate",
-    "note": "Same path as the live route. Shadowing: see inventory",
-    "replacement": "MediaRoutes.AMBIENT_SOUNDS"
-  },
   "artist/{artistId}": {
     "kind": "remap",
     "note": "Legacy view model reads mediaType/mediaId, which this route does not supply. Caller passes artist.name, not an id",
@@ -33,11 +28,6 @@
     "kind": "unclear",
     "note": "Hosts ModernBookshelfScreen (PR 4 moves it); live equivalent is MediaRoutes.BOOKS",
     "replacement": "(none yet)"
-  },
-  "collections": {
-    "kind": "duplicate",
-    "note": "Same path as the live route. Shadowing: see inventory",
-    "replacement": "MediaRoutes.COLLECTIONS"
   },
   "comic_reader/{uriString}/{fileName}": {
     "kind": "unclear",
@@ -203,11 +193,6 @@
     "kind": "remap",
     "note": "",
     "replacement": "MediaRoutes.videoPlayerRoute(id)"
-  },
-  "visualizer": {
-    "kind": "duplicate",
-    "note": "Same path as the live route. Shadowing: see inventory",
-    "replacement": "MediaRoutes.VISUALIZER"
   },
   "web_comic_downloader": {
     "kind": "redirect",
