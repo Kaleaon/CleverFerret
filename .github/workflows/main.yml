@@ -534,7 +534,7 @@ jobs:
         path: apks
 
     - name: Attest Build Provenance
-      uses: actions/attest-build-provenance@v2
+      uses: actions/attest-build-provenance@v4
       with:
         subject-path: 'apks/**/*.apk'
     
