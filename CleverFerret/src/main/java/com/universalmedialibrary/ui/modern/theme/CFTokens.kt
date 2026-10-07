@@ -122,6 +122,7 @@ data class CFTokens(
     val typography: FontFamily = FontFamily.Default,
     val status: CFStatusColors = CFStatusColors(),
     val playerControls: CFPlayerControls = CFPlayerControls(),
+    val liveRegion: com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy = com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy(),
 )
 
 val LocalCFTokens = staticCompositionLocalOf<CFTokens> {

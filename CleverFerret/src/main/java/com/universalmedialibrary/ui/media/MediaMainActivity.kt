@@ -101,8 +101,6 @@ fun MediaMainScreen(
     val hasCompletedOnboarding by mainViewModel.hasCompletedOnboarding.collectAsState()
     val startDestination = if (hasCompletedOnboarding) MediaRoutes.HOME else MediaRoutes.ONBOARDING
 
-    val startDestination = if (isOnboardingCompleted) MediaRoutes.HOME else MediaRoutes.ONBOARDING
-
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -203,7 +201,6 @@ fun MediaMainScreen(
                             snackbarHostState.showSnackbar(message)
                         }
                     },
-                    startDestination = startDestination,
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -271,7 +268,6 @@ fun MediaMainScreen(
                                 snackbarHostState.showSnackbar(message)
                             }
                         },
-                        startDestination = startDestination,
                         modifier = Modifier.padding(paddingValues)
                     )
                 }

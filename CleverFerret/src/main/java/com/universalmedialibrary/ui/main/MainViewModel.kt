@@ -120,7 +120,7 @@ class MainViewModel @Inject constructor(
 
     fun setOnboardingCompleted(completed: Boolean) {
         viewModelScope.launch {
-            settingsRepository.setOnboardingCompleted(completed)
+            settingsRepository.setHasCompletedOnboarding(completed)
         }
     }
 
