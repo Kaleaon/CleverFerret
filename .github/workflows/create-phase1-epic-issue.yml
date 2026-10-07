@@ -27,27 +27,29 @@ jobs:
       - name: Setup required labels
         env:
           GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           # Create 'epic' label if it doesn't exist
-          gh label list --repo "${{ github.repository }}" | grep -q "^epic" || \
+          gh label list --repo "$REPOSITORY" | grep -q "^epic" || \
             gh label create "epic" \
-              --repo "${{ github.repository }}" \
+              --repo "$REPOSITORY" \
               --color "9333EA" \
               --description "Large feature or project that spans multiple issues"
           
           # Create 'priority: critical' label if it doesn't exist
-          gh label list --repo "${{ github.repository }}" | grep -q "^priority: critical" || \
+          gh label list --repo "$REPOSITORY" | grep -q "^priority: critical" || \
             gh label create "priority: critical" \
-              --repo "${{ github.repository }}" \
+              --repo "$REPOSITORY" \
               --color "D73A4A" \
               --description "Critical priority - must be addressed immediately"
       
       - name: Create Epic Issue
         env:
           GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           gh issue create \
-            --repo "${{ github.repository }}" \
+            --repo "$REPOSITORY" \
             --title "Phase 1: Make It Work - Core Infrastructure" \
             --assignee "github-copilot[bot]" \
             --label "epic" \
