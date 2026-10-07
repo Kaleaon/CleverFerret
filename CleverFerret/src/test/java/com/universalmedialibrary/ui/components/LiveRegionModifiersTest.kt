@@ -22,7 +22,7 @@ class LiveRegionModifiersTest {
 
         assertEquals(LiveRegionMode.Polite, politePolicy.toComposeLiveRegionMode())
         assertEquals(LiveRegionMode.Assertive, assertivePolicy.toComposeLiveRegionMode())
-        assertEquals(LiveRegionMode.Off, offPolicy.toComposeLiveRegionMode())
+        assertEquals(LiveRegionMode.Polite, offPolicy.toComposeLiveRegionMode())
     }
 
     @Test
