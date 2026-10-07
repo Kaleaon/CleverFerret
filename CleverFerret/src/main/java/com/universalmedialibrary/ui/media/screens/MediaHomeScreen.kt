@@ -393,6 +393,15 @@ private fun LoadingStateContent(
 
 @Composable
 private fun rememberShimmerBrush(): Brush {
+    val reduceMotion = com.universalmedialibrary.ui.theme.LocalReduceMotion.current
+    if (reduceMotion) {
+        return Brush.linearGradient(
+            colors = listOf(
+                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.surfaceVariant
+            )
+        )
+    }
     val transition = rememberInfiniteTransition(label = "home_loading_shimmer")
     val translateX by transition.animateFloat(
         initialValue = 0f,

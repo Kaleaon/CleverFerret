@@ -49,16 +49,23 @@ fun Modifier.metallicShimmer(
                 Color.Transparent
             )
         }
-        val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
-        val shimmerOffset by infiniteTransition.animateFloat(
-            initialValue = -1f,
-            targetValue = 3f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(speed, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "shimmerOffset"
-        )
+        val reduceMotion = LocalReduceMotion.current
+        val shimmerOffset: Float
+        if (reduceMotion) {
+            shimmerOffset = 0f
+        } else {
+            val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+            val animatedOffset by infiniteTransition.animateFloat(
+                initialValue = -1f,
+                targetValue = 3f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(speed, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                ),
+                label = "shimmerOffset"
+            )
+            shimmerOffset = animatedOffset
+        }
         
         drawWithContent {
             drawContent()
@@ -94,16 +101,23 @@ fun Modifier.crystalGlow(
 ): Modifier = if (enabled) {
     composed {
         val transparentColor = remember { Color.Transparent }
-        val infiniteTransition = rememberInfiniteTransition(label = "glow")
-        val glowAlpha by infiniteTransition.animateFloat(
-            initialValue = intensity * 0.3f,
-            targetValue = intensity,
-            animationSpec = infiniteRepeatable(
-                animation = tween(pulseSpeed, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "glowAlpha"
-        )
+        val reduceMotion = LocalReduceMotion.current
+        val glowAlpha: Float
+        if (reduceMotion) {
+            glowAlpha = intensity
+        } else {
+            val infiniteTransition = rememberInfiniteTransition(label = "glow")
+            val animatedAlpha by infiniteTransition.animateFloat(
+                initialValue = intensity * 0.3f,
+                targetValue = intensity,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(pulseSpeed, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "glowAlpha"
+            )
+            glowAlpha = animatedAlpha
+        }
         
         drawBehind {
             // Draw a soft radial glow behind the content

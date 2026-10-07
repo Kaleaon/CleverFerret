@@ -20,8 +20,19 @@ import androidx.compose.ui.unit.sp
  * - Material Design 3 compatible
  */
 
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
+import com.universalmedialibrary.ui.media.theme.MediaMotion
+
 // Local composition for metallic effects
 val LocalMetallicGradient = staticCompositionLocalOf { MetallicEffects.Gold }
+
+// Local composition for reduced motion preference
+val LocalReduceMotion: ProvidableCompositionLocal<Boolean> = compositionLocalOf {
+    MediaMotion.isReducedMotionEnabled()
+}
 
 /**
  * Get metallic effect for a theme palette
@@ -133,7 +144,13 @@ fun CleverFerretUnifiedTheme(
         MetallicEffects.Gold
     }
 
-    CompositionLocalProvider(LocalMetallicGradient provides metallicGradient) {
+    val configuration = LocalConfiguration.current
+    val reduceMotion = remember(configuration) { MediaMotion.isReducedMotionEnabled() }
+
+    CompositionLocalProvider(
+        LocalMetallicGradient provides metallicGradient,
+        LocalReduceMotion provides reduceMotion
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = CleverFerretTypography,
