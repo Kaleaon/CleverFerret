@@ -101,5 +101,17 @@ fun NavGraphBuilder.detailRoutes(
         )
     }
     
+    composable(
+        route = MediaRoutes.METADATA_EDITOR,
+        arguments = listOf(navArgument("itemId") { type = NavType.StringType })
+    ) { backStackEntry ->
+        val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
+        com.universalmedialibrary.ui.metadata.MetadataEditorScreen(
+            itemId = itemId.toLongOrNull() ?: 0L,
+            onSave = { navController.popBackStack() },
+            onCancel = { navController.popBackStack() }
+        )
+    }
+
     // =====================================================================
 }

@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.webfiction
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -326,7 +327,7 @@ fun FanfictionDownloaderScreen(
                         )
 
                         Button(
-                            onClick = { navController.navigate("metabods_tag_browser") },
+                            onClick = { navController.navigate(MediaRoutes.discoveryRoute(type = "WEB_FICTION")) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Default.Explore, contentDescription = "Explore")
@@ -335,7 +336,7 @@ fun FanfictionDownloaderScreen(
                         }
 
                         OutlinedButton(
-                            onClick = { navController.navigate("universal_tag_browser") },
+                            onClick = { navController.navigate(MediaRoutes.discoveryRoute(type = "WEB_FICTION")) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Default.Language, contentDescription = "Language")
@@ -379,7 +380,7 @@ fun FanfictionDownloaderScreen(
                         }
 
                         Button(
-                            onClick = { navController.navigate("webfiction_manager") },
+                            onClick = { navController.navigate(MediaRoutes.WEB_FICTION) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "Library")

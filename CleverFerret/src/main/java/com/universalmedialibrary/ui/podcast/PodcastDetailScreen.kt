@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.podcast
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -108,12 +109,12 @@ fun PodcastDetailScreen(
                     items(uiState.episodes, key = { it.id }) { episode ->
                         EpisodeCard(
                             episode = episode,
-                            onClick = { navController.navigate("podcast_player/${episode.id}") },
+                            onClick = { navController.navigate(MediaRoutes.audioPlayerRoute("podcast")) },
                             onDownloadClick = { 
                                 // Trigger download for this episode
                                 viewModel.downloadEpisode(episode)
                             },
-                            onPlayClick = { navController.navigate("podcast_player/${episode.id}") }
+                            onPlayClick = { navController.navigate(MediaRoutes.audioPlayerRoute("podcast")) }
                         )
                     }
                 }

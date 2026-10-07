@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.modern.books
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -134,7 +135,7 @@ fun ModernBookshelfScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("opds_catalog") },
+                onClick = { navController.navigate(MediaRoutes.OPDS_BROWSER) },
                 icon = { Icon(Icons.Default.CloudDownload, contentDescription = "Download") },
                 text = { Text("Get Books") },
                 containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -193,7 +194,7 @@ fun ModernBookshelfScreen(
                                 "Your library is empty. Download or import books to get started."
                             },
                             actionLabel = "Get Books",
-                            onAction = { navController.navigate("opds_catalog") }
+                            onAction = { navController.navigate(MediaRoutes.OPDS_BROWSER) }
                         )
                     }
                 }
@@ -202,7 +203,7 @@ fun ModernBookshelfScreen(
                         FavoritesSection(
                             favorites = favorites,
                             onClick = { book ->
-                                navController.navigate("book_details/${book.mediaItem.itemId}")
+                                navController.navigate(MediaRoutes.mediaDetailRoute("book", book.mediaItem.itemId.toString()))
                             },
                             modifier = Modifier.padding(vertical = CFSpacing.sm)
                         )
@@ -214,7 +215,7 @@ fun ModernBookshelfScreen(
                                 books = books,
                                 progressMap = progressMap,
                                 onClick = { book ->
-                                    navController.navigate("book_details/${book.mediaItem.itemId}")
+                                    navController.navigate(MediaRoutes.mediaDetailRoute("book", book.mediaItem.itemId.toString()))
                                 },
                                 onFavoriteToggle = viewModel::toggleFavorite,
                                 modifier = Modifier.fillMaxSize()
@@ -225,7 +226,7 @@ fun ModernBookshelfScreen(
                                 books = books,
                                 progressMap = progressMap,
                                 onClick = { book ->
-                                    navController.navigate("book_details/${book.mediaItem.itemId}")
+                                    navController.navigate(MediaRoutes.mediaDetailRoute("book", book.mediaItem.itemId.toString()))
                                 },
                                 onFavoriteToggle = viewModel::toggleFavorite,
                                 modifier = Modifier.fillMaxSize()
@@ -235,7 +236,7 @@ fun ModernBookshelfScreen(
                             CoverFlowView(
                                 books = books,
                                 onClick = { book ->
-                                    navController.navigate("book_details/${book.mediaItem.itemId}")
+                                    navController.navigate(MediaRoutes.mediaDetailRoute("book", book.mediaItem.itemId.toString()))
                                 },
                                 onFavoriteToggle = viewModel::toggleFavorite,
                                 modifier = Modifier.fillMaxSize()

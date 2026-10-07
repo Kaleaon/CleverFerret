@@ -74,6 +74,9 @@ jobs:
     - name: Check docs local links
       run: ./scripts/ci/check_doc_links.py
 
+    - name: Check navigation routes
+      run: python3 scripts/ci/check_nav_routes.py
+
     - name: Run Detekt and Android Lint
       run: ./gradlew detekt lintDebug -Plint.abortOnError=true --stacktrace
 
