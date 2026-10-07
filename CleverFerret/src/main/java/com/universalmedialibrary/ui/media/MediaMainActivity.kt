@@ -102,6 +102,8 @@ fun MediaMainScreen(
     val hasCompletedOnboarding by mainViewModel.hasCompletedOnboarding.collectAsState()
     val startDestination = if (hasCompletedOnboarding) MediaRoutes.HOME else MediaRoutes.ONBOARDING
 
+    val startDestination = if (isOnboardingCompleted) MediaRoutes.HOME else MediaRoutes.ONBOARDING
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -112,12 +114,12 @@ fun MediaMainScreen(
                 if (mediaType.isNullOrBlank()) MediaRoutes.LIBRARY else MediaRoutes.libraryRoute(mediaType)
             }
             else -> currentRoute
-        } ?: MediaRoutes.HOME
+        } ?: startDestination
     }
     
-    // Check if we should show navigation (hide during player screens)
+    // Check if we should show navigation (hide during onboarding or player screens)
     val showNavigation = remember(currentRoute) {
-        currentRoute != null && !currentRoute.startsWith("player/") && !currentRoute.startsWith("reader/")
+        currentRoute != null && currentRoute != MediaRoutes.ONBOARDING && !currentRoute.startsWith("player/") && !currentRoute.startsWith("reader/")
     }
     
     // Check if we should show mini player
@@ -196,6 +198,7 @@ fun MediaMainScreen(
             ) {
                 MediaAppNavHost(
                     navController = navController,
+                    startDestination = startDestination,
                     onShowSnackbar = { message ->
                         scope.launch {
                             snackbarHostState.showSnackbar(message)
@@ -263,6 +266,7 @@ fun MediaMainScreen(
                 ) {
                     MediaAppNavHost(
                         navController = navController,
+                        startDestination = startDestination,
                         onShowSnackbar = { message ->
                             scope.launch {
                                 snackbarHostState.showSnackbar(message)

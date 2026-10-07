@@ -118,6 +118,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun setOnboardingCompleted(completed: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setOnboardingCompleted(completed)
+        }
+    }
+
     fun addLibrary(name: String, type: String, path: String) {
         viewModelScope.launch {
             val newLibrary = Library(name = name, type = type, path = path)

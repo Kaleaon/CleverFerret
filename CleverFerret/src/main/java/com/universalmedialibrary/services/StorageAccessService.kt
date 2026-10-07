@@ -625,3 +625,19 @@ class StorageAccessService @Inject constructor(
         }
     }
 }
+
+internal data class DerivedMetadata(
+    val title: String,
+    val authorOrArtist: String? = null,
+    val album: String? = null,
+    val series: String? = null,
+    val trackNumber: Int? = null,
+    val durationMs: Long? = null
+)
+
+internal data class OpfParsed(
+    val title: String? = null,
+    val creator: String? = null,
+    val series: String? = null
+)
+
