@@ -489,6 +489,7 @@ dependencies {
     testImplementation(libs.mockk.android)
     testImplementation(libs.robolectric)
     testImplementation(libs.turbine)
+    testImplementation(enforcedPlatform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.compose.ui.test.junit4)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
@@ -498,6 +499,7 @@ dependencies {
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.mockk.android)
 
+    debugImplementation(enforcedPlatform(libs.androidx.compose.bom))
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
