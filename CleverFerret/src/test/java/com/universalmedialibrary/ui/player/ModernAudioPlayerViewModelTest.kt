@@ -36,7 +36,7 @@ class ModernAudioPlayerViewModelTest {
     private lateinit var audioVisualizerService: AudioVisualizerService
     private lateinit var exoPlayer: ExoPlayer
 
-    private val playbackState = MutableStateFlow(AudioPlaybackManager.AudioPlaybackState())
+    private val playbackState = MutableStateFlow(AudioPlaybackManager.AudioState())
     private val visualizerState = MutableStateFlow(VisualizerState())
 
     @Before
@@ -62,7 +62,7 @@ class ModernAudioPlayerViewModelTest {
         )
         advanceUntilIdle()
 
-        playbackState.value = AudioPlaybackManager.AudioPlaybackState(
+        playbackState.value = AudioPlaybackManager.AudioState(
             title = "Test Song",
             artist = "Test Artist",
             duration = 180000L,

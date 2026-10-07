@@ -7,7 +7,14 @@ import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.Tag
 import com.universalmedialibrary.data.local.dao.MediaFtsDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
-import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MetadataBook
+import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.local.entity.MetadataMovie
+import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
+import com.universalmedialibrary.data.local.entity.PlexMediaItem
+import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.data.local.migrations.MIGRATION_46_47
 import com.universalmedialibrary.services.search.EnhancedSearchService
 import com.universalmedialibrary.services.search.SearchQuery
@@ -80,7 +87,11 @@ class MediaFtsDaoTest {
             MediaItem(libraryId = libId, filePath = "/books/tolkien.epub", fileName = "The Hobbit.epub", fileExtension = "epub", fileSize = 1000, mediaType = "BOOK")
         )
         database.metadataDao().insertMetadataCommon(
-            MetadataCommon(itemId = bookItemId, title = "The Hobbit", summary = "In a hole in the ground there lived a hobbit.")
+            MetadataCommon(
+                itemId = bookItemId,
+                title = "The Hobbit",
+                summary = "In a hole in the ground there lived a hobbit."
+            )
         )
         database.metadataDao().insertMetadataBook(
             MetadataBook(itemId = bookItemId, series = "Middle-earth", additionalAuthors = "J.R.R. Tolkien")
@@ -91,7 +102,11 @@ class MediaFtsDaoTest {
             MediaItem(libraryId = libId, filePath = "/movies/lotr.mp4", fileName = "The Lord of the Rings.mp4", fileExtension = "mp4", fileSize = 5000, mediaType = "MOVIE")
         )
         database.metadataDao().insertMetadataCommon(
-            MetadataCommon(itemId = movieItemId, title = "The Lord of the Rings", summary = "An epic fantasy film directed by Peter Jackson.")
+            MetadataCommon(
+                itemId = movieItemId,
+                title = "The Lord of the Rings",
+                summary = "An epic fantasy film directed by Peter Jackson."
+            )
         )
         database.metadataDao().insertMetadataMovie(
             MetadataMovie(itemId = movieItemId, franchise = "Middle-earth")
@@ -182,7 +197,11 @@ class MediaFtsDaoTest {
             MediaItem(libraryId = libId, filePath = "/books/starwars.epub", fileName = "Star Wars.epub", fileExtension = "epub", fileSize = 100, mediaType = "BOOK")
         )
         database.metadataDao().insertMetadataCommon(
-            MetadataCommon(itemId = itemId, title = "Star Wars: Heir to the Empire", summary = "Grand Admiral Thrawn attacks.")
+            MetadataCommon(
+                itemId = itemId,
+                title = "Star Wars: Heir to the Empire",
+                summary = "Grand Admiral Thrawn attacks."
+            )
         )
 
         var results = mediaFtsDao.searchFts("Thrawn*")

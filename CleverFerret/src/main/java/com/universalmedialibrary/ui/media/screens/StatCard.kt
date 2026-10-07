@@ -94,7 +94,7 @@ internal fun StatCard(
             
             Spacer(modifier = Modifier.width(MediaSpacing.SM))
             
-            Column(modifier = Modifier.weight(1f, fill = false)) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = value,
                     style = MediaTypography.TitleMedium,
@@ -105,9 +105,7 @@ internal fun StatCard(
                     text = label,
                     style = MediaTypography.LabelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = TextOverflow.Ellipsis
+                    softWrap = true
                 )
             }
         }
