@@ -323,6 +323,12 @@ class MetadataStagingRepositoryTest {
             map[mediaItem.itemId] = mediaItem
         }
 
+        override suspend fun updateAvailability(filePath: String, isAvailable: Boolean) {
+            map.values.find { it.filePath == filePath }?.let {
+                map[it.itemId] = it.copy(isAvailable = isAvailable)
+            }
+        }
+
         override suspend fun setFavorite(itemId: Long, isFavorite: Boolean) {
             map[itemId]?.let { map[itemId] = it.copy(isFavorite = isFavorite) }
         }
