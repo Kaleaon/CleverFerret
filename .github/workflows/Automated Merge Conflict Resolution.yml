@@ -26,8 +26,10 @@ jobs:
       - name: Attempt to merge the base branch
         id: merge
         continue-on-error: true
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          git merge origin/${{ github.base_ref }}
+          git merge "origin/$BASE_REF"
 
       - name: Check automation safety gates (label + approval)
         id: gates

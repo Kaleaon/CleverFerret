@@ -114,6 +114,9 @@ jobs:
     - name: Comment Lint Results on PR
       if: github.event_name == 'pull_request' && always()
       uses: actions/github-script@v8
+      env:
+        REPOSITORY: ${{ github.repository }}
+        RUN_ID: ${{ github.run_id }}
       with:
         script: |
           const fs = require('fs');
@@ -121,7 +124,9 @@ jobs:
           if (fs.existsSync(lintResultsPath)) {
             const lintResults = fs.readFileSync(lintResultsPath, 'utf8');
             const issueCount = (lintResults.match(/<issue/g) || []).length;
-            const body = `### 🔍 Quality Gate & Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.`;
+            const repository = process.env.REPOSITORY;
+            const runId = process.env.RUN_ID;
+            const body = `### 🔍 Quality Gate & Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/${repository}/actions/runs/${runId}) for details.`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -203,15 +208,17 @@ jobs:
 
     - name: Report compilation results
       if: always()
+      env:
+        COMPILE_OUTCOME: ${{ steps.compile.outcome }}
       run: |
-        if [ "${{ steps.compile.outcome }}" == "failure" ]; then
+        if [ "$COMPILE_OUTCOME" == "failure" ]; then
           echo "::error::Compilation failed. Check the 'Compilation Errors' section above for details."
           
           # Upload compile output as artifact for debugging if it exists
           if [ -n "${COMPILE_LOG:-}" ] && [ -f "$COMPILE_LOG" ]; then
             echo "Compilation log saved for debugging."
           fi
-        elif [ "${{ steps.compile.outcome }}" == "success" ]; then
+        elif [ "$COMPILE_OUTCOME" == "success" ]; then
           echo "::notice::Compilation succeeded!"
         else
           echo "::warning::Compilation was skipped or cancelled."
@@ -237,18 +244,25 @@ jobs:
 
     - name: Report test results
       if: always()
+      env:
+        UNIT_TESTS_OUTCOME: ${{ steps.unit-tests.outcome }}
+        COVERAGE_GATES_OUTCOME: ${{ steps.coverage-gates.outcome }}
       run: |
-        if [ "${{ steps.unit-tests.outcome }}" == "failure" ]; then
+        if [ "$UNIT_TESTS_OUTCOME" == "failure" ]; then
           echo "::error::Unit tests failed. Check test reports for details."
         fi
-        if [ "${{ steps.coverage-gates.outcome }}" == "failure" ]; then
+        if [ "$COVERAGE_GATES_OUTCOME" == "failure" ]; then
           echo "::error::Coverage gates failed for critical packages."
         fi
 
     - name: Fail workflow if compilation or tests failed
       if: always()
+      env:
+        COMPILE_OUTCOME: ${{ steps.compile.outcome }}
+        UNIT_TESTS_OUTCOME: ${{ steps.unit-tests.outcome }}
+        COVERAGE_GATES_OUTCOME: ${{ steps.coverage-gates.outcome }}
       run: |
-        if [ "${{ steps.compile.outcome }}" == "failure" ] || [ "${{ steps.unit-tests.outcome }}" == "failure" ] || [ "${{ steps.coverage-gates.outcome }}" == "failure" ]; then
+        if [ "$COMPILE_OUTCOME" == "failure" ] || [ "$UNIT_TESTS_OUTCOME" == "failure" ] || [ "$COVERAGE_GATES_OUTCOME" == "failure" ]; then
           echo "Workflow failed due to compilation or test failures"
           exit 1
         fi
@@ -355,8 +369,10 @@ jobs:
 
     - name: Report build status
       if: always()
+      env:
+        BUILD_DEBUG_OUTCOME: ${{ steps.build-debug.outcome }}
       run: |
-        if [ "${{ steps.build-debug.outcome }}" == "failure" ]; then
+        if [ "$BUILD_DEBUG_OUTCOME" == "failure" ]; then
           echo "::error::Debug APK build failed. Check the 'Build Errors' section above for details."
         else
           echo "::notice::Debug APK built successfully!"
@@ -387,10 +403,11 @@ jobs:
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       run: |
         if [[ -n "$KEYSTORE_PASSWORD" && -n "$KEY_ALIAS" && -n "$KEY_PASSWORD" ]]; then
           echo "Signing APK with keystore..."
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-keystore.jks
+          echo "$KEYSTORE_BASE64" | base64 -d > release-keystore.jks
 
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
             -keystore release-keystore.jks \
@@ -415,9 +432,9 @@ jobs:
 
     - name: Rename APK files
       if: steps.build-debug.outcome == 'success'
+      env:
+        VERSION_NAME: ${{ steps.version.outputs.version-name }}
       run: |
-        VERSION_NAME="${{ steps.version.outputs.version-name }}"
-
         if [[ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]]; then
           mv CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
              CleverFerret/build/outputs/apk/debug/CleverFerret-v${VERSION_NAME}-debug.apk
@@ -433,8 +450,9 @@ jobs:
 
     - name: Generate checksums
       if: steps.build-debug.outcome == 'success'
+      env:
+        VERSION_NAME: ${{ steps.version.outputs.version-name }}
       run: |
-        VERSION_NAME="${{ steps.version.outputs.version-name }}"
         cd CleverFerret/build/outputs/apk
 
         if [[ -f "debug/CleverFerret-v${VERSION_NAME}-debug.apk" ]]; then
@@ -530,8 +548,10 @@ jobs:
       run: chmod +x gradlew
 
     - name: Clean checkout dependency resolution
+      env:
+        SCENARIO: ${{ matrix.scenario }}
       run: |
-        if [ "${{ matrix.scenario }}" = "refresh-deps" ]; then
+        if [ "$SCENARIO" = "refresh-deps" ]; then
           ./gradlew --no-daemon --refresh-dependencies :CleverFerret:dependencies
         else
           ./gradlew --no-daemon :CleverFerret:dependencies
@@ -566,12 +586,14 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_USER: ${{ github.actor }}
+        VERSION_NAME: ${{ needs.build.outputs.version-name }}
+        VERSION_CODE: ${{ needs.build.outputs.version-code }}
       run: |
         ./gradlew publishToGitHub \
           -PgithubToken=$GITHUB_TOKEN \
           -PgithubUser=$GITHUB_USER \
-          -PversionName=${{ needs.build.outputs.version-name }} \
-          -PversionCode=${{ needs.build.outputs.version-code }}
+          -PversionName=$VERSION_NAME \
+          -PversionCode=$VERSION_CODE
 
   release:
     name: Create GitHub Release
@@ -601,8 +623,9 @@ jobs:
 
     - name: Generate release notes
       id: release_notes
+      env:
+        VERSION: ${{ needs.build.outputs.version-name }}
       run: |
-        VERSION="${{ needs.build.outputs.version-name }}"
         TAG_NAME="${GITHUB_REF#refs/tags/}"
 
         PREVIOUS_TAG=$(git describe --abbrev=0 --tags "${TAG_NAME}^" 2>/dev/null || echo "")
