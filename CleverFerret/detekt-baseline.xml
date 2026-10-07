@@ -182,6 +182,7 @@
     <ID>CyclomaticComplexMethod:MediaBadge.kt$@Composable fun MediaPosterCard( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier = Modifier, width: Dp = MediaSizes.CardMedium, showTitle: Boolean = true, showSubtitle: Boolean = true, showProgress: Boolean = true )</ID>
     <ID>CyclomaticComplexMethod:MediaBookReader.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun MediaBookReader( state: BookReaderState, onPageChange: (Int) -&gt; Unit, onChapterSelect: (BookChapter) -&gt; Unit, onBookmarkToggle: () -&gt; Unit, onAddHighlight: (HighlightInfo) -&gt; Unit, onAddAnnotation: (AnnotationInfo) -&gt; Unit, onSettingsChange: (ReaderSettings) -&gt; Unit, onTTSToggle: () -&gt; Unit, onClose: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>CyclomaticComplexMethod:MediaButtonReceiver.kt$MediaButtonReceiver$override fun onReceive(context: Context, intent: Intent)</ID>
+    <ID>CyclomaticComplexMethod:MediaContentResolver.kt$MediaContentResolverImpl$private suspend fun buildStreamUrlForVirtualUri(virtualUri: String): String?</ID>
     <ID>CyclomaticComplexMethod:MediaDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MediaDetailScreen( state: MediaDetailState, onBackClick: () -&gt; Unit, onPlayClick: () -&gt; Unit, onDownloadClick: () -&gt; Unit, onShareClick: () -&gt; Unit, onAddToCollectionClick: () -&gt; Unit, onChapterClick: (ChapterItem) -&gt; Unit, onRelatedItemClick: (MediaItem) -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>CyclomaticComplexMethod:MediaFileSystemBrowser.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MediaFileSystemBrowser( state: FileSystemBrowserState, onNavigateToPath: (String) -&gt; Unit, onSelectFolder: (String) -&gt; Unit, onSelectFile: (FileItem) -&gt; Unit, onMultiSelect: (List&lt;FileItem&gt;) -&gt; Unit, onBack: () -&gt; Unit, onAddAsLibrary: (String, LibraryType) -&gt; Unit, onSearchQuery: (String) -&gt; Unit, onSortChange: (FileSortOption) -&gt; Unit, onFilterChange: (FileTypeFilter) -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>CyclomaticComplexMethod:MediaHomeScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MediaHomeScreen( state: MediaHomeState, isRefreshing: Boolean, onItemClick: (MediaItem) -&gt; Unit, onPlayClick: (MediaItem) -&gt; Unit, onSeeAllClick: (String) -&gt; Unit, onQuickAccessCategoryClick: (String) -&gt; Unit, onNavigationClick: () -&gt; Unit = {}, onSearchClick: () -&gt; Unit, onNotificationClick: () -&gt; Unit, onAddLocalFilesClick: () -&gt; Unit = {}, onSubscribePodcastsClick: () -&gt; Unit = {}, onRefresh: () -&gt; Unit, onQuickAccessPreferencesChange: (order: List&lt;String&gt;, favorites: Set&lt;String&gt;) -&gt; Unit = { _, _ -&gt; }, onDismissWelcomeTips: () -&gt; Unit = {}, onRetry: () -&gt; Unit, reduceMotionEnabled: Boolean = false, modifier: Modifier = Modifier )</ID>
@@ -215,6 +216,8 @@
     <ID>CyclomaticComplexMethod:OPDSDownloadService.kt$OPDSDownloadService$private fun determineFileType(link: OPDSLink): Pair&lt;String, String&gt;</ID>
     <ID>CyclomaticComplexMethod:OPDSDownloadService.kt$OPDSDownloadService$private fun startDownload(downloadId: Long, title: String, url: String, extension: String)</ID>
     <ID>CyclomaticComplexMethod:OcrOverlay.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OcrOverlay( bitmap: Bitmap?, onRecognizeText: () -&gt; Unit, ocrResult: String?, isProcessing: Boolean, onDismiss: () -&gt; Unit, modifier: Modifier = Modifier, onSpeakText: ((String) -&gt; Unit)? = null, onStopSpeaking: (() -&gt; Unit)? = null, isSpeaking: Boolean = false, currentLanguage: com.universalmedialibrary.services.ocr.OcrLanguage? = null, availableLanguages: List&lt;com.universalmedialibrary.services.ocr.OcrLanguage&gt;? = null, onLanguageChange: ((com.universalmedialibrary.services.ocr.OcrLanguage) -&gt; Unit)? = null )</ID>
+    <ID>CyclomaticComplexMethod:OfflineBufferingWorker.kt$OfflineBufferingWorker$override suspend fun doWork(): Result</ID>
+    <ID>CyclomaticComplexMethod:OfflineBufferingWorker.kt$OfflineBufferingWorker$private suspend fun buildStreamUrl(db: AppDatabase, filePath: String): String?</ID>
     <ID>CyclomaticComplexMethod:OnboardingScreen.kt$@Composable private fun StoragePage()</ID>
     <ID>CyclomaticComplexMethod:OpdsServer.kt$OpdsServer$private fun serveLibraryItems(session: IHTTPSession): Response</ID>
     <ID>CyclomaticComplexMethod:ParameterEditorScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParameterEditorScreen( preset: VisualizerPreset? = null, onBack: () -&gt; Unit, onSave: (VisualizerPreset) -&gt; Unit )</ID>
@@ -2394,6 +2397,7 @@
     <ID>LongMethod:OPDSDownloadService.kt$OPDSDownloadService$private fun startDownload(downloadId: Long, title: String, url: String, extension: String)</ID>
     <ID>LongMethod:OcrOverlay.kt$@Composable fun OcrResultDialog( text: String, onDismiss: () -&gt; Unit, onCopy: () -&gt; Unit )</ID>
     <ID>LongMethod:OcrOverlay.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OcrOverlay( bitmap: Bitmap?, onRecognizeText: () -&gt; Unit, ocrResult: String?, isProcessing: Boolean, onDismiss: () -&gt; Unit, modifier: Modifier = Modifier, onSpeakText: ((String) -&gt; Unit)? = null, onStopSpeaking: (() -&gt; Unit)? = null, isSpeaking: Boolean = false, currentLanguage: com.universalmedialibrary.services.ocr.OcrLanguage? = null, availableLanguages: List&lt;com.universalmedialibrary.services.ocr.OcrLanguage&gt;? = null, onLanguageChange: ((com.universalmedialibrary.services.ocr.OcrLanguage) -&gt; Unit)? = null )</ID>
+    <ID>LongMethod:OfflineBufferingWorker.kt$OfflineBufferingWorker$override suspend fun doWork(): Result</ID>
     <ID>LongMethod:OldTimeRadioImportService.kt$OldTimeRadioImportService$suspend fun importFeaturedEpisodes( limit: Int = 40, chunkSize: Int = 250, onProgress: (inserted: Int, total: Int) -&gt; Unit = { _, _ -&gt; } ): ImportResult</ID>
     <ID>LongMethod:OldTimeRadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OldTimeRadioScreen( onNavigateBack: () -&gt; Unit, onNavigateToSeries: (String) -&gt; Unit, onNavigateToEpisode: (Long) -&gt; Unit, viewModel: OldTimeRadioViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:OldTimeRadioSeriesDetailScreen.kt$@Composable private fun EpisodeCard( episode: OldTimeRadioEpisode, onClick: () -&gt; Unit )</ID>
@@ -2736,6 +2740,7 @@
     <ID>LongParameterList:MediaCommonComponents.kt$( icon: ImageVector, title: String, message: String, actionLabel: String? = null, onAction: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:MediaCommonComponents.kt$( title: String, message: String, confirmLabel: String = "Confirm", dismissLabel: String = "Cancel", isDestructive: Boolean = false, onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>LongParameterList:MediaCommonComponents.kt$( title: String, placeholder: String = "", initialValue: String = "", confirmLabel: String = "Save", onConfirm: (String) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongParameterList:MediaContentResolver.kt$MediaContentResolverImpl$( @ApplicationContext private val context: Context, private val mediaItemDao: MediaItemDao, private val jellyfinServerDao: JellyfinServerDao, private val embyServerDao: EmbyServerDao, private val plexServerDao: PlexServerDao, private val cacheManager: CacheManager, private val networkMonitor: NetworkMonitor )</ID>
     <ID>LongParameterList:MediaController.kt$MediaController$( isPlaying: Boolean = _controllerState.value.isPlaying, currentTrack: String = _controllerState.value.currentTrack, currentArtist: String? = _controllerState.value.currentArtist, currentAlbum: String? = _controllerState.value.currentAlbum, position: Long = _controllerState.value.position, duration: Long = _controllerState.value.duration, serviceType: MediaServiceType = _controllerState.value.serviceType )</ID>
     <ID>LongParameterList:MediaController.kt$MediaController$( player: Player, serviceType: MediaServiceType, mediaItem: MediaItem? = null, title: String = "Unknown", artist: String? = null, album: String? = null, artwork: Bitmap? = null )</ID>
     <ID>LongParameterList:MediaControlsBar.kt$( isVisible: Boolean, title: String, artist: String?, isPlaying: Boolean, isCasting: Boolean = false, castDeviceName: String? = null, albumArtUrl: String? = null, backgroundMode: MiniPlayerBackgroundMode = MiniPlayerBackgroundMode.THEME, onPlayPause: () -&gt; Unit, onSkipNext: () -&gt; Unit, onSkipPrevious: () -&gt; Unit, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
@@ -4243,6 +4248,8 @@
     <ID>MagicNumber:MediaCards.kt$1200</ID>
     <ID>MagicNumber:MediaCards.kt$500f</ID>
     <ID>MagicNumber:MediaCollectionsScreen.kt$4</ID>
+    <ID>MagicNumber:MediaContentResolver.kt$MediaContentResolverImpl$15000</ID>
+    <ID>MagicNumber:MediaContentResolver.kt$MediaContentResolverImpl$30000</ID>
     <ID>MagicNumber:MediaControlsBar.kt$0.2f</ID>
     <ID>MagicNumber:MediaControlsBar.kt$0.3f</ID>
     <ID>MagicNumber:MediaControlsBar.kt$0.5f</ID>
@@ -4943,6 +4950,9 @@
     <ID>MagicNumber:OcrRepository.kt$OcrRepository$30L</ID>
     <ID>MagicNumber:OcrRepository.kt$OcrRepository$60</ID>
     <ID>MagicNumber:OdtParser.kt$OdtParser$50</ID>
+    <ID>MagicNumber:OfflineBufferingWorker.kt$OfflineBufferingWorker$15000</ID>
+    <ID>MagicNumber:OfflineBufferingWorker.kt$OfflineBufferingWorker$30000</ID>
+    <ID>MagicNumber:OfflineBufferingWorker.kt$OfflineBufferingWorker$8192</ID>
     <ID>MagicNumber:OldTimeRadioModels.kt$OTRSeries$4</ID>
     <ID>MagicNumber:OldTimeRadioModels.kt$OldTimeRadioEpisode$60</ID>
     <ID>MagicNumber:OldTimeRadioPlayerViewModel.kt$OldTimeRadioPlayerViewModel$4</ID>
@@ -6142,6 +6152,7 @@
     <ID>MaxLineLength:MediaFtsDaoTest.kt$MediaFtsDaoTest$PlexMediaItem(serverId = plexServerId, plexRatingKey = "rk999", title = "Tolkien Documentary", type = "MOVIE", libraryName = "Plex Movies", librarySectionId = "1")</ID>
     <ID>MaxLineLength:MediaFtsDaoTest.kt$MediaFtsDaoTest$val item = MediaItem(libraryId = libId, filePath = "/media/delete_me.mp4", fileName = "ToDelete.mp4", fileExtension = "mp4", fileSize = 50, mediaType = "MOVIE")</ID>
     <ID>MaxLineLength:MediaHomeViewModel.kt$MediaHomeViewModel$val</ID>
+    <ID>MaxLineLength:MediaItemDao.kt$MediaItemDao$@Query("UPDATE media_items SET localCachePath = :cachePath, downloadStatus = :status, downloadProgress = :progress WHERE itemId = :itemId")</ID>
     <ID>MaxLineLength:MediaItemDetailViewModel.kt$BackgroundTaskState.Companion$fun failed(label: String, message: String)</ID>
     <ID>MaxLineLength:MediaItemDetailViewModel.kt$BackgroundTaskState.Companion$fun success(label: String, message: String)</ID>
     <ID>MaxLineLength:MediaOpenViewModelErrorTest.kt$MediaOpenViewModelErrorTest$val testItem = MediaItem(itemId = 1L, libraryId = 1L, fileName = "missing.mp3", filePath = "/sdcard/missing.mp3", fileExtension = "mp3", fileSize = 100L, mediaType = "MUSIC_TRACK")</ID>
@@ -6553,15 +6564,20 @@
     <ID>ReturnCount:Lit2GoClient.kt$Lit2GoClient$private fun parseBook(element: JsonElement): FreeAudiobook?</ID>
     <ID>ReturnCount:LrcParser.kt$LrcParser$fun findLrcFile(audioFilePath: String, trackName: String? = null): String?</ID>
     <ID>ReturnCount:MediaButtonReceiver.kt$MediaButtonReceiver$override fun onReceive(context: Context, intent: Intent)</ID>
+    <ID>ReturnCount:MediaContentResolver.kt$MediaContentResolverImpl$private suspend fun buildStreamUrlForVirtualUri(virtualUri: String): String?</ID>
+    <ID>ReturnCount:MediaContentResolver.kt$MediaContentResolverImpl$private suspend fun resolvePathInternal(path: String, mediaItem: MediaItem?): ResolvedContent</ID>
     <ID>ReturnCount:MediaHomeStickyHeader.kt$internal fun MediaItem.remainingLabel(): String</ID>
     <ID>ReturnCount:MediaScannerService.kt$MediaScannerService$private fun ResolvedScanSettings.allowsFile(file: File): Boolean</ID>
     <ID>ReturnCount:MediaScannerService.kt$MediaScannerService$private fun extractAndStoreAlbumArt(file: File): String?</ID>
     <ID>ReturnCount:MediaScannerService.kt$MediaScannerService$private fun shouldSkipAudioFile( file: File, minDurationMs: Long = MIN_AUDIO_DURATION_MS, minSizeBytes: Long = MIN_AUDIO_FILE_SIZE_BYTES ): Boolean</ID>
     <ID>ReturnCount:ModernAudioPlayerViewModel.kt$ModernAudioPlayerViewModel$private fun resolveCurrentWaveform()</ID>
     <ID>ReturnCount:NetworkManager.kt$NetworkManager$fun shouldAllowDownload(wifiOnly: Boolean, checkMetered: Boolean = true): DownloadDecision</ID>
+    <ID>ReturnCount:NetworkMonitor.kt$NetworkMonitorImpl$override fun isOnline(): Boolean</ID>
+    <ID>ReturnCount:NetworkMonitor.kt$NetworkMonitorImpl$override fun isUnmetered(): Boolean</ID>
     <ID>ReturnCount:NewsManager.kt$NewsManager$private fun isWithinAge(pubDate: String, maxAgeDays: Int): Boolean</ID>
     <ID>ReturnCount:NewsManager.kt$NewsManager$private fun parseDate(raw: String): Instant?</ID>
     <ID>ReturnCount:OPDSDownloadService.kt$OPDSDownloadService$private fun findBestDownloadLink(links: List&lt;OPDSLink&gt;): OPDSLink?</ID>
+    <ID>ReturnCount:OfflineBufferingWorker.kt$OfflineBufferingWorker$private suspend fun buildStreamUrl(db: AppDatabase, filePath: String): String?</ID>
     <ID>ReturnCount:OpdsServer.kt$OpdsServer$private fun serveDownload(session: IHTTPSession): Response</ID>
     <ID>ReturnCount:OpdsServer.kt$OpdsServer$private fun serveLibraries(session: IHTTPSession): Response</ID>
     <ID>ReturnCount:OpdsServer.kt$OpdsServer$private fun serveLibraryItems(session: IHTTPSession): Response</ID>
@@ -6671,6 +6687,7 @@
     <ID>SwallowedException:MangaLibraryRepository.kt$MangaLibraryRepository$e: Exception</ID>
     <ID>SwallowedException:MangaSourceService.kt$MangaSourceService$e: Exception</ID>
     <ID>SwallowedException:MangaUpdateRepository.kt$MangaUpdateRepository$e: Exception</ID>
+    <ID>SwallowedException:MediaContentResolver.kt$MediaContentResolverImpl$e: Exception</ID>
     <ID>SwallowedException:MediaDurationExtractor.kt$MediaDurationExtractor$e: Exception</ID>
     <ID>SwallowedException:MediaHomeViewModel.kt$MediaHomeViewModel$e: Exception</ID>
     <ID>SwallowedException:MediaMotion.kt$MediaMotion$e: Throwable</ID>
@@ -6949,6 +6966,7 @@
     <ID>TooGenericExceptionCaught:MangaUpdateRepository.kt$MangaUpdateRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MangaUpdateService.kt$MangaUpdateService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MangaUpdateWorker.kt$MangaUpdateWorker$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MediaContentResolver.kt$MediaContentResolverImpl$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaDurationExtractor.kt$MediaDurationExtractor$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaHomeViewModel.kt$MediaHomeViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaIntegrationViewModel.kt$MediaIntegrationViewModel$e: Exception</ID>
@@ -7005,6 +7023,7 @@
     <ID>TooGenericExceptionCaught:OcrRepository.kt$OcrRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:OcrViewModel.kt$OcrViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:OdtParser.kt$OdtParser$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:OfflineBufferingWorker.kt$OfflineBufferingWorker$e: Exception</ID>
     <ID>TooGenericExceptionCaught:OldTimeRadioPlayerViewModel.kt$OldTimeRadioPlayerViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:OldTimeRadioViewModel.kt$OldTimeRadioViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:OnboardingLandseekRoutes.kt$e: Exception</ID>
@@ -7585,6 +7604,7 @@
     <ID>UnusedPrivateProperty:MangaSourceRepository.kt$MangaSourceRepository$private val json = Json { ignoreUnknownKeys = true encodeDefaults = true }</ID>
     <ID>UnusedPrivateProperty:MangaSourceRepository.kt$MangaSourceRepository.Companion$private val SOURCE_ORDER = stringPreferencesKey("source_order")</ID>
     <ID>UnusedPrivateProperty:MangaSourceService.kt$MangaSourceService$@ApplicationContext private val context: Context</ID>
+    <ID>UnusedPrivateProperty:MediaContentResolver.kt$MediaContentResolverImpl$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:MediaItem.kt$var isHovered by remember { mutableStateOf(false) }</ID>
     <ID>UnusedPrivateProperty:MediaPlayerViewModel.kt$AudioPlayerViewModel$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:MediaPlayerViewModel.kt$AudioPlayerViewModel$private val audiobookRepository: AudiobookRepository</ID>
@@ -9155,6 +9175,8 @@
     <ID>WildcardImport:MediaCommonComponents.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:MediaCommonComponents.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:MediaCommonComponents.kt$import com.universalmedialibrary.ui.media.theme.*</ID>
+    <ID>WildcardImport:MediaContentResolverTest.kt$import io.mockk.*</ID>
+    <ID>WildcardImport:MediaContentResolverTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:MediaControlsBar.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:MediaDesignSystem.kt$import androidx.compose.animation.core.*</ID>
     <ID>WildcardImport:MediaDesignSystem.kt$import androidx.compose.material3.*</ID>
