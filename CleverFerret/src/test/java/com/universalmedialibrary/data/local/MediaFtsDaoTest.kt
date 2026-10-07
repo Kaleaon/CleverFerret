@@ -79,12 +79,12 @@ class MediaFtsDaoTest {
     fun `fts search returns matching items across books, movies, music, and synced items`() = runBlocking {
         // Create library
         val libId = database.libraryDao().insertLibrary(
-            Library(name = "Main Library", type = "GENERAL", path = "/storage/media")
+            Library(name = "Main Library", path = "/storage/media", type = "BOOK")
         )
 
         // Insert Book
         val bookItemId = mediaItemDao.insertMediaItem(
-            MediaItem(libraryId = libId, filePath = "/books/tolkien.epub", fileName = "The Hobbit.epub", fileExtension = "epub", fileSize = 1000, mediaType = "BOOK")
+            MediaItem(libraryId = libId, filePath = "/books/tolkien.epub", fileName = "The Hobbit.epub", fileSize = 1000, mediaType = "BOOK", fileExtension = "epub")
         )
         database.metadataDao().insertMetadataCommon(
             MetadataCommon(
@@ -99,7 +99,7 @@ class MediaFtsDaoTest {
 
         // Insert Movie
         val movieItemId = mediaItemDao.insertMediaItem(
-            MediaItem(libraryId = libId, filePath = "/movies/lotr.mp4", fileName = "The Lord of the Rings.mp4", fileExtension = "mp4", fileSize = 5000, mediaType = "MOVIE")
+            MediaItem(libraryId = libId, filePath = "/movies/lotr.mp4", fileName = "The Lord of the Rings.mp4", fileSize = 5000, mediaType = "MOVIE", fileExtension = "mp4")
         )
         database.metadataDao().insertMetadataCommon(
             MetadataCommon(
@@ -114,7 +114,7 @@ class MediaFtsDaoTest {
 
         // Insert Music Track
         val musicItemId = mediaItemDao.insertMediaItem(
-            MediaItem(libraryId = libId, filePath = "/music/soundtrack.flac", fileName = "Hobbiton Theme.flac", fileExtension = "flac", fileSize = 200, mediaType = "MUSIC_TRACK")
+            MediaItem(libraryId = libId, filePath = "/music/soundtrack.flac", fileName = "Hobbiton Theme.flac", fileSize = 200, mediaType = "MUSIC_TRACK", fileExtension = "flac")
         )
         database.metadataDao().insertMetadataCommon(
             MetadataCommon(itemId = musicItemId, title = "Hobbiton Theme")
@@ -125,7 +125,7 @@ class MediaFtsDaoTest {
 
         // Insert Synced Plex Item
         val plexServerId = database.plexServerDao().insertServer(
-            PlexServer(name = "Plex Home", host = "localhost", port = 32400, token = "p123")
+            PlexServer(name = "Plex Home", host = "localhost", port = 32400, token = "token123", machineIdentifier = "p123")
         )
         database.plexMediaItemDao().insertMediaItem(
             PlexMediaItem(serverId = plexServerId, plexRatingKey = "rk999", title = "Tolkien Documentary", type = "MOVIE", libraryName = "Plex Movies", librarySectionId = "1")
@@ -148,9 +148,9 @@ class MediaFtsDaoTest {
 
     @Test
     fun `triggers automated update on metadata change`() = runBlocking {
-        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", type = "GENERAL", path = "/path"))
+        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", path = "/path", type = "BOOK"))
         val itemId = mediaItemDao.insertMediaItem(
-            MediaItem(libraryId = libId, filePath = "/books/dune.epub", fileName = "Dune.epub", fileExtension = "epub", fileSize = 100, mediaType = "BOOK")
+            MediaItem(libraryId = libId, filePath = "/books/dune.epub", fileName = "Dune.epub", fileSize = 100, mediaType = "BOOK", fileExtension = "epub")
         )
 
         // Initially search for Herbert -> no match
@@ -174,8 +174,8 @@ class MediaFtsDaoTest {
 
     @Test
     fun `triggers automated delete on media item delete`() = runBlocking {
-        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", type = "GENERAL", path = "/path"))
-        val item = MediaItem(libraryId = libId, filePath = "/media/delete_me.mp4", fileName = "ToDelete.mp4", fileExtension = "mp4", fileSize = 50, mediaType = "MOVIE")
+        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", path = "/path", type = "MOVIE"))
+        val item = MediaItem(libraryId = libId, filePath = "/media/delete_me.mp4", fileName = "ToDelete.mp4", fileSize = 50, mediaType = "MOVIE", fileExtension = "mp4")
         val itemId = mediaItemDao.insertMediaItem(item)
 
         var results = mediaFtsDao.searchFts("ToDelete*")
@@ -192,9 +192,9 @@ class MediaFtsDaoTest {
 
     @Test
     fun `user preference updates do not clear fts records`() = runBlocking {
-        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", type = "GENERAL", path = "/path"))
+        val libId = database.libraryDao().insertLibrary(Library(name = "Lib", path = "/path", type = "BOOK"))
         val itemId = mediaItemDao.insertMediaItem(
-            MediaItem(libraryId = libId, filePath = "/books/starwars.epub", fileName = "Star Wars.epub", fileExtension = "epub", fileSize = 100, mediaType = "BOOK")
+            MediaItem(libraryId = libId, filePath = "/books/starwars.epub", fileName = "Star Wars.epub", fileSize = 100, mediaType = "BOOK", fileExtension = "epub")
         )
         database.metadataDao().insertMetadataCommon(
             MetadataCommon(

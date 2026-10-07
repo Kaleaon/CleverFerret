@@ -164,12 +164,7 @@ class PublicationEngineRegistry(
             when (val result = adapter.parse(request)) {
                 is ParserResult.Success -> return result
                 is ParserResult.Failure -> {
-                    if (candidate == eligible.last()) {
-                        return ParserResult.Failure(
-                            parserId = adapter.id,
-                            error = result.error.copy(candidates = ranked)
-                        )
-                    }
+                    // Continue trying remaining candidate parsers
                 }
             }
         }
@@ -185,7 +180,15 @@ class PublicationEngineRegistry(
                 )
             )
 
-        return fallback.parse(request)
+        val fallbackResult = fallback.parse(request)
+        return if (fallbackResult is ParserResult.Failure) {
+            ParserResult.Failure(
+                parserId = fallbackResult.parserId,
+                error = fallbackResult.error.copy(candidates = ranked)
+            )
+        } else {
+            fallbackResult
+        }
     }
 
     companion object {

@@ -80,7 +80,7 @@ class MetadataFetchRepositoryConcurrencyTest {
             coEvery { mediaItemDao.getMediaItemById(item.itemId) } returns item
         }
 
-        coEvery { unifiedMetadataFacade.searchBookMetadata(any(), any(), any()) } answers {
+        coEvery { unifiedMetadataFacade.searchBookMetadata(any(), any(), any(), any()) } answers {
             BookMetadataResult(
                 metadata = BookMetadata(
                     title = "Fetched Title",
