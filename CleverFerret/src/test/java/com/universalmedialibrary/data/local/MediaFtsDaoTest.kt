@@ -7,7 +7,13 @@ import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.Tag
 import com.universalmedialibrary.data.local.dao.MediaFtsDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
-import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MetadataBook
+import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
+import com.universalmedialibrary.data.local.entity.PlexMediaItem
+import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.data.local.migrations.MIGRATION_46_47
 import com.universalmedialibrary.services.search.EnhancedSearchService
 import com.universalmedialibrary.services.search.SearchQuery
@@ -150,7 +156,7 @@ class MediaFtsDaoTest {
         // Search again -> should match automatically via trigger!
         results = mediaFtsDao.searchFts("Herbert*")
         assertThat(results).hasSize(1)
-        assertThat(results[0].item_id).isEqualTo(itemId)
+        assertThat(results[0].itemId).isEqualTo(itemId)
 
         // Search series
         val seriesResults = mediaFtsDao.searchFts("Chronicles*")

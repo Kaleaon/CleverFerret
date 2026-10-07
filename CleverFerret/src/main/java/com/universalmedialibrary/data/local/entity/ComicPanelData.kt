@@ -43,7 +43,24 @@ data class ComicPanelData(
     // Timestamps
     val detectedAt: Long = System.currentTimeMillis(),
     val lastModified: Long = System.currentTimeMillis()
-)
+) {
+    constructor(
+        id: Long = 0,
+        comicId: Long,
+        comicFilePath: String,
+        pageNumber: Int,
+        totalPages: Int,
+        panelIndex: Int,
+        x: Number,
+        y: Number,
+        width: Number,
+        height: Number,
+        confidence: Float = 1.0f,
+        readingOrder: Int = 0,
+        detectedAt: Long = System.currentTimeMillis(),
+        lastModified: Long = System.currentTimeMillis()
+    ) : this(id, comicId, comicFilePath, pageNumber, totalPages, panelIndex, x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), confidence, readingOrder, detectedAt, lastModified)
+}
 
 /**
  * Comic Speech Bubble Translation Entity
@@ -74,7 +91,7 @@ data class ComicTranslation(
     
     // OCR data
     val originalText: String,
-    val detectedLanguage: String?,
+    val detectedLanguage: String? = null,
     val ocrConfidence: Float = 0.0f,
     
     // Translation data
@@ -90,7 +107,45 @@ data class ComicTranslation(
     // Timestamps
     val detectedAt: Long = System.currentTimeMillis(),
     val lastModified: Long = System.currentTimeMillis()
-)
+) {
+    constructor(
+        id: Long = 0,
+        panelId: Long,
+        comicId: Long,
+        pageNumber: Int,
+        bubbleX: Number,
+        bubbleY: Number,
+        bubbleWidth: Number,
+        bubbleHeight: Number,
+        originalText: String,
+        translatedText: String? = null,
+        detectedLanguage: String? = null,
+        targetLanguage: String? = null,
+        ocrConfidence: Float = 0.0f,
+        translatedAt: Long? = null,
+        fontSize: Float = 12.0f,
+        fontColor: Int = 0xFF000000.toInt(),
+        backgroundColor: Int = 0xFFFFFFFF.toInt()
+    ) : this(
+        id = id,
+        panelId = panelId,
+        comicId = comicId,
+        pageNumber = pageNumber,
+        bubbleX = bubbleX.toFloat(),
+        bubbleY = bubbleY.toFloat(),
+        bubbleWidth = bubbleWidth.toFloat(),
+        bubbleHeight = bubbleHeight.toFloat(),
+        originalText = originalText,
+        detectedLanguage = detectedLanguage,
+        ocrConfidence = ocrConfidence,
+        translatedText = translatedText,
+        targetLanguage = targetLanguage,
+        translatedAt = translatedAt,
+        fontSize = fontSize,
+        fontColor = fontColor,
+        backgroundColor = backgroundColor
+    )
+}
 
 /**
  * Comic Reading Session

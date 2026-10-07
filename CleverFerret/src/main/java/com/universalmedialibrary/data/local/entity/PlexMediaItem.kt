@@ -43,8 +43,8 @@ data class PlexMediaItem(
     val year: Int? = null,
     val duration: Long? = null, // in milliseconds
 
-    val libraryName: String,
-    val librarySectionId: String,
+    val libraryName: String = "",
+    val librarySectionId: String = "",
 
     val lastSynced: Long = System.currentTimeMillis()
 )

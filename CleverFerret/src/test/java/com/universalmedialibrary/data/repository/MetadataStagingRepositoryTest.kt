@@ -313,45 +313,11 @@ class MetadataStagingRepositoryTest {
             map[mediaItem.itemId] = mediaItem
         }
 
-        override suspend fun getMediaItemCount(): Int = map.size
-
-        override suspend fun getAllMediaItems(): List<MediaItem> = map.values.toList()
-
-        override fun getMediaItemsForLibrary(libraryId: Long): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getMediaItemByFilePath(filePath: String): MediaItem? = map.values.firstOrNull { it.filePath == filePath }
-        override suspend fun getExistingFilePaths(paths: List<String>): List<String> = paths.filter { path -> map.values.any { it.filePath == path } }
-        override suspend fun getItemByPath(path: String): MediaItem? = map.values.firstOrNull { it.filePath == path }
-        override suspend fun getItemCountForLibrary(libraryId: Long): Int = 0
-        override fun getMediaItemsByLibrary(libraryId: Long): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getMediaItemByPath(filePath: String): MediaItem? = map.values.firstOrNull { it.filePath == filePath }
-        override fun getMediaItemsByType(mediaType: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun setFavorite(itemId: Long, isFavorite: Boolean) {}
-        override suspend fun deleteMediaItem(mediaItem: MediaItem) { map.remove(mediaItem.itemId) }
-        override suspend fun searchMediaItems(query: String, limit: Int): List<MediaItem> = emptyList()
-        override suspend fun searchMediaItems(query: String, mediaTypes: List<String>?, minRating: Float?, maxRating: Float?, isFavorite: Boolean?, limit: Int): List<MediaItem> = emptyList()
-        override fun getAllMediaItemsFlow(): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(map.values.toList())
-        override suspend fun getMediaItemsWithTags(tagIds: List<Long>, limit: Int): List<MediaItem> = emptyList()
-        override suspend fun getMediaItemsByTypes(mediaTypes: List<String>, limit: Int): List<MediaItem> = emptyList()
-        override suspend fun insertMediaItems(mediaItems: List<MediaItem>) { mediaItems.forEach { map[it.itemId] = it } }
-        override suspend fun getItemCountByLibrary(libraryId: Long): Int = 0
-        override suspend fun findDuplicateByNameAndSize(libraryId: Long, fileName: String, fileSize: Long): MediaItem? = null
-        override suspend fun findDuplicateByHash(libraryId: Long, fileHash: String): MediaItem? = null
-        override fun getFavoriteMediaItems(): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getItemCountByType(mediaType: String): Int = 0
-        override suspend fun getItemCountsByTypeForLibrary(libraryId: Long): List<com.universalmedialibrary.data.local.dao.MediaTypeCount> = emptyList()
-        override fun getBookDetailsForLibrary(libraryId: Long): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getBookDetailsById(bookId: Long): MediaItem? = null
-        override suspend fun getBooksBySeries(seriesName: String): List<MediaItem> = emptyList()
-        override suspend fun getBooksWithSeries(): List<MediaItem> = emptyList()
-        override fun getMediaItemsByGenre(genreName: String, mediaType: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override fun getMediaItemsByGenres(genreNames: List<String>, mediaType: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override fun getMediaItemsByAuthor(authorName: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override fun getMediaItemsByDirector(directorName: String): kotlinx.coroutines.flow.Flow<List<MediaItem>> = MutableStateFlow(emptyList())
-        override suspend fun getByType(mediaType: String, limit: Int, offset: Int): List<MediaItem> = emptyList()
-        override suspend fun getCountByType(mediaType: String): Int = 0
         override suspend fun setFavorite(itemId: Long, isFavorite: Boolean) {
             map[itemId]?.let { map[itemId] = it.copy(isFavorite = isFavorite) }
         }
+
+        override suspend fun updateAvailability(filePath: String, isAvailable: Boolean) {}
 
         override suspend fun deleteMediaItem(mediaItem: MediaItem) {
             map.remove(mediaItem.itemId)

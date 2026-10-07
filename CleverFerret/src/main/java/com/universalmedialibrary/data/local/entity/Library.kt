@@ -17,7 +17,7 @@ data class Library(
     val libraryId: Long = 0,
 
     val name: String,
-    val type: String, // BOOK, MOVIE, TV_SHOW, MUSIC, COMIC, PODCAST, etc.
+    val type: String = "ALL", // BOOK, MOVIE, TV_SHOW, MUSIC, COMIC, PODCAST, etc.
     val path: String,
     val source: String = "LOCAL", // LOCAL, PLEX, JELLYFIN, EMBY, CALIBRE
     val dateModified: Long = System.currentTimeMillis(),

@@ -391,6 +391,9 @@ val LocalEnableMetallicShimmer = compositionLocalOf { true }
 val LocalEnableCrystalGlow = compositionLocalOf { true }
 val LocalIsAncientArchitect = compositionLocalOf { false }
 val LocalMetallicGradient = staticCompositionLocalOf { MetallicEffects.Gold }
+val LocalReduceMotion = compositionLocalOf {
+    com.universalmedialibrary.ui.media.theme.MediaMotion.isReducedMotionEnabled()
+}
 
 // ============================================================================
 // HELPER EXTENSIONS
@@ -556,12 +559,18 @@ fun AncientArchitectTheme(
         scrim = ancientColors.stone.shadow.copy(alpha = 0.5f)
     )
     
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val reduceMotion = androidx.compose.runtime.remember(configuration) {
+        com.universalmedialibrary.ui.media.theme.MediaMotion.isReducedMotionEnabled()
+    }
+
     CompositionLocalProvider(
         LocalAncientArchitectColors provides ancientColors,
         LocalEnableGeometricPatterns provides enableGeometricPatterns,
         LocalEnableMetallicShimmer provides enableMetallicShimmer,
         LocalEnableCrystalGlow provides enableCrystalGlow,
-        LocalIsAncientArchitect provides true
+        LocalIsAncientArchitect provides true,
+        LocalReduceMotion provides reduceMotion
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme,
@@ -634,8 +643,15 @@ fun CleverFerretUnifiedTheme(
     }
 
     val metallicGradient = getMetallicColorsForVariant(palette.toMetallicVariant())
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val reduceMotion = androidx.compose.runtime.remember(configuration) {
+        com.universalmedialibrary.ui.media.theme.MediaMotion.isReducedMotionEnabled()
+    }
 
-    CompositionLocalProvider(LocalMetallicGradient provides metallicGradient) {
+    CompositionLocalProvider(
+        LocalMetallicGradient provides metallicGradient,
+        LocalReduceMotion provides reduceMotion
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = CleverFerretTypography,

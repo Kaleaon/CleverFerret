@@ -54,6 +54,7 @@ data class NormalizedRect(
     val width: Float,
     val height: Float
 ) {
+    constructor(x: Number, y: Number, width: Number, height: Number) : this(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
     val area: Float get() = width * height
 }
 /**
@@ -84,11 +85,15 @@ data class DetectedPanel(
 data class PageTranslationResult(
     val pageNumber: Int,
     val panels: List<TranslatedPanel>,
-    val sourceLanguage: String,
-    val targetLanguage: String,
-    val translationMethod: String,
+    val sourceLanguage: String = "en",
+    val targetLanguage: String = "es",
+    val translationMethod: String = "gemini",
     val error: String? = null
 )
+
+typealias PanelTranslationResult = TranslatedPanel
+typealias TextBubbleTranslation = TranslatedBubble
+typealias BoundingBox = NormalizedRect
 /**
  * Translated panel information
  */

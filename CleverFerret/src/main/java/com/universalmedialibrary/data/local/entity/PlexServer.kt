@@ -12,9 +12,9 @@ data class PlexServer(
     val serverId: Long = 0,
 
     val name: String,
-    val host: String,
+    val host: String = "",
     val port: Int = 32400,
-    val token: String,
+    val token: String = "",
     val machineIdentifier: String? = null,
     val version: String? = null,
 
@@ -24,6 +24,11 @@ data class PlexServer(
 
     val dateAdded: Long = System.currentTimeMillis()
 ) {
+    constructor(name: String, serverId: String, url: String) : this(
+        name = name,
+        host = url,
+        token = serverId
+    )
     val url: String get() = "https://$host:$port"
     val accessToken: String get() = token
 }
