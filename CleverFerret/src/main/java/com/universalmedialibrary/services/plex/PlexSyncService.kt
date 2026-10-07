@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,7 +31,8 @@ class PlexSyncService @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val libraryDao: LibraryDao,
     private val authService: PlexAuthService,
-    private val ingestionPipeline: IngestionPipeline
+    private val ingestionPipeline: IngestionPipeline,
+    private val plexVirtualUriResolver: PlexVirtualUriResolver? = null
 ) {
 
     companion object {
@@ -85,14 +87,31 @@ class PlexSyncService @Inject constructor(
         return try {
             _syncStatus.value = PlexSyncStatus.Syncing("Starting sync...")
 
-            plexServerDao.getActiveServers().collect { servers ->
-                for (server in servers) {
-                    syncServer(server)
+            val servers = plexServerDao.getActiveServers().first()
+            var failureCount = 0
+            val errorMessages = mutableListOf<String>()
+
+            for (server in servers) {
+                val result = syncServer(server)
+                if (result.isFailure) {
+                    failureCount++
+                    val msg = result.exceptionOrNull()?.message ?: "Server unreachable"
+                    errorMessages.add("${server.name}: $msg")
                 }
             }
 
-            _syncStatus.value = PlexSyncStatus.Success("Sync completed successfully")
-            Result.success(Unit)
+            if (servers.isNotEmpty() && failureCount == servers.size) {
+                val summary = "Sync failed for all servers: ${errorMessages.joinToString("; ")}"
+                _syncStatus.value = PlexSyncStatus.Error(summary)
+                Result.failure(Exception(summary))
+            } else if (errorMessages.isNotEmpty()) {
+                val summary = "Sync completed with server warnings: ${errorMessages.joinToString("; ")}"
+                _syncStatus.value = PlexSyncStatus.Success(summary)
+                Result.success(Unit)
+            } else {
+                _syncStatus.value = PlexSyncStatus.Success("Sync completed successfully")
+                Result.success(Unit)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error during sync", e)
             _syncStatus.value = PlexSyncStatus.Error("Sync failed: ${e.message}")
@@ -220,6 +239,7 @@ class PlexSyncService @Inject constructor(
                 for (metadata in chunk) {
                     val path = "plex://${server.machineIdentifier}/${metadata.ratingKey}"
                     if (!existingPathsSet.contains(path)) {
+                        val initialAvailable = plexVirtualUriResolver?.isItemAvailable(path) ?: server.isActive
                         val mediaItem = MediaItem(
                             libraryId = libraryId,
                             filePath = path,
@@ -229,7 +249,7 @@ class PlexSyncService @Inject constructor(
                             fileHash = metadata.ratingKey, // Use rating key as unique identifier
                             mediaType = mapPlexTypeToMediaType(metadata.type),
                             mimeType = null,
-                            isAvailable = true,
+                            isAvailable = initialAvailable,
                             hasMetadata = true,
                             hasThumbnail = !metadata.thumb.isNullOrEmpty(),
                             thumbnailPath = metadata.thumb
@@ -427,8 +447,14 @@ class PlexSyncService @Inject constructor(
         val key = "$host:$port"
 
         return retrofitInstances.getOrPut(key) {
+            val okHttpClient = okhttp3.OkHttpClient.Builder()
+                .connectTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .build()
+
             Retrofit.Builder()
                 .baseUrl(baseUrl)
+                .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(PlexApi::class.java)
