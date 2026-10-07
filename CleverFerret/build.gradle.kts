@@ -148,6 +148,11 @@ android {
     namespace = "com.universalmedialibrary"
     compileSdk = 36  // Android 15 (API 36) - Required by androidx.core:core:1.17.0 and other latest dependencies
 
+    val isCiBuild = providers.environmentVariable("CI").orNull.equals("true", ignoreCase = true)
+    val isReleaseTaskRequested = gradle.startParameter.taskNames.any { taskName ->
+        taskName.contains("release", ignoreCase = true)
+    }
+
     // =========================================================================
     // Signing (required for update-compatible installs)
     //
@@ -168,15 +173,23 @@ android {
     val keyPassword: String? =
         System.getenv("KEY_PASSWORD") ?: (project.findProperty("KEY_PASSWORD") as String?)
 
-    val releaseKeystoreFile: File? = if (
-        !keystoreBase64Raw.isNullOrBlank() &&
-        !keystorePassword.isNullOrBlank() &&
-        !keyAlias.isNullOrBlank() &&
-        !keyPassword.isNullOrBlank()
-    ) {
+    val missingKeystoreVars = mutableListOf<String>()
+    if (keystoreBase64Raw.isNullOrBlank()) missingKeystoreVars.add("KEYSTORE_BASE64")
+    if (keystorePassword.isNullOrBlank()) missingKeystoreVars.add("KEYSTORE_PASSWORD")
+    if (keyAlias.isNullOrBlank()) missingKeystoreVars.add("KEY_ALIAS")
+    if (keyPassword.isNullOrBlank()) missingKeystoreVars.add("KEY_PASSWORD")
+
+    if (missingKeystoreVars.isNotEmpty() && isCiBuild && isReleaseTaskRequested) {
+        throw GradleException(
+            "Missing required release signing secrets for CI release build: ${missingKeystoreVars.joinToString()}. " +
+                "Provide KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, and KEY_PASSWORD as environment variables."
+        )
+    }
+
+    val releaseKeystoreFile: File? = if (missingKeystoreVars.isEmpty()) {
         val keystoreFile = File(rootProject.layout.buildDirectory.asFile.get(), "keystores/cleverferret-release.jks")
         keystoreFile.parentFile?.mkdirs()
-        val cleanB64 = keystoreBase64Raw.replace("\\s".toRegex(), "")
+        val cleanB64 = keystoreBase64Raw!!.replace("\\s".toRegex(), "")
         keystoreFile.writeBytes(Base64.getDecoder().decode(cleanB64))
         keystoreFile
     } else {
@@ -284,11 +297,6 @@ android {
         if (tasks.names.contains(kspTaskName)) {
             registerJavaGeneratingTask(tasks.named(kspTaskName), kspJavaDir.get().asFile)
         }
-    }
-
-    val isCiBuild = providers.environmentVariable("CI").orNull.equals("true", ignoreCase = true)
-    val isReleaseTaskRequested = gradle.startParameter.taskNames.any { taskName ->
-        taskName.contains("release", ignoreCase = true)
     }
     val lintAbortOnError = providers.gradleProperty("lint.abortOnError")
         .map { it.equals("true", ignoreCase = true) }
