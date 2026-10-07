@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -235,6 +236,7 @@ fun QuickLookupPopup(
                 ) {
                     Text(
                         text = selectedText,
+                        modifier = Modifier.headingSemantics(),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -380,6 +382,7 @@ private fun DictionaryContent(entry: DictionaryEntry) {
         if (entry.definitions.isNotEmpty()) {
             Text(
                 text = "Definitions",
+                modifier = Modifier.headingSemantics(),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -578,7 +581,7 @@ fun DictionaryHistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Dictionary") },
+                title = { Text("Dictionary", modifier = Modifier.headingSemantics()) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
