@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.universalmedialibrary.ui.modern.theme.CFSpacing
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -322,7 +323,7 @@ private fun GalleryMediaContent(
     }
     
     LazyVerticalGrid(
-        columns = GridCells.Fixed(gridColumns),
+        columns = GridCells.Adaptive(minSize = CFSpacing.squareCardMinWidth),
         contentPadding = PaddingValues(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)

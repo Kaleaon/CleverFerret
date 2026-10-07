@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.ui.components.media.MediaCard
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
@@ -165,7 +166,7 @@ fun LibraryListScreen(
                             .weight(1f)
                     ) {
                         items(uiState.libraries) { libraryWithCount ->
-                            LibraryCard(
+                            MediaCard(
                                 library = libraryWithCount.toLibraryItem(),
                                 onClick = { onNavigateToLibrary(libraryWithCount.library.libraryId.toInt()) }
                             )

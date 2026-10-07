@@ -136,6 +136,49 @@ object ParserFactory {
     }
 
     fun getCapabilities(): List<ParserCapability> = registrations.map { it.capability }
+
+    /**
+     * Extract standardized RawMetadata payload from a document file using DocumentParser
+     */
+    suspend fun extractRawMetadata(file: File): com.universalmedialibrary.services.pipeline.RawMetadata {
+        return try {
+            val selection = selectParser(file.name)
+            val parsedDoc = selection.parser.parse(file.absolutePath)
+            val normalizedDoc = ParsedDocumentNormalizer.normalize(parsedDoc, selection.capability)
+            val metadata = normalizedDoc.metadata
+
+            val creators = buildList {
+                metadata.author?.takeIf { it.isNotBlank() }?.let { add(it) }
+            }
+
+            com.universalmedialibrary.services.pipeline.RawMetadata(
+                title = metadata.title?.takeIf { it.isNotBlank() } ?: file.nameWithoutExtension,
+                creators = creators,
+                publisher = metadata.customProperties["publisher"],
+                year = metadata.creationDate?.take(4)?.toIntOrNull(),
+                language = metadata.language,
+                isbn = metadata.customProperties["isbn"] ?: metadata.customProperties["ISBN"],
+                format = metadata.format ?: file.extension.uppercase(),
+                summary = metadata.subject ?: normalizedDoc.content.take(300).takeIf { it.isNotBlank() },
+                confidenceScore = normalizedDoc.parserConfidence,
+                source = "PARSER:${selection.capability.parserId}",
+                rawAttributes = buildMap {
+                    put("headingCount", normalizedDoc.extractedHeadings.size.toString())
+                    put("paragraphCount", normalizedDoc.extractedParagraphs.size.toString())
+                    put("tableCount", normalizedDoc.extractedTables.size.toString())
+                    putAll(metadata.customProperties)
+                }
+            )
+        } catch (e: Exception) {
+            com.universalmedialibrary.services.pipeline.RawMetadata(
+                title = file.nameWithoutExtension,
+                format = file.extension.uppercase(),
+                confidenceScore = 0.40f,
+                source = "PARSER_FALLBACK",
+                rawAttributes = mapOf("error" to (e.message ?: "Unknown parser error"))
+            )
+        }
+    }
 }
 
 /**

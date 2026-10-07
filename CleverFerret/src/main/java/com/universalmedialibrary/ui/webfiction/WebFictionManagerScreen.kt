@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.webfiction
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -40,7 +41,6 @@ import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
 import com.universalmedialibrary.ui.components.showUserFeedback
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,7 +106,7 @@ fun WebFictionManagerScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { navController.navigate("story_manager") }) {
+                        IconButton(onClick = { navController.navigate(MediaRoutes.WEB_FICTION) }) {
                             Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Story Manager")
                         }
                         IconButton(onClick = { showSiteInfoDialog = true }) {
@@ -352,7 +352,7 @@ fun WebFictionManagerScreen(
                                 story = story,
                                 hasUpdates = story.id in uiState.storiesWithUpdates.map { it.id },
                                 onStoryClick = {
-                                    navController.navigate("webfiction_story/${story.id}")
+                                    navController.navigate(MediaRoutes.readerRoute("webfiction", story.id.toString()))
                                 },
                                 onUpdateClick = {
                                     viewModel.checkForUpdates(story)

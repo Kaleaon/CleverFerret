@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.search
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -86,7 +87,12 @@ fun EnhancedSearchScreen(
                         results = uiState.results,
                         facets = uiState.facets,
                         onResultClick = { result ->
-                            navController.navigate("detail/${result.itemId}")
+                            navController.navigate(
+                                MediaRoutes.mediaDetailRoute(
+                                    MediaRoutes.routeNameForMediaType(result.mediaType),
+                                    result.itemId.toString()
+                                )
+                            )
                         },
                         onFacetFilterApplied = { mediaType ->
                             viewModel.toggleMediaTypeFilter(mediaType)

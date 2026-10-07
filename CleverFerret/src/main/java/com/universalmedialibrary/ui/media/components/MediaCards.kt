@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.components.accessibleClickable
 import com.universalmedialibrary.ui.media.theme.*
@@ -206,7 +207,8 @@ fun MediaListItem(
                     text = item.title,
                     style = MediaTypography.BodyMedium,
                     color = MediaColors.TextPrimary,
-                    maxLines = 1,
+                    maxLines = 2,
+                    softWrap = true,
                     overflow = TextOverflow.Ellipsis
                 )
                 
@@ -437,6 +439,10 @@ fun MediaPosterCardSkeleton(
     modifier: Modifier = Modifier,
     width: Dp = MediaSizes.CardMedium
 ) {
+    val density = LocalDensity.current
+    val titlePlaceholderHeight = with(density) { 16.sp.toDp() }
+    val subtitlePlaceholderHeight = with(density) { 12.sp.toDp() }
+
     val shimmerColors = listOf(
         MediaColors.BackgroundElevated,
         MediaColors.BackgroundSurface,
@@ -476,7 +482,7 @@ fun MediaPosterCardSkeleton(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(16.dp)
+                .height(titlePlaceholderHeight)
                 .clip(RoundedCornerShape(MediaCorners.XS))
                 .background(brush)
         )
@@ -487,7 +493,7 @@ fun MediaPosterCardSkeleton(
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.7f)
-                .height(12.dp)
+                .height(subtitlePlaceholderHeight)
                 .clip(RoundedCornerShape(MediaCorners.XS))
                 .background(brush)
         )

@@ -19,6 +19,9 @@ interface PodcastSubscriptionDao {
     @Query("SELECT * FROM podcast_subscriptions WHERE autoDownload = 1")
     fun getAutoDownloadSubscriptions(): Flow<List<PodcastSubscriptionEntity>>
 
+    @Query("SELECT * FROM podcast_subscriptions WHERE autoDownload = 1 AND isActive = 1")
+    suspend fun getAutoDownloadActiveSubscriptions(): List<PodcastSubscriptionEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSubscription(subscription: PodcastSubscriptionEntity): Long
 

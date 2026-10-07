@@ -31,7 +31,6 @@ import com.universalmedialibrary.ui.components.NavigationItems
 import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.EPUBReaderScreen
@@ -171,7 +170,7 @@ fun NavGraphBuilder.discoveryRoutes(
         com.universalmedialibrary.ui.news.NewsScreen(
             onNavigateBack = { navController.popBackStack() },
             onOpenEpub = { path ->
-                navController.navigate("epub_reader/${Uri.encode(path)}")
+                navController.navigate(MediaRoutes.epubReaderRoute(path))
             }
         )
     }

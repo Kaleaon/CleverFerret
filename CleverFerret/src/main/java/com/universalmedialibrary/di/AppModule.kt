@@ -40,6 +40,7 @@ object AppModule {
     @Singleton
     fun provideOkHttpClient(rateLimiter: com.universalmedialibrary.services.network.PerProviderRateLimiter): OkHttpClient {
         return OkHttpClient.Builder()
+            .authenticator(opdsChallengeAuthenticator)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
