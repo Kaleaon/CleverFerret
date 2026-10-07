@@ -23,8 +23,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.ui.media.viewmodels.OnboardingViewModel
 import com.universalmedialibrary.utils.PermissionsHandler
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import kotlinx.coroutines.launch

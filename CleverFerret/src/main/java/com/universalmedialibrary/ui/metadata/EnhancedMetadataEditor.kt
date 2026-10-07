@@ -100,12 +100,13 @@ fun EnhancedMetadataEditorScreen(
             )
         }
     ) { paddingValues ->
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
                 // Search section
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -336,7 +337,6 @@ fun EnhancedMetadataEditorScreen(
                 }
             }
         }
-    }
 
     // Search results dialog
     if (showSearchDialog) {
