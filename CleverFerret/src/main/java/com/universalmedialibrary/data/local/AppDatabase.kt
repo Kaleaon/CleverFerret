@@ -146,6 +146,7 @@ import com.universalmedialibrary.data.Tag
 
         // OCR cache
         OcrCacheEntity::class,
+        PdfOcrCacheEntity::class,
 
         // Ambient sound features
         AmbientSound::class,
@@ -299,6 +300,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     // OCR Cache DAO
     abstract fun ocrCacheDao(): OcrCacheDao
+    abstract fun pdfOcrCacheDao(): PdfOcrCacheDao
 
     // Collaborative Session DAO
     abstract fun collaborativeSessionDao(): CollaborativeSessionDao
