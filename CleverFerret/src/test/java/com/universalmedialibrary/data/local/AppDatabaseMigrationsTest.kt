@@ -84,4 +84,15 @@ class AppDatabaseMigrationsTest {
         assertThat(executedSql.any { it.contains("CREATE VIRTUAL TABLE IF NOT EXISTS `media_fts`") }).isTrue()
         assertThat(executedSql.any { it.contains("media_items_ai") }).isTrue()
     }
+
+    @Test
+    fun `migration 47_48 drops password column from opds_catalogs`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_47_48.migrate(database)
+
+        assertThat(executedSql.any { it.contains("ALTER TABLE opds_catalogs DROP COLUMN password") }).isTrue()
+    }
 }

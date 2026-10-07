@@ -197,7 +197,7 @@ import com.universalmedialibrary.data.Tag
         MediaCacheItem::class
 
     ],
-    version = 47,
+    version = 48,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -345,7 +345,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_43_44,
                         AppDatabaseMigrations.MIGRATION_44_45,
                         AppDatabaseMigrations.MIGRATION_45_46,
-                        AppDatabaseMigrations.MIGRATION_46_47
+                        AppDatabaseMigrations.MIGRATION_46_47,
+                        AppDatabaseMigrations.MIGRATION_47_48
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
