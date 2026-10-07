@@ -12,27 +12,13 @@ object ErrorHandler {
     
     private const val TAG = "CleverFerret"
     
+    private val mapper = UserFriendlyErrorMapper()
+
     /**
      * Converts exceptions to user-friendly error messages
      */
     fun getUserFriendlyMessage(error: Throwable): String {
-        return when (error) {
-            is IOException -> handleIoException(error)
-            is SecurityException -> "Permission denied. Please check app permissions."
-            is OutOfMemoryError -> "Not enough memory to complete this operation."
-            is IllegalArgumentException -> "Invalid input: ${error.message}"
-            is NullPointerException -> "Unexpected null value encountered."
-            else -> error.message ?: "An unexpected error occurred"
-        }
-    }
-    
-    private fun handleIoException(error: IOException): String {
-        return when (error) {
-            is UnknownHostException -> "No internet connection. Please check your network."
-            is SocketTimeoutException -> "Connection timed out. Please try again."
-            is java.io.FileNotFoundException -> "File not found. It may have been moved or deleted."
-            else -> "Failed to read/write data: ${error.message}"
-        }
+        return mapper.mapToMessage(error)
     }
     
     /**

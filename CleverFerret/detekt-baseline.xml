@@ -148,8 +148,6 @@
     <ID>CyclomaticComplexMethod:FanfictionLibraryTab.kt$@Composable fun FanfictionLibraryTab( viewModel: FanfictionViewModel, onStoryClick: (FanfictionStoryEntity) -&gt; Unit )</ID>
     <ID>CyclomaticComplexMethod:FanfictionMetadataService.kt$FanfictionMetadataService$private fun mergeMetadata( fromFilename: FanfictionMetadata, embedded: FanfictionMetadata?, online: FanfictionMetadata? ): FanfictionMetadata</ID>
     <ID>CyclomaticComplexMethod:FanfictionMetadataService.kt$FanfictionMetadataService$private fun parseEpubOpf(opfContent: String): FanfictionMetadata</ID>
-    <ID>CyclomaticComplexMethod:FilteredMediaCard.kt$@Composable fun FilteredMediaCard( mediaItem: MediaItem, onClick: () -&gt; Unit, contentFilterHelper: ContentFilterHelper, parentalControlsSettings: ParentalControlsSettings, modifier: Modifier = Modifier )</ID>
-    <ID>CyclomaticComplexMethod:FilteredMediaCard.kt$@Composable fun FilteredMediaGridItem( mediaItem: MediaItem, onClick: () -&gt; Unit, contentFilterHelper: ContentFilterHelper, parentalControlsSettings: ParentalControlsSettings, modifier: Modifier = Modifier )</ID>
     <ID>CyclomaticComplexMethod:FolderImportScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FolderImportScreen( onBack: () -&gt; Unit, onImportComplete: () -&gt; Unit, viewModel: FolderImportViewModel = hiltViewModel() )</ID>
     <ID>CyclomaticComplexMethod:GalleryManager.kt$GalleryManager$private fun sortItems(items: List&lt;GalleryItem&gt;, sortOrder: GallerySortOrder): List&lt;GalleryItem&gt;</ID>
     <ID>CyclomaticComplexMethod:GalleryManager.kt$GalleryManager$suspend fun getFilteredItems( filter: GalleryFilterRules, sortOrder: GallerySortOrder = GallerySortOrder.DATE_TAKEN_DESC ): List&lt;GalleryItem&gt;</ID>
@@ -315,13 +313,6 @@
     <ID>FunctionNaming:AdvancedButtons.kt$@Composable fun GlassButton( onClick: () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -&gt; Unit )</ID>
     <ID>FunctionNaming:AdvancedButtons.kt$@Composable fun GlowingFab( onClick: () -&gt; Unit, modifier: Modifier = Modifier, icon: ImageVector, contentDescription: String? = null, pulseGlow: Boolean = true )</ID>
     <ID>FunctionNaming:AdvancedButtons.kt$@Composable fun GradientButton( onClick: () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, icon: ImageVector? = null, contentDescription: String? = null, content: @Composable RowScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AdvancedCards.kt$@Composable fun ElevatedLightCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, elevation: Dp = 6.dp, content: @Composable ColumnScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AdvancedCards.kt$@Composable fun EmbossedCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, content: @Composable ColumnScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AdvancedCards.kt$@Composable fun GlassCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, shape: androidx.compose.ui.graphics.Shape = MaterialTheme.shapes.medium, content: @Composable ColumnScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AdvancedCards.kt$@Composable fun GlowingCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, glowColor: Color = MaterialTheme.colorScheme.primary, elevation: Dp = 4.dp, content: @Composable ColumnScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AdvancedCards.kt$@Composable fun GradientOverlayCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, gradientColors: List&lt;Color&gt; = listOf( MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary ), elevation: Dp = 4.dp, content: @Composable ColumnScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AdvancedCards.kt$@Composable fun MetallicCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, shape: androidx.compose.ui.graphics.Shape = MaterialTheme.shapes.medium, elevation: Dp = 4.dp, content: @Composable ColumnScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AdvancedCards.kt$@Composable fun PatternedCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, patternType: PatternType = PatternType.SUBTLE_GRID, elevation: Dp = 4.dp, content: @Composable ColumnScope.() -&gt; Unit )</ID>
     <ID>FunctionNaming:AdvancedComicReader.kt$@Composable internal fun SettingToggleRow( title: String, checked: Boolean, onCheckedChange: (Boolean) -&gt; Unit )</ID>
     <ID>FunctionNaming:AdvancedComicReader.kt$@Composable private fun ErrorState( error: String, onRetry: () -&gt; Unit, onBack: () -&gt; Unit )</ID>
     <ID>FunctionNaming:AdvancedComicReader.kt$@Composable private fun LoadingState()</ID>
@@ -368,9 +359,6 @@
     <ID>FunctionNaming:AncientArchitectButton.kt$@Composable fun AncientArchitectPrimaryButton( onClick: () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -&gt; Unit )</ID>
     <ID>FunctionNaming:AncientArchitectButton.kt$@Composable fun AncientArchitectSecondaryButton( onClick: () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -&gt; Unit )</ID>
     <ID>FunctionNaming:AncientArchitectButton.kt$@Composable fun AncientArchitectTextButton( onClick: () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AncientArchitectCard.kt$@Composable fun AncientArchitectCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, enabled: Boolean = true, shape: androidx.compose.ui.graphics.Shape = AncientArchitectShapes.steppedMedium, colors: CardColors = CardDefaults.cardColors(), elevation: CardElevation = CardDefaults.cardElevation(), border: Dp = 2.dp, showPattern: Boolean = true, showCornerDecorations: Boolean = true, enableShimmer: Boolean = false, content: @Composable ColumnScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AncientArchitectCard.kt$@Composable fun AncientArchitectElevatedCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, enabled: Boolean = true, showGlow: Boolean = true, content: @Composable ColumnScope.() -&gt; Unit )</ID>
-    <ID>FunctionNaming:AncientArchitectCard.kt$@Composable fun AncientArchitectOutlinedCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, enabled: Boolean = true, content: @Composable ColumnScope.() -&gt; Unit )</ID>
     <ID>FunctionNaming:AncientArchitectNavigationRail.kt$@Composable fun AncientArchitectNavigationRail( modifier: Modifier = Modifier, containerColor: Color = Color.Unspecified, contentColor: Color = Color.Unspecified, header: (@Composable ColumnScope.() -&gt; Unit)? = null, content: @Composable ColumnScope.() -&gt; Unit )</ID>
     <ID>FunctionNaming:AncientArchitectNavigationRail.kt$@Composable fun AncientArchitectNavigationRailItem( selected: Boolean, onClick: () -&gt; Unit, icon: @Composable () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, label: (@Composable () -&gt; Unit)? = null, alwaysShowLabel: Boolean = true )</ID>
     <ID>FunctionNaming:AncientArchitectNavigationRail.kt$@Composable fun AncientArchitectNavigationRailWithItems( selectedIndex: Int, items: List&lt;RailNavigationItem&gt;, onItemSelected: (Int) -&gt; Unit, modifier: Modifier = Modifier, header: (@Composable ColumnScope.() -&gt; Unit)? = null )</ID>
@@ -468,6 +456,13 @@
     <ID>FunctionNaming:BugReportDialog.kt$@Composable internal fun BugReportDialog( onDismiss: () -&gt; Unit, onSubmit: (title: String, description: String, steps: String) -&gt; Unit )</ID>
     <ID>FunctionNaming:CFTheme.kt$@Composable fun CFTheme( palette: CFPalette = CFThemes.NavyGold, content: @Composable () -&gt; Unit, )</ID>
     <ID>FunctionNaming:CacheSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CacheSettingsScreen( onBack: () -&gt; Unit, viewModel: CacheSettingsViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:CanonicalMediaCard.kt$@Composable fun CanonicalMediaCard( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier = Modifier, variant: CanonicalCardVariant = CanonicalCardVariant.POSTER, onPlayClick: (() -&gt; Unit)? = null, showProgress: Boolean = true, showBadges: Boolean = true, showOverlayInfo: Boolean = true, cardWidth: Dp = when (variant) { CanonicalCardVariant.POSTER -&gt; MediaSizes.CardMedium CanonicalCardVariant.SQUARE -&gt; MediaSizes.CardMedium CanonicalCardVariant.WIDE -&gt; MediaSizes.CardXLarge CanonicalCardVariant.HERO -&gt; Dp.Unspecified CanonicalCardVariant.COMPACT_LIST -&gt; Dp.Unspecified } )</ID>
+    <ID>FunctionNaming:CanonicalMediaCard.kt$@Composable fun CanonicalMediaCard( title: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, subtitle: String? = null, imageUrl: String? = null, progress: Float? = null, badge: String? = null, mediaType: String? = null, variant: CanonicalCardVariant = CanonicalCardVariant.POSTER )</ID>
+    <ID>FunctionNaming:CanonicalMediaCard.kt$@Composable private fun CompactListLayout( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier, showProgress: Boolean )</ID>
+    <ID>FunctionNaming:CanonicalMediaCard.kt$@Composable private fun HeroLayout( item: MediaItem, onClick: () -&gt; Unit, onPlayClick: (() -&gt; Unit)?, modifier: Modifier )</ID>
+    <ID>FunctionNaming:CanonicalMediaCard.kt$@Composable private fun PosterLayout( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier, width: Dp, showProgress: Boolean, showBadges: Boolean )</ID>
+    <ID>FunctionNaming:CanonicalMediaCard.kt$@Composable private fun SquareLayout( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier, size: Dp, showTitle: Boolean )</ID>
+    <ID>FunctionNaming:CanonicalMediaCard.kt$@Composable private fun WideLayout( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier, width: Dp, showOverlayInfo: Boolean, showProgress: Boolean )</ID>
     <ID>FunctionNaming:CastingSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CastingSettingsScreen( onBack: () -&gt; Unit, viewModel: CastingSettingsViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:CategoryCard.kt$@Composable internal fun CategoryCard( category: RadioCategory, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:CategoryFilterRow.kt$@Composable internal fun CategoryFilterRow( selectedCategory: SearchCategory?, onCategoryChange: (SearchCategory?) -&gt; Unit )</ID>
@@ -514,12 +509,6 @@
     <ID>FunctionNaming:ComicTranslationSettingsScreen.kt$@Composable private fun ApiKeyTextField( label: String, value: String, onValueChange: (String) -&gt; Unit, isVisible: Boolean, onVisibilityToggle: () -&gt; Unit, helpText: String )</ID>
     <ID>FunctionNaming:ComicTranslationSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ComicTranslationSettingsScreen( viewModel: ComicTranslationSettingsViewModel = hiltViewModel(), onNavigateBack: () -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:ComicTranslationSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun LanguageSelector( selectedLanguage: String, availableLanguages: List&lt;ComicTranslationSettingsViewModel.Language&gt;, onLanguageSelected: (String) -&gt; Unit )</ID>
-    <ID>FunctionNaming:CommonCards.kt$@Composable fun EmptyStateCard( icon: ImageVector, title: String, description: String, actionLabel: String, onActionClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:CommonCards.kt$@Composable fun ErrorStateCard( message: String, onRetry: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:CommonCards.kt$@Composable fun InfoBanner( message: String, icon: ImageVector = Icons.Default.Info, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:CommonCards.kt$@Composable fun LoadingStateCard( message: String, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:CommonCards.kt$@Composable fun SectionHeader( title: String, modifier: Modifier = Modifier, actionLabel: String? = null, onActionClick: (() -&gt; Unit)? = null )</ID>
-    <ID>FunctionNaming:CommonCards.kt$@Composable fun StatsCard( icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:ConfirmationDialog.kt$@Composable fun ConfirmationDialog( title: String, message: String, confirmLabel: String, dismissLabel: String, onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit, warningTint: Color = MaterialTheme.colorScheme.error, isPrimaryRecoveryAction: Boolean = false )</ID>
     <ID>FunctionNaming:ContentRestrictionsCard.kt$@Composable internal fun ContentRestrictionsCard( blockMature: Boolean, blockExplicit: Boolean, hideAdultContent: Boolean, requirePinForAdult: Boolean, allowAdultSources: Boolean, canToggleAdultSources: Boolean, adultSourcesDisabledReason: String?, hasPinSet: Boolean, onBlockMatureChange: (Boolean) -&gt; Unit, onBlockExplicitChange: (Boolean) -&gt; Unit, onHideAdultContentChange: (Boolean) -&gt; Unit, onAllowAdultSourcesChange: (Boolean) -&gt; Unit, onRequirePinChange: (Boolean) -&gt; Unit )</ID>
     <ID>FunctionNaming:ContinueReadingSection.kt$@Composable fun ContinueReadingSection( onOpenItem: (Long) -&gt; Unit, viewModel: ContinueReadingViewModel = hiltViewModel() )</ID>
@@ -606,9 +595,6 @@
     <ID>FunctionNaming:EnhancedAutoScroll.kt$@Composable private fun PresetSpeedButton( label: String, speed: Float, onSpeedChange: (Float) -&gt; Unit )</ID>
     <ID>FunctionNaming:EnhancedBookshelfScreen.kt$@Composable internal fun GridBookItem( book: BookItem, isSelected: Boolean, isSelectionMode: Boolean, onClick: () -&gt; Unit, onLongClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:EnhancedBookshelfScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun FilterSheet( filterOptions: FilterOptions, onFilterChange: (FilterOptions) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:EnhancedCards.kt$@Composable fun AnimatedInfoCard( icon: ImageVector, title: String, value: String, trend: String? = null, trendUp: Boolean = true, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:EnhancedCards.kt$@Composable fun FeatureCard( icon: ImageVector, title: String, description: String, actionText: String = "Get Started", enabled: Boolean = true, onAction: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:EnhancedCards.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EnhancedMediaCard( title: String, subtitle: String? = null, imageUrl: String? = null, progress: Float? = null, badge: String? = null, mediaType: String? = null, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:EnhancedCommonComponents.kt$@Composable fun DismissibleInfoBanner( message: String, type: BannerType = BannerType.INFO, dismissible: Boolean = true, onDismiss: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:EnhancedCommonComponents.kt$@Composable fun TagChip( label: String, color: Color = MaterialTheme.colorScheme.primaryContainer, onTextColor: Color = MaterialTheme.colorScheme.onPrimaryContainer, onClick: (() -&gt; Unit)? = null, onRemove: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:EnhancedEReaderScreen.kt$@Composable internal fun InsightCard(title: String, content: String)</ID>
@@ -744,9 +730,6 @@
     <ID>FunctionNaming:FileSystemTopBar.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun FileSystemTopBar( currentPath: String, isMultiSelectMode: Boolean, selectedCount: Int, onBack: () -&gt; Unit, onSelectAll: () -&gt; Unit, onClearSelection: () -&gt; Unit, onSearch: (String) -&gt; Unit )</ID>
     <ID>FunctionNaming:FileTypeFilterSection.kt$@Composable internal fun FileTypeFilterSection( selectedTypes: Set&lt;FileType&gt;, onTypesChange: (Set&lt;FileType&gt;) -&gt; Unit )</ID>
     <ID>FunctionNaming:FilterBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun FilterBottomSheet( currentFilter: LibraryFilter, availableFilters: List&lt;LibraryFilterGroup&gt;, onFilterChange: (LibraryFilter) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:FilteredMediaCard.kt$@Composable fun ContentRatingBadge( rating: String, isRestricted: Boolean, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:FilteredMediaCard.kt$@Composable fun FilteredMediaCard( mediaItem: MediaItem, onClick: () -&gt; Unit, contentFilterHelper: ContentFilterHelper, parentalControlsSettings: ParentalControlsSettings, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:FilteredMediaCard.kt$@Composable fun FilteredMediaGridItem( mediaItem: MediaItem, onClick: () -&gt; Unit, contentFilterHelper: ContentFilterHelper, parentalControlsSettings: ParentalControlsSettings, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:FlagsTab.kt$@Composable internal fun FlagsTab( flags: Map&lt;String, Boolean&gt;, onToggleFlag: (String, Boolean) -&gt; Unit )</ID>
     <ID>FunctionNaming:FloatingAnnotationPanel.kt$@Composable fun FloatingAnnotationPanel( annotations: List&lt;Annotation&gt;, onAnnotationClick: (Annotation) -&gt; Unit, onAnnotationDelete: (Long) -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:FluidVisualizer.kt$@Composable internal fun FluidVisualizer( state: VisualizerState, color1: Color, color2: Color, color3: Color )</ID>
@@ -1397,7 +1380,7 @@
     <ID>FunctionNaming:PinEntryDialog.kt$@Composable private fun PinNumberButton( number: Int, onClick: (Int) -&gt; Unit )</ID>
     <ID>FunctionNaming:PinEntryDialog.kt$@Composable private fun PinNumberPad( onNumber: (Int) -&gt; Unit, onBackspace: () -&gt; Unit )</ID>
     <ID>FunctionNaming:PinSetupCard.kt$@Composable internal fun PinSetupCard( hasPinSet: Boolean, onSetPin: () -&gt; Unit, onChangePin: () -&gt; Unit, onClearPin: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:PlaybackControls.kt$@Composable internal fun PlaybackControls( isPlaying: Boolean, onPlayPause: () -&gt; Unit, onPrevious: () -&gt; Unit, onNext: () -&gt; Unit, onShuffle: () -&gt; Unit, onRepeat: () -&gt; Unit, isShuffleEnabled: Boolean, repeatMode: RepeatMode, iconTint: Color, highlightColor: Color )</ID>
+    <ID>FunctionNaming:PlaybackControls.kt$@Composable internal fun PlaybackControls( isPlaying: Boolean, onPlayPause: () -&gt; Unit, onPrevious: () -&gt; Unit, onNext: () -&gt; Unit, onShuffle: () -&gt; Unit, onRepeat: () -&gt; Unit, isShuffleEnabled: Boolean, repeatMode: RepeatMode, iconTint: Color = LocalCFTokens.current.playerControls.controlIcon, highlightColor: Color = LocalCFTokens.current.playerControls.activeAccent )</ID>
     <ID>FunctionNaming:PlayerTopBar.kt$@Composable internal fun PlayerTopBar( title: String, subtitle: String?, isCasting: Boolean, onClose: () -&gt; Unit, onCast: () -&gt; Unit, onQueue: () -&gt; Unit )</ID>
     <ID>FunctionNaming:PlaylistCard.kt$@Composable internal fun PlaylistCard( playlist: MusicPlaylist, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:PlaylistCard.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun PlaylistCard( summary: PlaylistSummary, expandedMenuId: Long?, onExpandMenu: (Long?) -&gt; Unit, onDismissMenu: () -&gt; Unit, onPlay: () -&gt; Unit, onShuffle: () -&gt; Unit, onQueue: (Boolean) -&gt; Unit, onRename: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
@@ -1666,6 +1649,13 @@
     <ID>FunctionNaming:SpeedPickerDialog.kt$@Composable internal fun SpeedPickerDialog( currentSpeed: Float, onSpeedChange: (Float) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>FunctionNaming:StarfieldVisualizer.kt$@Composable internal fun StarfieldVisualizer( state: VisualizerState, rotation: Float, starColor: Color )</ID>
     <ID>FunctionNaming:StatCard.kt$@Composable internal fun StatCard( icon: androidx.compose.ui.graphics.vector.ImageVector, value: String, label: String, color: Color, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:StateCards.kt$@Composable fun ContentRatingBadge( rating: String, isRestricted: Boolean, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:StateCards.kt$@Composable fun EmptyStateCard( icon: ImageVector, title: String, description: String, actionLabel: String, onActionClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:StateCards.kt$@Composable fun ErrorStateCard( message: String, onRetry: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:StateCards.kt$@Composable fun InfoBanner( message: String, icon: ImageVector = Icons.Default.Info, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:StateCards.kt$@Composable fun LoadingStateCard( message: String, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:StateCards.kt$@Composable fun SectionHeader( title: String, modifier: Modifier = Modifier, actionLabel: String? = null, onActionClick: (() -&gt; Unit)? = null, icon: ImageVector? = null )</ID>
+    <ID>FunctionNaming:StateCards.kt$@Composable fun StatsCard( icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:StatusComponents.kt$@Composable fun SelectableChip( text: String, selected: Boolean, state: SemanticState, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:StatusComponents.kt$@Composable fun StatCard( title: String, value: String, state: SemanticState, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:StorageBrowserScreen.kt$@Composable private fun EmptyFolderView()</ID>
@@ -1976,10 +1966,8 @@
     <ID>LongMethod:AmbientSoundScreen.kt$@Composable private fun SoundCard( sound: AmbientSound, isPlaying: Boolean, onToggle: () -&gt; Unit, onFavoriteToggle: () -&gt; Unit, onVolumeChange: (Float) -&gt; Unit )</ID>
     <ID>LongMethod:AmbientSoundScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AmbientSoundScreen( onBack: () -&gt; Unit, onNavigateToThemeManager: () -&gt; Unit = {}, viewModel: AmbientSoundViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:AmbientSoundsSection.kt$fun LazyListScope.ambientSoundsSection( uiState: SettingsUiState, viewModel: SettingsViewModel, navController: androidx.navigation.NavController, )</ID>
-    <ID>LongMethod:AncientArchitectCard.kt$@Composable fun AncientArchitectCard( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, enabled: Boolean = true, shape: androidx.compose.ui.graphics.Shape = AncientArchitectShapes.steppedMedium, colors: CardColors = CardDefaults.cardColors(), elevation: CardElevation = CardDefaults.cardElevation(), border: Dp = 2.dp, showPattern: Boolean = true, showCornerDecorations: Boolean = true, enableShimmer: Boolean = false, content: @Composable ColumnScope.() -&gt; Unit )</ID>
     <ID>LongMethod:AncientArchitectNavigationRail.kt$@Composable fun AncientArchitectNavigationRailItem( selected: Boolean, onClick: () -&gt; Unit, icon: @Composable () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, label: (@Composable () -&gt; Unit)? = null, alwaysShowLabel: Boolean = true )</ID>
     <ID>LongMethod:AncientArchitectNotification.kt$@Composable fun AncientArchitectNotification( message: String, type: NotificationType = NotificationType.INFO, modifier: Modifier = Modifier, title: String? = null, icon: ImageVector? = null, showIcon: Boolean = true, dismissible: Boolean = true, onDismiss: (() -&gt; Unit)? = null, action: (@Composable () -&gt; Unit)? = null )</ID>
-    <ID>LongMethod:AncientArchitectTheme.kt$@Composable fun AncientArchitectTheme( variant: AncientArchitectVariant = AncientArchitectVariant.ANCIENT_BRONZE, enableGeometricPatterns: Boolean = true, enableMetallicShimmer: Boolean = true, enableCrystalGlow: Boolean = true, content: @Composable () -&gt; Unit )</ID>
     <ID>LongMethod:AniListTracker.kt$AniListTracker$override suspend fun getMangaList(status: TrackingStatus?): Result&lt;TrackingMangaList&gt;</ID>
     <ID>LongMethod:AniListTracker.kt$AniListTracker$override suspend fun updateManga(entry: ScrobblingEntry): Result&lt;TrackedManga&gt;</ID>
     <ID>LongMethod:AnnotationExportService.kt$AnnotationExportService$private fun exportToPdf( annotations: List&lt;EnhancedAnnotation&gt;, config: AnnotationExportConfig, outputPath: String )</ID>
@@ -2030,6 +2018,10 @@
     <ID>LongMethod:CalibreExportService.kt$CalibreExportService$private fun createCalibreDatabase(dbPath: String)</ID>
     <ID>LongMethod:CalibreExportService.kt$CalibreExportService$private suspend fun exportBookToCalibre( db: SQLiteDatabase, item: MediaItem, exportDir: File )</ID>
     <ID>LongMethod:CalibreImportService.kt$CalibreImportService$suspend fun importCalibreDatabase( calibreDbPath: String, libraryRootPath: String, libraryId: Long, chunkSize: Int = 250, onProgress: (imported: Int, total: Int) -&gt; Unit = { _, _ -&gt; } )</ID>
+    <ID>LongMethod:CanonicalMediaCard.kt$@Composable private fun HeroLayout( item: MediaItem, onClick: () -&gt; Unit, onPlayClick: (() -&gt; Unit)?, modifier: Modifier )</ID>
+    <ID>LongMethod:CanonicalMediaCard.kt$@Composable private fun PosterLayout( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier, width: Dp, showProgress: Boolean, showBadges: Boolean )</ID>
+    <ID>LongMethod:CanonicalMediaCard.kt$@Composable private fun SquareLayout( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier, size: Dp, showTitle: Boolean )</ID>
+    <ID>LongMethod:CanonicalMediaCard.kt$@Composable private fun WideLayout( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier, width: Dp, showOverlayInfo: Boolean, showProgress: Boolean )</ID>
     <ID>LongMethod:CenterControls.kt$@Composable internal fun CenterControls( isPlaying: Boolean, isBuffering: Boolean, hasNext: Boolean, hasPrevious: Boolean, onPlayPause: () -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onRewind: () -&gt; Unit, onFastForward: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:ChapterListDialog.kt$@Composable fun ChapterListDialog( chapters: List&lt;String&gt;, currentChapter: Int, onChapterSelect: (Int) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>LongMethod:ChapterListItem.kt$@Composable internal fun ChapterListItem( chapter: ChapterItem, onClick: () -&gt; Unit )</ID>
@@ -2094,9 +2086,6 @@
     <ID>LongMethod:EnhancedAutoScroll.kt$@Composable fun EnhancedAutoScrollControls( isScrolling: Boolean, scrollSpeed: Float, onScrollToggle: () -&gt; Unit, onSpeedChange: (Float) -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:EnhancedBookshelfScreen.kt$@Composable internal fun GridBookItem( book: BookItem, isSelected: Boolean, isSelectionMode: Boolean, onClick: () -&gt; Unit, onLongClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:EnhancedBookshelfScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun FilterSheet( filterOptions: FilterOptions, onFilterChange: (FilterOptions) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
-    <ID>LongMethod:EnhancedCards.kt$@Composable fun AnimatedInfoCard( icon: ImageVector, title: String, value: String, trend: String? = null, trendUp: Boolean = true, modifier: Modifier = Modifier )</ID>
-    <ID>LongMethod:EnhancedCards.kt$@Composable fun FeatureCard( icon: ImageVector, title: String, description: String, actionText: String = "Get Started", enabled: Boolean = true, onAction: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>LongMethod:EnhancedCards.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EnhancedMediaCard( title: String, subtitle: String? = null, imageUrl: String? = null, progress: Float? = null, badge: String? = null, mediaType: String? = null, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:EnhancedEReaderScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EnhancedEReaderScreen( bookFilePath: String, onBack: () -&gt; Unit, viewModel: EnhancedEReaderViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:EnhancedEmptyStates.kt$@Composable fun EnhancedEmptyState( icon: ImageVector, title: String, description: String, actionText: String? = null, onAction: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:EnhancedEmptyStates.kt$@Composable fun EnhancedErrorState( title: String = "Something Went Wrong", message: String, onRetry: (() -&gt; Unit)? = null, onDismiss: (() -&gt; Unit)? = null, retryLabel: String = "Retry", dismissLabel: String = "Dismiss", modifier: Modifier = Modifier )</ID>
@@ -2155,8 +2144,6 @@
     <ID>LongMethod:FileListItem.kt$@Composable internal fun FileListItem( item: FileItem, isSelected: Boolean, onClick: () -&gt; Unit, onLongClick: () -&gt; Unit )</ID>
     <ID>LongMethod:FileListItem.kt$@OptIn(ExperimentalFoundationApi::class) @Composable internal fun FileListItem( item: FileItem, isSelected: Boolean, showCheckbox: Boolean, onClick: () -&gt; Unit, onLongClick: () -&gt; Unit )</ID>
     <ID>LongMethod:FileSystemTopBar.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun FileSystemTopBar( currentPath: String, isMultiSelectMode: Boolean, selectedCount: Int, onBack: () -&gt; Unit, onSelectAll: () -&gt; Unit, onClearSelection: () -&gt; Unit, onSearch: (String) -&gt; Unit )</ID>
-    <ID>LongMethod:FilteredMediaCard.kt$@Composable fun FilteredMediaCard( mediaItem: MediaItem, onClick: () -&gt; Unit, contentFilterHelper: ContentFilterHelper, parentalControlsSettings: ParentalControlsSettings, modifier: Modifier = Modifier )</ID>
-    <ID>LongMethod:FilteredMediaCard.kt$@Composable fun FilteredMediaGridItem( mediaItem: MediaItem, onClick: () -&gt; Unit, contentFilterHelper: ContentFilterHelper, parentalControlsSettings: ParentalControlsSettings, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:FloatingAnnotationPanel.kt$@Composable fun FloatingAnnotationPanel( annotations: List&lt;Annotation&gt;, onAnnotationClick: (Annotation) -&gt; Unit, onAnnotationDelete: (Long) -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:FolderImportScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FolderImportScreen( onBack: () -&gt; Unit, onImportComplete: () -&gt; Unit, viewModel: FolderImportViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:FolderImportViewModel.kt$FolderImportViewModel$suspend fun importFiles(context: Context)</ID>
@@ -2433,7 +2420,7 @@
     <ID>LongMethod:PianoRollEditor.kt$@Composable private fun PianoRollGrid( notes: List&lt;MidiNote&gt;, selectedNote: MidiNote?, zoomLevel: Float, onNoteClick: (MidiNote) -&gt; Unit, onNoteRemove: (MidiNote) -&gt; Unit, onNoteMove: (MidiNote, Long, Int) -&gt; Unit, onAddNote: (Int, Long, Long, Int) -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:PinEntryDialog.kt$@Composable fun PinEntryDialog( title: String, initialPrompt: String, confirmPrompt: String? = null, supportingText: String? = null, error: String?, onDismiss: () -&gt; Unit, onPinComplete: (String) -&gt; Unit )</ID>
     <ID>LongMethod:PinSetupCard.kt$@Composable internal fun PinSetupCard( hasPinSet: Boolean, onSetPin: () -&gt; Unit, onChangePin: () -&gt; Unit, onClearPin: () -&gt; Unit )</ID>
-    <ID>LongMethod:PlaybackControls.kt$@Composable internal fun PlaybackControls( isPlaying: Boolean, onPlayPause: () -&gt; Unit, onPrevious: () -&gt; Unit, onNext: () -&gt; Unit, onShuffle: () -&gt; Unit, onRepeat: () -&gt; Unit, isShuffleEnabled: Boolean, repeatMode: RepeatMode, iconTint: Color, highlightColor: Color )</ID>
+    <ID>LongMethod:PlaybackControls.kt$@Composable internal fun PlaybackControls( isPlaying: Boolean, onPlayPause: () -&gt; Unit, onPrevious: () -&gt; Unit, onNext: () -&gt; Unit, onShuffle: () -&gt; Unit, onRepeat: () -&gt; Unit, isShuffleEnabled: Boolean, repeatMode: RepeatMode, iconTint: Color = LocalCFTokens.current.playerControls.controlIcon, highlightColor: Color = LocalCFTokens.current.playerControls.activeAccent )</ID>
     <ID>LongMethod:PlayerRoutes.kt$fun NavGraphBuilder.playerRoutes( navController: NavHostController, onShowSnackbar: (String) -&gt; Unit )</ID>
     <ID>LongMethod:PlaylistCard.kt$@Composable internal fun PlaylistCard( playlist: MusicPlaylist, onClick: () -&gt; Unit )</ID>
     <ID>LongMethod:PlaylistCard.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun PlaylistCard( summary: PlaylistSummary, expandedMenuId: Long?, onExpandMenu: (Long?) -&gt; Unit, onDismissMenu: () -&gt; Unit, onPlay: () -&gt; Unit, onShuffle: () -&gt; Unit, onQueue: (Boolean) -&gt; Unit, onRename: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
@@ -2646,7 +2633,6 @@
     <ID>LongParameterList:AdvancedVideoPlayerScreen.kt$( seekPreview: Long, volumeAdjustment: Float, brightnessAdjustment: Float, currentPosition: Long, duration: Long, isDragging: Boolean )</ID>
     <ID>LongParameterList:AncientArchitectButton.kt$( onClick: () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, shape: androidx.compose.ui.graphics.Shape = AncientArchitectShapes.beveledMedium, colors: ButtonColors = ButtonDefaults.buttonColors(), elevation: ButtonElevation? = ButtonDefaults.buttonElevation(), border: androidx.compose.foundation.BorderStroke? = null, contentPadding: PaddingValues = ButtonDefaults.ContentPadding, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, content: @Composable RowScope.() -&gt; Unit )</ID>
     <ID>LongParameterList:AncientArchitectButton.kt$( onClick: () -&gt; Unit, modifier: Modifier = Modifier, shape: androidx.compose.ui.graphics.Shape = AncientArchitectShapes.diamond, containerColor: Color = Color.Unspecified, contentColor: Color = Color.Unspecified, elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(), content: @Composable () -&gt; Unit )</ID>
-    <ID>LongParameterList:AncientArchitectCard.kt$( modifier: Modifier = Modifier, onClick: (() -&gt; Unit)? = null, enabled: Boolean = true, shape: androidx.compose.ui.graphics.Shape = AncientArchitectShapes.steppedMedium, colors: CardColors = CardDefaults.cardColors(), elevation: CardElevation = CardDefaults.cardElevation(), border: Dp = 2.dp, showPattern: Boolean = true, showCornerDecorations: Boolean = true, enableShimmer: Boolean = false, content: @Composable ColumnScope.() -&gt; Unit )</ID>
     <ID>LongParameterList:AncientArchitectNavigationRail.kt$( selected: Boolean, onClick: () -&gt; Unit, icon: @Composable () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, label: (@Composable () -&gt; Unit)? = null, alwaysShowLabel: Boolean = true )</ID>
     <ID>LongParameterList:AncientArchitectNotification.kt$( message: String, type: NotificationType = NotificationType.INFO, modifier: Modifier = Modifier, title: String? = null, icon: ImageVector? = null, showIcon: Boolean = true, dismissible: Boolean = true, onDismiss: (() -&gt; Unit)? = null, action: (@Composable () -&gt; Unit)? = null )</ID>
     <ID>LongParameterList:AncientArchitectNotification.kt$( onDismissRequest: () -&gt; Unit, confirmButton: @Composable () -&gt; Unit, modifier: Modifier = Modifier, dismissButton: (@Composable () -&gt; Unit)? = null, icon: (@Composable () -&gt; Unit)? = null, title: (@Composable () -&gt; Unit)? = null, text: (@Composable () -&gt; Unit)? = null, type: NotificationType = NotificationType.INFO )</ID>
@@ -2674,6 +2660,10 @@
     <ID>LongParameterList:BottomComicControls.kt$( currentPage: Int, totalPages: Int, currentPanel: Int, totalPanels: Int, panelByPanelMode: Boolean, readingDirection: ReadingDirection, canGoPrevious: Boolean, canGoNext: Boolean, onPreviousPage: () -&gt; Unit, onNextPage: () -&gt; Unit, onPreviousPanel: () -&gt; Unit, onNextPanel: () -&gt; Unit, onPageSeek: (Int) -&gt; Unit, onTogglePanelMode: () -&gt; Unit )</ID>
     <ID>LongParameterList:BottomReaderControls.kt$( currentPage: Int, totalPages: Int, readingProgress: Float, canGoPrevious: Boolean, canGoNext: Boolean, onPreviousPage: () -&gt; Unit, onNextPage: () -&gt; Unit, onPageSeek: (Int) -&gt; Unit )</ID>
     <ID>LongParameterList:BroadcastManager.kt$BroadcastManager$( isPlaying: Boolean, isPaused: Boolean, shuffle: PlaylistMode, repeat: PlaylistMode, volume: Float, position: Long = 0L, duration: Long = 0L )</ID>
+    <ID>LongParameterList:CanonicalMediaCard.kt$( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier = Modifier, variant: CanonicalCardVariant = CanonicalCardVariant.POSTER, onPlayClick: (() -&gt; Unit)? = null, showProgress: Boolean = true, showBadges: Boolean = true, showOverlayInfo: Boolean = true, cardWidth: Dp = when (variant) { CanonicalCardVariant.POSTER -&gt; MediaSizes.CardMedium CanonicalCardVariant.SQUARE -&gt; MediaSizes.CardMedium CanonicalCardVariant.WIDE -&gt; MediaSizes.CardXLarge CanonicalCardVariant.HERO -&gt; Dp.Unspecified CanonicalCardVariant.COMPACT_LIST -&gt; Dp.Unspecified } )</ID>
+    <ID>LongParameterList:CanonicalMediaCard.kt$( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier, width: Dp, showOverlayInfo: Boolean, showProgress: Boolean )</ID>
+    <ID>LongParameterList:CanonicalMediaCard.kt$( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier, width: Dp, showProgress: Boolean, showBadges: Boolean )</ID>
+    <ID>LongParameterList:CanonicalMediaCard.kt$( title: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, subtitle: String? = null, imageUrl: String? = null, progress: Float? = null, badge: String? = null, mediaType: String? = null, variant: CanonicalCardVariant = CanonicalCardVariant.POSTER )</ID>
     <ID>LongParameterList:CenterControls.kt$( isPlaying: Boolean, isBuffering: Boolean, hasNext: Boolean, hasPrevious: Boolean, onPlayPause: () -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onRewind: () -&gt; Unit, onFastForward: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:CloudStorageScreen.kt$( provider: CloudProvider, isEnabled: Boolean, isAuthenticated: Boolean, storageUsage: StorageUsage?, onToggle: (Boolean) -&gt; Unit, onAuthenticate: () -&gt; Unit, onManage: () -&gt; Unit )</ID>
     <ID>LongParameterList:CloudSyncEngine.kt$CloudSyncEngine$( isLoading: Boolean? = null, status: String? = null, error: String? = null, syncStatus: SyncStatus? = null, lastSyncTime: Long? = null, progress: Float? = null, itemsSynced: Int? = null, totalItems: Int? = null, conflictsCount: Int? = null, errorMessage: String? = null )</ID>
@@ -2682,7 +2672,6 @@
     <ID>LongParameterList:ComicTranslationOverlayCanvas.kt$( textElement: TextElement, imageWidth: Float, imageHeight: Float, textMeasurer: TextMeasurer, textColor: Color, backgroundColor: Color )</ID>
     <ID>LongParameterList:ComicTranslationOverlayCanvas.kt$( textElement: TextElement, x: Float, y: Float, imageWidth: Float, imageHeight: Float, canvasWidth: Float, canvasHeight: Float )</ID>
     <ID>LongParameterList:ComicTranslationSettingsScreen.kt$( label: String, value: String, onValueChange: (String) -&gt; Unit, isVisible: Boolean, onVisibilityToggle: () -&gt; Unit, helpText: String )</ID>
-    <ID>LongParameterList:CommonCards.kt$( icon: ImageVector, title: String, description: String, actionLabel: String, onActionClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:ComprehensiveMetadataService.kt$ComprehensiveMetadataService$( private val realMetadataService: RealMetadataService, private val movieTrailerService: MovieTrailerService, private val movieReviewService: MovieReviewService, private val artworkLoader: ArtworkLoader, private val apiKeyRepository: APIKeyRepository, private val mediaItemDao: MediaItemDao, private val metadataDao: MetadataDao )</ID>
     <ID>LongParameterList:ConfirmationDialog.kt$( title: String, message: String, confirmLabel: String, dismissLabel: String, onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit, warningTint: Color = MaterialTheme.colorScheme.error, isPrimaryRecoveryAction: Boolean = false )</ID>
     <ID>LongParameterList:ContentRestrictionsCard.kt$( blockMature: Boolean, blockExplicit: Boolean, hideAdultContent: Boolean, requirePinForAdult: Boolean, allowAdultSources: Boolean, canToggleAdultSources: Boolean, adultSourcesDisabledReason: String?, hasPinSet: Boolean, onBlockMatureChange: (Boolean) -&gt; Unit, onBlockExplicitChange: (Boolean) -&gt; Unit, onHideAdultContentChange: (Boolean) -&gt; Unit, onAllowAdultSourcesChange: (Boolean) -&gt; Unit, onRequirePinChange: (Boolean) -&gt; Unit )</ID>
@@ -2694,9 +2683,6 @@
     <ID>LongParameterList:DoublePageView.kt$( pages: List&lt;String&gt;, currentPage: Int, scale: Float, offsetX: Float, offsetY: Float, onPageChanged: (Int) -&gt; Unit, onScaleChanged: (Float) -&gt; Unit, onOffsetChanged: (Float, Float) -&gt; Unit, onTap: () -&gt; Unit )</ID>
     <ID>LongParameterList:EPUBTestActivity.kt$( selectedUri: Uri?, testResults: String, onSelectEpub: () -&gt; Unit, onTestChapterNavigation: () -&gt; Unit, onTestSearch: (String) -&gt; Unit, onTestBookmark: () -&gt; Unit )</ID>
     <ID>LongParameterList:EnhancedBookshelfScreen.kt$( book: BookItem, isSelected: Boolean, isSelectionMode: Boolean, onClick: () -&gt; Unit, onLongClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>LongParameterList:EnhancedCards.kt$( icon: ImageVector, title: String, description: String, actionText: String = "Get Started", enabled: Boolean = true, onAction: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>LongParameterList:EnhancedCards.kt$( icon: ImageVector, title: String, value: String, trend: String? = null, trendUp: Boolean = true, modifier: Modifier = Modifier )</ID>
-    <ID>LongParameterList:EnhancedCards.kt$( title: String, subtitle: String? = null, imageUrl: String? = null, progress: Float? = null, badge: String? = null, mediaType: String? = null, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:EnhancedCommonComponents.kt$( label: String, color: Color = MaterialTheme.colorScheme.primaryContainer, onTextColor: Color = MaterialTheme.colorScheme.onPrimaryContainer, onClick: (() -&gt; Unit)? = null, onRemove: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:EnhancedEmptyStates.kt$( icon: ImageVector, title: String, description: String, actionText: String? = null, onAction: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:EnhancedEmptyStates.kt$( title: String = "Something Went Wrong", message: String, onRetry: (() -&gt; Unit)? = null, onDismiss: (() -&gt; Unit)? = null, retryLabel: String = "Retry", dismissLabel: String = "Dismiss", modifier: Modifier = Modifier )</ID>
@@ -2763,7 +2749,7 @@
     <ID>LongParameterList:MediaHomeScreen.kt$( item: QuickAccessItem, isHighlighted: Boolean, reorderMode: Boolean, canMoveUp: Boolean, canMoveDown: Boolean, onClick: () -&gt; Unit, onLongClick: () -&gt; Unit, onMoveUp: () -&gt; Unit, onMoveDown: () -&gt; Unit, onToggleFavorite: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:MediaHomeScreen.kt$( items: List&lt;QuickAccessItem&gt;, lastOpenedCategory: String?, reorderMode: Boolean, onCategoryClick: (String) -&gt; Unit, onEnableReorder: () -&gt; Unit, onMoveItem: (fromIndex: Int, toIndex: Int) -&gt; Unit, onToggleFavorite: (String) -&gt; Unit )</ID>
     <ID>LongParameterList:MediaHomeScreen.kt$( state: MediaHomeState, isRefreshing: Boolean, onItemClick: (MediaItem) -&gt; Unit, onPlayClick: (MediaItem) -&gt; Unit, onSeeAllClick: (String) -&gt; Unit, onQuickAccessCategoryClick: (String) -&gt; Unit, onNavigationClick: () -&gt; Unit = {}, onSearchClick: () -&gt; Unit, onNotificationClick: () -&gt; Unit, onAddLocalFilesClick: () -&gt; Unit = {}, onSubscribePodcastsClick: () -&gt; Unit = {}, onRefresh: () -&gt; Unit, onQuickAccessPreferencesChange: (order: List&lt;String&gt;, favorites: Set&lt;String&gt;) -&gt; Unit = { _, _ -&gt; }, onDismissWelcomeTips: () -&gt; Unit = {}, onRetry: () -&gt; Unit, reduceMotionEnabled: Boolean = false, modifier: Modifier = Modifier )</ID>
-    <ID>LongParameterList:MediaHomeViewModel.kt$MediaHomeViewModel$( private val bookRepository: BookRepository, private val musicRepository: MusicRepository, private val audiobookRepository: AudiobookRepository, private val comicRepository: ComicRepository, private val videoRepository: VideoRepository, private val collectionRepository: CollectionRepository, private val podcastRepository: PodcastRepository, private val webFictionRepository: WebFictionRepository, private val serviceAvailabilityManager: ServiceAvailabilityManager, private val settingsRepository: SettingsRepository )</ID>
+    <ID>LongParameterList:MediaHomeViewModel.kt$MediaHomeViewModel$( private val bookRepository: BookRepository, private val musicRepository: MusicRepository, private val audiobookRepository: AudiobookRepository, private val comicRepository: ComicRepository, private val videoRepository: VideoRepository, private val collectionRepository: CollectionRepository, private val podcastRepository: PodcastRepository, private val webFictionRepository: WebFictionRepository, private val serviceAvailabilityManager: ServiceAvailabilityManager, private val settingsRepository: SettingsRepository, private val errorMapper: UserFriendlyErrorMapper = UserFriendlyErrorMapper() )</ID>
     <ID>LongParameterList:MediaHomeWelcomeSection.kt$( onSearchClick: () -&gt; Unit, onBrowseClick: () -&gt; Unit, onAddLocalFilesClick: () -&gt; Unit, onSubscribePodcastsClick: () -&gt; Unit, canDismiss: Boolean = false, onDismiss: () -&gt; Unit = {} )</ID>
     <ID>LongParameterList:MediaIntegrationScreen.kt$( servers: List&lt;com.universalmedialibrary.services.plex.PlexDiscoveredServer&gt;, isConnecting: Boolean, onConnectServer: (com.universalmedialibrary.services.plex.PlexDiscoveredServer) -&gt; Unit, onSyncLibraries: () -&gt; Unit, isSyncing: Boolean, connectedServers: List&lt;String&gt;, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:MediaItem.kt$( item: MediaItemData, onClick: () -&gt; Unit, modifier: Modifier = Modifier, selectionEnabled: Boolean = false, isSelected: Boolean = false, onSelectionToggle: (() -&gt; Unit)? = null )</ID>
@@ -2864,7 +2850,7 @@
     <ID>LongParameterList:PianoRollEditor.kt$( notes: List&lt;MidiNote&gt;, selectedNote: MidiNote?, zoomLevel: Float, onNoteClick: (MidiNote) -&gt; Unit, onNoteRemove: (MidiNote) -&gt; Unit, onNoteMove: (MidiNote, Long, Int) -&gt; Unit, onAddNote: (Int, Long, Long, Int) -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:PinEntryDialog.kt$( requireConfirmation: Boolean, stage: PinEntryStage, firstPin: String?, enteredPin: String, onRequireConfirmation: (String) -&gt; Unit, onMismatch: (String) -&gt; Unit, onComplete: (String) -&gt; Unit )</ID>
     <ID>LongParameterList:PinEntryDialog.kt$( title: String, initialPrompt: String, confirmPrompt: String? = null, supportingText: String? = null, error: String?, onDismiss: () -&gt; Unit, onPinComplete: (String) -&gt; Unit )</ID>
-    <ID>LongParameterList:PlaybackControls.kt$( isPlaying: Boolean, onPlayPause: () -&gt; Unit, onPrevious: () -&gt; Unit, onNext: () -&gt; Unit, onShuffle: () -&gt; Unit, onRepeat: () -&gt; Unit, isShuffleEnabled: Boolean, repeatMode: RepeatMode, iconTint: Color, highlightColor: Color )</ID>
+    <ID>LongParameterList:PlaybackControls.kt$( isPlaying: Boolean, onPlayPause: () -&gt; Unit, onPrevious: () -&gt; Unit, onNext: () -&gt; Unit, onShuffle: () -&gt; Unit, onRepeat: () -&gt; Unit, isShuffleEnabled: Boolean, repeatMode: RepeatMode, iconTint: Color = LocalCFTokens.current.playerControls.controlIcon, highlightColor: Color = LocalCFTokens.current.playerControls.activeAccent )</ID>
     <ID>LongParameterList:PlayerTopBar.kt$( title: String, subtitle: String?, isCasting: Boolean, onClose: () -&gt; Unit, onCast: () -&gt; Unit, onQueue: () -&gt; Unit )</ID>
     <ID>LongParameterList:PlaylistCard.kt$( summary: PlaylistSummary, expandedMenuId: Long?, onExpandMenu: (Long?) -&gt; Unit, onDismissMenu: () -&gt; Unit, onPlay: () -&gt; Unit, onShuffle: () -&gt; Unit, onQueue: (Boolean) -&gt; Unit, onRename: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
     <ID>LongParameterList:PlaylistsTab.kt$( playlists: List&lt;PlaylistSummary&gt;, onCreatePlaylist: (String) -&gt; Unit, onPlayPlaylist: (Long) -&gt; Unit, onShufflePlaylist: (Long) -&gt; Unit, onQueuePlaylist: (Long, Boolean) -&gt; Unit, onRenamePlaylist: (Long, String) -&gt; Unit, onDeletePlaylist: (Long) -&gt; Unit )</ID>
@@ -2916,6 +2902,7 @@
     <ID>LongParameterList:SlideUpMediaBar.kt$( state: SlideUpMediaState, onPlayPause: () -&gt; Unit, onNext: () -&gt; Unit, onPrevious: () -&gt; Unit, onSeek: (Float) -&gt; Unit, onSpeedChange: (Float) -&gt; Unit, onChapterSelect: (Int) -&gt; Unit, onCollapse: () -&gt; Unit )</ID>
     <ID>LongParameterList:SlideUpMediaBar.kt$( state: SlideUpMediaState?, onPlayPause: () -&gt; Unit, onNext: () -&gt; Unit, onPrevious: () -&gt; Unit, onSeek: (Float) -&gt; Unit, onSpeedChange: (Float) -&gt; Unit, onChapterSelect: (Int) -&gt; Unit, onExpand: () -&gt; Unit, onCollapse: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:SmartCollectionsScreen.kt$( allSuggestions: AllSuggestions?, navController: NavController, onCreatePlaylist: (PlaylistSuggestion) -&gt; Unit, onCreateSeries: (SeriesSuggestion) -&gt; Unit, onCreateAuthorCollection: (AuthorCollectionSuggestion) -&gt; Unit, onCreateReadingList: (ReadingListSuggestion) -&gt; Unit, onCreateMovieCollection: (MovieCollectionSuggestion) -&gt; Unit )</ID>
+    <ID>LongParameterList:StateCards.kt$( icon: ImageVector, title: String, description: String, actionLabel: String, onActionClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:StorageAccessService.kt$StorageAccessService$( context: Context, documentFile: DocumentFile, rootName: String, rootPath: String, mediaType: MediaType, progressCallback: (String) -&gt; Unit )</ID>
     <ID>LongParameterList:StorageAccessService.kt$StorageAccessService$( context: Context, input: DocumentFile, outputRoot: DocumentFile, outputRootPath: String, options: ImportSortOptions, progressCallback: (String) -&gt; Unit, summary: ImportSortSummary )</ID>
     <ID>LongParameterList:StorageAccessService.kt$StorageAccessService$( context: Context, plan: ImportPlan, options: ImportSortOptions = ImportSortOptions(), startIndex: Int = 0, progressCallback: (String) -&gt; Unit = {}, checkpointCallback: ((Int) -&gt; Unit)? = null )</ID>
@@ -3375,8 +3362,6 @@
     <ID>MagicNumber:AmbientSoundAnimator.kt$LayeredSoundscapePresets$0.9f</ID>
     <ID>MagicNumber:AmbientSoundControl.kt$6</ID>
     <ID>MagicNumber:AmbientSoundService.kt$AmbientSoundService$200</ID>
-    <ID>MagicNumber:AncientArchitectCard.kt$3000</ID>
-    <ID>MagicNumber:AncientArchitectCard.kt$500f</ID>
     <ID>MagicNumber:AncientArchitectNavigationRail.kt$2000</ID>
     <ID>MagicNumber:AncientArchitectNotification.kt$1500</ID>
     <ID>MagicNumber:AncientArchitectPatterns.kt$AncientArchitectPatterns$0.75f</ID>
@@ -3628,6 +3613,20 @@
     <ID>MagicNumber:BookshelfComponents.kt$50</ID>
     <ID>MagicNumber:BookshelfScreen.kt$0xFFE91E63</ID>
     <ID>MagicNumber:BookshelfScreen.kt$10</ID>
+    <ID>MagicNumber:CFTokens.kt$CFPlayerControls$0x33FFD166</ID>
+    <ID>MagicNumber:CFTokens.kt$CFPlayerControls$0x40F5EFD0</ID>
+    <ID>MagicNumber:CFTokens.kt$CFPlayerControls$0xFF0E1D33</ID>
+    <ID>MagicNumber:CFTokens.kt$CFPlayerControls$0xFF14233F</ID>
+    <ID>MagicNumber:CFTokens.kt$CFPlayerControls$0xFFF5EFD0</ID>
+    <ID>MagicNumber:CFTokens.kt$CFPlayerControls$0xFFFFD166</ID>
+    <ID>MagicNumber:CFTokens.kt$CFStatusColors$0xFF00E5FF</ID>
+    <ID>MagicNumber:CFTokens.kt$CFStatusColors$0xFF2196F3</ID>
+    <ID>MagicNumber:CFTokens.kt$CFStatusColors$0xFF4CAF50</ID>
+    <ID>MagicNumber:CFTokens.kt$CFStatusColors$0xFFC9C5A8</ID>
+    <ID>MagicNumber:CFTokens.kt$CFStatusColors$0xFFE57373</ID>
+    <ID>MagicNumber:CFTokens.kt$CFStatusColors$0xFFEF5350</ID>
+    <ID>MagicNumber:CFTokens.kt$CFStatusColors$0xFFFF9800</ID>
+    <ID>MagicNumber:CFTokens.kt$CFStatusColors$0xFFFFB74D</ID>
     <ID>MagicNumber:CacheManager.kt$CacheManager$1024</ID>
     <ID>MagicNumber:CacheManager.kt$CacheManager$1024L</ID>
     <ID>MagicNumber:CacheManager.kt$CacheManager$10L</ID>
@@ -3640,6 +3639,7 @@
     <ID>MagicNumber:CacheSettingsScreen.kt$256</ID>
     <ID>MagicNumber:CacheSettingsScreen.kt$512</ID>
     <ID>MagicNumber:CalibreImportService.kt$CalibreImportService$8192</ID>
+    <ID>MagicNumber:CanonicalMediaCard.kt$0.7f</ID>
     <ID>MagicNumber:CharacterVoiceService.kt$CharacterVoiceService$0.9f</ID>
     <ID>MagicNumber:CharacterVoiceService.kt$CharacterVoiceService$1.1f</ID>
     <ID>MagicNumber:CircularVisualizer.kt$0.15f</ID>
@@ -3688,7 +3688,6 @@
     <ID>MagicNumber:ComicTranslationOverlayCanvas.kt$4</ID>
     <ID>MagicNumber:ComicTranslationOverlayCanvas.kt$4f</ID>
     <ID>MagicNumber:ComicTranslationOverlayCanvas.kt$8f</ID>
-    <ID>MagicNumber:CommonCards.kt$0.7f</ID>
     <ID>MagicNumber:ContentClassifier.kt$ContentClassifier$0.1f</ID>
     <ID>MagicNumber:ContentClassifier.kt$ContentClassifier$0.3f</ID>
     <ID>MagicNumber:ContentClassifier.kt$ContentClassifier$0.5f</ID>
@@ -3894,8 +3893,6 @@
     <ID>MagicNumber:EnhancedBookshelfScreen.kt$0xFFFF5722</ID>
     <ID>MagicNumber:EnhancedBookshelfScreen.kt$0xFFFFD700</ID>
     <ID>MagicNumber:EnhancedBookshelfScreen.kt$5</ID>
-    <ID>MagicNumber:EnhancedCards.kt$0xFF4CAF50</ID>
-    <ID>MagicNumber:EnhancedCards.kt$0xFFF44336</ID>
     <ID>MagicNumber:EnhancedEReaderScreen.kt$0xFF3E2723</ID>
     <ID>MagicNumber:EnhancedEReaderScreen.kt$0xFFFFFBF0</ID>
     <ID>MagicNumber:EnhancedEReaderScreen.kt$3</ID>
@@ -4040,7 +4037,6 @@
     <ID>MagicNumber:FileIcon.kt$0xFFFF9800</ID>
     <ID>MagicNumber:FileIcon.kt$0xFFFFA726</ID>
     <ID>MagicNumber:FileNameSanitizer.kt$FileNameSanitizer$0xffff</ID>
-    <ID>MagicNumber:FilteredMediaCard.kt$0.7f</ID>
     <ID>MagicNumber:FluidVisualizer.kt$0.4f</ID>
     <ID>MagicNumber:FluidVisualizer.kt$128</ID>
     <ID>MagicNumber:FolderImportScreen.kt$0.8f</ID>
@@ -4111,12 +4107,17 @@
     <ID>MagicNumber:KthemeBridge.kt$16</ID>
     <ID>MagicNumber:KthemeBridge.kt$6</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF00A8CC</ID>
+    <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF00CED1</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF00D9FF</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF1A1A1A</ID>
+    <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF2A2A2A</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF2C2C2C</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF454545</ID>
+    <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF4A4A4A</ID>
+    <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF4DA6FF</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF4DE2FF</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF595959</ID>
+    <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF6A6A6A</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF6F7D87</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF808080</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF856D34</ID>
@@ -4125,6 +4126,7 @@
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF93575F</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF935E29</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF9A9A9A</ID>
+    <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFF9D4EDD</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFB00F30</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFB0BDC9</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFB3F5FF</ID>
@@ -4144,6 +4146,8 @@
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFE0E0E0</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFE5395F</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFE5E4E2</ID>
+    <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFE8A87C</ID>
+    <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFE8E8E8</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFF0D9C0</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFF2D2B0</ID>
     <ID>MagicNumber:KthemeBridge.kt$KthemeBridge$0xFFF5D5D8</ID>
@@ -4218,8 +4222,6 @@
     <ID>MagicNumber:MaintenanceViewModel.kt$MaintenanceViewModel$25</ID>
     <ID>MagicNumber:MaintenanceViewModel.kt$MaintenanceViewModel$5</ID>
     <ID>MagicNumber:MangaExploreScreen.kt$0.7f</ID>
-    <ID>MagicNumber:MangaExploreScreen.kt$0xFF2196F3</ID>
-    <ID>MagicNumber:MangaExploreScreen.kt$0xFF4CAF50</ID>
     <ID>MagicNumber:MangaExploreScreen.kt$10</ID>
     <ID>MagicNumber:MangaExploreScreen.kt$3</ID>
     <ID>MagicNumber:MangaExploreViewModel.kt$MangaExploreViewModel$3</ID>
@@ -4319,7 +4321,6 @@
     <ID>MagicNumber:MediaMainActivity.kt$840</ID>
     <ID>MagicNumber:MediaNavigation.kt$0.55f</ID>
     <ID>MagicNumber:MediaNavigation.kt$600</ID>
-    <ID>MagicNumber:MediaPlaybackWidget.kt$0xFF424242</ID>
     <ID>MagicNumber:MediaPlaybackWidgetService.kt$MediaPlaybackWidgetService$85</ID>
     <ID>MagicNumber:MediaPlaybackWidgetState.kt$MediaPlaybackWidgetState$60</ID>
     <ID>MagicNumber:MediaPlayerViewModel.kt$AudioPlayerViewModel$10000L</ID>
@@ -4832,8 +4833,6 @@
     <ID>MagicNumber:ModernVideoPlayerScreen.kt$0.25f</ID>
     <ID>MagicNumber:ModernVideoPlayerScreen.kt$0.5f</ID>
     <ID>MagicNumber:ModernVideoPlayerScreen.kt$0.75f</ID>
-    <ID>MagicNumber:ModernVideoPlayerScreen.kt$0xFF00E5FF</ID>
-    <ID>MagicNumber:ModernVideoPlayerScreen.kt$0xFF1A1A1A</ID>
     <ID>MagicNumber:ModernVideoPlayerScreen.kt$1.25f</ID>
     <ID>MagicNumber:ModernVideoPlayerScreen.kt$1.5f</ID>
     <ID>MagicNumber:ModernVideoPlayerScreen.kt$60</ID>
@@ -5046,7 +5045,6 @@
     <ID>MagicNumber:PinEntryDialog.kt$8</ID>
     <ID>MagicNumber:PinEntryDialog.kt$8f</ID>
     <ID>MagicNumber:PinEntryDialog.kt$9</ID>
-    <ID>MagicNumber:PlaybackControls.kt$0xFF1A1A2E</ID>
     <ID>MagicNumber:PlaybackControls.kt$200</ID>
     <ID>MagicNumber:PlaybackSynchronizationEngine.kt$PlaybackSynchronizationEngine$20.0</ID>
     <ID>MagicNumber:PlaybackSynchronizationEngine.kt$PlaybackSynchronizationEngine$4_000L</ID>
@@ -5630,6 +5628,7 @@
     <ID>MagicNumber:StarfieldVisualizer.kt$180f</ID>
     <ID>MagicNumber:StarfieldVisualizer.kt$5f</ID>
     <ID>MagicNumber:StarfieldVisualizer.kt$64</ID>
+    <ID>MagicNumber:StateCards.kt$0.7f</ID>
     <ID>MagicNumber:StatusComponents.kt$SemanticState$0xFFB71C1C</ID>
     <ID>MagicNumber:StatusComponents.kt$SemanticState$0xFFE65100</ID>
     <ID>MagicNumber:StatusComponents.kt$SemanticState$0xFFFFEBEE</ID>
@@ -5946,14 +5945,8 @@
     <ID>MagicNumber:WebFictionScreen.kt$1_000_000</ID>
     <ID>MagicNumber:WebFictionScreen.kt$1_000_000.0</ID>
     <ID>MagicNumber:WebFictionService.kt$WebFictionService$30000</ID>
-    <ID>MagicNumber:WebFictionStoryCard.kt$0xFF4CAF50</ID>
-    <ID>MagicNumber:WebFictionStoryCard.kt$0xFFFF9800</ID>
     <ID>MagicNumber:WebFictionStoryCard.kt$3</ID>
     <ID>MagicNumber:WebFictionStoryCard.kt$4</ID>
-    <ID>MagicNumber:WebFictionStoryDetailScreen.kt$0xFF1565C0</ID>
-    <ID>MagicNumber:WebFictionStoryDetailScreen.kt$0xFF2E7D32</ID>
-    <ID>MagicNumber:WebFictionStoryDetailScreen.kt$0xFFC62828</ID>
-    <ID>MagicNumber:WebFictionStoryDetailScreen.kt$0xFFF9A825</ID>
     <ID>MagicNumber:WebFictionStoryDetailScreen.kt$25</ID>
     <ID>MagicNumber:WebFictionUrlHelpers.kt$403</ID>
     <ID>MagicNumber:WebFictionUrlHelpers.kt$429</ID>
@@ -5963,6 +5956,7 @@
     <ID>MatchingDeclarationName:ArtworkPalette.kt$ArtworkColors</ID>
     <ID>MatchingDeclarationName:AudioProfilesScreen.kt$AudioProfilesViewModel : ViewModel</ID>
     <ID>MatchingDeclarationName:AutoImportFolders.kt$AutoImportFolder</ID>
+    <ID>MatchingDeclarationName:CanonicalMediaCard.kt$CanonicalCardVariant</ID>
     <ID>MatchingDeclarationName:ComicReaderTranslationOverlay.kt$ComicReaderTranslationViewModel : ViewModel</ID>
     <ID>MatchingDeclarationName:ComicTranslationSettingsScreen.kt$ComicTranslationSettingsViewModel : ViewModel</ID>
     <ID>MatchingDeclarationName:ContinueReadingSection.kt$ContinueReadingViewModel : ViewModel</ID>
@@ -6085,10 +6079,14 @@
     <ID>MaxLineLength:ImportSorterScreen.kt$Text("Only items with low confidence are flagged. Edit title/author/series to prevent mis-grouping (e.g., one-off Tintin/Asterix issues).")</ID>
     <ID>MaxLineLength:ImportSorterScreen.kt$Text("Pick an Input folder and an Output folder. Everything in Input will be scanned and sorted into Output with subfolders + basic metadata.")</ID>
     <ID>MaxLineLength:ImportSorterViewModel.kt$ImportSorterViewModel$summary = "Imported: ${result.imported}, Skipped: ${result.skipped}, Errors: ${result.errors}, Empty folders removed: ${result.deletedFolders}"</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.AMBER_GOLD -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFFFBF00), Color(0xFFFFD700), Color(0xFFCC9900), Color(0xFFFFF8DC))</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.ANCIENT_BRONZE -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFCD7F32), Color(0xFFE8A87C), Color(0xFF8B5A2B), Color(0xFF00CED1))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.BURGUNDY_ROSE_GOLD -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFB76E79), Color(0xFFD4969E), Color(0xFF93575F), Color(0xFFF5D5D8))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.BURGUNDY_ROSE_GOLD -&gt; if (darkTheme) BurgundyRoseGoldUnified.darkScheme else BurgundyRoseGoldUnified.lightScheme</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.CHARCOAL_CHAMPAGNE -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFF7E7CE), Color(0xFFFFF5E6), Color(0xFFC5B8A5), Color(0xFFFFFFFF))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.CHARCOAL_CHAMPAGNE -&gt; if (darkTheme) CharcoalChampagneUnified.darkScheme else CharcoalChampagneUnified.lightScheme</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.COBALT_CHROME -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF00D9FF), Color(0xFF4DE2FF), Color(0xFF00A8CC), Color(0xFFB3F5FF))</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.COPPER_BRONZE -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFB87333), Color(0xFFD4965A), Color(0xFF935E29), Color(0xFFF2D2B0))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.DEEP_PURPLE_PLATINUM -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFE5E4E2), Color(0xFFF5F4F2), Color(0xFFB8B7B5), Color(0xFFFFFFFF))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.DEEP_PURPLE_PLATINUM -&gt; if (darkTheme) DeepPurplePlatinumUnified.darkScheme else DeepPurplePlatinumUnified.lightScheme</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.EMERALD_SILVER -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFC0C0C0), Color(0xFFE0E0E0), Color(0xFF808080), Color(0xFFF5F5F5))</ID>
@@ -6096,12 +6094,17 @@
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.MIDNIGHT_AMBER -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFFFBF00), Color(0xFFFFD700), Color(0xFFCC9900), Color(0xFFFFF8DC))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.NAVY_GOLD -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFD4AF37), Color(0xFFFFD700), Color(0xFF856D34), Color(0xFFFFF8DC))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.OBSIDIAN_CRIMSON -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFDC143C), Color(0xFFE5395F), Color(0xFFB00F30), Color(0xFFFFB3C1))</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.OBSIDIAN_TECH -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF4A4A4A), Color(0xFF6A6A6A), Color(0xFF2A2A2A), Color(0xFF9D4EDD))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.PAPER_INK -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF2C2C2C), Color(0xFF454545), Color(0xFF1A1A1A), Color(0xFF595959))</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.PLATINUM_SILVER -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFE5E4E2), Color(0xFFF5F4F2), Color(0xFFB8B7B5), Color(0xFFFFFFFF))</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.PLATINUM_SILVER -&gt; if (darkTheme) DeepPurplePlatinumUnified.darkScheme else DeepPurplePlatinumUnified.lightScheme</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.ROSE_BRASS -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFB76E79), Color(0xFFD4969E), Color(0xFF93575F), Color(0xFFF5D5D8))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.ROYAL_BRONZE -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFCD7F32), Color(0xFFD99952), Color(0xFF8B5A2B), Color(0xFFF0D9C0))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.ROYAL_SILVER -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFC0C0C0), Color(0xFFE0E0E0), Color(0xFF9A9A9A), Color(0xFFF5F5F5))</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.SILVER_ARCHITECT -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFC0C0C0), Color(0xFFE8E8E8), Color(0xFF808080), Color(0xFF4DA6FF))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.SLATE_CYAN -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF00D9FF), Color(0xFF4DE2FF), Color(0xFF00A8CC), Color(0xFFB3F5FF))</ID>
     <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.SLATE_GUNMETAL -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF8F9CA8), Color(0xFFB0BDC9), Color(0xFF6F7D87), Color(0xFFD0DFEB))</ID>
-    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$else -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFD4AF37), Color(0xFFFFD700), Color(0xFF856D34), Color(0xFFFFF8DC))</ID>
+    <ID>MaxLineLength:KthemeBridge.kt$KthemeBridge$CleverFerretTheme.STEEL_TITANIUM -&gt; com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF8F9CA8), Color(0xFFB0BDC9), Color(0xFF6F7D87), Color(0xFFD0DFEB))</ID>
     <ID>MaxLineLength:LegacyContentRoutes.kt$file.extension.lowercase() in listOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx") -&gt; "BOOK"</ID>
     <ID>MaxLineLength:LibraryDetailsViewModel.kt$DetailsLibraryDetailsScreenViewModel$val</ID>
     <ID>MaxLineLength:LibraryManagementViewModel.kt$LibraryBackgroundTaskState.Companion$fun running(label: String, progress: Float, message: String? = null)</ID>
@@ -6445,7 +6448,6 @@
     <ID>NewLineAtEndOfFile:AdvancedEffects.kt$com.universalmedialibrary.ui.theme.AdvancedEffects.kt</ID>
     <ID>NewLineAtEndOfFile:AdvancedMusicPlayerServiceModels.kt$com.universalmedialibrary.services.music.AdvancedMusicPlayerServiceModels.kt</ID>
     <ID>NewLineAtEndOfFile:AncientArchitectButton.kt$com.universalmedialibrary.ui.components.AncientArchitectButton.kt</ID>
-    <ID>NewLineAtEndOfFile:AncientArchitectCard.kt$com.universalmedialibrary.ui.components.AncientArchitectCard.kt</ID>
     <ID>NewLineAtEndOfFile:AncientArchitectNavigationRail.kt$com.universalmedialibrary.ui.components.AncientArchitectNavigationRail.kt</ID>
     <ID>NewLineAtEndOfFile:AncientArchitectNotification.kt$com.universalmedialibrary.ui.components.AncientArchitectNotification.kt</ID>
     <ID>NewLineAtEndOfFile:AncientArchitectPatterns.kt$com.universalmedialibrary.ui.theme.AncientArchitectPatterns.kt</ID>
@@ -7456,6 +7458,8 @@
     <ID>UnusedPrivateMember:RedditFanficDownloader.kt$RedditFanficDownloader$private fun formatTimestamp(createdUtc: Long): String?</ID>
     <ID>UnusedPrivateMember:SettingsBackupService.kt$SettingsBackupService$private fun exportApiKeys(): String</ID>
     <ID>UnusedPrivateMember:StorageBrowserScreen.kt$@Composable private fun ErrorView( message: String, onRetry: () -&gt; Unit, showPermissionHint: Boolean = false, onRequestPermission: () -&gt; Unit = {} )</ID>
+    <ID>UnusedPrivateMember:UnifiedThemeSystem.kt$private fun getColorSchemeForTheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme</ID>
+    <ID>UnusedPrivateMember:UnifiedThemeSystem.kt$private fun getMetallicColorsForTheme(theme: CleverFerretTheme): MetallicGradient</ID>
     <ID>UnusedPrivateMember:WebFictionViewModel.kt$WebFictionManagerScreenViewModel$private fun createDemoStories(): List&lt;WebFictionStory&gt;</ID>
     <ID>UnusedPrivateProperty:AILibraryBrowserService.kt$AILibraryBrowserService$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:AILibraryBrowserService.kt$AILibraryBrowserService$private val libraryDao: LibraryDao</ID>
@@ -7527,8 +7531,6 @@
     <ID>UnusedPrivateProperty:DocParser.kt$DocParser$val docSummaryInfo = try { document.documentSummaryInformation } catch (e: Exception) { null }</ID>
     <ID>UnusedPrivateProperty:DocumentReaderScreen.kt$val screenHeight = configuration.screenHeightDp.dp</ID>
     <ID>UnusedPrivateProperty:DocumentReaderScreen.kt$val screenWidth = configuration.screenWidthDp.dp</ID>
-    <ID>UnusedPrivateProperty:EnhancedCards.kt$val scale by animateFloatAsState( targetValue = if (visible) 1f else 0.8f, animationSpec = spring( dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium ), label = "scale" )</ID>
-    <ID>UnusedPrivateProperty:EnhancedCards.kt$val shimmerEnabled = metallicShimmerEnabled()</ID>
     <ID>UnusedPrivateProperty:EnhancedMangaReaderEngine.kt$EnhancedMangaReaderEngine$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:EnhancedMangaReaderEngine.kt$EnhancedMangaReaderEngine$private val webtoonScroller: WebtoonScroller</ID>
     <ID>UnusedPrivateProperty:EnhancedMetadataService.kt$EnhancedMetadataService$@ApplicationContext private val context: Context</ID>
@@ -7539,7 +7541,6 @@
     <ID>UnusedPrivateProperty:EnhancedSearchService.kt$EnhancedSearchService$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:EpubCreatorService.kt$EpubCreatorService$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:FanfictionMetadataService.kt$FanfictionMetadataService$@ApplicationContext private val context: Context</ID>
-    <ID>UnusedPrivateProperty:FilteredMediaCard.kt$val scope = rememberCoroutineScope()</ID>
     <ID>UnusedPrivateProperty:FolderImportViewModel.kt$FolderImportViewModel$private val unifiedMetadataFacade: UnifiedMetadataFacade</ID>
     <ID>UnusedPrivateProperty:GalleryPreferencesStore.kt$GalleryPreferencesStore.Companion$private val ALBUM_SORT_ORDER = stringPreferencesKey("album_sort_order")</ID>
     <ID>UnusedPrivateProperty:GalleryScreen.kt$val context = LocalContext.current</ID>
@@ -7567,7 +7568,6 @@
     <ID>UnusedPrivateProperty:MangaSourceService.kt$MangaSourceService$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:MediaContentResolver.kt$MediaContentResolverImpl$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:MediaItem.kt$var isHovered by remember { mutableStateOf(false) }</ID>
-    <ID>UnusedPrivateProperty:MediaPlaybackWidget.kt$val isPlaying = false</ID>
     <ID>UnusedPrivateProperty:MediaPlayerViewModel.kt$AudioPlayerViewModel$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:MediaPlayerViewModel.kt$AudioPlayerViewModel$private val audiobookRepository: AudiobookRepository</ID>
     <ID>UnusedPrivateProperty:MediaPlayerViewModel.kt$AudioPlayerViewModel$private val musicRepository: MusicRepository</ID>
@@ -7781,11 +7781,6 @@
     <ID>WildcardImport:AdvancedButtons.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdvancedButtons.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:AdvancedButtons.kt$import com.universalmedialibrary.ui.theme.*</ID>
-    <ID>WildcardImport:AdvancedCards.kt$import androidx.compose.animation.core.*</ID>
-    <ID>WildcardImport:AdvancedCards.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:AdvancedCards.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:AdvancedCards.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdvancedCards.kt$import com.universalmedialibrary.ui.theme.*</ID>
     <ID>WildcardImport:AdvancedComicReader.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:AdvancedComicReader.kt$import androidx.compose.animation.core.*</ID>
     <ID>WildcardImport:AdvancedComicReader.kt$import androidx.compose.foundation.gestures.*</ID>
@@ -7869,11 +7864,6 @@
     <ID>WildcardImport:AncientArchitectButton.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AncientArchitectButton.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:AncientArchitectButton.kt$import com.universalmedialibrary.ui.theme.*</ID>
-    <ID>WildcardImport:AncientArchitectCard.kt$import androidx.compose.animation.core.*</ID>
-    <ID>WildcardImport:AncientArchitectCard.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:AncientArchitectCard.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:AncientArchitectCard.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AncientArchitectCard.kt$import com.universalmedialibrary.ui.theme.*</ID>
     <ID>WildcardImport:AncientArchitectNavigationRail.kt$import androidx.compose.animation.core.*</ID>
     <ID>WildcardImport:AncientArchitectNavigationRail.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AncientArchitectNavigationRail.kt$import androidx.compose.material3.*</ID>
@@ -8296,10 +8286,6 @@
     <ID>WildcardImport:ComicTranslationSettingsScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ComicTranslationSettingsScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ComicTranslationSettingsScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:CommonCards.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:CommonCards.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:CommonCards.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:CommonCards.kt$import com.universalmedialibrary.ui.theme.*</ID>
     <ID>WildcardImport:ContentRestrictionsCard.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ContentRestrictionsCard.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ContentRestrictionsCard.kt$import androidx.compose.material3.*</ID>
@@ -8534,12 +8520,6 @@
     <ID>WildcardImport:EnhancedBookshelfScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:EnhancedBookshelfScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:EnhancedBookshelfScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:EnhancedCards.kt$import androidx.compose.animation.core.*</ID>
-    <ID>WildcardImport:EnhancedCards.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:EnhancedCards.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:EnhancedCards.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:EnhancedCards.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:EnhancedCards.kt$import com.universalmedialibrary.ui.theme.*</ID>
     <ID>WildcardImport:EnhancedCommonComponents.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:EnhancedCommonComponents.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:EnhancedCommonComponents.kt$import androidx.compose.material.icons.filled.*</ID>
@@ -8806,9 +8786,6 @@
     <ID>WildcardImport:FilterBottomSheet.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:FilterBottomSheet.kt$import com.universalmedialibrary.ui.media.components.*</ID>
     <ID>WildcardImport:FilterBottomSheet.kt$import com.universalmedialibrary.ui.media.theme.*</ID>
-    <ID>WildcardImport:FilteredMediaCard.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:FilteredMediaCard.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:FilteredMediaCard.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:FlagsTab.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:FlagsTab.kt$import androidx.compose.foundation.*</ID>
     <ID>WildcardImport:FlagsTab.kt$import androidx.compose.foundation.layout.*</ID>
