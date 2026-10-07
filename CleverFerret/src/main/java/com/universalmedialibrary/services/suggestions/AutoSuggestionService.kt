@@ -399,16 +399,9 @@ class AutoSuggestionService @Inject constructor(
     // ==================== HELPER FUNCTIONS ====================
 
     private fun groupBooksBySeries(books: List<MediaItem>): Map<String, List<MediaItem>> {
-        val seriesPatterns = listOf(
-            Regex("""^(.+?)[\s:–-]+Book\s*\d""", RegexOption.IGNORE_CASE),
-            Regex("""^(.+?)[\s:–-]+Vol(?:ume)?\.?\s*\d""", RegexOption.IGNORE_CASE),
-            Regex("""^(.+?)[\s:–-]+#\d"""),
-            Regex("""^(.+?)[\s:–-]+Part\s*\d""", RegexOption.IGNORE_CASE)
-        )
-        
         return books.groupBy { book ->
             val title = book.fileName.substringBeforeLast('.')
-            for (pattern in seriesPatterns) {
+            for (pattern in SERIES_PATTERNS) {
                 val match = pattern.find(title)
                 if (match != null) {
                     return@groupBy match.groupValues[1].trim()
@@ -429,12 +422,26 @@ class AutoSuggestionService @Inject constructor(
         val titles = books.map { it.fileName.substringBeforeLast('.') }
         
         return when {
-            titles.any { it.contains(Regex("""Book\s*\d""", RegexOption.IGNORE_CASE)) } -> "Book N"
-            titles.any { it.contains(Regex("""Vol(?:ume)?\.?\s*\d""", RegexOption.IGNORE_CASE)) } -> "Volume N"
-            titles.any { it.contains(Regex("""#\d""")) } -> "#N"
-            titles.any { it.contains(Regex("""Part\s*\d""", RegexOption.IGNORE_CASE)) } -> "Part N"
+            titles.any { it.contains(PATTERN_BOOK) } -> "Book N"
+            titles.any { it.contains(PATTERN_VOLUME) } -> "Volume N"
+            titles.any { it.contains(PATTERN_NUMBER) } -> "#N"
+            titles.any { it.contains(PATTERN_PART) } -> "Part N"
             else -> "Unknown"
         }
+    }
+
+    private companion object {
+        val SERIES_PATTERNS = listOf(
+            Regex("""^(.+?)[\s:–-]+Book\s*\d""", RegexOption.IGNORE_CASE),
+            Regex("""^(.+?)[\s:–-]+Vol(?:ume)?\.?\s*\d""", RegexOption.IGNORE_CASE),
+            Regex("""^(.+?)[\s:–-]+#\d"""),
+            Regex("""^(.+?)[\s:–-]+Part\s*\d""", RegexOption.IGNORE_CASE)
+        )
+
+        val PATTERN_BOOK = Regex("""Book\s*\d""", RegexOption.IGNORE_CASE)
+        val PATTERN_VOLUME = Regex("""Vol(?:ume)?\.?\s*\d""", RegexOption.IGNORE_CASE)
+        val PATTERN_NUMBER = Regex("""#\d""")
+        val PATTERN_PART = Regex("""Part\s*\d""", RegexOption.IGNORE_CASE)
     }
 
     // ==================== UNIFIED SUGGESTIONS ====================

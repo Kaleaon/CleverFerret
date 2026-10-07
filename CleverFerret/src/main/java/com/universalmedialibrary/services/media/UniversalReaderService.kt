@@ -31,7 +31,8 @@ import javax.inject.Singleton
 class UniversalReaderService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaRepository: MediaRepository,
-    private val epubReaderService: EpubReaderService
+    private val epubReaderService: EpubReaderService,
+    private val mediaContentResolver: MediaContentResolver
 ) {
 
     private val _readerState = MutableStateFlow(ReaderState())
@@ -49,20 +50,40 @@ class UniversalReaderService @Inject constructor(
         try {
             updateReaderState(isLoading = true)
 
-            val file = File(mediaItem.filePath)
-            if (!file.exists()) {
-                updateReaderState(error = "File not found: ${mediaItem.filePath}")
-                return@withContext false
+            val resolved = mediaContentResolver.resolve(mediaItem)
+            val file = when (resolved) {
+                is ResolvedContent.LocalFile -> resolved.file
+                is ResolvedContent.StreamUrl -> {
+                    if (mediaContentResolver.isVirtualUri(mediaItem.filePath)) {
+                        com.universalmedialibrary.jobs.WorkScheduler.scheduleOfflineBuffering(context, mediaItem.itemId)
+                    }
+                    val tempFile = mediaContentResolver.downloadToTempFile(mediaItem, resolved.url)
+                    if (tempFile != null && tempFile.exists()) {
+                        tempFile
+                    } else {
+                        updateReaderState(error = "Failed to download temporary stream content for ${mediaItem.fileName}")
+                        return@withContext false
+                    }
+                }
+                is ResolvedContent.OfflineUnbuffered -> {
+                    updateReaderState(error = resolved.message)
+                    return@withContext false
+                }
+                is ResolvedContent.Error -> {
+                    updateReaderState(error = resolved.message)
+                    return@withContext false
+                }
             }
 
-            val content = when (mediaItem.fileExtension.lowercase()) {
+            val fileExt = mediaItem.fileExtension.lowercase().ifBlank { file.extension.lowercase() }
+            val content = when (fileExt) {
                 "epub" -> loadEpubContentWithService(file)
                 "pdf" -> loadPdfContent(file)
                 "txt" -> loadTextContent(file)
                 "html", "htm" -> loadHtmlContent(file)
                 "cbz", "cbr" -> loadComicContent(file)
                 else -> {
-                    updateReaderState(error = "Unsupported file format: ${mediaItem.fileExtension}")
+                    updateReaderState(error = "Unsupported file format: $fileExt")
                     return@withContext false
                 }
             }

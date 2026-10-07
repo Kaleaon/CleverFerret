@@ -9,6 +9,7 @@ plugins {
 subprojects {
     apply(plugin = "java-library")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "io.gitlab.arturbosch.detekt")
 
     group = "com.cleverferret.v2"
     version = "0.1.0"

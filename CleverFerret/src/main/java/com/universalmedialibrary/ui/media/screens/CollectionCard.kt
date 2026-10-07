@@ -68,15 +68,15 @@ internal fun CollectionCard(
     Surface(
         modifier = Modifier
             .width(200.dp)
-            .height(120.dp),
+            .heightIn(min = 120.dp),
         shape = RoundedCornerShape(MediaCorners.Card),
         onClick = onClick
     ) {
-        Box {
+        Box(modifier = Modifier.heightIn(min = 120.dp)) {
             // Background gradient
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .matchParentSize()
                     .background(
                         Brush.linearGradient(
                             colors = listOf(
@@ -90,7 +90,7 @@ internal fun CollectionCard(
             // Content
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .heightIn(min = 120.dp)
                     .padding(MediaSpacing.MD),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
@@ -101,12 +101,15 @@ internal fun CollectionCard(
                     tint = MediaColors.TextPrimary
                 )
                 
+                Spacer(modifier = Modifier.height(MediaSpacing.SM))
+
                 Column {
                     Text(
                         text = collection.name,
                         style = MediaTypography.TitleSmall,
                         color = MediaColors.TextPrimary,
-                        maxLines = 1
+                        maxLines = 2,
+                        softWrap = true
                     )
                     Text(
                         text = "${collection.itemCount} items",

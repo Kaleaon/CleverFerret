@@ -21,7 +21,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.ui.PlayerView
 import com.universalmedialibrary.services.video.VideoPlayerType
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 // VLC import handled via reflection to avoid compilation errors
 // import org.videolan.libvlc.util.VLCVideoLayout
 

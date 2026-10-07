@@ -102,352 +102,346 @@ fun EnhancedMetadataEditorScreen(
     ) { paddingValues ->
             Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
+                    .weight(1f)
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                // Main content
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState())
+                // Search section
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 ) {
-                    // Search section
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
+                    Column(
+                        modifier = Modifier.padding(16.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Metadata Search",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Metadata Search",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                            OutlinedTextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
-                                label = { Text("Search for metadata") },
-                                placeholder = { Text("Enter title, author, or keywords...") },
-                                modifier = Modifier.fillMaxWidth(),
-                                trailingIcon = {
-                                    IconButton(
-                                        onClick = {
-                                            if (searchQuery.isNotBlank()) {
-                                                isSearching = true
-                                                coroutineScope.launch {
-                                                    try {
-                                                        searchResults = when (mediaType) {
-                                                            "BOOK" -> metadataApiService.searchBooks(searchQuery)
-                                                            "MOVIE" -> metadataApiService.searchMovies(searchQuery)
-                                                            "MUSIC" -> metadataApiService.searchMusic(searchQuery)
-                                                            else -> metadataApiService.searchBooks(searchQuery)
-                                                        }
-                                                        showSearchDialog = true
-                                                    } catch (e: Exception) {
-                                                        // Handle error
-                                                    } finally {
-                                                        isSearching = false
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            label = { Text("Search for metadata") },
+                            placeholder = { Text("Enter title, author, or keywords...") },
+                            modifier = Modifier.fillMaxWidth(),
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        if (searchQuery.isNotBlank()) {
+                                            isSearching = true
+                                            coroutineScope.launch {
+                                                try {
+                                                    searchResults = when (mediaType) {
+                                                        "BOOK" -> metadataApiService.searchBooks(searchQuery)
+                                                        "MOVIE" -> metadataApiService.searchMovies(searchQuery)
+                                                        "MUSIC" -> metadataApiService.searchMusic(searchQuery)
+                                                        else -> metadataApiService.searchBooks(searchQuery)
                                                     }
+                                                    showSearchDialog = true
+                                                } catch (e: Exception) {
+                                                    // Handle error
+                                                } finally {
+                                                    isSearching = false
                                                 }
                                             }
                                         }
-                                    ) {
-                                        if (isSearching) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(20.dp),
-                                                strokeWidth = 2.dp
-                                            )
-                                        } else {
-                                            Icon(Icons.Default.Search, contentDescription = "Search")
-                                        }
+                                    }
+                                ) {
+                                    if (isSearching) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(20.dp),
+                                            strokeWidth = 2.dp
+                                        )
+                                    } else {
+                                        Icon(Icons.Default.Search, contentDescription = "Search")
                                     }
                                 }
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // Media type selector
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                listOf("BOOK", "MOVIE", "MUSIC").forEach { type ->
-                                    FilterChip(
-                                        onClick = { mediaType = type },
-                                        label = { Text(type) },
-                                        selected = mediaType == type
-                                    )
-                                }
                             }
-                        }
-                    }
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    // Cover and basic info
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // Cover image
-                        Card(
-                            modifier = Modifier.width(120.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            )
+                        // Media type selector
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                AsyncImage(
-                    
-                                    model = coverUrl.ifEmpty { "https://via.placeholder.com/300x450/2d3136/e5a00d?text=No+Cover" },
-                                    contentDescription = "Cover",
-                                    modifier = Modifier
-                                        .size(100.dp, 140.dp)
-                                        .clip(MaterialTheme.shapes.small)
-                                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                OutlinedTextField(
-                                    value = coverUrl,
-                                    onValueChange = { coverUrl = it },
-                                    label = { Text("Cover URL") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textStyle = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
-
-                        // Basic metadata
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            OutlinedTextField(
-                                value = title,
-                                onValueChange = { title = it },
-                                label = { Text("Title") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            OutlinedTextField(
-                                value = author,
-                                onValueChange = { author = it },
-                                label = {
-                                    Text(when (mediaType) {
-                                        "BOOK" -> "Author"
-                                        "MOVIE" -> "Director"
-                                        "MUSIC" -> "Artist"
-                                        else -> "Creator"
-                                    })
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                OutlinedTextField(
-                                    value = year,
-                                    onValueChange = { year = it },
-                                    label = { Text("Year") },
-                                    modifier = Modifier.weight(1f),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                )
-
-                                OutlinedTextField(
-                                    value = genre,
-                                    onValueChange = { genre = it },
-                                    label = { Text("Genre") },
-                                    modifier = Modifier.weight(1f)
+                            listOf("BOOK", "MOVIE", "MUSIC").forEach { type ->
+                                FilterChip(
+                                    onClick = { mediaType = type },
+                                    label = { Text(type) },
+                                    selected = mediaType == type
                                 )
                             }
                         }
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                    // Rating
+                // Cover and basic info
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Cover image
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.width(120.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surface
                         )
                     ) {
                         Column(
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier.padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = "Rating: ${String.format(java.util.Locale.US, "%.1f", rating)} / 5.0",
-                                style = MaterialTheme.typography.titleSmall
+                            AsyncImage(
+                
+                                model = coverUrl.ifEmpty { "https://via.placeholder.com/300x450/2d3136/e5a00d?text=No+Cover" },
+                                contentDescription = "Cover",
+                                modifier = Modifier
+                                    .size(100.dp, 140.dp)
+                                    .clip(MaterialTheme.shapes.small)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                contentScale = ContentScale.Crop
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                repeat(5) { index ->
-                                    Icon(
-                                        imageVector = if (index < rating) Icons.Default.Star else Icons.Default.StarBorder,
-                                        contentDescription = "Media image",
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .clickable { rating = (index + 1).toFloat() },
-                                        tint = if (index < rating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
-                            Slider(
-                                value = rating,
-                                onValueChange = { rating = it },
-                                valueRange = 0f..5f,
-                                steps = 9, // 0.5 increments
-                                modifier = Modifier.fillMaxWidth()
+                            OutlinedTextField(
+                                value = coverUrl,
+                                onValueChange = { coverUrl = it },
+                                label = { Text("Cover URL") },
+                                modifier = Modifier.fillMaxWidth(),
+                                textStyle = MaterialTheme.typography.bodySmall
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Description
-                    OutlinedTextField(
-                        value = description,
-                        onValueChange = { description = it },
-                        label = { Text("Description") },
-                        modifier = Modifier.fillMaxWidth(),
-                        minLines = 4,
-                        maxLines = 8
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Book-specific fields
-                    if (mediaType == "BOOK") {
+                    // Basic metadata
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         OutlinedTextField(
-                            value = isbn,
-                            onValueChange = { isbn = it },
-                            label = { Text("ISBN") },
+                            value = title,
+                            onValueChange = { title = it },
+                            label = { Text("Title") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = author,
+                            onValueChange = { author = it },
+                            label = {
+                                Text(when (mediaType) {
+                                    "BOOK" -> "Author"
+                                    "MOVIE" -> "Director"
+                                    "MUSIC" -> "Artist"
+                                    else -> "Creator"
+                                })
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = year,
+                                onValueChange = { year = it },
+                                label = { Text("Year") },
+                                modifier = Modifier.weight(1f),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            )
+
+                            OutlinedTextField(
+                                value = genre,
+                                onValueChange = { genre = it },
+                                label = { Text("Genre") },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Rating
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Rating: ${String.format(java.util.Locale.US, "%.1f", rating)} / 5.0",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            repeat(5) { index ->
+                                Icon(
+                                    imageVector = if (index < rating) Icons.Default.Star else Icons.Default.StarBorder,
+                                    contentDescription = "Media image",
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clickable { rating = (index + 1).toFloat() },
+                                    tint = if (index < rating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        Slider(
+                            value = rating,
+                            onValueChange = { rating = it },
+                            valueRange = 0f..5f,
+                            steps = 9, // 0.5 increments
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Description
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 4,
+                    maxLines = 8
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Book-specific fields
+                if (mediaType == "BOOK") {
+                    OutlinedTextField(
+                        value = isbn,
+                        onValueChange = { isbn = it },
+                        label = { Text("ISBN") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
+    }
 
-        // Search results dialog
-        if (showSearchDialog) {
-            AlertDialog(
-                onDismissRequest = { showSearchDialog = false },
-                title = {
-                    Text(
-                        "Search Results for \"$searchQuery\"",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                },
-                text = {
-                    LazyColumn(
-                        modifier = Modifier.height(400.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(searchResults) { result ->
+    // Search results dialog
+    if (showSearchDialog) {
+        AlertDialog(
+            onDismissRequest = { showSearchDialog = false },
+            title = {
+                Text(
+                    "Search Results for \"$searchQuery\"",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
+            text = {
+                LazyColumn(
+                    modifier = Modifier.height(400.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(searchResults) { result ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    // Apply search result to form
+                                    title = result.title
+                                    author = result.author ?: result.director ?: result.artist ?: ""
+                                    year = result.year?.toString() ?: ""
+                                    description = result.description ?: ""
+                                    coverUrl = result.coverUrl ?: ""
+                                    rating = result.rating ?: 0f
+                                    if (result.isbn != null) isbn = result.isbn
+                                    showSearchDialog = false
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                AsyncImage(
+                
+                                    model = result.coverUrl ?: "https://via.placeholder.com/60x80/2d3136/e5a00d?text=?",
+                                    contentDescription = "Media image",
+                                    modifier = Modifier
+                                        .size(40.dp, 60.dp)
+                                        .clip(MaterialTheme.shapes.small),
+                                    contentScale = ContentScale.Crop
+                                )
+
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = result.title,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Medium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = result.author ?: result.director ?: result.artist ?: "Unknown",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    if (result.year != null) {
+                                        Text(
+                                            text = result.year.toString(),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Text(
+                                        text = "Source: ${result.source}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (searchResults.isEmpty() && !isSearching) {
+                        item {
                             Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        // Apply search result to form
-                                        title = result.title
-                                        author = result.author ?: result.director ?: result.artist ?: ""
-                                        year = result.year?.toString() ?: ""
-                                        description = result.description ?: ""
-                                        coverUrl = result.coverUrl ?: ""
-                                        rating = result.rating ?: 0f
-                                        if (result.isbn != null) isbn = result.isbn
-                                        showSearchDialog = false
-                                    },
+                                modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                                 )
                             ) {
-                                Row(
-                                    modifier = Modifier.padding(12.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    AsyncImage(
-                    
-                                        model = result.coverUrl ?: "https://via.placeholder.com/60x80/2d3136/e5a00d?text=?",
-                                        contentDescription = "Media image",
-                                        modifier = Modifier
-                                            .size(40.dp, 60.dp)
-                                            .clip(MaterialTheme.shapes.small),
-                                        contentScale = ContentScale.Crop
-                                    )
-
-                                    Column(
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Text(
-                                            text = result.title,
-                                            style = MaterialTheme.typography.titleSmall,
-                                            fontWeight = FontWeight.Medium,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Text(
-                                            text = result.author ?: result.director ?: result.artist ?: "Unknown",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                        if (result.year != null) {
-                                            Text(
-                                                text = result.year.toString(),
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        }
-                                        Text(
-                                            text = "Source: ${result.source}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                }
+                                Text(
+                                    text = "No results found. Try a different search term.",
+                                    modifier = Modifier.padding(16.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
-
-                        if (searchResults.isEmpty() && !isSearching) {
-                            item {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
-                                ) {
-                                    Text(
-                                        text = "No results found. Try a different search term.",
-                                        modifier = Modifier.padding(16.dp),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = { showSearchDialog = false }) {
-                        Text("Close")
                     }
                 }
-            )
-        }
+            },
+            confirmButton = {
+                TextButton(onClick = { showSearchDialog = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
 }
