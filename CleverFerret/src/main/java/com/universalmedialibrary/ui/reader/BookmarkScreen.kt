@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.data.local.entity.TextAnnotation
 import kotlinx.coroutines.launch
 
@@ -53,7 +54,7 @@ fun BookmarkScreen(
     ) {
         // Top App Bar
         TopAppBar(
-            title = { Text("Bookmarks & Notes") },
+            title = { Text("Bookmarks & Notes", modifier = Modifier.headingSemantics()) },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")

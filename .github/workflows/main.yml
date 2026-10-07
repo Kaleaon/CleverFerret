@@ -21,25 +21,26 @@ env:
 permissions: {}
 
 jobs:
-  test:
-    name: Run Tests
+  quality-gate:
+    name: quality-gate
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
       COMPILE_LOG: compile_output_${{ github.sha }}_${{ github.run_attempt }}.txt
-    
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       
     - name: Set up JDK ${{ env.JAVA_VERSION }}
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v6
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
         cache: 'gradle'
-        
+
     - name: Set up Android SDK
       uses: android-actions/setup-android@v4
       with:
@@ -58,16 +59,116 @@ jobs:
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;34.0.0" "platform-tools"
         echo "Installed SDK packages:"
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --list_installed
-    - name: Cache Gradle packages
-      uses: actions/cache@v6
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Check for raw console calls in app code
+      run: ./scripts/check-no-raw-console.sh
+
+    - name: Validate Android 14 widget background-update constraints
+      run: ./scripts/ci/validate_android14_widget_background_updates.py
+
+    - name: Validate markdown links and canonical status docs
+      run: python3 scripts/ci/validate_docs_consistency.py
+
+    - name: Check docs local links
+      run: ./scripts/ci/check_doc_links.py
+
+    - name: Run Detekt and Android Lint
+      run: ./gradlew detekt lintDebug -Plint.abortOnError=true --stacktrace
+
+    - name: Enforce no accessibility lint issues
+      run: python3 scripts/ci/check_accessibility_lint.py CleverFerret/build/reports/lint-results-debug.xml
+
+    - name: Enforce Compose semantic token usage in feature UI
+      run: |
+        if [ -d "CleverFerretV2/feature" ]; then
+          python3 scripts/ci/check_compose_semantic_tokens.py CleverFerretV2/feature
+        fi
+
+    - name: Validate V2 accessibility/theme contract tests
+      run: |
+        if [ -d "CleverFerretV2" ]; then
+          ./gradlew :CleverFerretV2:core:ui:test --stacktrace
+        fi
+
+    - name: Run contrast + navigation contract tests
+      run: |
+        ./gradlew :CleverFerret:testDebugUnitTest \
+          --tests com.universalmedialibrary.ui.media.theme.MediaAccessibilityContrastTest \
+          --tests com.universalmedialibrary.ui.media.navigation.MediaNavDestinationsContractTest
+
+    - name: Upload Quality & Lint Results
+      uses: actions/upload-artifact@v4
+      if: always()
       with:
+        name: quality-gate-results
         path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
+          CleverFerret/build/reports/lint-results-*.html
+          CleverFerret/build/reports/lint-results-*.xml
+          CleverFerret/build/reports/lint-results-*.txt
+          CleverFerret/lint-baseline.xml
+          CleverFerret/detekt-baseline.xml
+          CleverFerret/build/reports/detekt/
+
+    - name: Comment Lint Results on PR
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v8
+      env:
+        REPOSITORY: ${{ github.repository }}
+        RUN_ID: ${{ github.run_id }}
+      with:
+        script: |
+          const fs = require('fs');
+          const lintResultsPath = 'CleverFerret/build/reports/lint-results-debug.xml';
+          if (fs.existsSync(lintResultsPath)) {
+            const lintResults = fs.readFileSync(lintResultsPath, 'utf8');
+            const issueCount = (lintResults.match(/<issue/g) || []).length;
+            const repository = process.env.REPOSITORY;
+            const runId = process.env.RUN_ID;
+            const body = `### 🔍 Quality Gate & Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/${repository}/actions/runs/${runId}) for details.`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+          }
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: quality-gate
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v5
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
+        cache: 'gradle'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v4
+      with:
+        cmdline-tools-version: 11076708
+
+    - name: Normalize Android SDK environment variables
+      run: |
+        SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+        echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
+        echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
+        echo "Using Android SDK at: $SDK_PATH"
+
+    - name: Install required Android SDK packages
+      run: |
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;34.0.0" "platform-tools"
+        echo "Installed SDK packages:"
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
@@ -79,7 +180,7 @@ jobs:
           echo "::error::KSP detected unresolved type error.NonExistentClass"
           exit 1
         fi
-      
+
     - name: Compile project
       id: compile
       run: |
@@ -90,39 +191,39 @@ jobs:
         touch "$COMPILE_LOG"
         ./gradlew compileDebugKotlin --stacktrace --warning-mode all 2>&1 | tee "$COMPILE_LOG"
         exit_code=${PIPESTATUS[0]}
-        
-        # If compilation failed, show the last 200 lines which usually contain the errors
+
         if [ $exit_code -ne 0 ]; then
           echo ""
           echo "::group::Compilation Errors (last 200 lines)"
           tail -200 "$COMPILE_LOG"
           echo "::endgroup::"
-          
-          # Also extract and display just the error lines
+
           echo ""
           echo "::group::Error Summary"
           grep -E "^e: |error:|Error:|FAILURE:|BUILD FAILED" "$COMPILE_LOG" || echo "No specific error pattern found - check full output above"
           echo "::endgroup::"
         fi
-        
+
         exit $exit_code
-      
+
     - name: Report compilation results
       if: always()
+      env:
+        COMPILE_OUTCOME: ${{ steps.compile.outcome }}
       run: |
-        if [ "${{ steps.compile.outcome }}" == "failure" ]; then
+        if [ "$COMPILE_OUTCOME" == "failure" ]; then
           echo "::error::Compilation failed. Check the 'Compilation Errors' section above for details."
           
           # Upload compile output as artifact for debugging if it exists
           if [ -n "${COMPILE_LOG:-}" ] && [ -f "$COMPILE_LOG" ]; then
             echo "Compilation log saved for debugging."
           fi
-        elif [ "${{ steps.compile.outcome }}" == "success" ]; then
+        elif [ "$COMPILE_OUTCOME" == "success" ]; then
           echo "::notice::Compilation succeeded!"
         else
           echo "::warning::Compilation was skipped or cancelled."
         fi
-    
+
     - name: Upload compilation log artifact
       if: always() && env.COMPILE_LOG != ''
       uses: actions/upload-artifact@v4
@@ -130,7 +231,7 @@ jobs:
         name: compile-log-${{ github.sha }}-${{ github.run_attempt }}
         path: ${{ env.COMPILE_LOG || 'compile_output.txt' }}
         if-no-files-found: ignore
-    
+
     - name: Run unit tests
       if: steps.compile.outcome == 'success'
       run: ./gradlew testDebugUnitTest
@@ -140,33 +241,32 @@ jobs:
       if: steps.compile.outcome == 'success' && steps.unit-tests.outcome == 'success'
       run: ./gradlew :CleverFerret:jacocoCriticalCoverageVerification --stacktrace
       id: coverage-gates
-      
-    - name: Run lint checks
-      if: steps.compile.outcome == 'success'
-      run: ./gradlew lintDebug -Plint.abortOnError=true --stacktrace
-      id: lint-checks
-      
-    - name: Report test and lint results
+
+    - name: Report test results
       if: always()
+      env:
+        UNIT_TESTS_OUTCOME: ${{ steps.unit-tests.outcome }}
+        COVERAGE_GATES_OUTCOME: ${{ steps.coverage-gates.outcome }}
       run: |
-        if [ "${{ steps.unit-tests.outcome }}" == "failure" ]; then
+        if [ "$UNIT_TESTS_OUTCOME" == "failure" ]; then
           echo "::error::Unit tests failed. Check test reports for details."
         fi
-        if [ "${{ steps.coverage-gates.outcome }}" == "failure" ]; then
+        if [ "$COVERAGE_GATES_OUTCOME" == "failure" ]; then
           echo "::error::Coverage gates failed for critical packages."
         fi
-        if [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
-          echo "::error::Lint checks failed. New lint issues must be fixed or explicitly suppressed."
-        fi
-      
+
     - name: Fail workflow if compilation or tests failed
       if: always()
+      env:
+        COMPILE_OUTCOME: ${{ steps.compile.outcome }}
+        UNIT_TESTS_OUTCOME: ${{ steps.unit-tests.outcome }}
+        COVERAGE_GATES_OUTCOME: ${{ steps.coverage-gates.outcome }}
       run: |
-        if [ "${{ steps.compile.outcome }}" == "failure" ] || [ "${{ steps.unit-tests.outcome }}" == "failure" ] || [ "${{ steps.coverage-gates.outcome }}" == "failure" ] || [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
-          echo "Workflow failed due to compilation, test, or lint failures"
+        if [ "$COMPILE_OUTCOME" == "failure" ] || [ "$UNIT_TESTS_OUTCOME" == "failure" ] || [ "$COVERAGE_GATES_OUTCOME" == "failure" ]; then
+          echo "Workflow failed due to compilation or test failures"
           exit 1
         fi
-      
+
     - name: Upload test reports
       uses: actions/upload-artifact@v4
       if: always()
@@ -190,23 +290,22 @@ jobs:
       id-token: write # required for GitHub OIDC provenance attestations
     env:
       BUILD_LOG: build_output_${{ github.sha }}_${{ github.run_attempt }}.txt
-    
     outputs:
       version-name: ${{ steps.version.outputs.version-name }}
       version-code: ${{ steps.version.outputs.version-code }}
       build-success: ${{ steps.build-debug.outcome == 'success' }}
-      
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       
     - name: Set up JDK ${{ env.JAVA_VERSION }}
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v6
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
         cache: 'gradle'
-        
+
     - name: Set up Android SDK
       uses: android-actions/setup-android@v4
       with:
@@ -225,19 +324,10 @@ jobs:
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;34.0.0" "platform-tools"
         echo "Installed SDK packages:"
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --list_installed
-    - name: Cache Gradle packages
-      uses: actions/cache@v6
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-      
+
     - name: Extract version information
       id: version
       run: |
@@ -248,7 +338,7 @@ jobs:
         echo "Version Name: $VERSION_NAME"
         echo "Version Code: $VERSION_CODE"
       continue-on-error: true
-        
+
     - name: Build debug APK
       id: build-debug
       run: |
@@ -262,27 +352,27 @@ jobs:
           -PCRASH_REPORTING_ENABLED=true \
           -PSHOW_DEBUG_MENU=true 2>&1 | tee "$BUILD_LOG"
         exit_code=${PIPESTATUS[0]}
-        
-        # If build failed, show the last 200 lines which usually contain the errors
+
         if [ $exit_code -ne 0 ]; then
           echo ""
           echo "::group::Build Errors (last 200 lines)"
           tail -200 "$BUILD_LOG"
           echo "::endgroup::"
-          
-          # Also extract and display just the error lines
+
           echo ""
           echo "::group::Error Summary"
           grep -E "^e: |error:|Error:|FAILURE:|BUILD FAILED" "$BUILD_LOG" || echo "No specific error pattern found - check full output above"
           echo "::endgroup::"
         fi
-        
+
         exit $exit_code
 
     - name: Report build status
       if: always()
+      env:
+        BUILD_DEBUG_OUTCOME: ${{ steps.build-debug.outcome }}
       run: |
-        if [ "${{ steps.build-debug.outcome }}" == "failure" ]; then
+        if [ "$BUILD_DEBUG_OUTCOME" == "failure" ]; then
           echo "::error::Debug APK build failed. Check the 'Build Errors' section above for details."
         else
           echo "::notice::Debug APK built successfully!"
@@ -293,7 +383,7 @@ jobs:
           echo "  - Debug menu access via Settings"
           echo "  - Feature flags"
         fi
-    
+
     - name: Upload build log artifact
       if: always() && env.BUILD_LOG != ''
       uses: actions/upload-artifact@v4
@@ -301,73 +391,83 @@ jobs:
         name: build-log-${{ github.sha }}-${{ github.run_attempt }}
         path: ${{ env.BUILD_LOG || 'build_output.txt' }}
         if-no-files-found: ignore
-      
-    - name: Build release APK (unsigned)
+    - name: Build release APK
       if: steps.build-debug.outcome == 'success'
-      run: ./gradlew assembleRelease
-      
-    - name: Sign release APK
-      id: sign_apk
-      if: steps.build-debug.outcome == 'success' && github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
       env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       run: |
         if [[ -n "$KEYSTORE_PASSWORD" && -n "$KEY_ALIAS" && -n "$KEY_PASSWORD" ]]; then
           echo "Signing APK with keystore..."
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-keystore.jks
-          
+          echo "$KEYSTORE_BASE64" | base64 -d > release-keystore.jks
+
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
             -keystore release-keystore.jks \
             -storepass "$KEYSTORE_PASSWORD" \
             -keypass "$KEY_PASSWORD" \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             "$KEY_ALIAS"
-            
+
           $ANDROID_SDK_ROOT/build-tools/34.0.0/zipalign -v 4 \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
-            
+
           echo "signed=true" >> $GITHUB_OUTPUT
           echo "APK signed successfully"
         else
-          echo "Keystore secrets not available, using unsigned APK"
-          cp CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
-             CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
-          echo "signed=false" >> $GITHUB_OUTPUT
+          RELEASE_APK=$(find CleverFerret/build/outputs/apk/release/ -name "*.apk" ! -name "*-unsigned.apk" | head -n 1)
         fi
-      continue-on-error: true
+
+        if [[ -z "$RELEASE_APK" || ! -f "$RELEASE_APK" ]]; then
+          echo "::error::Release APK file not found for signature verification!"
+          exit 1
+        fi
+
+        echo "Found release APK: $RELEASE_APK"
+
+        APKSIGNER=$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner | sort -V | tail -n 1)
+        if [[ -z "$APKSIGNER" || ! -x "$APKSIGNER" ]]; then
+          APKSIGNER="apksigner"
+        fi
+
+        echo "Using apksigner at: $APKSIGNER"
+        "$APKSIGNER" verify --verbose "$RELEASE_APK"
         
     - name: Rename APK files
       if: steps.build-debug.outcome == 'success'
+      env:
+        VERSION_NAME: ${{ steps.version.outputs.version-name }}
       run: |
-        VERSION_NAME="${{ steps.version.outputs.version-name }}"
-        
         if [[ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]]; then
           mv CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
              CleverFerret/build/outputs/apk/debug/CleverFerret-v${VERSION_NAME}-debug.apk
         fi
-           
-        if [[ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]]; then
+
+        if [[ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release.apk" ]]; then
+          mv CleverFerret/build/outputs/apk/release/CleverFerret-release.apk \
+             CleverFerret/build/outputs/apk/release/CleverFerret-v${VERSION_NAME}-release.apk
+        elif [[ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]]; then
           mv CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk \
              CleverFerret/build/outputs/apk/release/CleverFerret-v${VERSION_NAME}-release.apk
         elif [[ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]]; then
           mv CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
              CleverFerret/build/outputs/apk/release/CleverFerret-v${VERSION_NAME}-release-unsigned.apk
         fi
-    
+
     - name: Generate checksums
       if: steps.build-debug.outcome == 'success'
+      env:
+        VERSION_NAME: ${{ steps.version.outputs.version-name }}
       run: |
-        VERSION_NAME="${{ steps.version.outputs.version-name }}"
         cd CleverFerret/build/outputs/apk
-        
-        # Generate SHA256 checksums for all APKs
+
         if [[ -f "debug/CleverFerret-v${VERSION_NAME}-debug.apk" ]]; then
           sha256sum debug/CleverFerret-v${VERSION_NAME}-debug.apk > debug/CleverFerret-v${VERSION_NAME}-debug.apk.sha256
         fi
-        
+
         if [[ -f "release/CleverFerret-v${VERSION_NAME}-release.apk" ]]; then
           sha256sum release/CleverFerret-v${VERSION_NAME}-release.apk > release/CleverFerret-v${VERSION_NAME}-release.apk.sha256
         elif [[ -f "release/CleverFerret-v${VERSION_NAME}-release-unsigned.apk" ]]; then
@@ -382,7 +482,7 @@ jobs:
         cat debug/*.sha256 2>/dev/null || true
         cat release/*.sha256 2>/dev/null || true
         cat checksums.sha256 2>/dev/null || true
-        
+
     - name: Upload debug APK
       if: steps.build-debug.outcome == 'success'
       uses: actions/upload-artifact@v4
@@ -392,7 +492,7 @@ jobs:
           CleverFerret/build/outputs/apk/debug/CleverFerret-v${{ steps.version.outputs.version-name }}-debug.apk
           CleverFerret/build/outputs/apk/debug/*.sha256
         if-no-files-found: ignore
-        
+
     - name: Upload release APK
       if: steps.build-debug.outcome == 'success'
       uses: actions/upload-artifact@v4
@@ -404,10 +504,10 @@ jobs:
           CleverFerret/build/outputs/apk/checksums.sha256
         if-no-files-found: ignore
 
-
   clean-checkout-matrix:
     name: Clean checkout matrix
     runs-on: ubuntu-latest
+    needs: quality-gate
     permissions:
       contents: read
     strategy:
@@ -417,10 +517,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Set up JDK ${{ env.JAVA_VERSION }}
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v6
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -457,8 +557,10 @@ jobs:
       run: chmod +x gradlew
 
     - name: Clean checkout dependency resolution
+      env:
+        SCENARIO: ${{ matrix.scenario }}
       run: |
-        if [ "${{ matrix.scenario }}" = "refresh-deps" ]; then
+        if [ "$SCENARIO" = "refresh-deps" ]; then
           ./gradlew --no-daemon --refresh-dependencies :CleverFerret:dependencies
         else
           ./gradlew --no-daemon :CleverFerret:dependencies
@@ -466,8 +568,6 @@ jobs:
 
     - name: Compile from clean checkout
       run: ./gradlew --no-daemon :CleverFerret:compileDebugKotlin
-
-
 
   publish-packages:
     name: Publish to GitHub Packages
@@ -477,27 +577,17 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       
     - name: Set up JDK ${{ env.JAVA_VERSION }}
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v6
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
-        
-    - name: Cache Gradle packages
-      uses: actions/cache@v6
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
+        cache: 'gradle'
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
@@ -505,12 +595,14 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_USER: ${{ github.actor }}
+        VERSION_NAME: ${{ needs.build.outputs.version-name }}
+        VERSION_CODE: ${{ needs.build.outputs.version-code }}
       run: |
         ./gradlew publishToGitHub \
           -PgithubToken=$GITHUB_TOKEN \
           -PgithubUser=$GITHUB_USER \
-          -PversionName=${{ needs.build.outputs.version-name }} \
-          -PversionCode=${{ needs.build.outputs.version-code }}
+          -PversionName=$VERSION_NAME \
+          -PversionCode=$VERSION_CODE
 
   release:
     name: Create GitHub Release
@@ -521,94 +613,92 @@ jobs:
       contents: write
       id-token: write
       attestations: write
-    
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
-        
+
     - name: Download all APKs
       uses: actions/download-artifact@v8
       with:
         path: apks
 
     - name: Attest Build Provenance
-      uses: actions/attest-build-provenance@v2
+      uses: actions/attest-build-provenance@v4
       with:
         subject-path: 'apks/**/*.apk'
-    
+
     - name: Generate release notes
       id: release_notes
+      env:
+        VERSION: ${{ needs.build.outputs.version-name }}
       run: |
-        VERSION="${{ needs.build.outputs.version-name }}"
         TAG_NAME="${GITHUB_REF#refs/tags/}"
-        
-        # Get commit messages since last tag
+
         PREVIOUS_TAG=$(git describe --abbrev=0 --tags "${TAG_NAME}^" 2>/dev/null || echo "")
         if [ -n "$PREVIOUS_TAG" ]; then
           COMMITS=$(git log "${PREVIOUS_TAG}..${TAG_NAME}" --pretty=format:"- %s" --no-merges)
         else
           COMMITS=$(git log "${TAG_NAME}" --pretty=format:"- %s" --no-merges --max-count=20)
         fi
-        
-        # Generate checksums display
+
         DEBUG_CHECKSUM=""
         RELEASE_CHECKSUM=""
-        
+
         if [[ -f "apks/debug-apk/CleverFerret-v${VERSION}-debug.apk.sha256" ]]; then
           DEBUG_CHECKSUM=$(cat "apks/debug-apk/CleverFerret-v${VERSION}-debug.apk.sha256" 2>/dev/null || echo "N/A")
         fi
-        
+
         if [[ -f "apks/release-apk/CleverFerret-v${VERSION}-release.apk.sha256" ]]; then
           RELEASE_CHECKSUM=$(cat "apks/release-apk/CleverFerret-v${VERSION}-release.apk.sha256" 2>/dev/null || echo "N/A")
         elif [[ -f "apks/release-apk/CleverFerret-v${VERSION}-release-unsigned.apk.sha256" ]]; then
           RELEASE_CHECKSUM=$(cat "apks/release-apk/CleverFerret-v${VERSION}-release-unsigned.apk.sha256" 2>/dev/null || echo "N/A")
         fi
-        
-        # Create release notes
+
         cat > release_notes.md << EOF
         ## CleverFerret ${VERSION}
-        
+
         ### 📱 System Requirements
         - Android 8.0+ (API level 26 or higher)
         - 100 MB free storage space
-        
+
         ### 📦 Installation
         1. Download the APK below (release or debug version)
         2. Enable "Install from unknown sources" in Android settings if needed
         3. Install the APK
         4. See [Installation Guide](https://github.com/Kaleaon/CleverFerret/blob/main/docs/INSTALL.md) for detailed instructions
-        
+
         ### 🎉 Changes in this Release
         ${COMMITS}
-        
+
         ### 🔐 Checksums (SHA256)
-        
+
         **Release APK:**
-        \`\`\`
+        ```
         ${RELEASE_CHECKSUM}
-        \`\`\`
-        
+        ```
+
         **Debug APK:**
-        \`\`\`
+        ```
         ${DEBUG_CHECKSUM}
-        \`\`\`
-        
+        ```
+
         ### 📝 Notes
         - Release APK is optimized with ProGuard/R8 for smaller size
         - Debug APK includes debugging symbols and is larger in size
         - Both versions are functionally equivalent
-        
+
         For bug reports and feature requests, please visit the [Issues page](https://github.com/Kaleaon/CleverFerret/issues).
         EOF
-        
+
         echo "release_body<<EOF" >> $GITHUB_OUTPUT
         cat release_notes.md >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
-        
+
     - name: Create Release and Upload Assets
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         name: CleverFerret ${{ needs.build.outputs.version-name }}
         body: ${{ steps.release_notes.outputs.release_body }}

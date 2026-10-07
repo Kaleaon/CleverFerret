@@ -76,27 +76,36 @@ fun ProjectMVisualizer(
     val tertiaryColor = VisualizerColors.neonGreen
     val backgroundColor = Color(0xFF0A0A0F) // Deep dark background for contrast
     
-    val infiniteTransition = rememberInfiniteTransition(label = "visualizer")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(20000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
-    )
-    
-    // Color cycling animation for dynamic effects
-    val colorPhase by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "colorPhase"
-    )
+    val reduceMotion = com.universalmedialibrary.ui.theme.LocalReduceMotion.current
+    val rotation: Float
+    val colorPhase: Float
+    if (reduceMotion) {
+        rotation = 0f
+        colorPhase = 0f
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "visualizer")
+        val animRotation by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(20000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "rotation"
+        )
+        
+        val animColorPhase by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(5000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "colorPhase"
+        )
+        rotation = animRotation
+        colorPhase = animColorPhase
+    }
     
     // Dynamic colors based on audio
     val dynamicPrimary = remember(visualizerState.frequencyBands.bass, colorPhase) {

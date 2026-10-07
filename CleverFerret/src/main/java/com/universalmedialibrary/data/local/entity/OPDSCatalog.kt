@@ -41,11 +41,6 @@ data class OPDSCatalog(
     val username: String? = null,
     
     /**
-     * Optional authentication password (encrypted)
-     */
-    val password: String? = null,
-    
-    /**
      * Catalog description
      */
     val description: String? = null,

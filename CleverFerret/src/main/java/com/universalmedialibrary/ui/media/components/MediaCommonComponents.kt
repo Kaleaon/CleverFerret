@@ -20,6 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import androidx.compose.ui.semantics.LiveRegionMode
+import com.universalmedialibrary.ui.components.dynamicStateDescription
 import com.universalmedialibrary.ui.media.theme.*
 
 /**
@@ -166,7 +168,8 @@ fun MediaLoadingScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MediaColors.Background),
+            .background(MediaColors.Background)
+            .dynamicStateDescription(message, LiveRegionMode.Polite),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -192,7 +195,8 @@ fun MediaLoadingOverlay(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    Box(modifier = modifier) {
+    val statusText = if (isLoading) "Loading..." else "Completed"
+    Box(modifier = modifier.dynamicStateDescription(statusText, LiveRegionMode.Polite)) {
         content()
         
         AnimatedVisibility(
@@ -526,8 +530,11 @@ fun MediaCircularProgress(
     size: Int = 48,
     strokeWidth: Int = 4
 ) {
+    val percentText = "${(progress * 100).toInt()}%"
     Box(
-        modifier = modifier.size(size.dp),
+        modifier = modifier
+            .size(size.dp)
+            .dynamicStateDescription(percentText, LiveRegionMode.Polite),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
@@ -552,12 +559,14 @@ fun MediaLinearProgress(
     modifier: Modifier = Modifier,
     height: Int = 4
 ) {
+    val percentText = "${(progress * 100).toInt()}%"
     LinearProgressIndicator(
         progress = { progress },
         modifier = modifier
             .fillMaxWidth()
             .height(height.dp)
-            .clip(RoundedCornerShape(MediaCorners.Full)),
+            .clip(RoundedCornerShape(MediaCorners.Full))
+            .dynamicStateDescription(percentText, LiveRegionMode.Polite),
         color = MediaColors.AccentPrimary,
         trackColor = MediaColors.ProgressBackground
     )

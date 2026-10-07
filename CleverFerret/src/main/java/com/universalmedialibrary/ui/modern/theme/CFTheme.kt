@@ -14,22 +14,23 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
+import com.cleverferret.core.designsystem.theme.LocalLiveRegionPolicy
 import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
 
-private fun cfTypography(family: FontFamily): Typography = Typography(
-    displayLarge   = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 44.sp, letterSpacing = (-1.0).sp),
-    displayMedium  = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 32.sp, letterSpacing = (-0.6).sp),
-    headlineLarge  = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 26.sp, letterSpacing = (-0.4).sp),
-    headlineMedium = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 22.sp, letterSpacing = (-0.3).sp),
-    titleLarge     = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 17.sp),
-    titleMedium    = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 15.sp),
-    titleSmall     = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 13.sp),
+internal fun cfTypography(family: FontFamily = FontFamily.Default): Typography = Typography(
+    displayLarge   = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 44.sp, lineHeight = 52.sp, letterSpacing = (-1.0).sp),
+    displayMedium  = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 32.sp, lineHeight = 40.sp, letterSpacing = (-0.6).sp),
+    headlineLarge  = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 26.sp, lineHeight = 32.sp, letterSpacing = (-0.4).sp),
+    headlineMedium = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 22.sp, lineHeight = 28.sp, letterSpacing = (-0.3).sp),
+    titleLarge     = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 17.sp, lineHeight = 24.sp),
+    titleMedium    = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 20.sp),
+    titleSmall     = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, lineHeight = 18.sp),
     bodyLarge      = TextStyle(fontFamily = family, fontWeight = FontWeight.Normal,   fontSize = 16.sp, lineHeight = 24.sp),
     bodyMedium     = TextStyle(fontFamily = family, fontWeight = FontWeight.Normal,   fontSize = 14.sp, lineHeight = 20.sp),
     bodySmall      = TextStyle(fontFamily = family, fontWeight = FontWeight.Normal,   fontSize = 12.sp, lineHeight = 16.sp),
-    labelLarge     = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, letterSpacing = 0.2.sp),
-    labelMedium    = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, letterSpacing = 1.4.sp),
-    labelSmall     = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 10.sp, letterSpacing = 1.6.sp),
+    labelLarge     = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, lineHeight = 18.sp, letterSpacing = 0.2.sp),
+    labelMedium    = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 1.4.sp),
+    labelSmall     = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 10.sp, lineHeight = 14.sp, letterSpacing = 1.6.sp),
 )
 
 @Composable
@@ -49,14 +50,16 @@ fun CFTheme(
             onSurface = String.format("#%08X", palette.scheme.onSurface.toArgb()),
             outline = String.format("#%08X", palette.scheme.outline.toArgb()),
             error = String.format("#%08X", palette.scheme.error.toArgb()),
-            onError = String.format("#%08X", palette.scheme.onError.toArgb())
+            onError = String.format("#%08X", palette.scheme.onError.toArgb()),
+            liveRegion = palette.tokens.liveRegion
         )
         KthemeThemeAdapterV1.adapt(kthemeSnapshot)
     }
 
     CompositionLocalProvider(
         LocalCFTokens provides palette.tokens,
-        LocalSemanticTheme provides semanticTheme
+        LocalSemanticTheme provides semanticTheme,
+        LocalLiveRegionPolicy provides semanticTheme.liveRegion
     ) {
         MaterialTheme(
             colorScheme = palette.scheme,

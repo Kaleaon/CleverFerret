@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.universalmedialibrary.services.gallery.*
+import com.universalmedialibrary.ui.modern.theme.CFSpacing
 
 @Composable
 internal fun GalleryHomeContent(
@@ -48,13 +49,13 @@ internal fun GalleryHomeContent(
     onRefresh: () -> Unit
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Adaptive(minSize = CFSpacing.squareCardMinWidth),
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Header with stats
-        item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
+        item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
             Column(modifier = Modifier.padding(bottom = 8.dp)) {
                 Text(
                     text = "${state.totalItemCount} photos & videos",

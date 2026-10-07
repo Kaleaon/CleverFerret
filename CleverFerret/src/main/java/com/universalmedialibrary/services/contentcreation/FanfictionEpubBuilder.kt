@@ -78,7 +78,7 @@ internal fun downloadEpub(epubUrl: String, outputFile: File): Boolean {
             .header("User-Agent", "CleverFerret/1.0 (FicHub)")
             .get()
             .build()
-        httpClient.newCall(request).execute().use { response ->
+        OkHttpClient().newCall(request).execute().use { response ->
             if (!response.isSuccessful) return false
             response.body?.byteStream()?.use { input ->
                 FileOutputStream(outputFile).use { output ->

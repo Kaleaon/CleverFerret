@@ -162,18 +162,22 @@ fun Modifier.pulseEffect(
     maxScale: Float = 1.05f,
     durationMillis: Int = 1000
 ) = composed {
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = minScale,
-        targetValue = maxScale,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseScale"
-    )
-    
-    this.scale(scale)
+    val reduceMotion = com.universalmedialibrary.ui.theme.LocalReduceMotion.current
+    if (reduceMotion) {
+        this.scale(1f)
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+        val scale by infiniteTransition.animateFloat(
+            initialValue = minScale,
+            targetValue = maxScale,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulseScale"
+        )
+        this.scale(scale)
+    }
 }
 
 /**

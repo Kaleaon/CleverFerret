@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.modern.theme.CFSpacing
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
@@ -240,7 +241,7 @@ private fun AlbumsPage(
     }
     
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 150.dp),
+        columns = GridCells.Adaptive(minSize = CFSpacing.squareCardMinWidth),
         contentPadding = PaddingValues(MediaSpacing.MD),
         horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
         verticalArrangement = Arrangement.spacedBy(MediaSpacing.LG),
@@ -271,7 +272,7 @@ private fun ArtistsPage(
     }
     
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 140.dp),
+        columns = GridCells.Adaptive(minSize = CFSpacing.squareCardMinWidth),
         contentPadding = PaddingValues(MediaSpacing.MD),
         horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
         verticalArrangement = Arrangement.spacedBy(MediaSpacing.LG),
@@ -361,7 +362,7 @@ private fun PlaylistsPage(
     }
     
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 160.dp),
+        columns = GridCells.Adaptive(minSize = CFSpacing.squareCardMinWidth),
         contentPadding = PaddingValues(MediaSpacing.MD),
         horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
         verticalArrangement = Arrangement.spacedBy(MediaSpacing.LG),
@@ -392,7 +393,7 @@ private fun GenresPage(
     }
     
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Adaptive(minSize = CFSpacing.squareCardMinWidth),
         contentPadding = PaddingValues(MediaSpacing.MD),
         horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
         verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD),

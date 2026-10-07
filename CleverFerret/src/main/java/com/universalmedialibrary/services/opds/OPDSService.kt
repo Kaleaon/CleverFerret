@@ -97,11 +97,12 @@ class OPDSCatalogService @Inject constructor(
 
     suspend fun browseCatalog(catalog: OPDSCatalog): Result<OPDSFeed> = withContext(Dispatchers.IO) {
         ensureDefaultCatalogs()
+        val authContext = OPDSAuthContext(isBackground = false, catalogId = catalog.id, catalogName = catalog.name)
         runCatching {
             ingestionPipeline.execute(
                 sourceId = "opds:${catalog.url.lowercase()}",
                 authenticate = { Unit },
-                fetchPage = { _, _ -> opdsClient.fetchFeed(catalog.url) },
+                fetchPage = { _, _ -> opdsClient.fetchFeed(catalog.url, authContext) },
                 parse = { it },
                 deduplicate = { feed ->
                     feed.copy(entries = feed.entries.distinctBy { "${it.title}:${it.acquisitionLinks.firstOrNull()?.href.orEmpty()}" })
@@ -126,12 +127,13 @@ class OPDSCatalogService @Inject constructor(
             )
         }
 
+        val authContext = OPDSAuthContext(isBackground = false, catalogId = catalog.id, catalogName = catalog.name)
         runCatching {
             val searchUrl = opdsClient.buildSearchUrl(catalog.searchUrl!!, query)
             ingestionPipeline.execute(
                 sourceId = "opds-search:${catalog.url.lowercase()}",
                 authenticate = { Unit },
-                fetchPage = { _, _ -> opdsClient.fetchFeed(searchUrl) },
+                fetchPage = { _, _ -> opdsClient.fetchFeed(searchUrl, authContext) },
                 parse = { it },
                 deduplicate = { feed ->
                     feed.copy(entries = feed.entries.distinctBy { "${it.title}:${it.acquisitionLinks.firstOrNull()?.href.orEmpty()}" })
@@ -143,11 +145,12 @@ class OPDSCatalogService @Inject constructor(
         }
     }
 
-    suspend fun fetchUrl(url: String): OPDSFeed = withContext(Dispatchers.IO) {
+    suspend fun fetchUrl(url: String, catalogId: Long? = null, catalogName: String? = null): OPDSFeed = withContext(Dispatchers.IO) {
+        val authContext = OPDSAuthContext(isBackground = false, catalogId = catalogId, catalogName = catalogName)
         ingestionPipeline.execute(
             sourceId = "opds-direct:${url.lowercase()}",
             authenticate = { Unit },
-            fetchPage = { _, _ -> opdsClient.fetchFeed(url) },
+            fetchPage = { _, _ -> opdsClient.fetchFeed(url, authContext) },
             parse = { it },
             deduplicate = { feed ->
                 feed.copy(entries = feed.entries.distinctBy { "${it.title}:${it.acquisitionLinks.firstOrNull()?.href.orEmpty()}" })

@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 /**
  * Enhanced Common Components with Metallic Styling
  * 
- * Additional UI components that complement the existing CommonCards.kt
- * Note: EmptyStateCard, InfoBanner, SectionHeader, and StatsCard already exist in CommonCards.kt
+ * Additional UI components that complement the existing StateCards.kt
+ * Note: EmptyStateCard, InfoBanner, SectionHeader, and StatsCard exist in StateCards.kt
  */
 
 /**

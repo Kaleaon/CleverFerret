@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.metadata
 
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.services.network.PerProviderRateLimiter
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -12,47 +13,22 @@ import javax.inject.Singleton
 
 /**
  * Centralized API client manager for external metadata services (MusicBrainz, Google Books,
- * Open Library, TMDB, OMDb). Enforces strict rate limiting for MusicBrainz (max 1 req/sec)
- * and applies uniform User-Agent headers across all requests.
+ * Open Library, TMDB, OMDb). Enforces per-provider rate limiting across all API requests
+ * and applies uniform User-Agent headers.
  */
 @Singleton
 class CentralizedMetadataApiClient @Inject constructor(
-    private val apiKeyRepository: APIKeyRepository
+    private val apiKeyRepository: APIKeyRepository,
+    private val perProviderRateLimiter: PerProviderRateLimiter = PerProviderRateLimiter()
 ) {
     companion object {
-        const val USER_AGENT = "CleverFerret/1.0 (Android; Universal Media Library)"
-        private const val MUSICBRAINZ_DELAY_MS = 1100L
-    }
-
-    @Volatile
-    private var lastMusicBrainzRequestTime = 0L
-
-    private val rateLimitingInterceptor = Interceptor { chain ->
-        val request = chain.request()
-        val requestBuilder = request.newBuilder()
-            .header("User-Agent", USER_AGENT)
-
-        if (request.url.host.contains("musicbrainz.org")) {
-            synchronized(this) {
-                val now = System.currentTimeMillis()
-                val timeSinceLast = now - lastMusicBrainzRequestTime
-                if (timeSinceLast < MUSICBRAINZ_DELAY_MS) {
-                    try {
-                        Thread.sleep(MUSICBRAINZ_DELAY_MS - timeSinceLast)
-                    } catch (_: InterruptedException) {
-                    }
-                }
-                lastMusicBrainzRequestTime = System.currentTimeMillis()
-            }
-        }
-
-        chain.proceed(requestBuilder.build())
+        const val USER_AGENT = PerProviderRateLimiter.USER_AGENT
     }
 
     val okHttpClient: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(15, TimeUnit.SECONDS)
-        .addInterceptor(rateLimitingInterceptor)
+        .addInterceptor(perProviderRateLimiter)
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BASIC
         })

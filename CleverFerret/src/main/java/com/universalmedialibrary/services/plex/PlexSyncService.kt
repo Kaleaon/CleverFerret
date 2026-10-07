@@ -4,8 +4,21 @@ import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.universalmedialibrary.data.local.AppDatabase
-import com.universalmedialibrary.data.local.dao.*
-import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.PlexMediaItemDao
+import com.universalmedialibrary.data.local.dao.PlexServerDao
+import com.universalmedialibrary.data.local.dao.PlexSyncDao
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.PlexCollection
+import com.universalmedialibrary.data.local.entity.PlexCollectionItem
+import com.universalmedialibrary.data.local.entity.PlexLibrary
+import com.universalmedialibrary.data.local.entity.PlexMediaItem
+import com.universalmedialibrary.data.local.entity.PlexMetadata
+import com.universalmedialibrary.data.local.entity.PlexProgress
+import com.universalmedialibrary.data.local.entity.PlexRating
+import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.ingestion.IngestionPipeline
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +26,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,7 +44,9 @@ class PlexSyncService @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val libraryDao: LibraryDao,
     private val authService: PlexAuthService,
-    private val ingestionPipeline: IngestionPipeline
+    private val ingestionPipeline: IngestionPipeline,
+    private val plexVirtualUriResolver: PlexVirtualUriResolver? = null,
+    private val downloadScheduler: com.universalmedialibrary.services.cache.MediaDownloadScheduler? = null
 ) {
 
     companion object {
@@ -85,14 +101,31 @@ class PlexSyncService @Inject constructor(
         return try {
             _syncStatus.value = PlexSyncStatus.Syncing("Starting sync...")
 
-            plexServerDao.getActiveServers().collect { servers ->
-                for (server in servers) {
-                    syncServer(server)
+            val servers = plexServerDao.getActiveServers().first()
+            var failureCount = 0
+            val errorMessages = mutableListOf<String>()
+
+            for (server in servers) {
+                val result = syncServer(server)
+                if (result.isFailure) {
+                    failureCount++
+                    val msg = result.exceptionOrNull()?.message ?: "Server unreachable"
+                    errorMessages.add("${server.name}: $msg")
                 }
             }
 
-            _syncStatus.value = PlexSyncStatus.Success("Sync completed successfully")
-            Result.success(Unit)
+            if (servers.isNotEmpty() && failureCount == servers.size) {
+                val summary = "Sync failed for all servers: ${errorMessages.joinToString("; ")}"
+                _syncStatus.value = PlexSyncStatus.Error(summary)
+                Result.failure(Exception(summary))
+            } else if (errorMessages.isNotEmpty()) {
+                val summary = "Sync completed with server warnings: ${errorMessages.joinToString("; ")}"
+                _syncStatus.value = PlexSyncStatus.Success(summary)
+                Result.success(Unit)
+            } else {
+                _syncStatus.value = PlexSyncStatus.Success("Sync completed successfully")
+                Result.success(Unit)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error during sync", e)
             _syncStatus.value = PlexSyncStatus.Error("Sync failed: ${e.message}")
@@ -220,6 +253,7 @@ class PlexSyncService @Inject constructor(
                 for (metadata in chunk) {
                     val path = "plex://${server.machineIdentifier}/${metadata.ratingKey}"
                     if (!existingPathsSet.contains(path)) {
+                        val initialAvailable = plexVirtualUriResolver?.isItemAvailable(path) ?: server.isActive
                         val mediaItem = MediaItem(
                             libraryId = libraryId,
                             filePath = path,
@@ -229,12 +263,19 @@ class PlexSyncService @Inject constructor(
                             fileHash = metadata.ratingKey, // Use rating key as unique identifier
                             mediaType = mapPlexTypeToMediaType(metadata.type),
                             mimeType = null,
-                            isAvailable = true,
+                            isAvailable = initialAvailable,
                             hasMetadata = true,
                             hasThumbnail = !metadata.thumb.isNullOrEmpty(),
                             thumbnailPath = metadata.thumb
                         )
-                        mediaItemDao.insertMediaItem(mediaItem)
+                        val insertedId = mediaItemDao.insertMediaItem(mediaItem)
+                        val downloadUrl = "http://${server.host}:${server.port}/library/metadata/${metadata.ratingKey}?X-Plex-Token=${server.token}"
+                        downloadScheduler?.scheduleDownload(
+                            itemId = insertedId,
+                            remoteUri = path,
+                            downloadUrl = downloadUrl,
+                            fileName = metadata.title
+                        )
                     }
                 }
             }
@@ -427,8 +468,14 @@ class PlexSyncService @Inject constructor(
         val key = "$host:$port"
 
         return retrofitInstances.getOrPut(key) {
+            val okHttpClient = okhttp3.OkHttpClient.Builder()
+                .connectTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .build()
+
             Retrofit.Builder()
                 .baseUrl(baseUrl)
+                .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(PlexApi::class.java)

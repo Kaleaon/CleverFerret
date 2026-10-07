@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Bridge adapter that replaces the legacy in-app theme registry with Ktheme's API.
  */
 object KthemeBridge {
-    private val engine = ThemeEngine().apply { registerBuiltInThemes() }
+    private val engine = ThemeEngine().also { registerBuiltInThemes(it) }
     private val colorSchemeCache = ConcurrentHashMap<Pair<CleverFerretTheme, Boolean>, ColorScheme>()
     private val metallicGradientCache = ConcurrentHashMap<CleverFerretTheme, MetallicGradient>()
 
@@ -141,7 +141,7 @@ object KthemeBridge {
         }
     }
 
-    private fun registerBuiltInThemes() {
+    private fun registerBuiltInThemes(engine: ThemeEngine) {
         CleverFerretTheme.entries.forEach { theme ->
             listOf(true, false).forEach { dark ->
                 val legacyScheme = legacyColorScheme(theme, darkTheme = dark)
@@ -173,6 +173,13 @@ object KthemeBridge {
                                 ),
                                 intensity = 0.9f
                             )
+                        ),
+                        layout = com.ktheme.models.LayoutConfig(
+                            liveRegion = com.ktheme.models.LiveRegionConfig(
+                                mode = "polite",
+                                atomic = true,
+                                relevant = "all"
+                            )
                         )
                     )
                 )
@@ -195,8 +202,49 @@ object KthemeBridge {
             CleverFerretTheme.SLATE_GUNMETAL -> if (darkTheme) SlateGunmetalUnified.darkScheme else SlateGunmetalUnified.lightScheme
             CleverFerretTheme.DEEP_PURPLE_PLATINUM -> if (darkTheme) DeepPurplePlatinumUnified.darkScheme else DeepPurplePlatinumUnified.lightScheme
             CleverFerretTheme.PAPER_INK -> if (darkTheme) PaperInkUnified.darkScheme else PaperInkUnified.lightScheme
-            else -> if (darkTheme) NavyGoldUnified.darkScheme else NavyGoldUnified.lightScheme
+            CleverFerretTheme.COPPER_BRONZE -> if (darkTheme) ForestCopperUnified.darkScheme else ForestCopperUnified.lightScheme
+            CleverFerretTheme.AMBER_GOLD -> if (darkTheme) MidnightAmberUnified.darkScheme else MidnightAmberUnified.lightScheme
+            CleverFerretTheme.ROSE_BRASS -> if (darkTheme) BurgundyRoseGoldUnified.darkScheme else BurgundyRoseGoldUnified.lightScheme
+            CleverFerretTheme.STEEL_TITANIUM -> if (darkTheme) SlateGunmetalUnified.darkScheme else SlateGunmetalUnified.lightScheme
+            CleverFerretTheme.PLATINUM_SILVER -> if (darkTheme) DeepPurplePlatinumUnified.darkScheme else DeepPurplePlatinumUnified.lightScheme
+            CleverFerretTheme.COBALT_CHROME -> if (darkTheme) SlateCyanUnified.darkScheme else SlateCyanUnified.lightScheme
+            CleverFerretTheme.ANCIENT_BRONZE -> createAncientArchitectScheme(ancientBronzeColors())
+            CleverFerretTheme.SILVER_ARCHITECT -> createAncientArchitectScheme(silverArchitectColors())
+            CleverFerretTheme.OBSIDIAN_TECH -> createAncientArchitectScheme(obsidianTechColors())
         }
+    }
+
+    private fun createAncientArchitectScheme(ancientColors: AncientArchitectColorScheme): ColorScheme {
+        return darkColorScheme(
+            primary = ancientColors.metal.primary,
+            onPrimary = Color.Black,
+            primaryContainer = ancientColors.metal.primaryDark,
+            onPrimaryContainer = ancientColors.metal.primaryLight,
+            secondary = ancientColors.metal.secondary,
+            onSecondary = Color.Black,
+            secondaryContainer = ancientColors.metal.secondaryDark,
+            onSecondaryContainer = ancientColors.metal.secondaryLight,
+            tertiary = ancientColors.crystal.primary,
+            onTertiary = Color.Black,
+            tertiaryContainer = ancientColors.crystal.primaryDim,
+            onTertiaryContainer = ancientColors.crystal.primary,
+            background = ancientColors.stone.background,
+            onBackground = ancientColors.stone.text,
+            surface = ancientColors.stone.surface,
+            onSurface = ancientColors.stone.text,
+            surfaceVariant = ancientColors.stone.elevated,
+            onSurfaceVariant = ancientColors.stone.text.copy(alpha = 0.8f),
+            surfaceTint = ancientColors.crystal.primary,
+            inverseSurface = ancientColors.stone.text,
+            inverseOnSurface = ancientColors.stone.background,
+            error = ancientColors.accent.error,
+            onError = Color.White,
+            errorContainer = ancientColors.crystal.error,
+            onErrorContainer = Color.White,
+            outline = ancientColors.stone.border,
+            outlineVariant = ancientColors.stone.border.copy(alpha = 0.5f),
+            scrim = ancientColors.stone.shadow.copy(alpha = 0.5f)
+        )
     }
 
     private fun legacyMetallicGradient(theme: CleverFerretTheme): com.universalmedialibrary.ui.theme.MetallicGradient {
@@ -214,7 +262,15 @@ object KthemeBridge {
             CleverFerretTheme.SLATE_GUNMETAL -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF8F9CA8), Color(0xFFB0BDC9), Color(0xFF6F7D87), Color(0xFFD0DFEB))
             CleverFerretTheme.DEEP_PURPLE_PLATINUM -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFE5E4E2), Color(0xFFF5F4F2), Color(0xFFB8B7B5), Color(0xFFFFFFFF))
             CleverFerretTheme.PAPER_INK -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF2C2C2C), Color(0xFF454545), Color(0xFF1A1A1A), Color(0xFF595959))
-            else -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFD4AF37), Color(0xFFFFD700), Color(0xFF856D34), Color(0xFFFFF8DC))
+            CleverFerretTheme.COPPER_BRONZE -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFB87333), Color(0xFFD4965A), Color(0xFF935E29), Color(0xFFF2D2B0))
+            CleverFerretTheme.AMBER_GOLD -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFFFBF00), Color(0xFFFFD700), Color(0xFFCC9900), Color(0xFFFFF8DC))
+            CleverFerretTheme.ROSE_BRASS -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFB76E79), Color(0xFFD4969E), Color(0xFF93575F), Color(0xFFF5D5D8))
+            CleverFerretTheme.STEEL_TITANIUM -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF8F9CA8), Color(0xFFB0BDC9), Color(0xFF6F7D87), Color(0xFFD0DFEB))
+            CleverFerretTheme.PLATINUM_SILVER -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFE5E4E2), Color(0xFFF5F4F2), Color(0xFFB8B7B5), Color(0xFFFFFFFF))
+            CleverFerretTheme.COBALT_CHROME -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF00D9FF), Color(0xFF4DE2FF), Color(0xFF00A8CC), Color(0xFFB3F5FF))
+            CleverFerretTheme.ANCIENT_BRONZE -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFCD7F32), Color(0xFFE8A87C), Color(0xFF8B5A2B), Color(0xFF00CED1))
+            CleverFerretTheme.SILVER_ARCHITECT -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFFC0C0C0), Color(0xFFE8E8E8), Color(0xFF808080), Color(0xFF4DA6FF))
+            CleverFerretTheme.OBSIDIAN_TECH -> com.universalmedialibrary.ui.theme.MetallicGradient(Color(0xFF4A4A4A), Color(0xFF6A6A6A), Color(0xFF2A2A2A), Color(0xFF9D4EDD))
         }
     }
 }

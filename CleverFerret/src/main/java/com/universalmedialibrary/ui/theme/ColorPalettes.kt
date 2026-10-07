@@ -416,14 +416,3 @@ object SlateGunmetalPalette {
 }
 
 // Theme palette enum for selection
-/**
- * Legacy ThemePalette enum - DEPRECATED
- * Use CleverFerretTheme directly instead
- * This is kept temporarily for backward compatibility during migration
- */
-@Deprecated(
-    message = "Use CleverFerretTheme instead",
-    replaceWith = ReplaceWith("CleverFerretTheme", "com.universalmedialibrary.ui.theme.CleverFerretTheme"),
-    level = DeprecationLevel.WARNING
-)
-typealias ThemePalette = CleverFerretTheme

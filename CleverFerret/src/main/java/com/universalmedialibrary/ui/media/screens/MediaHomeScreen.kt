@@ -86,7 +86,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.R
+import com.universalmedialibrary.ui.media.components.MediaCarouselRow
 import com.universalmedialibrary.ui.media.components.MediaItem
+import com.universalmedialibrary.ui.media.components.MediaPosterCard
 import com.universalmedialibrary.ui.media.navigation.HomeSectionRouteContract
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.MediaColors
@@ -393,6 +395,15 @@ private fun LoadingStateContent(
 
 @Composable
 private fun rememberShimmerBrush(): Brush {
+    val reduceMotion = com.universalmedialibrary.ui.theme.LocalReduceMotion.current
+    if (reduceMotion) {
+        return Brush.linearGradient(
+            colors = listOf(
+                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.surfaceVariant
+            )
+        )
+    }
     val transition = rememberInfiniteTransition(label = "home_loading_shimmer")
     val translateX by transition.animateFloat(
         initialValue = 0f,
