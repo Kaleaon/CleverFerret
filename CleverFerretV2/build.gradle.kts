@@ -3,31 +3,25 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
     base
-    kotlin("jvm") version "1.9.24" apply false
+    alias(libs.plugins.kotlin.jvm) apply false
 }
 
 subprojects {
     apply(plugin = "java-library")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "io.gitlab.arturbosch.detekt")
 
     group = "com.cleverferret.v2"
     version = "0.1.0"
 
-    repositories {
-        google()
-        maven { url = uri("https://maven-central.storage-download.googleapis.com/maven2/") }
-        mavenCentral()
-    }
-
-    val targetJavaVersion = if (JavaVersion.current() == JavaVersion.VERSION_17) 17 else JavaVersion.current().majorVersion.toInt()
-
     configure<JavaPluginExtension> {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
-        }
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    configure<KotlinJvmProjectExtension> {
-        jvmToolchain(targetJavaVersion)
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
 }

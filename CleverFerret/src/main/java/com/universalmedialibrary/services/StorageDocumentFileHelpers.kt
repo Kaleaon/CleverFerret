@@ -46,7 +46,7 @@ internal fun moveDocumentFile(context: Context, src: DocumentFile, dstDir: Docum
             if (copied) src.delete() else false
         }
     } catch (e: Exception) {
-        ErrorLogger.logWarning("StorageAccessService", "Error moving document file", e)
+        AppLogger.warn("StorageAccessService", "Error moving document file", e)
         false
     }
 }
@@ -58,7 +58,7 @@ internal fun copyDocumentFile(context: Context, src: DocumentFile, dstDir: Docum
         val copied = copyStream(context, src.uri, target.uri)
         if (copied) target else null
     } catch (e: Exception) {
-        ErrorLogger.logWarning("StorageAccessService", "Error copying document file", e)
+        AppLogger.warn("StorageAccessService", "Error copying document file", e)
         null
     }
 }
@@ -69,35 +69,35 @@ internal fun copyDocumentFileWithStrategy(
     dstDir: DocumentFile,
     desiredName: String,
     strategy: ImportConflictStrategy
-): CopyResult {
+): StorageAccessService.CopyResult {
     return try {
         val mime = src.type ?: "application/octet-stream"
         val existing = dstDir.findFile(desiredName)
 
         when (strategy) {
             ImportConflictStrategy.SKIP -> {
-                if (existing != null) return CopyResult.Skipped("Destination exists")
-                val target = dstDir.createFile(mime, desiredName) ?: return CopyResult.Failed("Create failed")
-                if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
+                if (existing != null) return StorageAccessService.CopyResult.Skipped("Destination exists")
+                val target = dstDir.createFile(mime, desiredName) ?: return StorageAccessService.CopyResult.Failed("Create failed")
+                if (copyStream(context, src.uri, target.uri)) StorageAccessService.CopyResult.Copied(target) else StorageAccessService.CopyResult.Failed("Copy failed")
             }
             ImportConflictStrategy.REPLACE -> {
                 existing?.delete()
-                val target = dstDir.createFile(mime, desiredName) ?: return CopyResult.Failed("Create failed")
-                if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
+                val target = dstDir.createFile(mime, desiredName) ?: return StorageAccessService.CopyResult.Failed("Create failed")
+                if (copyStream(context, src.uri, target.uri)) StorageAccessService.CopyResult.Copied(target) else StorageAccessService.CopyResult.Failed("Copy failed")
             }
             ImportConflictStrategy.RENAME -> {
                 val target = createUniqueFile(dstDir, mime, desiredName)
-                if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
+                if (copyStream(context, src.uri, target.uri)) StorageAccessService.CopyResult.Copied(target) else StorageAccessService.CopyResult.Failed("Copy failed")
             }
             ImportConflictStrategy.QUARANTINE -> {
                 // Caller routes to quarantine directory; we just ensure no clobber.
                 val target = createUniqueFile(dstDir, mime, desiredName)
-                if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
+                if (copyStream(context, src.uri, target.uri)) StorageAccessService.CopyResult.Copied(target) else StorageAccessService.CopyResult.Failed("Copy failed")
             }
         }
     } catch (e: Exception) {
-        ErrorLogger.logWarning("StorageAccessService", "Error copying document file (strategy=$strategy)", e)
-        CopyResult.Failed(e.message ?: "Copy failed")
+        AppLogger.warn("StorageAccessService", "Error copying document file (strategy=$strategy)", e)
+        StorageAccessService.CopyResult.Failed(e.message ?: "Copy failed")
     }
 }
 

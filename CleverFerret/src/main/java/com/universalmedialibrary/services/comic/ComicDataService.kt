@@ -88,11 +88,11 @@ class ComicDataService @Inject constructor(
         withContext(Dispatchers.IO) {
             try {
                 val translationEntities = mutableListOf<ComicTranslation>()
+                val panelsByIndex = comicPanelDao.getPanelsForPage(comicId, pageTranslation.pageNumber)
+                    .associateBy { it.panelIndex }
                 
                 for (panelTranslation in pageTranslation.panels) {
-                    // Get panel ID from database
-                    val panels = comicPanelDao.getPanelsForPage(comicId, pageTranslation.pageNumber)
-                    val panelEntity = panels.find { it.panelIndex == panelTranslation.panelIndex }
+                    val panelEntity = panelsByIndex[panelTranslation.panelIndex]
                     
                     if (panelEntity != null) {
                         for (bubbleTranslation in panelTranslation.bubbles) {
@@ -147,9 +147,13 @@ class ComicDataService @Inject constructor(
                 val panels = comicPanelDao.getAllPanelsForComic(comicId)
                 val translations = comicPanelDao.getAllTranslationsForComic(comicId)
                 
+                // Pre-index lookups for O(1) access
+                val translationsByPage = translations.groupBy { it.pageNumber }
+                val panelsById = panels.associateBy { it.id }
+                
                 // Group by page
                 val pageData = panels.groupBy { it.pageNumber }.map { (pageNumber, pagePanels) ->
-                    val pageTranslations = translations.filter { it.pageNumber == pageNumber }
+                    val pageTranslations = translationsByPage[pageNumber].orEmpty()
                     
                     ComicPanelDataExport.PageData(
                         pageNumber = pageNumber,
@@ -166,7 +170,7 @@ class ComicDataService @Inject constructor(
                         },
                         translations = pageTranslations.map { translation ->
                             ComicPanelDataExport.TranslationData(
-                                panelIndex = panels.find { it.id == translation.panelId }?.panelIndex ?: 0,
+                                panelIndex = panelsById[translation.panelId]?.panelIndex ?: 0,
                                 bubbleX = translation.bubbleX,
                                 bubbleY = translation.bubbleY,
                                 bubbleWidth = translation.bubbleWidth,
@@ -259,10 +263,11 @@ class ComicDataService @Inject constructor(
                 
                 // Get inserted panel IDs and create translations
                 for (pageData in export.pages) {
-                    val pagePanels = comicPanelDao.getPanelsForPage(comicId, pageData.pageNumber)
+                    val panelsByIndex = comicPanelDao.getPanelsForPage(comicId, pageData.pageNumber)
+                        .associateBy { it.panelIndex }
                     
                     for (translationData in pageData.translations) {
-                        val panelEntity = pagePanels.find { it.panelIndex == translationData.panelIndex }
+                        val panelEntity = panelsByIndex[translationData.panelIndex]
                         
                         if (panelEntity != null) {
                             val translationEntity = ComicTranslation(

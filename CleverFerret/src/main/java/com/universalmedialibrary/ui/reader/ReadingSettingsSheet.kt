@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.items
 import com.universalmedialibrary.data.local.entity.AnnotationExportConfig
 import com.universalmedialibrary.data.local.entity.ExportFormat
 import com.universalmedialibrary.data.local.entity.ReaderAIInsight
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,13 +61,14 @@ internal fun ReadingSettingsSheet(
         ) {
             Text(
                 text = "Reading Settings",
+                modifier = Modifier.headingSemantics(),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
 
             // Font size
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Font Size", style = MaterialTheme.typography.titleMedium)
+                Text("Font Size", modifier = Modifier.headingSemantics(), style = MaterialTheme.typography.titleMedium)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -88,7 +90,7 @@ internal fun ReadingSettingsSheet(
 
             // Font family
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Font", style = MaterialTheme.typography.titleMedium)
+                Text("Font", modifier = Modifier.headingSemantics(), style = MaterialTheme.typography.titleMedium)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -113,7 +115,7 @@ internal fun ReadingSettingsSheet(
 
             // Theme
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Theme", style = MaterialTheme.typography.titleMedium)
+                Text("Theme", modifier = Modifier.headingSemantics(), style = MaterialTheme.typography.titleMedium)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -163,7 +165,7 @@ internal fun ReadingSettingsSheet(
 
             // Brightness
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Brightness", style = MaterialTheme.typography.titleMedium)
+                Text("Brightness", modifier = Modifier.headingSemantics(), style = MaterialTheme.typography.titleMedium)
                 Slider(
                     value = brightness,
                     onValueChange = onBrightnessChange,

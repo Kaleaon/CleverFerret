@@ -55,16 +55,23 @@ internal fun PartyModeAurora(
     modifier: Modifier = Modifier,
     baseColors: List<Color>
 ) {
-    val transition = rememberInfiniteTransition(label = "party_mode")
-    val phase by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 12000, easing = LinearEasing),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Restart
-        ),
-        label = "party_phase"
-    )
+    val reduceMotion = com.universalmedialibrary.ui.theme.LocalReduceMotion.current
+    val phase: Float
+    if (reduceMotion) {
+        phase = 0f
+    } else {
+        val transition = rememberInfiniteTransition(label = "party_mode")
+        val animatedPhase by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 12000, easing = LinearEasing),
+                repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+            ),
+            label = "party_phase"
+        )
+        phase = animatedPhase
+    }
     Canvas(modifier = modifier) {
         val width = size.width
         val height = size.height

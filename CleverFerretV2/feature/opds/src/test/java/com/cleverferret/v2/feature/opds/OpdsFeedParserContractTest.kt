@@ -26,7 +26,7 @@ class OpdsFeedParserContractTest {
 
         val feed = parser.parse("https://example.org/opds", xml)
 
-        assertEquals("François & Español", feed.entries.first().title)
+        assertEquals("Français & Español", feed.entries.first().title)
         assertEquals("Niño", feed.entries.first().authors.first())
     }
 

@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.components.*
-import com.universalmedialibrary.ui.components.media.*
+import com.universalmedialibrary.ui.media.components.CanonicalMediaCard
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -150,26 +150,12 @@ fun ThemeShowcaseScreen(
                 // Card previews
                 item {
                     PreviewSection(title = "Cards") {
-                        MediaCard(
-                            style = MediaCardStyle.CUSTOM,
-                            decoration = MediaCardDecoration.ART_DECO,
+                        CanonicalMediaCard(
+                            title = "Canonical Media Card",
+                            subtitle = "With unified design system tokens and theme integration",
                             onClick = {},
                             modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    text = "Ancient Architect Card",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    text = "With stepped borders and geometric patterns",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
+                        )
                     }
                 }
                 

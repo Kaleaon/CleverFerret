@@ -21,11 +21,19 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.kotlin.compose) apply false
-    alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.detekt)
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    baseline = file("$rootDir/CleverFerret/detekt-baseline.xml")
 }
 
 val supportedGradleRuntimeJdks = 17..21
@@ -51,6 +59,48 @@ allprojects {
             eachDependency {
                 if (requested.group == "org.jetbrains.kotlin" && requested.name == "kotlin-stdlib-common") {
                     useTarget("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
+                }
+            }
+        }
+    }
+}
+
+subprojects {
+    if (path.startsWith(":CleverFerretV2")) {
+        if (path == ":CleverFerretV2:app") {
+            apply(plugin = "application")
+        } else {
+            apply(plugin = "java-library")
+        }
+        apply(plugin = "org.jetbrains.kotlin.jvm")
+
+        group = "com.cleverferret.v2"
+        version = "0.1.0"
+
+        configure<org.gradle.api.plugins.JavaPluginExtension> {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+        }
+
+        tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+            compilerOptions {
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            }
+        }
+
+        afterEvaluate {
+            if (tasks.findByName("compileDebugKotlin") == null && tasks.findByName("compileKotlin") != null) {
+                tasks.register("compileDebugKotlin") {
+                    group = "build"
+                    description = "Alias for compileKotlin on pure JVM submodules"
+                    dependsOn(tasks.named("compileKotlin"))
+                }
+            }
+            if (tasks.findByName("testDebugUnitTest") == null && tasks.findByName("test") != null) {
+                tasks.register("testDebugUnitTest") {
+                    group = "verification"
+                    description = "Alias for test on pure JVM submodules"
+                    dependsOn(tasks.named("test"))
                 }
             }
         }
@@ -200,3 +250,20 @@ gradle.projectsEvaluated {
     }
 }
 
+subprojects {
+    plugins.withId("io.gitlab.arturbosch.detekt") {
+        configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
+            buildUponDefaultConfig = true
+            config.setFrom(files("${rootProject.rootDir}/config/detekt/detekt.yml"))
+            baseline = file("detekt-baseline.xml")
+        }
+        tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+            reports {
+                html.required.set(true)
+                xml.required.set(true)
+                sarif.required.set(true)
+                md.required.set(false)
+            }
+        }
+    }
+}

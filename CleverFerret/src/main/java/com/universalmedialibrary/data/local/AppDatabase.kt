@@ -1,6 +1,5 @@
 package com.universalmedialibrary.data.local
 
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -147,6 +146,7 @@ import com.universalmedialibrary.data.Tag
 
         // OCR cache
         OcrCacheEntity::class,
+        PdfOcrCacheEntity::class,
 
         // Ambient sound features
         AmbientSound::class,
@@ -192,10 +192,13 @@ import com.universalmedialibrary.data.Tag
         StagedMetadataCandidate::class,
 
         // FTS Virtual Table
-        MediaFtsEntity::class
+        MediaFtsEntity::class,
+
+        // Media Stream Cache
+        MediaCacheItem::class
 
     ],
-    version = 47,
+    version = 48,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -209,6 +212,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun mediaFtsDao(): MediaFtsDao
+    abstract fun mediaCacheDao(): MediaCacheDao
     abstract fun metadataDao(): MetadataDao
     abstract fun stagedMetadataCandidateDao(): StagedMetadataCandidateDao
     abstract fun extendedMetadataDao(): ExtendedMetadataDao
@@ -296,6 +300,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     // OCR Cache DAO
     abstract fun ocrCacheDao(): OcrCacheDao
+    abstract fun pdfOcrCacheDao(): PdfOcrCacheDao
 
     // Collaborative Session DAO
     abstract fun collaborativeSessionDao(): CollaborativeSessionDao
@@ -342,7 +347,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_43_44,
                         AppDatabaseMigrations.MIGRATION_44_45,
                         AppDatabaseMigrations.MIGRATION_45_46,
-                        AppDatabaseMigrations.MIGRATION_46_47
+                        AppDatabaseMigrations.MIGRATION_46_47,
+                        AppDatabaseMigrations.MIGRATION_47_48
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

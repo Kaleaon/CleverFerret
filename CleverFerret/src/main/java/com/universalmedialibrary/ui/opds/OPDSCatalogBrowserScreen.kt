@@ -15,12 +15,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
 import com.universalmedialibrary.data.local.entity.OPDSCatalog
 import com.universalmedialibrary.services.opds.*
@@ -46,9 +48,23 @@ fun OPDSCatalogBrowserScreen(
     val downloads by viewModel.activeDownloads.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val transientMessage by viewModel.userMessage.collectAsState()
+    val activeAuthChallenge by viewModel.activeAuthChallenge.collectAsState()
     
     var showAddCatalogDialog by remember { mutableStateOf(false) }
     var showSearchDialog by remember { mutableStateOf(false) }
+
+    activeAuthChallenge?.let { challenge ->
+        OPDSAuthChallengeDialog(
+            catalogName = challenge.catalogName ?: challenge.host,
+            host = challenge.host,
+            onAuthenticate = { username, password ->
+                viewModel.submitAuthChallenge(username, password)
+            },
+            onDismiss = {
+                viewModel.cancelAuthChallenge()
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -56,6 +72,7 @@ fun OPDSCatalogBrowserScreen(
                 title = { 
                     Text(
                         text = selectedCatalog?.name ?: "OPDS Catalogs",
+                        modifier = Modifier.headingSemantics(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -533,7 +550,7 @@ private fun AddCatalogDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add OPDS Catalog") },
+        title = { Text("Add OPDS Catalog", modifier = Modifier.headingSemantics()) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -577,7 +594,7 @@ private fun SearchDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Search Catalog") },
+        title = { Text("Search Catalog", modifier = Modifier.headingSemantics()) },
         text = {
             OutlinedTextField(
                 value = query,
@@ -602,11 +619,66 @@ private fun SearchDialog(
     )
 }
 
+@Composable
+private fun OPDSAuthChallengeDialog(
+    catalogName: String,
+    host: String,
+    onAuthenticate: (String, String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Authentication Required") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Catalog '$catalogName' ($host) requires authentication.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Username") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onAuthenticate(username, password) },
+                enabled = username.isNotBlank() && password.isNotBlank()
+            ) {
+                Text("Login")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
 @HiltViewModel
 class OPDSCatalogBrowserViewModel @Inject constructor(
     private val catalogDao: OPDSCatalogDao,
     private val opdsCatalogService: OPDSCatalogService,
-    private val downloadService: OPDSDownloadService
+    private val downloadService: OPDSDownloadService,
+    private val opdsChallengeAuthenticator: OPDSChallengeAuthenticator
 ) : ViewModel() {
 
     val catalogs = catalogDao.getAllCatalogs()
@@ -629,10 +701,29 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
     val userMessage = _userMessage.asStateFlow()
     private val _lastFailureContext = MutableStateFlow<OPDSFailureContext?>(null)
 
+    val activeAuthChallenge = MutableStateFlow<OPDSAuthChallengeEvent?>(null)
+
     init {
         viewModelScope.launch {
             opdsCatalogService.ensureDefaultCatalogs()
         }
+        viewModelScope.launch {
+            opdsChallengeAuthenticator.challengeEvent.collect { challenge ->
+                activeAuthChallenge.value = challenge
+            }
+        }
+    }
+
+    fun submitAuthChallenge(username: String, password: String) {
+        val challenge = activeAuthChallenge.value ?: return
+        activeAuthChallenge.value = null
+        challenge.deferredCredential.complete(OPDSCredential(username, password))
+    }
+
+    fun cancelAuthChallenge() {
+        val challenge = activeAuthChallenge.value ?: return
+        activeAuthChallenge.value = null
+        challenge.deferredCredential.complete(null)
     }
 
     fun selectCatalog(catalog: OPDSCatalog) {

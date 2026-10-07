@@ -3,6 +3,20 @@ package com.cleverferret.core.designsystem.theme
 import com.cleverferret.core.designsystem.tokens.DesignTokensV1
 
 object KthemeThemeAdapterV1 {
+    data class LiveRegionPolicy(
+        val mode: String = "polite",
+        val atomic: Boolean = true,
+        val relevant: String = "all",
+    ) {
+        fun toComposeLiveRegionMode(): androidx.compose.ui.semantics.LiveRegionMode {
+            return when (mode.lowercase()) {
+                "assertive" -> androidx.compose.ui.semantics.LiveRegionMode.Assertive
+                "off" -> androidx.compose.ui.semantics.LiveRegionMode.Off
+                else -> androidx.compose.ui.semantics.LiveRegionMode.Polite
+            }
+        }
+    }
+
     data class KthemeSnapshot(
         val id: String,
         val darkMode: Boolean = false,
@@ -15,6 +29,7 @@ object KthemeThemeAdapterV1 {
         val outline: String? = null,
         val error: String? = null,
         val onError: String? = null,
+        val liveRegion: LiveRegionPolicy = LiveRegionPolicy(),
         val passthroughRoles: Map<String, String> = emptyMap(),
     )
 
@@ -40,6 +55,7 @@ object KthemeThemeAdapterV1 {
         val dark: Boolean,
         val semanticColors: Map<String, String>,
         val passthroughRoles: Map<String, String>,
+        val liveRegion: LiveRegionPolicy = LiveRegionPolicy(),
     ) {
         fun color(role: SemanticRole): String = requireNotNull(semanticColors[role.token]) {
             "Missing semantic role ${role.token} in theme '$id'"
@@ -65,6 +81,17 @@ object KthemeThemeAdapterV1 {
             return pattern.find(jsonString)?.groupValues?.get(1)?.takeIf { it.isNotBlank() }
         }
 
+        val modeMatch = Regex("\"mode\"\\s*:\\s*\"([^\"]+)\"").find(jsonString)
+        val mode = modeMatch?.groupValues?.get(1) ?: "polite"
+
+        val atomicMatch = Regex("\"atomic\"\\s*:\\s*(true|false)", RegexOption.IGNORE_CASE).find(jsonString)
+        val atomic = atomicMatch?.groupValues?.get(1)?.lowercase() != "false"
+
+        val relevantMatch = Regex("\"relevant\"\\s*:\\s*\"([^\"]+)\"").find(jsonString)
+        val relevant = relevantMatch?.groupValues?.get(1) ?: "all"
+
+        val liveRegionPolicy = LiveRegionPolicy(mode = mode, atomic = atomic, relevant = relevant)
+
         return KthemeSnapshot(
             id = id,
             darkMode = darkMode,
@@ -77,6 +104,7 @@ object KthemeThemeAdapterV1 {
             outline = extractColor("outline"),
             error = extractColor("error"),
             onError = extractColor("onError"),
+            liveRegion = liveRegionPolicy,
         )
     }
 
@@ -126,7 +154,8 @@ object KthemeThemeAdapterV1 {
             id = snapshot.id,
             dark = snapshot.darkMode,
             semanticColors = semantic.toMap(),
-            passthroughRoles = snapshot.passthroughRoles.toMap()
+            passthroughRoles = snapshot.passthroughRoles.toMap(),
+            liveRegion = snapshot.liveRegion,
         )
     }
 

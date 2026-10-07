@@ -116,10 +116,10 @@ internal fun buildPlanRecursively(
                 val segments = when (options.profile) {
                     ImportSortProfile.BOOKS_FLAT -> listOf("Books")
                     ImportSortProfile.BOOKS_AUTHOR_TITLE -> listOf("Books", safeAuthor ?: "Unknown Author")
-                    else -> buildList {
+                    else -> buildList<String> {
                         add("Books")
                         add(safeAuthor ?: "Unknown Author")
-                        safeSeries?.let { add(it) }
+                        if (safeSeries != null) add(safeSeries)
                     }
                 }
                 val name = "${safeTitle}.${ext.ifBlank { "bin" }}"

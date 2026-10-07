@@ -49,6 +49,7 @@ internal fun extractMusicTrackInfo(file: File): MusicTrackInfo {
         val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
         val albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
         val composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER)
+        val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
         val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
         val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toIntOrNull()
         val sampleRate = AudioMetadataUtils.extractSampleRate(file)
@@ -63,6 +64,7 @@ internal fun extractMusicTrackInfo(file: File): MusicTrackInfo {
             album = album,
             albumArtist = albumArtist,
             composer = composer,
+            genre = genre,
             trackNumber = trackPair.first,
             totalTracks = totalTracks,
             discNumber = discPair.first,

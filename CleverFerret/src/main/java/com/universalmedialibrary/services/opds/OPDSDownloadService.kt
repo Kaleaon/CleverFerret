@@ -124,8 +124,11 @@ class OPDSDownloadService @Inject constructor(
                 outputFile = File(downloadDir, fileName)
                 
                 // Download the file
+                val downloadRecord = catalogDao.getDownloadById(downloadId)
                 val request = Request.Builder()
                     .url(url)
+                    .tag(OPDSAuthContext::class.java, OPDSAuthContext(isBackground = true, catalogId = downloadRecord?.catalogId))
+                    .header("X-OPDS-Background", "true")
                     .header("User-Agent", "CleverFerret/1.0 (OPDS Client)")
                     .build()
                 

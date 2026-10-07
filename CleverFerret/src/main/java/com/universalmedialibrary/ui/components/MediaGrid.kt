@@ -19,11 +19,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.components.media.MediaCard
 import com.universalmedialibrary.ui.components.media.MediaCardData
 import com.universalmedialibrary.ui.components.media.MediaCardStyle
+import com.universalmedialibrary.ui.modern.theme.CFSpacing
 
 /**
  * Media-Centric Media Grid Component
@@ -52,7 +54,7 @@ data class MediaItemData(
 @Composable
 fun MediaGrid(
     items: List<MediaItemData>,
-    columns: Int = 4,
+    minItemWidth: Dp = CFSpacing.posterMinWidth,
     onItemClick: (MediaItemData) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -70,7 +72,7 @@ fun MediaGrid(
         )
     } else {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(columns),
+            columns = GridCells.Adaptive(minSize = minItemWidth),
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),

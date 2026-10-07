@@ -11,6 +11,8 @@ import com.universalmedialibrary.services.epub.ReadiumAudiobookService
 import com.universalmedialibrary.services.epub.ReadiumEpubService
 import com.universalmedialibrary.services.epub.ReadiumPdfService
 import com.universalmedialibrary.services.comic.GeminiComicService
+import com.universalmedialibrary.services.media.MediaContentResolver
+import com.universalmedialibrary.services.media.ResolvedContent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -47,7 +49,8 @@ class UnifiedReaderService @Inject constructor(
     private val readiumAudiobookService: ReadiumAudiobookService,
     private val geminiComicService: GeminiComicService,
     private val audioPlaybackManager: AudioPlaybackManager,
-    private val formatRegistry: FormatRegistry
+    private val formatRegistry: FormatRegistry,
+    private val plexVirtualUriResolver: com.universalmedialibrary.services.plex.PlexVirtualUriResolver? = null
 ) {
     private val TAG = "UnifiedReaderService"
 
@@ -59,52 +62,69 @@ class UnifiedReaderService @Inject constructor(
      */
     suspend fun openPublication(filePath: String): ReaderType = withContext(Dispatchers.IO) {
         try {
-            val file = File(filePath)
-            if (!file.exists()) {
-                return@withContext ReaderType.Error("File not found: $filePath")
+            val targetPath = if (plexVirtualUriResolver?.isVirtualUri(filePath) == true) {
+                val resolveResult = plexVirtualUriResolver.resolveUri(filePath)
+                if (resolveResult.isFailure) {
+                    val ex = resolveResult.exceptionOrNull()
+                    return@withContext ReaderType.Error("Plex media unavailable: ${ex?.message ?: "Unable to resolve virtual URI"}")
+                }
+                resolveResult.getOrThrow().absolutePath
+            } else {
+                filePath
             }
 
-            val extension = file.extension.lowercase()
+            val file = File(targetPath)
+            if (!file.exists()) {
+                return@withContext ReaderType.Error("File not found: $targetPath")
+            }
+
+            var extension = file.extension.lowercase()
+            if (extension == "cached" || extension.isEmpty()) {
+                val originalExt = filePath.substringAfterLast('.', "").lowercase()
+                if (originalExt.isNotEmpty() && originalExt != "cached") {
+                    extension = originalExt
+                }
+            }
             
             // 1. Specialized Readers (Readium, ExoPlayer, Gemini)
             when (extension) {
                 // Use Readium for EPUB (professional support)
                 "epub" -> {
-                    return@withContext readiumEpubService.extractMetadata(filePath)?.let { publication ->
+                    return@withContext readiumEpubService.extractMetadata(targetPath)?.let { publication ->
                         ReaderType.Epub(
-                            filePath = filePath,
+                            filePath = targetPath,
                             metadata = publication,
                             service = readiumEpubService
                         )
-                    } ?: ReaderType.Error("Failed to open EPUB: $filePath")
+                    } ?: ReaderType.Error("Failed to open EPUB: $targetPath")
                 }
                 
                 // Use Readium for PDF (better than basic PdfRenderer)
                 "pdf" -> {
-                    return@withContext readiumPdfService.extractMetadata(filePath)?.let { publication ->
+                    return@withContext readiumPdfService.extractMetadata(targetPath)?.let { publication ->
                         ReaderType.Pdf(
-                            filePath = filePath,
+                            filePath = targetPath,
                             metadata = publication,
                             service = readiumPdfService
                         )
-                    } ?: ReaderType.Error("Failed to open PDF: $filePath")
+                    } ?: ReaderType.Error("Failed to open PDF: $targetPath")
                 }
                 
                 // Use Readium for Readium Audiobook format
                 "audiobook", "lcpa", "lcpdf" -> {
-                    return@withContext readiumAudiobookService.extractMetadata(filePath)?.let { publication ->
+                    return@withContext readiumAudiobookService.extractMetadata(targetPath)?.let { publication ->
                         ReaderType.Audiobook(
-                            filePath = filePath,
+                            filePath = targetPath,
                             metadata = publication,
                             service = readiumAudiobookService
                         )
-                    } ?: ReaderType.Error("Failed to open audiobook: $filePath")
+                    } ?: ReaderType.Error("Failed to open audiobook: $targetPath")
                 }
                 
                 // Use our Gemini AI for comics (superior to Readium's partial CBZ)
                 "cbz", "cbr", "cbt", "cb7" -> {
                     return@withContext ReaderType.Comic(
-                        filePath = filePath,
+                        filePath = targetPath,
                         service = geminiComicService
                     )
                 }
@@ -112,7 +132,7 @@ class UnifiedReaderService @Inject constructor(
                 // Use ExoPlayer for standalone audio files
                 "mp3", "m4a", "m4b", "flac", "ogg", "wav", "aac" -> {
                     return@withContext ReaderType.Audio(
-                        filePath = filePath,
+                        filePath = targetPath,
                         manager = audioPlaybackManager
                     )
                 }
@@ -123,11 +143,11 @@ class UnifiedReaderService @Inject constructor(
                 try {
                     val selection = ParserFactory.selectParser(file.name)
                     val parsedDoc = ParsedDocumentNormalizer.normalize(
-                        document = selection.parser.parse(filePath),
+                        document = selection.parser.parse(targetPath),
                         capability = selection.capability
                     )
                     return@withContext ReaderType.Text(
-                        filePath = filePath,
+                        filePath = targetPath,
                         content = parsedDoc.content,
                         parserId = selection.capability.parserId,
                         parserConfidence = parsedDoc.parserConfidence,
@@ -147,7 +167,7 @@ class UnifiedReaderService @Inject constructor(
                             // Parse FB2 XML and extract text content
                             val textContent = extractFB2Content(content)
                             ReaderType.Text(
-                                filePath = filePath,
+                                filePath = targetPath,
                                 content = textContent
                             )
                         } catch (e: Exception) {
@@ -159,7 +179,7 @@ class UnifiedReaderService @Inject constructor(
                     "txt", "text" -> {
                         val content = file.readText()
                         ReaderType.Text(
-                            filePath = filePath,
+                            filePath = targetPath,
                             content = content
                         )
                     }
@@ -167,7 +187,7 @@ class UnifiedReaderService @Inject constructor(
                     "md", "markdown" -> {
                         val content = file.readText()
                         ReaderType.Text(
-                            filePath = filePath,
+                            filePath = targetPath,
                             content = content
                         )
                     }
@@ -177,7 +197,7 @@ class UnifiedReaderService @Inject constructor(
                         val content = file.readText()
                         // Keep HTML for better rendering
                         ReaderType.Text(
-                            filePath = filePath,
+                            filePath = targetPath,
                             content = content
                         )
                     }
@@ -185,16 +205,16 @@ class UnifiedReaderService @Inject constructor(
                     "xhtml", "xht" -> {
                         val content = file.readText()
                         ReaderType.Text(
-                            filePath = filePath,
+                            filePath = targetPath,
                             content = content
                         )
                     }
 
                     "mhtml", "mht" -> {
                         try {
-                            val content = extractMhtmlContent(filePath)
+                            val content = extractMhtmlContent(targetPath)
                             ReaderType.Text(
-                                filePath = filePath,
+                                filePath = targetPath,
                                 content = content
                             )
                         } catch (e: Exception) {
@@ -205,9 +225,9 @@ class UnifiedReaderService @Inject constructor(
                     // UMD format (if not supported by ParserFactory)
                     "umd" -> {
                         try {
-                            val content = extractUMDContent(filePath)
+                            val content = extractUMDContent(targetPath)
                             ReaderType.Text(
-                                filePath = filePath,
+                                filePath = targetPath,
                                 content = content
                             )
                         } catch (e: Exception) {
@@ -235,13 +255,18 @@ class UnifiedReaderService @Inject constructor(
      */
     suspend fun extractCover(filePath: String): Bitmap? = withContext(Dispatchers.IO) {
         try {
-            val file = File(filePath)
+            val resolvedPath = if (plexVirtualUriResolver?.isVirtualUri(filePath) == true) {
+                plexVirtualUriResolver.resolveUri(filePath).getOrNull()?.absolutePath ?: return@withContext null
+            } else {
+                filePath
+            }
+            val file = File(resolvedPath)
             val extension = file.extension.lowercase()
             
             when (extension) {
-                "epub" -> readiumEpubService.extractCover(filePath)
-                "pdf" -> readiumPdfService.extractThumbnail(filePath)
-                "audiobook", "lcpa" -> readiumAudiobookService.extractCover(filePath)
+                "epub" -> readiumEpubService.extractCover(resolvedPath)
+                "pdf" -> readiumPdfService.extractThumbnail(resolvedPath)
+                "audiobook", "lcpa" -> readiumAudiobookService.extractCover(resolvedPath)
                 else -> null
             }
         } catch (e: Exception) {

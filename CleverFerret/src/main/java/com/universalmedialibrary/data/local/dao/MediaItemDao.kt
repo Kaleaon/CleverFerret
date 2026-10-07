@@ -52,6 +52,12 @@ interface MediaItemDao {
     @Query("UPDATE media_items SET isFavorite = :isFavorite WHERE itemId = :itemId")
     suspend fun setFavorite(itemId: Long, isFavorite: Boolean)
 
+    @Query("UPDATE media_items SET isAvailable = :isAvailable WHERE filePath = :filePath")
+    suspend fun updateAvailability(filePath: String, isAvailable: Boolean)
+
+    @Query("UPDATE media_items SET isAvailable = :isAvailable WHERE itemId = :itemId")
+    suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean)
+
     @Delete
     suspend fun deleteMediaItem(mediaItem: MediaItem)
 
@@ -321,6 +327,20 @@ interface MediaItemDao {
         LIMIT :limit OFFSET :offset
     """)
     suspend fun getBySeries(seriesId: Long, limit: Int, offset: Int): List<MediaItem>
+
+    // ==================== Offline Buffering & Download Management ====================
+
+    @Query("UPDATE media_items SET localCachePath = :cachePath, downloadStatus = :status, downloadProgress = :progress WHERE itemId = :itemId")
+    suspend fun updateDownloadInfo(itemId: Long, cachePath: String?, status: String, progress: Float)
+
+    @Query("UPDATE media_items SET downloadStatus = :status, downloadProgress = :progress WHERE itemId = :itemId")
+    suspend fun updateDownloadStatus(itemId: Long, status: String, progress: Float)
+
+    @Query("SELECT * FROM media_items WHERE downloadStatus = :status")
+    suspend fun getMediaItemsByDownloadStatus(status: String): List<MediaItem>
+
+    @Query("SELECT * FROM media_items WHERE filePath = :path OR localCachePath = :path LIMIT 1")
+    suspend fun getItemByPathOrCachePath(path: String): MediaItem?
 }
 
 data class MediaTypeCount(

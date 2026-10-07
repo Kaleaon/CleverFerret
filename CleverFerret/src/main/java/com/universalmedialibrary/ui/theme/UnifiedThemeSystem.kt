@@ -1,10 +1,12 @@
 package com.universalmedialibrary.ui.theme
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
@@ -223,63 +225,42 @@ fun UnifiedCleverFerretTheme(
     enableCrystalGlow: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    // Determine if this is an Ancient Architect theme
-    val isAncientArchitect = theme in listOf(
-        CleverFerretTheme.ANCIENT_BRONZE,
-        CleverFerretTheme.SILVER_ARCHITECT,
-        CleverFerretTheme.OBSIDIAN_TECH
-    )
-    
-    if (isAncientArchitect) {
-        // Use Ancient Architect theme system
-        val variant = when (theme) {
-            CleverFerretTheme.ANCIENT_BRONZE -> AncientArchitectVariant.ANCIENT_BRONZE
-            CleverFerretTheme.SILVER_ARCHITECT -> AncientArchitectVariant.SILVER_ARCHITECT
-            CleverFerretTheme.OBSIDIAN_TECH -> AncientArchitectVariant.OBSIDIAN_TECH
-            else -> AncientArchitectVariant.ANCIENT_BRONZE
-        }
-        
-        AncientArchitectTheme(
-            variant = variant,
-            enableGeometricPatterns = enableGeometricPatterns,
-            enableMetallicShimmer = enableMetallicShimmer,
-            enableCrystalGlow = enableCrystalGlow,
-            content = content
-        )
-    } else {
-        // Use traditional unified theme system WITH advanced effects
-        val colorScheme = getColorSchemeForTheme(theme, darkTheme)
-        val metallicColors = getMetallicColorsForTheme(theme)
+    val colorScheme = KthemeBridge.resolveColorScheme(theme, darkTheme)
+    val metallicColors = KthemeBridge.resolveMetallicGradient(theme)
 
-        val themeId = theme.name.lowercase().replace('_', '-')
-        val kthemeSnapshot = KthemeThemeAdapterV1.KthemeSnapshot(
-            id = themeId,
-            darkMode = darkTheme,
-            primary = String.format("#%08X", colorScheme.primary.toArgb()),
-            onPrimary = String.format("#%08X", colorScheme.onPrimary.toArgb()),
-            background = String.format("#%08X", colorScheme.background.toArgb()),
-            onBackground = String.format("#%08X", colorScheme.onBackground.toArgb()),
-            surface = String.format("#%08X", colorScheme.surface.toArgb()),
-            onSurface = String.format("#%08X", colorScheme.onSurface.toArgb()),
-            outline = String.format("#%08X", colorScheme.outline.toArgb()),
-            error = String.format("#%08X", colorScheme.error.toArgb()),
-            onError = String.format("#%08X", colorScheme.onError.toArgb())
-        )
-        val semanticTheme = KthemeThemeAdapterV1.adapt(kthemeSnapshot)
-        
-        // Provide advanced effects context for all themes
-        // Note: LocalEnable* composition locals are defined in AncientArchitectTheme.kt
-        // and shared across all themes (same package, no import needed)
-        CompositionLocalProvider(
-            LocalSemanticTheme provides semanticTheme,
-            LocalMetallicColors provides metallicColors,
-            LocalEnableGeometricPatterns provides enableGeometricPatterns,
-            LocalEnableMetallicShimmer provides enableMetallicShimmer,
-            LocalEnableCrystalGlow provides enableCrystalGlow
+    val themeId = theme.name.lowercase().replace('_', '-')
+    val kthemeSnapshot = KthemeThemeAdapterV1.KthemeSnapshot(
+        id = themeId,
+        darkMode = darkTheme,
+        primary = String.format("#%08X", colorScheme.primary.toArgb()),
+        onPrimary = String.format("#%08X", colorScheme.onPrimary.toArgb()),
+        background = String.format("#%08X", colorScheme.background.toArgb()),
+        onBackground = String.format("#%08X", colorScheme.onBackground.toArgb()),
+        surface = String.format("#%08X", colorScheme.surface.toArgb()),
+        onSurface = String.format("#%08X", colorScheme.onSurface.toArgb()),
+        outline = String.format("#%08X", colorScheme.outline.toArgb()),
+        error = String.format("#%08X", colorScheme.error.toArgb()),
+        onError = String.format("#%08X", colorScheme.onError.toArgb())
+    )
+    val semanticTheme = KthemeThemeAdapterV1.adapt(kthemeSnapshot)
+
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val reduceMotion = remember(configuration) { com.universalmedialibrary.ui.media.theme.MediaMotion.isReducedMotionEnabled() }
+
+    CompositionLocalProvider(
+        LocalSemanticTheme provides semanticTheme,
+        LocalMetallicColors provides metallicColors,
+        LocalEnableGeometricPatterns provides enableGeometricPatterns,
+        LocalEnableMetallicShimmer provides enableMetallicShimmer,
+        LocalEnableCrystalGlow provides enableCrystalGlow,
+        LocalReduceMotion provides reduceMotion
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AncientArchitectTypography,
         ) {
-            MaterialTheme(
-                colorScheme = colorScheme,
-                typography = AncientArchitectTypography, // Use the same typography
+            CompositionLocalProvider(
+                LocalIndication provides rememberFocusHighlightIndication(),
                 content = content
             )
         }
@@ -335,35 +316,7 @@ fun CleverFerretTheme.isAncientArchitect(): Boolean {
     )
 }
 
-/**
- * Convert CleverFerretTheme to ThemePalette
- */
-fun CleverFerretTheme.toThemePalette(): com.universalmedialibrary.ui.theme.ThemePalette {
-    return when (this) {
-        CleverFerretTheme.NAVY_GOLD -> com.universalmedialibrary.ui.theme.ThemePalette.NAVY_GOLD
-        CleverFerretTheme.EMERALD_SILVER -> com.universalmedialibrary.ui.theme.ThemePalette.EMERALD_SILVER
-        CleverFerretTheme.ROYAL_BRONZE -> com.universalmedialibrary.ui.theme.ThemePalette.ROYAL_BRONZE
-        CleverFerretTheme.MIDNIGHT_AMBER -> com.universalmedialibrary.ui.theme.ThemePalette.MIDNIGHT_AMBER
-        CleverFerretTheme.OBSIDIAN_CRIMSON -> com.universalmedialibrary.ui.theme.ThemePalette.OBSIDIAN_CRIMSON
-        CleverFerretTheme.SLATE_CYAN -> com.universalmedialibrary.ui.theme.ThemePalette.SLATE_CYAN
-        CleverFerretTheme.ROYAL_SILVER -> com.universalmedialibrary.ui.theme.ThemePalette.ROYAL_SILVER
-        CleverFerretTheme.FOREST_COPPER -> com.universalmedialibrary.ui.theme.ThemePalette.FOREST_COPPER
-        CleverFerretTheme.BURGUNDY_ROSE_GOLD -> com.universalmedialibrary.ui.theme.ThemePalette.BURGUNDY_ROSE_GOLD
-        CleverFerretTheme.CHARCOAL_CHAMPAGNE -> com.universalmedialibrary.ui.theme.ThemePalette.CHARCOAL_CHAMPAGNE
-        CleverFerretTheme.SLATE_GUNMETAL -> com.universalmedialibrary.ui.theme.ThemePalette.SLATE_GUNMETAL
-        CleverFerretTheme.DEEP_PURPLE_PLATINUM -> com.universalmedialibrary.ui.theme.ThemePalette.DEEP_PURPLE_PLATINUM
-        CleverFerretTheme.PAPER_INK -> com.universalmedialibrary.ui.theme.ThemePalette.PAPER_INK
-        CleverFerretTheme.COPPER_BRONZE -> com.universalmedialibrary.ui.theme.ThemePalette.COPPER_BRONZE
-        CleverFerretTheme.AMBER_GOLD -> com.universalmedialibrary.ui.theme.ThemePalette.AMBER_GOLD
-        CleverFerretTheme.ROSE_BRASS -> com.universalmedialibrary.ui.theme.ThemePalette.ROSE_BRASS
-        CleverFerretTheme.STEEL_TITANIUM -> com.universalmedialibrary.ui.theme.ThemePalette.STEEL_TITANIUM
-        CleverFerretTheme.PLATINUM_SILVER -> com.universalmedialibrary.ui.theme.ThemePalette.PLATINUM_SILVER
-        CleverFerretTheme.COBALT_CHROME -> com.universalmedialibrary.ui.theme.ThemePalette.COBALT_CHROME
-        CleverFerretTheme.ANCIENT_BRONZE -> com.universalmedialibrary.ui.theme.ThemePalette.ANCIENT_BRONZE
-        CleverFerretTheme.SILVER_ARCHITECT -> com.universalmedialibrary.ui.theme.ThemePalette.SILVER_ARCHITECT
-        CleverFerretTheme.OBSIDIAN_TECH -> com.universalmedialibrary.ui.theme.ThemePalette.OBSIDIAN_TECH
-    }
-}
+
 
 /**
  * Helper to get theme by index (for preference storage)

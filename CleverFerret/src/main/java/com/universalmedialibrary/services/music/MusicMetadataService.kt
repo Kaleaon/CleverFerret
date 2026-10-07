@@ -559,7 +559,7 @@ data class MusicBrainzTrackInfo(
     val isrc: String? = null,
     val artist: String? = null,
     val title: String? = null,
-    val album: String? = null
+    val album: String? = null,
 )
 
 data class AudioDbArtistInfo(

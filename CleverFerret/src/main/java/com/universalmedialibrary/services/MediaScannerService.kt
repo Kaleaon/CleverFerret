@@ -21,6 +21,7 @@ import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.LibraryScanSettingsDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.repository.MetadataStagingRepository
 import com.universalmedialibrary.data.local.entity.*
 import com.universalmedialibrary.services.audio.WaveformGenerator
 import com.universalmedialibrary.utils.ErrorLogger
@@ -60,6 +61,7 @@ class MediaScannerService : Service() {
     @Inject lateinit var libraryScanSettingsDao: LibraryScanSettingsDao
     @Inject lateinit var mediaItemDao: MediaItemDao
     @Inject lateinit var metadataDao: MetadataDao
+    @Inject lateinit var metadataStagingRepository: MetadataStagingRepository
     @Inject lateinit var waveformGenerator: WaveformGenerator
 
     internal val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -422,8 +424,9 @@ data class ScanProgress(
                 )
             }
 
-            metadataDao.insertMetadataCommon(
-                MetadataCommon(
+            metadataStagingRepository.stageMetadataCommon(
+                itemId = newId,
+                metadata = MetadataCommon(
                     itemId = newId,
                     title = displayName.substringBeforeLast('.'),
                     sortTitle = null,
@@ -443,7 +446,8 @@ data class ScanProgress(
                     lastUpdated = System.currentTimeMillis(),
                     metadataSource = "MediaStore",
                     externalId = null
-                )
+                ),
+                source = "MediaStore"
             )
             inserted
         } catch (e: Exception) {
@@ -623,7 +627,8 @@ data class ScanProgress(
                 }
 
                 // Create basic metadata
-                  val resolvedTitle = musicInfo?.title?.takeIf { it.isNotBlank() } ?: file.nameWithoutExtension
+                val titleFromMusic = musicInfo?.title
+                val resolvedTitle = if (!titleFromMusic.isNullOrBlank()) titleFromMusic else file.nameWithoutExtension
                   val metadata = MetadataCommon(
                       itemId = itemId,
                       title = resolvedTitle,
@@ -645,9 +650,16 @@ data class ScanProgress(
                     metadataSource = null,
                     externalId = null
                 )
-                  metadataDao.insertMetadataCommon(metadata)
+                  metadataStagingRepository.stageMetadataCommon(
+                      itemId = itemId,
+                      metadata = metadata,
+                      source = "MediaScanner"
+                  )
                   if (musicInfo != null) {
                       persistMusicTrackMetadata(newItem, musicInfo)
+                      if (!musicInfo.genre.isNullOrBlank()) {
+                          indexGenresToCentralStorage(newItem.itemId, musicInfo.genre!!)
+                      }
                   }
 
                 updateNotification("Found: ${file.name}")
@@ -706,12 +718,27 @@ data class ScanProgress(
 
 
 
+    internal suspend fun indexGenresToCentralStorage(itemId: Long, rawGenre: String) {
+        val genres = rawGenre.split(',', '/', ';')
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+
+        for (genreName in genres) {
+            val tagId = tagDao.findOrCreateTag(genreName, TagType.AUTO_GENERATED)
+            if (tagId > 0) {
+                tagDao.addTagToItem(ItemTag(itemId = itemId, tagId = tagId))
+                tagDao.recalculateUsageCount(tagId)
+            }
+        }
+    }
+
     internal data class MusicTrackInfo(
         val title: String? = null,
         val artist: String? = null,
         val album: String? = null,
         val albumArtist: String? = null,
         val composer: String? = null,
+        val genre: String? = null,
         val trackNumber: Int? = null,
         val totalTracks: Int? = null,
         val discNumber: Int? = null,

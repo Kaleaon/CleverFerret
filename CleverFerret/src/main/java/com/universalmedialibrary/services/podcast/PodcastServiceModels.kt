@@ -27,7 +27,6 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.net.URL
 import java.security.MessageDigest
-import java.text.SimpleDateFormat
 import java.util.*
 import com.universalmedialibrary.utils.FileNameSanitizer
 import com.universalmedialibrary.services.ingestion.IngestionPipeline
@@ -52,16 +51,16 @@ data class RSSFeed(
 )
 data class RSSItem(
     val title: String,
-    val description: String,
-    val link: String?,
-    val audioUrl: String?,
-    val duration: String?,
-    val fileSize: Long?,
-    val pubDate: String?,
-    val guid: String?,
-    val episodeNumber: Int?,
-    val seasonNumber: Int?,
-    val imageUrl: String?
+    val description: String = "",
+    val link: String? = null,
+    val audioUrl: String? = null,
+    val duration: String? = null,
+    val fileSize: Long? = null,
+    val pubDate: String? = null,
+    val guid: String? = null,
+    val episodeNumber: Int? = null,
+    val seasonNumber: Int? = null,
+    val imageUrl: String? = null
 )
 data class PodcastSearchResponse(
     val status: String,

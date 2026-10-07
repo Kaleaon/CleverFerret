@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.components.*
-import com.universalmedialibrary.ui.components.media.*
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -41,20 +40,41 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                MetallicCard(
-                    modifier = Modifier.fillMaxWidth()
+                val metallic = metallicColors()
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .metallicGradient(metallic, angle = 135f)
+                        .then(
+                            if (metallicShimmerEnabled()) {
+                                Modifier.metallicShimmer(
+                                    enabled = true,
+                                    baseColor = metallic.base,
+                                    highlightColor = metallic.shimmer ?: metallic.highlight,
+                                    speed = 3000
+                                )
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .depthShadow(elevation = 4.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = androidx.compose.ui.graphics.Color.Transparent
+                    )
                 ) {
-                    Text(
-                        "Metallic Card with Shimmer",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "This card uses metallic gradients with animated shimmer effect. " +
-                        "The shimmer moves across the surface creating a polished metal appearance.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Metallic Card with Shimmer",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "This card uses metallic gradients with animated shimmer effect. " +
+                            "The shimmer moves across the surface creating a polished metal appearance.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
             
@@ -64,22 +84,46 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                MediaCard(
-                    style = MediaCardStyle.CUSTOM,
-                    decoration = MediaCardDecoration.GLASS,
-                    modifier = Modifier.fillMaxWidth()
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .glassEffect(
+                            backgroundColor = MaterialTheme.colorScheme.surface,
+                            alpha = 0.7f,
+                            borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        )
+                        .then(
+                            if (geometricPatternsEnabled()) {
+                                Modifier.geometricPattern(
+                                    patternColor = MaterialTheme.colorScheme.onSurface,
+                                    patternType = PatternType.SUBTLE_GRID,
+                                    alpha = 0.03f
+                                )
+                            } else {
+                                Modifier
+                            }
+                        ),
+                    colors = CardDefaults.cardColors(
+                        containerColor = androidx.compose.ui.graphics.Color.Transparent
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                    )
                 ) {
-                    Text(
-                        "Glass Card with Patterns",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Frosted glass effect with subtle geometric patterns. " +
-                        "Creates a modern, translucent appearance.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Glass Card with Patterns",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Frosted glass effect with subtle geometric patterns. " +
+                            "Creates a modern, translucent appearance.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
             
@@ -89,22 +133,37 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                MediaCard(
-                    style = MediaCardStyle.CUSTOM,
-                    decoration = MediaCardDecoration.GLOWING,
-                    modifier = Modifier.fillMaxWidth()
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (crystalGlowEnabled()) {
+                                Modifier.crystalGlow(
+                                    enabled = true,
+                                    glowColor = MaterialTheme.colorScheme.primary,
+                                    intensity = 0.2f,
+                                    pulseSpeed = 3000
+                                )
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .depthShadow(elevation = 4.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Text(
-                        "Glowing Card",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Pulsing luminescent glow effect inspired by crystal technology. " +
-                        "The glow intensity animates smoothly.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Glowing Card",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Pulsing luminescent glow effect inspired by crystal technology. " +
+                            "The glow intensity animates smoothly.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
             
@@ -114,22 +173,28 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                MediaCard(
-                    style = MediaCardStyle.CUSTOM,
-                    decoration = MediaCardDecoration.ELEVATED_LIGHT,
-                    modifier = Modifier.fillMaxWidth()
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .advancedLighting(
+                            ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                            spotlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                        ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
-                    Text(
-                        "Elevated Card with Dynamic Lighting",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Multi-layered shadows create depth. Dynamic lighting adds ambient " +
-                        "and spotlight effects that respond to interactions.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Elevated Card with Dynamic Lighting",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Multi-layered shadows create depth. Dynamic lighting adds ambient " +
+                            "and spotlight effects that respond to interactions.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
             
@@ -139,22 +204,32 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                MediaCard(
-                    style = MediaCardStyle.CUSTOM,
-                    decoration = MediaCardDecoration.EMBOSSED,
-                    modifier = Modifier.fillMaxWidth()
+                val metallic = metallicColors()
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .embossedEffect(
+                            lightColor = metallic.highlight.copy(alpha = 0.4f),
+                            shadowColor = metallic.shadow.copy(alpha = 0.4f),
+                            depth = 2.dp
+                        ),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 ) {
-                    Text(
-                        "Embossed Card",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Carved appearance with light and shadow highlights. " +
-                        "Creates the illusion of depth engraved into the surface.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Embossed Card",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Carved appearance with light and shadow highlights. " +
+                            "Creates the illusion of depth engraved into the surface.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
             
@@ -168,28 +243,50 @@ fun AdvancedEffectsShowcaseScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    MediaCard(
-                        style = MediaCardStyle.CUSTOM,
-                        decoration = MediaCardDecoration.PATTERNED,
-                        modifier = Modifier.weight(1f)
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(
+                                if (geometricPatternsEnabled()) {
+                                    Modifier.geometricPattern(
+                                        patternColor = MaterialTheme.colorScheme.onSurface,
+                                        patternType = PatternType.SUBTLE_GRID,
+                                        alpha = 0.05f
+                                    )
+                                } else Modifier
+                            )
+                            .depthShadow(elevation = 4.dp)
                     ) {
-                        Text(
-                            "Grid",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                "Grid",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                     
-                    MediaCard(
-                        style = MediaCardStyle.CUSTOM,
-                        decoration = MediaCardDecoration.PATTERNED,
-                        modifier = Modifier.weight(1f)
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(
+                                if (geometricPatternsEnabled()) {
+                                    Modifier.geometricPattern(
+                                        patternColor = MaterialTheme.colorScheme.onSurface,
+                                        patternType = PatternType.DIAGONAL_LINES,
+                                        alpha = 0.05f
+                                    )
+                                } else Modifier
+                            )
+                            .depthShadow(elevation = 4.dp)
                     ) {
-                        Text(
-                            "Diagonal",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                "Diagonal",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
@@ -199,28 +296,50 @@ fun AdvancedEffectsShowcaseScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    MediaCard(
-                        style = MediaCardStyle.CUSTOM,
-                        decoration = MediaCardDecoration.PATTERNED,
-                        modifier = Modifier.weight(1f)
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(
+                                if (geometricPatternsEnabled()) {
+                                    Modifier.geometricPattern(
+                                        patternColor = MaterialTheme.colorScheme.onSurface,
+                                        patternType = PatternType.DOTS,
+                                        alpha = 0.05f
+                                    )
+                                } else Modifier
+                            )
+                            .depthShadow(elevation = 4.dp)
                     ) {
-                        Text(
-                            "Dots",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                "Dots",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                     
-                    MediaCard(
-                        style = MediaCardStyle.CUSTOM,
-                        decoration = MediaCardDecoration.PATTERNED,
-                        modifier = Modifier.weight(1f)
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(
+                                if (geometricPatternsEnabled()) {
+                                    Modifier.geometricPattern(
+                                        patternColor = MaterialTheme.colorScheme.onSurface,
+                                        patternType = PatternType.HEXAGONS,
+                                        alpha = 0.05f
+                                    )
+                                } else Modifier
+                            )
+                            .depthShadow(elevation = 4.dp)
                     ) {
-                        Text(
-                            "Hexagons",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                "Hexagons",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
@@ -231,22 +350,34 @@ fun AdvancedEffectsShowcaseScreen() {
             }
             
             item {
-                MediaCard(
-                    style = MediaCardStyle.CUSTOM,
-                    decoration = MediaCardDecoration.GRADIENT_OVERLAY,
-                    modifier = Modifier.fillMaxWidth()
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .gradientOverlay(
+                            gradient = listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary,
+                                MaterialTheme.colorScheme.tertiary
+                            ),
+                            angle = 135f,
+                            alpha = 0.15f
+                        )
+                        .depthShadow(elevation = 4.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Text(
-                        "Gradient Overlay Card",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Multi-color gradient overlay with customizable blend modes. " +
-                        "Creates rich, colorful visual effects.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Gradient Overlay Card",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Multi-color gradient overlay with customizable blend modes. " +
+                            "Creates rich, colorful visual effects.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
             

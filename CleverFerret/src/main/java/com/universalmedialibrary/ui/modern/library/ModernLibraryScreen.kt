@@ -145,11 +145,6 @@ private fun LibraryContent(
 ) {
     val tokens = LocalCFTokens.current
     val pad = if (widthClass == WindowWidthSizeClass.Compact) CFSpacing.lg else CFSpacing.xl
-    val gridCols = when (widthClass) {
-        WindowWidthSizeClass.Compact  -> 4
-        WindowWidthSizeClass.Medium   -> 6
-        else                           -> 8
-    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -171,7 +166,7 @@ private fun LibraryContent(
                 ShelfHeader("Browse", "Tap to drill into any format")
                 Spacer(Modifier.height(CFSpacing.sm))
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(gridCols),
+                    columns = GridCells.Adaptive(minSize = CFSpacing.squareCardMinWidth),
                     horizontalArrangement = Arrangement.spacedBy(CFSpacing.sm),
                     verticalArrangement = Arrangement.spacedBy(CFSpacing.sm),
                     modifier = Modifier.heightIn(max = 240.dp),
