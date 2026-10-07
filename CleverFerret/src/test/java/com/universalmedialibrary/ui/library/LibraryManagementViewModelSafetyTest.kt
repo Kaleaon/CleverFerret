@@ -7,6 +7,7 @@ import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.MetadataFetchRepository
+import com.universalmedialibrary.data.repository.MetadataFetchResult
 import com.universalmedialibrary.services.CalibreExportService
 import com.universalmedialibrary.services.FileSafetyGuardrail
 import com.universalmedialibrary.services.thumbnails.ThumbnailService

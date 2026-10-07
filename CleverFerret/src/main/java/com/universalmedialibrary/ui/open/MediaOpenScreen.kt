@@ -14,7 +14,7 @@ import com.universalmedialibrary.data.isVideoType
 import com.universalmedialibrary.data.toMediaTypeOrUnknown
 import com.universalmedialibrary.ui.reader.EReaderScreen
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
-import com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen
+import com.universalmedialibrary.ui.reader.ComicReaderScreen
 
 private val AUDIO_EXTENSIONS = setOf(
     "mp3", "flac", "m4a", "aac", "ogg", "opus", "wav", "wma", "aiff", "alac"
@@ -78,7 +78,7 @@ fun MediaOpenScreen(
             when (viewerTarget) {
                 OpenViewerTarget.EBOOK -> EReaderScreen(bookFilePath = path, onBack = onBack)
                 OpenViewerTarget.DOCUMENT -> DocumentReaderScreen(uriString = path, fileName = name, onBack = onBack)
-                OpenViewerTarget.COMIC -> ModernComicReaderScreen(uriString = path, fileName = name, onBack = onBack)
+                OpenViewerTarget.COMIC -> ComicReaderScreen(uriString = path, fileName = name, onBack = onBack)
                 OpenViewerTarget.AUDIO -> {
                     // Start audio playback and show a simple player UI
                     LaunchedEffect(item) {

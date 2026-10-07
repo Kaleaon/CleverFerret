@@ -20,10 +20,6 @@ class MediaSectionPagingIntegrationTest {
             PagingSource.LoadParams.Refresh(key = null, loadSize = 20, placeholdersEnabled = false)
         ) as PagingSource.LoadResult.Page
         val second = pagingSource.load(
-            PagingSource.LoadParams.Append(key = first.nextKey!!, loadSize = 20, placeholdersEnabled = false)
-        ) as PagingSource.LoadResult.Page
-        val third = pagingSource.load(
-            PagingSource.LoadParams.Append(key = second.nextKey!!, loadSize = 20, placeholdersEnabled = false)
             PagingSource.LoadParams.Append(key = requireNotNull(first.nextKey), loadSize = 20, placeholdersEnabled = false)
         ) as PagingSource.LoadResult.Page
         val third = pagingSource.load(

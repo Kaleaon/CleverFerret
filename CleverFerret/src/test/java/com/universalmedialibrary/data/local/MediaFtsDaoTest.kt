@@ -110,10 +110,10 @@ class MediaFtsDaoTest {
 
         // Insert Synced Plex Item
         val plexServerId = database.plexServerDao().insertServer(
-            PlexServer(name = "Plex Home", serverId = "p123", url = "http://localhost:32400")
+            PlexServer(name = "Plex Home", host = "localhost", port = 32400, token = "test_token")
         )
         database.plexMediaItemDao().insertMediaItem(
-            PlexMediaItem(serverId = plexServerId, plexRatingKey = "rk999", title = "Tolkien Documentary", type = "MOVIE", libraryName = "Plex Movies")
+            PlexMediaItem(serverId = plexServerId, plexRatingKey = "rk999", title = "Tolkien Documentary", type = "MOVIE", libraryName = "Plex Movies", librarySectionId = "1")
         )
 
         // Perform FTS prefix query for "Middle-earth"
@@ -150,7 +150,7 @@ class MediaFtsDaoTest {
         // Search again -> should match automatically via trigger!
         results = mediaFtsDao.searchFts("Herbert*")
         assertThat(results).hasSize(1)
-        assertThat(results[0].item_id).isEqualTo(itemId)
+        assertThat(results[0].itemId).isEqualTo(itemId)
 
         // Search series
         val seriesResults = mediaFtsDao.searchFts("Chronicles*")

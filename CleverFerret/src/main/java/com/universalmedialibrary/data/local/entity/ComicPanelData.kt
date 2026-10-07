@@ -74,7 +74,7 @@ data class ComicTranslation(
     
     // OCR data
     val originalText: String,
-    val detectedLanguage: String?,
+    val detectedLanguage: String? = null,
     val ocrConfidence: Float = 0.0f,
     
     // Translation data

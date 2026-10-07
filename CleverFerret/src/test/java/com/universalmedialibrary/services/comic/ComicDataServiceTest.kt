@@ -35,6 +35,12 @@ class ComicDataServiceTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
+        io.mockk.mockkStatic(android.util.Log::class)
+        io.mockk.every { android.util.Log.d(any<String>(), any<String>()) } returns 0
+        io.mockk.every { android.util.Log.i(any<String>(), any<String>()) } returns 0
+        io.mockk.every { android.util.Log.w(any<String>(), any<String>()) } returns 0
+        io.mockk.every { android.util.Log.e(any<String>(), any<String>()) } returns 0
+        io.mockk.every { android.util.Log.e(any<String>(), any<String>(), any<Throwable>()) } returns 0
         comicDataService = ComicDataService(context, comicPanelDao)
     }
 
@@ -45,15 +51,15 @@ class ComicDataServiceTest {
         val comicFilePath = comicFile.absolutePath
 
         val mockPanels = listOf(
-            ComicPanelData(id = 101L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 1, totalPages = 2, panelIndex = 0, x = 0, y = 0, width = 100, height = 100),
-            ComicPanelData(id = 102L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 1, totalPages = 2, panelIndex = 1, x = 100, y = 0, width = 100, height = 100),
-            ComicPanelData(id = 201L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 2, totalPages = 2, panelIndex = 0, x = 0, y = 0, width = 200, height = 200)
+            ComicPanelData(id = 101L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 1, totalPages = 2, panelIndex = 0, x = 0f, y = 0f, width = 100f, height = 100f),
+            ComicPanelData(id = 102L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 1, totalPages = 2, panelIndex = 1, x = 100f, y = 0f, width = 100f, height = 100f),
+            ComicPanelData(id = 201L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 2, totalPages = 2, panelIndex = 0, x = 0f, y = 0f, width = 200f, height = 200f)
         )
 
         val mockTranslations = listOf(
-            ComicTranslation(id = 1L, panelId = 101L, comicId = comicId, pageNumber = 1, bubbleX = 10, bubbleY = 10, bubbleWidth = 30, bubbleHeight = 20, originalText = "Hello", translatedText = "Hola"),
-            ComicTranslation(id = 2L, panelId = 102L, comicId = comicId, pageNumber = 1, bubbleX = 110, bubbleY = 10, bubbleWidth = 30, bubbleHeight = 20, originalText = "World", translatedText = "Mundo"),
-            ComicTranslation(id = 3L, panelId = 201L, comicId = comicId, pageNumber = 2, bubbleX = 10, bubbleY = 10, bubbleWidth = 40, bubbleHeight = 30, originalText = "End", translatedText = "Fin")
+            ComicTranslation(id = 1L, panelId = 101L, comicId = comicId, pageNumber = 1, bubbleX = 10f, bubbleY = 10f, bubbleWidth = 30f, bubbleHeight = 20f, originalText = "Hello", translatedText = "Hola"),
+            ComicTranslation(id = 2L, panelId = 102L, comicId = comicId, pageNumber = 1, bubbleX = 110f, bubbleY = 10f, bubbleWidth = 30f, bubbleHeight = 20f, originalText = "World", translatedText = "Mundo"),
+            ComicTranslation(id = 3L, panelId = 201L, comicId = comicId, pageNumber = 2, bubbleX = 10f, bubbleY = 10f, bubbleWidth = 40f, bubbleHeight = 30f, originalText = "End", translatedText = "Fin")
         )
 
         coEvery { comicPanelDao.getAllPanelsForComic(comicId) } returns mockPanels
@@ -82,8 +88,8 @@ class ComicDataServiceTest {
         val pageNumber = 1
 
         val pagePanels = listOf(
-            ComicPanelData(id = 10L, comicId = comicId, comicFilePath = "path", pageNumber = pageNumber, totalPages = 1, panelIndex = 0, x = 0, y = 0, width = 100, height = 100),
-            ComicPanelData(id = 20L, comicId = comicId, comicFilePath = "path", pageNumber = pageNumber, totalPages = 1, panelIndex = 1, x = 100, y = 0, width = 100, height = 100)
+            ComicPanelData(id = 10L, comicId = comicId, comicFilePath = "path", pageNumber = pageNumber, totalPages = 1, panelIndex = 0, x = 0f, y = 0f, width = 100f, height = 100f),
+            ComicPanelData(id = 20L, comicId = comicId, comicFilePath = "path", pageNumber = pageNumber, totalPages = 1, panelIndex = 1, x = 100f, y = 0f, width = 100f, height = 100f)
         )
 
         coEvery { comicPanelDao.getPanelsForPage(comicId, pageNumber) } returns pagePanels
@@ -92,23 +98,24 @@ class ComicDataServiceTest {
             pageNumber = pageNumber,
             sourceLanguage = "en",
             targetLanguage = "es",
+            translationMethod = "GEMINI",
             panels = listOf(
-                PanelTranslationResult(
+                TranslatedPanel(
                     panelIndex = 0,
                     bubbles = listOf(
-                        TextBubbleTranslation(
-                            bounds = BoundingBox(0, 0, 10, 10),
+                        TranslatedBubble(
+                            bounds = NormalizedRect(0f, 0f, 10f, 10f),
                             originalText = "Hello",
                             translatedText = "Hola",
                             confidence = 0.9f
                         )
                     )
                 ),
-                PanelTranslationResult(
+                TranslatedPanel(
                     panelIndex = 1,
                     bubbles = listOf(
-                        TextBubbleTranslation(
-                            bounds = BoundingBox(10, 0, 10, 10),
+                        TranslatedBubble(
+                            bounds = NormalizedRect(10f, 0f, 10f, 10f),
                             originalText = "Bye",
                             translatedText = "Adios",
                             confidence = 0.95f
@@ -168,8 +175,8 @@ class ComicDataServiceTest {
         jsonFile.writeText(jsonContent)
 
         val insertedPanels = listOf(
-            ComicPanelData(id = 101L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 1, totalPages = 1, panelIndex = 0, x = 0, y = 0, width = 100, height = 100),
-            ComicPanelData(id = 102L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 1, totalPages = 1, panelIndex = 1, x = 100, y = 0, width = 100, height = 100)
+            ComicPanelData(id = 101L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 1, totalPages = 1, panelIndex = 0, x = 0f, y = 0f, width = 100f, height = 100f),
+            ComicPanelData(id = 102L, comicId = comicId, comicFilePath = comicFilePath, pageNumber = 1, totalPages = 1, panelIndex = 1, x = 100f, y = 0f, width = 100f, height = 100f)
         )
         coEvery { comicPanelDao.getPanelsForPage(comicId, 1) } returns insertedPanels
 

@@ -50,17 +50,17 @@ data class RSSFeed(
     val items: List<RSSItem>
 )
 data class RSSItem(
-    val title: String,
-    val description: String,
-    val link: String?,
-    val audioUrl: String?,
-    val duration: String?,
-    val fileSize: Long?,
-    val pubDate: String?,
-    val guid: String?,
-    val episodeNumber: Int?,
-    val seasonNumber: Int?,
-    val imageUrl: String?
+    val title: String = "",
+    val description: String = "",
+    val link: String? = null,
+    val audioUrl: String? = null,
+    val duration: String? = null,
+    val fileSize: Long? = null,
+    val pubDate: String? = null,
+    val guid: String? = null,
+    val episodeNumber: Int? = null,
+    val seasonNumber: Int? = null,
+    val imageUrl: String? = null
 )
 data class PodcastSearchResponse(
     val status: String,
