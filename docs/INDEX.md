@@ -96,6 +96,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [Android Active Backlog](planning/ANDROID_ACTIVE_BACKLOG.md) - Canonical active backlog for app-module and V2 scope
 - [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Prioritized Android issue triage and sequencing
 - [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Currently reproducible build/toolchain issues
+- [Navigation Route Inventory](navigation/ROUTE_INVENTORY.md) - Generated map of registered routes, legacy routes and navigate() call sites (legacy route migration)
 - [ROADMAP](ROADMAP.md) - Forward-looking product direction
 - [Active Build Backlog](planning/ACTIVE_BUILD_BACKLOG.md) - Current prioritized build and stability tasks
 - [App Issues Fix Plan](planning/APP_ISSUES_FIX_PLAN.md) - Active issue remediation plan

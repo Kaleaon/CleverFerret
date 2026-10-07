@@ -31,6 +31,7 @@ import org.burnoutcrew.reorderable.reorderable
 @Composable
 internal fun BottomBarEditorRow(
     editorItem: BottomBarEditorItem,
+    slotIndex: Int = -1,
     modifier: Modifier = Modifier,
     onVisibilityToggle: (Boolean) -> Unit
 ) {
@@ -65,11 +66,46 @@ internal fun BottomBarEditorRow(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Text(
-                    text = editorItem.item.label,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = if (editorItem.visible) FontWeight.Medium else FontWeight.Normal
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = editorItem.item.label,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = if (editorItem.visible) FontWeight.Medium else FontWeight.Normal
+                    )
+
+                    if (editorItem.visible && slotIndex in 0..3) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.padding(start = 4.dp)
+                        ) {
+                            Text(
+                                text = "Slot ${slotIndex + 1}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    } else if (editorItem.visible) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            modifier = Modifier.padding(start = 4.dp)
+                        ) {
+                            Text(
+                                text = "Overflow",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
+
                 if (!editorItem.visible) {
                     Text(
                         text = "Hidden",

@@ -214,7 +214,7 @@ fun UniversalSearchAndDiscoveryScreen(
                         }
                         items(uiState.storyResults) { story ->
                             WebFictionStoryCard(story = story) {
-                                navController?.navigate("webfiction_story/${story.id}")
+                                navController?.navigate(MediaRoutes.readerRoute("webfiction", story.id.toString()))
                             }
                         }
                     }

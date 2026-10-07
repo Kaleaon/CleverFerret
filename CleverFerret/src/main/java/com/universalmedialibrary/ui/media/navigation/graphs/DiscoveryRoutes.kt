@@ -170,7 +170,7 @@ fun NavGraphBuilder.discoveryRoutes(
         com.universalmedialibrary.ui.news.NewsScreen(
             onNavigateBack = { navController.popBackStack() },
             onOpenEpub = { path ->
-                navController.navigate("epub_reader/${Uri.encode(path)}")
+                navController.navigate(MediaRoutes.epubReaderRoute(path))
             }
         )
     }

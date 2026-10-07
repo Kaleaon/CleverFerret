@@ -32,6 +32,115 @@ class MetadataExtractionService @Inject constructor(
 ) {
 
     /**
+     * Extract standardized RawMetadata payload directly from a File and mediaType
+     */
+    suspend fun extractRawMetadata(file: File, mediaType: String): com.universalmedialibrary.services.pipeline.RawMetadata = withContext(Dispatchers.IO) {
+        try {
+            val extension = file.extension.lowercase()
+            val normalizedType = mediaType.uppercase()
+
+            if ((normalizedType == "BOOK" || normalizedType == "DOCUMENT" || normalizedType == "COMIC") && com.universalmedialibrary.parsers.ParserFactory.isSupported(file.name)) {
+                return@withContext com.universalmedialibrary.parsers.ParserFactory.extractRawMetadata(file)
+            }
+
+            when (normalizedType) {
+                "MUSIC", "MUSIC_TRACK", "AUDIOBOOK" -> extractMusicRawMetadata(file)
+                "MOVIE", "VIDEO" -> extractMovieRawMetadata(file)
+                "BOOK", "DOCUMENT", "COMIC" -> extractBookRawMetadata(file, extension)
+                else -> com.universalmedialibrary.services.pipeline.RawMetadata(
+                    title = file.nameWithoutExtension,
+                    format = extension.uppercase(),
+                    confidenceScore = 0.70f,
+                    source = "BASIC_FILE_PROPERTIES"
+                )
+            }
+        } catch (e: Exception) {
+            com.universalmedialibrary.services.pipeline.RawMetadata(
+                title = file.nameWithoutExtension,
+                format = file.extension.uppercase(),
+                confidenceScore = 0.50f,
+                source = "EXTRACTION_ERROR:${e.message}"
+            )
+        }
+    }
+
+    private fun extractMusicRawMetadata(file: File): com.universalmedialibrary.services.pipeline.RawMetadata {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(file.absolutePath)
+            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)?.takeIf { it.isNotBlank() }
+                ?: file.nameWithoutExtension
+            val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)?.takeIf { it.isNotBlank() }
+            val albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)?.takeIf { it.isNotBlank() }
+            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)?.takeIf { it.isNotBlank() }
+            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+            val trackNumber = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)?.toIntOrNull()
+
+            val creators = listOfNotNull(artist, albumArtist).distinct()
+
+            com.universalmedialibrary.services.pipeline.RawMetadata(
+                title = title,
+                creators = creators,
+                album = album,
+                albumArtist = albumArtist,
+                durationMs = duration,
+                trackNumber = trackNumber,
+                format = file.extension.uppercase(),
+                confidenceScore = if (artist != null && album != null) 0.90f else 0.75f,
+                source = "ID3_TAG_EXTRACTION"
+            )
+        } catch (e: Exception) {
+            com.universalmedialibrary.services.pipeline.RawMetadata(
+                title = file.nameWithoutExtension,
+                format = file.extension.uppercase(),
+                confidenceScore = 0.60f,
+                source = "MUSIC_FALLBACK"
+            )
+        } finally {
+            try { retriever.release() } catch (_: Exception) {}
+        }
+    }
+
+    private fun extractMovieRawMetadata(file: File): com.universalmedialibrary.services.pipeline.RawMetadata {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(file.absolutePath)
+            val title = file.nameWithoutExtension
+            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+            val width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull()
+            val height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull()
+            val resolution = if (width != null && height != null) "${width}x${height}" else null
+
+            com.universalmedialibrary.services.pipeline.RawMetadata(
+                title = title,
+                durationMs = duration,
+                resolution = resolution,
+                format = file.extension.uppercase(),
+                confidenceScore = 0.80f,
+                source = "VIDEO_HEADER_EXTRACTION"
+            )
+        } catch (e: Exception) {
+            com.universalmedialibrary.services.pipeline.RawMetadata(
+                title = file.nameWithoutExtension,
+                format = file.extension.uppercase(),
+                confidenceScore = 0.60f,
+                source = "MOVIE_FALLBACK"
+            )
+        } finally {
+            try { retriever.release() } catch (_: Exception) {}
+        }
+    }
+
+    private fun extractBookRawMetadata(file: File, extension: String): com.universalmedialibrary.services.pipeline.RawMetadata {
+        return com.universalmedialibrary.services.pipeline.RawMetadata(
+            title = file.nameWithoutExtension,
+            format = extension.uppercase(),
+            confidenceScore = 0.70f,
+            source = "BOOK_FILE_EXTRACTION"
+        )
+    }
+
+    /**
      * Extract metadata for a media item
      */
     suspend fun extractMetadata(mediaItem: EntityMediaItem): MetadataResult = withContext(Dispatchers.IO) {

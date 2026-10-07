@@ -43,12 +43,35 @@ val libraryTypeOptions: List<com.universalmedialibrary.ui.media.screens.LibraryM
 fun MediaBottomNavigation(
     currentRoute: String,
     onNavigate: (String) -> Unit,
-    destinations: List<MediaNavDestination> = MediaNavDestinations.primaryDestinations,
+    destinations: List<MediaNavDestination> = MediaNavDestinations.allDestinations,
     bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default,
     gearPosition: BottomGearPosition = BottomGearPosition.RIGHT,
     modifier: Modifier = Modifier
 ) {
     val cs = MaterialTheme.colorScheme
+    var showOverflowSheet by remember { mutableStateOf(false) }
+
+    val layout = remember(destinations, bottomBarPreferences) {
+        resolveMediaBottomBarLayout(destinations, bottomBarPreferences)
+    }
+
+    val primaryDestinations = layout.primaryItems
+    val overflowDestinations = layout.overflowItems
+
+    val isOverflowActive = remember(currentRoute, overflowDestinations) {
+        overflowDestinations.any { isDestinationSelected(currentRoute = currentRoute, destinationRoute = it.route) }
+    }
+
+    val moreDestination = remember {
+        MediaNavDestination(
+            id = "more_overflow",
+            label = "More",
+            icon = Icons.Outlined.MoreHoriz,
+            selectedIcon = Icons.Filled.MoreHoriz,
+            route = "overflow_sheet"
+        )
+    }
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -58,45 +81,16 @@ fun MediaBottomNavigation(
         tonalElevation = MediaElevation.MD,
         shadowElevation = MediaElevation.LG
     ) {
-        val scrollState = rememberScrollState()
-        val effectiveDestinations = remember(destinations, bottomBarPreferences) {
-            applyBottomBarPreferencesToMediaDestinations(destinations, bottomBarPreferences)
-        }
-        
-        // ===================================================================================
-        // Navigation scroll behavior:
-        // Start scrolled to the LEFT (beginning) so users see Home and primary items first
-        // Users can scroll right to discover more navigation options
-        // ===================================================================================
-        
-        val showLeftFade by remember { derivedStateOf { scrollState.value > 0 } }
-        val showRightFade by remember { derivedStateOf { scrollState.value < scrollState.maxValue } }
-
-        // Keep the gear a full-height square "end-cap" so it aligns with the bar and feels tappable.
-        val gearOuterPadding = MediaSpacing.XS
-        val gearSlotSize = MediaSizes.BottomBarHeight
-        val gearSize = gearSlotSize - (gearOuterPadding * 2)
-        val scrollContentPadding = when (gearPosition) {
-            BottomGearPosition.LEFT -> PaddingValues(start = gearSlotSize, end = MediaSpacing.None)
-            BottomGearPosition.RIGHT -> PaddingValues(start = MediaSpacing.None, end = gearSlotSize)
-        }
-
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = MediaSizes.BottomBarHeight)
+                .height(MediaSizes.BottomBarHeight)
+                .padding(horizontal = MediaSpacing.XS),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(MediaSizes.BottomBarHeight)
-                    .horizontalScroll(scrollState)
-                    .padding(scrollContentPadding)
-                    .padding(horizontal = MediaSpacing.SM),
-                horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                effectiveDestinations.forEach { destination ->
+            primaryDestinations.forEach { destination ->
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                     BottomNavItem(
                         destination = destination,
                         enabled = destination.enabled,
@@ -106,76 +100,28 @@ fun MediaBottomNavigation(
                 }
             }
 
-            // Subtle edge fades to hint that the bar scrolls.
-            if (showLeftFade) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(MediaSizes.BottomNavFadeWidth)
-                        .align(Alignment.CenterStart)
-                        .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(cs.surface, Color.Transparent)
-                            )
-                        )
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                BottomNavItem(
+                    destination = moreDestination,
+                    enabled = true,
+                    isSelected = isOverflowActive,
+                    onClick = { showOverflowSheet = true }
                 )
             }
-            if (showRightFade) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(MediaSizes.BottomNavFadeWidth)
-                        .align(Alignment.CenterEnd)
-                        .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(Color.Transparent, cs.surface)
-                            )
-                        )
-                )
-            }
+        }
+    }
 
-            // ===================================================================================
-            // FIX: Settings gear was floating randomly due to padding applied after alignment
-            // SOLUTION: Use wrapper Box with alignment, then apply padding inside the box
-            // This ensures the gear stays fixed at the edge regardless of scroll position
-            // ===================================================================================
-            // Persistent settings gear overlay (not part of scroll row).
-            // Draw this AFTER fades so it stays crisp and never looks "dimmed".
-            // Position is fixed at the edge, with padding applied inside the box to ensure consistent placement.
-            Box(
-                modifier = Modifier
-                    .align(
-                        if (gearPosition == BottomGearPosition.LEFT) {
-                            Alignment.CenterStart
-                        } else {
-                            Alignment.CenterEnd
-                        }
-                    )
-                    .padding(gearOuterPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                Surface(
-                    modifier = Modifier.size(gearSize),
-                    shape = RoundedCornerShape(MediaCorners.XS),
-                    color = cs.surfaceVariant,
-                    tonalElevation = MediaElevation.SM,
-                    shadowElevation = MediaElevation.None,
-                    onClick = { onNavigate(MediaRoutes.SETTINGS) }
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = "Settings",
-                            tint = cs.onSurfaceVariant
-                        )
-                    }
+    if (showOverflowSheet) {
+        com.universalmedialibrary.ui.components.MediaNavigationOverflowSheet(
+            items = overflowDestinations,
+            currentRoute = currentRoute,
+            onDismissRequest = { showOverflowSheet = false },
+            onItemClick = { destination ->
+                if (destination.enabled) {
+                    onNavigate(destination.route)
                 }
             }
-            // ===================================================================================
-        }
+        )
     }
 }
 
@@ -311,52 +257,89 @@ internal fun isDestinationSelected(currentRoute: String, destinationRoute: Strin
     return currentRoute == destinationRoute || currentRoute.startsWith("$destinationRoute/")
 }
 
+fun mapLegacyPreferenceIdToMediaRoute(id: String): String = when (id) {
+    "home" -> MediaRoutes.HOME
+    "enhanced_search" -> MediaRoutes.SEARCH
+    "library_details/1", "books" -> MediaRoutes.BOOKS
+    "library_details/2", "audiobooks" -> MediaRoutes.AUDIOBOOKS
+    "library_details/3", "comics" -> MediaRoutes.COMICS
+    "library_details/4", "movies" -> MediaRoutes.MOVIES
+    "library_details/5", "tv_shows" -> MediaRoutes.TV_SHOWS
+    "library_details/7", "documents" -> MediaRoutes.DOCUMENTS
+    "music" -> MediaRoutes.MUSIC
+    "podcasts" -> MediaRoutes.PODCASTS
+    "radio" -> MediaRoutes.RADIO
+    "visualizer" -> MediaRoutes.VISUALIZER
+    "ambient" -> MediaRoutes.AMBIENT_SOUNDS
+    "webfiction_manager", "web_fiction" -> MediaRoutes.WEB_FICTION
+    "opds_catalog", "opds" -> MediaRoutes.OPDS_BROWSER
+    "storage_browser", "storage" -> MediaRoutes.FILE_BROWSER
+    "collections" -> MediaRoutes.COLLECTIONS
+    "settings" -> MediaRoutes.SETTINGS
+    else -> id
+}
+
+fun resolveMediaBottomBarLayout(
+    destinations: List<MediaNavDestination>,
+    bottomBarPreferences: BottomBarPreferences
+): com.universalmedialibrary.ui.components.BottomBarLayout<MediaNavDestination> {
+    val enabledDestinations = destinations.filter { it.enabled }
+    if (enabledDestinations.isEmpty()) {
+        return com.universalmedialibrary.ui.components.BottomBarLayout(emptyList(), emptyList())
+    }
+
+    fun matchesPreferenceId(dest: MediaNavDestination, prefId: String): Boolean {
+        if (dest.id == prefId || dest.route == prefId) return true
+        val mapped = mapLegacyPreferenceIdToMediaRoute(prefId)
+        if (mapped == dest.route || mapped == dest.id) return true
+        return false
+    }
+
+    val hiddenPrefIds = bottomBarPreferences.hidden
+    val visibleDestinations = enabledDestinations.filter { dest ->
+        hiddenPrefIds.none { hiddenId -> matchesPreferenceId(dest, hiddenId) }
+    }
+
+    val pinnedPrefIds = when {
+        bottomBarPreferences.pinned.isNotEmpty() -> bottomBarPreferences.pinned.filter { it !in hiddenPrefIds }
+        bottomBarPreferences.order.isNotEmpty() -> bottomBarPreferences.order.filter { it !in hiddenPrefIds }
+        else -> listOf("home", "books", "music", "movies")
+    }
+
+    val primaryList = mutableListOf<MediaNavDestination>()
+    val usedIds = mutableSetOf<String>()
+
+    for (prefId in pinnedPrefIds) {
+        if (primaryList.size >= 4) break
+        val match = visibleDestinations.firstOrNull { matchesPreferenceId(it, prefId) }
+        if (match != null && usedIds.add(match.id)) {
+            primaryList.add(match)
+        }
+    }
+
+    val defaultFallbackPrefIds = listOf("home", "books", "music", "movies", "library_details/1", "library_details/4")
+    for (prefId in defaultFallbackPrefIds) {
+        if (primaryList.size >= 4) break
+        val match = visibleDestinations.firstOrNull { matchesPreferenceId(it, prefId) }
+        if (match != null && usedIds.add(match.id)) {
+            primaryList.add(match)
+        }
+    }
+
+    for (dest in visibleDestinations) {
+        if (primaryList.size >= 4) break
+        if (usedIds.add(dest.id)) {
+            primaryList.add(dest)
+        }
+    }
+
+    val overflowList = visibleDestinations.filter { it.id !in usedIds }
+    return com.universalmedialibrary.ui.components.BottomBarLayout(primaryItems = primaryList, overflowItems = overflowList)
+}
+
 private fun applyBottomBarPreferencesToMediaDestinations(
     destinations: List<MediaNavDestination>,
     bottomBarPreferences: BottomBarPreferences
 ): List<MediaNavDestination> {
-    if (bottomBarPreferences == BottomBarPreferences.Default) return destinations
-
-    // The existing bottom bar editor stores preference IDs as legacy route strings.
-    // Map the most important legacy IDs to the media-centric routes.
-    fun mapLegacyPreferenceIdToMediaRoute(id: String): String? = when (id) {
-        "home" -> MediaRoutes.HOME
-        "enhanced_search" -> MediaRoutes.SEARCH
-        "library_details/1" -> MediaRoutes.LIBRARY_ROOT
-        "library_details/2" -> MediaRoutes.LIBRARY_ROOT
-        "library_details/3" -> MediaRoutes.LIBRARY_ROOT
-        "library_details/4" -> MediaRoutes.LIBRARY_ROOT
-        "library_details/5" -> MediaRoutes.LIBRARY_ROOT
-        "library_details/7" -> MediaRoutes.LIBRARY_ROOT
-        "music" -> MediaRoutes.LIBRARY_ROOT
-        "podcasts" -> MediaRoutes.LIBRARY_ROOT
-        "radio" -> MediaRoutes.LIBRARY_ROOT
-        "visualizer" -> MediaRoutes.VISUALIZER
-        "ambient" -> MediaRoutes.AMBIENT_SOUNDS
-        "webfiction_manager" -> MediaRoutes.WEB_FICTION
-        "opds_catalog" -> MediaRoutes.OPDS_BROWSER
-        "storage_browser" -> MediaRoutes.FILE_BROWSER
-        "collections" -> MediaRoutes.COLLECTIONS
-        "settings" -> MediaRoutes.SETTINGS
-        else -> null
-    }
-
-    val hiddenRoutes = bottomBarPreferences.hidden.mapNotNull(::mapLegacyPreferenceIdToMediaRoute).toSet()
-    val orderedRoutes = bottomBarPreferences.order.mapNotNull(::mapLegacyPreferenceIdToMediaRoute)
-
-    val byRoute = destinations.associateBy { it.route }
-    val selected = LinkedHashSet<MediaNavDestination>()
-
-    // Apply ordering
-    orderedRoutes.forEach { route ->
-        val dest = byRoute[route]
-        if (dest != null && dest.route !in hiddenRoutes) selected.add(dest)
-    }
-
-    // Append remaining (preserve the "everything is reachable" behavior)
-    destinations.forEach { dest ->
-        if (dest.route !in hiddenRoutes) selected.add(dest)
-    }
-
-    return selected.toList()
+    return resolveMediaBottomBarLayout(destinations, bottomBarPreferences).primaryItems
 }

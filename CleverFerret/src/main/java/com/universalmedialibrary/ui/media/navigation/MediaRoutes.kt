@@ -39,6 +39,11 @@ object MediaRoutes {
     const val READER = "reader/{mediaType}/{mediaId}"
     const val AUDIO_PLAYER = "player/audio/{playerType}"
     const val VIDEO_PLAYER = "player/video/{videoId}"
+    // File/URI based viewers (arguments are URL-encoded; replace the legacy epub_reader, pdf_reader
+    // and comic_reader routes)
+    const val DOCUMENT_READER = "document-reader/{uri}/{name}"
+    const val EPUB_READER = "epub-reader/{path}"
+    const val PDF_READER = "pdf-reader/{path}"
     
     // Discovery routes
     const val DISCOVER = "discover"
@@ -48,6 +53,9 @@ object MediaRoutes {
     const val PODCAST_DISCOVER = "discover/podcasts"
     const val WEB_FICTION_BROWSE = "discover/webfiction/{source}"
     const val SEE_ALL = "home/see-all/{section}"
+
+    // Metadata editing
+    const val METADATA_EDITOR = "metadata-editor/{itemId}"
 
     // Standardized helper for discovery route with arguments
     fun discoveryRoute(query: String? = null, tags: String? = null, type: String? = null): String {
@@ -123,11 +131,29 @@ object MediaRoutes {
     const val NOT_FOUND = "not-found?path={path}"
     
     // Helper functions for navigation
+    /** Maps a stored media type (e.g. MUSIC_TRACK) to the route segment used by detail/reader routes. */
+    fun routeNameForMediaType(storedType: String): String = when (storedType.uppercase()) {
+        "BOOK", "EBOOK" -> "book"
+        "AUDIOBOOK" -> "audiobook"
+        "MOVIE", "DOCUMENTARY" -> "movie"
+        "TV_SHOW" -> "tv_show"
+        "MUSIC", "MUSIC_TRACK", "MUSIC_ALBUM" -> "music"
+        "PODCAST", "PODCAST_EPISODE", "PODCAST_SERIES" -> "podcast"
+        "COMIC" -> "comic"
+        "RADIO" -> "radio"
+        "MAGAZINE", "NEWSPAPER", "DOCUMENT" -> "document"
+        else -> storedType.lowercase()
+    }
     fun libraryRoute(mediaType: String) = "library/$mediaType"
     fun mediaDetailRoute(mediaType: String, mediaId: String) = "detail/$mediaType/$mediaId"
     fun readerRoute(mediaType: String, mediaId: String) = "reader/$mediaType/$mediaId"
     fun audioPlayerRoute(playerType: String) = "player/audio/$playerType"
     fun videoPlayerRoute(videoId: String) = "player/video/$videoId"
+    fun documentReaderRoute(uri: String, fileName: String) =
+        "document-reader/${Uri.encode(uri)}/${Uri.encode(fileName)}"
+    fun epubReaderRoute(path: String) = "epub-reader/${Uri.encode(path)}"
+    fun pdfReaderRoute(path: String) = "pdf-reader/${Uri.encode(path)}"
+    fun metadataEditorRoute(itemId: String) = "metadata-editor/${Uri.encode(itemId)}"
     fun collectionDetailRoute(collectionId: String) = "collection/$collectionId"
     fun webFictionBrowseRoute(source: String) = "discover/webfiction/${Uri.encode(source)}"
     fun seeAllRoute(section: String) = "home/see-all/${Uri.encode(section)}"
