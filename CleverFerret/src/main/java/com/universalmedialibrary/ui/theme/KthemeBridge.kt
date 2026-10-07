@@ -173,6 +173,13 @@ object KthemeBridge {
                                 ),
                                 intensity = 0.9f
                             )
+                        ),
+                        layout = com.ktheme.models.LayoutConfig(
+                            liveRegion = com.ktheme.models.LiveRegionConfig(
+                                mode = "polite",
+                                atomic = true,
+                                relevant = "all"
+                            )
                         )
                     )
                 )
