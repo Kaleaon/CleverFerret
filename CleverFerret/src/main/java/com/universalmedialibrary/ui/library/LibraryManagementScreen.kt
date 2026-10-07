@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.ui.components.media.*
 
 /**
  * Main screen for managing media libraries
@@ -427,88 +428,20 @@ private fun LibraryListContent(
         }
 
         items(libraries) { library ->
-            LibraryCard(
-                library = library,
-                itemCount = libraryItemCounts[library.libraryId] ?: 0,
+            val libType = try {
+                LibraryType.valueOf(library.type.uppercase())
+            } catch (e: Exception) {
+                LibraryType.BOOK
+            }
+            MediaCard(
+                library = LibraryItem(
+                    id = library.libraryId.toInt(),
+                    name = library.name,
+                    type = libType,
+                    itemCount = libraryItemCounts[library.libraryId] ?: 0
+                ),
                 onClick = { onLibraryClick(library) }
             )
-        }
-    }
-}
-
-@Composable
-private fun LibraryCard(
-    library: Library,
-    itemCount: Int,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E1E1E)
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        ),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF333333))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                modifier = Modifier.size(56.dp),
-                shape = RoundedCornerShape(8.dp),
-                color = Color(0xFF2D2D2D)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = getLibraryIcon(library.type),
-                        contentDescription = "Media image",
-                        modifier = Modifier.size(32.dp),
-                        tint = Color(0xFFCCCCCC)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = library.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = getLibraryTypeDisplayName(library.type),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFFAAAAAA)
-                )
-            }
-
-            Surface(
-                color = Color(0xFF333333),
-                shape = RoundedCornerShape(4.dp)
-            ) {
-                val itemCountText = itemCount
-                Text(
-                    text = "$itemCountText ${if (itemCountText == 1) "item" else "items"}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                )
-            }
         }
     }
 }
