@@ -32,7 +32,7 @@ import org.burnoutcrew.reorderable.reorderable
 internal fun BottomBarPreferencesEditor(
     availableItems: List<NavigationItem>,
     preferences: BottomBarPreferences,
-    onOrderChanged: (List<String>, Set<String>) -> Unit
+    onOrderChanged: (List<String>, Set<String>, List<String>) -> Unit
 ) {
     val orderedItems = remember(availableItems, preferences) {
         availableItems.orderedForEditor(preferences)
@@ -55,6 +55,15 @@ internal fun BottomBarPreferencesEditor(
         persistPreferences(editorItems, onOrderChanged)
     })
 
+    var visibleIndexCounter = 0
+    val slotIndexMap = remember(editorItems.map { "${it.item.preferenceId}_${it.visible}" }) {
+        var count = 0
+        editorItems.associate { editorItem ->
+            val idx = if (editorItem.visible) count++ else -1
+            editorItem.item.preferenceId to idx
+        }
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,8 +74,10 @@ internal fun BottomBarPreferencesEditor(
         userScrollEnabled = editorItems.size > 3
     ) {
         items(editorItems, key = { it.item.preferenceId }) { editorItem ->
+            val slotIndex = slotIndexMap[editorItem.item.preferenceId] ?: -1
             BottomBarEditorRow(
                 editorItem = editorItem,
+                slotIndex = slotIndex,
                 modifier = Modifier
                     .fillMaxWidth()
                     .detectReorderAfterLongPress(reorderState),
@@ -80,4 +91,14 @@ internal fun BottomBarPreferencesEditor(
             )
         }
     }
+}
+
+private fun persistPreferences(
+    items: List<BottomBarEditorItem>,
+    onOrderChanged: (List<String>, Set<String>, List<String>) -> Unit
+) {
+    val order = items.map { it.item.preferenceId }
+    val hidden = items.filter { !it.visible }.map { it.item.preferenceId }.toSet()
+    val pinned = items.filter { it.visible }.take(4).map { it.item.preferenceId }
+    onOrderChanged(order, hidden, pinned)
 }

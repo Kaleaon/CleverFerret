@@ -202,7 +202,6 @@ fun MediaMainScreen(
                             snackbarHostState.showSnackbar(message)
                         }
                     },
-                    startDestination = startDestination,
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -270,7 +269,6 @@ fun MediaMainScreen(
                                 snackbarHostState.showSnackbar(message)
                             }
                         },
-                        startDestination = startDestination,
                         modifier = Modifier.padding(paddingValues)
                     )
                 }

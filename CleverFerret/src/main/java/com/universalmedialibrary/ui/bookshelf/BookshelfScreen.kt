@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.bookshelf
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -162,7 +163,7 @@ fun EnhancedBookshelfScreen(
             },
             floatingActionButton = {
                 ExtendedFloatingActionButton(
-                    onClick = { navController.navigate("opds_catalog") },
+                    onClick = { navController.navigate(MediaRoutes.OPDS_BROWSER) },
                     icon = { Icon(Icons.Default.CloudDownload, contentDescription = "Download") },
                     text = { Text("Get Books") },
                     containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -200,7 +201,7 @@ fun EnhancedBookshelfScreen(
                 FavoritesSection(
                     favorites = favorites,
                     onClick = { book ->
-                        navController.navigate("book_details/${book.mediaItem.itemId}")
+                        navController.navigate(MediaRoutes.mediaDetailRoute("book", book.mediaItem.itemId.toString()))
                     },
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
@@ -220,7 +221,7 @@ fun EnhancedBookshelfScreen(
                         books = books,
                         progressMap = progressMap,
                         onClick = { book ->
-                            navController.navigate("book_details/${book.mediaItem.itemId}")
+                            navController.navigate(MediaRoutes.mediaDetailRoute("book", book.mediaItem.itemId.toString()))
                         },
                         onFavoriteToggle = viewModel::toggleFavorite,
                         modifier = Modifier.fillMaxSize()
@@ -231,7 +232,7 @@ fun EnhancedBookshelfScreen(
                         books = books,
                         progressMap = progressMap,
                         onClick = { book ->
-                            navController.navigate("book_details/${book.mediaItem.itemId}")
+                            navController.navigate(MediaRoutes.mediaDetailRoute("book", book.mediaItem.itemId.toString()))
                         },
                         onFavoriteToggle = viewModel::toggleFavorite,
                         modifier = Modifier.fillMaxSize()
@@ -241,7 +242,7 @@ fun EnhancedBookshelfScreen(
                     CoverFlowView(
                         books = books,
                         onClick = { book ->
-                            navController.navigate("book_details/${book.mediaItem.itemId}")
+                            navController.navigate(MediaRoutes.mediaDetailRoute("book", book.mediaItem.itemId.toString()))
                         },
                         onFavoriteToggle = viewModel::toggleFavorite,
                         modifier = Modifier.fillMaxSize()

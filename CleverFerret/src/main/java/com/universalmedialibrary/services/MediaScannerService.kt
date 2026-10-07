@@ -24,6 +24,7 @@ import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.repository.MetadataStagingRepository
 import com.universalmedialibrary.data.local.entity.*
 import com.universalmedialibrary.services.audio.WaveformGenerator
+import com.universalmedialibrary.services.pipeline.CatalogingPipelineEngine
 import com.universalmedialibrary.utils.ErrorLogger
 import com.universalmedialibrary.utils.media.AudioMetadataUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -63,6 +64,7 @@ class MediaScannerService : Service() {
     @Inject lateinit var metadataDao: MetadataDao
     @Inject lateinit var metadataStagingRepository: MetadataStagingRepository
     @Inject lateinit var waveformGenerator: WaveformGenerator
+    @Inject lateinit var catalogingPipelineEngine: CatalogingPipelineEngine
 
     internal val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val scanSettingsCache = mutableMapOf<Long, ResolvedScanSettings>()
@@ -626,44 +628,22 @@ data class ScanProgress(
                     )
                 }
 
-                // Create basic metadata
-                val titleFromMusic = musicInfo?.title
-                val resolvedTitle = if (!titleFromMusic.isNullOrBlank()) titleFromMusic else file.nameWithoutExtension
-                  val metadata = MetadataCommon(
-                      itemId = itemId,
-                      title = resolvedTitle,
-                    sortTitle = null,
-                    originalTitle = null,
-                    year = null,
-                    releaseDate = null,
-                    rating = null,
-                    userRating = null,
-                    communityRating = null,
-                    summary = null,
-                    plot = null,
-                    tagline = null,
-                    coverImagePath = coverPath,
-                    backdropImagePath = null,
-                    language = null,
-                    country = null,
-                    lastUpdated = System.currentTimeMillis(),
-                    metadataSource = null,
-                    externalId = null
+                // Route through 4-stage CatalogingPipelineEngine
+                val pipelineResult = catalogingPipelineEngine.execute(
+                    file = file,
+                    mediaType = mediaType,
+                    libraryId = library.libraryId
                 )
-                  metadataStagingRepository.stageMetadataCommon(
-                      itemId = itemId,
-                      metadata = metadata,
-                      source = "MediaScanner"
-                  )
-                  if (musicInfo != null) {
-                      persistMusicTrackMetadata(newItem, musicInfo)
-                      if (!musicInfo.genre.isNullOrBlank()) {
-                          indexGenresToCentralStorage(newItem.itemId, musicInfo.genre!!)
-                      }
-                  }
+
+                val processedItem = pipelineResult.context.mediaItem
+
+                if (mediaType == "MUSIC" && processedItem != null) {
+                    val musicInfo = extractMusicTrackInfo(file)
+                    persistMusicTrackMetadata(processedItem, musicInfo)
+                }
 
                 updateNotification("Found: ${file.name}")
-                newItem
+                processedItem
             } catch (e: Exception) {
                 ErrorLogger.logMediaScanError("Error processing media file", e)
                 null

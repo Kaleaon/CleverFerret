@@ -131,5 +131,47 @@ fun NavGraphBuilder.playerRoutes(
         }
     }
     
+    composable(
+        route = MediaRoutes.DOCUMENT_READER,
+        arguments = listOf(
+            navArgument("uri") { type = NavType.StringType },
+            navArgument("name") { type = NavType.StringType }
+        )
+    ) { backStackEntry ->
+        val uriString = Uri.decode(backStackEntry.arguments?.getString("uri") ?: "")
+        val fileName = Uri.decode(backStackEntry.arguments?.getString("name") ?: "")
+        DocumentReaderScreen(
+            uriString = uriString,
+            fileName = fileName,
+            onBack = { navController.popBackStack() }
+        )
+    }
+
+    composable(
+        route = MediaRoutes.EPUB_READER,
+        arguments = listOf(navArgument("path") { type = NavType.StringType })
+    ) { backStackEntry ->
+        val path = backStackEntry.arguments?.getString("path") ?: ""
+        EPUBReaderScreen(
+            navController = navController,
+            bookUri = path
+        )
+    }
+
+    composable(
+        route = MediaRoutes.PDF_READER,
+        arguments = listOf(navArgument("path") { type = NavType.StringType })
+    ) { backStackEntry ->
+        val path = backStackEntry.arguments?.getString("path") ?: ""
+        val decodedPath = remember(path) { Uri.decode(path) }
+        val fileName = remember(decodedPath) { File(decodedPath).name }
+
+        DocumentReaderScreen(
+            uriString = decodedPath,
+            fileName = fileName,
+            onBack = { navController.popBackStack() }
+        )
+    }
+
     // =====================================================================
 }

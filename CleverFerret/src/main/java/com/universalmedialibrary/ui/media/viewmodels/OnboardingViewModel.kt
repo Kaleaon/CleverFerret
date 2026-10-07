@@ -60,7 +60,7 @@ class OnboardingViewModel @Inject constructor(
             if (PermissionsHandler.hasStoragePermissions(appContext)) {
                 triggerInitialScan()
             }
-            settingsRepository.setOnboardingCompleted(true)
+            settingsRepository.setHasCompletedOnboarding(true)
             onCompletedCallback()
         }
     }

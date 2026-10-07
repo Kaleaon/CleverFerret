@@ -77,6 +77,9 @@ jobs:
     - name: Check lifecycle flow collection
       run: ./gradlew checkLifecycleFlowCollection --stacktrace
 
+    - name: Check navigation routes
+      run: python3 scripts/ci/check_nav_routes.py
+
     - name: Run Detekt and Android Lint
       run: ./gradlew detekt lintDebug -Plint.abortOnError=true --stacktrace
 

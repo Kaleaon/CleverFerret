@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.library
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -216,19 +217,19 @@ fun UniversalMediaLibraryScreen(
                     // Navigate to appropriate viewer based on media type
                     when (item.mediaType) {
                         MediaType.BOOK, MediaType.EBOOK ->
-                            navController.navigate("ereader/${item.itemId}")
+                            navController.navigate(MediaRoutes.readerRoute("book", item.itemId.toString()))
                         MediaType.AUDIOBOOK ->
-                            navController.navigate("audioplayer/${item.itemId}")
+                            navController.navigate(MediaRoutes.audioPlayerRoute("audiobook"))
                         MediaType.MOVIE, MediaType.TV_SHOW, MediaType.DOCUMENTARY ->
-                            navController.navigate("videoplayer/${item.itemId}")
+                            navController.navigate(MediaRoutes.videoPlayerRoute(item.itemId.toString()))
                         MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM ->
-                            navController.navigate("musicplayer/${item.itemId}")
+                            navController.navigate(MediaRoutes.audioPlayerRoute("music"))
                         MediaType.PODCAST_EPISODE, MediaType.PODCAST_SERIES ->
-                            navController.navigate("podcastplayer/${item.itemId}")
+                            navController.navigate(MediaRoutes.audioPlayerRoute("podcast"))
                         MediaType.MAGAZINE, MediaType.NEWSPAPER ->
-                            navController.navigate("magazinereader/${item.itemId}")
+                            navController.navigate(MediaRoutes.readerRoute("document", item.itemId.toString()))
                         else ->
-                            navController.navigate("documentviewer/${item.itemId}")
+                            navController.navigate(MediaRoutes.readerRoute("document", item.itemId.toString()))
                     }
                 },
                 onToggleFavorite = { item ->

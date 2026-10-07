@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.recommendations
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -82,7 +83,12 @@ fun RecommendationsScreen(
                     RecommendationsContent(
                         groupedRecommendations = uiState.groupedRecommendations,
                         onRecommendationClick = { recommendation ->
-                            navController.navigate("detail/${recommendation.itemId}")
+                            navController.navigate(
+                                MediaRoutes.mediaDetailRoute(
+                                    MediaRoutes.routeNameForMediaType(recommendation.mediaType),
+                                    recommendation.itemId.toString()
+                                )
+                            )
                         },
                         onDismiss = viewModel::dismissRecommendation
                     )

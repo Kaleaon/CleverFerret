@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.video
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -107,7 +108,7 @@ fun VideoLibraryScreen(
                             VideoCard(
                                 video = video,
                                 onClick = {
-                                    navController.navigate("video_player/${video.id}")
+                                    navController.navigate(MediaRoutes.videoPlayerRoute(video.id.toString()))
                                 }
                             )
                         }

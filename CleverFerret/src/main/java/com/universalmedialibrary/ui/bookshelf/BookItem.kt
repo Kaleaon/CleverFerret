@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.bookshelf
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -328,7 +329,7 @@ fun EnhancedBookshelfScreenDemo(
                                             selectedBooks + book.id
                                         }
                                     } else {
-                                        navController.navigate("reader/${book.id}")
+                                        navController.navigate(MediaRoutes.readerRoute("book", book.id.toString()))
                                     }
                                 },
                                 onLongClick = {
@@ -359,7 +360,7 @@ fun EnhancedBookshelfScreenDemo(
                                             selectedBooks + book.id
                                         }
                                     } else {
-                                        navController.navigate("reader/${book.id}")
+                                        navController.navigate(MediaRoutes.readerRoute("book", book.id.toString()))
                                     }
                                 },
                                 onLongClick = {

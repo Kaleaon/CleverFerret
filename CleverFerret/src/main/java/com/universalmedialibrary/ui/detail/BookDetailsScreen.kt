@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.detail
 
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -37,7 +38,7 @@ fun BookDetailsScreen(bookId: Long, navController: NavController, viewModel: Boo
                     }
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigate("metadata_editor/$bookId") }) {
+                    IconButton(onClick = { navController.navigate(MediaRoutes.metadataEditorRoute(bookId.toString())) }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit Metadata")
                     }
                 }

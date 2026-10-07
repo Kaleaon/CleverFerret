@@ -14,6 +14,7 @@ import com.universalmedialibrary.services.sync.SyncWorker
 import com.universalmedialibrary.workers.AutoScanWorker
 import com.universalmedialibrary.workers.ImportPlanWorker
 import com.universalmedialibrary.workers.OfflineBufferingWorker
+import com.universalmedialibrary.workers.PodcastAutoDownloadWorker
 import java.util.concurrent.TimeUnit
 
 object WorkScheduler {
