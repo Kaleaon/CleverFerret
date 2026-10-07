@@ -49,6 +49,16 @@ private val knownStaticRoutes = setOf(
     MediaRoutes.SETTINGS_STORAGE,
     MediaRoutes.SETTINGS_SECURITY,
     MediaRoutes.SETTINGS_ABOUT,
+    MediaRoutes.SETTINGS_HUB_APPEARANCE,
+    MediaRoutes.SETTINGS_HUB_LIBRARY,
+    MediaRoutes.SETTINGS_HUB_PLAYBACK,
+    MediaRoutes.SETTINGS_HUB_INTEGRATIONS,
+    MediaRoutes.SETTINGS_HUB_SYSTEM,
+    MediaRoutes.SETTINGS_DEVELOPER,
+    MediaRoutes.SETTINGS_FEATURES,
+    MediaRoutes.SETTINGS_NETWORK_STORAGE,
+    MediaRoutes.SETTINGS_TTS_PROVIDER,
+    MediaRoutes.SETTINGS_PARENTAL,
     MediaRoutes.SETTINGS_MEDIA_SERVERS,
     MediaRoutes.SETTINGS_PAYWALL_THEMES,
     MediaRoutes.SETTINGS_PAYWALL_SCANNER,
@@ -59,6 +69,7 @@ private val knownStaticRoutes = setOf(
 )
 
 private val knownParameterizedPrefixes = listOf(
+    "settings/",
     "library/",
     "detail/",
     "reader/",

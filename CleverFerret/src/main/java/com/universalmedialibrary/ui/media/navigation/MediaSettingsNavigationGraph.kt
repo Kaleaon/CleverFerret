@@ -6,6 +6,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.ui.components.NavigationItems
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
@@ -21,6 +22,58 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
         )
     }
 
+    // --- Category Landing Hub Sub-Pages ---
+    composable(MediaRoutes.SETTINGS_HUB_APPEARANCE) {
+        com.universalmedialibrary.ui.settings.AppearanceHubScreen(
+            onBack = { navController.popBackStack() },
+            navController = navController,
+            availableBottomItems = NavigationItems.items
+        )
+    }
+
+    composable(MediaRoutes.SETTINGS_HUB_LIBRARY) {
+        com.universalmedialibrary.ui.settings.LibraryHubScreen(
+            onBack = { navController.popBackStack() },
+            navController = navController
+        )
+    }
+
+    composable(MediaRoutes.SETTINGS_HUB_PLAYBACK) {
+        com.universalmedialibrary.ui.settings.PlaybackHubScreen(
+            onBack = { navController.popBackStack() },
+            navController = navController
+        )
+    }
+
+    composable(MediaRoutes.SETTINGS_HUB_INTEGRATIONS) {
+        com.universalmedialibrary.ui.settings.IntegrationsHubScreen(
+            onBack = { navController.popBackStack() },
+            navController = navController
+        )
+    }
+
+    composable(MediaRoutes.SETTINGS_HUB_SYSTEM) {
+        com.universalmedialibrary.ui.settings.SystemHubScreen(
+            onBack = { navController.popBackStack() },
+            navController = navController
+        )
+    }
+
+    // --- Developer Settings (Debug builds only) ---
+    if (BuildConfig.DEBUG) {
+        composable(MediaRoutes.SETTINGS_DEVELOPER) {
+            com.universalmedialibrary.ui.settings.FeatureFlagsSettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(MediaRoutes.SETTINGS_FEATURES) {
+            com.universalmedialibrary.ui.settings.FeatureFlagsSettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+    }
+
+    // --- Specific Detail Settings Pages ---
     composable(MediaRoutes.SETTINGS_API) {
         com.universalmedialibrary.ui.settings.APISettingsScreen(
             onNavigateBack = { navController.popBackStack() }
@@ -33,55 +86,58 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
             navController = navController
         )
     }
+
     composable("settings/social") {
         com.universalmedialibrary.ui.settings.SocialIntegrationsSettingsScreen(
             onBack = { navController.popBackStack() },
             navController = navController
         )
     }
+
     composable("settings/metadata") {
         com.universalmedialibrary.ui.settings.MetadataSettingsScreen(
             onBack = { navController.popBackStack() },
             navController = navController
         )
     }
+
     composable("settings/auto-scan") {
         com.universalmedialibrary.ui.settings.AutoScanSettingsScreen(
             onBack = { navController.popBackStack() }
         )
     }
+
     composable("settings/display") {
         com.universalmedialibrary.ui.settings.DisplaySettingsScreen(
             onBack = { navController.popBackStack() },
             navController = navController
         )
     }
-    composable("settings/text-size") {
-        com.universalmedialibrary.ui.settings.ReaderSettingsScreen(
-            navController = navController,
-            settingsType = "visual"
-        )
-    }
+
     composable("settings/downloads") {
         com.universalmedialibrary.ui.settings.DownloadsSettingsScreen(
             onBack = { navController.popBackStack() }
         )
     }
+
     composable("settings/cache") {
         com.universalmedialibrary.ui.settings.CacheSettingsScreen(
             onBack = { navController.popBackStack() }
         )
     }
+
     composable("settings/privacy") {
         com.universalmedialibrary.ui.settings.PrivacySettingsScreen(
             onBack = { navController.popBackStack() }
         )
     }
+
     composable("settings/casting") {
         com.universalmedialibrary.ui.settings.CastingSettingsScreen(
             onBack = { navController.popBackStack() }
         )
     }
+
     composable("settings/feedback") {
         com.universalmedialibrary.ui.settings.FeedbackSettingsScreen(
             onBack = { navController.popBackStack() }
@@ -139,30 +195,9 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
         )
     }
 
-    composable("settings/media-servers") {
-        com.universalmedialibrary.ui.settings.MediaServerSettingsScreen(
-            onBack = { navController.popBackStack() }
-        )
-    }
-
-    composable("settings/network_storage") {
+    composable(MediaRoutes.SETTINGS_NETWORK_STORAGE) {
         com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen(
             onBack = { navController.popBackStack() }
-        )
-    }
-
-    composable("settings/cloud") {
-        com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen(
-            onBack = { navController.popBackStack() }
-        )
-    }
-
-    composable("settings/audio_effects") {
-        val vm: com.universalmedialibrary.ui.settings.AudioEffectsViewModel = hiltViewModel()
-        com.universalmedialibrary.ui.settings.AudioEffectsSettingsScreen(
-            viewModel = vm,
-            onNavigateBack = { navController.popBackStack() },
-            onNavigateToShowcase = { navController.navigate("advanced_effects_showcase") }
         )
     }
 
@@ -187,33 +222,15 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
         )
     }
 
-    composable("settings/tts_provider") {
+    composable(MediaRoutes.SETTINGS_TTS_PROVIDER) {
         com.universalmedialibrary.ui.settings.TtsProviderSettingsScreen(
             onBack = { navController.popBackStack() }
         )
     }
 
-    composable("settings/tts") {
-        com.universalmedialibrary.ui.settings.TtsProviderSettingsScreen(
-            onBack = { navController.popBackStack() }
-        )
-    }
-
-    composable("settings/parental_controls") {
+    composable(MediaRoutes.SETTINGS_PARENTAL) {
         com.universalmedialibrary.ui.settings.ParentalControlsScreen(
             navController = navController
-        )
-    }
-
-    composable("settings/parental") {
-        com.universalmedialibrary.ui.settings.ParentalControlsScreen(
-            navController = navController
-        )
-    }
-
-    composable("settings/organizer") {
-        com.universalmedialibrary.ui.settings.StorageOrganizerScreen(
-            onBack = { navController.popBackStack() }
         )
     }
 
@@ -265,6 +282,7 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
             onBack = { navController.popBackStack() }
         )
     }
+
     composable("ambient/import") {
         com.universalmedialibrary.ui.ambient.AudioPackImportScreen(
             onBack = { navController.popBackStack() }

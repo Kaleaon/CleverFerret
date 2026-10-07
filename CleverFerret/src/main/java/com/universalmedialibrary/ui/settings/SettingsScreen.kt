@@ -1,14 +1,11 @@
 package com.universalmedialibrary.ui.settings
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,28 +16,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.components.NavigationItem
-import com.universalmedialibrary.ui.components.orderedForEditor
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.theme.*
-import org.burnoutcrew.reorderable.detectReorderAfterLongPress
-import org.burnoutcrew.reorderable.rememberReorderableLazyListState
-import org.burnoutcrew.reorderable.reorderable
-import com.universalmedialibrary.ui.settings.sections.notificationsSection
-import com.universalmedialibrary.ui.settings.sections.libraryStorageSection
-import com.universalmedialibrary.ui.settings.sections.navigationSection
-import com.universalmedialibrary.ui.settings.sections.apiIntegrationsSection
-import com.universalmedialibrary.ui.settings.sections.webContentSection
-import com.universalmedialibrary.ui.settings.sections.readingAudioSection
-import com.universalmedialibrary.ui.settings.sections.ambientSoundsSection
-import com.universalmedialibrary.ui.settings.sections.safetyPrivacySection
-import com.universalmedialibrary.ui.settings.sections.mediaServersSection
-import com.universalmedialibrary.ui.settings.sections.networkStorageSection
-import com.universalmedialibrary.ui.settings.sections.aboutSection
 
 /**
- * Settings Screen with metallic theme
+ * Main Settings Landing Screen
+ *
+ * Presents 2-level category landing hubs for settings:
+ * - Appearance & Customization
+ * - Library & Storage
+ * - Playback & Reader
+ * - Integrations & Services
+ * - System & Safety
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,10 +39,6 @@ fun SettingsScreen(
     availableBottomItems: List<NavigationItem>,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    var showThemePicker by remember { mutableStateOf(false) }
-    var showMiniPlayerBackgroundDialog by remember { mutableStateOf(false) }
-
     Scaffold(
         topBar = {
             MetallicTopAppBar(
@@ -71,76 +56,106 @@ fun SettingsScreen(
             )
         }
     ) { paddingValues ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item {
-                    AppearanceSettingsSection(
-                        uiState = uiState,
-                        navController = navController,
-                        onOpenThemePicker = { showThemePicker = true },
-                        onDarkModeChanged = viewModel::setDarkMode,
-                        onReduceMotionChanged = viewModel::setReduceMotion
-                    )
-                }
-
-                item {
-                    PodcastSettingsSection(
-                        uiState = uiState,
-                        onAutoDownloadChanged = viewModel::setAutoDownload,
-                        onWifiOnlyChanged = viewModel::setWifiOnlyDownloads
-                    )
-                }
-
-                notificationsSection(uiState = uiState, viewModel = viewModel, navController = navController)
-                libraryStorageSection(uiState = uiState, viewModel = viewModel, navController = navController)
-                navigationSection(uiState = uiState, viewModel = viewModel, navController = navController, availableBottomItems = availableBottomItems)
-                apiIntegrationsSection(uiState = uiState, viewModel = viewModel, navController = navController)
-                webContentSection(uiState = uiState, viewModel = viewModel, navController = navController)
-                readingAudioSection(
-                    uiState = uiState,
-                    viewModel = viewModel,
-                    navController = navController,
-                    onOpenMiniPlayerBackgroundDialog = { showMiniPlayerBackgroundDialog = true }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                SettingsCategoryHubCard(
+                    title = "Appearance & Customization",
+                    description = "Themes, dark mode, display options, navigation layout",
+                    icon = Icons.Default.Palette,
+                    onClick = { navController.navigate(MediaRoutes.SETTINGS_HUB_APPEARANCE) }
                 )
-                ambientSoundsSection(uiState = uiState, viewModel = viewModel, navController = navController)
-                safetyPrivacySection(uiState = uiState, viewModel = viewModel, navController = navController)
-                mediaServersSection(uiState = uiState, viewModel = viewModel, navController = navController)
-                networkStorageSection(uiState = uiState, viewModel = viewModel, navController = navController)
-                aboutSection(uiState = uiState, viewModel = viewModel, navController = navController)
             }
-        // Theme picker dialog
-        if (showThemePicker) {
-            ThemePickerDialog(
-                currentTheme = uiState.selectedTheme,
-                onDismiss = { showThemePicker = false },
-                onSelect = { theme ->
-                    viewModel.setTheme(theme)
-                    showThemePicker = false
-                }
-            )
-        }
-
-        if (showMiniPlayerBackgroundDialog) {
-            MiniPlayerBackgroundDialog(
-                currentMode = uiState.miniPlayerBackgroundMode,
-                onSelect = { mode ->
-                    viewModel.setMiniPlayerBackgroundMode(mode)
-                    showMiniPlayerBackgroundDialog = false
-                },
-                onDismiss = { showMiniPlayerBackgroundDialog = false }
-            )
+            item {
+                SettingsCategoryHubCard(
+                    title = "Library & Storage",
+                    description = "Storage organizer, auto-scan, downloads, cache, import & export",
+                    icon = Icons.Default.Folder,
+                    onClick = { navController.navigate(MediaRoutes.SETTINGS_HUB_LIBRARY) }
+                )
+            }
+            item {
+                SettingsCategoryHubCard(
+                    title = "Playback & Reader",
+                    description = "Reader preferences, audio effects & profiles, podcasts, TTS, ambient sounds",
+                    icon = Icons.Default.Tune,
+                    onClick = { navController.navigate(MediaRoutes.SETTINGS_HUB_PLAYBACK) }
+                )
+            }
+            item {
+                SettingsCategoryHubCard(
+                    title = "Integrations & Services",
+                    description = "API providers, media servers, cloud storage, web content, social",
+                    icon = Icons.Default.Cloud,
+                    onClick = { navController.navigate(MediaRoutes.SETTINGS_HUB_INTEGRATIONS) }
+                )
+            }
+            item {
+                SettingsCategoryHubCard(
+                    title = "System & Safety",
+                    description = "Safety & parental controls, privacy, notifications, feedback, about",
+                    icon = Icons.Default.Security,
+                    onClick = { navController.navigate(MediaRoutes.SETTINGS_HUB_SYSTEM) }
+                )
+            }
         }
     }
 }
 
-
-
-
+@Composable
+private fun SettingsCategoryHubCard(
+    title: String,
+    description: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit
+) {
+    MetallicCard {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(28.dp)
+                )
+                Column {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
 
 internal data class BottomBarEditorItem(
     val item: NavigationItem,
@@ -162,7 +177,6 @@ internal fun persistPreferences(
     val hidden = items.filterNot { it.visible }.map { it.item.preferenceId }.toSet()
     onOrderChanged(order, hidden)
 }
-
 
 @Composable
 internal fun GearPositionOption(
