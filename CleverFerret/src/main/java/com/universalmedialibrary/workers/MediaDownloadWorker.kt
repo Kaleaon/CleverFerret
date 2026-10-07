@@ -1,16 +1,11 @@
 package com.universalmedialibrary.workers
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.universalmedialibrary.R
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.DownloadState
 import com.universalmedialibrary.services.cache.MediaCacheManager
@@ -74,41 +69,42 @@ class MediaDownloadWorker @AssistedInject constructor(
                 .url(downloadUrl)
                 .build()
 
-            val response = okHttpClient.newCall(request).execute()
-            if (!response.isSuccessful) {
-                val errorMsg = "HTTP error during download: ${response.code}"
-                Log.e(TAG, errorMsg)
-                mediaCacheManager.updateDownloadState(itemId, DownloadState.FAILED, errorMsg)
-                return Result.failure(workDataOf("error" to errorMsg))
-            }
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    val errorMsg = "HTTP error during download: ${response.code}"
+                    Log.e(TAG, errorMsg)
+                    mediaCacheManager.updateDownloadState(itemId, DownloadState.FAILED, errorMsg)
+                    return Result.failure(workDataOf("error" to errorMsg))
+                }
 
-            val body = response.body ?: throw IOException("Empty response body from $downloadUrl")
-            val contentLength = body.contentLength()
+                val body = response.body ?: throw IOException("Empty response body from $downloadUrl")
+                val contentLength = body.contentLength()
 
-            body.byteStream().use { input ->
-                FileOutputStream(tempFile).use { output ->
-                    val buffer = ByteArray(8192)
-                    var bytesRead: Int
-                    var totalRead = 0L
+                body.byteStream().use { input ->
+                    FileOutputStream(tempFile).use { output ->
+                        val buffer = ByteArray(8192)
+                        var bytesRead: Int
+                        var totalRead = 0L
 
-                    while (input.read(buffer).also { bytesRead = it } != -1) {
-                        output.write(buffer, 0, bytesRead)
-                        totalRead += bytesRead
+                        while (input.read(buffer).also { bytesRead = it } != -1) {
+                            output.write(buffer, 0, bytesRead)
+                            totalRead += bytesRead
 
-                        // Check disk allocation limit dynamically during stream write
-                        if (!mediaCacheManager.isStorageSpaceAvailable()) {
-                            tempFile.delete()
-                            val errorMsg = "Download aborted: Disk space dropped below 500 MB safety limit"
-                            mediaCacheManager.updateDownloadState(itemId, DownloadState.FAILED, errorMsg)
-                            return Result.failure(workDataOf("error" to errorMsg))
+                            // Check disk allocation limit dynamically during stream write
+                            if (!mediaCacheManager.isStorageSpaceAvailable()) {
+                                tempFile.delete()
+                                val errorMsg = "Download aborted: Disk space dropped below 500 MB safety limit"
+                                mediaCacheManager.updateDownloadState(itemId, DownloadState.FAILED, errorMsg)
+                                return Result.failure(workDataOf("error" to errorMsg))
+                            }
+
+                            mediaCacheManager.updateDownloadProgress(
+                                itemId = itemId,
+                                downloadedBytes = totalRead,
+                                fileSize = if (contentLength > 0) contentLength else totalRead,
+                                state = DownloadState.DOWNLOADING
+                            )
                         }
-
-                        mediaCacheManager.updateDownloadProgress(
-                            itemId = itemId,
-                            downloadedBytes = totalRead,
-                            fileSize = if (contentLength > 0) contentLength else totalRead,
-                            state = DownloadState.DOWNLOADING
-                        )
                     }
                 }
             }

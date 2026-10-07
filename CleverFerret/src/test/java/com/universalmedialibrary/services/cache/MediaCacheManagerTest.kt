@@ -55,9 +55,7 @@ class MediaCacheManagerTest {
         coEvery { settingsRepository.maxCacheSizeMBFlow } returns flowOf(100) // 100 MB limit
 
         mediaCacheManager = MediaCacheManager(
-            context = context,
             mediaCacheDao = mediaCacheDao,
-            mediaItemDao = mediaItemDao,
             cacheManager = cacheManager,
             settingsRepository = settingsRepository
         )

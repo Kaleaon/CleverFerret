@@ -1,15 +1,12 @@
 package com.universalmedialibrary.services.cache
 
-import android.content.Context
 import android.os.StatFs
 import android.util.Log
 import com.universalmedialibrary.data.local.dao.MediaCacheDao
-import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.DownloadPriority
 import com.universalmedialibrary.data.local.entity.DownloadState
 import com.universalmedialibrary.data.local.entity.MediaCacheItem
 import com.universalmedialibrary.data.repository.SettingsRepository
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.io.File
@@ -25,9 +22,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class MediaCacheManager @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val mediaCacheDao: MediaCacheDao,
-    private val mediaItemDao: MediaItemDao,
     private val cacheManager: CacheManager,
     private val settingsRepository: SettingsRepository
 ) {
