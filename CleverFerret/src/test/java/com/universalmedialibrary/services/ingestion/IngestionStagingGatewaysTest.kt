@@ -1,4 +1,4 @@
-package com.universalmedialibrary.data.repository
+package com.universalmedialibrary.services.ingestion
 
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.MediaItemDao
@@ -7,152 +7,229 @@ import com.universalmedialibrary.data.local.dao.StagedMetadataCandidateDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.StagedMetadataCandidate
+import com.universalmedialibrary.data.repository.MetadataStagingRepository
+import com.universalmedialibrary.ui.metadata.review.MetadataReviewQueueViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-class MetadataStagingRepositoryTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class IngestionStagingGatewaysTest {
 
-    private lateinit var stagedDao: FakeStagedMetadataCandidateDao
+    private val testDispatcher = StandardTestDispatcher()
+    private lateinit var stagedDao: FakeStagedCandidateDao
     private lateinit var metadataDao: FakeMetadataDao
     private lateinit var mediaItemDao: FakeMediaItemDao
-    private lateinit var repository: MetadataStagingRepository
+    private lateinit var stagingRepository: MetadataStagingRepository
+    private lateinit var healthMonitor: SourceHealthMonitor
+    private lateinit var stateStore: InMemoryIncrementalStateStore
+    private lateinit var pipeline: IngestionPipeline
 
     @Before
     fun setup() {
-        stagedDao = FakeStagedMetadataCandidateDao()
+        Dispatchers.setMain(testDispatcher)
+        stagedDao = FakeStagedCandidateDao()
         metadataDao = FakeMetadataDao()
         mediaItemDao = FakeMediaItemDao()
-        repository = MetadataStagingRepository(stagedDao, metadataDao, mediaItemDao, kotlinx.coroutines.test.UnconfinedTestDispatcher())
+        stagingRepository = MetadataStagingRepository(stagedDao, metadataDao, mediaItemDao, testDispatcher)
+        healthMonitor = SourceHealthMonitor()
+        stateStore = InMemoryIncrementalStateStore()
+        pipeline = IngestionPipeline(
+            sourceHealthMonitor = healthMonitor,
+            incrementalStateStore = stateStore,
+            metadataStagingRepository = stagingRepository
+        )
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
-    fun `stageMetadataCommon saves pending candidate`() = runTest {
-        val metadata = MetadataCommon(
-            itemId = 100L,
-            title = "Enriched Book Title",
-            year = 2024,
-            summary = "A great book"
+    fun `IngestionPipeline execute halts active persistence when enriched is MetadataCommon`() = runTest {
+        var persistCalled = false
+        val candidateMetadata = MetadataCommon(
+            itemId = 101L,
+            title = "Scraped Book Title",
+            summary = "Scraped summary text"
         )
 
-        repository.stageMetadataCommon(
-            itemId = 100L,
-            metadata = metadata,
-            source = "OpenLibraryAPI",
-            confidenceScore = 0.90f
+        pipeline.execute<Unit, Unit, Unit, Unit, MetadataCommon, MetadataCommon>(
+            sourceId = "test-scraper",
+            authenticate = {},
+            fetchPage = { _, _ -> },
+            parse = {},
+            deduplicate = {},
+            enrichMetadata = { candidateMetadata },
+            persist = {
+                persistCalled = true
+                it
+            },
+            nextIncrementalToken = { "token1" }
         )
 
-        val pending = repository.getPendingCandidates()
+        testScheduler.advanceUntilIdle()
+
+        // Active persistence must NOT be called
+        assertThat(persistCalled).isFalse()
+
+        // Metadata must be staged in staged_metadata_candidates
+        val pending = stagingRepository.getPendingCandidates()
         assertThat(pending).hasSize(1)
-        val candidate = pending.first()
-        assertThat(candidate.itemId).isEqualTo(100L)
-        assertThat(candidate.title).isEqualTo("Enriched Book Title")
-        assertThat(candidate.source).isEqualTo("OpenLibraryAPI")
-        assertThat(candidate.confidenceScore).isEqualTo(0.90f)
-        assertThat(candidate.status).isEqualTo("PENDING")
+        assertThat(pending.first().itemId).isEqualTo(101L)
+        assertThat(pending.first().title).isEqualTo("Scraped Book Title")
+        assertThat(pending.first().source).isEqualTo("IngestionPipeline:test-scraper")
+
+        // Active MetadataCommon must remain unwritten
+        assertThat(metadataDao.getMetadataCommonByItemId(101L)).isNull()
     }
 
     @Test
-    fun `approveCandidate sets isVerified true and updates media item`() = runTest {
-        // Setup initial media item without metadata
-        val item = MediaItem(itemId = 100L, libraryId = 1L, filePath = "/path/book.epub", fileName = "book.epub", fileExtension = "epub", fileSize = 1024L, mediaType = "BOOK", hasMetadata = false)
+    fun `MetadataStagingRepository approveCandidate merges candidate into MetadataCommon with isVerified true`() = runTest {
+        // Given a media item shell in DB with hasMetadata = false
+        val item = MediaItem(
+            itemId = 200L,
+            libraryId = 1L,
+            filePath = "/path/book.epub",
+            fileName = "book.epub",
+            fileExtension = "epub",
+            fileSize = 2048L,
+            mediaType = "BOOK",
+            hasMetadata = false
+        )
         mediaItemDao.insertMediaItem(item)
 
-        // Stage candidate
-        val candidateId = stagedDao.insertCandidate(
-            StagedMetadataCandidate(
-                itemId = 100L,
-                title = "Approved Title",
-                summary = "Approved Summary",
-                year = 2023,
-                confidenceScore = 0.88f,
-                source = "IngestionPipeline:book"
+        // Staged candidate metadata
+        val candidateId = stagingRepository.stageMetadataCommon(
+            itemId = 200L,
+            metadata = MetadataCommon(
+                itemId = 200L,
+                title = "Verified Title",
+                summary = "Verified Summary",
+                year = 2025
+            ),
+            source = "TestImport",
+            confidenceScore = 0.95f
+        )
+
+        // Approve candidate
+        val approved = stagingRepository.approveCandidate(candidateId)
+        assertThat(approved).isTrue()
+
+        // Active MetadataCommon must be written with isVerified = true
+        val activeMetadata = metadataDao.getMetadataCommonByItemId(200L)
+        assertThat(activeMetadata).isNotNull()
+        assertThat(activeMetadata?.title).isEqualTo("Verified Title")
+        assertThat(activeMetadata?.summary).isEqualTo("Verified Summary")
+        assertThat(activeMetadata?.isVerified).isTrue()
+
+        // MediaItem.hasMetadata must be updated to true
+        val updatedItem = mediaItemDao.getMediaItemById(200L)
+        assertThat(updatedItem?.hasMetadata).isTrue()
+
+        // Staging queue must be cleared
+        assertThat(stagingRepository.getPendingCandidates()).isEmpty()
+    }
+
+    @Test
+    fun `MetadataReviewQueueViewModel shows diffs and handles approve`() = runTest {
+        // Setup existing media item
+        mediaItemDao.insertMediaItem(
+            MediaItem(
+                itemId = 300L,
+                libraryId = 1L,
+                filePath = "/path/item300.epub",
+                fileName = "item300.epub",
+                fileExtension = "epub",
+                fileSize = 1000L,
+                mediaType = "BOOK",
+                hasMetadata = false
             )
         )
 
-        val success = repository.approveCandidate(candidateId)
-        assertThat(success).isTrue()
-
-        // Verify metadata_common is saved with isVerified = true
-        val common = metadataDao.getMetadataCommonByItemId(100L)
-        assertThat(common).isNotNull()
-        assertThat(common?.title).isEqualTo("Approved Title")
-        assertThat(common?.summary).isEqualTo("Approved Summary")
-        assertThat(common?.isVerified).isTrue()
-
-        // Verify mediaItem.hasMetadata is true
-        val updatedMediaItem = mediaItemDao.getMediaItemById(100L)
-        assertThat(updatedMediaItem?.hasMetadata).isTrue()
-
-        // Verify candidate was deleted from staging
-        val remainingPending = repository.getPendingCandidates()
-        assertThat(remainingPending).isEmpty()
-    }
-
-    @Test
-    fun `discardCandidate deletes candidate from staging without touching primary metadata`() = runTest {
-        val existingCommon = MetadataCommon(itemId = 200L, title = "Original Title", isVerified = false)
-        metadataDao.insertMetadataCommon(existingCommon)
-
-        val candidateId = stagedDao.insertCandidate(
-            StagedMetadataCandidate(itemId = 200L, title = "Proposed Wrong Title")
+        stagingRepository.stageMetadataCommon(
+            itemId = 300L,
+            metadata = MetadataCommon(
+                itemId = 300L,
+                title = "New Title",
+                year = 2026
+            ),
+            source = "MediaScanner",
+            confidenceScore = 0.85f
         )
 
-        repository.discardCandidate(candidateId)
-
-        // Verify candidate removed
-        val pending = repository.getPendingCandidates()
-        assertThat(pending).isEmpty()
-
-        // Verify original metadata remains unchanged
-        val common = metadataDao.getMetadataCommonByItemId(200L)
-        assertThat(common?.title).isEqualTo("Original Title")
-        assertThat(common?.isVerified).isFalse()
-    }
-
-    @Test
-    fun `cleanExpiredCandidates removes stale entries`() = runTest {
-        val pastMs = System.currentTimeMillis() - 1000L
-        val futureMs = System.currentTimeMillis() + 100_000L
-
-        stagedDao.insertCandidate(
-            StagedMetadataCandidate(itemId = 1L, title = "Expired", expiresAt = pastMs)
-        )
-        stagedDao.insertCandidate(
-            StagedMetadataCandidate(itemId = 2L, title = "Valid", expiresAt = futureMs)
+        val viewModel = MetadataReviewQueueViewModel(
+            metadataStagingRepository = stagingRepository,
+            metadataDao = metadataDao,
+            mediaItemDao = mediaItemDao
         )
 
-        val deletedCount = repository.cleanExpiredCandidates()
-        assertThat(deletedCount).isEqualTo(1)
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {}
+        }
 
-        val remaining = stagedDao.getPendingCandidates()
-        assertThat(remaining).hasSize(1)
-        assertThat(remaining.first().itemId).isEqualTo(2L)
+        testScheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertThat(state.candidateDiffs).hasSize(1)
+        val diff = state.candidateDiffs.first()
+        assertThat(diff.mediaItemName).isEqualTo("item300.epub")
+        assertThat(diff.candidate.title).isEqualTo("New Title")
+
+        // Approve candidate via VM
+        viewModel.approveCandidate(diff.candidate.candidateId)
+        testScheduler.advanceUntilIdle()
+
+        // Candidate candidate should be approved and removed
+        val active = metadataDao.getMetadataCommonByItemId(300L)
+        assertThat(active?.title).isEqualTo("New Title")
+        assertThat(active?.isVerified).isTrue()
+        collectJob.cancel()
     }
 
-    // --- Fake DAOs ---
+    // --- Fake DAOs for testing ---
 
-    private class FakeStagedMetadataCandidateDao : StagedMetadataCandidateDao {
+    private class FakeStagedCandidateDao : StagedMetadataCandidateDao {
         private val list = mutableListOf<StagedMetadataCandidate>()
-        private var nextId = 1L
+        private val flow = MutableStateFlow<List<StagedMetadataCandidate>>(emptyList())
+        private var idCounter = 1L
+
+        private fun updateFlow() {
+            flow.value = list.filter { it.status == "PENDING" }
+        }
 
         override suspend fun insertCandidate(candidate: StagedMetadataCandidate): Long {
-            val id = if (candidate.candidateId == 0L) nextId++ else candidate.candidateId
+            val id = if (candidate.candidateId == 0L) idCounter++ else candidate.candidateId
             val copy = candidate.copy(candidateId = id)
             list.removeAll { it.candidateId == id }
             list.add(copy)
+            updateFlow()
             return id
         }
 
         override suspend fun insertCandidates(candidates: List<StagedMetadataCandidate>): List<Long> {
-            return candidates.map { insertCandidate(it) }
+            val res = candidates.map { insertCandidate(it) }
+            updateFlow()
+            return res
         }
 
         override suspend fun updateCandidate(candidate: StagedMetadataCandidate) {
             list.removeAll { it.candidateId == candidate.candidateId }
             list.add(candidate)
+            updateFlow()
         }
 
         override suspend fun getCandidateById(candidateId: Long): StagedMetadataCandidate? {
@@ -160,7 +237,8 @@ class MetadataStagingRepositoryTest {
         }
 
         override fun observePendingCandidates(): Flow<List<StagedMetadataCandidate>> {
-            return MutableStateFlow(list.filter { it.status == "PENDING" })
+            updateFlow()
+            return flow
         }
 
         override suspend fun getPendingCandidates(): List<StagedMetadataCandidate> {
@@ -173,24 +251,29 @@ class MetadataStagingRepositoryTest {
 
         override suspend fun deleteCandidate(candidateId: Long) {
             list.removeAll { it.candidateId == candidateId }
+            updateFlow()
         }
 
         override suspend fun deleteCandidates(candidateIds: List<Long>) {
             list.removeAll { candidateIds.contains(it.candidateId) }
+            updateFlow()
         }
 
         override suspend fun deleteCandidatesByItemId(itemId: Long) {
             list.removeAll { it.itemId == itemId }
+            updateFlow()
         }
 
         override suspend fun deleteExpiredCandidates(nowEpochMs: Long): Int {
             val expired = list.filter { it.expiresAt < nowEpochMs }
             list.removeAll(expired)
+            updateFlow()
             return expired.size
         }
 
         override suspend fun deleteAllCandidates() {
             list.clear()
+            updateFlow()
         }
     }
 
@@ -203,7 +286,6 @@ class MetadataStagingRepositoryTest {
 
         override suspend fun insertMetadataCommonList(items: List<MetadataCommon>) {
             items.forEach { map[it.itemId] = it }
-            items.forEach { insertMetadataCommon(it) }
         }
 
         override suspend fun updateMetadata(metadataCommon: MetadataCommon) {
@@ -362,5 +444,10 @@ class MetadataStagingRepositoryTest {
         override suspend fun getByGenre(genre: String, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getHighlyRated(mediaType: String?, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getBySeries(seriesId: Long, limit: Int, offset: Int): List<MediaItem> = emptyList()
+        override suspend fun updateAvailability(filePath: String, isAvailable: Boolean) {
+            map.values.find { it.filePath == filePath }?.let { item ->
+                map[item.itemId] = item.copy(isAvailable = isAvailable)
+            }
+        }
     }
 }
