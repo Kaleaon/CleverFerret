@@ -11,7 +11,7 @@ class AdaptiveGridWidthTokensTest {
 
     @Test
     fun cfTokens_definesGridMinItemWidthTokens() {
-        val tokens = NavyGoldTokens.tokens
+        val tokens = NavyGoldTokens
         assertNotNull("gridMinItemWidth token container should not be null", tokens.gridMinItemWidth)
         assertEquals("quickAction min width token default", 100.dp, tokens.gridMinItemWidth.quickAction)
         assertEquals("poster min width token default", 160.dp, tokens.gridMinItemWidth.poster)
