@@ -95,4 +95,16 @@ class AppDatabaseMigrationsTest {
 
         assertThat(executedSql.any { it.contains("ALTER TABLE opds_catalogs DROP COLUMN password") }).isTrue()
     }
+
+    @Test
+    fun `migration 48_49 creates index on media_items lastModified`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_48_49.migrate(database)
+
+        val expectedQuery = "CREATE INDEX IF NOT EXISTS index_media_items_lastModified ON media_items(lastModified)"
+        assertThat(executedSql.any { it.contains(expectedQuery) }).isTrue()
+    }
 }

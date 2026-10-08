@@ -13,9 +13,7 @@ import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.PlexCollection
 import com.universalmedialibrary.data.local.entity.PlexCollectionItem
-import com.universalmedialibrary.data.local.entity.PlexLibrary
 import com.universalmedialibrary.data.local.entity.PlexMediaItem
-import com.universalmedialibrary.data.local.entity.PlexMetadata
 import com.universalmedialibrary.data.local.entity.PlexProgress
 import com.universalmedialibrary.data.local.entity.PlexRating
 import com.universalmedialibrary.data.local.entity.PlexServer
@@ -269,7 +267,8 @@ class PlexSyncService @Inject constructor(
                             thumbnailPath = metadata.thumb
                         )
                         val insertedId = mediaItemDao.insertMediaItem(mediaItem)
-                        val downloadUrl = "http://${server.host}:${server.port}/library/metadata/${metadata.ratingKey}?X-Plex-Token=${server.token}"
+                        val downloadUrl = "http://${server.host}:${server.port}" +
+                            "/library/metadata/${metadata.ratingKey}?X-Plex-Token=${server.token}"
                         downloadScheduler?.scheduleDownload(
                             itemId = insertedId,
                             remoteUri = path,
