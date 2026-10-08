@@ -1,5 +1,8 @@
 package com.universalmedialibrary.ui.player
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
+import com.universalmedialibrary.utils.media.formatAsVerboseDuration
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -231,7 +234,7 @@ fun VideoPlayerScreen(
                                 maxLines = 1
                             )
                             Text(
-                                text = formatVideoDuration(uiState.duration),
+                                text = uiState.duration.formatAsVerboseDuration(),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.White.copy(alpha = 0.7f)
                             )
@@ -287,7 +290,7 @@ fun VideoPlayerScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = formatTime(currentPosition),
+                                text = currentPosition.formatAsMediaTime(),
                                 color = Color.White,
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.width(60.dp)
@@ -309,7 +312,7 @@ fun VideoPlayerScreen(
                             )
 
                             Text(
-                                text = formatTime(uiState.duration),
+                                text = uiState.duration.formatAsMediaTime(),
                                 color = Color.White,
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.width(60.dp)
@@ -409,31 +412,4 @@ fun VideoPlayerScreen(
                 }
             }
         }
-}
-
-private fun formatTime(milliseconds: Long): String {
-    val seconds = milliseconds / 1000
-    val hours = seconds / 3600
-    val minutes = (seconds % 3600) / 60
-    val secs = seconds % 60
-
-    return if (hours > 0) {
-        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs)
-    } else {
-        String.format(Locale.getDefault(), "%d:%02d", minutes, secs)
-    }
-}
-
-private fun formatVideoDuration(milliseconds: Long): String {
-    if (milliseconds <= 0) return "Unknown duration"
-
-    val totalMinutes = milliseconds / 60000
-    val hours = totalMinutes / 60
-    val minutes = totalMinutes % 60
-
-    return if (hours > 0) {
-        "${hours}h ${minutes}m"
-    } else {
-        "${minutes}m"
-    }
 }

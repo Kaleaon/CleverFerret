@@ -1,5 +1,7 @@
 package com.universalmedialibrary.widgets
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
+
 import android.graphics.Bitmap
 import com.universalmedialibrary.data.local.entity.MediaItem
 
@@ -82,13 +84,13 @@ data class MediaPlaybackWidgetState(
      * Formatted current position (MM:SS)
      */
     val formattedPosition: String
-        get() = formatTime(currentPositionMs)
+        get() = currentPositionMs.formatAsMediaTime()
 
     /**
      * Formatted duration (MM:SS)
      */
     val formattedDuration: String
-        get() = formatTime(durationMs)
+        get() = durationMs.formatAsMediaTime()
 
     /**
      * Whether there are more items in the queue
@@ -112,13 +114,6 @@ data class MediaPlaybackWidgetState(
             "VIDEO" -> "Video"
             else -> mediaType.lowercase().replaceFirstChar { it.uppercase() }
         }
-    }
-
-    private fun formatTime(milliseconds: Long): String {
-        val seconds = milliseconds / 1000
-        val minutes = seconds / 60
-        val remainingSeconds = seconds % 60
-        return String.format(java.util.Locale.US, "%d:%02d", minutes, remainingSeconds)
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.player
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.pm.ActivityInfo
@@ -438,12 +439,12 @@ private fun GestureOverlays(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = formatTime(seekPreview),
+                        text = seekPreview.formatAsMediaTime(),
                         color = Color.White,
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "/ ${formatTime(duration)}",
+                        text = "/ ${duration.formatAsMediaTime()}",
                         color = Color.White.copy(alpha = 0.7f),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -520,19 +521,6 @@ private fun GestureOverlays(
                 }
             }
         }
-    }
-}
-
-private fun formatTime(milliseconds: Long): String {
-    val seconds = milliseconds / 1000
-    val hours = seconds / 3600
-    val minutes = (seconds % 3600) / 60
-    val secs = seconds % 60
-
-    return if (hours > 0) {
-        String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes, secs)
-    } else {
-        String.format(java.util.Locale.US, "%d:%02d", minutes, secs)
     }
 }
 

@@ -1,5 +1,7 @@
 package com.universalmedialibrary.ui.music
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -472,12 +474,12 @@ private fun ProgressSection(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = formatTime(currentPosition),
+                text = currentPosition.formatAsMediaTime(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = formatTime(duration),
+                text = duration.formatAsMediaTime(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -594,11 +596,4 @@ private fun SecondaryControlsSection(
             Icon(Icons.Default.Share, contentDescription = "Share")
         }
     }
-}
-
-private fun formatTime(milliseconds: Long): String {
-    val seconds = (milliseconds / 1000).toInt()
-    val minutes = seconds / 60
-    val remainingSeconds = seconds % 60
-    return "%d:%02d".format(minutes, remainingSeconds)
 }

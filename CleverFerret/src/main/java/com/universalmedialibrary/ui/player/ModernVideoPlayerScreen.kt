@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.player
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -243,7 +244,7 @@ fun ModernVideoPlayerScreen(
                 ) {
 
                     Text(
-                        text = formatTime(uiState.currentPosition),
+                        text = uiState.currentPosition.formatAsMediaTime(),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White
                     )
@@ -260,7 +261,7 @@ fun ModernVideoPlayerScreen(
                     )
 
                     Text(
-                        text = formatTime(uiState.duration),
+                        text = uiState.duration.formatAsMediaTime(),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White
                     )
@@ -458,17 +459,5 @@ private fun VideoSettingsSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
-    }
-}
-
-private fun formatTime(ms: Long): String {
-    val seconds = (ms / 1000) % 60
-    val minutes = (ms / (1000 * 60)) % 60
-    val hours = (ms / (1000 * 60 * 60))
-    
-    return if (hours > 0) {
-        String.format(Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
-    } else {
-        String.format(Locale.US, "%d:%02d", minutes, seconds)
     }
 }
