@@ -22,20 +22,20 @@ class OnboardingViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
-    val isOnboardingCompleted: StateFlow<Boolean> = settingsRepository.onboardingCompletedFlow
+    val isOnboardingCompleted: StateFlow<Boolean> = settingsRepository.hasCompletedOnboardingFlow
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = false
         )
 
-    val totalMediaItemsCount: StateFlow<Int> = mediaItemDao.getAllMediaItemsFlow()
-        .map { items -> items.size }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = 0
-        )
+    val totalMediaItemsCount: StateFlow<Int> = flow {
+        emit(mediaItemDao.getMediaItemCount())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
+    )
 
     private val _isScanDispatched = MutableStateFlow(false)
     val isScanDispatched: StateFlow<Boolean> = _isScanDispatched.asStateFlow()
@@ -43,7 +43,6 @@ class OnboardingViewModel @Inject constructor(
     fun triggerInitialScan() {
         if (PermissionsHandler.hasStoragePermissions(appContext)) {
             viewModelScope.launch {
-                settingsRepository.setInitialScanStarted(true)
                 _isScanDispatched.value = true
                 val intent = Intent(appContext, MediaScannerService::class.java).apply {
                     action = MediaScannerService.ACTION_SCAN_ALL

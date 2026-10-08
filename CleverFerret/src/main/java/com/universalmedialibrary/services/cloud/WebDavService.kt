@@ -163,6 +163,7 @@ class WebDavService @Inject constructor(
                     name = file.name,
                     path = file.path,
                     size = file.size,
+                    isDirectory = file.isDirectory,
                     modifiedTime = file.lastModified.toLongOrNull() ?: 0L
                 )
             }
@@ -261,7 +262,7 @@ data class WebDavFile(
     val name: String,
     val path: String,
     val size: Long,
-    val isDirectory: Boolean,
+    val isDirectory: Boolean = false,
     val modifiedTime: Long,
     val contentType: String? = null
 )

@@ -40,12 +40,9 @@ class CalibreImportService @Inject constructor(
         val validItems = mutableListOf<Pair<String, RawCalibreBook>>()
 
         for ((_, rawBook) in rawBooks) {
-            val resolvedPath = resolveFullPath(libraryRootPath, rawBook.path) ?: continue
-            val file = File(resolvedPath)
-            if (!file.exists()) {
-                continue
-            }
-            validItems.add(file.absolutePath to rawBook)
+            val resolvedPath = resolveFullPath(libraryRootPath, rawBook.path)
+            val fullPath = resolvedPath ?: File(libraryRootPath, rawBook.path).absolutePath
+            validItems.add(fullPath to rawBook)
         }
 
         val totalCount = validItems.size
@@ -62,26 +59,28 @@ class CalibreImportService @Inject constructor(
                     }
 
                     val file = File(fullPath)
-                    if (!file.exists()) continue
-
+                    val isFileAvailable = file.exists()
                     val cleanedTitle = cleanTitle(rawBook.title)
                     val sortTitle = createSortTitle(cleanedTitle)
-                    val fileExtension = file.extension.lowercase()
+                    val fileExtension = if (file.extension.isNotBlank()) file.extension.lowercase() else "epub"
+                    val fileSize = if (isFileAvailable) file.length() else 0L
+                    val fileHash = if (isFileAvailable) calculateMD5(file) else "calibre_${rawBook.id}"
+                    val lastModified = if (isFileAvailable) file.lastModified() else System.currentTimeMillis()
 
                     val mediaItem = MediaItem(
                         libraryId = libraryId,
                         filePath = fullPath,
                         fileName = file.name,
                         fileExtension = fileExtension,
-                        fileSize = file.length(),
-                        fileHash = calculateMD5(file),
+                        fileSize = fileSize,
+                        fileHash = fileHash,
                         dateAdded = System.currentTimeMillis(),
                         lastScanned = System.currentTimeMillis(),
-                        lastModified = file.lastModified(),
+                        lastModified = lastModified,
                         mediaType = "BOOK",
                         mimeType = null,
-                        isAvailable = true,
-                        hasMetadata = false,
+                        isAvailable = isFileAvailable,
+                        hasMetadata = true,
                         hasThumbnail = false,
                         thumbnailPath = null
                     )
@@ -106,23 +105,23 @@ class CalibreImportService @Inject constructor(
                         country = null,
                         lastUpdated = System.currentTimeMillis(),
                         metadataSource = "Calibre",
-                        externalId = null
+                        externalId = rawBook.id.toString()
                     )
                     metadataDao.insertMetadataCommon(metadataCommon)
 
-                    // Insert Book-specific metadata
+                    // Insert Book-specific metadata with preserved series name and series index ordering
                     val metadataBook = MetadataBook(
                         itemId = newId,
-                        subtitle = null, // Not available from Calibre easily
+                        subtitle = null,
                         publisher = rawBook.publisher,
                         isbn = rawBook.isbn,
-                        pageCount = null, // Not available from Calibre easily
-                        series = null, // Will be set separately if series exists
-                        seriesIndex = null
+                        pageCount = null,
+                        series = rawBook.seriesName,
+                        seriesIndex = rawBook.seriesIndex?.toFloat()
                     )
                     metadataDao.insertMetadataBook(metadataBook)
 
-                    // Handle Authors
+                    // Handle Authors and author links
                     for (authorName in rawBook.authorNames) {
                         val cleanedAuthor = cleanAuthorName(authorName)
                         val personId = metadataDao.findPersonByName(cleanedAuthor.name)
@@ -131,14 +130,14 @@ class CalibreImportService @Inject constructor(
                         metadataDao.insertItemPersonRole(itemPersonRole)
                     }
 
-                    // Handle Series
+                    // Handle Series entity linkage
                     rawBook.seriesName?.let { seriesName ->
                         val seriesId = metadataDao.findSeriesByName(seriesName)
                             ?: metadataDao.insertSeries(Series(name = seriesName, mediaType = "BOOK"))
                         metadataDao.updateBookWithSeries(newId, seriesId)
                     }
 
-                    // Handle Genres (from Tags)
+                    // Handle Custom Tags and Genres
                     for (tagName in rawBook.tags) {
                         val genreId = metadataDao.findGenreByName(tagName)
                             ?: metadataDao.insertGenre(Genre(name = tagName))

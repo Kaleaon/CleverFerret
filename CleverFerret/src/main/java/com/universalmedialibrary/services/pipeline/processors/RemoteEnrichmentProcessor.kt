@@ -99,12 +99,12 @@ class RemoteEnrichmentProcessor @Inject constructor(
 
     private fun applyCommonEnrichment(
         common: com.universalmedialibrary.data.local.entity.MetadataCommon,
-        searchResult: com.universalmedialibrary.api.plugin.SearchResult,
-        details: com.universalmedialibrary.api.plugin.MetadataDetails?
+        searchResult: com.universalmedialibrary.api.plugin.MetadataSearchResult,
+        details: com.universalmedialibrary.api.plugin.MediaMetadata?
     ): com.universalmedialibrary.data.local.entity.MetadataCommon {
         val coverUrl = searchResult.coverUrl
-            ?: details?.coverUrls?.get(CoverSize.LARGE)
-            ?: details?.coverUrls?.get(CoverSize.MEDIUM)
+            ?: details?.coverUrls?.get(com.universalmedialibrary.api.plugin.CoverSize.LARGE)
+            ?: details?.coverUrls?.get(com.universalmedialibrary.api.plugin.CoverSize.MEDIUM)
 
         var updated = common
         if (updated.summary.isNullOrBlank() && !details?.description.isNullOrBlank()) {
@@ -125,7 +125,7 @@ class RemoteEnrichmentProcessor @Inject constructor(
 
     private fun applyBookEnrichment(
         book: com.universalmedialibrary.data.local.entity.MetadataBook?,
-        details: com.universalmedialibrary.api.plugin.MetadataDetails?
+        details: com.universalmedialibrary.api.plugin.MediaMetadata?
     ): com.universalmedialibrary.data.local.entity.MetadataBook? {
         if (book == null || details == null) return book
         var updated = book
