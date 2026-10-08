@@ -214,82 +214,37 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
         // Welcome
         OnboardingPageData(
             title = "Welcome to CleverFerret",
-            description = "The only universal media manager that beats specialist apps at their own game.",
+            description = "The universal media manager that organizes all your media in one beautiful app.",
             icon = Icons.Default.Home,
             color = Color(0xFF6200EE),
             features = listOf(
-                "All your media in one beautiful app",
+                "All your media in one app",
                 "Audio, video, books, comics & more",
                 "Free & open source"
-            )
-        ),
-        
-        // Audio
-        OnboardingPageData(
-            title = "Best Visualizer on Android",
-            description = "Poweramp-quality audio with the most advanced visualizer available.",
-            icon = Icons.Default.GraphicEq,
-            color = Color(0xFFE91E63),
-            features = listOf(
-                "35 unique visualizations (5 modes × 7 styles)",
-                "Hi-Res audio (FLAC, DSD, up to 384kHz)",
-                "10-band parametric EQ",
-                "USB DAC support with bit-perfect mode"
-            )
-        ),
-        
-        // Video
-        OnboardingPageData(
-            title = "MX Player Video Experience",
-            description = "Professional gesture controls and the best playback quality.",
-            icon = Icons.Default.OndemandVideo,
-            color = Color(0xFF03A9F4),
-            features = listOf(
-                "Swipe for volume, brightness, seek",
-                "Kids Lock (disable touch)",
-                "Auto-download subtitles",
-                "All codecs supported"
-            )
-        ),
-        
-        // Reading
-        OnboardingPageData(
-            title = "Moon Reader-Level E-Reader",
-            description = "Read EPUB, PDF, and comics with full customization.",
-            icon = Icons.AutoMirrored.Filled.MenuBook,
-            color = Color(0xFF4CAF50),
-            features = listOf(
-                "EPUB, PDF, CBZ, CBR support",
-                "Custom fonts & themes",
-                "Text-to-speech",
-                "Progress tracking & bookmarks"
-            )
-        ),
-        
-        // Widgets
-        OnboardingPageData(
-            title = "13 Professional Widgets",
-            description = "More widgets than all competitors combined. Perfect for Nova Launcher.",
-            icon = Icons.Default.Widgets,
-            color = Color(0xFFFF9800),
-            features = listOf(
-                "Universal playback control",
-                "Reading progress",
-                "Music player",
-                "Video, audiobook, podcast & more"
             )
         ),
         
         // Permissions
         OnboardingPageData(
             title = "Grant Permissions",
-            description = "CleverFerret needs access to your media files to organize and play them.",
+            description = "CleverFerret needs access to your media files to discover and organize your library.",
             icon = Icons.Default.Security,
             color = Color(0xFF9C27B0),
             features = listOf(
-                "Storage access (for your media)",
-                "Notifications (for playback controls)",
-                "Optional: Phone state (pause on call)"
+                "Storage access (for scanning media)",
+                "Notifications (for playback controls)"
+            )
+        ),
+
+        // Ready
+        OnboardingPageData(
+            title = "You're All Set!",
+            description = "Your library is ready. Account services can be configured anytime in Settings.",
+            icon = Icons.Default.CheckCircle,
+            color = Color(0xFF4CAF50),
+            features = listOf(
+                "Discover your local media library",
+                "Connect external accounts in Settings"
             )
         )
     )
