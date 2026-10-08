@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.audio.AudioPlaybackManager.AudioQueueEntry
+import com.cleverferret.core.designsystem.slider.AccessibleWaveformSeekBar
 import com.universalmedialibrary.ui.player.WaveformSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -263,12 +264,17 @@ fun ModernAudioPlayerScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                WaveformSeekBar(
+                AccessibleWaveformSeekBar(
                     points = waveformToRender,
                     progress = waveformProgress,
                     accent = artworkColors.accent,
                     backgroundColor = onArtworkColor.copy(alpha = 0.15f),
                     onSeek = { viewModel.seekUsingWaveformFraction(it) },
+                    contentDescription = "Audio playback waveform slider",
+                    valueTextFormatter = { frac ->
+                        val posMs = (frac * uiState.duration).toLong()
+                        formatTime(posMs) + " / " + formatTime(uiState.duration)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)

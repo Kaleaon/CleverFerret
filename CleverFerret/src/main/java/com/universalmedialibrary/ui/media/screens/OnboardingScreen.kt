@@ -262,7 +262,10 @@ private fun FeaturesPage() {
 }
 
 @Composable
-private fun StoragePage() {
+private fun StoragePage(
+    permissionState: Any? = null,
+    onGrantSuccess: () -> Unit = {}
+) {
     val context = LocalContext.current
     var hasTriggeredScan by remember { mutableStateOf(false) }
 
