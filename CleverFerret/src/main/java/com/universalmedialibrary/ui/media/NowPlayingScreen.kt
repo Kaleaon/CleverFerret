@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import java.util.Locale
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.R
 import com.universalmedialibrary.services.media.MediaController
@@ -41,7 +42,7 @@ fun NowPlayingScreen(
     onNavigateBack: () -> Unit,
     viewModel: NowPlayingViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

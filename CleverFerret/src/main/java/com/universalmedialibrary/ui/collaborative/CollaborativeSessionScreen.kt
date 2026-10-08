@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.*
 
 /**
@@ -27,12 +28,12 @@ fun CollaborativeSessionScreen(
     viewModel: CollaborativeSessionViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val currentSession by viewModel.currentSession.collectAsState()
-    val activeSessions by viewModel.activeSessions.collectAsState()
-    val connectedClients by viewModel.connectedClients.collectAsState()
-    val sessionQueue by viewModel.sessionQueue.collectAsState()
-    val qrCodeBitmap by viewModel.qrCodeBitmap.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val currentSession by viewModel.currentSession.collectAsStateWithLifecycle()
+    val activeSessions by viewModel.activeSessions.collectAsStateWithLifecycle()
+    val connectedClients by viewModel.connectedClients.collectAsStateWithLifecycle()
+    val sessionQueue by viewModel.sessionQueue.collectAsStateWithLifecycle()
+    val qrCodeBitmap by viewModel.qrCodeBitmap.collectAsStateWithLifecycle()
 
     var showCreateDialog by remember { mutableStateOf(false) }
 

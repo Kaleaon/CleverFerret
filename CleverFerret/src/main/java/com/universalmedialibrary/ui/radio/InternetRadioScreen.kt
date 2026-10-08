@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.visualizer.ProjectMVisualizer
 import com.universalmedialibrary.ui.visualizer.VisualizerStyle
@@ -34,11 +35,11 @@ fun InternetRadioScreen(
     onNavigateToRadioBrowser: () -> Unit = {},
     viewModel: InternetRadioViewModel = hiltViewModel()
 ) {
-    val stations by viewModel.stations.collectAsState()
-    val currentStation by viewModel.currentStation.collectAsState()
-    val isPlaying by viewModel.isPlaying.collectAsState()
-    val availableGenres by viewModel.availableGenres.collectAsState() // Hoisted to composable scope
-    val visualizerState by viewModel.visualizerState.collectAsState()
+    val stations by viewModel.stations.collectAsStateWithLifecycle()
+    val currentStation by viewModel.currentStation.collectAsStateWithLifecycle()
+    val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
+    val availableGenres by viewModel.availableGenres.collectAsStateWithLifecycle() // Hoisted to composable scope
+    val visualizerState by viewModel.visualizerState.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("All") }
     var showAddStationDialog by remember { mutableStateOf(false) }

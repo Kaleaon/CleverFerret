@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.ui.components.media.*
 
@@ -42,11 +43,11 @@ fun LibraryManagementScreen(
     var showExportDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
 
-    val libraries by viewModel.libraries.collectAsState()
-    val uiState by viewModel.uiState.collectAsState()
-    val libraryItemCounts by viewModel.libraryItemCounts.collectAsState()
-    val bulkMetadataTask by viewModel.bulkMetadataTask.collectAsState()
-    val bulkThumbnailTask by viewModel.bulkThumbnailTask.collectAsState()
+    val libraries by viewModel.libraries.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val libraryItemCounts by viewModel.libraryItemCounts.collectAsStateWithLifecycle()
+    val bulkMetadataTask by viewModel.bulkMetadataTask.collectAsStateWithLifecycle()
+    val bulkThumbnailTask by viewModel.bulkThumbnailTask.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(

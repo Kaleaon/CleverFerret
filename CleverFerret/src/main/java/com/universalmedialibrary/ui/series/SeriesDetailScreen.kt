@@ -15,6 +15,7 @@ import com.universalmedialibrary.data.local.dao.MetadataDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,8 +47,8 @@ fun SeriesDetailScreen(
         viewModel.load(series, books)
     }
 
-    val uiSeries by viewModel.series.collectAsState()
-    val uiItems by viewModel.items.collectAsState()
+    val uiSeries by viewModel.series.collectAsStateWithLifecycle()
+    val uiItems by viewModel.items.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

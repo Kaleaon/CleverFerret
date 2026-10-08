@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.ambient.AmbientSoundAnimator
 import com.universalmedialibrary.services.ambient.LayeredSoundscape
 import com.universalmedialibrary.services.ambient.LayeredSoundscapePresets
@@ -35,7 +36,7 @@ fun LayeredSoundscapeScreen(
     var isPlaying by remember { mutableStateOf(false) }
     var animationMode by remember { mutableStateOf(selectedSoundscape.recommendedAnimationMode) }
     var animationSpeed by remember { mutableStateOf(selectedSoundscape.recommendedSpeed) }
-    val isAnimating by animator.isAnimating.collectAsState()
+    val isAnimating by animator.isAnimating.collectAsStateWithLifecycle()
     
     DisposableEffect(Unit) {
         onDispose {

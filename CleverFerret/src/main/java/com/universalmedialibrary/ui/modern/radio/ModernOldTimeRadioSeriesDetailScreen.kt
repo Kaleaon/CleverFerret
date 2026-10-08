@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.oldtimeradio.OldTimeRadioEpisode
 import com.universalmedialibrary.ui.media.components.MediaPosterCardSkeleton
 import com.universalmedialibrary.ui.modern.components.CFEmptyState
@@ -30,8 +31,8 @@ fun ModernOldTimeRadioSeriesDetailScreen(
     onNavigateToPlayer: (Long) -> Unit,
     viewModel: OldTimeRadioSeriesViewModel = hiltViewModel()
 ) {
-    val episodes by viewModel.episodes.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val episodes by viewModel.episodes.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     LaunchedEffect(seriesTitle) {
         viewModel.loadSeries(seriesTitle)

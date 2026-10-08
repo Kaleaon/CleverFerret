@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.theme.MetallicButton
 
 enum class ServerType {
@@ -29,7 +30,7 @@ fun ServerIntegrationScreen(
     onBack: () -> Unit,
     viewModel: ServerIntegrationViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     var showAddDialog by remember { mutableStateOf(false) }
     var selectedServerType by remember { mutableStateOf(ServerType.PLEX) }

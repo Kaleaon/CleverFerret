@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
@@ -41,9 +42,9 @@ fun PodcastManagerScreen(
     navController: NavController,
     viewModel: PodcastViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val downloadStatuses by viewModel.downloadProgress.collectAsState()
-    val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val downloadStatuses by viewModel.downloadProgress.collectAsStateWithLifecycle()
+    val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsStateWithLifecycle()
     var showSearchDialog by remember { mutableStateOf(false) }
     var showAddFeedDialog by remember { mutableStateOf(false) }
     var pendingDeleteEpisode by remember { mutableStateOf<PodcastEpisode?>(null) }

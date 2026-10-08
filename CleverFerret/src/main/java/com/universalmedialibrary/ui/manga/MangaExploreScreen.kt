@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.manga.source.MangaSource
 import com.universalmedialibrary.services.manga.source.OnlineManga
@@ -54,7 +55,7 @@ fun MangaExploreScreen(
     onSourceSettings: () -> Unit,
     viewModel: MangaExploreViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
     var showSourceSelector by remember { mutableStateOf(false) }
     

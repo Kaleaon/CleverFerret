@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -253,8 +254,8 @@ fun TextToSpeechControlPanel(
     controller: TextToSpeechController,
     modifier: Modifier = Modifier
 ) {
-    val settings by controller.settings.collectAsState()
-    val playbackState by controller.playbackState.collectAsState()
+    val settings by controller.settings.collectAsStateWithLifecycle()
+    val playbackState by controller.playbackState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     var showSettings by remember { mutableStateOf(false) }

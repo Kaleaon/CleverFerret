@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * Visualizer Screen with Chromecast Integration
@@ -39,11 +40,11 @@ fun VisualizerScreen(
     onNavigateToPresets: () -> Unit = {},
     viewModel: VisualizerViewModel = hiltViewModel()
 ) {
-    val visualizerState by viewModel.visualizerState.collectAsState()
-    val castState by viewModel.castState.collectAsState()
-    val isVisualizerEnabled by viewModel.isVisualizerEnabled.collectAsState()
-    val currentPreset by viewModel.currentPreset.collectAsState(initial = null)
-    val beatDetected by viewModel.beatDetected.collectAsState()
+    val visualizerState by viewModel.visualizerState.collectAsStateWithLifecycle()
+    val castState by viewModel.castState.collectAsStateWithLifecycle()
+    val isVisualizerEnabled by viewModel.isVisualizerEnabled.collectAsStateWithLifecycle()
+    val currentPreset by viewModel.currentPreset.collectAsStateWithLifecycle(initialValue = null)
+    val beatDetected by viewModel.beatDetected.collectAsStateWithLifecycle()
     var currentStyle by remember { mutableStateOf(VisualizerStyle.SPECTRUM_BARS) }
     var showPresetBrowser by remember { mutableStateOf(false) }
     val context = LocalContext.current

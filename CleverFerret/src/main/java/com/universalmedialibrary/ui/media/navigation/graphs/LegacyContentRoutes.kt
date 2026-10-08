@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
@@ -94,7 +95,7 @@ fun NavGraphBuilder.legacyContentRoutes(
     composable("webfiction_story/{storyId}") { backStackEntry ->
         val storyId = backStackEntry.arguments?.getString("storyId") ?: ""
         val viewModel: ReaderViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         MediaReaderScreen(
             state = state,
@@ -144,7 +145,7 @@ fun NavGraphBuilder.legacyContentRoutes(
     
     composable("opds_catalog") {
         val viewModel: OPDSViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         OPDSBrowserScreen(
             state = state,
@@ -248,7 +249,7 @@ fun NavGraphBuilder.legacyContentRoutes(
     
     composable("podcasts") {
         val viewModel: PodcastViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         PodcastScreen(
             state = state,
@@ -281,7 +282,7 @@ fun NavGraphBuilder.legacyContentRoutes(
     
     composable("ambient") {
         val viewModel: AmbientViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         MediaAmbientScreen(
             state = state,
@@ -303,7 +304,7 @@ fun NavGraphBuilder.legacyContentRoutes(
     
     composable("collections") {
         val viewModel: CollectionsViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         MediaCollectionsScreen(
             state = state,
@@ -328,7 +329,7 @@ fun NavGraphBuilder.legacyContentRoutes(
             else -> "book"
         }
         val viewModel: MediaLibraryViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         UiErrorBoundary(
             boundaryName = "Route:${MediaRoutes.LIBRARY}",
@@ -360,7 +361,7 @@ fun NavGraphBuilder.legacyContentRoutes(
     composable("detail/{itemId}") { backStackEntry ->
         val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
         val viewModel: MediaDetailViewModel = hiltViewModel()
-        val vmState by viewModel.uiState.collectAsState()
+        val vmState by viewModel.uiState.collectAsStateWithLifecycle()
         
         val screenState = MediaDetailState(
             item = MediaDetailItem(
