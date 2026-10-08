@@ -58,6 +58,11 @@ object DatabaseModule {
         return appDatabase.mediaFtsDao()
     }
 
+    @Provides
+    fun provideExternalMediaEntityDao(appDatabase: AppDatabase): ExternalMediaEntityDao {
+        return appDatabase.externalMediaEntityDao()
+    }
+
       @Provides
       fun provideListenHistoryDao(appDatabase: AppDatabase): ListenHistoryDao {
           return appDatabase.listenHistoryDao()
