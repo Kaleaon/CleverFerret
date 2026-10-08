@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ktheme.compose.accessibleButton
 
 /**
  * Beautiful metallic UI components with gradient effects
@@ -37,6 +38,7 @@ fun MetallicButton(
     Button(
         onClick = onClick,
         modifier = modifier
+            .accessibleButton(enabled = enabled)
             .shadow(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(8.dp),

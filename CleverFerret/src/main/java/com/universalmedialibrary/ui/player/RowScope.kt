@@ -43,6 +43,7 @@ import com.universalmedialibrary.services.audio.AudioPlaybackManager.AudioQueueE
 import com.universalmedialibrary.ui.player.WaveformSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.ktheme.compose.AccessibleToggleRow
 import java.util.Locale
 import kotlin.math.PI
 import kotlin.math.absoluteValue
@@ -73,7 +74,9 @@ internal fun RowScope.QuickToggleChip(
                 )
             }
     ) {
-        Row(
+        AccessibleToggleRow(
+            checked = enabled,
+            onCheckedChange = { onToggle() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 10.dp),
