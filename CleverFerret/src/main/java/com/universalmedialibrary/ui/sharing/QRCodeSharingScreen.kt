@@ -20,6 +20,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.services.media.*
 import com.universalmedialibrary.services.sharing.ConnectedDevice
@@ -41,7 +42,7 @@ fun QRCodeSharingScreen(
     onScanQRCode: () -> Unit,
     viewModel: QRCodeSharingViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val clipboardManager = LocalClipboardManager.current
     
     LaunchedEffect(Unit) {

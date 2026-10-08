@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.repository.MusicRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,8 +38,8 @@ fun AlbumDetailScreen(
     onNavigateToPlayer: () -> Unit,
     viewModel: AlbumDetailViewModel = hiltViewModel()
 ) {
-    val album by viewModel.album.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val album by viewModel.album.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     LaunchedEffect(albumName) {
         viewModel.loadAlbum(albumName)

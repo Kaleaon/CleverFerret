@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.RadioStation
 import com.universalmedialibrary.services.radio.NowPlayingInfo
@@ -43,14 +44,14 @@ fun RadioScreen(
     onBack: () -> Unit,
     viewModel: RadioScreenViewModel = hiltViewModel()
 ) {
-    val allStations by viewModel.allStations.collectAsState()
-    val favoriteStations by viewModel.favoriteStations.collectAsState()
-    val recentlyPlayed by viewModel.recentlyPlayed.collectAsState()
-    val currentStation by viewModel.currentStation.collectAsState()
-    val playbackState by viewModel.playbackState.collectAsState()
-    val uiState by viewModel.uiState.collectAsState()
-    val nowPlayingInfo by viewModel.nowPlayingInfo.collectAsState()
-    val isIdentifying by viewModel.isIdentifying.collectAsState()
+    val allStations by viewModel.allStations.collectAsStateWithLifecycle()
+    val favoriteStations by viewModel.favoriteStations.collectAsStateWithLifecycle()
+    val recentlyPlayed by viewModel.recentlyPlayed.collectAsStateWithLifecycle()
+    val currentStation by viewModel.currentStation.collectAsStateWithLifecycle()
+    val playbackState by viewModel.playbackState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val nowPlayingInfo by viewModel.nowPlayingInfo.collectAsStateWithLifecycle()
+    val isIdentifying by viewModel.isIdentifying.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     var selectedTab by remember { mutableIntStateOf(0) }

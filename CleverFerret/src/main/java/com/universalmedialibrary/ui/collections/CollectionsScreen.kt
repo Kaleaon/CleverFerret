@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.CollectionType
 import com.universalmedialibrary.data.local.entity.UnifiedCollection
 
@@ -21,7 +22,7 @@ fun CollectionsScreen(
     viewModel: CollectionsViewModel = hiltViewModel(),
     onOpenCollection: (Long) -> Unit
 ) {
-    val collections by viewModel.collections.collectAsState()
+    val collections by viewModel.collections.collectAsStateWithLifecycle()
     var showCreateDialog by remember { mutableStateOf(false) }
 
     Scaffold(

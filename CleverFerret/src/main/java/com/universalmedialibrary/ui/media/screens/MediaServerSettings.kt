@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 
 /**
  * Clean Media-Centric Media Server Settings
@@ -540,6 +541,15 @@ private fun AddServerDialog(
     var showPassword by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var pinCode by remember { mutableStateOf<String?>(null) }
+    var hasSubmitted by remember { mutableStateOf(false) }
+
+    val urlError = when {
+        serverUrl.isNotBlank() && !serverUrl.startsWith("http://", ignoreCase = true) && !serverUrl.startsWith("https://", ignoreCase = true) ->
+            "Server URL must start with http or https"
+        hasSubmitted && serverUrl.isBlank() -> "Server URL cannot be empty"
+        else -> null
+    }
+    val usernameError = if (hasSubmitted && username.isBlank()) "Username cannot be empty" else null
     
     val authMethod = serverType.authMethod
     
@@ -598,11 +608,12 @@ private fun AddServerDialog(
                     
                     AuthMethod.USERNAME_PASSWORD, AuthMethod.URL_USERNAME_PASSWORD -> {
                         if (authMethod == AuthMethod.URL_USERNAME_PASSWORD) {
-                            OutlinedTextField(
+                            AccessibleOutlinedTextField(
                                 value = serverUrl,
                                 onValueChange = { serverUrl = it },
                                 label = { Text("Server URL") },
                                 placeholder = { Text("http://192.168.1.x:8096") },
+                                errorMessage = urlError,
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -612,10 +623,11 @@ private fun AddServerDialog(
                             )
                         }
                         
-                        OutlinedTextField(
+                        AccessibleOutlinedTextField(
                             value = username,
                             onValueChange = { username = it },
                             label = { Text("Username") },
+                            errorMessage = usernameError,
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -624,7 +636,7 @@ private fun AddServerDialog(
                             )
                         )
                         
-                        OutlinedTextField(
+                        AccessibleOutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
                             label = { Text("Password") },
@@ -651,11 +663,12 @@ private fun AddServerDialog(
                     }
                     
                     AuthMethod.API_KEY -> {
-                        OutlinedTextField(
+                        AccessibleOutlinedTextField(
                             value = serverUrl,
                             onValueChange = { serverUrl = it },
                             label = { Text("Server URL") },
                             placeholder = { Text("http://192.168.1.x:port") },
+                            errorMessage = urlError,
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -664,7 +677,7 @@ private fun AddServerDialog(
                             )
                         )
                         
-                        OutlinedTextField(
+                        AccessibleOutlinedTextField(
                             value = apiKey,
                             onValueChange = { apiKey = it },
                             label = { Text("API Key") },
@@ -695,6 +708,7 @@ private fun AddServerDialog(
         confirmButton = {
             Button(
                 onClick = {
+                    hasSubmitted = true
                     isLoading = true
                     when (authMethod) {
                         AuthMethod.PIN -> {

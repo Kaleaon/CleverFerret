@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
@@ -44,7 +45,7 @@ fun NavGraphBuilder.collectionsOrgRoutes(
 ) {
     composable(MediaRoutes.COLLECTIONS) {
         val viewModel: CollectionsViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         MediaCollectionsScreen(
             state = state,
@@ -61,7 +62,7 @@ fun NavGraphBuilder.collectionsOrgRoutes(
         arguments = listOf(navArgument("collectionId") { type = NavType.StringType })
     ) { backStackEntry ->
         val viewModel: CollectionDetailViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         CollectionDetailScreen(
             state = state,

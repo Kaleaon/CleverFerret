@@ -17,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import java.util.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.preferences.*
 import com.universalmedialibrary.data.services.SettingsBackupService
 import com.universalmedialibrary.ui.viewer.common.ReadingDirection
@@ -44,11 +45,11 @@ fun ReadingPreferencesScreen(
     onBack: () -> Unit,
     viewModel: ReadingPreferencesViewModel = hiltViewModel()
 ) {
-    val epubPrefs by viewModel.epubPreferences.collectAsState()
-    val pdfPrefs by viewModel.pdfPreferences.collectAsState()
-    val audiobookPrefs by viewModel.audiobookPreferences.collectAsState()
-    val comicPrefs by viewModel.comicPreferences.collectAsState()
-    val globalPrefs by viewModel.globalPreferences.collectAsState()
+    val epubPrefs by viewModel.epubPreferences.collectAsStateWithLifecycle()
+    val pdfPrefs by viewModel.pdfPreferences.collectAsStateWithLifecycle()
+    val audiobookPrefs by viewModel.audiobookPreferences.collectAsStateWithLifecycle()
+    val comicPrefs by viewModel.comicPreferences.collectAsStateWithLifecycle()
+    val globalPrefs by viewModel.globalPreferences.collectAsStateWithLifecycle()
     
     val snackbarHostState = remember { SnackbarHostState() }
     var showRestoreDialog by remember { mutableStateOf(false) }

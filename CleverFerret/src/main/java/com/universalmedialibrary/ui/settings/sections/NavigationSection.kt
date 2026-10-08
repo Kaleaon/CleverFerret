@@ -30,6 +30,7 @@ import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 fun LazyListScope.navigationSection(
     uiState: SettingsUiState,
@@ -105,7 +106,7 @@ fun LazyListScope.navigationSection(
         // Debug Bug Report Button toggle (only in debug builds)
         if (com.universalmedialibrary.BuildConfig.DEBUG) {
             item {
-                val showBugButton by viewModel.showDebugBugButton.collectAsState()
+                val showBugButton by viewModel.showDebugBugButton.collectAsStateWithLifecycle()
                 MetallicCard {
                     Row(
                         modifier = Modifier

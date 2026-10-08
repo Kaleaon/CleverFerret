@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.webfiction.*
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
@@ -57,9 +58,9 @@ fun UnifiedFanfictionHubScreen(
     downloadViewModel: FanfictionDownloaderViewModel = hiltViewModel(),
     libraryViewModel: FanfictionViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val downloadState by downloadViewModel.uiState.collectAsState()
-    val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val downloadState by downloadViewModel.uiState.collectAsStateWithLifecycle()
+    val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsStateWithLifecycle()
     
     var selectedTab by remember { mutableIntStateOf(HubTabs.DISCOVER) }
     val tabs = listOf("Discover", "Library", "Download")
