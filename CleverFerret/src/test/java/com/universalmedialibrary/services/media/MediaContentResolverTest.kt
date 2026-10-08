@@ -5,10 +5,10 @@ import com.universalmedialibrary.data.local.dao.EmbyServerDao
 import com.universalmedialibrary.data.local.dao.JellyfinServerDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.PlexServerDao
-import com.universalmedialibrary.data.local.entity.EmbyServerEntity
-import com.universalmedialibrary.data.local.entity.JellyfinServerEntity
+import com.universalmedialibrary.data.local.entity.EmbyServer
+import com.universalmedialibrary.data.local.entity.JellyfinServer
 import com.universalmedialibrary.data.local.entity.MediaItem
-import com.universalmedialibrary.data.local.entity.PlexServerEntity
+import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.cache.CacheManager
 import com.universalmedialibrary.services.network.NetworkMonitor
 import io.mockk.*
@@ -72,8 +72,12 @@ class MediaContentResolverTest {
         val testFile = tempFolder.newFile("sample.mp3")
         val mediaItem = MediaItem(
             itemId = 100L,
-            title = "Test Track",
+            libraryId = 1L,
             filePath = testFile.absolutePath,
+            fileName = "sample.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK",
             mimeType = "audio/mpeg"
         )
 
@@ -89,8 +93,12 @@ class MediaContentResolverTest {
         val cachedFile = tempFolder.newFile("cached_track.mp3")
         val mediaItem = MediaItem(
             itemId = 101L,
-            title = "Cached Track",
+            libraryId = 1L,
             filePath = "jellyfin://1/item999",
+            fileName = "cached_track.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK",
             localCachePath = cachedFile.absolutePath,
             downloadStatus = "COMPLETED"
         )
@@ -103,15 +111,19 @@ class MediaContentResolverTest {
 
     @Test
     fun testResolveJellyfinVirtualUriOnline() = runBlocking {
-        val jellyfinServer = mockk<JellyfinServerEntity>(relaxed = true)
+        val jellyfinServer = mockk<JellyfinServer>(relaxed = true)
         every { jellyfinServer.url } returns "http://jellyfin.local:8096"
         every { jellyfinServer.apiKey } returns "jf_api_key_123"
         coEvery { jellyfinServerDao.getById(1L) } returns jellyfinServer
 
         val mediaItem = MediaItem(
             itemId = 102L,
-            title = "Jellyfin Song",
-            filePath = "jellyfin://1/item123"
+            libraryId = 1L,
+            filePath = "jellyfin://1/item123",
+            fileName = "item123.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK"
         )
 
         val result = resolver.resolve(mediaItem)
@@ -122,15 +134,19 @@ class MediaContentResolverTest {
 
     @Test
     fun testResolveEmbyVirtualUriOnline() = runBlocking {
-        val embyServer = mockk<EmbyServerEntity>(relaxed = true)
+        val embyServer = mockk<EmbyServer>(relaxed = true)
         every { embyServer.url } returns "http://emby.local:8096"
         every { embyServer.apiKey } returns "emby_token_456"
         coEvery { embyServerDao.getById(2L) } returns embyServer
 
         val mediaItem = MediaItem(
             itemId = 103L,
-            title = "Emby Track",
-            filePath = "emby://2/item456"
+            libraryId = 1L,
+            filePath = "emby://2/item456",
+            fileName = "item456.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK"
         )
 
         val result = resolver.resolve(mediaItem)
@@ -141,15 +157,19 @@ class MediaContentResolverTest {
 
     @Test
     fun testResolvePlexVirtualUriOnline() = runBlocking {
-        val plexServer = mockk<PlexServerEntity>(relaxed = true)
+        val plexServer = mockk<PlexServer>(relaxed = true)
         every { plexServer.url } returns "http://plex.local:32400"
         every { plexServer.token } returns "plex_token_789"
         coEvery { plexServerDao.getServerByMachineId("machine123") } returns plexServer
 
         val mediaItem = MediaItem(
             itemId = 104L,
-            title = "Plex Track",
-            filePath = "plex://machine123/part789"
+            libraryId = 1L,
+            filePath = "plex://machine123/part789",
+            fileName = "part789.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK"
         )
 
         val result = resolver.resolve(mediaItem)
@@ -164,9 +184,12 @@ class MediaContentResolverTest {
 
         val mediaItem = MediaItem(
             itemId = 105L,
-            title = "Offline Unbuffered Track",
+            libraryId = 1L,
             filePath = "jellyfin://1/item123",
-            fileName = "track.mp3"
+            fileName = "track.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK"
         )
 
         val result = resolver.resolve(mediaItem)
@@ -189,8 +212,12 @@ class MediaContentResolverTest {
 
         val mediaItem = MediaItem(
             itemId = 106L,
-            title = "Offline Buffered Track",
-            filePath = virtualUri
+            libraryId = 1L,
+            filePath = virtualUri,
+            fileName = "buffer_106.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK"
         )
 
         val result = resolver.resolve(mediaItem)

@@ -11,8 +11,7 @@ import com.universalmedialibrary.parsers.ParserFactory
 import com.universalmedialibrary.parsers.DocumentParser
 import com.universalmedialibrary.parsers.ParsedDocument
 import com.universalmedialibrary.parsers.DocumentMetadata
-import com.universalmedialibrary.services.media.MediaContentResolver
-import com.universalmedialibrary.services.media.ResolvedContent
+import com.universalmedialibrary.services.plex.PlexVirtualUriResolver
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -32,19 +31,11 @@ class UnifiedReaderServiceIntegrationTest {
     private val geminiComicService = mockk<GeminiComicService>(relaxed = true)
     private val audioPlaybackManager = mockk<AudioPlaybackManager>(relaxed = true)
     private val formatRegistry = mockk<FormatRegistry>(relaxed = true)
-    private val mediaContentResolver = mockk<MediaContentResolver>(relaxed = true)
+    private val plexVirtualUriResolver = mockk<PlexVirtualUriResolver>(relaxed = true)
 
     @Before
     fun setUp() {
-        coEvery { mediaContentResolver.resolvePath(any()) } answers {
-            val path = firstArg<String>()
-            val file = File(path)
-            if (file.exists()) {
-                ResolvedContent.LocalFile(file)
-            } else {
-                ResolvedContent.Error("File not found: $path")
-            }
-        }
+        coEvery { plexVirtualUriResolver.isVirtualUri(any()) } returns false
 
         unifiedReaderService = UnifiedReaderService(
             context,
@@ -54,7 +45,7 @@ class UnifiedReaderServiceIntegrationTest {
             geminiComicService,
             audioPlaybackManager,
             formatRegistry,
-            mediaContentResolver
+            plexVirtualUriResolver
         )
         mockkObject(ParserFactory)
     }
