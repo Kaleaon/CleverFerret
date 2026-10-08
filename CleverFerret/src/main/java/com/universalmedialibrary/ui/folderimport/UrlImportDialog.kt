@@ -41,6 +41,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import java.net.URI
 
 @Composable
@@ -58,22 +59,25 @@ internal fun UrlImportDialog(
         }.getOrDefault(false)
     }
 
+    val errorMessage = if (url.isNotBlank() && !isValidUrl) {
+        "Error: Invalid URL scheme"
+    } else {
+        null
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Import from URL") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = url,
                     onValueChange = onUrlChange,
                     label = { Text("Media URL") },
                     singleLine = true,
-                    isError = url.isNotBlank() && !isValidUrl
-                )
-                Text(
-                    text = "Direct links only (http/https) ending in supported extensions, e.g. .mp3, .epub, .pdf, .mp4.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    errorMessage = errorMessage,
+                    helperText = "Direct links only (http/https) ending in supported extensions, e.g. .mp3, .epub, .pdf, .mp4.",
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },

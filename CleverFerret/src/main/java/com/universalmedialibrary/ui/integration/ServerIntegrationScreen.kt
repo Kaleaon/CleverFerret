@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.theme.MetallicButton
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 
 enum class ServerType {
     PLEX, JELLYFIN, EMBY
@@ -292,37 +293,68 @@ fun AddServerDialog(
     var serverUrl by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var hasSubmitted by remember { mutableStateOf(false) }
+
+    val urlError = when {
+        serverUrl.isNotBlank() && !serverUrl.startsWith("http://", ignoreCase = true) && !serverUrl.startsWith("https://", ignoreCase = true) ->
+            "Server URL must start with http or https"
+        hasSubmitted && serverUrl.isBlank() -> "Server URL cannot be empty"
+        else -> null
+    }
+
+    val usernameError = when {
+        hasSubmitted && username.isBlank() -> "Username cannot be empty"
+        else -> null
+    }
+
+    val passwordError = when {
+        hasSubmitted && password.isBlank() -> "Password cannot be empty"
+        else -> null
+    }
+
+    val isValid = urlError == null && usernameError == null && passwordError == null &&
+            serverUrl.isNotBlank() && username.isNotBlank() && password.isNotBlank()
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Connect to ${serverType.name}") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = serverUrl,
                     onValueChange = { serverUrl = it },
                     label = { Text("Server URL") },
                     placeholder = { Text("https://server.example.com:8096") },
+                    errorMessage = urlError,
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
                     label = { Text("Username") },
+                    errorMessage = usernameError,
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password") },
+                    errorMessage = passwordError,
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         },
         confirmButton = {
             Button(
-                onClick = { onAdd(serverUrl, username, password) },
-                enabled = serverUrl.isNotBlank() && username.isNotBlank()
+                onClick = {
+                    hasSubmitted = true
+                    if (isValid) {
+                        onAdd(serverUrl, username, password)
+                    }
+                }
             ) {
                 Text("Connect")
             }

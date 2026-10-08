@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.theme.*
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 
 /**
  * Media Server Settings Screen
@@ -273,6 +274,18 @@ private fun AddServerDialog(
     var apiKey by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
+    var hasSubmitted by remember { mutableStateOf(false) }
+
+    val nameError = if (hasSubmitted && name.isBlank()) "Server name cannot be empty" else null
+    val urlError = when {
+        url.isNotBlank() && !url.startsWith("http://", ignoreCase = true) && !url.startsWith("https://", ignoreCase = true) ->
+            "Server URL must start with http or https"
+        hasSubmitted && url.isBlank() -> "Server URL cannot be empty"
+        else -> null
+    }
+    val usernameError = if (hasSubmitted && (serverType == ServerType.JELLYFIN || serverType == ServerType.EMBY) && username.isBlank()) {
+        "Username cannot be empty"
+    } else null
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -315,34 +328,41 @@ private fun AddServerDialog(
                     }
                 }
 
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Server Name") },
+                    errorMessage = nameError,
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = url,
                     onValueChange = { url = it },
                     label = { Text("Server URL") },
                     placeholder = { Text("http://192.168.1.100:8096") },
+                    errorMessage = urlError,
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 when (serverType) {
                     ServerType.JELLYFIN, ServerType.EMBY -> {
-                        OutlinedTextField(
+                        AccessibleOutlinedTextField(
                             value = username,
                             onValueChange = { username = it },
                             label = { Text("Username") },
+                            errorMessage = usernameError,
+                            singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        OutlinedTextField(
+                        AccessibleOutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
                             label = { Text("Password") },
+                            singleLine = true,
                             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                             trailingIcon = {
                                 IconButton(onClick = { showPassword = !showPassword }) {
@@ -356,10 +376,11 @@ private fun AddServerDialog(
                         )
                     }
                     ServerType.PLEX -> {
-                        OutlinedTextField(
+                        AccessibleOutlinedTextField(
                             value = apiKey,
                             onValueChange = { apiKey = it },
                             label = { Text("X-Plex-Token") },
+                            singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -379,7 +400,8 @@ private fun AddServerDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (name.isNotBlank() && url.isNotBlank()) {
+                    hasSubmitted = true
+                    if (name.isNotBlank() && url.isNotBlank() && urlError == null && usernameError == null) {
                         onAdd(name, url, username, password, apiKey)
                     }
                 }
