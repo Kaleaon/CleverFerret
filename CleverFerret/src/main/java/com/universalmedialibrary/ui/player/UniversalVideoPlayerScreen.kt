@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.ui.PlayerView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.video.VideoPlayerType
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 // VLC import handled via reflection to avoid compilation errors
@@ -32,7 +33,7 @@ fun UniversalVideoPlayerScreen(
     viewModel: UniversalVideoPlayerViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val playerState by viewModel.playerState.collectAsState()
+    val playerState by viewModel.playerState.collectAsStateWithLifecycle()
 
     LaunchedEffect(videoUri) {
         viewModel.initializePlayer(context, videoUri)

@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.manga.library.LibraryManga
 import com.universalmedialibrary.services.manga.library.MangaCategory
@@ -39,7 +40,7 @@ fun MangaLibraryScreen(
     onExplore: () -> Unit,
     viewModel: MangaLibraryViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showSortMenu by remember { mutableStateOf(false) }
     var showCategoryDialog by remember { mutableStateOf(false) }
     

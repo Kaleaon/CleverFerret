@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
 import com.universalmedialibrary.ui.components.PinEntryDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
@@ -44,7 +45,7 @@ fun ParentalControlsScreen(
     navController: NavController,
     viewModel: ParentalControlsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
 

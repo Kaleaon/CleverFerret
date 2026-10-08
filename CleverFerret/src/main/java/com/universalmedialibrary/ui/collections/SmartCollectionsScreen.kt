@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.SmartCollectionRule
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.data.local.entity.SmartCollectionType
@@ -33,7 +34,7 @@ fun SmartCollectionsScreen(
     navController: NavController,
     viewModel: SmartCollectionsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Suggestions", "Active", "All")
 

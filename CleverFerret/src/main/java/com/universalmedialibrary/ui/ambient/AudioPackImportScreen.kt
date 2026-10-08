@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.AudioPack
 import com.universalmedialibrary.services.ambient.AudioPackImporter
 
@@ -30,9 +31,9 @@ fun AudioPackImportScreen(
     onBack: () -> Unit,
     viewModel: AudioPackImportViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val packs by viewModel.audioPacks.collectAsState()
-    val storageInfo by viewModel.storageInfo.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val packs by viewModel.audioPacks.collectAsStateWithLifecycle()
+    val storageInfo by viewModel.storageInfo.collectAsStateWithLifecycle()
     
     var showImportDialog by remember { mutableStateOf(false) }
     var selectedPackForDelete by remember { mutableStateOf<AudioPack?>(null) }

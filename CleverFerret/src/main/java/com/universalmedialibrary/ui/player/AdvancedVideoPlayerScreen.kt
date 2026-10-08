@@ -45,6 +45,7 @@ import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.viewer.common.VideoSettings
 import com.universalmedialibrary.ui.player.components.TopControlsBar
@@ -72,7 +73,7 @@ fun AdvancedVideoPlayerScreen(
     onBack: () -> Unit,
     viewModel: AdvancedVideoPlayerViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = context as? android.app.Activity
     val density = LocalDensity.current

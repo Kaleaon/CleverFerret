@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.tts.TtsProvider
 import com.universalmedialibrary.services.tts.TtsProviderManager
 import com.universalmedialibrary.services.tts.TtsProviderSettings
@@ -92,8 +93,8 @@ fun TtsProviderSettingsScreen(
     onBack: () -> Unit,
     viewModel: TtsProviderSettingsViewModel = hiltViewModel()
 ) {
-    val providerSettings by viewModel.providerSettings.collectAsState()
-    val isConfigured by viewModel.isConfigured.collectAsState()
+    val providerSettings by viewModel.providerSettings.collectAsStateWithLifecycle()
+    val isConfigured by viewModel.isConfigured.collectAsStateWithLifecycle()
     
     var showApiKeyDialog by remember { mutableStateOf(false) }
     var selectedProviderForConfig by remember { mutableStateOf<TtsProvider?>(null) }

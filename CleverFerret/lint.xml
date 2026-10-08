@@ -52,6 +52,8 @@
     <!-- Jetpack Compose specific -->
     <issue id="ComposableNaming" severity="warning" />
     <issue id="UnrememberedMutableState" severity="warning" />
+    <issue id="CollectAsStateWithLifecycle" severity="error" />
+    <issue id="UnmanagedCollectAsState" severity="error" />
     
     <!-- Suppress specific files that might have issues -->
     <issue id="HardcodedText">

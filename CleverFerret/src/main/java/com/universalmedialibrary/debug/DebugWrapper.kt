@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.debug.ui.DebugOverlay
 import com.universalmedialibrary.debug.ui.DebugQuickBar
@@ -45,11 +46,11 @@ fun DebugWrapper(
         return
     }
     
-    val crashCount by debugReportingService.crashReports.collectAsState()
-    val errorCount by debugReportingService.errorLogs.collectAsState()
+    val crashCount by debugReportingService.crashReports.collectAsStateWithLifecycle()
+    val errorCount by debugReportingService.errorLogs.collectAsStateWithLifecycle()
     
     // Collect flags StateFlow to react to runtime changes
-    val flags by featureFlagManager.flags.collectAsState()
+    val flags by featureFlagManager.flags.collectAsStateWithLifecycle()
     val showPerformanceOverlay = flags[FeatureFlag.SHOW_PERFORMANCE_OVERLAY.key] 
         ?: FeatureFlag.SHOW_PERFORMANCE_OVERLAY.defaultValue
     

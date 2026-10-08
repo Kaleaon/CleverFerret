@@ -26,6 +26,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
+
+@Suppress("LongParameterList")
 @Composable
 internal fun GenericApiKeySection(
     title: String,
@@ -35,7 +38,8 @@ internal fun GenericApiKeySection(
     isLoading: Boolean,
     getKeyUrl: String? = null,
     placeholder: String = "Enter API Key",
-    note: String? = null
+    note: String? = null,
+    errorMessage: String? = null
 ) {
     var currentKey by remember(apiKey) { mutableStateOf(apiKey) }
     var showKey by remember { mutableStateOf(false) }
@@ -64,12 +68,14 @@ internal fun GenericApiKeySection(
             Spacer(modifier = Modifier.height(16.dp))
 
             // API Key Input
-            OutlinedTextField(
+            AccessibleOutlinedTextField(
                 value = currentKey,
                 onValueChange = { currentKey = it },
                 label = { Text("$title Key") },
                 placeholder = { Text(placeholder) },
                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
+                errorMessage = errorMessage,
+                helperText = note,
                 trailingIcon = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (getKeyUrl != null) {
@@ -92,15 +98,6 @@ internal fun GenericApiKeySection(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
-            
-            if (note != null) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = note,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

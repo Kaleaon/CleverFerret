@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.debug.DebugReportingService
 import com.universalmedialibrary.debug.PerformanceMetrics
@@ -47,7 +48,7 @@ fun DebugOverlay(
     // Only show in debug builds
     if (!BuildConfig.SHOW_DEBUG_MENU) return
     
-    val metrics by performanceMetrics.collectAsState()
+    val metrics by performanceMetrics.collectAsStateWithLifecycle()
     var isExpanded by remember { mutableStateOf(false) }
     
     Box(

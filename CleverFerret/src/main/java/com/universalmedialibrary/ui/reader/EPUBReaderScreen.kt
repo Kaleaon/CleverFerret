@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * EPUB Reader Screen with full WebView rendering
@@ -31,7 +32,7 @@ fun EPUBReaderScreen(
     bookUri: String,
     viewModel: EPUBReaderViewModel = hiltViewModel()
 ) {
-    val readerState by viewModel.uiState.collectAsState()
+    val readerState by viewModel.uiState.collectAsStateWithLifecycle()
     var uiSettings by remember { mutableStateOf(ReaderSettings()) }
 
     var showToc by remember { mutableStateOf(false) }
