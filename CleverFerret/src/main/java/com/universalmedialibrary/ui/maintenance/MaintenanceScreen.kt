@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import com.universalmedialibrary.data.local.entity.MaintenanceChange
 import com.universalmedialibrary.data.local.entity.Library
@@ -26,8 +27,8 @@ fun MaintenanceScreen(
     onBack: () -> Unit,
     viewModel: MaintenanceViewModel = hiltViewModel()
 ) {
-    val pending by viewModel.pending.collectAsState()
-    val libraries by viewModel.libraries.collectAsState()
+    val pending by viewModel.pending.collectAsStateWithLifecycle()
+    val libraries by viewModel.libraries.collectAsStateWithLifecycle()
     
     // Default to the first library if available, otherwise 0
     var selectedLibrary by remember(libraries) { 

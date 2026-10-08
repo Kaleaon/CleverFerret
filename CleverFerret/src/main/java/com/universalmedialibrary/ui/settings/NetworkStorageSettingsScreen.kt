@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -27,7 +28,7 @@ fun NetworkStorageSettingsScreen(
     onBack: () -> Unit,
     viewModel: NetworkStorageSettingsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showAddStorageDialog by remember { mutableStateOf(false) }
     var selectedStorageType by remember { mutableStateOf(StorageType.SMB) }
 

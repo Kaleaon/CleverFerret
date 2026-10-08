@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.FanfictionStoryEntity
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
@@ -24,9 +25,9 @@ fun FanfictionLibraryScreen(
     onStoryClick: (FanfictionStoryEntity) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val stories by viewModel.allStories.collectAsState()
-    val selectedFilter by viewModel.selectedFilter.collectAsState()
-    val updateStatus by viewModel.updateStatus.collectAsState()
+    val stories by viewModel.allStories.collectAsStateWithLifecycle()
+    val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
+    val updateStatus by viewModel.updateStatus.collectAsStateWithLifecycle()
     
     var showFilterMenu by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }

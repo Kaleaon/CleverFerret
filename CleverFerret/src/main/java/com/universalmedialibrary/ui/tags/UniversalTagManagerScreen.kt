@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.net.URLEncoder
 import com.universalmedialibrary.data.local.entity.TagType
 import com.universalmedialibrary.data.local.entity.UnifiedTag
@@ -33,7 +34,7 @@ fun UniversalTagManagerScreen(
     navController: NavController,
     viewModel: UniversalTagManagerViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showCreateTagDialog by remember { mutableStateOf(false) }
     var showCreateCategoryDialog by remember { mutableStateOf(false) }
     var editingTag by remember { mutableStateOf<UnifiedTag?>(null) }
