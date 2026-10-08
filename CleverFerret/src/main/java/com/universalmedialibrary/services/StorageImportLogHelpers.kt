@@ -14,11 +14,6 @@ internal val importLogJson = Json {
     ignoreUnknownKeys = true
 }
 
-private val importLogJson = Json {
-    ignoreUnknownKeys = true
-    prettyPrint = true
-}
-
 fun listImportLogs(context: Context): List<ImportLogInfo> {
     return try {
         val dir = File(context.filesDir, "import_logs")

@@ -10,7 +10,6 @@ import com.universalmedialibrary.data.local.entity.MetadataBook
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
 import com.universalmedialibrary.data.local.entity.People
-import com.universalmedialibrary.data.local.entity.ItemPersonRole
 import com.universalmedialibrary.data.local.entity.Series
 import com.universalmedialibrary.services.StorageAccessService.CopyResult
 import com.universalmedialibrary.services.importer.ImportOperationLog

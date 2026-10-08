@@ -65,6 +65,7 @@ class MediaScannerService : Service() {
     @Inject lateinit var metadataStagingRepository: MetadataStagingRepository
     @Inject lateinit var waveformGenerator: WaveformGenerator
     @Inject lateinit var catalogingPipelineEngine: CatalogingPipelineEngine
+    @Inject lateinit var tagDao: com.universalmedialibrary.data.local.dao.TagDao
 
     internal val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val scanSettingsCache = mutableMapOf<Long, ResolvedScanSettings>()
@@ -704,10 +705,9 @@ data class ScanProgress(
             .filter { it.isNotEmpty() }
 
         for (genreName in genres) {
-            val tagId = tagDao.findOrCreateTag(genreName, TagType.AUTO_GENERATED)
-            if (tagId > 0) {
-                tagDao.addTagToItem(ItemTag(itemId = itemId, tagId = tagId))
-                tagDao.recalculateUsageCount(tagId)
+            val existing = tagDao.getTagByName(genreName)
+            if (existing == null) {
+                tagDao.insert(com.universalmedialibrary.data.Tag(name = genreName))
             }
         }
     }

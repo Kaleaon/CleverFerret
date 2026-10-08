@@ -110,6 +110,7 @@ object MediaRoutes {
     
     // Settings sub-routes
     const val SETTINGS_API = "settings/api"
+    const val SETTINGS_ACCOUNTS = "settings/accounts"
     const val SETTINGS_APPEARANCE = "settings/appearance"
     const val SETTINGS_PLAYBACK = "settings/playback"
     const val SETTINGS_READER = "settings/reader"
