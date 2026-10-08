@@ -35,6 +35,7 @@ object AppDatabaseMigrations {
     val MIGRATION_45_46: Migration = MigrationRegistry.MIGRATION_45_46
     val MIGRATION_46_47: Migration = MigrationRegistry.MIGRATION_46_47
     val MIGRATION_47_48: Migration = MigrationRegistry.MIGRATION_47_48
+    val MIGRATION_48_49: Migration = MigrationRegistry.MIGRATION_48_49
 
     val ALL_MIGRATIONS: Array<Migration> = MigrationRegistry.ALL_MIGRATIONS
 }

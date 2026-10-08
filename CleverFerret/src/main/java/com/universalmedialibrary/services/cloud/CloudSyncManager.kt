@@ -235,18 +235,6 @@ enum class SyncStatus {
 }
 
 data class SyncResult(
-    val success: Boolean,
-    val error: String? = null,
-    val uploadedCount: Int = 0,
-    val downloadedCount: Int = 0,
-    val conflictCount: Int = 0
-)
-
-enum class ConflictResolutionStrategy {
-    LOCAL_WINS, CLOUD_WINS, MANUAL
-}
-
-data class SyncResult(
     val provider: CloudProvider = CloudProvider.GOOGLE_DRIVE,
     val success: Boolean,
     val uploadedCount: Int = 0,
@@ -256,6 +244,10 @@ data class SyncResult(
     val error: String? = null,
     val errorMessage: String? = error
 )
+
+enum class ConflictResolutionStrategy {
+    LOCAL_WINS, CLOUD_WINS, MANUAL
+}
 
 data class SyncLocalMediaFile(
     val id: String,

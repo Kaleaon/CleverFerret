@@ -1,8 +1,10 @@
 package com.universalmedialibrary.services.pipeline.processors
 
 import com.universalmedialibrary.api.plugin.CoverSize
+import com.universalmedialibrary.api.plugin.MediaMetadata
 import com.universalmedialibrary.api.plugin.MediaType as PluginMediaType
 import com.universalmedialibrary.api.plugin.MetadataQuery
+import com.universalmedialibrary.api.plugin.MetadataSearchResult
 import com.universalmedialibrary.api.plugin.PluginRegistry
 import com.universalmedialibrary.services.pipeline.CatalogingPipelineContext
 import com.universalmedialibrary.services.pipeline.MetadataPipelineProcessor
@@ -66,21 +68,23 @@ class RemoteEnrichmentProcessor @Inject constructor(
             try {
                 val searchResult = withTimeoutOrNull(PROVIDER_TIMEOUT_MS) {
                     provider.search(query).getOrNull()?.firstOrNull()
-                } ?: continue
-
-                val details = withTimeoutOrNull(PROVIDER_TIMEOUT_MS) {
-                    provider.fetchDetails(searchResult.id, targetMediaType).getOrNull()
                 }
 
-                enrichedCommon = applyCommonEnrichment(enrichedCommon, searchResult, details)
-                enrichedBook = applyBookEnrichment(enrichedBook, details)
+                if (searchResult != null) {
+                    val details = withTimeoutOrNull(PROVIDER_TIMEOUT_MS) {
+                        provider.fetchDetails(searchResult.id, targetMediaType).getOrNull()
+                    }
 
-                enrichments[provider.id] = searchResult.id
-                updatedSource = "$updatedSource + ${provider.name}"
-                confidenceBoost += ENRICHMENT_CONFIDENCE_BOOST
+                    enrichedCommon = applyCommonEnrichment(enrichedCommon, searchResult, details)
+                    enrichedBook = applyBookEnrichment(enrichedBook, details)
 
-                // Limit enrichment to first successful provider
-                break
+                    enrichments[provider.id] = searchResult.id
+                    updatedSource = "$updatedSource + ${provider.name}"
+                    confidenceBoost += ENRICHMENT_CONFIDENCE_BOOST
+
+                    // Limit enrichment to first successful provider
+                    break
+                }
             } catch (_: Exception) {
                 // Ignore provider error and fallback to local metadata
             }
@@ -99,8 +103,8 @@ class RemoteEnrichmentProcessor @Inject constructor(
 
     private fun applyCommonEnrichment(
         common: com.universalmedialibrary.data.local.entity.MetadataCommon,
-        searchResult: com.universalmedialibrary.api.plugin.SearchResult,
-        details: com.universalmedialibrary.api.plugin.MetadataDetails?
+        searchResult: MetadataSearchResult,
+        details: MediaMetadata?
     ): com.universalmedialibrary.data.local.entity.MetadataCommon {
         val coverUrl = searchResult.coverUrl
             ?: details?.coverUrls?.get(CoverSize.LARGE)
@@ -125,7 +129,7 @@ class RemoteEnrichmentProcessor @Inject constructor(
 
     private fun applyBookEnrichment(
         book: com.universalmedialibrary.data.local.entity.MetadataBook?,
-        details: com.universalmedialibrary.api.plugin.MetadataDetails?
+        details: MediaMetadata?
     ): com.universalmedialibrary.data.local.entity.MetadataBook? {
         if (book == null || details == null) return book
         var updated = book

@@ -247,6 +247,8 @@ class SettingsRepository @Inject constructor(
         preferences[PreferencesKeys.HAS_COMPLETED_ONBOARDING] ?: false
     }
 
+    val onboardingCompletedFlow: Flow<Boolean> get() = hasCompletedOnboardingFlow
+
     suspend fun setTheme(palette: CleverFerretTheme) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -415,6 +417,10 @@ class SettingsRepository @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.HAS_COMPLETED_ONBOARDING] = completed
         }
+    }
+
+    suspend fun setInitialScanStarted(started: Boolean) {
+        // No-op or record initial scan flag
     }
 
     suspend fun setImportSorterMoveFiles(enabled: Boolean) {
