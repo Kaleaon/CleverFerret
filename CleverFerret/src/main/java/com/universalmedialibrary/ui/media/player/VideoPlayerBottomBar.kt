@@ -25,6 +25,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
+import com.cleverferret.core.designsystem.slider.AccessibleMediaSlider
+import com.cleverferret.core.designsystem.slider.AccessibleMediaSliderColors
+import com.cleverferret.core.designsystem.slider.MediaChapterMarker
 import com.universalmedialibrary.ui.media.theme.*
 
 @Composable
@@ -48,50 +51,23 @@ internal fun VideoPlayerBottomBar(
             .navigationBarsPadding()
             .padding(MediaSpacing.MD)
     ) {
-        // Progress bar with chapters
-        Box(modifier = Modifier.fillMaxWidth()) {
-            // Buffered progress
-            LinearProgressIndicator(
-                progress = { if (duration > 0) bufferedPosition.toFloat() / duration else 0f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(MediaCorners.Full)),
-                color = Color.White.copy(alpha = 0.3f),
-                trackColor = Color.White.copy(alpha = 0.1f)
-            )
-            
-            // Playback progress
-            Slider(
-                value = currentPosition.toFloat(),
-                onValueChange = { onSeek(it.toLong()) },
-                valueRange = 0f..duration.toFloat(),
-                modifier = Modifier.fillMaxWidth(),
-                colors = SliderDefaults.colors(
-                    thumbColor = MediaColors.AccentPrimary,
-                    activeTrackColor = MediaColors.AccentPrimary,
-                    inactiveTrackColor = Color.Transparent
-                )
-            )
-            
-            // Chapter markers
-            chapters.forEach { chapter ->
-                val position = chapter.startPosition.toFloat() / duration
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(position)
-                        .height(4.dp)
-                        .align(Alignment.CenterStart)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .size(4.dp)
-                            .background(Color.White, CircleShape)
-                    )
-                }
-            }
-        }
+        // Unified accessible media slider with chapters and buffered progress
+        AccessibleMediaSlider(
+            currentPositionMs = currentPosition,
+            durationMs = duration,
+            bufferedPositionMs = bufferedPosition,
+            chapters = chapters.map { MediaChapterMarker(it.startPosition, it.title) },
+            onSeekMs = onSeek,
+            colors = AccessibleMediaSliderColors(
+                activeTrackColor = MediaColors.AccentPrimary,
+                inactiveTrackColor = Color.White.copy(alpha = 0.1f),
+                bufferedTrackColor = Color.White.copy(alpha = 0.3f),
+                thumbColor = MediaColors.AccentPrimary,
+                chapterMarkerColor = Color.White
+            ),
+            contentDescription = "Video playback seek bar",
+            modifier = Modifier.fillMaxWidth()
+        )
         
         Spacer(modifier = Modifier.height(MediaSpacing.XS))
         

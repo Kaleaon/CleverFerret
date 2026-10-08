@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.cleverferret.core.designsystem.slider.AccessibleMediaSlider
 import com.universalmedialibrary.services.music.Lyrics
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -349,28 +350,11 @@ private fun EnhancedProgressBar(
     onSeek: (Long) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        var sliderPosition by remember { mutableStateOf(0f) }
-        var isSliding by remember { mutableStateOf(false) }
-
-        LaunchedEffect(currentPosition) {
-            if (!isSliding) {
-                sliderPosition = if (duration > 0) {
-                    (currentPosition.toFloat() / duration.toFloat())
-                } else 0f
-            }
-        }
-
-        // Standard slider
-        Slider(
-            value = sliderPosition,
-            onValueChange = {
-                isSliding = true
-                sliderPosition = it
-            },
-            onValueChangeFinished = {
-                onSeek((sliderPosition * duration).toLong())
-                isSliding = false
-            },
+        AccessibleMediaSlider(
+            currentPositionMs = currentPosition,
+            durationMs = duration,
+            onSeekMs = onSeek,
+            contentDescription = "Music track progress bar",
             modifier = Modifier.fillMaxWidth()
         )
 
