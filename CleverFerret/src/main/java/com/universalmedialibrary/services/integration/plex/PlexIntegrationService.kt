@@ -1,6 +1,12 @@
 package com.universalmedialibrary.services.integration.plex
 
 import android.content.Context
+import com.universalmedialibrary.data.local.dao.ExternalMediaEntityDao
+import com.universalmedialibrary.data.local.entity.ExternalMediaEntity
+import com.universalmedialibrary.services.integration.IntegrationProvider
+import com.universalmedialibrary.services.integration.ProviderStatus
+import com.universalmedialibrary.services.integration.ProviderSyncResult
+import com.universalmedialibrary.services.integration.ProviderType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -29,8 +35,23 @@ import javax.inject.Singleton
 @Singleton
 class PlexIntegrationService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val plexAuthService: com.universalmedialibrary.services.plex.PlexAuthService
-) {
+    private val plexAuthService: com.universalmedialibrary.services.plex.PlexAuthService,
+    private val externalMediaEntityDao: ExternalMediaEntityDao
+) : IntegrationProvider {
+
+    override val providerId: String = "plex"
+    override val providerName: String = "Plex Media Server"
+    override val providerType: ProviderType = ProviderType.PLEX
+
+    private val _providerStatus = MutableStateFlow(
+        ProviderStatus(
+            providerId = providerId,
+            name = providerName,
+            providerType = providerType,
+            isConnected = false
+        )
+    )
+    override val status: StateFlow<ProviderStatus> = _providerStatus.asStateFlow()
     enum class SyncConflictPolicy {
         SERVER_WINS,
         LOCAL_WINS,
@@ -449,6 +470,22 @@ class PlexIntegrationService @Inject constructor(
                             var libraryConflicts = 0
 
                             for (item in libraryItems.media) {
+                                // Persist into central external_media_entities table
+                                val entity = ExternalMediaEntity(
+                                    providerId = "plex",
+                                    externalId = item.ratingKey,
+                                    title = item.title ?: "Untitled",
+                                    creator = item.grandparentTitle ?: item.originalTitle ?: library.title,
+                                    series = item.parentTitle ?: item.grandparentTitle,
+                                    mediaType = item.type ?: "movie",
+                                    uri = item.key,
+                                    coverUrl = item.thumb,
+                                    summary = item.summary,
+                                    tags = "plex",
+                                    lastSyncedAt = System.currentTimeMillis()
+                                )
+                                externalMediaEntityDao.insertEntity(entity)
+
                                 val previousUpdatedAt = previousSnapshot[item.ratingKey]
                                 if (previousUpdatedAt == null) {
                                     libraryApplied++
@@ -648,6 +685,47 @@ class PlexIntegrationService @Inject constructor(
 
     private fun String.ensureTrailingSlash(): String {
         return if (this.endsWith("/")) this else "$this/"
+    }
+
+    override suspend fun connect(config: Map<String, String>): Boolean {
+        val serverName = config["serverName"] ?: "Plex Server"
+        val serverUrl = config["serverUrl"] ?: ""
+        val token = config["token"] ?: getStoredToken() ?: ""
+        val result = connectToServer(serverName, serverUrl, token)
+        val success = result is PlexConnectionResult.Success
+        _providerStatus.value = _providerStatus.value.copy(isConnected = success)
+        return success
+    }
+
+    override suspend fun disconnect() {
+        disconnectAllServers()
+        _providerStatus.value = _providerStatus.value.copy(isConnected = false)
+    }
+
+    override suspend fun testConnection(): Boolean {
+        val statusInfo = checkAllConnections()
+        return statusInfo.hasActiveConnections
+    }
+
+    override suspend fun sync(): ProviderSyncResult {
+        val result = syncAllLibraries()
+        _providerStatus.value = _providerStatus.value.copy(
+            itemCount = result.itemsProcessed,
+            lastSyncTime = System.currentTimeMillis()
+        )
+        return ProviderSyncResult(
+            success = result.successful,
+            itemsProcessed = result.itemsProcessed,
+            message = result.details.joinToString("; ")
+        )
+    }
+
+    override suspend fun searchRemote(query: String, limit: Int): List<ExternalMediaEntity> {
+        return externalMediaEntityDao.searchEntities(query, limit).filter { it.providerId == "plex" }
+    }
+
+    override suspend fun fetchEntities(): List<ExternalMediaEntity> {
+        return externalMediaEntityDao.getEntitiesByProvider("plex")
     }
 }
 

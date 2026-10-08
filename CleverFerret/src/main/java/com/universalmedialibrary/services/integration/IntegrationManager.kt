@@ -1,10 +1,14 @@
 package com.universalmedialibrary.services.integration
 
 import android.content.Context
-import com.universalmedialibrary.services.integration.cloud.CloudStorageService
-import com.universalmedialibrary.services.integration.plex.PlexIntegrationService
-import com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService
 import com.universalmedialibrary.services.integration.books.BookServicesIntegration
+import com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService
+import com.universalmedialibrary.services.integration.cloud.CloudStorageService
+import com.universalmedialibrary.services.integration.emby.EmbyIntegrationService
+import com.universalmedialibrary.services.integration.jellyfin.JellyfinIntegrationService
+import com.universalmedialibrary.services.integration.plex.PlexIntegrationService
+import com.universalmedialibrary.services.integration.poweramp.PowerampIntegrationAdapter
+import com.universalmedialibrary.services.integration.yaacc.YaaccIntegrationAdapter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,19 +18,40 @@ import javax.inject.Singleton
 
 /**
  * Central Integration Manager for all external services
- * Coordinates Plex, Calibre, Cloud Storage, and Book Services
+ * Coordinates Plex, Calibre, Jellyfin, Emby, YAACC, Poweramp, Cloud Storage, and Book Services
  */
 @Singleton
 class IntegrationManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val plexService: PlexIntegrationService,
     private val calibreService: CalibreIntegrationService,
+    private val jellyfinService: JellyfinIntegrationService,
+    private val embyService: EmbyIntegrationService,
+    private val yaaccAdapter: YaaccIntegrationAdapter,
+    private val powerampAdapter: PowerampIntegrationAdapter,
     private val cloudService: CloudStorageService,
     private val bookServices: BookServicesIntegration
 ) {
 
     private val _integrationState = MutableStateFlow(IntegrationManagerState())
     val integrationState: StateFlow<IntegrationManagerState> = _integrationState.asStateFlow()
+
+    private val registeredProviders: List<IntegrationProvider> by lazy {
+        listOf(
+            plexService,
+            calibreService,
+            jellyfinService,
+            embyService,
+            yaaccAdapter,
+            powerampAdapter
+        )
+    }
+
+    fun getProvider(providerId: String): IntegrationProvider? {
+        return registeredProviders.firstOrNull { it.providerId.equals(providerId, ignoreCase = true) }
+    }
+
+    fun getAllProviders(): List<IntegrationProvider> = registeredProviders
 
     /**
      * Initialize all integrations and check connectivity
@@ -50,7 +75,7 @@ class IntegrationManager @Inject constructor(
             // Convert service-specific status types to IntegrationManager types
             val calibreStatusConverted = CalibreConnectionStatus(
                 isConnected = calibreStatus.isConnected,
-                serverUrl = calibreStatus.serverUrl ?: "",
+                serverUrl = calibreStatus.serverUrl,
                 libraryCount = calibreStatus.libraryCount
             )
 
@@ -67,7 +92,6 @@ class IntegrationManager @Inject constructor(
                 hasActiveConnections = bookStatusRaw.hasActiveConnections
             )
 
-            // Convert Plex service-specific status type to IntegrationManager type
             val plexStatusConverted = PlexConnectionStatus(
                 connectedServers = plexStatus.connectedServers,
                 hasActiveConnections = plexStatus.hasActiveConnections,
@@ -92,7 +116,7 @@ class IntegrationManager @Inject constructor(
     }
 
     /**
-     * Sync all connected services
+     * Sync all connected services using the unified IntegrationProvider interface
      */
     suspend fun syncAllServices() {
         _integrationState.value = _integrationState.value.copy(isSyncing = true)
@@ -100,16 +124,18 @@ class IntegrationManager @Inject constructor(
         try {
             val syncResults = mutableListOf<SyncResult>()
 
-            // Sync Plex libraries
-            if (_integrationState.value.plexStatus.hasActiveConnections) {
-                val plexSync = plexService.syncAllLibraries()
-                syncResults.add(SyncResult("Plex", plexSync.successful, plexSync.itemsProcessed))
-            }
-
-            // Sync Calibre libraries
-            if (_integrationState.value.calibreStatus.isConnected) {
-                val calibreSync = calibreService.syncLibraries()
-                syncResults.add(SyncResult("Calibre", calibreSync.successful, calibreSync.itemsProcessed))
+            for (provider in registeredProviders) {
+                if (provider.status.value.isConnected || provider.testConnection()) {
+                    val result = provider.sync()
+                    syncResults.add(
+                        SyncResult(
+                            serviceName = provider.providerName,
+                            successful = result.success,
+                            itemsProcessed = result.itemsProcessed,
+                            details = result.message
+                        )
+                    )
+                }
             }
 
             // Sync to cloud storage
@@ -189,7 +215,6 @@ data class UnifiedLibraryStats(
     val lastUpdated: Long
 )
 
-// Status data classes for each service
 data class PlexConnectionStatus(
     val connectedServers: List<String> = emptyList(),
     val hasActiveConnections: Boolean = false,
