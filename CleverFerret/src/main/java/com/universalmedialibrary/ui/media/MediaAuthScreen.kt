@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.plex.PlexDiscoveredServer
 
 /**
@@ -26,8 +27,8 @@ fun MediaAuthScreen(
     navController: NavController,
     viewModel: MediaAuthViewModel = hiltViewModel()
 ) {
-    val authState by viewModel.authState.collectAsState()
-    val servers by viewModel.discoveredServers.collectAsState()
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val servers by viewModel.discoveredServers.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

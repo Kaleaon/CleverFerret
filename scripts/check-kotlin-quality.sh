@@ -54,6 +54,14 @@ if [[ -f "$DETEKT_JAR" ]]; then
   CONFIG_FILE="${REPO_ROOT}/config/detekt/detekt.yml"
   inputs=$(IFS=,; echo "${kotlin_files[*]}")
 
+  echo "--> Checking for unmanaged collectAsState calls..."
+  unmanaged_calls=$(grep -rnE "\bcollectAsState\b" "${kotlin_files[@]}" 2>/dev/null | grep -v "collectAsStateWithLifecycle" | grep -v "@Suppress" || true)
+  if [[ -n "$unmanaged_calls" ]]; then
+    echo "❌ Unmanaged collectAsState() calls detected! Use collectAsStateWithLifecycle() instead:"
+    echo "$unmanaged_calls"
+    exit 1
+  fi
+
   exec java -jar "$DETEKT_JAR" --config "$CONFIG_FILE" --input "$inputs"
 else
   echo "Warning: Unable to fetch Detekt CLI jar. Skipping local Detekt check."

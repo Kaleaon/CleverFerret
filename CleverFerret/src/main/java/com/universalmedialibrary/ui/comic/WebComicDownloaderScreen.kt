@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.comic.ComicSeries
 import coil.compose.AsyncImage
 
@@ -25,7 +26,7 @@ fun WebComicDownloaderScreen(
     onNavigateBack: () -> Unit,
     viewModel: WebComicDownloaderViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
     var downloadUrl by remember { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf(0) }

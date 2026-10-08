@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.visualizer.VisualizerPreset
 import com.universalmedialibrary.services.visualizer.getCategory
 
@@ -29,8 +30,8 @@ fun PresetBrowserScreen(
     onNavigateToEditor: (String?) -> Unit = {},
     viewModel: PresetBrowserViewModel = hiltViewModel()
 ) {
-    val presets by viewModel.presets.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
+    val presets by viewModel.presets.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     var showImportDialog by remember { mutableStateOf(false) }
     var selectedPreset by remember { mutableStateOf<VisualizerPreset?>(null) }
     var presetToShare by remember { mutableStateOf<VisualizerPreset?>(null) }

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
@@ -44,7 +45,7 @@ fun NavGraphBuilder.syncImportRoutes(
 ) {
     composable(MediaRoutes.SYNC) {
         val viewModel: MediaSyncViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         MediaSyncScreen(
             state = state,
@@ -56,7 +57,7 @@ fun NavGraphBuilder.syncImportRoutes(
     
     composable(MediaRoutes.IMPORT_EXPORT) {
         val viewModel: ImportExportViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         ImportExportScreen(
             state = state,
@@ -80,7 +81,7 @@ fun NavGraphBuilder.syncImportRoutes(
     // Interactive Metadata Review Queue
     composable(MediaRoutes.METADATA_REVIEW_QUEUE) {
         val viewModel: com.universalmedialibrary.ui.metadata.review.MetadataReviewQueueViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
 
         com.universalmedialibrary.ui.metadata.review.MetadataReviewQueueScreen(
             state = state,

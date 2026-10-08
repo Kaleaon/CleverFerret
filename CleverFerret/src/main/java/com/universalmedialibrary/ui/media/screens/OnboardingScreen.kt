@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.media.theme.*
 import com.universalmedialibrary.ui.media.viewmodels.OnboardingViewModel
@@ -62,8 +63,8 @@ fun OnboardingScreen(
     
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val coroutineScope = rememberCoroutineScope()
-    val totalMediaItems by viewModel.totalMediaItemsCount.collectAsState()
-    val isScanDispatched by viewModel.isScanDispatched.collectAsState()
+    val totalMediaItems by viewModel.totalMediaItemsCount.collectAsStateWithLifecycle()
+    val isScanDispatched by viewModel.isScanDispatched.collectAsStateWithLifecycle()
 
     val permissionState = rememberPermissionsHandler(
         onAllPermissionsGranted = {
@@ -287,7 +288,7 @@ private fun StoragePage() {
     )
 
     val hasStoragePermission = PermissionsHandler.hasStoragePermissions(context) || permissionState.hasAllPermissions
-    val scanProgress by MediaScannerService.scanProgress.collectAsState()
+    val scanProgress by MediaScannerService.scanProgress.collectAsStateWithLifecycle()
 
     LaunchedEffect(hasStoragePermission) {
         if (hasStoragePermission) {

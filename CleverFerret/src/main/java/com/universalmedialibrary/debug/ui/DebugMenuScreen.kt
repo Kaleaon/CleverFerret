@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.debug.*
 import com.universalmedialibrary.ui.media.theme.MediaColors
 import java.text.SimpleDateFormat
@@ -47,7 +48,7 @@ fun DebugMenuScreen(
     viewModel: DebugMenuViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     
     var selectedTab by remember { mutableIntStateOf(0) }

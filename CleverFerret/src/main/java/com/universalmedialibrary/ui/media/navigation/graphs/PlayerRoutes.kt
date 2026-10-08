@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
@@ -55,7 +56,7 @@ fun NavGraphBuilder.playerRoutes(
         )
     ) { backStackEntry ->
         val viewModel: ReaderViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         // Handle chapter parameter if provided (expects chapter index as string)
         val chapterParam = backStackEntry.arguments?.getString("chapter")
@@ -106,7 +107,7 @@ fun NavGraphBuilder.playerRoutes(
         arguments = listOf(navArgument("videoId") { type = NavType.StringType })
     ) { backStackEntry ->
         val viewModel: VideoPlayerViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         UiErrorBoundary(
             boundaryName = "VideoPlayerBoundary",

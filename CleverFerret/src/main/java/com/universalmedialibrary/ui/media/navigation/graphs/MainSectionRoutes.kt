@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
@@ -48,9 +49,9 @@ fun NavGraphBuilder.mainSectionRoutes(
 ) {
     composable(MediaRoutes.HOME) {
         val viewModel: MediaHomeViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
-        val isRefreshing by viewModel.isRefreshing.collectAsState()
-        val reduceMotionEnabled by viewModel.reduceMotionEnabled.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+        val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+        val reduceMotionEnabled by viewModel.reduceMotionEnabled.collectAsStateWithLifecycle()
 
         MediaHomeScreen(
             state = state,

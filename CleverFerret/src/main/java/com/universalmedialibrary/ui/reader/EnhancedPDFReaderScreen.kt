@@ -54,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 
 /**
@@ -75,10 +76,10 @@ fun EnhancedPDFReaderScreen(
     onBack: () -> Unit,
     viewModel: PDFReaderViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val annotationMode by viewModel.annotationMode.collectAsState()
-    val selectedAnnotationTool by viewModel.selectedAnnotationTool.collectAsState()
-    val annotations by viewModel.annotations.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val annotationMode by viewModel.annotationMode.collectAsStateWithLifecycle()
+    val selectedAnnotationTool by viewModel.selectedAnnotationTool.collectAsStateWithLifecycle()
+    val annotations by viewModel.annotations.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val configuration = LocalConfiguration.current
