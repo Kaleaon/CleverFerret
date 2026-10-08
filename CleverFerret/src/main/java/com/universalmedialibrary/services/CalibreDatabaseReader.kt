@@ -1,16 +1,117 @@
 package com.universalmedialibrary.services
 
+import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import com.universalmedialibrary.services.RawCalibreBook
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class CalibreDatabaseReader @Inject constructor() {
+/**
+ * Statistics retrieved directly from a local Calibre metadata.db database.
+ */
+data class CalibreDatabaseStats(
+    val bookCount: Int = 0,
+    val authorCount: Int = 0,
+    val seriesCount: Int = 0,
+    val tagCount: Int = 0
+)
 
+@Singleton
+class CalibreDatabaseReader @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+
+    /**
+     * Executes a read-only block against a Calibre SQLite database.
+     * Enforces read-only safety by copying the source database to a temporary file
+     * and setting read-only permissions, preventing any modifications or write locks
+     * on the source Calibre metadata.db file.
+     */
+    fun <T> openCalibreDatabase(
+        dbPathOrUri: String,
+        block: (SQLiteDatabase) -> T
+    ): T {
+        var tempFile: File? = null
+        try {
+            val resolvedFile = resolveDatabaseFile(dbPathOrUri)
+            if (resolvedFile != null && resolvedFile.exists()) {
+                // To guarantee 100% read-only safety and prevent sidecar -wal/-shm files on source media,
+                // copy to a temporary cache file and mark as read-only.
+                val temp = File.createTempFile("calibre_readonly_", ".db", context.cacheDir)
+                tempFile = temp
+                resolvedFile.inputStream().use { input ->
+                    temp.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                temp.setReadOnly()
+                return SQLiteDatabase.openDatabase(temp.absolutePath, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+                    block(db)
+                }
+            }
+
+            // Fallback for direct content:// URI input stream handling
+            if (dbPathOrUri.startsWith("content://")) {
+                val uri = Uri.parse(dbPathOrUri)
+                val targetUri = locateMetadataDbUriInTree(uri) ?: uri
+                val temp = File.createTempFile("calibre_readonly_uri_", ".db", context.cacheDir)
+                tempFile = temp
+                context.contentResolver.openInputStream(targetUri)?.use { input ->
+                    FileOutputStream(temp).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                temp.setReadOnly()
+                return SQLiteDatabase.openDatabase(temp.absolutePath, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+                    block(db)
+                }
+            }
+
+            // Fallback direct open if copy was not possible
+            val directPath = if (File(dbPathOrUri).isDirectory) {
+                File(dbPathOrUri, "metadata.db").absolutePath
+            } else {
+                dbPathOrUri
+            }
+            return SQLiteDatabase.openDatabase(directPath, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+                block(db)
+            }
+        } finally {
+            tempFile?.delete()
+        }
+    }
+
+    private fun resolveDatabaseFile(dbPathOrUri: String): File? {
+        val file = File(dbPathOrUri)
+        if (file.isDirectory) {
+            val dbFile = File(file, "metadata.db")
+            if (dbFile.exists()) return dbFile
+        } else if (file.exists()) {
+            return file
+        }
+        return null
+    }
+
+    private fun locateMetadataDbUriInTree(uri: Uri): Uri? {
+        val treeDoc = DocumentFile.fromTreeUri(context, uri) ?: return null
+        return if (treeDoc.isDirectory) {
+            treeDoc.findFile("metadata.db")?.uri
+        } else {
+            treeDoc.uri
+        }
+    }
+
+    /**
+     * Reads all e-book records and associated metadata from the Calibre database.
+     */
     fun readBooks(calibreDbPath: String): Map<Long, RawCalibreBook> {
         return try {
-            SQLiteDatabase.openDatabase(calibreDbPath, null, SQLiteDatabase.OPEN_READONLY).use { calibreDb ->
+            openCalibreDatabase(calibreDbPath) { calibreDb ->
                 // This query is complex because Calibre uses a normalized schema.
                 // We need to join multiple tables to get all the data for a single book.
                 val query = """
@@ -91,4 +192,37 @@ class CalibreDatabaseReader @Inject constructor() {
             emptyMap()
         }
     }
+
+    /**
+     * Calculates library statistics dynamically from local Calibre database records.
+     */
+    fun readLibraryStats(calibreDbPath: String): CalibreDatabaseStats {
+        return try {
+            openCalibreDatabase(calibreDbPath) { db ->
+                val books = querySingleCount(db, "SELECT COUNT(*) FROM books")
+                val authors = querySingleCount(db, "SELECT COUNT(*) FROM authors")
+                val series = querySingleCount(db, "SELECT COUNT(*) FROM series")
+                val tags = querySingleCount(db, "SELECT COUNT(*) FROM tags")
+                CalibreDatabaseStats(
+                    bookCount = books,
+                    authorCount = authors,
+                    seriesCount = series,
+                    tagCount = tags
+                )
+            }
+        } catch (e: Exception) {
+            CalibreDatabaseStats()
+        }
+    }
+
+    private fun querySingleCount(db: SQLiteDatabase, sql: String): Int {
+        return try {
+            db.rawQuery(sql, null).use { cursor ->
+                if (cursor.moveToFirst()) cursor.getInt(0) else 0
+            }
+        } catch (e: Exception) {
+            0
+        }
+    }
 }
+

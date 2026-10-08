@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.integration.calibre
 
 import android.content.Context
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.services.CalibreDatabaseReader
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,22 +14,64 @@ import javax.inject.Singleton
 
 /**
  * Calibre Integration Service
- * Connects to remote Calibre servers for book management
- * Supports both Calibre Content Server and OPDS
+ * Connects to local Calibre libraries via Storage Access Framework / SQLite
+ * or remote Calibre servers for book management.
  */
 @Singleton
 class CalibreIntegrationService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val apiKeyRepository: APIKeyRepository
+    private val apiKeyRepository: APIKeyRepository,
+    private val calibreReader: CalibreDatabaseReader
 ) {
 
     private val _calibreState = MutableStateFlow(CalibreState())
     val calibreState: StateFlow<CalibreState> = _calibreState.asStateFlow()
 
     private val connectedServers = mutableMapOf<String, CalibreConnection>()
+    private val localLibraryPaths = mutableMapOf<String, String>()
 
     /**
-     * Connect to a Calibre server
+     * Connect to a local Calibre library folder or database file.
+     */
+    suspend fun connectToLocalLibrary(
+        libraryName: String,
+        pathOrUri: String
+    ): CalibreConnectionResult = withContext(Dispatchers.IO) {
+        try {
+            _calibreState.value = _calibreState.value.copy(isConnecting = true)
+
+            val stats = calibreReader.readLibraryStats(pathOrUri)
+            localLibraryPaths[libraryName] = pathOrUri
+
+            val connection = CalibreConnection(
+                name = libraryName,
+                url = pathOrUri,
+                username = null,
+                password = null,
+                isConnected = true,
+                libraryCount = stats.bookCount
+            )
+
+            connectedServers[libraryName] = connection
+
+            _calibreState.value = _calibreState.value.copy(
+                isConnecting = false,
+                connectedServers = connectedServers.keys.toList(),
+                isConnected = connectedServers.isNotEmpty()
+            )
+
+            CalibreConnectionResult.Success(connection)
+        } catch (e: Exception) {
+            _calibreState.value = _calibreState.value.copy(
+                isConnecting = false,
+                error = "Failed to connect to local Calibre library: ${e.message}"
+            )
+            CalibreConnectionResult.Error(e.message ?: "Local connection failed")
+        }
+    }
+
+    /**
+     * Connect to a remote Calibre server
      */
     suspend fun connectToServer(
         serverName: String,
@@ -39,14 +82,20 @@ class CalibreIntegrationService @Inject constructor(
         try {
             _calibreState.value = _calibreState.value.copy(isConnecting = true)
 
-            // Test connection to Calibre server
+            // Test connection to Calibre server or local library path
+            val isLocal = serverUrl.startsWith("/") || serverUrl.startsWith("file://") || serverUrl.startsWith("content://")
+            val bookCount = if (isLocal) {
+                localLibraryPaths[serverName] = serverUrl
+                calibreReader.readLibraryStats(serverUrl).bookCount
+            } else 0
+
             val connection = CalibreConnection(
                 name = serverName,
                 url = serverUrl,
                 username = username,
                 password = password,
                 isConnected = true,
-                libraryCount = 0 // Would be populated by actual connection test
+                libraryCount = bookCount
             )
 
             connectedServers[serverName] = connection
@@ -69,16 +118,16 @@ class CalibreIntegrationService @Inject constructor(
     }
 
     /**
-     * Sync libraries from connected Calibre servers
+     * Sync libraries from connected Calibre databases
      */
     suspend fun syncLibraries(): CalibreSyncResult = withContext(Dispatchers.IO) {
         try {
             _calibreState.value = _calibreState.value.copy(isSyncing = true)
 
             var totalBooks = 0
-            for ((serverName, connection) in connectedServers) {
-                // Placeholder for actual sync logic
-                totalBooks += 100 // Mock data
+            for ((_, pathOrUrl) in localLibraryPaths) {
+                val books = calibreReader.readBooks(pathOrUrl)
+                totalBooks += books.size
             }
 
             _calibreState.value = _calibreState.value.copy(
@@ -98,16 +147,29 @@ class CalibreIntegrationService @Inject constructor(
     }
 
     /**
-     * Get library statistics
+     * Get real library statistics dynamically from local Calibre database files.
      */
     fun getLibraryStats(): CalibreLibraryStats? {
-        if (connectedServers.isEmpty()) return null
+        if (connectedServers.isEmpty() && localLibraryPaths.isEmpty()) return null
+
+        var totalBooks = 0
+        var totalAuthors = 0
+        var totalSeries = 0
+        var totalTags = 0
+
+        for ((_, pathOrUrl) in localLibraryPaths) {
+            val dbStats = calibreReader.readLibraryStats(pathOrUrl)
+            totalBooks += dbStats.bookCount
+            totalAuthors += dbStats.authorCount
+            totalSeries += dbStats.seriesCount
+            totalTags += dbStats.tagCount
+        }
 
         return CalibreLibraryStats(
-            books = 1000, // Mock data - would come from actual Calibre connection
-            authors = 500,
-            series = 200,
-            tags = 150
+            books = totalBooks,
+            authors = totalAuthors,
+            series = totalSeries,
+            tags = totalTags
         )
     }
 
@@ -116,12 +178,13 @@ class CalibreIntegrationService @Inject constructor(
      */
     suspend fun checkConnections(): CalibreConnectionStatus {
         return CalibreConnectionStatus(
-            isConnected = connectedServers.isNotEmpty(),
-            serverUrl = connectedServers.values.firstOrNull()?.url ?: "",
+            isConnected = connectedServers.isNotEmpty() || localLibraryPaths.isNotEmpty(),
+            serverUrl = connectedServers.values.firstOrNull()?.url ?: localLibraryPaths.values.firstOrNull() ?: "",
             libraryCount = connectedServers.values.sumOf { it.libraryCount }
         )
     }
 }
+
 
 // Data classes
 data class CalibreState(
