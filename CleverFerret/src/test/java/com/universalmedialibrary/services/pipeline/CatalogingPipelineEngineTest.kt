@@ -86,7 +86,7 @@ class CatalogingPipelineEngineTest {
         coEvery { mediaItemDao.insertMediaItem(any()) } returns 100L
         coEvery { metadataDao.insertMetadataCommon(any()) } returns Unit
         coEvery { metadataDao.insertMetadataBook(any()) } returns Unit
-        coEvery { mediaItemDao.updateMediaItem(any()) } returns 1
+        coEvery { mediaItemDao.updateMediaItem(any()) } returns Unit
 
         val result = engine.execute(file, "BOOK", 1L)
 

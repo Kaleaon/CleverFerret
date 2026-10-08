@@ -1,5 +1,7 @@
 package com.universalmedialibrary.ui.audiobook
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -454,12 +456,12 @@ private fun AudiobookProgressSection(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = formatTime(currentPosition),
+                text = currentPosition.formatAsMediaTime(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = formatTime(totalDuration),
+                text = totalDuration.formatAsMediaTime(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -626,8 +628,8 @@ fun BookmarksBottomSheet(
         com.universalmedialibrary.data.local.entity.Bookmark(
             bookmarkId = ab.id.toLongOrNull() ?: 0L,
             itemId = 0, // Not needed for display
-            title = ab.note ?: "Bookmark at ${formatTimestamp(ab.position)}",
-            description = formatTimestamp(ab.position),
+            title = ab.note ?: "Bookmark at ${ab.position.formatAsMediaTime()}",
+            description = ab.position.formatAsMediaTime(),
             position = ab.position,
             dateCreated = ab.createdAt
         )
@@ -647,19 +649,6 @@ fun BookmarksBottomSheet(
     )
 }
 
-private fun formatTimestamp(millis: Long): String {
-    val totalSeconds = millis / 1000
-    val hours = totalSeconds / 3600
-    val minutes = (totalSeconds % 3600) / 60
-    val seconds = totalSeconds % 60
-    
-    return if (hours > 0) {
-        String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
-    } else {
-        String.format(java.util.Locale.US, "%d:%02d", minutes, seconds)
-    }
-}
-
 @Composable
 fun SleepTimerDialog(
     currentTimer: Long?,
@@ -673,16 +662,4 @@ fun SleepTimerDialog(
             onTimerSet(minutes * 60L * 1000L) // Convert minutes to milliseconds
         }
     )
-}
-private fun formatTime(milliseconds: Long): String {
-    val totalSeconds = milliseconds / 1000
-    val hours = totalSeconds / 3600
-    val minutes = (totalSeconds % 3600) / 60
-    val seconds = totalSeconds % 60
-
-    return if (hours > 0) {
-        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
-    } else {
-        String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
-    }
 }

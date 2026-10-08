@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 
 @Composable
 internal fun VideoPlayerBottomBar(
@@ -103,7 +104,7 @@ internal fun VideoPlayerBottomBar(
         ) {
             // Time
             Text(
-                text = "${formatTime(currentPosition)} / ${formatTime(duration)}",
+                text = "${currentPosition.formatAsMediaTime()} / ${duration.formatAsMediaTime()}",
                 style = MediaTypography.LabelMedium,
                 color = Color.White
             )

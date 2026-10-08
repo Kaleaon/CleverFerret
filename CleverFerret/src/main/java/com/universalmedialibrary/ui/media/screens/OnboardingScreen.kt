@@ -96,10 +96,7 @@ fun OnboardingScreen(
             when (pages[pageIndex]) {
                 OnboardingPage.Welcome -> WelcomePage()
                 OnboardingPage.Features -> FeaturesPage()
-                OnboardingPage.Storage -> StoragePage(
-                    permissionState = permissionState,
-                    onGrantSuccess = { viewModel.triggerInitialScan() }
-                )
+                OnboardingPage.Storage -> StoragePage()
                 OnboardingPage.Accounts -> AccountsPage()
                 OnboardingPage.Theme -> ThemePage()
                 OnboardingPage.Ready -> ReadyPage(

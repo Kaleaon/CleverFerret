@@ -27,7 +27,7 @@ class OnboardingViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        every { settingsRepository.onboardingCompletedFlow } returns flowOf(false)
+        every { settingsRepository.hasCompletedOnboardingFlow } returns flowOf(false)
         every { mediaItemDao.getAllMediaItemsFlow() } returns flowOf(emptyList())
     }
 
@@ -47,7 +47,7 @@ class OnboardingViewModelTest {
 
     @Test
     fun completeOnboarding_setsSettingsAndInvokesCallback() = runTest {
-        coEvery { settingsRepository.setOnboardingCompleted(true) } returns Unit
+        coEvery { settingsRepository.setHasCompletedOnboarding(true) } returns Unit
 
         val viewModel = OnboardingViewModel(settingsRepository, mediaItemDao, context)
         var callbackCalled = false
@@ -57,7 +57,7 @@ class OnboardingViewModelTest {
         }
         testScheduler.advanceUntilIdle()
 
-        coVerify(exactly = 1) { settingsRepository.setOnboardingCompleted(true) }
+        coVerify(exactly = 1) { settingsRepository.setHasCompletedOnboarding(true) }
         assertThat(callbackCalled).isTrue()
     }
 }

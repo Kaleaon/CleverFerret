@@ -11,7 +11,7 @@ import com.universalmedialibrary.data.settings.ApiSettings
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
-import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -57,7 +57,7 @@ class SettingsViewModelTest {
         Dispatchers.setMain(testDispatcher)
         MockKAnnotations.init(this, relaxUnitFun = true)
 
-        every { settingsRepository.themeFlow } returns flowOf(ThemePalette.NAVY_GOLD)
+        every { settingsRepository.themeFlow } returns flowOf(CleverFerretTheme.NAVY_GOLD)
         every { settingsRepository.darkModeFlow } returns flowOf(true)
         every { settingsRepository.autoDownloadPodcastsFlow } returns flowOf(false)
         every { settingsRepository.wifiOnlyDownloadsFlow } returns flowOf(true)

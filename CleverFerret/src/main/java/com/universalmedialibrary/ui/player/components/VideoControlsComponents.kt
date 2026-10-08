@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.player.components
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -155,7 +156,7 @@ fun BottomControlsBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = formatTime(currentPosition),
+                    text = currentPosition.formatAsMediaTime(),
                     color = Color.White,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.width(60.dp)
@@ -174,7 +175,7 @@ fun BottomControlsBar(
                 )
 
                 Text(
-                    text = formatTime(duration),
+                    text = duration.formatAsMediaTime(),
                     color = Color.White,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.width(60.dp)
@@ -293,13 +294,4 @@ fun EnhancedVideoControls(
             onAudioTracks = { onAudioTrackChange(0) }
         )
     }
-}
-
-private fun formatTime(ms: Long): String {
-    val totalSeconds = (ms / 1000).toInt()
-    val seconds = totalSeconds % 60
-    val minutes = (totalSeconds / 60) % 60
-    val hours = totalSeconds / 3600
-    return if (hours > 0) String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
-    else String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 }
