@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.universalmedialibrary.data.settings.*
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.modern.theme.CFLayout
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,7 @@ class SettingsRepository @Inject constructor(
 
     private object PreferencesKeys {
         val THEME = stringPreferencesKey("theme")
+        val LAYOUT = stringPreferencesKey("layout_id")
         val DARK_MODE = booleanPreferencesKey("dark_mode")
         val AUTO_DOWNLOAD_PODCASTS = booleanPreferencesKey("auto_download_podcasts")
         val WIFI_ONLY_DOWNLOADS = booleanPreferencesKey("wifi_only_downloads")
@@ -79,6 +81,14 @@ class SettingsRepository @Inject constructor(
         } catch (e: IllegalArgumentException) {
             CleverFerretTheme.NAVY_GOLD
         }
+    }
+
+    val layoutFlow: Flow<CFLayout> = context.dataStore.data.map { preferences ->
+        CFLayout.fromId(preferences[PreferencesKeys.LAYOUT])
+    }
+
+    suspend fun setLayout(layout: CFLayout) {
+        context.dataStore.edit { it[PreferencesKeys.LAYOUT] = layout.id }
     }
 
     val darkModeFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->

@@ -21,8 +21,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import com.universalmedialibrary.ui.components.dynamicStateDescription
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.ui.modern.theme.CFLayout
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayout
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayoutStandard
+import com.universalmedialibrary.ui.modern.theme.cfContrastInk
 
 /**
  * Common Media UI Components
@@ -48,110 +54,55 @@ fun MediaMiniPlayer(
     onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onTap),
-        color = MediaColors.BackgroundElevated,
-        tonalElevation = MediaElevation.MD
-    ) {
+    val sweep = LocalCFLayout.current == CFLayout.Lcars
+    Surface(modifier = modifier.fillMaxWidth().clickable(onClickLabel = "Open player", onClick = onTap),
+        color = MaterialTheme.colorScheme.surface, tonalElevation = MediaElevation.None) {
         Column {
-            // Progress bar - 4dp height for better visibility
-            LinearProgressIndicator(
-                progress = { state.progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp),
-                color = MediaColors.AccentPrimary,
-                trackColor = MediaColors.ProgressBackground
-            )
-            
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(MediaSpacing.SM),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Artwork
-                Surface(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(MediaCorners.XS)),
-                    color = MediaColors.BackgroundSurface
-                ) {
-                    if (state.artworkUrl != null) {
-                        AsyncImage(
-                    
-                            model = state.artworkUrl,
-                            contentDescription = "Album art for ${state.title}",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        Icon(
-                            imageVector = when (state.playerType) {
-                                "music" -> Icons.Default.MusicNote
-                                "audiobook" -> Icons.Default.Headphones
-                                "podcast" -> Icons.Default.Podcasts
-                                else -> Icons.Default.PlayArrow
-                            },
-                            contentDescription = when (state.playerType) {
-                                "music" -> "Music"
-                                "audiobook" -> "Audiobook"
-                                "podcast" -> "Podcast"
-                                else -> "Media"
-                            },
-                            tint = MediaColors.TextTertiary,
-                            modifier = Modifier.padding(MediaSpacing.SM)
-                        )
-                    }
+            LinearProgressIndicator(progress = { state.progress }, modifier = Modifier.fillMaxWidth().height(MediaSpacing.XS),
+                color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.surfaceVariant)
+            Row(Modifier.fillMaxWidth().padding(MediaSpacing.SM), verticalAlignment = Alignment.CenterVertically) {
+                if (!sweep) MediaPlayerArtwork(state)
+                Column(Modifier.weight(1f).padding(horizontal = MediaSpacing.SM)) {
+                    Text(state.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(state.subtitle, style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                
-                Spacer(modifier = Modifier.width(MediaSpacing.MD))
-                
-                // Title & subtitle
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = state.title,
-                        style = MediaTypography.BodyMedium,
-                        color = MediaColors.TextPrimary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = state.subtitle,
-                        style = MediaTypography.LabelSmall,
-                        color = MediaColors.TextSecondary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                
-                // Controls
-                IconButton(onClick = onPlayPause) {
-                    Surface(
-                        shape = CircleShape,
-                        color = MediaColors.AccentPrimary,
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (state.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = if (state.isPlaying) "Pause" else "Play",
-                            tint = Color.Black,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                    }
-                }
-                
-                IconButton(onClick = onNext) {
-                    Icon(
-                        imageVector = Icons.Default.SkipNext,
-                        contentDescription = "Next",
-                        tint = MediaColors.TextSecondary
-                    )
-                }
+                MediaPlayerControls(state.isPlaying, onPlayPause, onNext, sweep)
             }
+        }
+    }
+}
+
+@Composable
+private fun MediaPlayerArtwork(state: com.universalmedialibrary.ui.media.MiniPlayerState) {
+    val shape = RoundedCornerShape((LocalCFLayoutStandard.current?.corners?.cover ?: MediaCorners.XS.value).dp)
+    Surface(Modifier.size(MediaSizes.TouchTarget).clip(shape), color = MaterialTheme.colorScheme.surfaceVariant) {
+        if (state.artworkUrl != null) {
+            AsyncImage(model = state.artworkUrl, contentDescription = null,
+                contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+        } else {
+            Icon(Icons.Default.MusicNote, contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(MediaSpacing.SM))
+        }
+    }
+}
+
+@Composable
+private fun MediaPlayerControls(isPlaying: Boolean, onPlayPause: () -> Unit, onNext: () -> Unit, sweep: Boolean) {
+    val cs = MaterialTheme.colorScheme
+    val label = if (isPlaying) "Pause" else "Play"
+    if (sweep) {
+        Column {
+            Button(onClick = onPlayPause, modifier = Modifier.heightIn(min = MediaSizes.TouchTarget),
+                colors = ButtonDefaults.buttonColors(contentColor = cfContrastInk(cs.primary))) { Text(label) }
+            TextButton(onClick = onNext, modifier = Modifier.heightIn(min = MediaSizes.TouchTarget)) { Text("Next") }
+        }
+    } else {
+        IconButton(onClick = onPlayPause, modifier = Modifier.size(MediaSizes.TouchTarget)) {
+            Icon(if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = label, tint = cs.primary)
+        }
+        IconButton(onClick = onNext, modifier = Modifier.size(MediaSizes.TouchTarget)) {
+            Icon(Icons.Default.SkipNext, contentDescription = "Next", tint = cs.onSurface)
         }
     }
 }
@@ -447,13 +398,13 @@ fun MediaPrimaryButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.heightIn(min = MediaSizes.TouchTarget),
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = MediaColors.AccentPrimary,
-            contentColor = Color.Black
+            contentColor = cfContrastInk(MaterialTheme.colorScheme.primary)
         ),
-        shape = RoundedCornerShape(MediaCorners.SM)
+        shape = RoundedCornerShape((LocalCFLayoutStandard.current?.corners?.control ?: MediaCorners.SM.value).dp)
     ) {
         if (icon != null) {
             Icon(
@@ -477,13 +428,13 @@ fun MediaSecondaryButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.heightIn(min = MediaSizes.TouchTarget),
         enabled = enabled,
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MediaColors.TextPrimary
         ),
         border = BorderStroke(1.dp, MediaColors.Border),
-        shape = RoundedCornerShape(MediaCorners.SM)
+        shape = RoundedCornerShape((LocalCFLayoutStandard.current?.corners?.control ?: MediaCorners.SM.value).dp)
     ) {
         if (icon != null) {
             Icon(
@@ -605,10 +556,18 @@ fun MediaChip(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null
 ) {
+    val cs = MaterialTheme.colorScheme
+    if (LocalCFLayout.current == CFLayout.Lcars) {
+        val fill = if (selected) cs.primary else cs.secondary
+        Button(onClick = onClick, modifier = modifier.heightIn(min = MediaSizes.TouchTarget)
+            .semantics { this.selected = selected },
+            colors = ButtonDefaults.buttonColors(containerColor = fill, contentColor = cfContrastInk(fill))) { Text(text) }
+        return
+    }
     FilterChip(
         selected = selected,
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.heightIn(min = MediaSizes.TouchTarget),
         label = { Text(text) },
         leadingIcon = if (icon != null) {
             {

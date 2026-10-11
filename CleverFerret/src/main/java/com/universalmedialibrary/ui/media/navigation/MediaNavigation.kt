@@ -28,6 +28,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
@@ -154,7 +157,8 @@ private fun BottomNavItem(
     Column(
         modifier = Modifier
             .widthIn(min = MediaSizes.BottomNavMinItemWidth)
-            .clickable(enabled = enabled, onClick = onClick)
+            .clickable(enabled = enabled, role = Role.Tab, onClick = onClick)
+            .semantics { selected = isSelected }
             .alpha(if (enabled) 1f else 0.55f)
             .padding(horizontal = MediaSpacing.MD, vertical = MediaSpacing.SM),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -172,7 +176,7 @@ private fun BottomNavItem(
         // Increased icon size from IconMD (24dp) to IconLG (32dp) for better visibility
         Icon(
             imageVector = if (isSelected) destination.selectedIcon else destination.icon,
-            contentDescription = destination.label,
+            contentDescription = null,
             tint = iconColor,
             modifier = Modifier.size(MediaSizes.IconLG)
         )

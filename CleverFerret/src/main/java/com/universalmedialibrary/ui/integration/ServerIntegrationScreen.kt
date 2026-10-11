@@ -295,12 +295,7 @@ fun AddServerDialog(
     var password by remember { mutableStateOf("") }
     var hasSubmitted by remember { mutableStateOf(false) }
 
-    val urlError = when {
-        serverUrl.isNotBlank() && !serverUrl.startsWith("http://", ignoreCase = true) && !serverUrl.startsWith("https://", ignoreCase = true) ->
-            "Server URL must start with http or https"
-        hasSubmitted && serverUrl.isBlank() -> "Server URL cannot be empty"
-        else -> null
-    }
+    val urlError = connectionUrlError(serverUrl, hasSubmitted)
 
     val usernameError = when {
         hasSubmitted && username.isBlank() -> "Username cannot be empty"
@@ -312,39 +307,17 @@ fun AddServerDialog(
         else -> null
     }
 
-    val isValid = urlError == null && usernameError == null && passwordError == null &&
-            serverUrl.isNotBlank() && username.isNotBlank() && password.isNotBlank()
+    val isValid = listOf(urlError, usernameError, passwordError).all { it == null } &&
+        listOf(serverUrl, username, password).all { it.isNotBlank() }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Connect to ${serverType.name}") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                AccessibleOutlinedTextField(
-                    value = serverUrl,
-                    onValueChange = { serverUrl = it },
-                    label = { Text("Server URL") },
-                    placeholder = { Text("https://server.example.com:8096") },
-                    errorMessage = urlError,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                AccessibleOutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Username") },
-                    errorMessage = usernameError,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                AccessibleOutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    errorMessage = passwordError,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ConnectionInput(serverUrl, { serverUrl = it }, "Server URL", urlError, "https://server.example.com:8096")
+                ConnectionInput(username, { username = it }, "Username", usernameError)
+                ConnectionInput(password, { password = it }, "Password", passwordError)
             }
         },
         confirmButton = {
@@ -369,3 +342,17 @@ fun AddServerDialog(
 
 // Helper data class
 private data class Tuple4<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
+
+private fun connectionUrlError(url: String, submitted: Boolean): String? = when {
+    url.isNotBlank() && !url.startsWith("http://", true) && !url.startsWith("https://", true) ->
+        "Server URL must start with http or https"
+    submitted && url.isBlank() -> "Server URL cannot be empty"
+    else -> null
+}
+
+@Composable
+private fun ConnectionInput(value: String, onChange: (String) -> Unit, label: String, error: String?, hint: String? = null) {
+    AccessibleOutlinedTextField(value = value, onValueChange = onChange, label = { Text(label) },
+        placeholder = { if (hint != null) Text(hint) }, errorMessage = error,
+        singleLine = true, modifier = Modifier.fillMaxWidth())
+}

@@ -43,7 +43,6 @@ internal fun GenericApiKeySection(
 ) {
     var currentKey by remember(apiKey) { mutableStateOf(apiKey) }
     var showKey by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -76,24 +75,7 @@ internal fun GenericApiKeySection(
                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                 errorMessage = errorMessage,
                 helperText = note,
-                trailingIcon = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (getKeyUrl != null) {
-                            IconButton(onClick = {
-                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, getKeyUrl.toUri())
-                                context.startActivity(intent)
-                            }) {
-                                Icon(PhosphorIcons.Info, contentDescription = "Get API Key")
-                            }
-                        }
-                        IconButton(onClick = { showKey = !showKey }) {
-                            Icon(
-                                imageVector = if (showKey) PhosphorIcons.Warning else PhosphorIcons.Star,
-                                contentDescription = if (showKey) "Hide key" else "Show key"
-                            )
-                        }
-                    }
-                },
+                trailingIcon = { ApiKeyVisibilityActions(getKeyUrl, showKey) { showKey = !showKey } },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -117,4 +99,27 @@ internal fun GenericApiKeySection(
             }
         }
     }
+}
+
+@Composable
+private fun ApiKeyVisibilityActions(getKeyUrl: String?, showKey: Boolean, onToggle: () -> Unit) {
+    val context = LocalContext.current
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (getKeyUrl != null) {
+                            IconButton(onClick = {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, getKeyUrl.toUri())
+                                context.startActivity(intent)
+                            }) {
+                                Icon(PhosphorIcons.Info, contentDescription = "Get API Key")
+                            }
+                        }
+                        IconButton(onClick = { onToggle() }) {
+                            Icon(
+                                imageVector = if (showKey) PhosphorIcons.Warning else PhosphorIcons.Star,
+                                contentDescription = if (showKey) "Hide key" else "Show key"
+                            )
+                        }
+                    }
+
 }

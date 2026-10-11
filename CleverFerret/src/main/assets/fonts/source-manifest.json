@@ -1,0 +1,46 @@
+[
+  {
+    "family": "jetbrains-mono",
+    "package": "@fontsource-variable/jetbrains-mono",
+    "version": "5.3.0",
+    "source": "jetbrains-mono-latin-wght-normal.woff2",
+    "output": "jetbrains_mono_variable.ttf",
+    "sha256": "fb11d78ea72ff815f0a3a4aac2ebc33c4ed6af61636f21353c5152f3c99f472e"
+  },
+  {
+    "family": "source-serif-4",
+    "package": "@fontsource-variable/source-serif-4",
+    "version": "5.3.1",
+    "source": "source-serif-4-latin-wght-normal.woff2",
+    "output": "source_serif_variable.ttf",
+    "sha256": "9de1894a78620e2ae9e0964754b9f9b481ab452cbf9f8c78609cf9e73fb6b790"
+  },
+  {
+    "family": "jost",
+    "package": "@fontsource-variable/jost",
+    "version": "5.3.0",
+    "source": "jost-latin-wght-normal.woff2",
+    "output": "jost_variable.ttf",
+    "sha256": "08ee1941623b33b09ae0b32b4c08a7fbe2fcf0e36c8b60379bd3137c54f49bb7"
+  },
+  {
+    "family": "open-sans",
+    "package": "@fontsource-variable/open-sans",
+    "version": "5.3.0",
+    "source": "open-sans-latin-wght-normal.woff2",
+    "output": "open_sans_variable.ttf",
+    "sha256": "f49db1b30065f266abb1d2eb121b05bc92be4b9bb0c38a48a0472438be8c2000"
+  },
+  {
+    "family": "antonio",
+    "source": "https://github.com/google/fonts/tree/main/ofl/antonio",
+    "output": "antonio_variable.ttf",
+    "sha256": "9e95a2258ecdf3e45c72c5bbea1c4cd350e8f7bebc87c9dba53b29b1890b8903"
+  },
+  {
+    "family": "nunito-sans",
+    "source": "https://github.com/google/fonts/tree/main/ofl/nunitosans",
+    "output": "nunito_sans_variable.ttf",
+    "sha256": "f934d7142fb4784bf828da485b7dcbd90c0c80d514e9d49a5da0ed3a1ae2491d"
+  }
+]

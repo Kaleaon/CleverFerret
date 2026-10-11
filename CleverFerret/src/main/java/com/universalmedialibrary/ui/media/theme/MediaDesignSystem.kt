@@ -1,4 +1,6 @@
 package com.universalmedialibrary.ui.media.theme
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayoutStandard
+
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -8,11 +10,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.universalmedialibrary.R
@@ -332,28 +334,36 @@ object MediaTypography {
     }
     
     // Text styles
-    val Hero = TextStyle(
+    val Hero: TextStyle
+        @Composable get() = TextStyle(
+        fontFamily = MaterialTheme.typography.displayLarge.fontFamily,
         fontSize = Sizes.Hero,
         fontWeight = Weights.Bold,
         lineHeight = 56.sp,
         letterSpacing = (-1).sp
     )
     
-    val TitleLarge = TextStyle(
+    val TitleLarge: TextStyle
+        @Composable get() = TextStyle(
+        fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
         fontSize = Sizes.Title,
         fontWeight = Weights.Bold,
         lineHeight = 40.sp,
         letterSpacing = (-0.5).sp
     )
     
-    val TitleMedium = TextStyle(
+    val TitleMedium: TextStyle
+        @Composable get() = TextStyle(
+        fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
         fontSize = Sizes.Headline,
         fontWeight = Weights.SemiBold,
         lineHeight = 32.sp,
         letterSpacing = 0.sp
     )
     
-    val TitleSmall = TextStyle(
+    val TitleSmall: TextStyle
+        @Composable get() = TextStyle(
+        fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
         fontSize = Sizes.Subheadline,
         fontWeight = Weights.Medium,
         lineHeight = 28.sp,
@@ -395,8 +405,9 @@ object MediaTypography {
         letterSpacing = 0.5.sp
     )
     
-    val LabelSmall = TextStyle(
-        fontSize = Sizes.Label,
+    val LabelSmall: TextStyle
+        @Composable get() = TextStyle(
+        fontSize = maxOf(Sizes.Label.value, MaterialTheme.typography.labelSmall.fontSize.value).sp,
         fontWeight = Weights.Medium,
         lineHeight = 14.sp,
         letterSpacing = 0.5.sp
@@ -409,8 +420,9 @@ object MediaTypography {
         letterSpacing = 0.sp
     )
     
-    val Badge = TextStyle(
-        fontSize = Sizes.Micro,
+    val Badge: TextStyle
+        @Composable get() = TextStyle(
+        fontSize = maxOf(Sizes.Micro.value, MaterialTheme.typography.labelSmall.fontSize.value).sp,
         fontWeight = Weights.Bold,
         lineHeight = 12.sp,
         letterSpacing = 0.5.sp
@@ -462,6 +474,7 @@ object MediaSpacing {
  * Consistent sizing
  */
 object MediaSizes {
+    val TouchTarget = 48.dp
     // Navigation
     val SidebarWidth = 240.dp
     val SidebarCollapsedWidth = 72.dp
@@ -519,7 +532,7 @@ object MediaSizes {
     // Mini player
     val MiniPlayerHeight = 72.dp
     val BottomNavFadeWidth = 18.dp
-    val BottomNavMinItemWidth = 80.dp
+    val BottomNavMinItemWidth = TouchTarget
     val SidebarSelectionIndicatorWidth = 3.dp
     val SidebarSelectionIndicatorHeight = 24.dp
 }
@@ -529,20 +542,36 @@ object MediaSizes {
  */
 object MediaCorners {
     val None = 0.dp
-    val XS = 4.dp
-    val SM = 8.dp
-    val MD = 12.dp
-    val LG = 16.dp
-    val XL = 24.dp
-    val Full = 999.dp
-    
-    // Specific components
-    val Card = SM
-    val Button = SM
-    val Dialog = LG
-    val BottomSheet = XL
-    val Chip = Full
-    val SearchBar = Full
+    private const val DEFAULT_XS = 4f
+    val XS: Dp
+        @Composable get() = (LocalCFLayoutStandard.current?.corners?.cover ?: DEFAULT_XS).dp
+    private const val DEFAULT_SM = 8f
+    val SM: Dp
+        @Composable get() = (LocalCFLayoutStandard.current?.corners?.tile ?: DEFAULT_SM).dp
+    private const val DEFAULT_MD = 12f
+    val MD: Dp
+        @Composable get() = (LocalCFLayoutStandard.current?.corners?.panel ?: DEFAULT_MD).dp
+    private const val DEFAULT_LG = 16f
+    val LG: Dp
+        @Composable get() = (LocalCFLayoutStandard.current?.corners?.large ?: DEFAULT_LG).dp
+    private const val DEFAULT_XL = 24f
+    val XL: Dp
+        @Composable get() = (LocalCFLayoutStandard.current?.corners?.large ?: DEFAULT_XL).dp
+    private const val DEFAULT_Full = 999f
+    val Full: Dp
+        @Composable get() = (LocalCFLayoutStandard.current?.corners?.control ?: DEFAULT_Full).dp
+    val Card: Dp
+        @Composable get() = LocalCFLayoutStandard.current?.corners?.panel?.dp ?: SM
+    val Button: Dp
+        @Composable get() = LocalCFLayoutStandard.current?.corners?.control?.dp ?: SM
+    val Dialog: Dp
+        @Composable get() = LocalCFLayoutStandard.current?.corners?.large?.dp ?: LG
+    val BottomSheet: Dp
+        @Composable get() = LocalCFLayoutStandard.current?.corners?.large?.dp ?: XL
+    val Chip: Dp
+        @Composable get() = LocalCFLayoutStandard.current?.corners?.control?.dp ?: Full
+    val SearchBar: Dp
+        @Composable get() = LocalCFLayoutStandard.current?.corners?.control?.dp ?: Full
 }
 
 /**
@@ -550,12 +579,24 @@ object MediaCorners {
  */
 object MediaElevation {
     val None = 0.dp
-    val XS = 1.dp
-    val SM = 2.dp
-    val MD = 4.dp
-    val LG = 8.dp
-    val XL = 16.dp
-    val XXL = 24.dp
+    private val DefaultXS = 1.dp
+    val XS: Dp
+        @Composable get() = if (LocalCFLayoutStandard.current?.quiet == true) None else DefaultXS
+    private val DefaultSM = 2.dp
+    val SM: Dp
+        @Composable get() = if (LocalCFLayoutStandard.current?.quiet == true) None else DefaultSM
+    private val DefaultMD = 4.dp
+    val MD: Dp
+        @Composable get() = if (LocalCFLayoutStandard.current?.quiet == true) None else DefaultMD
+    private val DefaultLG = 8.dp
+    val LG: Dp
+        @Composable get() = if (LocalCFLayoutStandard.current?.quiet == true) None else DefaultLG
+    private val DefaultXL = 16.dp
+    val XL: Dp
+        @Composable get() = if (LocalCFLayoutStandard.current?.quiet == true) None else DefaultXL
+    private val DefaultXXL = 24.dp
+    val XXL: Dp
+        @Composable get() = if (LocalCFLayoutStandard.current?.quiet == true) None else DefaultXXL
 }
 
 // =============================================================================
@@ -652,7 +693,8 @@ private val DefaultMediaDarkColorScheme = darkColorScheme(
 /**
  * Plex-themed shapes
  */
-val MediaShapes = Shapes(
+val MediaShapes: Shapes
+    @Composable get() = Shapes(
     extraSmall = androidx.compose.foundation.shape.RoundedCornerShape(MediaCorners.XS),
     small = androidx.compose.foundation.shape.RoundedCornerShape(MediaCorners.SM),
     medium = androidx.compose.foundation.shape.RoundedCornerShape(MediaCorners.MD),

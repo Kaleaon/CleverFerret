@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.components.accessibleClickable
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayoutStandard
 import com.universalmedialibrary.ui.media.theme.MediaColors
 import com.universalmedialibrary.ui.media.theme.MediaCorners
 import com.universalmedialibrary.ui.media.theme.MediaElevation
@@ -182,7 +183,7 @@ private fun PosterLayout(
             .scale(scale)
             .accessibleClickable(
                 interactionSource = interactionSource,
-                shape = RoundedCornerShape(MediaCorners.Card),
+                shape = MaterialTheme.shapes.medium,
                 onClick = onClick
             )
     ) {
@@ -190,8 +191,11 @@ private fun PosterLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(MediaSizes.PosterAspectRatio)
-                .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
-                .clip(RoundedCornerShape(MediaCorners.Card))
+                .shadow(
+                    if (LocalCFLayoutStandard.current?.quiet == true) MediaElevation.None else MediaElevation.SM,
+                    MaterialTheme.shapes.medium
+                )
+                .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             if (item.imageUrl != null) {
@@ -317,7 +321,7 @@ private fun SquareLayout(
             .scale(scale)
             .accessibleClickable(
                 interactionSource = interactionSource,
-                shape = RoundedCornerShape(MediaCorners.Card),
+                shape = MaterialTheme.shapes.medium,
                 onClick = onClick
             )
     ) {
@@ -325,8 +329,11 @@ private fun SquareLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
-                .clip(RoundedCornerShape(MediaCorners.Card))
+                .shadow(
+                    if (LocalCFLayoutStandard.current?.quiet == true) MediaElevation.None else MediaElevation.SM,
+                    MaterialTheme.shapes.medium
+                )
+                .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             if (item.imageUrl != null) {
@@ -402,12 +409,15 @@ private fun WideLayout(
         modifier = modifier
             .then(widthModifier)
             .aspectRatio(MediaSizes.WidescreenAspectRatio)
-            .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
-            .clip(RoundedCornerShape(MediaCorners.Card))
+            .shadow(
+                    if (LocalCFLayoutStandard.current?.quiet == true) MediaElevation.None else MediaElevation.SM,
+                    MaterialTheme.shapes.medium
+                )
+            .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .accessibleClickable(
                 interactionSource = interactionSource,
-                shape = RoundedCornerShape(MediaCorners.Card),
+                shape = MaterialTheme.shapes.medium,
                 onClick = onClick
             )
     ) {

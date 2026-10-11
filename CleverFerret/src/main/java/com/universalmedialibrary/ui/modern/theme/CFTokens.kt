@@ -102,7 +102,7 @@ data class CFMetro(
     val lime: Color, val violet: Color,
 )
 
-enum class CFLayout { Compose, Lcars, Metro }
+
 
 data class CFGridMinItemWidth(
     val quickAction: Dp = 100.dp,

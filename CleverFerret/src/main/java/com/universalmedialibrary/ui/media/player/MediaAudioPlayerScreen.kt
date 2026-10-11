@@ -24,6 +24,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.ui.modern.theme.CFLayout
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayout
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayoutStandard
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 
 /**
  * Clean Media-Centric Audio Player Screen
@@ -75,7 +80,7 @@ fun MediaAudioPlayerScreen(
             .background(MediaColors.Background)
     ) {
         // Blurred background artwork
-        if (state.artworkUrl != null) {
+        if (state.artworkUrl != null && LocalCFLayoutStandard.current?.quiet != true) {
             AsyncImage(
                     
                 model = state.artworkUrl,
@@ -107,8 +112,7 @@ fun MediaAudioPlayerScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
         ) {
             // Top bar
             PlayerTopBar(
@@ -224,6 +228,7 @@ fun MediaAudioPlayerScreen(
                     .padding(horizontal = MediaSpacing.XL)
             ) {
                 Slider(
+                    modifier = Modifier.semantics { contentDescription = "Playback position" },
                     value = state.currentPosition.toFloat(),
                     onValueChange = { onSeek(it) },
                     valueRange = 0f..state.duration.toFloat(),
@@ -253,6 +258,14 @@ fun MediaAudioPlayerScreen(
             
             Spacer(modifier = Modifier.height(MediaSpacing.LG))
             
+            if (LocalCFLayout.current == CFLayout.Lcars) {
+                val music = state.playerType == PlayerType.MUSIC
+                CFSweepAudioControls(state,
+                    CFTransportActions(if (music) onSkipPrevious else onRewind,
+                        onPlayPause, if (music) onSkipNext else onFastForward),
+                    CFAudioExtras(onShuffleToggle, onRepeatToggle,
+                        { showSpeedPicker = true }, { showSleepTimer = true }))
+            } else {
             // Main playback controls
             Row(
                 modifier = Modifier
@@ -358,6 +371,8 @@ fun MediaAudioPlayerScreen(
                 }
             }
             
+            }
+
             Spacer(modifier = Modifier.height(MediaSpacing.XL))
             
             // Bottom actions

@@ -29,7 +29,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.ui.modern.theme.CFSpacing
-import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayoutStandard
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayout
+import com.universalmedialibrary.ui.modern.theme.CFLayout
+import com.universalmedialibrary.ui.modern.theme.cfContrastInk
 
 /**
  * Wordmark + back button + trailing icons. Wordmark uses the metal brush
@@ -43,7 +46,6 @@ fun CFTopBar(
     actions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val tokens = LocalCFTokens.current
     TopAppBar(
         modifier = modifier,
         title = {
@@ -51,7 +53,7 @@ fun CFTopBar(
                 title,
                 modifier = Modifier.headingSemantics(),
                 style = MaterialTheme.typography.titleLarge.copy(
-                    brush = tokens.metal.brush(),
+                    brush = SolidColor(MaterialTheme.colorScheme.onBackground),
                     fontWeight = FontWeight.Black,
                 ),
             )
@@ -113,26 +115,17 @@ fun CFMetalButton(
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    val tokens = LocalCFTokens.current
     val cs = MaterialTheme.colorScheme
-    Box(
-        modifier
-            .clip(CircleShape)
-            .background(if (enabled) tokens.metal.brush() else SolidColor(cs.onSurface.copy(alpha = 0.12f)))
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (leadingIcon != null) {
-                Icon(leadingIcon, contentDescription = null, tint = if (enabled) cs.onPrimary else cs.onSurface.copy(alpha = 0.38f))
-            }
-            Text(
-                text,
-                style = MaterialTheme.typography.labelLarge,
-                color = if (enabled) cs.onPrimary else cs.onSurface.copy(alpha = 0.38f),
-                fontWeight = FontWeight.Black,
-            )
+    val standard = LocalCFLayoutStandard.current
+    Button(onClick = onClick, enabled = enabled,
+        modifier = modifier.heightIn(min = CFActionTarget),
+        shape = RoundedCornerShape((standard?.corners?.control ?: CF_ACTION_CORNER).dp),
+        colors = ButtonDefaults.buttonColors(containerColor = cs.primary, contentColor = cfContrastInk(cs.primary))) {
+        if (leadingIcon != null && LocalCFLayout.current != CFLayout.Lcars) {
+            Icon(leadingIcon, contentDescription = null)
+            Spacer(Modifier.width(CFActionGap))
         }
+        Text(text, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -142,13 +135,16 @@ fun CFMetalButton(
 @Composable
 fun CFTagChip(text: String, modifier: Modifier = Modifier, selected: Boolean = false) {
     val cs = MaterialTheme.colorScheme
-    val bg = if (selected) cs.primaryContainer else cs.surfaceVariant
-    val fg = if (selected) cs.onPrimaryContainer else cs.onSurfaceVariant
+    val sweep = LocalCFLayout.current == CFLayout.Lcars
+    val bg = if (sweep) cs.primary else if (selected) cs.primaryContainer else cs.surfaceVariant
+    val fg = if (sweep) cfContrastInk(bg) else if (selected) cs.onPrimaryContainer else cs.onSurfaceVariant
+    val shape = RoundedCornerShape((LocalCFLayoutStandard.current?.corners?.control ?: CF_ACTION_CORNER).dp)
+    val outline = if (sweep) Modifier else Modifier.border(1.dp, cs.outline.copy(alpha = 0.4f), shape)
     Box(
         modifier
-            .clip(CircleShape)
+            .clip(shape)
             .background(bg)
-            .border(1.dp, cs.outline.copy(alpha = 0.4f), CircleShape)
+            .then(outline)
             .padding(horizontal = 12.dp, vertical = 6.dp),
     ) {
         Text(text, style = MaterialTheme.typography.labelMedium, color = fg)
@@ -171,7 +167,8 @@ fun CFSettingsRow(
     Row(
         modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(MaterialTheme.shapes.medium)
+            .heightIn(min = CFActionTarget)
             .clickable(onClick = onClick)
             .padding(horizontal = CFSpacing.lg, vertical = CFSpacing.md),
         verticalAlignment = Alignment.CenterVertically,
@@ -180,7 +177,7 @@ fun CFSettingsRow(
         Box(
             Modifier
                 .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape((LocalCFLayoutStandard.current?.corners?.icon ?: CF_DEFAULT_ICON_CORNER).dp))
                 .background(cs.surfaceVariant),
             contentAlignment = Alignment.Center,
         ) {
@@ -223,7 +220,7 @@ fun CFEmptyState(
         Box(
             Modifier
                 .size(72.dp)
-                .clip(CircleShape)
+                .clip(RoundedCornerShape((LocalCFLayoutStandard.current?.corners?.icon ?: CF_DEFAULT_ICON_CORNER).dp))
                 .background(cs.surfaceVariant),
             contentAlignment = Alignment.Center,
         ) { Icon(icon, contentDescription = null, tint = cs.onSurfaceVariant) }
@@ -238,3 +235,9 @@ fun CFEmptyState(
         }
     }
 }
+
+private val CFActionTarget = 48.dp
+private const val CF_ACTION_CORNER = 999f
+private val CFActionGap = 8.dp
+
+private const val CF_DEFAULT_ICON_CORNER = 10f

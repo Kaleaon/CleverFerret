@@ -91,8 +91,11 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
         val mainViewModel: MainViewModel = hiltViewModel()
         val selectedTheme by mainViewModel.selectedTheme.collectAsStateWithLifecycle(CleverFerretTheme.NAVY_GOLD)
 
+        val selectedLayout by mainViewModel.selectedLayout.collectAsStateWithLifecycle()
         com.universalmedialibrary.ui.screens.ThemeShowcaseScreen(
             currentTheme = selectedTheme,
+            layoutSelection = com.universalmedialibrary.ui.modern.components.CFLayoutSelection(
+                selectedLayout, mainViewModel::setLayout),
             onThemeSelected = { newTheme ->
                 mainViewModel.setTheme(newTheme)
             },

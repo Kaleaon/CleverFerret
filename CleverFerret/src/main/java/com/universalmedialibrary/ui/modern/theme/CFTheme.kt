@@ -36,6 +36,7 @@ internal fun cfTypography(family: FontFamily = FontFamily.Default): Typography =
 @Composable
 fun CFTheme(
     palette: CFPalette = CFThemes.NavyGold,
+    layout: CFLayout = palette.tokens.layout,
     content: @Composable () -> Unit,
 ) {
     val semanticTheme = remember(palette) {
@@ -64,7 +65,7 @@ fun CFTheme(
         MaterialTheme(
             colorScheme = palette.scheme,
             typography = cfTypography(palette.tokens.typography),
-            content = content,
+            content = { CFLayoutTheme(layout, palette.tokens, content) },
         )
     }
 }

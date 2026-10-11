@@ -1,4 +1,8 @@
 package com.universalmedialibrary.ui.media.screens
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayoutStandard
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayout
+import com.universalmedialibrary.ui.modern.theme.CFLayout
+
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -28,6 +32,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -569,11 +574,15 @@ private fun QuickAccessCard(
     modifier: Modifier = Modifier
 ) {
     val cardContentDescription = stringResource(R.string.cd_open_category, item.label)
+    val standard = LocalCFLayoutStandard.current
+    val tileSize = if (LocalCFLayout.current == CFLayout.Metro) {
+        Modifier.heightIn(min = MediaSizes.TouchTarget, max = checkNotNull(standard?.maximumQuickActionHeight).dp)
+    } else Modifier.aspectRatio(1f)
     val quickAccessAlphas = MediaColors.quickAccessCardAlphas()
 
     Surface(
         modifier = modifier
-            .aspectRatio(1f)
+            .then(tileSize)
             .semantics {
                 role = Role.Button
                 contentDescription = cardContentDescription
@@ -583,7 +592,7 @@ private fun QuickAccessCard(
                 onClick = { if (!reorderMode) onClick() },
                 onLongClick = onLongClick
             ),
-        shape = RoundedCornerShape(MediaCorners.Card),
+        shape = RoundedCornerShape((standard?.corners?.tile ?: MediaCorners.Card.value).dp),
         color = if (isHighlighted) {
             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
         } else {

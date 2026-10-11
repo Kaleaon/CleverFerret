@@ -277,13 +277,9 @@ private fun AddServerDialog(
     var hasSubmitted by remember { mutableStateOf(false) }
 
     val nameError = if (hasSubmitted && name.isBlank()) "Server name cannot be empty" else null
-    val urlError = when {
-        url.isNotBlank() && !url.startsWith("http://", ignoreCase = true) && !url.startsWith("https://", ignoreCase = true) ->
-            "Server URL must start with http or https"
-        hasSubmitted && url.isBlank() -> "Server URL cannot be empty"
-        else -> null
-    }
-    val usernameError = if (hasSubmitted && (serverType == ServerType.JELLYFIN || serverType == ServerType.EMBY) && username.isBlank()) {
+    val urlError = mediaServerUrlError(url, hasSubmitted)
+
+    val usernameError = if (hasSubmitted && serverNeedsUsername(serverType) && username.isBlank()) {
         "Username cannot be empty"
     } else null
 
@@ -295,38 +291,7 @@ private fun AddServerDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Server Type Dropdown
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
-                ) {
-                    OutlinedTextField(
-                        value = serverType.displayName,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Server Type") },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor()
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        ServerType.values().forEach { type ->
-                            DropdownMenuItem(
-                                text = { Text(type.displayName) },
-                                onClick = {
-                                    onServerTypeChange(type)
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
+                ServerTypeDropdown(serverType, onServerTypeChange, expanded) { expanded = it }
 
                 AccessibleOutlinedTextField(
                     value = name,
@@ -401,7 +366,7 @@ private fun AddServerDialog(
             TextButton(
                 onClick = {
                     hasSubmitted = true
-                    if (name.isNotBlank() && url.isNotBlank() && urlError == null && usernameError == null) {
+                    if (validMediaServerInput(name, url, urlError, usernameError)) {
                         onAdd(name, url, username, password, apiKey)
                     }
                 }
@@ -423,3 +388,52 @@ enum class ServerType(val displayName: String) {
     EMBY("Emby"),
     YAACC("YAACC (DLNA/UPnP)")
 }
+private fun mediaServerUrlError(url: String, submitted: Boolean): String? = when {
+    url.isNotBlank() && !url.startsWith("http://", true) && !url.startsWith("https://", true) ->
+        "Server URL must start with http or https"
+    submitted && url.isBlank() -> "Server URL cannot be empty"
+    else -> null
+}
+
+private fun serverNeedsUsername(type: ServerType): Boolean = type in setOf(ServerType.JELLYFIN, ServerType.EMBY)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ServerTypeDropdown(serverType: ServerType, onServerTypeChange: (ServerType) -> Unit,
+    expanded: Boolean, onExpandedChange: (Boolean) -> Unit) {
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { onExpandedChange(!expanded) }
+    ) {
+        OutlinedTextField(
+            value = serverType.displayName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Server Type") },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            ServerType.values().forEach { type ->
+                DropdownMenuItem(
+                    text = { Text(type.displayName) },
+                    onClick = {
+                        onServerTypeChange(type)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+private fun validMediaServerInput(name: String, url: String, urlError: String?, usernameError: String?): Boolean =
+    listOf(name, url).all { it.isNotBlank() } && listOf(urlError, usernameError).all { it == null }

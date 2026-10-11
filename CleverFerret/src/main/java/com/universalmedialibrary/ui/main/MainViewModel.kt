@@ -9,6 +9,7 @@ import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.repository.SettingsRepository
 import com.universalmedialibrary.ui.home.SampleClassic
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.modern.theme.CFLayout
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.BottomBarPreferences
@@ -58,6 +59,13 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = CleverFerretTheme.NAVY_GOLD
         )
+
+    val selectedLayout: StateFlow<CFLayout> = settingsRepository.layoutFlow
+        .stateIn(viewModelScope, SharingStarted.Eagerly, CFLayout.Compose)
+
+    fun setLayout(layout: CFLayout) {
+        viewModelScope.launch { settingsRepository.setLayout(layout) }
+    }
 
     val darkMode: StateFlow<Boolean> = settingsRepository.darkModeFlow
         .stateIn(

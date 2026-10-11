@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -23,7 +24,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.modern.domain.MediaItem
 import com.universalmedialibrary.ui.modern.domain.MediaKind
-import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayout
+import com.universalmedialibrary.ui.modern.theme.LocalCFLayoutStandard
+import com.universalmedialibrary.ui.modern.theme.CFLayout
+import com.universalmedialibrary.ui.modern.theme.cfContrastInk
 
 @Composable
 fun CFCover(
@@ -33,7 +37,9 @@ fun CFCover(
     modifier: Modifier = Modifier,
     showLabel: Boolean = true,
 ) {
-    val shape = if (item.kind == MediaKind.Music) CircleShape else RoundedCornerShape(6.dp)
+    val corners = LocalCFLayoutStandard.current?.corners
+    val shape = if (item.kind == MediaKind.Music && LocalCFLayout.current == CFLayout.Compose) CircleShape
+        else RoundedCornerShape((corners?.cover ?: DEFAULT_COVER_CORNER).dp)
     Box(
         modifier
             .size(width = width, height = height)
@@ -56,17 +62,16 @@ fun CFCover(
 
 @Composable
 fun MetalChip(text: String, modifier: Modifier = Modifier) {
-    val tokens = LocalCFTokens.current
     Box(
         modifier
-            .clip(CircleShape)
-            .background(tokens.metal.brush())
+            .clip(RoundedCornerShape((LocalCFLayoutStandard.current?.corners?.control ?: DEFAULT_CONTROL_CORNER).dp))
+            .background(MaterialTheme.colorScheme.primary)
             .padding(horizontal = 10.dp, vertical = 4.dp),
     ) {
         Text(
             text,
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = cfContrastInk(MaterialTheme.colorScheme.primary),
             fontWeight = FontWeight.Black,
         )
     }
@@ -83,8 +88,8 @@ fun MiniPlayer(
 ) {
     val cs = MaterialTheme.colorScheme
     Card(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp),
-        shape = RoundedCornerShape(14.dp),
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = cs.surface),
         onClick = onTap,
     ) {
@@ -102,11 +107,11 @@ fun MiniPlayer(
                     color = cs.onSurfaceVariant,
                 )
             }
-            IconButton(onClick = onPrevious) { Icon(Icons.Default.SkipPrevious, contentDescription = null) }
+            IconButton(onClick = onPrevious) { Icon(Icons.Default.SkipPrevious, contentDescription = "Previous") }
             FilledIconButton(
                 onClick = onPlayPause,
                 colors = IconButtonDefaults.filledIconButtonColors(containerColor = cs.primary),
-            ) { Icon(Icons.Default.PlayArrow, contentDescription = null, tint = cs.onPrimary) }
+            ) { Icon(Icons.Default.PlayArrow, contentDescription = "Play or pause", tint = cfContrastInk(cs.primary)) }
         }
         LinearProgressIndicator(
             progress = { item.progress },
@@ -116,3 +121,6 @@ fun MiniPlayer(
         )
     }
 }
+
+private const val DEFAULT_COVER_CORNER = 6f
+private const val DEFAULT_CONTROL_CORNER = 999f

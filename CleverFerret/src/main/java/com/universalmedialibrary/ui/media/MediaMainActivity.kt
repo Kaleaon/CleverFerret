@@ -35,6 +35,7 @@ import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.components.UiErrorBoundary
 import com.universalmedialibrary.ui.media.theme.MediaColors
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.modern.theme.CFLayoutTheme
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -71,12 +72,14 @@ private fun MediaAppRoot(
 ) {
     val mainViewModel: MainViewModel = hiltViewModel()
     val palette by mainViewModel.selectedTheme.collectAsStateWithLifecycle(CleverFerretTheme.NAVY_GOLD)
+    val layout by mainViewModel.selectedLayout.collectAsStateWithLifecycle()
     val darkMode by mainViewModel.darkMode.collectAsStateWithLifecycle(true)
 
     CleverFerretTheme(
         palette = palette,
         darkTheme = darkMode
     ) {
+        CFLayoutTheme(layout) {
         // Bridge media-centric design tokens to the app-wide theme palette.
         MediaColors.SyncWithMaterialTheme()
 
@@ -89,191 +92,64 @@ private fun MediaAppRoot(
             )
         }
     }
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaMainScreen(
     playbackStateManager: PlaybackStateManager,
     mainViewModel: MainViewModel = hiltViewModel()
 ) {
-    val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsStateWithLifecycle(BottomBarPreferences.Default)
-    val gearPosition by mainViewModel.bottomGearPosition.collectAsStateWithLifecycle(BottomGearPosition.RIGHT)
-    val hasCompletedOnboarding by mainViewModel.hasCompletedOnboarding.collectAsStateWithLifecycle()
-    val startDestination = if (hasCompletedOnboarding) MediaRoutes.HOME else MediaRoutes.ONBOARDING
-
+    val preferences by mainViewModel.bottomBarPreferences.collectAsStateWithLifecycle(BottomBarPreferences.Default)
+    val gear by mainViewModel.bottomGearPosition.collectAsStateWithLifecycle(BottomGearPosition.RIGHT)
+    val onboarded by mainViewModel.hasCompletedOnboarding.collectAsStateWithLifecycle()
+    val start = if (onboarded) MediaRoutes.HOME else MediaRoutes.ONBOARDING
     val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    val currentRouteForNavigation = remember(navBackStackEntry, currentRoute) {
-        when (currentRoute) {
-            MediaRoutes.LIBRARY -> {
-                val mediaType = navBackStackEntry?.arguments?.getString("mediaType")
-                if (mediaType.isNullOrBlank()) MediaRoutes.LIBRARY else MediaRoutes.libraryRoute(mediaType)
-            }
-            else -> currentRoute
-        } ?: startDestination
+    val entry by navController.currentBackStackEntryAsState()
+    val route = entry?.destination?.route
+    val routeForNavigation = if (route == MediaRoutes.LIBRARY) {
+        entry?.arguments?.getString("mediaType")?.takeIf { it.isNotBlank() }?.let { MediaRoutes.libraryRoute(it) } ?: route
+    } else route
+    val navigation = CFMediaNavigationState(routeForNavigation ?: start, shouldShowNavigation(route), preferences, gear)
+    val playback by playbackStateManager.currentPlayback.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
+    CFMediaScaffold(
+        navigation = navigation,
+        onNavigate = { navController.navigate(resolveRouteOrFallback(it)) },
+        player = { MediaPlaybackDock(playback, route, playbackStateManager, navController) },
+        feedback = { SnackbarHost(snackbar) },
+        content = { MediaNavigationContent(navController, start, snackbar) }
+    )
+}
+
+internal fun shouldShowNavigation(route: String?): Boolean = route != null &&
+    route != MediaRoutes.ONBOARDING && !route.startsWith("player/") && !route.startsWith("reader/")
+
+@Composable
+private fun MediaPlaybackDock(
+    state: MiniPlayerState?, route: String?, manager: PlaybackStateManager,
+    navController: androidx.navigation.NavHostController
+) {
+    if (state != null && route != MediaRoutes.ONBOARDING && !route.orEmpty().startsWith("player/")) {
+        MediaMiniPlayer(state = state,
+            onTap = { navController.navigate(MediaRoutes.audioPlayerRoute(audioDockType(state.playerType))) },
+            onPlayPause = manager::playPause, onNext = manager::skipNext)
     }
-    
-    // Check if we should show navigation (hide during onboarding or player screens)
-    val showNavigation = remember(currentRoute) {
-        currentRoute != null && currentRoute != MediaRoutes.ONBOARDING && !currentRoute.startsWith("player/") && !currentRoute.startsWith("reader/")
-    }
-    
-    // Check if we should show mini player
-    val playbackState by playbackStateManager.currentPlayback.collectAsStateWithLifecycle()
-    val showMiniPlayer = remember(playbackState, currentRoute) {
-        playbackState != null && !currentRoute.orEmpty().startsWith("player/")
-    }
-    
-    // Snackbar state for global messages
-    val snackbarHostState = remember { SnackbarHostState() }
+}
+
+@Composable
+private fun MediaNavigationContent(
+    navController: androidx.navigation.NavHostController, start: String, snackbar: SnackbarHostState
+) {
     val scope = rememberCoroutineScope()
-    
-    // Check screen size for layout decisions
-    val configuration = LocalConfiguration.current
-    val isCompact = configuration.screenWidthDp < 600
-    
-    if (isCompact) {
-        // MOBILE LAYOUT: Single Scaffold with proper bottom bar
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            bottomBar = {
-                // Bottom bar contains both mini player and navigation
-                if (showNavigation) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        // Mini player (when playing)
-                        AnimatedVisibility(
-                            visible = showMiniPlayer,
-                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-                        ) {
-                            playbackState?.let { state ->
-                                MediaMiniPlayer(
-                                    state = state,
-                                    onTap = {
-                                        val route = when (state.playerType) {
-                                            "music" -> MediaRoutes.audioPlayerRoute("music")
-                                            "audiobook" -> MediaRoutes.audioPlayerRoute("audiobook")
-                                            "podcast" -> MediaRoutes.audioPlayerRoute("podcast")
-                                            else -> MediaRoutes.audioPlayerRoute("music")
-                                        }
-                                        navController.navigate(route)
-                                    },
-                                    onPlayPause = { playbackStateManager.playPause() },
-                                    onNext = { playbackStateManager.skipNext() }
-                                )
-                            }
-                        }
-                        
-                        // Bottom Navigation (always visible on mobile)
-                        MediaBottomNavigation(
-                            currentRoute = currentRouteForNavigation,
-                            onNavigate = { route -> navController.navigate(resolveRouteOrFallback(route)) },
-                            bottomBarPreferences = bottomBarPreferences,
-                            gearPosition = gearPosition
-                        )
-                    }
-                }
-            }
-        ) { paddingValues ->
-            UiErrorBoundary(
-                boundaryName = "NavigationRoot-Mobile",
-                onGoHome = {
-                    navController.navigate(MediaRoutes.HOME) {
-                        popUpTo(MediaRoutes.HOME) { inclusive = false }
-                        launchSingleTop = true
-                    }
-                },
-                onReportIssue = {
-                    scope.launch {
-                        snackbarHostState.showSnackbar("Issue reported for NavigationRoot-Mobile")
-                    }
-                },
-            ) {
-                MediaAppNavHost(
-                    navController = navController,
-                    startDestination = startDestination,
-                    onShowSnackbar = { message ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(message)
-                        }
-                    },
-                    modifier = Modifier.padding(paddingValues)
-                )
-            }
+    UiErrorBoundary(boundaryName = "NavigationRoot", onGoHome = {
+        navController.navigate(MediaRoutes.HOME) {
+            popUpTo(MediaRoutes.HOME) { inclusive = false }
+            launchSingleTop = true
         }
-    } else {
-        // TABLET/DESKTOP LAYOUT: Sidebar navigation
-        Row(modifier = Modifier.fillMaxSize()) {
-            var sidebarExpanded by remember { mutableStateOf(configuration.screenWidthDp >= 840) }
-            
-            MediaSidebar(
-                currentRoute = currentRouteForNavigation,
-                onNavigate = { route -> navController.navigate(resolveRouteOrFallback(route)) },
-                isExpanded = sidebarExpanded,
-                onToggleExpanded = { sidebarExpanded = !sidebarExpanded }
-            )
-            
-            Scaffold(
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                snackbarHost = { SnackbarHost(snackbarHostState) },
-                bottomBar = {
-                    // Mini player for tablet/desktop
-                    AnimatedVisibility(
-                        visible = showMiniPlayer,
-                        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-                    ) {
-                        playbackState?.let { state ->
-                            MediaMiniPlayer(
-                                state = state,
-                                onTap = {
-                                    val route = when (state.playerType) {
-                                        "music" -> MediaRoutes.audioPlayerRoute("music")
-                                        "audiobook" -> MediaRoutes.audioPlayerRoute("audiobook")
-                                        "podcast" -> MediaRoutes.audioPlayerRoute("podcast")
-                                        else -> MediaRoutes.audioPlayerRoute("music")
-                                    }
-                                    navController.navigate(route)
-                                },
-                                onPlayPause = { playbackStateManager.playPause() },
-                                onNext = { playbackStateManager.skipNext() }
-                            )
-                        }
-                    }
-                }
-            ) { paddingValues ->
-                UiErrorBoundary(
-                    boundaryName = "NavigationRoot-Desktop",
-                    onGoHome = {
-                        navController.navigate(MediaRoutes.HOME) {
-                            popUpTo(MediaRoutes.HOME) { inclusive = false }
-                            launchSingleTop = true
-                        }
-                    },
-                    onReportIssue = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Issue reported for NavigationRoot-Desktop")
-                        }
-                    },
-                ) {
-                    MediaAppNavHost(
-                        navController = navController,
-                        startDestination = startDestination,
-                        onShowSnackbar = { message ->
-                            scope.launch {
-                                snackbarHostState.showSnackbar(message)
-                            }
-                        },
-                        modifier = Modifier.padding(paddingValues)
-                    )
-                }
-            }
-        }
+    }, onReportIssue = { scope.launch { snackbar.showSnackbar("Issue reported for NavigationRoot") } }) {
+        MediaAppNavHost(navController = navController, startDestination = start,
+            onShowSnackbar = { message -> scope.launch { snackbar.showSnackbar(message) } })
     }
 }
 
@@ -295,3 +171,5 @@ data class MiniPlayerState(
     val isPlaying: Boolean,
     val playerType: String
 )
+
+private fun audioDockType(type: String): String = if (type in setOf("audiobook", "podcast")) type else "music"

@@ -104,3 +104,8 @@ style:
       - 'androidx.compose.runtime.collectAsState'
 
 
+
+naming:
+  FunctionNaming:
+    active: true
+    ignoreAnnotated: ['Composable']

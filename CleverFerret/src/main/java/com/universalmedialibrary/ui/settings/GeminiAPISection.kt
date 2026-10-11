@@ -24,6 +24,7 @@ import com.universalmedialibrary.data.settings.ArtworkApiSettings
 import com.universalmedialibrary.data.settings.LyricsApiSettings
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
+import com.universalmedialibrary.ui.media.theme.MediaSpacing
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
@@ -40,7 +41,6 @@ internal fun GeminiAPISection(
 ) {
     var currentKey by remember(apiKey) { mutableStateOf(apiKey) }
     var showKey by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     val computedError = errorMessage ?: if (testResult != null && !testResult.contains("success", ignoreCase = true)) {
         testResult
@@ -52,7 +52,7 @@ internal fun GeminiAPISection(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(MediaSpacing.LG)
         ) {
             Text(
                 text = "Google Gemini AI",
@@ -60,7 +60,7 @@ internal fun GeminiAPISection(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MediaSpacing.SM))
 
             Text(
                 text = "Enable OCR, book identification, and AI-powered metadata enhancement.",
@@ -68,7 +68,7 @@ internal fun GeminiAPISection(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MediaSpacing.LG))
 
             // API Key Input + Info
             AccessibleOutlinedTextField(
@@ -78,7 +78,34 @@ internal fun GeminiAPISection(
                 placeholder = { Text("Enter your Gemini API key") },
                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                 errorMessage = computedError,
-                trailingIcon = {
+                trailingIcon = { GeminiKeyVisibilityActions(showKey) { showKey = !showKey } },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(MediaSpacing.LG))
+
+            // Action Buttons
+            GeminiKeyActionButtons(currentKey, onSaveKey, onTestKey, isLoading)
+
+            // Test Result Success banner
+            if (testResult != null && testResult.contains("success", ignoreCase = true)) {
+                Spacer(modifier = Modifier.height(MediaSpacing.SM))
+                Text(
+                    text = testResult,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GeminiKeyVisibilityActions(showKey: Boolean, onToggle: () -> Unit) {
+    val context = LocalContext.current
+
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = {
                             val url = "https://ai.google.dev/"
@@ -90,24 +117,20 @@ internal fun GeminiAPISection(
                                 contentDescription = "Where to get a key"
                             )
                         }
-                        IconButton(onClick = { showKey = !showKey }) {
+                        IconButton(onClick = { onToggle() }) {
                             Icon(
                                 imageVector = if (showKey) PhosphorIcons.Warning else PhosphorIcons.Star,
                                 contentDescription = if (showKey) "Hide key" else "Show key"
                             )
                         }
                     }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+}
 
-            // Action Buttons
+@Composable
+private fun GeminiKeyActionButtons(currentKey: String, onSaveKey: (String) -> Unit, onTestKey: (String) -> Unit, isLoading: Boolean) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
             ) {
                 Button(
                     onClick = { onSaveKey(currentKey) },
@@ -116,7 +139,7 @@ internal fun GeminiAPISection(
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(MediaSpacing.LG),
                             strokeWidth = 2.dp
                         )
                     } else {
@@ -132,16 +155,4 @@ internal fun GeminiAPISection(
                     Text("Test Key")
                 }
             }
-
-            // Test Result Success banner
-            if (testResult != null && testResult.contains("success", ignoreCase = true)) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = testResult,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-    }
 }
