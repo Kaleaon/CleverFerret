@@ -40,7 +40,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
@@ -645,7 +644,7 @@ private fun QuickAccessCard(
             }
 
             Surface(
-                shape = CircleShape,
+                shape = RoundedCornerShape(standard?.corners?.icon?.dp ?: MediaCorners.Pill),
                 color = MaterialTheme.colorScheme.primary.copy(alpha = quickAccessAlphas.chip),
                 modifier = Modifier.size(48.dp)
             ) {
