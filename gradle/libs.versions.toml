@@ -15,7 +15,7 @@ gradle-wrapper = "8.13"
 ksp = "2.1.0-1.0.29"
 
 # Kotlin & Compose
- kotlin = "2.1.0"
+ kotlin = "2.4.21"
   compose-bom = "2025.11.01"
  compose-compiler = "2.1.0"
 

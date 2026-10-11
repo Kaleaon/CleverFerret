@@ -53,12 +53,12 @@ allprojects {
     }
     configurations.all {
         resolutionStrategy {
-            force("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
-            force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0")
-            force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0")
+            force("org.jetbrains.kotlin:kotlin-stdlib:2.4.21")
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.21")
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.4.21")
             eachDependency {
                 if (requested.group == "org.jetbrains.kotlin" && requested.name == "kotlin-stdlib-common") {
-                    useTarget("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
+                    useTarget("org.jetbrains.kotlin:kotlin-stdlib:2.4.21")
                 }
             }
         }
