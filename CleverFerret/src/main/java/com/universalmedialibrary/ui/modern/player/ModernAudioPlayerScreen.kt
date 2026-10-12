@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.cleverferret.core.designsystem.slider.AccessibleMediaSlider
+import com.cleverferret.core.designsystem.slider.AccessibleMediaSliderColors
 import com.universalmedialibrary.ui.modern.components.CFCover
 import com.universalmedialibrary.ui.modern.components.CFTopBar
 import com.universalmedialibrary.ui.modern.components.MetalChip
@@ -117,14 +119,17 @@ fun ModernAudioPlayerScreen(
             }
 
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(CFSpacing.xs)) {
-                Slider(
+                AccessibleMediaSlider(
                     value = state.progress.coerceIn(0f, 1f),
                     onValueChange = onScrub,
-                    colors = SliderDefaults.colors(
-                        thumbColor = cs.primary,
+                    colors = AccessibleMediaSliderColors(
                         activeTrackColor = cs.primary,
                         inactiveTrackColor = cs.onSurface.copy(alpha = 0.12f),
+                        thumbColor = cs.primary
                     ),
+                    contentDescription = "Playback progress slider",
+                    valueTextFormatter = { "${state.positionLabel} / ${state.durationLabel}" },
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Row(Modifier.fillMaxWidth()) {
                     Text(
