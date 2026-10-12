@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.data.local.entity.BookDetails
 import kotlin.math.absoluteValue
+import com.ktheme.compose.AccessibleRatingGroup
 import com.universalmedialibrary.data.local.entity.ReadingProgress
 
 @Composable
@@ -430,17 +431,16 @@ fun RatingStars(
     modifier: Modifier = Modifier,
     maxStars: Int = 5
 ) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        repeat(maxStars) { index ->
-            Icon(
-                imageVector = if (index < rating.toInt()) Icons.Default.Star else Icons.Default.StarBorder,
-                contentDescription = "Media image",
-                modifier = Modifier.size(14.dp),
-                tint = Color(0xFFFFC107)
-            )
-        }
+    AccessibleRatingGroup(
+        rating = rating,
+        maxStars = maxStars,
+        modifier = modifier
+    ) { _, isFilled ->
+        Icon(
+            imageVector = if (isFilled) Icons.Default.Star else Icons.Default.StarBorder,
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = Color(0xFFFFC107)
+        )
     }
 }

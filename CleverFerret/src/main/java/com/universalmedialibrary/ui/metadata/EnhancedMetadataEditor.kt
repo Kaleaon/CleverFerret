@@ -102,8 +102,8 @@ fun EnhancedMetadataEditorScreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
+                .padding(paddingValues)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
