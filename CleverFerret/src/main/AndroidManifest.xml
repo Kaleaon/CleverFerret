@@ -34,6 +34,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     
+    <!-- Custom permission for isolated plugin service binding -->
+    <permission android:name="com.universalmedialibrary.permission.BIND_PLUGIN_SERVICE" android:protectionLevel="normal" />
+    <uses-permission android:name="com.universalmedialibrary.permission.BIND_PLUGIN_SERVICE" />
+    
     <!-- Android Auto - MEDIA_CONTENT_CONTROL removed as it's only granted to system apps -->
 
     <application
@@ -177,6 +181,17 @@
             android:name=".services.MediaScannerService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+
+        <!-- Isolated Out-of-process Plugin Service Host -->
+        <service
+            android:name=".api.plugin.grpc.IsolatedPluginServiceHost"
+            android:exported="true"
+            android:process=":isolated_plugin"
+            android:permission="com.universalmedialibrary.permission.BIND_PLUGIN_SERVICE">
+            <intent-filter>
+                <action android:name="com.universalmedialibrary.api.plugin.BIND_ISOLATED_PLUGIN" />
+            </intent-filter>
+        </service>
         
         <!-- App widgets are declared in src/debug and src/release manifests. -->
 

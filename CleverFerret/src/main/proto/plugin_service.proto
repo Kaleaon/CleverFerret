@@ -1,0 +1,311 @@
+syntax = "proto3";
+
+package com.universalmedialibrary.api.plugin.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.universalmedialibrary.api.plugin.grpc";
+option java_outer_classname = "PluginServiceProto";
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum MediaTypeProto {
+  MEDIA_TYPE_UNKNOWN = 0;
+  MEDIA_TYPE_BOOK = 1;
+  MEDIA_TYPE_EBOOK = 2;
+  MEDIA_TYPE_AUDIOBOOK = 3;
+  MEDIA_TYPE_COMIC = 4;
+  MEDIA_TYPE_MANGA = 5;
+  MEDIA_TYPE_MUSIC_ALBUM = 6;
+  MEDIA_TYPE_MUSIC_TRACK = 7;
+  MEDIA_TYPE_PODCAST = 8;
+  MEDIA_TYPE_PODCAST_EPISODE = 9;
+  MEDIA_TYPE_MOVIE = 10;
+  MEDIA_TYPE_TV_SHOW = 11;
+  MEDIA_TYPE_TV_EPISODE = 12;
+  MEDIA_TYPE_DOCUMENT = 13;
+  MEDIA_TYPE_FANFICTION = 14;
+  MEDIA_TYPE_NEWS_ARTICLE = 15;
+  MEDIA_TYPE_RADIO_STATION = 16;
+}
+
+enum CoverSizeProto {
+  COVER_SIZE_SMALL = 0;
+  COVER_SIZE_MEDIUM = 1;
+  COVER_SIZE_LARGE = 2;
+  COVER_SIZE_ORIGINAL = 3;
+}
+
+enum HealthStatusProto {
+  HEALTH_STATUS_HEALTHY = 0;
+  HEALTH_STATUS_DEGRADED = 1;
+  HEALTH_STATUS_UNHEALTHY = 2;
+  HEALTH_STATUS_UNKNOWN = 3;
+}
+
+enum DownloadStatusProto {
+  DOWNLOAD_STATUS_PENDING = 0;
+  DOWNLOAD_STATUS_DOWNLOADING = 1;
+  DOWNLOAD_STATUS_PROCESSING = 2;
+  DOWNLOAD_STATUS_COMPLETED = 3;
+  DOWNLOAD_STATUS_FAILED = 4;
+  DOWNLOAD_STATUS_CANCELLED = 5;
+}
+
+// =============================================================================
+// METADATA MESSAGES
+// =============================================================================
+
+message MetadataQueryProto {
+  optional string title = 1;
+  optional string author = 2;
+  optional string isbn = 3;
+  optional string barcode = 4;
+  optional int32 year = 5;
+  MediaTypeProto media_type = 6;
+  optional string language = 7;
+  int32 limit = 8;
+}
+
+message MetadataSearchResultProto {
+  string id = 1;
+  string provider_id = 2;
+  string title = 3;
+  optional string subtitle = 4;
+  repeated string authors = 5;
+  optional int32 year = 6;
+  optional string cover_url = 7;
+  MediaTypeProto media_type = 8;
+  float relevance_score = 9;
+  map<string, string> additional_info = 10;
+}
+
+message MetadataSearchResultListProto {
+  repeated MetadataSearchResultProto results = 1;
+}
+
+message FetchDetailsRequestProto {
+  string id = 1;
+  MediaTypeProto media_type = 2;
+}
+
+message FetchCoverArtRequestProto {
+  string id = 1;
+  CoverSizeProto size = 2;
+}
+
+message FetchCoverArtResponseProto {
+  string cover_url = 1;
+}
+
+message FetchRecommendationsRequestProto {
+  string id = 1;
+  int32 limit = 2;
+}
+
+message PersonInfoProto {
+  string name = 1;
+  optional string id = 2;
+  optional string role = 3;
+  optional string image_url = 4;
+  optional string bio = 5;
+}
+
+message SeriesInfoProto {
+  string name = 1;
+  optional string id = 2;
+  optional float position = 3;
+  optional int32 total_books = 4;
+}
+
+message RatingInfoProto {
+  float average = 1;
+  int32 count = 2;
+  map<int32, int32> distribution = 3;
+}
+
+message MediaMetadataProto {
+  string id = 1;
+  string provider_id = 2;
+  string title = 3;
+  optional string original_title = 4;
+  optional string subtitle = 5;
+  optional string description = 6;
+  repeated PersonInfoProto authors = 7;
+  repeated PersonInfoProto narrators = 8;
+  optional string publisher = 9;
+  optional string publish_date = 10;
+  optional string language = 11;
+  optional string isbn = 12;
+  optional string isbn13 = 13;
+  optional string asin = 14;
+  repeated string genres = 15;
+  repeated string tags = 16;
+  SeriesInfoProto series = 17;
+  RatingInfoProto rating = 18;
+  optional int32 page_count = 19;
+  optional int64 duration = 20;
+  map<string, string> cover_urls = 21;
+  repeated string additional_images = 22;
+  map<string, string> external_links = 23;
+  MediaTypeProto media_type = 24;
+  map<string, string> additional_metadata = 25;
+}
+
+// =============================================================================
+// CONTENT MESSAGES
+// =============================================================================
+
+message ContentBrowseRequestProto {
+  optional string category = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message ContentCategoryProto {
+  string id = 1;
+  string name = 2;
+  optional string description = 3;
+  optional int32 item_count = 4;
+  repeated ContentCategoryProto subcategories = 5;
+}
+
+message ContentFormatProto {
+  string format = 1;
+  string url = 2;
+  optional int64 file_size = 3;
+  optional string quality = 4;
+}
+
+message ContentItemProto {
+  string id = 1;
+  string source_id = 2;
+  string title = 3;
+  repeated string authors = 4;
+  optional string description = 5;
+  optional string cover_url = 6;
+  MediaTypeProto media_type = 7;
+  repeated ContentFormatProto formats = 8;
+  optional int64 file_size = 9;
+  optional int64 duration = 10;
+  optional string language = 11;
+  optional string publish_date = 12;
+  optional string license = 13;
+  optional string download_url = 14;
+}
+
+message ContentItemListProto {
+  repeated ContentItemProto items = 1;
+}
+
+message ContentBrowseResultProto {
+  repeated ContentItemProto items = 1;
+  int32 total_count = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  repeated ContentCategoryProto categories = 5;
+}
+
+message ContentSearchRequestProto {
+  string query = 1;
+  MediaTypeProto media_type = 2;
+}
+
+message ContentDetailsRequestProto {
+  string id = 1;
+}
+
+message DownloadRequestProto {
+  string id = 1;
+  optional string format = 2;
+}
+
+message DownloadProgressProto {
+  string id = 1;
+  DownloadStatusProto status = 2;
+  float progress = 3;
+  int64 bytes_downloaded = 4;
+  int64 total_bytes = 5;
+  int64 speed = 6;
+  optional string local_path = 7;
+  optional string error = 8;
+}
+
+message StreamUrlRequestProto {
+  string id = 1;
+}
+
+message StreamUrlResponseProto {
+  string url = 1;
+}
+
+// =============================================================================
+// CONTROL & HEALTH MESSAGES
+// =============================================================================
+
+message InitializeRequestProto {
+  string plugin_id = 1;
+  map<string, string> config = 2;
+}
+
+message InitializeResponseProto {
+  bool success = 1;
+  optional string error_message = 2;
+}
+
+message ShutdownRequestProto {
+  string plugin_id = 1;
+}
+
+message ShutdownResponseProto {
+  bool success = 1;
+}
+
+message HealthCheckRequestProto {
+  string plugin_id = 1;
+}
+
+message PluginHealthProto {
+  HealthStatusProto status = 1;
+  optional string message = 2;
+  int64 last_check = 3;
+  map<string, string> details = 4;
+}
+
+message PluginInfoProto {
+  string id = 1;
+  string name = 2;
+  string version = 3;
+  string description = 4;
+  string author = 5;
+  string category = 6;
+  bool is_enabled = 7;
+  repeated string capabilities = 8;
+}
+
+// =============================================================================
+// gRPC SERVICES
+// =============================================================================
+
+service MetadataProviderService {
+  rpc Search(MetadataQueryProto) returns (MetadataSearchResultListProto);
+  rpc FetchDetails(FetchDetailsRequestProto) returns (MediaMetadataProto);
+  rpc FetchCoverArt(FetchCoverArtRequestProto) returns (FetchCoverArtResponseProto);
+  rpc FetchRecommendations(FetchRecommendationsRequestProto) returns (MetadataSearchResultListProto);
+}
+
+service ContentSourceService {
+  rpc Browse(ContentBrowseRequestProto) returns (ContentBrowseResultProto);
+  rpc SearchContent(ContentSearchRequestProto) returns (ContentItemListProto);
+  rpc GetContentDetails(ContentDetailsRequestProto) returns (ContentItemProto);
+  rpc DownloadContent(DownloadRequestProto) returns (stream DownloadProgressProto);
+  rpc GetStreamUrl(StreamUrlRequestProto) returns (StreamUrlResponseProto);
+}
+
+service PluginControlService {
+  rpc Initialize(InitializeRequestProto) returns (InitializeResponseProto);
+  rpc Shutdown(ShutdownRequestProto) returns (ShutdownResponseProto);
+  rpc HealthCheck(HealthCheckRequestProto) returns (PluginHealthProto);
+  rpc GetPluginInfo(HealthCheckRequestProto) returns (PluginInfoProto);
+}

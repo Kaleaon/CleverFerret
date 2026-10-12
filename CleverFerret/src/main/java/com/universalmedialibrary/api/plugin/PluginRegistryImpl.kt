@@ -30,6 +30,40 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
     private val _events = MutableSharedFlow<PluginEvent>(replay = 0)
     val events: SharedFlow<PluginEvent> = _events.asSharedFlow()
     
+    val permissionValidator = com.universalmedialibrary.api.plugin.grpc.PluginPermissionValidator()
+    
+    val processMonitor = com.universalmedialibrary.api.plugin.grpc.PluginProcessMonitor(
+        onHealthChanged = { pluginId, health ->
+            if (health.status == HealthStatus.UNHEALTHY) {
+                scope.launch {
+                    _events.emit(PluginEvent.PluginError(pluginId, RuntimeException(health.message ?: "Plugin process unhealthy")))
+                }
+            }
+        },
+        onRestartRequested = { pluginId ->
+            getPlugin(pluginId)?.let { plugin ->
+                try {
+                    plugin.initialize().isSuccess
+                } catch (e: Exception) {
+                    false
+                }
+            } ?: false
+        }
+    )
+
+    fun registerRemotePlugin(plugin: Plugin, packageName: String? = null): Result<Unit> {
+        if (packageName != null) {
+            val permResult = permissionValidator.validatePluginPackage(packageName)
+            if (permResult.isFailure) {
+                val error = permResult.exceptionOrNull() ?: SecurityException("Permission check failed")
+                scope.launch { _events.emit(PluginEvent.PluginError(plugin.id, error)) }
+                return Result.failure(error)
+            }
+        }
+        registerPlugin(plugin)
+        return Result.success(Unit)
+    }
+    
     override fun getAllPlugins(): List<Plugin> = plugins.values.toList()
     
     override fun getPluginsByCategory(category: PluginCategory): List<Plugin> {
