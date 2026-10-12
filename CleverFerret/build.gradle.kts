@@ -24,7 +24,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jetbrains.kotlin.plugin.compose")
-    id("com.mikepenz.aboutlibraries.plugin") version "13.2.1"
+    id("com.mikepenz.aboutlibraries.plugin") version "15.2.0"
     alias(libs.plugins.detekt)
     jacoco
 }
