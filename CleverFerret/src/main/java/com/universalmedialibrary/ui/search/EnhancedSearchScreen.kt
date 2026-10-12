@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.search.SearchResult
 import com.universalmedialibrary.services.search.SortBy
 import com.universalmedialibrary.services.search.SearchFilters
@@ -33,10 +34,10 @@ fun EnhancedSearchScreen(
     navController: NavController,
     viewModel: EnhancedSearchViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val filters by viewModel.filters.collectAsState()
-    val sortBy by viewModel.sortBy.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val filters by viewModel.filters.collectAsStateWithLifecycle()
+    val sortBy by viewModel.sortBy.collectAsStateWithLifecycle()
 
     var showFilters by remember { mutableStateOf(false) }
     var showSortOptions by remember { mutableStateOf(false) }

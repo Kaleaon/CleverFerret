@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.cast.ChromecastManager
 import com.universalmedialibrary.services.visualizer.AudioVisualizerService
 import com.universalmedialibrary.ui.visualizer.ProjectMVisualizer
@@ -55,8 +56,8 @@ private fun ExpandedControlsScreen(
     visualizerService: AudioVisualizerService,
     onBack: () -> Unit
 ) {
-    val castState by chromecastManager.castState.collectAsState()
-    val visualizerState by visualizerService.visualizerState.collectAsState()
+    val castState by chromecastManager.castState.collectAsStateWithLifecycle()
+    val visualizerState by visualizerService.visualizerState.collectAsStateWithLifecycle()
     var showVisualizer by remember { mutableStateOf(false) }
     var visualizerStyle by remember { mutableStateOf(VisualizerStyle.SPECTRUM_BARS) }
 

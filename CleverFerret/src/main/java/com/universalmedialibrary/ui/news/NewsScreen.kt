@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.news.NewsRecipe
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,8 +25,8 @@ fun NewsScreen(
     onOpenEpub: (String) -> Unit,
     viewModel: NewsScreenViewModel = hiltViewModel()
 ) {
-    val recipes by viewModel.recipes.collectAsState()
-    val downloadStatus by viewModel.downloadStatus.collectAsState()
+    val recipes by viewModel.recipes.collectAsStateWithLifecycle()
+    val downloadStatus by viewModel.downloadStatus.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

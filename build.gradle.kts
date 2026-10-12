@@ -172,6 +172,14 @@ if [ "${'$'}HAS_KOTLIN" -eq 1 ]; then
 fi
 
 if [ "${'$'}HAS_SRC" -eq 1 ] || [ "${'$'}HAS_KOTLIN" -eq 1 ]; then
+    echo "--> Checking for unmanaged collectAsState calls..."
+    UNMANAGED_CALLS=${'$'}(grep -rnE "\bcollectAsState\b" CleverFerret/src/ 2>/dev/null | grep -v "collectAsStateWithLifecycle" | grep -v "@Suppress" || true)
+    if [ -n "${'$'}UNMANAGED_CALLS" ]; then
+        echo "❌ Unmanaged collectAsState() calls detected! Use collectAsStateWithLifecycle() instead:"
+        echo "${'$'}UNMANAGED_CALLS"
+        EXIT_CODE=1
+    fi
+
     echo "--> Checking for raw console usage in production paths..."
     if [ -f "./scripts/check-no-raw-console.sh" ]; then
         if ! bash ./scripts/check-no-raw-console.sh; then
@@ -219,6 +227,28 @@ tasks.register("installGitHooks") {
             logger.lifecycle("Installed Git pre-commit hook at ${preCommitFile.absolutePath}")
         } else {
             logger.warn("Skipping installGitHooks: .git directory not found.")
+        }
+    }
+}
+
+tasks.register("checkLifecycleFlowCollection") {
+    group = "verification"
+    description = "Checks that state flows are collected with lifecycle awareness."
+    doLast {
+        val srcDir = rootProject.file("CleverFerret/src")
+        var unmanagedCount = 0
+        srcDir.walk().filter { it.extension == "kt" || it.extension == "kts" }.forEach { file ->
+            file.useLines { lines ->
+                lines.forEachIndexed { lineNum, line ->
+                    if (line.contains(Regex("""\bcollectAsState\b(?!WithLifecycle)""")) && !line.contains("@Suppress")) {
+                        logger.error("${file.path}:${lineNum + 1}: Unmanaged collectAsState call: ${line.trim()}")
+                        unmanagedCount++
+                    }
+                }
+            }
+        }
+        if (unmanagedCount > 0) {
+            throw GradleException("Found $unmanagedCount unmanaged collectAsState() calls. Refactor to collectAsStateWithLifecycle().")
         }
     }
 }

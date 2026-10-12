@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.radio.NowPlayingInfo
 
 /**
@@ -36,9 +37,9 @@ fun EnhancedRadioScreen(
     onNavigateToHDRadio: () -> Unit,
     viewModel: EnhancedRadioViewModel = hiltViewModel()
 ) {
-    val nowPlaying by viewModel.nowPlaying.collectAsState()
-    val isIdentifying by viewModel.isIdentifying.collectAsState()
-    val fmAvailable by viewModel.fmRadioAvailable.collectAsState()
+    val nowPlaying by viewModel.nowPlaying.collectAsStateWithLifecycle()
+    val isIdentifying by viewModel.isIdentifying.collectAsStateWithLifecycle()
+    val fmAvailable by viewModel.fmRadioAvailable.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

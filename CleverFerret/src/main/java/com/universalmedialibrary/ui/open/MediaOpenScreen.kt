@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.isAudioType
 import com.universalmedialibrary.data.isVideoType
 import com.universalmedialibrary.data.toMediaTypeOrUnknown
@@ -59,7 +60,7 @@ fun MediaOpenScreen(
     onBack: () -> Unit,
     viewModel: MediaOpenViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(itemId) { viewModel.load(itemId) }
 
     when {

@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 import com.universalmedialibrary.services.music.EqualizerPreset
 import com.universalmedialibrary.services.music.ReverbPreset
@@ -54,7 +55,7 @@ fun AudioEffectsSettingsScreen(
     onNavigateToShowcase: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
