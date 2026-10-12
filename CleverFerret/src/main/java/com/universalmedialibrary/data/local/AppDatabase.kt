@@ -195,10 +195,13 @@ import com.universalmedialibrary.data.Tag
         MediaFtsEntity::class,
 
         // Media Stream Cache
-        MediaCacheItem::class
+        MediaCacheItem::class,
+
+        // Unified Integration External Media Entities
+        ExternalMediaEntity::class
 
     ],
-    version = 48,
+    version = 49,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -213,6 +216,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun mediaFtsDao(): MediaFtsDao
     abstract fun mediaCacheDao(): MediaCacheDao
+    abstract fun externalMediaEntityDao(): ExternalMediaEntityDao
     abstract fun metadataDao(): MetadataDao
     abstract fun stagedMetadataCandidateDao(): StagedMetadataCandidateDao
     abstract fun extendedMetadataDao(): ExtendedMetadataDao
