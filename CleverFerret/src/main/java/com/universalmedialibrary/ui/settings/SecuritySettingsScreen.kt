@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.settings.SecuritySettings
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 
@@ -22,7 +23,7 @@ fun SecuritySettingsScreen(
     navController: NavController,
     viewModel: SecuritySettingsViewModel = hiltViewModel()
 ) {
-    val securitySettings by viewModel.securitySettings.collectAsState()
+    val securitySettings by viewModel.securitySettings.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

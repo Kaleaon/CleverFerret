@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.music.LyricsService
 import com.universalmedialibrary.services.music.TrackInfo
 import com.universalmedialibrary.ui.music.Track
@@ -49,7 +50,7 @@ fun SyncedLyricsDisplay(
     modifier: Modifier = Modifier,
     viewModel: SyncedLyricsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
     
     LaunchedEffect(track?.id) {

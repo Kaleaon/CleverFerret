@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.BookDetails
 import com.universalmedialibrary.ui.bookshelf.*
 import com.universalmedialibrary.ui.media.components.MediaPosterCardSkeleton
@@ -32,15 +33,15 @@ fun ModernBookshelfScreen(
     libraryId: Long = 1L,
     viewModel: BookshelfViewModel = hiltViewModel()
 ) {
-    val books by viewModel.books.collectAsState()
-    val favorites by viewModel.favorites.collectAsState()
-    val progressMap by viewModel.progressMap.collectAsState()
-    val viewMode by viewModel.viewMode.collectAsState()
-    val sortOption by viewModel.sortOption.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val selectedGenre by viewModel.selectedGenre.collectAsState()
-    val showFilters by viewModel.showFilters.collectAsState()
-    val searchActive by viewModel.searchActive.collectAsState()
+    val books by viewModel.books.collectAsStateWithLifecycle()
+    val favorites by viewModel.favorites.collectAsStateWithLifecycle()
+    val progressMap by viewModel.progressMap.collectAsStateWithLifecycle()
+    val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
+    val sortOption by viewModel.sortOption.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
+    val showFilters by viewModel.showFilters.collectAsStateWithLifecycle()
+    val searchActive by viewModel.searchActive.collectAsStateWithLifecycle()
 
     var showSortMenu by remember { mutableStateOf(false) }
     var showViewModeMenu by remember { mutableStateOf(false) }

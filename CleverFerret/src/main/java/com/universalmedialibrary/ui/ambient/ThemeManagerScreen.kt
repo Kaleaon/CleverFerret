@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.ambient.SoundLibrary
 import com.universalmedialibrary.ui.theme.crystalGlow
 import com.universalmedialibrary.ui.theme.gradientOverlay
@@ -63,8 +64,8 @@ fun ThemeManagerScreen(
     onBack: () -> Unit,
     viewModel: ThemeManagerViewModel = hiltViewModel()
 ) {
-    val collections by viewModel.collections.collectAsState()
-    val stats by viewModel.stats.collectAsState()
+    val collections by viewModel.collections.collectAsStateWithLifecycle()
+    val stats by viewModel.stats.collectAsStateWithLifecycle()
     
     Scaffold(
         topBar = {
