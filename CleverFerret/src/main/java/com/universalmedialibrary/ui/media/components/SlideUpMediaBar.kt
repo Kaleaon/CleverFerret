@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.media.components
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
@@ -406,12 +407,12 @@ private fun ExpandedContent(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = formatTime(state.currentPosition),
+                    text = state.currentPosition.formatAsMediaTime(),
                     style = MediaTypography.LabelSmall,
                     color = MediaColors.TextTertiary
                 )
                 Text(
-                    text = formatTime(state.duration),
+                    text = state.duration.formatAsMediaTime(),
                     style = MediaTypography.LabelSmall,
                     color = MediaColors.TextTertiary
                 )
@@ -569,15 +570,4 @@ private fun SpeedPickerDialog(
         confirmButton = {},
         containerColor = MediaColors.BackgroundElevated
     )
-}
-
-private fun formatTime(ms: Long): String {
-    val seconds = (ms / 1000) % 60
-    val minutes = (ms / (1000 * 60)) % 60
-    val hours = ms / (1000 * 60 * 60)
-    return if (hours > 0) {
-        "%d:%02d:%02d".format(hours, minutes, seconds)
-    } else {
-        "%d:%02d".format(minutes, seconds)
-    }
 }

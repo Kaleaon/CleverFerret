@@ -11,12 +11,12 @@ class AdaptiveGridWidthTokensTest {
 
     @Test
     fun cfTokens_definesGridMinItemWidthTokens() {
-        val tokens = NavyGoldTokens
-        assertNotNull("gridMinItemWidth token container should not be null", tokens.gridMinItemWidth)
-        assertEquals("quickAction min width token default", 100.dp, tokens.gridMinItemWidth.quickAction)
-        assertEquals("poster min width token default", 160.dp, tokens.gridMinItemWidth.poster)
-        assertEquals("squareCard min width token default", 140.dp, tokens.gridMinItemWidth.squareCard)
-        assertEquals("dialogChip min width token default", 120.dp, tokens.gridMinItemWidth.dialogChip)
+        val gridMinItemWidth = CFGridMinItemWidth()
+        assertNotNull("gridMinItemWidth token container should not be null", gridMinItemWidth)
+        assertEquals("quickAction min width token default", 100.dp, gridMinItemWidth.quickAction)
+        assertEquals("poster min width token default", 160.dp, gridMinItemWidth.poster)
+        assertEquals("squareCard min width token default", 140.dp, gridMinItemWidth.squareCard)
+        assertEquals("dialogChip min width token default", 120.dp, gridMinItemWidth.dialogChip)
     }
 
     @Test

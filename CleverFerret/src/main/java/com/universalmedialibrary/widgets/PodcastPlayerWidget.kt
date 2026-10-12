@@ -1,5 +1,7 @@
 package com.universalmedialibrary.widgets
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
+
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -61,7 +63,7 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_episode_title, currentItem?.artist ?: "")
             
             val durationText = if (playbackState != null && playbackState.duration > 0) {
-                "${formatTime(playbackState.currentPositionMs)} / ${formatTime(playbackState.duration)}"
+                "${playbackState.currentPositionMs.formatAsMediaTime()} / ${playbackState.duration.formatAsMediaTime()}"
             } else {
                 "--:-- / --:--"
             }
@@ -121,13 +123,6 @@ class PodcastPlayerWidget : AppWidgetProvider() {
                 context, requestCode, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-        }
-
-        private fun formatTime(millis: Long): String {
-            val totalSeconds = millis / 1000
-            val minutes = totalSeconds / 60
-            val seconds = totalSeconds % 60
-            return "%d:%02d".format(minutes, seconds)
         }
     } // end companion object
 

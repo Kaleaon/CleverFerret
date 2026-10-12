@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.music
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -313,7 +314,7 @@ fun TrackDetailsDialog(
                             val artSize = metadata.embeddedArtSize / 1024
                             DetailItem("Album Art", "Embedded ($artSize KB)")
                         }
-                        DetailItem("Duration", formatDuration(track.duration))
+                        DetailItem("Duration", track.duration.formatAsMediaTime())
                     }
                 }
             }
@@ -378,12 +379,4 @@ private fun DetailItem(
     }
 }
 
-/**
- * Format duration to MM:SS
- */
-private fun formatDuration(milliseconds: Long): String {
-    val seconds = milliseconds / 1000
-    val minutes = seconds / 60
-    val remainingSeconds = seconds % 60
-    return String.format(java.util.Locale.US, "%d:%02d", minutes, remainingSeconds)
-}
+

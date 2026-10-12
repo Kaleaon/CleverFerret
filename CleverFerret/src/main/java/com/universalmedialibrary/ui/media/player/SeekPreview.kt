@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 
 @Composable
 internal fun SeekPreview(
@@ -61,7 +62,7 @@ internal fun SeekPreview(
             color = Color.Black.copy(alpha = 0.8f)
         ) {
             Text(
-                text = formatTime(position),
+                text = position.formatAsMediaTime(),
                 style = MediaTypography.LabelMedium,
                 color = Color.White,
                 modifier = Modifier.padding(horizontal = MediaSpacing.SM, vertical = MediaSpacing.XS)

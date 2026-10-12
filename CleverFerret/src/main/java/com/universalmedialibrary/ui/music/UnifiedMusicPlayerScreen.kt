@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.music
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -239,12 +240,12 @@ fun UnifiedMusicPlayerScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = formatTime(currentPosition),
+                            text = currentPosition.formatAsMediaTime(),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = formatTime(currentTrack?.duration ?: 0L),
+                            text = currentTrack?.duration.formatAsMediaTime(),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -446,11 +447,4 @@ fun UnifiedMusicPlayerScreen(
             }
         )
     }
-}
-
-private fun formatTime(timeMs: Long): String {
-    val totalSeconds = timeMs / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return String.format(java.util.Locale.US, "%d:%02d", minutes, seconds)
 }

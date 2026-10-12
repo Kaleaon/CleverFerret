@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 
 @Composable
 internal fun SleepTimerDialog(
@@ -67,7 +68,7 @@ internal fun SleepTimerDialog(
                             )
                             Spacer(modifier = Modifier.width(MediaSpacing.SM))
                             Text(
-                                text = "Timer: ${formatTime(currentTimer)}",
+                                text = "Timer: ${currentTimer.formatAsMediaTime()}",
                                 color = MediaColors.AccentPrimary,
                                 style = MediaTypography.BodyMedium
                             )
