@@ -111,7 +111,8 @@ fun ThemePaywallSubpage(
             if (uiState.isUnlocked) {
                 AlreadyUnlockedCard(
                     title = "Theme Pro Unlocked",
-                    description = "You have full access to all premium theme palettes and reader styles."
+                    description = "You have full access to all premium theme palettes and reader styles.",
+                    onManageSubscriptions = { viewModel.manageSubscription(context) }
                 )
             } else if (uiState.billingState is BillingState.Offline || uiState.billingState is BillingState.Error) {
                 OfflineErrorStateCard(

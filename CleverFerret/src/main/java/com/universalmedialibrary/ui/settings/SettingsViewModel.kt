@@ -29,6 +29,7 @@ import com.universalmedialibrary.data.settings.BottomBarPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import android.content.Context
 import com.universalmedialibrary.jobs.WorkScheduler
+import com.universalmedialibrary.services.billing.BillingService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -44,7 +46,8 @@ class SettingsViewModel @Inject constructor(
     private val apiKeyRepository: APIKeyRepository,
     private val readerSettingsRepository: com.universalmedialibrary.data.repository.ReaderSettingsRepository,
     private val securitySettingsDao: SecuritySettingsDao,
-    private val generalSettingsDao: GeneralSettingsDao
+    private val generalSettingsDao: GeneralSettingsDao,
+    private val billingService: BillingService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -172,6 +175,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsRepository.setShowHomeOnboardingTips(true)
         }
+    }
+
+    fun manageSubscriptions(context: Context, sku: String? = null) {
+        billingService.launchManageSubscriptions(context, sku)
     }
 
     fun updateBottomBarPreferences(
