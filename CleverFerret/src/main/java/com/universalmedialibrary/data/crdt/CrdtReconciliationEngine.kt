@@ -80,11 +80,9 @@ class CrdtReconciliationEngine @Inject constructor(
             .maxWithOrNull(LwwComparator) ?: return false
 
         val nonDeleteOps = operations.filter { it.operationType != CrdtOperationType.TOMBSTONE_DELETE }
-        if (nonDeleteOps.isEmpty()) return true
+        val latestEditOp = nonDeleteOps.maxWithOrNull(LwwComparator)
 
-        val latestEditOp = nonDeleteOps.maxWithOrNull(LwwComparator) ?: return true
-
-        return LwwComparator.compare(deleteOp, latestEditOp) > 0
+        return latestEditOp == null || LwwComparator.compare(deleteOp, latestEditOp) > 0
     }
 
     /**
@@ -106,11 +104,19 @@ class CrdtReconciliationEngine @Inject constructor(
             }
 
             val setElements = reconcileOrSet(fieldOps)
-            if (setElements.isNotEmpty() || fieldOps.any { it.operationType == CrdtOperationType.OR_SET_ADD || it.operationType == CrdtOperationType.OR_SET_REMOVE }) {
+            val isOrSetOp = fieldOps.any {
+                it.operationType == CrdtOperationType.OR_SET_ADD ||
+                    it.operationType == CrdtOperationType.OR_SET_REMOVE
+            }
+            if (setElements.isNotEmpty() || isOrSetOp) {
                 orSets[fieldPath] = setElements
             }
 
-            if (fieldOps.any { it.operationType == CrdtOperationType.PN_COUNTER_INC || it.operationType == CrdtOperationType.PN_COUNTER_DEC }) {
+            val isPnOp = fieldOps.any {
+                it.operationType == CrdtOperationType.PN_COUNTER_INC ||
+                    it.operationType == CrdtOperationType.PN_COUNTER_DEC
+            }
+            if (isPnOp) {
                 pnCounters[fieldPath] = reconcilePnCounter(fieldOps)
             }
         }
@@ -128,7 +134,7 @@ class CrdtReconciliationEngine @Inject constructor(
         if (valueJson.isNullOrEmpty()) return 1L
         return try {
             valueJson.toLong()
-        } catch (e: Exception) {
+        } catch (e: NumberFormatException) {
             1L
         }
     }

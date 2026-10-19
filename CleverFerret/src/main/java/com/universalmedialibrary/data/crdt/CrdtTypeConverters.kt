@@ -12,10 +12,6 @@ class CrdtTypeConverters {
     @TypeConverter
     fun toCrdtOperationType(value: String?): CrdtOperationType? {
         if (value.isNullOrEmpty()) return null
-        return try {
-            CrdtOperationType.valueOf(value)
-        } catch (e: Exception) {
-            CrdtOperationType.LWW_SET
-        }
+        return CrdtOperationType.entries.find { it.name == value } ?: CrdtOperationType.LWW_SET
     }
 }

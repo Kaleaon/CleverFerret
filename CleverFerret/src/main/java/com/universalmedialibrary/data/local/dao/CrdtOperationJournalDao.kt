@@ -24,13 +24,21 @@ interface CrdtOperationJournalDao {
     @Query("SELECT * FROM crdt_operation_journal WHERE entityId = :entityId AND isCompacted = 0 ORDER BY lamportTimestamp ASC")
     suspend fun getOperationsForEntity(entityId: String): List<CrdtOperationRecord>
 
-    @Query("SELECT * FROM crdt_operation_journal WHERE entityId = :entityId AND fieldPath = :fieldPath AND isCompacted = 0 ORDER BY lamportTimestamp ASC")
+    @Query("""
+        SELECT * FROM crdt_operation_journal
+        WHERE entityId = :entityId AND fieldPath = :fieldPath AND isCompacted = 0
+        ORDER BY lamportTimestamp ASC
+    """)
     suspend fun getOperationsForEntityField(entityId: String, fieldPath: String): List<CrdtOperationRecord>
 
     @Query("SELECT * FROM crdt_operation_journal WHERE isSynced = 0 AND isCompacted = 0 ORDER BY lamportTimestamp ASC")
     suspend fun getUnsyncedOperations(): List<CrdtOperationRecord>
 
-    @Query("SELECT * FROM crdt_operation_journal WHERE lamportTimestamp > :lamportTimestamp AND isCompacted = 0 ORDER BY lamportTimestamp ASC")
+    @Query("""
+        SELECT * FROM crdt_operation_journal
+        WHERE lamportTimestamp > :lamportTimestamp AND isCompacted = 0
+        ORDER BY lamportTimestamp ASC
+    """)
     suspend fun getOperationsSinceLamport(lamportTimestamp: Long): List<CrdtOperationRecord>
 
     @Query("SELECT * FROM crdt_operation_journal WHERE isCompacted = 0 ORDER BY lamportTimestamp ASC")

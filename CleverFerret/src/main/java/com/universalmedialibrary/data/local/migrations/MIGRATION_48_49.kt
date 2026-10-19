@@ -27,9 +27,21 @@ val MIGRATION_48_49: Migration = object : Migration(48, 49) {
             )
         """.trimIndent())
 
-        database.execSQL("CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_entityId_fieldPath` ON `crdt_operation_journal` (`entityId`, `fieldPath`)")
-        database.execSQL("CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_lamportTimestamp` ON `crdt_operation_journal` (`lamportTimestamp`)")
-        database.execSQL("CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_isSynced` ON `crdt_operation_journal` (`isSynced`)")
-        database.execSQL("CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_isCompacted` ON `crdt_operation_journal` (`isCompacted`)")
+        database.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_entityId_fieldPath` " +
+                "ON `crdt_operation_journal` (`entityId`, `fieldPath`)"
+        )
+        database.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_lamportTimestamp` " +
+                "ON `crdt_operation_journal` (`lamportTimestamp`)"
+        )
+        database.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_isSynced` " +
+                "ON `crdt_operation_journal` (`isSynced`)"
+        )
+        database.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_isCompacted` " +
+                "ON `crdt_operation_journal` (`isCompacted`)"
+        )
     }
 }

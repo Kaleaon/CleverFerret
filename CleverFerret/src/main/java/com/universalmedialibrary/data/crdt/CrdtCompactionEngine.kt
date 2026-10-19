@@ -38,43 +38,8 @@ class CrdtCompactionEngine @Inject constructor(
         val fieldsByPath = operations.groupBy { it.fieldPath }
 
         for ((_, fieldOps) in fieldsByPath) {
-            // 1. Compact LWW operations
-            val lwwOps = fieldOps.filter { it.operationType == CrdtOperationType.LWW_SET }
-            if (lwwOps.size > 1) {
-                val winningLww = lwwOps.maxWithOrNull(CrdtReconciliationEngine.LwwComparator)
-                for (op in lwwOps) {
-                    if (op.operationId != winningLww?.operationId) {
-                        opsToMarkCompacted.add(op.operationId)
-                    }
-                }
-            }
-
-            // 2. Compact paired OR-Set operations
-            val addOps = fieldOps.filter { it.operationType == CrdtOperationType.OR_SET_ADD && it.elementId != null }
-            val removeOps = fieldOps.filter { it.operationType == CrdtOperationType.OR_SET_REMOVE && it.elementId != null }
-
-            val removeMaxLamportByElement = removeOps.groupBy { it.elementId!! }
-                .mapValues { (_, ops) -> ops.maxOf { it.lamportTimestamp } }
-
-            for (addOp in addOps) {
-                val elemId = addOp.elementId ?: continue
-                val maxRemoveLamport = removeMaxLamportByElement[elemId]
-                if (maxRemoveLamport != null && maxRemoveLamport >= addOp.lamportTimestamp) {
-                    opsToMarkCompacted.add(addOp.operationId)
-                }
-            }
-
-            // Mark older remove ops superseded by newer remove ops
-            for ((elemId, ops) in removeOps.groupBy { it.elementId!! }) {
-                if (ops.size > 1) {
-                    val newestRemove = ops.maxByOrNull { it.lamportTimestamp }
-                    for (op in ops) {
-                        if (op.operationId != newestRemove?.operationId) {
-                            opsToMarkCompacted.add(op.operationId)
-                        }
-                    }
-                }
-            }
+            opsToMarkCompacted.addAll(compactLwwOps(fieldOps))
+            opsToMarkCompacted.addAll(compactOrSetOps(fieldOps))
         }
 
         if (opsToMarkCompacted.isNotEmpty()) {
@@ -85,6 +50,43 @@ class CrdtCompactionEngine @Inject constructor(
             compactedOperationCount = opsToMarkCompacted.size,
             deletedOperationCount = 0
         )
+    }
+
+    private fun compactLwwOps(fieldOps: List<CrdtOperationRecord>): List<String> {
+        val lwwOps = fieldOps.filter { it.operationType == CrdtOperationType.LWW_SET }
+        if (lwwOps.size <= 1) return emptyList()
+
+        val winningLww = lwwOps.maxWithOrNull(CrdtReconciliationEngine.LwwComparator)
+        return lwwOps.filter { it.operationId != winningLww?.operationId }
+            .map { it.operationId }
+    }
+
+    private fun compactOrSetOps(fieldOps: List<CrdtOperationRecord>): List<String> {
+        val addOps = fieldOps.filter { it.operationType == CrdtOperationType.OR_SET_ADD && it.elementId != null }
+        val removeOps = fieldOps.filter { it.operationType == CrdtOperationType.OR_SET_REMOVE && it.elementId != null }
+        if (addOps.isEmpty() && removeOps.isEmpty()) return emptyList()
+
+        val opsToCompact = mutableListOf<String>()
+        val removeMaxLamportByElement = removeOps.groupBy { it.elementId!! }
+            .mapValues { (_, ops) -> ops.maxOf { it.lamportTimestamp } }
+
+        for (addOp in addOps) {
+            val elemId = addOp.elementId ?: continue
+            val maxRemoveLamport = removeMaxLamportByElement[elemId]
+            if (maxRemoveLamport != null && maxRemoveLamport >= addOp.lamportTimestamp) {
+                opsToCompact.add(addOp.operationId)
+            }
+        }
+
+        for ((_, ops) in removeOps.groupBy { it.elementId!! }) {
+            if (ops.size > 1) {
+                val newestRemove = ops.maxByOrNull { it.lamportTimestamp }
+                ops.filter { it.operationId != newestRemove?.operationId }
+                    .forEach { opsToCompact.add(it.operationId) }
+            }
+        }
+
+        return opsToCompact
     }
 
     /**

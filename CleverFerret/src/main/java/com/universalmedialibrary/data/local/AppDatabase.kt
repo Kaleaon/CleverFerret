@@ -206,7 +206,14 @@ import com.universalmedialibrary.data.crdt.CrdtTypeConverters
     version = 49,
     exportSchema = false
 )
-@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class, CrdtTypeConverters::class)
+@TypeConverters(
+    Converters::class,
+    AudioChapterListConverter::class,
+    AmbientSoundConverters::class,
+    AudioPackConverters::class,
+    CollaborativeSessionConverters::class,
+    CrdtTypeConverters::class
+)
 abstract class AppDatabase : RoomDatabase() {
 
 

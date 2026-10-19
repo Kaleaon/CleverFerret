@@ -52,8 +52,20 @@ class CrdtReconciliationEngineTest {
         assertEquals("Title New", reconciled?.valueJson)
 
         // Tie breaker on deviceId when timestamps match
-        val op3 = op1.copy(operationId = "op-3", lamportTimestamp = 10L, wallTimestamp = 1000L, deviceId = "device-Z", valueJson = "Title Z")
-        val op4 = op1.copy(operationId = "op-4", lamportTimestamp = 10L, wallTimestamp = 1000L, deviceId = "device-A", valueJson = "Title A")
+        val op3 = op1.copy(
+            operationId = "op-3",
+            lamportTimestamp = 10L,
+            wallTimestamp = 1000L,
+            deviceId = "device-Z",
+            valueJson = "Title Z"
+        )
+        val op4 = op1.copy(
+            operationId = "op-4",
+            lamportTimestamp = 10L,
+            wallTimestamp = 1000L,
+            deviceId = "device-A",
+            valueJson = "Title A"
+        )
 
         val tieBreakerReconciled = engine.reconcileLwwField(listOf(op4, op3))
         assertEquals("Title Z", tieBreakerReconciled?.valueJson)

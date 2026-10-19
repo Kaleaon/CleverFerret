@@ -14,8 +14,21 @@ class MultiDeviceCrdtConvergenceTest {
 
     @Test
     fun testThreeDeviceOfflinePartitionConvergenceWithZeroConflicts() {
-        // Device A mutates title and adds tag "Action" offline
-        val deviceA_op1 = CrdtOperationRecord(
+        val (deviceAOp1, deviceAOp2) = createDeviceAOperations()
+        val (deviceBOp1, deviceBOp2, deviceBOp3) = createDeviceBOperations()
+        val (deviceCOp1, deviceCOp2) = createDeviceCOperations()
+
+        val order1 = listOf(deviceAOp1, deviceAOp2, deviceBOp1, deviceBOp2, deviceBOp3, deviceCOp1, deviceCOp2)
+        val order2 = listOf(deviceCOp2, deviceCOp1, deviceBOp3, deviceBOp2, deviceBOp1, deviceAOp2, deviceAOp1)
+        val order3 = listOf(deviceBOp2, deviceAOp1, deviceCOp1, deviceBOp1, deviceCOp2, deviceAOp2, deviceBOp3)
+
+        verifyTitleConvergence(order1, order2, order3)
+        verifyTagsConvergence(order1, order2, order3)
+        verifyPlayCountConvergence(order1, order2, order3)
+    }
+
+    private fun createDeviceAOperations(): Pair<CrdtOperationRecord, CrdtOperationRecord> {
+        val op1 = CrdtOperationRecord(
             operationId = "devA-op1",
             entityId = "item-777",
             entityType = "MEDIA_ITEM",
@@ -27,8 +40,7 @@ class MultiDeviceCrdtConvergenceTest {
             lamportTimestamp = 100L,
             wallTimestamp = 1000L
         )
-
-        val deviceA_op2 = CrdtOperationRecord(
+        val op2 = CrdtOperationRecord(
             operationId = "devA-op2",
             entityId = "item-777",
             entityType = "MEDIA_ITEM",
@@ -40,9 +52,11 @@ class MultiDeviceCrdtConvergenceTest {
             lamportTimestamp = 101L,
             wallTimestamp = 1010L
         )
+        return op1 to op2
+    }
 
-        // Device B mutates title, adds tag "Drama", and increments playCount offline
-        val deviceB_op1 = CrdtOperationRecord(
+    private fun createDeviceBOperations(): Triple<CrdtOperationRecord, CrdtOperationRecord, CrdtOperationRecord> {
+        val op1 = CrdtOperationRecord(
             operationId = "devB-op1",
             entityId = "item-777",
             entityType = "MEDIA_ITEM",
@@ -54,8 +68,7 @@ class MultiDeviceCrdtConvergenceTest {
             lamportTimestamp = 105L,
             wallTimestamp = 1050L
         )
-
-        val deviceB_op2 = CrdtOperationRecord(
+        val op2 = CrdtOperationRecord(
             operationId = "devB-op2",
             entityId = "item-777",
             entityType = "MEDIA_ITEM",
@@ -67,8 +80,7 @@ class MultiDeviceCrdtConvergenceTest {
             lamportTimestamp = 106L,
             wallTimestamp = 1060L
         )
-
-        val deviceB_op3 = CrdtOperationRecord(
+        val op3 = CrdtOperationRecord(
             operationId = "devB-op3",
             entityId = "item-777",
             entityType = "MEDIA_ITEM",
@@ -80,9 +92,11 @@ class MultiDeviceCrdtConvergenceTest {
             lamportTimestamp = 107L,
             wallTimestamp = 1070L
         )
+        return Triple(op1, op2, op3)
+    }
 
-        // Device C removes tag "Action" and increments playCount offline
-        val deviceC_op1 = CrdtOperationRecord(
+    private fun createDeviceCOperations(): Pair<CrdtOperationRecord, CrdtOperationRecord> {
+        val op1 = CrdtOperationRecord(
             operationId = "devC-op1",
             entityId = "item-777",
             entityType = "MEDIA_ITEM",
@@ -94,8 +108,7 @@ class MultiDeviceCrdtConvergenceTest {
             lamportTimestamp = 110L,
             wallTimestamp = 1100L
         )
-
-        val deviceC_op2 = CrdtOperationRecord(
+        val op2 = CrdtOperationRecord(
             operationId = "devC-op2",
             entityId = "item-777",
             entityType = "MEDIA_ITEM",
@@ -107,16 +120,14 @@ class MultiDeviceCrdtConvergenceTest {
             lamportTimestamp = 111L,
             wallTimestamp = 1110L
         )
+        return op1 to op2
+    }
 
-        // Scenario 1: Sync order A -> B -> C
-        val order1 = listOf(deviceA_op1, deviceA_op2, deviceB_op1, deviceB_op2, deviceB_op3, deviceC_op1, deviceC_op2)
-
-        // Scenario 2: Reverse sync order C -> B -> A
-        val order2 = listOf(deviceC_op2, deviceC_op1, deviceB_op3, deviceB_op2, deviceB_op1, deviceA_op2, deviceA_op1)
-
-        // Scenario 3: Interleaved arbitrary sync order
-        val order3 = listOf(deviceB_op2, deviceA_op1, deviceC_op1, deviceB_op1, deviceC_op2, deviceA_op2, deviceB_op3)
-
+    private fun verifyTitleConvergence(
+        order1: List<CrdtOperationRecord>,
+        order2: List<CrdtOperationRecord>,
+        order3: List<CrdtOperationRecord>
+    ) {
         val convergedTitle1 = reconciliationEngine.reconcileLwwField(order1.filter { it.fieldPath == "title" })?.valueJson
         val convergedTitle2 = reconciliationEngine.reconcileLwwField(order2.filter { it.fieldPath == "title" })?.valueJson
         val convergedTitle3 = reconciliationEngine.reconcileLwwField(order3.filter { it.fieldPath == "title" })?.valueJson
@@ -124,7 +135,13 @@ class MultiDeviceCrdtConvergenceTest {
         assertEquals("Action Hero Final (B)", convergedTitle1)
         assertEquals(convergedTitle1, convergedTitle2)
         assertEquals(convergedTitle2, convergedTitle3)
+    }
 
+    private fun verifyTagsConvergence(
+        order1: List<CrdtOperationRecord>,
+        order2: List<CrdtOperationRecord>,
+        order3: List<CrdtOperationRecord>
+    ) {
         val convergedTags1 = reconciliationEngine.reconcileOrSet(order1.filter { it.fieldPath == "tags" })
         val convergedTags2 = reconciliationEngine.reconcileOrSet(order2.filter { it.fieldPath == "tags" })
         val convergedTags3 = reconciliationEngine.reconcileOrSet(order3.filter { it.fieldPath == "tags" })
@@ -133,7 +150,13 @@ class MultiDeviceCrdtConvergenceTest {
         assertTrue(convergedTags1.contains("tag-drama"))
         assertEquals(convergedTags1, convergedTags2)
         assertEquals(convergedTags2, convergedTags3)
+    }
 
+    private fun verifyPlayCountConvergence(
+        order1: List<CrdtOperationRecord>,
+        order2: List<CrdtOperationRecord>,
+        order3: List<CrdtOperationRecord>
+    ) {
         val convergedPlayCount1 = reconciliationEngine.reconcilePnCounter(order1.filter { it.fieldPath == "playCount" })
         val convergedPlayCount2 = reconciliationEngine.reconcilePnCounter(order2.filter { it.fieldPath == "playCount" })
         val convergedPlayCount3 = reconciliationEngine.reconcilePnCounter(order3.filter { it.fieldPath == "playCount" })
