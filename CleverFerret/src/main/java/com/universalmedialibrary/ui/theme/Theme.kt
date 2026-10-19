@@ -643,6 +643,20 @@ fun CleverFerretTheme(
 }
 
 @Composable
+fun CleverFerretTheme(
+    palette: UnifiedThemePalette,
+    darkTheme: Boolean = true,
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    UnifiedCleverFerretTheme(
+        theme = palette.toCleverFerretTheme(),
+        darkTheme = darkTheme,
+        content = content
+    )
+}
+
+@Composable
 fun CleverFerretUnifiedTheme(
     palette: UnifiedThemePalette = UnifiedThemePalette.NAVY_GOLD,
     darkTheme: Boolean = true,
