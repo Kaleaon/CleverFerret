@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
 
@@ -146,7 +147,7 @@ private fun OPDSTopBar(
     TopAppBar(
         title = {
             if (isSearching) {
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
                     modifier = Modifier.fillMaxWidth(),
@@ -590,6 +591,9 @@ private fun AddCatalogDialog(
     onAdd: (String) -> Unit
 ) {
     var url by remember { mutableStateOf("") }
+    val urlError = if (url.isNotBlank() && !url.startsWith("http://") && !url.startsWith("https://")) {
+        "URL must start with http:// or https://"
+    } else null
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -604,11 +608,12 @@ private fun AddCatalogDialog(
                     color = MediaColors.TextSecondary
                 )
                 Spacer(modifier = Modifier.height(MediaSpacing.MD))
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = url,
                     onValueChange = { url = it },
                     label = { Text("Catalog URL") },
                     placeholder = { Text("https://example.com/opds") },
+                    errorMessage = urlError,
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -621,7 +626,7 @@ private fun AddCatalogDialog(
         confirmButton = {
             Button(
                 onClick = { onAdd(url) },
-                enabled = url.isNotBlank(),
+                enabled = url.isNotBlank() && urlError == null,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MediaColors.AccentPrimary
                 )

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.comic.ComicSeries
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,7 +117,7 @@ private fun ComicVineSearchTab(
     isLoading: Boolean
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        OutlinedTextField(
+        AccessibleOutlinedTextField(
             value = query,
             onValueChange = onQueryChange,
             label = { Text("Search Series") },
@@ -160,6 +161,10 @@ private fun DirectDownloadTab(
     isDownloading: Boolean,
     status: String
 ) {
+    val urlError = if (url.isNotBlank() && !url.startsWith("http://") && !url.startsWith("https://")) {
+        "URL must start with http:// or https://"
+    } else null
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -191,10 +196,11 @@ private fun DirectDownloadTab(
         
         Spacer(modifier = Modifier.height(24.dp))
 
-        OutlinedTextField(
+        AccessibleOutlinedTextField(
             value = url,
             onValueChange = onUrlChange,
             label = { Text("URL") },
+            errorMessage = urlError,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
