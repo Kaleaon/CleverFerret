@@ -21,6 +21,7 @@ import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.LibraryScanSettingsDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.dao.UnifiedTagDao
 import com.universalmedialibrary.data.repository.MetadataStagingRepository
 import com.universalmedialibrary.data.local.entity.*
 import com.universalmedialibrary.services.audio.WaveformGenerator
@@ -62,6 +63,7 @@ class MediaScannerService : Service() {
     @Inject lateinit var libraryScanSettingsDao: LibraryScanSettingsDao
     @Inject lateinit var mediaItemDao: MediaItemDao
     @Inject lateinit var metadataDao: MetadataDao
+    @Inject lateinit var tagDao: UnifiedTagDao
     @Inject lateinit var metadataStagingRepository: MetadataStagingRepository
     @Inject lateinit var waveformGenerator: WaveformGenerator
     @Inject lateinit var catalogingPipelineEngine: CatalogingPipelineEngine
