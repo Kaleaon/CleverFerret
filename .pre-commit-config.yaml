@@ -38,3 +38,16 @@ repos:
         entry: scripts/check-kotlin-quality.sh
         language: script
         types: [kotlin]
+
+      - id: check-lint-config
+        name: check-lint-config
+        entry: python3 tooling/scripts/check-lint-config.py
+        language: python
+        pass_filenames: false
+        files: ^(CleverFerret|CleverFerretV2)/(build\.gradle\.kts|lint\.xml|src/main/res/values/(strings|colors)\.xml|src/main/AndroidManifest\.xml)$
+
+      - id: audit-hardcoded-dimensions
+        name: audit-hardcoded-dimensions
+        entry: scripts/ci/audit_hardcoded_dimensions.sh
+        language: script
+        files: ^(CleverFerret|CleverFerretV2)/src/main/java/.*\.kt$
