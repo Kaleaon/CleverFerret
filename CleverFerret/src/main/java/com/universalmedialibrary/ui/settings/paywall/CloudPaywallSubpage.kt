@@ -110,7 +110,8 @@ fun CloudPaywallSubpage(
             if (uiState.isUnlocked) {
                 AlreadyUnlockedCard(
                     title = "Cloud Sync Pro Active",
-                    description = "Unlimited device sync and encrypted cloud backups are active."
+                    description = "Unlimited device sync and encrypted cloud backups are active.",
+                    onManageSubscriptions = { viewModel.manageSubscription(context) }
                 )
             } else if (uiState.billingState is BillingState.Offline || uiState.billingState is BillingState.Error) {
                 OfflineErrorStateCard(

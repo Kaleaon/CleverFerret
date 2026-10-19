@@ -7,11 +7,12 @@ import com.universalmedialibrary.data.local.dao.SecuritySettingsDao
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.data.repository.ReaderSettingsRepository
 import com.universalmedialibrary.data.repository.SettingsRepository
+import com.universalmedialibrary.services.billing.BillingService
 import com.universalmedialibrary.data.settings.ApiSettings
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
-import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -52,12 +53,15 @@ class SettingsViewModelTest {
     @MockK
     lateinit var generalSettingsDao: GeneralSettingsDao
 
+    @MockK
+    lateinit var billingService: BillingService
+
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         MockKAnnotations.init(this, relaxUnitFun = true)
 
-        every { settingsRepository.themeFlow } returns flowOf(ThemePalette.NAVY_GOLD)
+        every { settingsRepository.themeFlow } returns flowOf(CleverFerretTheme.NAVY_GOLD)
         every { settingsRepository.darkModeFlow } returns flowOf(true)
         every { settingsRepository.autoDownloadPodcastsFlow } returns flowOf(false)
         every { settingsRepository.wifiOnlyDownloadsFlow } returns flowOf(true)
@@ -83,7 +87,8 @@ class SettingsViewModelTest {
             apiKeyRepository,
             readerSettingsRepository,
             securitySettingsDao,
-            generalSettingsDao
+            generalSettingsDao,
+            billingService
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -101,7 +106,8 @@ class SettingsViewModelTest {
             apiKeyRepository,
             readerSettingsRepository,
             securitySettingsDao,
-            generalSettingsDao
+            generalSettingsDao,
+            billingService
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -109,5 +115,23 @@ class SettingsViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         coVerify { settingsRepository.setWifiOnlyDownloads(false) }
+    }
+
+    @Test
+    fun `manageSubscriptions delegates to billingService`() = runTest {
+        val viewModel = SettingsViewModel(
+            context,
+            settingsRepository,
+            apiKeyRepository,
+            readerSettingsRepository,
+            securitySettingsDao,
+            generalSettingsDao,
+            billingService
+        )
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.manageSubscriptions(context, "theme_pro_monthly")
+
+        io.mockk.verify { billingService.launchManageSubscriptions(context, "theme_pro_monthly") }
     }
 }
