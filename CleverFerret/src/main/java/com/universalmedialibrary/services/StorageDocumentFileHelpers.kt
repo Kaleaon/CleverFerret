@@ -2,6 +2,7 @@ package com.universalmedialibrary.services
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import com.universalmedialibrary.services.StorageAccessService.CopyResult
@@ -46,7 +47,7 @@ internal fun moveDocumentFile(context: Context, src: DocumentFile, dstDir: Docum
             if (copied) src.delete() else false
         }
     } catch (e: Exception) {
-        AppLogger.warn("StorageAccessService", "Error moving document file", e)
+        Log.w("StorageAccessService", "Error moving document file", e)
         false
     }
 }
@@ -58,7 +59,7 @@ internal fun copyDocumentFile(context: Context, src: DocumentFile, dstDir: Docum
         val copied = copyStream(context, src.uri, target.uri)
         if (copied) target else null
     } catch (e: Exception) {
-        AppLogger.warn("StorageAccessService", "Error copying document file", e)
+        Log.w("StorageAccessService", "Error copying document file", e)
         null
     }
 }
@@ -96,7 +97,7 @@ internal fun copyDocumentFileWithStrategy(
             }
         }
     } catch (e: Exception) {
-        AppLogger.warn("StorageAccessService", "Error copying document file (strategy=$strategy)", e)
+        Log.w("StorageAccessService", "Error copying document file (strategy=$strategy)", e)
         StorageAccessService.CopyResult.Failed(e.message ?: "Copy failed")
     }
 }
