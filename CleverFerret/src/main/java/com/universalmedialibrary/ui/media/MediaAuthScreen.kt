@@ -17,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.plex.PlexDiscoveredServer
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 
 /**
  * Screen for Plex PIN authentication flow
@@ -192,7 +193,7 @@ private fun IdleContent(
                 }
             } else {
                 // Username/Password Form
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
                     label = { Text("Username or Email") },
@@ -203,7 +204,7 @@ private fun IdleContent(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password") },
