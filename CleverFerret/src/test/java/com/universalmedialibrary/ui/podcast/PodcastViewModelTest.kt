@@ -7,11 +7,13 @@ import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastDownloadManager
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import com.universalmedialibrary.services.podcast.PodcastSearchResult
+import com.universalmedialibrary.services.podcast.PodcastService
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -39,6 +41,9 @@ class PodcastViewModelTest {
     @MockK
     lateinit var downloadSafetyChecker: DownloadSafetyChecker
 
+    @MockK
+    lateinit var podcastService: PodcastService
+
     private val dispatcher = StandardTestDispatcher()
     private lateinit var viewModel: PodcastViewModel
 
@@ -54,7 +59,8 @@ class PodcastViewModelTest {
         viewModel = PodcastViewModel(
             repository = repository,
             downloadManager = downloadManager,
-            downloadSafetyChecker = downloadSafetyChecker
+            downloadSafetyChecker = downloadSafetyChecker,
+            podcastService = podcastService
         )
     }
 
@@ -113,13 +119,44 @@ class PodcastViewModelTest {
         every { repository.getEpisodesByPodcast(7L) } returns flowOf(listOf(episode))
         every { downloadManager.downloadProgress } returns MutableStateFlow(emptyMap())
 
-        val localViewModel = PodcastViewModel(repository, downloadManager, downloadSafetyChecker)
+        val localViewModel = PodcastViewModel(repository, downloadManager, downloadSafetyChecker, podcastService)
         advanceUntilIdle()
 
         val recoveredEpisode = localViewModel.uiState.value.allEpisodes.first { it.id == 17L }
         assertThat(recoveredEpisode.playbackReady).isFalse()
         assertThat(recoveredEpisode.playbackFailureReason).contains("Re-download")
         assertThat(recoveredEpisode.recoveryActionLabel).isEqualTo("Re-download")
+    }
+
+    @Test
+    fun `exportOpml calls PodcastService exportToOPML with subscribed podcasts and returns OPML content`() = runTest {
+        val podcasts = listOf(
+            Podcast(id = 1L, title = "Test Podcast", feedUrl = "https://example.com/feed.xml")
+        )
+        val expectedOpml = "<opml version=\"2.0\"><head><title>Podcasts</title></head><body><outline text=\"Test Podcast\" xmlUrl=\"https://example.com/feed.xml\"/></body></opml>"
+        every { repository.getSubscribedPodcasts() } returns flowOf(podcasts)
+        every { podcastService.exportToOPML(podcasts) } returns expectedOpml
+
+        val result = viewModel.exportOpml()
+
+        assertThat(result).isEqualTo(expectedOpml)
+        verify { podcastService.exportToOPML(podcasts) }
+    }
+
+    @Test
+    fun `importOpml calls PodcastService importOPML and emits success message`() = runTest {
+        val opmlContent = "<opml version=\"2.0\">...</opml>"
+        val importedPodcasts = listOf(
+            Podcast(id = 1L, title = "Imported Podcast", feedUrl = "https://example.com/imported.xml")
+        )
+        coEvery { podcastService.importOPML(opmlContent) } returns importedPodcasts
+
+        val message = async { viewModel.userMessages.first() }
+        viewModel.importOpml(opmlContent)
+        advanceUntilIdle()
+
+        assertThat(message.await()).isEqualTo("OPML imported successfully")
+        coVerify { podcastService.importOPML(opmlContent) }
     }
 
     private fun searchResult(id: String, feedUrl: String) = PodcastSearchResult(
