@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
-import java.net.URLEncoder
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,8 +13,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class AmazonCoverSource @Inject constructor(
-    private val httpClient: OkHttpClient
-) : CoverSource {
+    httpClient: OkHttpClient
+) : BaseCoverSource(httpClient) {
     
     override val sourceName = "Amazon"
     override val priority = 9
@@ -94,44 +93,6 @@ class AmazonCoverSource @Inject constructor(
             }
         } catch (e: Exception) {
             return null
-        }
-    }
-    
-    override suspend fun getCoverUrl(sourceId: String): Result<String?> {
-        return Result.success(null)
-    }
-    
-    override suspend fun downloadCover(url: String): Result<ByteArray> = 
-        withContext(Dispatchers.IO) {
-            try {
-                val request = Request.Builder()
-                    .url(url)
-                    .header("User-Agent", "Mozilla/5.0 (Android)")
-                    .build()
-                
-                httpClient.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        return@withContext Result.failure(
-                            Exception("HTTP error: ${response.code}")
-                        )
-                    }
-                    
-                    val bytes = response.body?.bytes() 
-                        ?: return@withContext Result.failure(IllegalStateException("Empty body"))
-                    Result.success(bytes)
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    
-    private fun buildSearchQuery(isbn: String?, title: String?, author: String?): String {
-        return when {
-            !isbn.isNullOrBlank() -> URLEncoder.encode(isbn, "UTF-8")
-            !title.isNullOrBlank() && !author.isNullOrBlank() -> 
-                URLEncoder.encode("$title $author", "UTF-8")
-            !title.isNullOrBlank() -> URLEncoder.encode(title, "UTF-8")
-            else -> ""
         }
     }
 }
