@@ -47,6 +47,42 @@ class ReaderSettingsViewModel @Inject constructor(
         )
 
     /**
+     * Flow of imported custom fonts
+     */
+    val customFonts: StateFlow<List<com.universalmedialibrary.data.local.entity.CustomFontEntity>> = readerSettingsRepository.getCustomFontsFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    /**
+     * Import a custom font file from URI
+     */
+    fun importCustomFont(uri: android.net.Uri) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.importCustomFont(uri)
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to import font: ${e.message}") }
+            }
+        }
+    }
+
+    /**
+     * Delete an imported custom font
+     */
+    fun deleteCustomFont(fontId: String) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.deleteCustomFont(fontId)
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to delete font: ${e.message}") }
+            }
+        }
+    }
+
+    /**
      * Load settings for a specific media ID (null for global settings)
      */
     fun loadSettings(mediaId: Long?) {

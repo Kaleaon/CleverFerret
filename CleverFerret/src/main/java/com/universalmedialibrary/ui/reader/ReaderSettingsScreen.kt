@@ -6,6 +6,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.data.local.entity.CustomFontEntity
 import com.universalmedialibrary.data.local.entity.ReaderSettings
 import java.util.Locale
 
@@ -39,6 +42,13 @@ fun ReaderSettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val readerSettings by viewModel.readerSettings.collectAsStateWithLifecycle()
+    val customFonts by viewModel.customFonts.collectAsStateWithLifecycle()
+
+    val fontPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { viewModel.importCustomFont(it) }
+    }
 
     LaunchedEffect(mediaId) {
         viewModel.loadSettings(mediaId)
@@ -70,7 +80,7 @@ fun ReaderSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Preview Section
-            PreviewSection(readerSettings = readerSettings)
+            PreviewSection(readerSettings = readerSettings, customFonts = customFonts)
 
             // Theme Section
             ThemeSection(
@@ -81,9 +91,12 @@ fun ReaderSettingsScreen(
             // Typography Section
             TypographySection(
                 readerSettings = readerSettings,
+                customFonts = customFonts,
                 onFontFamilyChanged = { family -> viewModel.updateFontFamily(family) },
                 onFontSizeChanged = { size -> viewModel.updateFontSize(size) },
-                onLineSpacingChanged = { spacing -> viewModel.updateLineHeight(spacing) }
+                onLineSpacingChanged = { spacing -> viewModel.updateLineHeight(spacing) },
+                onImportFontClick = { fontPickerLauncher.launch(arrayOf("*/*")) },
+                onDeleteCustomFont = { fontId -> viewModel.deleteCustomFont(fontId) }
             )
 
             // Layout Section
@@ -136,7 +149,39 @@ fun ReaderSettingsScreen(
 }
 
 @Composable
-private fun PreviewSection(readerSettings: ReaderSettings) {
+private fun PreviewSection(
+    readerSettings: ReaderSettings,
+    customFonts: List<CustomFontEntity> = emptyList()
+) {
+    val previewFontFamily = remember(readerSettings.fontFamily, customFonts) {
+        when (readerSettings.fontFamily) {
+            "SERIF", "Serif" -> androidx.compose.ui.text.font.FontFamily.Serif
+            "MONOSPACE", "Monospace" -> androidx.compose.ui.text.font.FontFamily.Monospace
+            "SANS_SERIF", "Sans-Serif", "DEFAULT", "Default", "System" -> androidx.compose.ui.text.font.FontFamily.SansSerif
+            else -> {
+                val customFont = customFonts.find {
+                    it.filePath == readerSettings.fontFamily || it.id == readerSettings.fontFamily || it.displayName == readerSettings.fontFamily
+                }
+                val fontPath = customFont?.filePath ?: readerSettings.fontFamily
+                val fontFile = java.io.File(fontPath)
+                if (fontFile.exists() && fontFile.isFile) {
+                    try {
+                        val typeface = android.graphics.Typeface.createFromFile(fontFile)
+                        if (typeface != null) {
+                            androidx.compose.ui.text.font.FontFamily(typeface)
+                        } else {
+                            androidx.compose.ui.text.font.FontFamily.SansSerif
+                        }
+                    } catch (e: Exception) {
+                        androidx.compose.ui.text.font.FontFamily.SansSerif
+                    }
+                } else {
+                    androidx.compose.ui.text.font.FontFamily.SansSerif
+                }
+            }
+        }
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -168,11 +213,7 @@ private fun PreviewSection(readerSettings: ReaderSettings) {
                     color = Color(android.graphics.Color.parseColor(readerSettings.textColor)),
                     fontSize = androidx.compose.ui.unit.TextUnit(readerSettings.fontSize.toFloat(), androidx.compose.ui.unit.TextUnitType.Sp),
                     lineHeight = androidx.compose.ui.unit.TextUnit((readerSettings.fontSize * readerSettings.lineHeight), androidx.compose.ui.unit.TextUnitType.Sp),
-                    fontFamily = when (readerSettings.fontFamily) {
-                        "SERIF" -> androidx.compose.ui.text.font.FontFamily.Serif
-                        "MONOSPACE" -> androidx.compose.ui.text.font.FontFamily.Monospace
-                        else -> androidx.compose.ui.text.font.FontFamily.SansSerif
-                    }
+                    fontFamily = previewFontFamily
                 )
             }
         }
@@ -223,9 +264,12 @@ private fun ThemeSection(
 @Composable
 private fun TypographySection(
     readerSettings: ReaderSettings,
+    customFonts: List<CustomFontEntity> = emptyList(),
     onFontFamilyChanged: (String) -> Unit,
     onFontSizeChanged: (Int) -> Unit,
-    onLineSpacingChanged: (Float) -> Unit
+    onLineSpacingChanged: (Float) -> Unit,
+    onImportFontClick: () -> Unit = {},
+    onDeleteCustomFont: (String) -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -264,6 +308,58 @@ private fun TypographySection(
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
+            }
+
+            if (customFonts.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Custom Fonts",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                customFonts.forEach { font ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            RadioButton(
+                                selected = readerSettings.fontFamily == font.filePath || readerSettings.fontFamily == font.displayName || readerSettings.fontFamily == font.id,
+                                onClick = { onFontFamilyChanged(font.filePath) }
+                            )
+                            Text(
+                                text = font.displayName,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                        IconButton(onClick = { onDeleteCustomFont(font.id) }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete ${font.displayName}"
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = onImportFontClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text("Import Custom Font (.ttf, .otf)")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
