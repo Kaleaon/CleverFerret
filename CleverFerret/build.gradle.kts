@@ -214,7 +214,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 95
+        versionCode = 96
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -225,6 +225,13 @@ android {
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
 
+    }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDir(layout.buildDirectory.dir("generated/ksp/debug/java"))
+            java.srcDir(layout.buildDirectory.dir("generated/ksp/debug/kotlin"))
+        }
     }
 
     buildTypes {
