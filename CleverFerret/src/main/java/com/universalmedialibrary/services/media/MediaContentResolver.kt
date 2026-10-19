@@ -8,6 +8,7 @@ import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.PlexServerDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.cache.CacheManager
+import com.universalmedialibrary.services.cache.MediaCacheManager
 import com.universalmedialibrary.services.network.NetworkMonitor
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +44,8 @@ class MediaContentResolverImpl @Inject constructor(
     private val embyServerDao: EmbyServerDao,
     private val plexServerDao: PlexServerDao,
     private val cacheManager: CacheManager,
-    private val networkMonitor: NetworkMonitor
+    private val networkMonitor: NetworkMonitor,
+    private val mediaCacheManager: MediaCacheManager
 ) : MediaContentResolver {
 
     override fun isVirtualUri(path: String): Boolean {
@@ -69,7 +71,22 @@ class MediaContentResolverImpl @Inject constructor(
             }
         }
 
-        // 2. Resolve by path
+        // 2. Check MediaCacheManager for mediaItem.itemId
+        mediaCacheManager.getCachedFile(mediaItem.itemId)?.let { cachedFile ->
+            if (cachedFile.exists() && cachedFile.length() > 0) {
+                if (mediaItem.localCachePath != cachedFile.absolutePath) {
+                    mediaItemDao.updateDownloadInfo(
+                        itemId = mediaItem.itemId,
+                        cachePath = cachedFile.absolutePath,
+                        status = "COMPLETED",
+                        progress = 1.0f
+                    )
+                }
+                return@withContext ResolvedContent.LocalFile(cachedFile, mediaItem.mimeType)
+            }
+        }
+
+        // 3. Resolve by path
         resolvePathInternal(mediaItem.filePath, mediaItem)
     }
 
@@ -85,7 +102,23 @@ class MediaContentResolverImpl @Inject constructor(
     private suspend fun resolvePathInternal(path: String, mediaItem: MediaItem?): ResolvedContent {
         // Check if path is virtual scheme
         if (isVirtualUri(path)) {
-            // Check if file is buffered locally in CacheManager
+            // Check MediaCacheManager by remoteUri or itemId
+            val cachedFromManager = mediaCacheManager.getCachedFileForUri(path)
+                ?: mediaItem?.itemId?.let { mediaCacheManager.getCachedFile(it) }
+
+            if (cachedFromManager != null && cachedFromManager.exists() && cachedFromManager.length() > 0) {
+                if (mediaItem != null && mediaItem.localCachePath != cachedFromManager.absolutePath) {
+                    mediaItemDao.updateDownloadInfo(
+                        itemId = mediaItem.itemId,
+                        cachePath = cachedFromManager.absolutePath,
+                        status = "COMPLETED",
+                        progress = 1.0f
+                    )
+                }
+                return ResolvedContent.LocalFile(cachedFromManager, mediaItem?.mimeType)
+            }
+
+            // Check legacy buffer directory in CacheManager
             val bufferedFile = getBufferedFileForUri(path)
             if (bufferedFile != null && bufferedFile.exists() && bufferedFile.length() > 0) {
                 if (mediaItem != null && mediaItem.localCachePath != bufferedFile.absolutePath) {
@@ -108,15 +141,38 @@ class MediaContentResolverImpl @Inject constructor(
                 )
             }
 
-            // Online: Resolve stream URL from remote server configuration
-            val streamUrl = buildStreamUrlForVirtualUri(path)
+            // Online: Resolve stream URL and headers from remote server configuration
+            val (streamUrl, headers) = buildStreamUrlAndHeadersForVirtualUri(path)
                 ?: return ResolvedContent.Error("Unable to resolve server configuration or credentials for virtual URI '$path'")
 
-            return ResolvedContent.StreamUrl(streamUrl, mimeType = mediaItem?.mimeType)
+            return ResolvedContent.StreamUrl(streamUrl, headers = headers, mimeType = mediaItem?.mimeType)
         }
 
         // Standard HTTP / HTTPS URL
         if (path.startsWith("http://") || path.startsWith("https://")) {
+            val cachedFromManager = mediaCacheManager.getCachedFileForUri(path)
+                ?: mediaItem?.itemId?.let { mediaCacheManager.getCachedFile(it) }
+
+            if (cachedFromManager != null && cachedFromManager.exists() && cachedFromManager.length() > 0) {
+                if (mediaItem != null && mediaItem.localCachePath != cachedFromManager.absolutePath) {
+                    mediaItemDao.updateDownloadInfo(
+                        itemId = mediaItem.itemId,
+                        cachePath = cachedFromManager.absolutePath,
+                        status = "COMPLETED",
+                        progress = 1.0f
+                    )
+                }
+                return ResolvedContent.LocalFile(cachedFromManager, mediaItem?.mimeType)
+            }
+
+            if (!networkMonitor.isOnline()) {
+                val name = mediaItem?.fileName ?: path.substringAfterLast('/')
+                return ResolvedContent.OfflineUnbuffered(
+                    virtualUri = path,
+                    message = "Item '$name' is not cached locally and the device is offline. Connect to a network to stream this item."
+                )
+            }
+
             return ResolvedContent.StreamUrl(path, mimeType = mediaItem?.mimeType)
         }
 
@@ -139,7 +195,7 @@ class MediaContentResolverImpl @Inject constructor(
         return matches?.firstOrNull()
     }
 
-    private suspend fun buildStreamUrlForVirtualUri(virtualUri: String): String? {
+    private suspend fun buildStreamUrlAndHeadersForVirtualUri(virtualUri: String): Pair<String, Map<String, String>>? {
         val uri = Uri.parse(virtualUri)
         val scheme = uri.scheme ?: return null
         val host = uri.host ?: return null
@@ -150,13 +206,25 @@ class MediaContentResolverImpl @Inject constructor(
                 val serverId = host.toLongOrNull() ?: return null
                 val itemId = pathSegments.firstOrNull() ?: return null
                 val server = jellyfinServerDao.getById(serverId) ?: return null
-                "${server.url}/Items/$itemId/Download?api_key=${server.apiKey}"
+                val apiKey = server.apiKey ?: ""
+                val url = "${server.url}/Items/$itemId/Download?api_key=$apiKey"
+                val headers = mapOf(
+                    "X-Emby-Token" to apiKey,
+                    "X-MediaBrowser-Token" to apiKey
+                )
+                Pair(url, headers)
             }
             "emby" -> {
                 val serverId = host.toLongOrNull() ?: return null
                 val itemId = pathSegments.firstOrNull() ?: return null
                 val server = embyServerDao.getById(serverId) ?: return null
-                "${server.url}/Items/$itemId/Download?api_key=${server.apiKey}"
+                val apiKey = server.apiKey ?: ""
+                val url = "${server.url}/Items/$itemId/Download?api_key=$apiKey"
+                val headers = mapOf(
+                    "X-Emby-Token" to apiKey,
+                    "X-MediaBrowser-Token" to apiKey
+                )
+                Pair(url, headers)
             }
             "plex" -> {
                 val machineId = host
@@ -164,7 +232,12 @@ class MediaContentResolverImpl @Inject constructor(
                 val server = plexServerDao.getServerByMachineId(machineId)
                     ?: plexServerDao.getFirstActiveServer()
                     ?: return null
-                "${server.url}/library/parts/$ratingKey/file?X-Plex-Token=${server.token}"
+                val token = server.token ?: ""
+                val url = "${server.url}/library/parts/$ratingKey/file?X-Plex-Token=$token"
+                val headers = mapOf(
+                    "X-Plex-Token" to token
+                )
+                Pair(url, headers)
             }
             else -> null
         }

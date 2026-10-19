@@ -8,6 +8,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.services.media.MediaController
 import com.universalmedialibrary.services.media.MediaServiceType
@@ -25,13 +26,16 @@ import javax.inject.Singleton
  * the basic Android MediaPlayer, with support for:
  * - Multiple audio/video formats
  * - Adaptive streaming
+ * - Progressive disk caching via ExoPlayerCacheFactory
  * - Better performance and reliability
  * - Advanced playback controls
  */
 @Singleton
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 class ExoPlayerService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val mediaController: MediaController
+    private val mediaController: MediaController,
+    private val exoPlayerCacheFactory: ExoPlayerCacheFactory
 ) {
 
     private var exoPlayer: ExoPlayer? = null
@@ -52,7 +56,11 @@ class ExoPlayerService @Inject constructor(
 
         runOnMainThread {
             if (exoPlayer == null) {
+                val mediaSourceFactory = DefaultMediaSourceFactory(context)
+                    .setDataSourceFactory(exoPlayerCacheFactory.createCacheDataSourceFactory())
+
                 exoPlayer = ExoPlayer.Builder(context)
+                    .setMediaSourceFactory(mediaSourceFactory)
                     .setTrackSelector(trackSelector)
                     .setHandleAudioBecomingNoisy(true)
                     .build().apply {
@@ -103,7 +111,8 @@ class ExoPlayerService @Inject constructor(
         artist: String? = null,
         album: String? = null,
         artwork: android.graphics.Bitmap? = null,
-        serviceType: MediaServiceType = MediaServiceType.UNIVERSAL_MEDIA
+        serviceType: MediaServiceType = MediaServiceType.UNIVERSAL_MEDIA,
+        headers: Map<String, String> = emptyMap()
     ) {
         if (!FeatureFlags.ENABLE_EXOPLAYER) {
             updatePlayerState(error = "ExoPlayer is disabled")
@@ -115,7 +124,13 @@ class ExoPlayerService @Inject constructor(
         runOnMainThread {
             val mediaItem = MediaItem.fromUri(mediaPath)
             exoPlayer?.apply {
-                setMediaItem(mediaItem)
+                if (headers.isNotEmpty()) {
+                    val mediaSourceFactory = DefaultMediaSourceFactory(context)
+                        .setDataSourceFactory(exoPlayerCacheFactory.createCacheDataSourceFactory(headers))
+                    setMediaSource(mediaSourceFactory.createMediaSource(mediaItem))
+                } else {
+                    setMediaItem(mediaItem)
+                }
                 prepare()
 
                 // Start MediaSession with metadata
@@ -135,7 +150,7 @@ class ExoPlayerService @Inject constructor(
      * Load and prepare media for playback
      * Ensures execution on main thread
      */
-    fun loadMedia(mediaPath: String) {
+    fun loadMedia(mediaPath: String, headers: Map<String, String> = emptyMap()) {
         if (!FeatureFlags.ENABLE_EXOPLAYER) {
             updatePlayerState(error = "ExoPlayer is disabled")
             return
@@ -146,7 +161,13 @@ class ExoPlayerService @Inject constructor(
         runOnMainThread {
             val mediaItem = MediaItem.fromUri(mediaPath)
             exoPlayer?.apply {
-                setMediaItem(mediaItem)
+                if (headers.isNotEmpty()) {
+                    val mediaSourceFactory = DefaultMediaSourceFactory(context)
+                        .setDataSourceFactory(exoPlayerCacheFactory.createCacheDataSourceFactory(headers))
+                    setMediaSource(mediaSourceFactory.createMediaSource(mediaItem))
+                } else {
+                    setMediaItem(mediaItem)
+                }
                 prepare()
             }
         }
@@ -156,7 +177,7 @@ class ExoPlayerService @Inject constructor(
      * Prepare a single media item for playback
      * Ensures execution on main thread
      */
-    fun prepareMedia(mediaItem: MediaItem): Boolean {
+    fun prepareMedia(mediaItem: MediaItem, headers: Map<String, String> = emptyMap()): Boolean {
         if (!FeatureFlags.ENABLE_EXOPLAYER) {
             updatePlayerState(error = "ExoPlayer is disabled")
             return false
@@ -168,7 +189,13 @@ class ExoPlayerService @Inject constructor(
         runOnMainThread {
             try {
                 exoPlayer?.apply {
-                    setMediaItem(mediaItem)
+                    if (headers.isNotEmpty()) {
+                        val mediaSourceFactory = DefaultMediaSourceFactory(context)
+                            .setDataSourceFactory(exoPlayerCacheFactory.createCacheDataSourceFactory(headers))
+                        setMediaSource(mediaSourceFactory.createMediaSource(mediaItem))
+                    } else {
+                        setMediaItem(mediaItem)
+                    }
                     prepare()
                 }
                 result = true

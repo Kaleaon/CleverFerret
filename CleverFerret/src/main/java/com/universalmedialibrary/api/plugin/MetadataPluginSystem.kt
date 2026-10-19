@@ -289,6 +289,9 @@ data class MetadataQuery(
     val limit: Int = 20
 )
 
+typealias SearchResult = MetadataSearchResult
+typealias MetadataDetails = MetadataSearchResult
+
 /**
  * Search result from metadata provider
  */
