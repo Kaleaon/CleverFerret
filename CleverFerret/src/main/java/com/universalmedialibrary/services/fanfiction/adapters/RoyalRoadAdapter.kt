@@ -23,8 +23,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class RoyalRoadAdapter @Inject constructor(
-    private val httpClient: OkHttpClient
-) : FanfictionSiteAdapter {
+    httpClient: OkHttpClient
+) : BaseFanfictionAdapter(httpClient) {
     
     override val siteName = "Royal Road"
     override val baseUrl = "https://www.royalroad.com"
@@ -171,20 +171,6 @@ class RoyalRoadAdapter @Inject constructor(
     
     // Helper functions
     
-    private suspend fun fetchDocument(url: String): Document {
-        val request = Request.Builder()
-            .url(url)
-            .header("User-Agent", "CleverFerret/1.0 (Android)")
-            .build()
-        
-        return httpClient.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw Exception("HTTP error: ${response.code}")
-            }
-            Jsoup.parse(response.body?.string() ?: "")
-        }
-    }
-    
     private fun extractStatus(doc: Document): CompletionStatus {
         val statusText = doc.select("span.label-sm").text().lowercase()
         return when {
@@ -193,9 +179,5 @@ class RoyalRoadAdapter @Inject constructor(
             statusText.contains("dropped") -> CompletionStatus.ABANDONED
             else -> CompletionStatus.IN_PROGRESS
         }
-    }
-    
-    private fun countWords(text: String): Int {
-        return text.split(Regex("\\s+")).count { it.isNotBlank() }
     }
 }

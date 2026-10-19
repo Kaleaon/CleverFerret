@@ -27,8 +27,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class FFNAdapter @Inject constructor(
-    private val httpClient: OkHttpClient
-) : FanfictionSiteAdapter {
+    httpClient: OkHttpClient
+) : BaseFanfictionAdapter(httpClient) {
     
     override val siteName = "FanFiction.Net"
     override val baseUrl = "https://www.fanfiction.net"
@@ -166,20 +166,6 @@ class FFNAdapter @Inject constructor(
     
     // Helper functions
     
-    private suspend fun fetchDocument(url: String): Document {
-        val request = Request.Builder()
-            .url(url)
-            .header("User-Agent", "CleverFerret/1.0 (Android)")
-            .build()
-        
-        return httpClient.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw Exception("HTTP error: ${response.code}")
-            }
-            Jsoup.parse(response.body?.string() ?: "")
-        }
-    }
-    
     private fun extractFandom(doc: Document): String {
         return doc.select("#pre_story_links a").lastOrNull()?.text() ?: ""
     }
@@ -267,9 +253,5 @@ class FFNAdapter @Inject constructor(
                 }
             }
         }
-    }
-    
-    private fun countWords(text: String): Int {
-        return text.split(Regex("\\s+")).count { it.isNotBlank() }
     }
 }
