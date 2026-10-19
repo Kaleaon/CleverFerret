@@ -113,10 +113,8 @@ class WebDavService @Inject constructor(
     ): Boolean {
         return withContext(Dispatchers.IO) {
             if (!isConfigured()) return@withContext false
-            progressCallback?.invoke(0f)
             val uri = Uri.fromFile(File(localPath))
-            val result = webDavClient.uploadFile(uri, remotePath)
-            progressCallback?.invoke(if (result.isSuccess) 1f else 0f)
+            val result = webDavClient.uploadFile(uri, remotePath, progressCallback)
             result.isSuccess
         }
     }
@@ -163,7 +161,9 @@ class WebDavService @Inject constructor(
                     name = file.name,
                     path = file.path,
                     size = file.size,
-                    modifiedTime = file.lastModified.toLongOrNull() ?: 0L
+                    isDirectory = file.isDirectory,
+                    modifiedTime = file.lastModified.toLongOrNull() ?: 0L,
+                    contentType = file.contentType
                 )
             }
         }

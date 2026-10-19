@@ -115,17 +115,21 @@ class WebDavClient @Inject constructor(
     /**
      * Upload a file to WebDAV server
      */
-    suspend fun uploadFile(localUri: Uri, remotePath: String): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun uploadFile(
+        localUri: Uri,
+        remotePath: String,
+        progressCallback: ((Float) -> Unit)? = null
+    ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val url = "$baseUrl${remotePath.ensureStartsWithSlash()}"
-            
-            val inputStream = context.contentResolver.openInputStream(localUri)
-                ?: return@withContext Result.failure(
-                    Exception("Cannot open input stream for: $localUri")
-                )
-            
-            val bytes = inputStream.use { it.readBytes() }
-            val requestBody = bytes.toRequestBody("application/octet-stream".toMediaType())
+            val contentLength = getUriSize(context, localUri)
+
+            val rawRequestBody = InputStreamRequestBody(
+                contentType = "application/octet-stream".toMediaType(),
+                contentLength = contentLength,
+                inputStreamProvider = { context.contentResolver.openInputStream(localUri) }
+            )
+            val requestBody = rawRequestBody.withProgressCallback(progressCallback)
             
             val request = Request.Builder()
                 .url(url)
@@ -144,6 +148,22 @@ class WebDavClient @Inject constructor(
             }
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    private fun getUriSize(context: Context, uri: Uri): Long {
+        if (uri.scheme == "file") {
+            return uri.path?.let { java.io.File(it).length() } ?: -1L
+        }
+        return try {
+            context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.SIZE), null, null, null)?.use { cursor ->
+                val sizeIndex = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                if (sizeIndex != -1 && cursor.moveToFirst()) {
+                    if (!cursor.isNull(sizeIndex)) cursor.getLong(sizeIndex) else -1L
+                } else -1L
+            } ?: -1L
+        } catch (e: Exception) {
+            -1L
         }
     }
 

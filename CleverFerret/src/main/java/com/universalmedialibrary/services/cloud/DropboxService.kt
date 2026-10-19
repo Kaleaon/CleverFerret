@@ -13,7 +13,9 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import com.universalmedialibrary.services.network.withProgressCallback
 import org.json.JSONObject
 import java.io.File
 import javax.inject.Inject
@@ -113,7 +115,8 @@ class DropboxService @Inject constructor(
     suspend fun uploadFile(
         localPath: String,
         fileName: String,
-        folderPath: String = APP_FOLDER
+        folderPath: String = APP_FOLDER,
+        progressCallback: ((Float) -> Unit)? = null
     ): String? {
         return withContext(Dispatchers.IO) {
             val token = accessToken ?: return@withContext null
@@ -130,12 +133,15 @@ class DropboxService @Inject constructor(
                 )
             ).toString()
 
+            val rawBody = file.asRequestBody("application/octet-stream".toMediaType())
+            val requestBody = rawBody.withProgressCallback(progressCallback)
+
             val request = Request.Builder()
                 .url("https://content.dropboxapi.com/2/files/upload")
                 .addHeader("Authorization", "Bearer $token")
                 .addHeader("Dropbox-API-Arg", args)
                 .addHeader("Content-Type", "application/octet-stream")
-                .post(file.readBytes().toRequestBody("application/octet-stream".toMediaType()))
+                .post(requestBody)
                 .build()
 
             okHttpClient.newCall(request).execute().use { response ->
