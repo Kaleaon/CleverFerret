@@ -10,7 +10,6 @@ import com.universalmedialibrary.services.pipeline.processors.RawExtractionProce
 import com.universalmedialibrary.services.pipeline.processors.RemoteEnrichmentProcessor
 import com.universalmedialibrary.services.pipeline.processors.SchemaNormalizationProcessor
 import com.universalmedialibrary.services.pipeline.processors.StagingPersistenceProcessor
-import com.universalmedialibrary.api.plugin.PluginRegistry
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -28,7 +27,6 @@ class CatalogingPipelineEngineTest {
     val tempFolder = TemporaryFolder()
 
     private val metadataExtractionService = mockk<MetadataExtractionService>()
-    private val pluginRegistry = mockk<PluginRegistry>()
     private val mediaItemDao = mockk<MediaItemDao>()
     private val metadataDao = mockk<MetadataDao>()
     private val metadataStagingRepository = mockk<MetadataStagingRepository>()
@@ -43,7 +41,7 @@ class CatalogingPipelineEngineTest {
     fun setUp() {
         rawExtractionProcessor = RawExtractionProcessor(metadataExtractionService)
         schemaNormalizationProcessor = SchemaNormalizationProcessor()
-        remoteEnrichmentProcessor = RemoteEnrichmentProcessor(pluginRegistry)
+        remoteEnrichmentProcessor = RemoteEnrichmentProcessor()
         stagingPersistenceProcessor = StagingPersistenceProcessor(mediaItemDao, metadataDao, metadataStagingRepository)
 
         val processors = listOf(
@@ -54,8 +52,6 @@ class CatalogingPipelineEngineTest {
         )
 
         engine = CatalogingPipelineEngineImpl(processors)
-
-        coEvery { pluginRegistry.getMetadataProviders() } returns emptyList()
     }
 
     @Test

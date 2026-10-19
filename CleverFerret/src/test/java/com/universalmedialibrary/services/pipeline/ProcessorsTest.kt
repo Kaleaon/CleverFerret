@@ -1,10 +1,5 @@
 package com.universalmedialibrary.services.pipeline
 
-import com.universalmedialibrary.api.plugin.MediaType as PluginMediaType
-import com.universalmedialibrary.api.plugin.MetadataProviderPlugin
-import com.universalmedialibrary.api.plugin.MetadataSearchResult
-import com.universalmedialibrary.api.plugin.MediaMetadata
-import com.universalmedialibrary.api.plugin.PluginRegistry
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MediaItem
@@ -93,37 +88,8 @@ class ProcessorsTest {
     }
 
     @Test
-    fun `test Stage 3 RemoteEnrichmentProcessor enriches missing fields from plugin`() = runBlocking {
-        val pluginRegistry = mockk<PluginRegistry>()
-        val provider = mockk<MetadataProviderPlugin>()
-
-        coEvery { provider.id } returns "goodreads_plugin"
-        coEvery { provider.name } returns "Goodreads Plugin"
-        coEvery { provider.supportedMediaTypes } returns setOf(PluginMediaType.BOOK)
-
-        val searchResult = MetadataSearchResult(
-            id = "ext_123",
-            providerId = "goodreads_plugin",
-            title = "Dune",
-            coverUrl = "https://example.com/dune.jpg",
-            mediaType = PluginMediaType.BOOK
-        )
-
-        val mediaMetadata = MediaMetadata(
-            id = "ext_123",
-            providerId = "goodreads_plugin",
-            title = "Dune",
-            description = "A classic sci-fi epic set on Arrakis.",
-            isbn = "9780441172719",
-            publisher = "Chilton Books",
-            mediaType = PluginMediaType.BOOK
-        )
-
-        coEvery { provider.search(any()) } returns Result.success(listOf(searchResult))
-        coEvery { provider.fetchDetails("ext_123", PluginMediaType.BOOK) } returns Result.success(mediaMetadata)
-        coEvery { pluginRegistry.getMetadataProviders() } returns listOf(provider)
-
-        val processor = RemoteEnrichmentProcessor(pluginRegistry)
+    fun `test Stage 3 RemoteEnrichmentProcessor processes context`() = runBlocking {
+        val processor = RemoteEnrichmentProcessor()
 
         val file = tempFolder.newFile("Dune.epub")
         val raw = RawMetadata(title = "Dune", creators = listOf("Frank Herbert"), confidenceScore = 0.70f)
@@ -134,10 +100,8 @@ class ProcessorsTest {
 
         val enrichedContext = processor.process(context)
 
-        assertEquals("A classic sci-fi epic set on Arrakis.", enrichedContext.normalizedCommon?.summary)
-        assertEquals("https://example.com/dune.jpg", enrichedContext.normalizedCommon?.coverImagePath)
-        assertEquals("9780441172719", enrichedContext.bookMetadata?.isbn)
-        assertTrue(enrichedContext.confidenceScore > 0.70f)
+        assertEquals("Dune", enrichedContext.normalizedCommon?.title)
+        assertEquals(0.70f, enrichedContext.confidenceScore, 0.001f)
     }
 
     @Test
