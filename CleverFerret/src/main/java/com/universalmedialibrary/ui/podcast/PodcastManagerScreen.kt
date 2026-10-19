@@ -41,13 +41,16 @@ import java.util.*
 @Composable
 fun PodcastManagerScreen(
     navController: NavController,
-    viewModel: PodcastViewModel = hiltViewModel()
+    viewModel: PodcastViewModel = hiltViewModel(),
+    onImportOPML: () -> Unit = {},
+    onExportOPML: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val downloadStatuses by viewModel.downloadProgress.collectAsStateWithLifecycle()
     val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsStateWithLifecycle()
     var showSearchDialog by remember { mutableStateOf(false) }
     var showAddFeedDialog by remember { mutableStateOf(false) }
+    var showOpmlMenu by remember { mutableStateOf(false) }
     var pendingDeleteEpisode by remember { mutableStateOf<PodcastEpisode?>(null) }
     var pendingUnsubscribePodcast by remember { mutableStateOf<Podcast?>(null) }
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -80,8 +83,31 @@ fun PodcastManagerScreen(
                     IconButton(onClick = { viewModel.refreshAllPodcasts() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh All")
                     }
-                    IconButton(onClick = { /* Import OPML */ }) {
-                        Icon(Icons.Default.FileUpload, contentDescription = "Import OPML")
+                    Box {
+                        IconButton(onClick = { showOpmlMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "OPML Options")
+                        }
+                        DropdownMenu(
+                            expanded = showOpmlMenu,
+                            onDismissRequest = { showOpmlMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Import OPML") },
+                                leadingIcon = { Icon(Icons.Default.FileUpload, contentDescription = null) },
+                                onClick = {
+                                    showOpmlMenu = false
+                                    onImportOPML()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Export OPML") },
+                                leadingIcon = { Icon(Icons.Default.FileDownload, contentDescription = null) },
+                                onClick = {
+                                    showOpmlMenu = false
+                                    onExportOPML()
+                                }
+                            )
+                        }
                     }
                 }
             )
