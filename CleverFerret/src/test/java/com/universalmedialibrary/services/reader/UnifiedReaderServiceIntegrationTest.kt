@@ -53,8 +53,7 @@ class UnifiedReaderServiceIntegrationTest {
             readiumAudiobookService,
             geminiComicService,
             audioPlaybackManager,
-            formatRegistry,
-            mediaContentResolver
+            formatRegistry
         )
         mockkObject(ParserFactory)
     }
