@@ -214,7 +214,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 95
+        versionCode = 96
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -329,7 +329,22 @@ fun getGitCommitHash(): String {
 
 dependencies {
     implementation(project(":core:design-system"))
+    implementation(project(":CleverFerretV2:feature:ai"))
+    implementation(project(":CleverFerretV2:feature:audio"))
+    implementation(project(":CleverFerretV2:feature:collections"))
+    implementation(project(":CleverFerretV2:feature:library"))
+    implementation(project(":CleverFerretV2:feature:metadata"))
     implementation(project(":CleverFerretV2:feature:opds"))
+    implementation(project(":CleverFerretV2:feature:plex"))
+    implementation(project(":CleverFerretV2:feature:podcast"))
+    implementation(project(":CleverFerretV2:feature:radio"))
+    implementation(project(":CleverFerretV2:feature:reader"))
+    implementation(project(":CleverFerretV2:feature:search"))
+    implementation(project(":CleverFerretV2:feature:settings"))
+    implementation(project(":CleverFerretV2:feature:stats"))
+    implementation(project(":CleverFerretV2:feature:sync"))
+    implementation(project(":CleverFerretV2:feature:webfiction"))
+    implementation(project(":CleverFerretV2:feature:widgets"))
 
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
