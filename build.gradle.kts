@@ -125,6 +125,8 @@ fi
 HAS_KOTLIN=0
 HAS_DOCS=0
 HAS_SRC=0
+HAS_XML=0
+HAS_V2_FEATURE=0
 
 while IFS= read -r file; do
     if [[ "${'$'}file" =~ \.(kt|kts)$ ]]; then
@@ -135,6 +137,12 @@ while IFS= read -r file; do
     fi
     if [[ "${'$'}file" =~ ^CleverFerret/src/ ]] || [[ "${'$'}file" =~ ^CleverFerretV2/ ]]; then
         HAS_SRC=1
+    fi
+    if [[ "${'$'}file" =~ \.xml$ ]]; then
+        HAS_XML=1
+    fi
+    if [[ "${'$'}file" =~ ^CleverFerretV2/feature/ ]]; then
+        HAS_V2_FEATURE=1
     fi
 done <<< "${'$'}STAGED_FILES"
 
@@ -184,6 +192,26 @@ if [ "${'$'}HAS_SRC" -eq 1 ] || [ "${'$'}HAS_KOTLIN" -eq 1 ]; then
     if [ -f "./scripts/check-no-raw-console.sh" ]; then
         if ! bash ./scripts/check-no-raw-console.sh; then
             echo "❌ Raw console check failed!"
+            EXIT_CODE=1
+        fi
+    fi
+fi
+
+if [ "${'$'}HAS_KOTLIN" -eq 1 ] || [ "${'$'}HAS_V2_FEATURE" -eq 1 ]; then
+    echo "--> Enforcing Compose semantic token usage in feature UI..."
+    if [ -f "./scripts/ci/check_compose_semantic_tokens.py" ]; then
+        if ! python3 ./scripts/ci/check_compose_semantic_tokens.py; then
+            echo "❌ Compose semantic token check failed!"
+            EXIT_CODE=1
+        fi
+    fi
+fi
+
+if [ "${'$'}HAS_SRC" -eq 1 ] || [ "${'$'}HAS_XML" -eq 1 ]; then
+    echo "--> Validating Android 14 widget background update constraints..."
+    if [ -f "./scripts/ci/validate_android14_widget_background_updates.py" ]; then
+        if ! python3 ./scripts/ci/validate_android14_widget_background_updates.py; then
+            echo "❌ Android 14 widget background update validation failed!"
             EXIT_CODE=1
         fi
     fi
@@ -263,6 +291,18 @@ tasks.register<Exec>("checkDocLinks") {
     group = "verification"
     description = "Validates local markdown documentation links."
     commandLine("python3", rootProject.file("scripts/ci/check_doc_links.py"))
+}
+
+tasks.register<Exec>("checkComposeSemanticTokens") {
+    group = "verification"
+    description = "Enforces Compose semantic token usage in feature UI."
+    commandLine("python3", rootProject.file("scripts/ci/check_compose_semantic_tokens.py"))
+}
+
+tasks.register<Exec>("validateAndroid14Widgets") {
+    group = "verification"
+    description = "Validates Android 14 widget background-update constraints."
+    commandLine("python3", rootProject.file("scripts/ci/validate_android14_widget_background_updates.py"))
 }
 
 // Auto-install Git hooks during build initialization / evaluation if .git exists
