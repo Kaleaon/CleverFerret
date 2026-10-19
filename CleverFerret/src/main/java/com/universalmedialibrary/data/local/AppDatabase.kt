@@ -195,10 +195,13 @@ import com.universalmedialibrary.data.Tag
         MediaFtsEntity::class,
 
         // Media Stream Cache
-        MediaCacheItem::class
+        MediaCacheItem::class,
+
+        // Custom Font Registry
+        CustomFontEntity::class
 
     ],
-    version = 48,
+    version = 49,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -255,6 +258,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun bookSourceDao(): BookSourceDao
     abstract fun bookChapterDao(): BookChapterDao
     abstract fun readerSettingsDao(): ReaderSettingsDao
+    abstract fun customFontDao(): CustomFontDao
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
     abstract fun readingAnalyticsDao(): ReadingAnalyticsDao
@@ -348,7 +352,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_44_45,
                         AppDatabaseMigrations.MIGRATION_45_46,
                         AppDatabaseMigrations.MIGRATION_46_47,
-                        AppDatabaseMigrations.MIGRATION_47_48
+                        AppDatabaseMigrations.MIGRATION_47_48,
+                        AppDatabaseMigrations.MIGRATION_48_49
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
