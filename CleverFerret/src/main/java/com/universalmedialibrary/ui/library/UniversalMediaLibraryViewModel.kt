@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.repository.HistoryRepository
 import com.universalmedialibrary.data.repository.MediaRepository
+import com.universalmedialibrary.services.MediaScannerService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -24,6 +26,11 @@ class UniversalMediaLibraryViewModel @Inject constructor(
 
     private val _mediaItems = MutableStateFlow<List<MediaItemWithMetadata>>(emptyList())
     val mediaItems: StateFlow<List<MediaItemWithMetadata>> = _mediaItems.asStateFlow()
+
+    private val _optimisticPlaceholders = MutableStateFlow<List<MediaItemWithMetadata>>(emptyList())
+    val optimisticPlaceholders: StateFlow<List<MediaItemWithMetadata>> = _optimisticPlaceholders.asStateFlow()
+
+    val scanProgress: StateFlow<MediaScannerService.ScanProgress> = MediaScannerService.scanProgress
 
     private val _viewMode = MutableStateFlow(ViewMode.GRID)
     val viewMode: StateFlow<ViewMode> = _viewMode.asStateFlow()
@@ -51,6 +58,42 @@ class UniversalMediaLibraryViewModel @Inject constructor(
 
     private var currentLibraryId: Long = -1
     private var allMediaItems: List<MediaItemWithMetadata> = emptyList()
+
+    init {
+        viewModelScope.launch {
+            MediaScannerService.scanProgress.collect { progress ->
+                if (!progress.isScanning) {
+                    _optimisticPlaceholders.value = emptyList()
+                    applyFiltersAndSort()
+                } else {
+                    val latest = progress.latestDiscoveredItem
+                    if (latest != null) {
+                        val placeholder = MediaItemWithMetadata(
+                            itemId = latest.itemId,
+                            title = latest.fileName.substringBeforeLast('.'),
+                            mediaType = parseMediaType(latest.mediaType),
+                            author = extractAuthorFromFileName(latest.fileName),
+                            dateAdded = latest.dateAdded,
+                            isPlaceholder = true
+                        )
+                        _optimisticPlaceholders.update { current ->
+                            val exists = current.any { it.itemId == placeholder.itemId }
+                            if (exists) {
+                                current
+                            } else {
+                                (current + placeholder).takeLast(50)
+                            }
+                        }
+                        applyFiltersAndSort()
+                    }
+                }
+            }
+        }
+    }
+
+    fun cancelScan() {
+        MediaScannerService.cancelScan()
+    }
 
     fun loadMediaItems(libraryId: Long) {
         currentLibraryId = libraryId
@@ -160,7 +203,9 @@ class UniversalMediaLibraryViewModel @Inject constructor(
      * Apply current search query and sort option to the media items
      */
     private fun applyFiltersAndSort() {
-        var filtered = allMediaItems
+        val persistedIds = allMediaItems.map { it.itemId }.toSet()
+        val activePlaceholders = _optimisticPlaceholders.value.filterNot { it.itemId in persistedIds }
+        var filtered = allMediaItems + activePlaceholders
 
         // Apply search filter
         val query = _searchQuery.value

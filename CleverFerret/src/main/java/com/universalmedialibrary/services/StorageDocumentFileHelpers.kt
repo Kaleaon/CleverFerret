@@ -7,6 +7,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.universalmedialibrary.services.StorageAccessService.CopyResult
 import com.universalmedialibrary.utils.ErrorLogger
 import com.universalmedialibrary.utils.FileNameSanitizer
+import com.universalmedialibrary.core.logging.AppLogger
 
 private val fileNameSanitizer = FileNameSanitizer()
 
