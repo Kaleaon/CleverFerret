@@ -80,6 +80,12 @@ jobs:
     - name: Check navigation routes
       run: python3 scripts/ci/check_nav_routes.py
 
+    - name: Check lint configuration
+      run: python3 tooling/scripts/check-lint-config.py
+
+    - name: Audit hardcoded dimensions
+      run: ./scripts/ci/audit_hardcoded_dimensions.sh
+
     - name: Run Detekt and Android Lint
       run: ./gradlew detekt lintDebug -Plint.abortOnError=true --stacktrace
 
