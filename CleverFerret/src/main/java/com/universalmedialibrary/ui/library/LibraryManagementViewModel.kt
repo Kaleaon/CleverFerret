@@ -56,6 +56,12 @@ class LibraryManagementViewModel @Inject constructor(
     private val _bulkThumbnailTask = MutableStateFlow<LibraryBackgroundTaskState?>(null)
     val bulkThumbnailTask: StateFlow<LibraryBackgroundTaskState?> = _bulkThumbnailTask.asStateFlow()
 
+    val scanProgress: StateFlow<MediaScannerService.ScanProgress> = MediaScannerService.scanProgress
+
+    fun cancelScan() {
+        MediaScannerService.cancelScan(context)
+    }
+
     val libraries: StateFlow<List<Library>> = libraryRepository.getAllActiveLibraries()
         .catch { throwable ->
             _uiState.value = LibraryManagementUiState.Error(
