@@ -16,6 +16,8 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEn
 import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
 import com.universalmedialibrary.data.local.converters.AudioChapterListConverter
 import com.universalmedialibrary.data.Tag
+import com.universalmedialibrary.data.crdt.CrdtOperationRecord
+import com.universalmedialibrary.data.crdt.CrdtTypeConverters
 
 
 /**
@@ -195,13 +197,16 @@ import com.universalmedialibrary.data.Tag
         MediaFtsEntity::class,
 
         // Media Stream Cache
-        MediaCacheItem::class
+        MediaCacheItem::class,
+
+        // CRDT Operation Journal
+        CrdtOperationRecord::class
 
     ],
-    version = 48,
+    version = 49,
     exportSchema = false
 )
-@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
+@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class, CrdtTypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
 
@@ -305,6 +310,9 @@ abstract class AppDatabase : RoomDatabase() {
     // Collaborative Session DAO
     abstract fun collaborativeSessionDao(): CollaborativeSessionDao
 
+    // CRDT Operation Journal DAO
+    abstract fun crdtOperationJournalDao(): CrdtOperationJournalDao
+
     // Enhanced Tag System DAOs
     abstract fun tagHierarchyDao(): TagHierarchyDao
     abstract fun smartCollectionDao(): SmartCollectionDao
@@ -348,7 +356,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_44_45,
                         AppDatabaseMigrations.MIGRATION_45_46,
                         AppDatabaseMigrations.MIGRATION_46_47,
-                        AppDatabaseMigrations.MIGRATION_47_48
+                        AppDatabaseMigrations.MIGRATION_47_48,
+                        AppDatabaseMigrations.MIGRATION_48_49
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

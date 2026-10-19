@@ -13,9 +13,9 @@ import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.PlexCollection
 import com.universalmedialibrary.data.local.entity.PlexCollectionItem
-import com.universalmedialibrary.data.local.entity.PlexLibrary
+import com.universalmedialibrary.services.plex.PlexLibrary
 import com.universalmedialibrary.data.local.entity.PlexMediaItem
-import com.universalmedialibrary.data.local.entity.PlexMetadata
+import com.universalmedialibrary.services.plex.PlexMetadata
 import com.universalmedialibrary.data.local.entity.PlexProgress
 import com.universalmedialibrary.data.local.entity.PlexRating
 import com.universalmedialibrary.data.local.entity.PlexServer

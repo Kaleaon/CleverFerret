@@ -64,10 +64,10 @@ class MainActivity : ComponentActivity() {
         
         setContent {
             val mainViewModel: MainViewModel = hiltViewModel()
-            val selectedTheme by mainViewModel.selectedTheme.collectAsStateWithLifecycle(ThemePalette.NAVY_GOLD)
+            val selectedTheme by mainViewModel.selectedTheme.collectAsStateWithLifecycle(CleverFerretTheme.NAVY_GOLD)
             val darkMode by mainViewModel.darkMode.collectAsStateWithLifecycle(true)
             
-            CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
+            com.universalmedialibrary.ui.theme.CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
