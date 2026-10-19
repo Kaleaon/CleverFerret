@@ -25,6 +25,14 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
+        private const val MILLIS_PER_SECOND = 1000L
+        private const val SECONDS_PER_MINUTE = 60L
+        private const val PERCENTAGE_MULTIPLIER = 100
+        private const val SPEED_1_0 = 1.0f
+        private const val SPEED_1_25 = 1.25f
+        private const val SPEED_1_5 = 1.5f
+        private const val SPEED_2_0 = 2.0f
+
         fun getBroadcastPendingIntent(
             context: Context,
             targetClass: Class<*>,
@@ -62,9 +70,9 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         }
 
         fun formatTime(millis: Long): String {
-            val totalSeconds = maxOf(0L, millis / 1000)
-            val minutes = totalSeconds / 60
-            val seconds = totalSeconds % 60
+            val totalSeconds = maxOf(0L, millis / MILLIS_PER_SECOND)
+            val minutes = totalSeconds / SECONDS_PER_MINUTE
+            val seconds = totalSeconds % SECONDS_PER_MINUTE
             return "%d:%02d".format(minutes, seconds)
         }
 
@@ -78,7 +86,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
         fun calculateProgressPercentage(currentPositionMs: Long, durationMs: Long): Int {
             return if (durationMs > 0) {
-                ((currentPositionMs.toFloat() / durationMs) * 100).toInt().coerceIn(0, 100)
+                ((currentPositionMs.toFloat() / durationMs) * PERCENTAGE_MULTIPLIER).toInt().coerceIn(0, PERCENTAGE_MULTIPLIER)
             } else {
                 0
             }
@@ -86,10 +94,10 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
         fun getNextPlaybackSpeed(currentSpeed: Float): Float {
             return when {
-                currentSpeed < 1.25f -> 1.25f
-                currentSpeed < 1.5f -> 1.5f
-                currentSpeed < 2.0f -> 2.0f
-                else -> 1.0f
+                currentSpeed < SPEED_1_25 -> SPEED_1_25
+                currentSpeed < SPEED_1_5 -> SPEED_1_5
+                currentSpeed < SPEED_2_0 -> SPEED_2_0
+                else -> SPEED_1_0
             }
         }
     }
