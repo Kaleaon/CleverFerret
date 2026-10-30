@@ -1,8 +1,18 @@
 package com.cleverferret.core.designsystem.theme
 
 import com.cleverferret.core.designsystem.tokens.DesignTokensV1
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 object KthemeThemeAdapterV1 {
+
+    private val jsonSerializer = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        coerceInputValues = true
+    }
+
+    @Serializable
     data class LiveRegionPolicy(
         val mode: String = "polite",
         val atomic: Boolean = true,
@@ -16,8 +26,9 @@ object KthemeThemeAdapterV1 {
         }
     }
 
+    @Serializable
     data class KthemeSnapshot(
-        val id: String,
+        val id: String = "custom-theme",
         val darkMode: Boolean = false,
         val primary: String? = null,
         val onPrimary: String? = null,
@@ -30,6 +41,59 @@ object KthemeThemeAdapterV1 {
         val onError: String? = null,
         val liveRegion: LiveRegionPolicy = LiveRegionPolicy(),
         val passthroughRoles: Map<String, String> = emptyMap(),
+    )
+
+    @Serializable
+    private data class KthemeMetadataDto(
+        val id: String? = null
+    )
+
+    @Serializable
+    private data class KthemeColorSchemeDto(
+        val primary: String? = null,
+        val onPrimary: String? = null,
+        val background: String? = null,
+        val onBackground: String? = null,
+        val surface: String? = null,
+        val onSurface: String? = null,
+        val outline: String? = null,
+        val error: String? = null,
+        val onError: String? = null,
+    )
+
+    @Serializable
+    private data class KthemeAccessibilityDto(
+        val liveRegion: LiveRegionPolicy? = null
+    )
+
+    @Serializable
+    private data class KthemeLayoutDto(
+        val accessibility: KthemeAccessibilityDto? = null
+    )
+
+    @Serializable
+    private data class KthemeAdaptationDto(
+        val layout: KthemeLayoutDto? = null
+    )
+
+    @Serializable
+    private data class ThemeJsonDto(
+        val id: String? = null,
+        val darkMode: Boolean = false,
+        val primary: String? = null,
+        val onPrimary: String? = null,
+        val background: String? = null,
+        val onBackground: String? = null,
+        val surface: String? = null,
+        val onSurface: String? = null,
+        val outline: String? = null,
+        val error: String? = null,
+        val onError: String? = null,
+        val liveRegion: LiveRegionPolicy? = null,
+        val passthroughRoles: Map<String, String> = emptyMap(),
+        val metadata: KthemeMetadataDto? = null,
+        val colorScheme: KthemeColorSchemeDto? = null,
+        val adaptation: KthemeAdaptationDto? = null,
     )
 
     enum class SemanticRole(val token: String) {
@@ -66,45 +130,36 @@ object KthemeThemeAdapterV1 {
     }
 
     /**
-     * Parses a Ktheme JSON snapshot string into a [KthemeSnapshot].
+     * Parses a Ktheme JSON snapshot string into a [KthemeSnapshot] using kotlinx.serialization.
      */
     fun parseSnapshot(jsonString: String): KthemeSnapshot {
-        val idMatch = Regex("\"id\"\\s*:\\s*\"([^\"]+)\"").find(jsonString)
-        val id = idMatch?.groupValues?.get(1) ?: "custom-theme"
+        if (jsonString.isBlank()) return KthemeSnapshot()
 
-        val darkMatch = Regex("\"darkMode\"\\s*:\\s*(true|false)", RegexOption.IGNORE_CASE).find(jsonString)
-        val darkMode = darkMatch?.groupValues?.get(1)?.lowercase() == "true"
+        return try {
+            val dto = jsonSerializer.decodeFromString<ThemeJsonDto>(jsonString)
+            val themeId = dto.metadata?.id ?: dto.id ?: "custom-theme"
+            val liveRegionPolicy = dto.adaptation?.layout?.accessibility?.liveRegion
+                ?: dto.liveRegion
+                ?: LiveRegionPolicy()
 
-        fun extractColor(key: String): String? {
-            val pattern = Regex("\"$key\"\\s*:\\s*\"([^\"]+)\"")
-            return pattern.find(jsonString)?.groupValues?.get(1)?.takeIf { it.isNotBlank() }
+            KthemeSnapshot(
+                id = themeId,
+                darkMode = dto.darkMode,
+                primary = dto.colorScheme?.primary ?: dto.primary,
+                onPrimary = dto.colorScheme?.onPrimary ?: dto.onPrimary,
+                background = dto.colorScheme?.background ?: dto.background,
+                onBackground = dto.colorScheme?.onBackground ?: dto.onBackground,
+                surface = dto.colorScheme?.surface ?: dto.surface,
+                onSurface = dto.colorScheme?.onSurface ?: dto.onSurface,
+                outline = dto.colorScheme?.outline ?: dto.outline,
+                error = dto.colorScheme?.error ?: dto.error,
+                onError = dto.colorScheme?.onError ?: dto.onError,
+                liveRegion = liveRegionPolicy,
+                passthroughRoles = dto.passthroughRoles
+            )
+        } catch (e: Exception) {
+            KthemeSnapshot()
         }
-
-        val modeMatch = Regex("\"mode\"\\s*:\\s*\"([^\"]+)\"").find(jsonString)
-        val mode = modeMatch?.groupValues?.get(1) ?: "polite"
-
-        val atomicMatch = Regex("\"atomic\"\\s*:\\s*(true|false)", RegexOption.IGNORE_CASE).find(jsonString)
-        val atomic = atomicMatch?.groupValues?.get(1)?.lowercase() != "false"
-
-        val relevantMatch = Regex("\"relevant\"\\s*:\\s*\"([^\"]+)\"").find(jsonString)
-        val relevant = relevantMatch?.groupValues?.get(1) ?: "all"
-
-        val liveRegionPolicy = LiveRegionPolicy(mode = mode, atomic = atomic, relevant = relevant)
-
-        return KthemeSnapshot(
-            id = id,
-            darkMode = darkMode,
-            primary = extractColor("primary"),
-            onPrimary = extractColor("onPrimary"),
-            background = extractColor("background"),
-            onBackground = extractColor("onBackground"),
-            surface = extractColor("surface"),
-            onSurface = extractColor("onSurface"),
-            outline = extractColor("outline"),
-            error = extractColor("error"),
-            onError = extractColor("onError"),
-            liveRegion = liveRegionPolicy,
-        )
     }
 
     /**

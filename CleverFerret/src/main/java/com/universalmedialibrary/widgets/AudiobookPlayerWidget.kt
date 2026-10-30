@@ -2,18 +2,12 @@ package com.universalmedialibrary.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import com.universalmedialibrary.R
-import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,12 +16,10 @@ import javax.inject.Inject
  * Shows currently playing audiobook with controls
  */
 @AndroidEntryPoint
-class AudiobookPlayerWidget : AppWidgetProvider() {
+class AudiobookPlayerWidget : BaseWidgetProvider() {
 
     @Inject
     lateinit var queueManager: UnifiedPlaybackQueueManager
-
-    private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onUpdate(
         context: Context,
@@ -62,9 +54,10 @@ class AudiobookPlayerWidget : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_chapter, if (currentItem != null) "Playing" else "")
             views.setTextViewText(R.id.widget_playback_speed, "${playbackState?.playbackSpeed ?: 1.0f}x")
             
-            val progress = if (playbackState != null && playbackState.duration > 0) {
-                ((playbackState.currentPositionMs.toFloat() / playbackState.duration) * 100).toInt()
-            } else 0
+            val progress = calculateProgressPercentage(
+                playbackState?.currentPositionMs ?: 0L,
+                playbackState?.duration ?: 0L
+            )
             views.setProgressBar(R.id.widget_progress, 100, progress, false)
 
             // Set up button intents
@@ -86,24 +79,13 @@ class AudiobookPlayerWidget : AppWidgetProvider() {
             )
 
             // Click to open app
-            val intent = Intent(context, MainActivity::class.java).apply {
-                action = "OPEN_AUDIOBOOK_PLAYER"
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val pendingIntent = PendingIntent.getActivity(
-                context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            val pendingIntent = getActivityPendingIntent(context, "OPEN_AUDIOBOOK_PLAYER")
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
         private fun getPendingIntent(context: Context, action: String): PendingIntent {
-            val intent = Intent(context, AudiobookPlayerWidget::class.java).apply {
-                this.action = action
-            }
-            // Use unique request code per action to avoid PendingIntent reuse
             val requestCode = when (action) {
                 ACTION_PLAY_PAUSE -> 2001
                 ACTION_REWIND -> 2002
@@ -111,10 +93,7 @@ class AudiobookPlayerWidget : AppWidgetProvider() {
                 ACTION_SPEED -> 2004
                 else -> 2000
             }
-            return PendingIntent.getBroadcast(
-                context, requestCode, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            return getBroadcastPendingIntent(context, AudiobookPlayerWidget::class.java, action, requestCode)
         }
     }
 
@@ -147,12 +126,7 @@ class AudiobookPlayerWidget : AppWidgetProvider() {
                 ACTION_SPEED -> {
                     // Cycle playback speed: 1.0x -> 1.25x -> 1.5x -> 2.0x -> 1.0x
                     val currentSpeed = queueManager.playbackState.value.playbackSpeed
-                    val newSpeed = when {
-                        currentSpeed < 1.25f -> 1.25f
-                        currentSpeed < 1.5f -> 1.5f
-                        currentSpeed < 2.0f -> 2.0f
-                        else -> 1.0f
-                    }
+                    val newSpeed = getNextPlaybackSpeed(currentSpeed)
                     queueManager.setPlaybackSpeed(newSpeed)
                     updateAllWidgets(context)
                 }
@@ -166,11 +140,5 @@ class AudiobookPlayerWidget : AppWidgetProvider() {
             android.content.ComponentName(context, AudiobookPlayerWidget::class.java)
         )
         onUpdate(context, appWidgetManager, ids)
-    }
-
-    override fun onDisabled(context: Context) {
-        super.onDisabled(context)
-        // Cancel coroutine scope when all widgets removed to prevent leaks
-        widgetScope.cancel()
     }
 }
