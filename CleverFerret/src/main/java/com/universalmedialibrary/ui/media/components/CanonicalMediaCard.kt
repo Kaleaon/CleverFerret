@@ -12,6 +12,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -160,11 +161,12 @@ private fun PosterLayout(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val isPressed by interactionSource.collectIsPressedAsState()
+    val isFocused by interactionSource.collectIsFocusedAsState()
 
     val scale by animateFloatAsState(
         targetValue = when {
             isPressed -> 0.95f
-            isHovered -> 1.03f
+            isHovered || isFocused -> 1.03f
             else -> 1f
         },
         animationSpec = spring(
@@ -244,7 +246,7 @@ private fun PosterLayout(
                 )
             }
 
-            if (isHovered) {
+            if (isHovered || isFocused) {
                 Box(modifier = Modifier.align(Alignment.Center)) {
                     PlayButton(onClick = onClick)
                 }
@@ -299,11 +301,12 @@ private fun SquareLayout(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val isPressed by interactionSource.collectIsPressedAsState()
+    val isFocused by interactionSource.collectIsFocusedAsState()
 
     val scale by animateFloatAsState(
         targetValue = when {
             isPressed -> 0.95f
-            isHovered -> 1.03f
+            isHovered || isFocused -> 1.03f
             else -> 1f
         },
         label = "square_scale"
@@ -352,7 +355,7 @@ private fun SquareLayout(
                 }
             }
 
-            if (isHovered) {
+            if (isHovered || isFocused) {
                 Box(modifier = Modifier.align(Alignment.Center)) {
                     PlayButton(onClick = onClick)
                 }

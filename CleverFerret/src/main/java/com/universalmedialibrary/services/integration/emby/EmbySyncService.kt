@@ -1,11 +1,17 @@
 package com.universalmedialibrary.services.integration.emby
 
+import android.content.Context
+import android.util.Log
 import androidx.room.withTransaction
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.EmbyServer
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.local.entity.RemoteSyncMutation
+import com.universalmedialibrary.jobs.WorkScheduler
+import com.universalmedialibrary.services.sync.ServerCredentialManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,10 +37,17 @@ import javax.inject.Singleton
  */
 @Singleton
 class EmbySyncService @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val database: AppDatabase,
     private val embyIntegration: EmbyIntegrationService,
-    private val downloadScheduler: com.universalmedialibrary.services.cache.MediaDownloadScheduler? = null
+    private val downloadScheduler: com.universalmedialibrary.services.cache.MediaDownloadScheduler? = null,
+    private val remoteSyncMutationDao: com.universalmedialibrary.data.local.dao.RemoteSyncMutationDao? = null,
+    private val credentialManager: ServerCredentialManager? = null
 ) {
+    companion object {
+        private const val TAG = "EmbySyncService"
+    }
+
     private val embyServerDao = database.embyServerDao()
     private val libraryDao = database.libraryDao()
     private val mediaItemDao = database.mediaItemDao()
@@ -96,6 +109,15 @@ class EmbySyncService @Inject constructor(
                     // Save to database
                     val serverId = embyServerDao.insert(server)
                     val savedServer = server.copy(id = serverId)
+                    credentialManager?.saveCredentials(
+                        serverType = "EMBY",
+                        serverId = serverId,
+                        host = host,
+                        port = port,
+                        username = username,
+                        password = password,
+                        token = accessToken
+                    )
 
                     _syncState.value = _syncState.value.copy(
                         isConnecting = false,
@@ -335,6 +357,115 @@ class EmbySyncService @Inject constructor(
 
     fun disconnectServer() {
         _syncState.value = EmbySyncState()
+    }
+
+    /**
+     * Update playback progress on Emby server with validation and fallback queueing
+     */
+    suspend fun updateProgress(
+        server: EmbyServer,
+        itemId: String,
+        positionTicks: Long
+    ): Result<Unit> {
+        return try {
+            val serverUrl = "http://${server.host}:${server.port}"
+            val api = embyIntegration.createApi(serverUrl)
+            val response = api.updateProgress(
+                userId = server.userId ?: "",
+                itemId = itemId,
+                token = server.apiKey ?: "",
+                positionTicks = positionTicks
+            )
+
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                enqueueMutation(
+                    serverType = "EMBY",
+                    serverId = server.id,
+                    targetItemId = itemId,
+                    mutationType = "PROGRESS",
+                    payloadJson = "{\"positionTicks\":$positionTicks}"
+                )
+                Result.failure(Exception("Emby progress update failed with HTTP ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            enqueueMutation(
+                serverType = "EMBY",
+                serverId = server.id,
+                targetItemId = itemId,
+                mutationType = "PROGRESS",
+                payloadJson = "{\"positionTicks\":$positionTicks}"
+            )
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Update rating on Emby server with validation and fallback queueing
+     */
+    suspend fun updateRating(
+        server: EmbyServer,
+        itemId: String,
+        rating: Double
+    ): Result<Unit> {
+        return try {
+            val serverUrl = "http://${server.host}:${server.port}"
+            val api = embyIntegration.createApi(serverUrl)
+            val response = api.updateRating(
+                userId = server.userId ?: "",
+                itemId = itemId,
+                token = server.apiKey ?: "",
+                rating = rating
+            )
+
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                enqueueMutation(
+                    serverType = "EMBY",
+                    serverId = server.id,
+                    targetItemId = itemId,
+                    mutationType = "RATING",
+                    payloadJson = "{\"rating\":$rating}"
+                )
+                Result.failure(Exception("Emby rating update failed with HTTP ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            enqueueMutation(
+                serverType = "EMBY",
+                serverId = server.id,
+                targetItemId = itemId,
+                mutationType = "RATING",
+                payloadJson = "{\"rating\":$rating}"
+            )
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun enqueueMutation(
+        serverType: String,
+        serverId: Long,
+        targetItemId: String,
+        mutationType: String,
+        payloadJson: String
+    ) {
+        try {
+            remoteSyncMutationDao?.insert(
+                RemoteSyncMutation(
+                    serverType = serverType,
+                    serverId = serverId,
+                    targetItemId = targetItemId,
+                    mutationType = mutationType,
+                    payloadJson = payloadJson,
+                    status = "PENDING",
+                    createdAt = System.currentTimeMillis()
+                )
+            )
+            WorkScheduler.scheduleRemoteSyncWorker(context)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to enqueue remote sync mutation", e)
+        }
     }
 }
 
