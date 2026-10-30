@@ -11,7 +11,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.sha256
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -662,10 +662,7 @@ class ParentalControlsSettings @Inject constructor(
      * Hash PIN using SHA-256
      */
     private fun hashPin(pin: String): String {
-        val bytes = pin.toByteArray()
-        val md = MessageDigest.getInstance("SHA-256")
-        val digest = md.digest(bytes)
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
+        return pin.sha256()
     }
 
     /**
