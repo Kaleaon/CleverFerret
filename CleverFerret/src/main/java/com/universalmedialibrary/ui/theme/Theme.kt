@@ -643,6 +643,20 @@ fun CleverFerretTheme(
 }
 
 @Composable
+fun CleverFerretTheme(
+    palette: UnifiedThemePalette,
+    darkTheme: Boolean = true,
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    UnifiedCleverFerretTheme(
+        theme = palette.toCleverFerretTheme(),
+        darkTheme = darkTheme,
+        content = content
+    )
+}
+
+@Composable
 fun CleverFerretUnifiedTheme(
     palette: UnifiedThemePalette = UnifiedThemePalette.NAVY_GOLD,
     darkTheme: Boolean = true,
@@ -679,10 +693,12 @@ fun CleverFerretUnifiedTheme(
 
     val configuration = LocalConfiguration.current
     val reduceMotion = remember(configuration) { MediaMotion.isReducedMotionEnabled() }
+    val focusIndication = rememberFocusHighlightIndication(focusColor = colorScheme.primary)
 
     CompositionLocalProvider(
         LocalMetallicGradient provides metallicGradient,
-        LocalReduceMotion provides reduceMotion
+        LocalReduceMotion provides reduceMotion,
+        LocalIndication provides focusIndication
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

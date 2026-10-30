@@ -1,8 +1,10 @@
 package com.universalmedialibrary.services.pipeline.processors
 
 import com.universalmedialibrary.api.plugin.CoverSize
+import com.universalmedialibrary.api.plugin.MediaMetadata
 import com.universalmedialibrary.api.plugin.MediaType as PluginMediaType
 import com.universalmedialibrary.api.plugin.MetadataQuery
+import com.universalmedialibrary.api.plugin.MetadataSearchResult
 import com.universalmedialibrary.api.plugin.PluginRegistry
 import com.universalmedialibrary.services.pipeline.CatalogingPipelineContext
 import com.universalmedialibrary.services.pipeline.MetadataPipelineProcessor
@@ -66,21 +68,23 @@ class RemoteEnrichmentProcessor @Inject constructor(
             try {
                 val searchResult = withTimeoutOrNull(PROVIDER_TIMEOUT_MS) {
                     provider.search(query).getOrNull()?.firstOrNull()
-                } ?: continue
-
-                val details = withTimeoutOrNull(PROVIDER_TIMEOUT_MS) {
-                    provider.fetchDetails(searchResult.id, targetMediaType).getOrNull()
                 }
 
-                enrichedCommon = applyCommonEnrichment(enrichedCommon, searchResult, details)
-                enrichedBook = applyBookEnrichment(enrichedBook, details)
+                if (searchResult != null) {
+                    val details = withTimeoutOrNull(PROVIDER_TIMEOUT_MS) {
+                        provider.fetchDetails(searchResult.id, targetMediaType).getOrNull()
+                    }
 
-                enrichments[provider.id] = searchResult.id
-                updatedSource = "$updatedSource + ${provider.name}"
-                confidenceBoost += ENRICHMENT_CONFIDENCE_BOOST
+                    enrichedCommon = applyCommonEnrichment(enrichedCommon, searchResult, details)
+                    enrichedBook = applyBookEnrichment(enrichedBook, details)
 
-                // Limit enrichment to first successful provider
-                break
+                    enrichments[provider.id] = searchResult.id
+                    updatedSource = "$updatedSource + ${provider.name}"
+                    confidenceBoost += ENRICHMENT_CONFIDENCE_BOOST
+
+                    // Limit enrichment to first successful provider
+                    break
+                }
             } catch (_: Exception) {
                 // Ignore provider error and fallback to local metadata
             }
@@ -111,11 +115,11 @@ class RemoteEnrichmentProcessor @Inject constructor(
             updated = updated.copy(summary = details?.description)
         }
         if (updated.year == null && details?.publishDate != null) {
-            val year = details.publishDate?.take(YEAR_CHARS_COUNT)?.toIntOrNull()
+            val year = details.publishDate.take(YEAR_CHARS_COUNT).toIntOrNull()
             if (year != null) updated = updated.copy(year = year)
         }
         if (updated.rating == null && details?.rating != null) {
-            updated = updated.copy(rating = details.rating.average)
+            updated = updated.copy(rating = details.rating?.average)
         }
         if (updated.coverImagePath.isNullOrBlank() && !coverUrl.isNullOrBlank()) {
             updated = updated.copy(coverImagePath = coverUrl)

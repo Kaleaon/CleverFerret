@@ -27,6 +27,7 @@ class OnboardingViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        every { settingsRepository.hasCompletedOnboardingFlow } returns flowOf(false)
         every { settingsRepository.onboardingCompletedFlow } returns flowOf(false)
         every { mediaItemDao.getAllMediaItemsFlow() } returns flowOf(emptyList())
     }

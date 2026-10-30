@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import com.universalmedialibrary.utils.formatFileSize
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.modern.components.CFEmptyState
@@ -85,7 +86,7 @@ fun ModernDuplicateDetectionScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        "${state.sets.size} sets · ${state.totalReclaimableBytes.formatBytes()} reclaimable",
+                        "${state.sets.size} sets · ${state.totalReclaimableBytes.formatFileSize()} reclaimable",
                         style = MaterialTheme.typography.labelMedium,
                         color = cs.onSurfaceVariant,
                         modifier = Modifier.weight(1f),
@@ -175,14 +176,4 @@ private fun CandidateRow(
     }
 }
 
-private fun Long.formatBytes(): String {
-    val kb = this / 1024.0
-    val mb = kb / 1024.0
-    val gb = mb / 1024.0
-    return when {
-        gb >= 1.0 -> "%.2f GB".format(gb)
-        mb >= 1.0 -> "%.1f MB".format(mb)
-        kb >= 1.0 -> "%.0f KB".format(kb)
-        else      -> "$this B"
-    }
-}
+

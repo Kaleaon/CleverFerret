@@ -27,4 +27,21 @@ interface EmbyApi {
 
     @GET("/Library/MediaFolders")
     suspend fun getLibraries(@Header("X-Emby-Token") token: String): Response<Map<String, Any>>
+
+    @POST("/Users/{userId}/Items/{itemId}/Progress")
+    suspend fun updateProgress(
+        @Path("userId") userId: String,
+        @Path("itemId") itemId: String,
+        @Header("X-Emby-Token") token: String,
+        @Query("positionTicks") positionTicks: Long
+    ): Response<Unit>
+
+    @POST("/Users/{userId}/Items/{itemId}/Rating")
+    suspend fun updateRating(
+        @Path("userId") userId: String,
+        @Path("itemId") itemId: String,
+        @Header("X-Emby-Token") token: String,
+        @Query("likes") likes: Boolean? = null,
+        @Query("rating") rating: Double? = null
+    ): Response<Unit>
 }
