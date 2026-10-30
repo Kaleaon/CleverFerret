@@ -21,8 +21,8 @@ if (androidHome.isNullOrBlank() && !localPropertiesFile.exists()) {
 pluginManagement {
     repositories {
         google()
-        mavenCentral()
         maven { url = uri("https://maven-central.storage-download.googleapis.com/maven2/") }
+        mavenCentral()
         gradlePluginPortal()
     }
 }
@@ -30,8 +30,8 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
-        mavenCentral()
         maven { url = uri("https://maven-central.storage-download.googleapis.com/maven2/") }
+        mavenCentral()
         // JitPack repository for GitHub-hosted libraries
         maven { url = uri("https://jitpack.io") }
     }

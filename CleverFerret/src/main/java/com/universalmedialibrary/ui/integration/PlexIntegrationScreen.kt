@@ -26,7 +26,6 @@ import java.util.Locale
 fun PlexIntegrationScreen(
     viewModel: PlexIntegrationViewModel = hiltViewModel()
 ) {
-    val state = viewModel.plexState.collectAsState().value
     MediaIntegrationScreen(viewModel = viewModel)
 }
 

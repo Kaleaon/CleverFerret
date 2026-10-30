@@ -44,15 +44,15 @@ class OPDSCatalogBrowserViewModelTest {
     private val initialFeed = OPDSFeed(
         title = "Initial Feed",
         entries = listOf(
-            OPDSEntry(id = "1", title = "The Great Gatsby")
+            OPDSEntry(title = "The Great Gatsby")
         )
     )
 
     private val updatedFeed = OPDSFeed(
         title = "Updated Feed",
         entries = listOf(
-            OPDSEntry(id = "1", title = "The Great Gatsby"),
-            OPDSEntry(id = "2", title = "Moby Dick")
+            OPDSEntry(title = "The Great Gatsby"),
+            OPDSEntry(title = "Moby Dick")
         )
     )
 
@@ -69,7 +69,8 @@ class OPDSCatalogBrowserViewModelTest {
         val viewModel = OPDSCatalogBrowserViewModel(
             catalogDao = catalogDao,
             opdsCatalogService = opdsCatalogService,
-            downloadService = downloadService
+            downloadService = downloadService,
+            opdsChallengeAuthenticator = mockk(relaxed = true)
         )
 
         viewModel.selectCatalog(testCatalog)
@@ -89,7 +90,8 @@ class OPDSCatalogBrowserViewModelTest {
         val viewModel = OPDSCatalogBrowserViewModel(
             catalogDao = catalogDao,
             opdsCatalogService = opdsCatalogService,
-            downloadService = downloadService
+            downloadService = downloadService,
+            opdsChallengeAuthenticator = mockk(relaxed = true)
         )
 
         viewModel.selectCatalog(testCatalog)
@@ -118,7 +120,8 @@ class OPDSCatalogBrowserViewModelTest {
         val viewModel = OPDSCatalogBrowserViewModel(
             catalogDao = catalogDao,
             opdsCatalogService = opdsCatalogService,
-            downloadService = downloadService
+            downloadService = downloadService,
+            opdsChallengeAuthenticator = mockk(relaxed = true)
         )
 
         viewModel.selectCatalog(testCatalog)

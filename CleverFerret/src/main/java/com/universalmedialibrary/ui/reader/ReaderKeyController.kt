@@ -26,6 +26,7 @@ enum class ReaderKeyAction {
  * Pure dispatcher for mapping hardware key inputs to document reader actions.
  */
 object ReaderKeyDispatcher {
+    @Suppress("UnusedParameter")
     fun resolveAction(
         key: Key,
         isCtrlPressed: Boolean = false,

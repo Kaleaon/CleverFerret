@@ -1,6 +1,9 @@
 package com.universalmedialibrary.services.billing
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import com.universalmedialibrary.services.billing.entitlements.CloudEntitlementHandler
 import com.universalmedialibrary.services.billing.entitlements.ScannerEntitlementHandler
 import com.universalmedialibrary.services.billing.entitlements.ThemeEntitlementHandler
@@ -120,6 +123,33 @@ class GooglePlayBillingAdapter @Inject constructor(
             return emptyList()
         }
         return productIds.mapNotNull { catalog[it] }
+    }
+
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
+    fun launchManageSubscriptions(context: Context, sku: String?) {
+        val url = if (!sku.isNullOrEmpty()) {
+            "https://play.google.com/store/account/subscriptions?sku=$sku&package=${context.packageName}"
+        } else {
+            "https://play.google.com/store/account/subscriptions?package=${context.packageName}"
+        }
+
+        val playStoreIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            setPackage("com.android.vending")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        try {
+            context.startActivity(playStoreIntent)
+        } catch (ignored: Exception) {
+            val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            try {
+                context.startActivity(fallbackIntent)
+            } catch (ignoredFallback: Exception) {
+                // Non-fatal if no activity can handle the intent
+            }
+        }
     }
 
     override suspend fun launchBillingFlow(activity: Activity?, productId: String): PurchaseResult {

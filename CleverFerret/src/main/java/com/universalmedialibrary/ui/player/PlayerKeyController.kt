@@ -28,6 +28,7 @@ enum class PlayerKeyAction {
  * Pure dispatcher for mapping hardware key inputs to video player actions.
  */
 object PlayerKeyDispatcher {
+    @Suppress("UnusedParameter")
     fun resolveAction(
         key: Key,
         isCtrlPressed: Boolean = false,
@@ -44,6 +45,7 @@ object PlayerKeyDispatcher {
         }
     }
 
+    @Suppress("LongParameterList")
     fun handleKeyEvent(
         event: KeyEvent,
         onTogglePlayPause: () -> Boolean,
@@ -76,6 +78,7 @@ object PlayerKeyDispatcher {
 /**
  * Modifier that binds hardware keyboard, media keys, and DPAD remote events to Video Player actions.
  */
+@Suppress("LongParameterList")
 fun Modifier.playerKeyController(
     enabled: Boolean = true,
     onTogglePlayPause: () -> Boolean = { false },

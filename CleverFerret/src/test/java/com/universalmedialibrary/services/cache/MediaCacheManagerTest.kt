@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.cache
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.MediaCacheDao
 import com.universalmedialibrary.data.local.entity.DownloadPriority
@@ -31,7 +32,7 @@ class MediaCacheManagerTest {
     lateinit var mediaCacheDao: MediaCacheDao
 
     @MockK
-    lateinit var cacheManager: CacheManager
+    lateinit var context: Context
 
     @MockK
     lateinit var settingsRepository: SettingsRepository
@@ -43,12 +44,12 @@ class MediaCacheManagerTest {
         MockKAnnotations.init(this)
 
         val cacheDir = tempFolder.newFolder("cache")
-        coEvery { cacheManager.getCacheDirectory() } returns cacheDir
+        every { context.cacheDir } returns cacheDir
         coEvery { settingsRepository.maxCacheSizeMBFlow } returns flowOf(100) // 100 MB limit
 
         mediaCacheManager = MediaCacheManager(
+            context = context,
             mediaCacheDao = mediaCacheDao,
-            cacheManager = cacheManager,
             settingsRepository = settingsRepository
         )
     }

@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.modern.theme
 
 import androidx.compose.ui.graphics.Color
+import com.cleverferret.core.designsystem.theme.CFLayout
 import com.universalmedialibrary.services.manga.source.MangaState
 import com.universalmedialibrary.services.webfiction.DownloadStatus
 import com.universalmedialibrary.services.webfiction.StoryStatus
@@ -98,7 +99,7 @@ class CFTokensThemeSchemaTest {
         val defaultTokens = CFTokens(
             id = "test-custom",
             displayName = "Custom Test Theme",
-            layout = CFLayout.Compose,
+            layout = CFLayout.COMPOSE,
             metal = CFMetal(
                 shadow = Color.Black,
                 base = Color.Gray,

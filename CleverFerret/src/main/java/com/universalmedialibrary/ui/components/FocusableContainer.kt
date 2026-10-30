@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
  * @param content Composable slot receiving current [isFocused] state
  */
 @Composable
+@Suppress("LongParameterList", "FunctionNaming")
 fun FocusableContainer(
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
