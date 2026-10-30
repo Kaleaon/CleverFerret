@@ -400,6 +400,8 @@ class IngestionStagingGatewaysTest {
         }
 
         override suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean) {}
+        override suspend fun getMediaItemsModifiedSince(sinceTimestamp: Long): List<MediaItem> =
+            map.values.filter { it.lastModified > sinceTimestamp }
 
         override suspend fun deleteMediaItem(mediaItem: MediaItem) {
             map.remove(mediaItem.itemId)

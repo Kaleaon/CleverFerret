@@ -23,7 +23,8 @@ import com.universalmedialibrary.ui.open.MediaOpenScreen
 import com.universalmedialibrary.ui.reader.EnhancedEReaderScreen
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen
-import com.universalmedialibrary.ui.theme.*
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.UnifiedCleverFerretTheme
 import com.universalmedialibrary.utils.ScreenTimeoutManager
 import dagger.hilt.android.AndroidEntryPoint
 
