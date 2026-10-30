@@ -329,7 +329,22 @@ fun getGitCommitHash(): String {
 
 dependencies {
     implementation(project(":core:design-system"))
+    implementation(project(":CleverFerretV2:feature:ai"))
+    implementation(project(":CleverFerretV2:feature:audio"))
+    implementation(project(":CleverFerretV2:feature:collections"))
+    implementation(project(":CleverFerretV2:feature:library"))
+    implementation(project(":CleverFerretV2:feature:metadata"))
     implementation(project(":CleverFerretV2:feature:opds"))
+    implementation(project(":CleverFerretV2:feature:plex"))
+    implementation(project(":CleverFerretV2:feature:podcast"))
+    implementation(project(":CleverFerretV2:feature:radio"))
+    implementation(project(":CleverFerretV2:feature:reader"))
+    implementation(project(":CleverFerretV2:feature:search"))
+    implementation(project(":CleverFerretV2:feature:settings"))
+    implementation(project(":CleverFerretV2:feature:stats"))
+    implementation(project(":CleverFerretV2:feature:sync"))
+    implementation(project(":CleverFerretV2:feature:webfiction"))
+    implementation(project(":CleverFerretV2:feature:widgets"))
 
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
