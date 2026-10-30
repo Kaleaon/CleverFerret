@@ -198,7 +198,10 @@ import com.universalmedialibrary.data.Tag
         MediaCacheItem::class,
 
         // Custom Font Registry
-        CustomFontEntity::class
+        CustomFontEntity::class,
+
+        // Remote Sync Queue Mutation
+        RemoteSyncMutation::class
 
     ],
     version = 49,
@@ -251,6 +254,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun plexServerDao(): PlexServerDao
     abstract fun plexMediaItemDao(): PlexMediaItemDao
     abstract fun plexSyncDao(): PlexSyncDao
+    abstract fun remoteSyncMutationDao(): RemoteSyncMutationDao
 
     // Reader enhancement DAOs
     abstract fun annotationDao(): AnnotationDao
