@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.billing
 
 import android.app.Activity
+import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,5 +53,5 @@ interface BillingService {
     /**
      * Launch Google Play Store subscription management flow for a specific SKU or all active subscriptions.
      */
-    fun launchManageSubscriptions(context: android.content.Context, sku: String? = null)
+    fun launchManageSubscriptions(context: Context, sku: String? = null)
 }
