@@ -5,10 +5,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * Migration 48 -> 49:
- * Adds `remote_sync_mutations` table for enqueuing outbound sync progress/rating updates.
+ * - Adds index on lastModified column in media_items table to optimize background sync queries.
+ * - Adds `remote_sync_mutations` table for enqueuing outbound sync progress/rating updates.
  */
-val MIGRATION_48_49 = object : Migration(48, 49) {
+val MIGRATION_48_49: Migration = object : Migration(48, 49) {
     override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_media_items_lastModified ON media_items(lastModified)")
         db.execSQL(
             """
             CREATE TABLE IF NOT EXISTS `remote_sync_mutations` (
@@ -27,3 +29,4 @@ val MIGRATION_48_49 = object : Migration(48, 49) {
         )
     }
 }
+
