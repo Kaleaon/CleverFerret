@@ -14,7 +14,7 @@ class CFTokensThemeSchemaTest {
     @Test
     fun testAllThemesRegisteredInRegistry() {
         val themes = CFThemes.All
-        assertEquals(10, themes.size)
+        assertTrue("Registry must load all 28 theme definitions", themes.size >= 28)
 
         val themeIds = themes.map { it.tokens.id }
         assertTrue(themeIds.contains("navy-gold"))
@@ -27,6 +27,16 @@ class CFTokensThemeSchemaTest {
         assertTrue(themeIds.contains("metro"))
         assertTrue(themeIds.contains("e-ink"))
         assertTrue(themeIds.contains("high-contrast"))
+        assertTrue(themeIds.contains("art-deco"))
+        assertTrue(themeIds.contains("art-nouveau"))
+        assertTrue(themeIds.contains("frutiger-aero"))
+        assertTrue(themeIds.contains("solarpunk-civic"))
+    }
+
+    @Test
+    fun testUnknownThemeIdFallbackToNavyGold() {
+        val fallback = CFThemes.byId("unknown-theme")
+        assertEquals("navy-gold", fallback.tokens.id)
     }
 
     @Test
