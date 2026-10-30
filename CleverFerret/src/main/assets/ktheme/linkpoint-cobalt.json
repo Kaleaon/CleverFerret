@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 2,
+  "metadata": {
+    "id": "linkpoint-cobalt",
+    "name": "Linkpoint Cobalt",
+    "description": "Deep cobalt blue metallic theme designed for high-density command consoles and Second Life UI presets",
+    "author": "Linkpoint & Ktheme",
+    "version": "1.0.0",
+    "tags": ["metallic", "linkpoint", "cobalt", "dark", "console"],
+    "createdAt": "2026-02-15T20:42:39.610Z",
+    "updatedAt": "2026-02-15T20:42:39.610Z"
+  },
+  "darkMode": true,
+  "colorScheme": {
+    "error": "#EF4444",
+    "onError": "#FFFFFF",
+    "errorContainer": "#7F1D1D",
+    "onErrorContainer": "#FEE2E2",
+    "primary": "#38BDF8",
+    "onPrimary": "#030712",
+    "primaryContainer": "#0369A1",
+    "onPrimaryContainer": "#E0F2FE",
+    "secondary": "#818CF8",
+    "onSecondary": "#030712",
+    "secondaryContainer": "#3730A3",
+    "onSecondaryContainer": "#E0E7FF",
+    "tertiary": "#F43F5E",
+    "onTertiary": "#FFFFFF",
+    "tertiaryContainer": "#881337",
+    "onTertiaryContainer": "#FFE4E6",
+    "background": "#030712",
+    "onBackground": "#F9FAFB",
+    "surface": "#111827",
+    "onSurface": "#F9FAFB",
+    "surfaceVariant": "#1F2937",
+    "onSurfaceVariant": "#9CA3AF",
+    "outline": "#374151",
+    "outlineVariant": "#1F2937",
+    "scrim": "#000000",
+    "inverseSurface": "#F9FAFB",
+    "inverseOnSurface": "#030712",
+    "inversePrimary": "#0369A1"
+  },
+  "effects": {
+    "metallic": {
+      "enabled": true,
+      "variant": "COBALT",
+      "gradient": {
+        "base": "#0047AB",
+        "highlight": "#0066CC",
+        "shadow": "#002A66",
+        "shimmer": "#66A3D2"
+      },
+      "intensity": 0.8
+    },
+    "shadows": {
+      "enabled": true,
+      "elevation": 4,
+      "blur": 10,
+      "color": "#00000080"
+    },
+    "shimmer": {
+      "enabled": true,
+      "speed": 2,
+      "intensity": 0.65,
+      "angle": 135
+    }
+  },
+  "typography": {
+    "fontFamily": "Inter, system-ui, -apple-system, sans-serif",
+    "fontSize": {
+      "small": 12,
+      "medium": 14,
+      "large": 18,
+      "xlarge": 24
+    },
+    "fontWeight": {
+      "light": 300,
+      "regular": 400,
+      "medium": 500,
+      "bold": 700
+    },
+    "lineHeight": 1.5,
+    "letterSpacing": 0
+  },
+  "adaptation": {}
+}

@@ -34,10 +34,6 @@ import com.universalmedialibrary.ui.components.UserFeedbackSeverity
 import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
 import com.universalmedialibrary.ui.components.showUserFeedback
 import com.universalmedialibrary.ui.theme.*
-
-/**
- * Radio Screen - Internet radio streaming with metallic theme
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RadioScreen(
