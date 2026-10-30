@@ -199,6 +199,9 @@ import com.universalmedialibrary.data.crdt.CrdtTypeConverters
         // Media Stream Cache
         MediaCacheItem::class,
 
+        // Remote Sync Queue Mutation
+        RemoteSyncMutation::class,
+
         // CRDT Operation Journal
         CrdtOperationRecord::class
 
@@ -260,6 +263,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun plexServerDao(): PlexServerDao
     abstract fun plexMediaItemDao(): PlexMediaItemDao
     abstract fun plexSyncDao(): PlexSyncDao
+    abstract fun remoteSyncMutationDao(): RemoteSyncMutationDao
 
     // Reader enhancement DAOs
     abstract fun annotationDao(): AnnotationDao

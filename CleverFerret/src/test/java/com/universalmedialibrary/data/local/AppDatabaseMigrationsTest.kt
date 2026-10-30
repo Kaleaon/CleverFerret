@@ -95,4 +95,29 @@ class AppDatabaseMigrationsTest {
 
         assertThat(executedSql.any { it.contains("ALTER TABLE opds_catalogs DROP COLUMN password") }).isTrue()
     }
+
+    @Test
+    fun `migration 48_49 creates index on media_items lastModified`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_48_49.migrate(database)
+
+        val expectedQuery = "CREATE INDEX IF NOT EXISTS index_media_items_lastModified ON media_items(lastModified)"
+        assertThat(executedSql.any { it.contains(expectedQuery) }).isTrue()
+    }
+
+    @Test
+    fun `migration 48_49 creates crdt operation journal and remote sync mutations tables`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_48_49.migrate(database)
+
+        assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `remote_sync_mutations`") }).isTrue()
+        assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `crdt_operation_journal`") }).isTrue()
+        assertThat(executedSql.any { it.contains("index_crdt_operation_journal_entityId_fieldPath") }).isTrue()
+    }
 }
