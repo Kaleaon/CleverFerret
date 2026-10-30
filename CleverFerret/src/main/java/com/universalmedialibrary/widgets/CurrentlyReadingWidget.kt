@@ -2,7 +2,6 @@ package com.universalmedialibrary.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
@@ -23,7 +22,7 @@ import com.universalmedialibrary.MainActivity
  * Currently Reading Widget
  * Shows the book you're currently reading with progress bar
  */
-class CurrentlyReadingWidget : AppWidgetProvider() {
+class CurrentlyReadingWidget : BaseWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -36,11 +35,8 @@ class CurrentlyReadingWidget : AppWidgetProvider() {
     }
 
     override fun onEnabled(context: Context) {
+        super.onEnabled(context)
         // Enter relevant functionality when first widget is created
-    }
-
-    override fun onDisabled(context: Context) {
-        // Enter relevant functionality when last widget is disabled
     }
 
     companion object {
@@ -55,15 +51,10 @@ class CurrentlyReadingWidget : AppWidgetProvider() {
             val progress = 75 // percentage
 
             // Create an Intent to launch MainActivity when widget is tapped
-            val intent = Intent(context, MainActivity::class.java).apply {
-                action = "OPEN_CURRENT_BOOK"
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val pendingIntent = PendingIntent.getActivity(
+            val pendingIntent = getActivityPendingIntent(
                 context,
-                8000, // Unique request code for currently reading widget
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                "OPEN_CURRENT_BOOK",
+                requestCode = 8000
             )
 
             // Construct the RemoteViews object
@@ -85,7 +76,7 @@ class CurrentlyReadingWidget : AppWidgetProvider() {
  * Quick Access Widget
  * Shows shortcuts to recently read books
  */
-class QuickAccessWidget : AppWidgetProvider() {
+class QuickAccessWidget : BaseWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -133,7 +124,7 @@ class QuickAccessWidget : AppWidgetProvider() {
  * Reading Stats Widget
  * Shows daily or weekly reading statistics
  */
-class ReadingStatsWidget : AppWidgetProvider() {
+class ReadingStatsWidget : BaseWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -165,14 +156,10 @@ class ReadingStatsWidget : AppWidgetProvider() {
             }
 
             // Click to open app
-            val intent = Intent(context, MainActivity::class.java).apply {
-                action = "OPEN_STATS"
-            }
-            val pendingIntent = PendingIntent.getActivity(
+            val pendingIntent = getActivityPendingIntent(
                 context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                "OPEN_STATS",
+                requestCode = 0
             )
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
@@ -185,7 +172,7 @@ class ReadingStatsWidget : AppWidgetProvider() {
  * Reading Goal Widget
  * Shows progress towards reading goals
  */
-class ReadingGoalWidget : AppWidgetProvider() {
+class ReadingGoalWidget : BaseWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -221,14 +208,10 @@ class ReadingGoalWidget : AppWidgetProvider() {
                 setTextViewText(R.id.widget_pace, paceText)
             }
 
-            val intent = Intent(context, MainActivity::class.java).apply {
-                action = "OPEN_GOALS"
-            }
-            val pendingIntent = PendingIntent.getActivity(
+            val pendingIntent = getActivityPendingIntent(
                 context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                "OPEN_GOALS",
+                requestCode = 0
             )
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
