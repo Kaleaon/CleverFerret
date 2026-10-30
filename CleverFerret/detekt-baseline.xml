@@ -3458,12 +3458,6 @@
     <ID>MagicNumber:AnnotationService.kt$AnnotationService$50</ID>
     <ID>MagicNumber:AnnotationService.kt$AnnotationService$60</ID>
     <ID>MagicNumber:AppModule.kt$AppModule$30</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$12</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$128</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$30000L</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$4</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$5</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$60000</ID>
     <ID>MagicNumber:AppShortcuts.kt$AppShortcutsManager$3</ID>
     <ID>MagicNumber:AppShortcuts.kt$AppShortcutsManager$5</ID>
     <ID>MagicNumber:ArchiveComparator.kt$ArchiveComparator$0.3f</ID>
@@ -6628,8 +6622,6 @@
     <ID>ReturnCount:AdvancedMusicPlayerService.kt$AdvancedMusicPlayerService$override fun skipNext()</ID>
     <ID>ReturnCount:AdvancedMusicPlayerService.kt$AdvancedMusicPlayerService$override fun skipPrevious()</ID>
     <ID>ReturnCount:AmazonCoverSource.kt$AmazonCoverSource$private suspend fun searchOnDomain( domain: String, isbn: String?, title: String?, author: String? ): CoverResult?</ID>
-    <ID>ReturnCount:AppSecurityService.kt$AppSecurityService$fun verifyPattern(pattern: List&lt;Int&gt;): Boolean</ID>
-    <ID>ReturnCount:AppSecurityService.kt$AppSecurityService$fun verifyPin(pin: String): Boolean</ID>
     <ID>ReturnCount:BookSourceService.kt$BookSourceService$private fun extractText(element: org.jsoup.nodes.Element, selector: String?): String</ID>
     <ID>ReturnCount:BookSourceService.kt$BookSourceService$suspend fun getBookChapters(sourceId: Long, bookUrl: String): List&lt;BookChapter&gt;</ID>
     <ID>ReturnCount:BookSourceService.kt$BookSourceService$suspend fun getBookInfo(sourceId: Long, bookUrl: String): BookInfo?</ID>
@@ -6703,7 +6695,6 @@
     <ID>SwallowedException:AmbientSoundService.kt$AmbientSoundService$e: Exception</ID>
     <ID>SwallowedException:AmbientSoundViewModel.kt$AmbientSoundViewModel$e: Exception</ID>
     <ID>SwallowedException:AndroidTextToSpeechService.kt$AndroidTextToSpeechService$e: Exception</ID>
-    <ID>SwallowedException:AppSecurityService.kt$AppSecurityService$e: Exception</ID>
     <ID>SwallowedException:AppleBooksCoverSource.kt$AppleBooksCoverSource$e: Exception</ID>
     <ID>SwallowedException:ArchiveComparator.kt$ArchiveComparator$e: Exception</ID>
     <ID>SwallowedException:ArtistDetailScreen.kt$ArtistDetailViewModel$e: Exception</ID>
@@ -6898,7 +6889,6 @@
     <ID>TooGenericExceptionCaught:AmbientSoundViewModel.kt$AmbientSoundViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AndroidTextToSpeechService.kt$AndroidTextToSpeechService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AniListTracker.kt$AniListTracker$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:AppSecurityService.kt$AppSecurityService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppUpgradeManager.kt$AppUpgradeManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppleBooksCoverSource.kt$AppleBooksCoverSource$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ArchiveComparator.kt$ArchiveComparator$e: Exception</ID>
