@@ -287,6 +287,9 @@ internal fun extractPdfInfoField(pdfText: String, key: String): String? {
 }
 
 internal fun deriveMetadataForComicArchive(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
+    // Trigger stale cache cleanup before metadata extraction
+    runCatching { ComicArchiveUtils.cleanupStaleComicTempFiles(context) }
+
     // Prefer shared utility which supports CBZ and CBR.
     val info = runCatching { ComicArchiveUtils.extractComicInfo(context, uri, fallbackName) }.getOrNull()
     if (info != null) {

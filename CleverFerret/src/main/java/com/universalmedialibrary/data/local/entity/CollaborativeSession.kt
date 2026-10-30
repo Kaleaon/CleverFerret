@@ -1,6 +1,7 @@
 package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import kotlinx.serialization.Serializable
@@ -11,7 +12,13 @@ import kotlinx.serialization.json.Json
  * Entity representing a collaborative playlist session
  * Supports Chromecast and Android Auto sharing with QR code joining
  */
-@Entity(tableName = "collaborative_sessions")
+@Entity(
+    tableName = "collaborative_sessions",
+    indices = [
+        Index(value = ["status", "createdAt"]),
+        Index(value = ["hostDeviceId", "createdAt"])
+    ]
+)
 data class CollaborativeSession(
     @PrimaryKey
     val sessionId: String, // Unique session identifier
@@ -59,7 +66,13 @@ enum class SessionStatus {
 /**
  * Entity representing a connected client in a session
  */
-@Entity(tableName = "session_clients")
+@Entity(
+    tableName = "session_clients",
+    indices = [
+        Index(value = ["sessionId", "isConnected"]),
+        Index(value = ["sessionId", "lastActiveAt"])
+    ]
+)
 data class SessionClient(
     @PrimaryKey
     val clientId: String, // Unique client identifier
@@ -90,7 +103,15 @@ data class ClientPermissions(
 /**
  * Entity representing a track in a collaborative session queue
  */
-@Entity(tableName = "session_queue_items")
+@Entity(
+    tableName = "session_queue_items",
+    indices = [
+        Index(value = ["sessionId", "status", "position"]),
+        Index(value = ["sessionId", "position"]),
+        Index(value = ["sessionId", "status", "votes", "addedAt"]),
+        Index(value = ["sessionId", "addedBy"])
+    ]
+)
 data class SessionQueueItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
@@ -121,7 +142,11 @@ enum class QueueItemStatus {
  */
 @Entity(
     tableName = "session_votes",
-    primaryKeys = ["sessionId", "clientId", "queueItemId"]
+    primaryKeys = ["sessionId", "clientId", "queueItemId"],
+    indices = [
+        Index(value = ["sessionId", "queueItemId", "voteType"]),
+        Index(value = ["clientId", "queueItemId"])
+    ]
 )
 data class SessionVote(
     val sessionId: String,

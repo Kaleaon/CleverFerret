@@ -29,9 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.universalmedialibrary.data.local.entity.UnifiedTag
-import java.text.DecimalFormat
-import kotlin.math.log10
-import kotlin.math.pow
+import com.universalmedialibrary.utils.formatFileSize
 
 /**
  * Detail screen showing comprehensive information about a media item
@@ -459,13 +457,6 @@ private fun ErrorView(
             Text("Retry")
         }
     }
-}
-
-private fun formatFileSize(bytes: Long): String {
-    if (bytes <= 0) return "0 B"
-    val units = arrayOf("B", "KB", "MB", "GB", "TB")
-    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt().coerceIn(0, units.lastIndex)
-    return DecimalFormat("#,##0.#").format(bytes / 1024.0.pow(digitGroups.toDouble())) + " " + units[digitGroups]
 }
 
 internal fun formatTime(milliseconds: Long): String {
