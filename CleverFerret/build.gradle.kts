@@ -430,6 +430,7 @@ dependencies {
 
     // Security & authentication
     implementation(libs.androidx.security.crypto)
+    implementation("net.zetetic:sqlcipher-android:4.5.4@aar")
     implementation(libs.androidx.biometric)
 
     // Background work
