@@ -123,6 +123,7 @@ data class CFTokens(
     val typography: FontFamily = FontFamily.Default,
     val status: CFStatusColors = CFStatusColors(),
     val playerControls: CFPlayerControls = CFPlayerControls(),
+    val gridMinItemWidth: CFGridMinItemWidth = CFGridMinItemWidth(),
     val liveRegion: KthemeThemeAdapterV1.LiveRegionPolicy = KthemeThemeAdapterV1.LiveRegionPolicy(),
 )
 
