@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.repository.CacheLocation
 import com.universalmedialibrary.data.repository.SettingsRepository
 import com.universalmedialibrary.data.settings.BottomGearPosition
@@ -52,7 +53,7 @@ fun AutoScanSettingsScreen(
     viewModel: AutoScanSettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val permissions = rememberPermissionsHandler()
 

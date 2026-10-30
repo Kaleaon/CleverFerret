@@ -20,6 +20,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.music.MusicTag
 import com.universalmedialibrary.data.music.MusicTagRepository
 import com.universalmedialibrary.data.music.TagCategory
@@ -41,10 +42,10 @@ fun TagManagementDialog(
     onDismiss: () -> Unit,
     viewModel: TagManagementViewModel = hiltViewModel()
 ) {
-    val appliedTags by viewModel.appliedTags.collectAsState()
-    val availableTags by viewModel.availableTags.collectAsState()
-    val suggestedTags by viewModel.suggestedTags.collectAsState()
-    val isLoadingSuggestions by viewModel.isLoadingSuggestions.collectAsState()
+    val appliedTags by viewModel.appliedTags.collectAsStateWithLifecycle()
+    val availableTags by viewModel.availableTags.collectAsStateWithLifecycle()
+    val suggestedTags by viewModel.suggestedTags.collectAsStateWithLifecycle()
+    val isLoadingSuggestions by viewModel.isLoadingSuggestions.collectAsStateWithLifecycle()
     
     var showCreateDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf(TagCategory.CUSTOM) }

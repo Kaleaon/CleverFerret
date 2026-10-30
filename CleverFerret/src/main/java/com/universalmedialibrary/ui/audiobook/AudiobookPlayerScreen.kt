@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import java.util.Locale
@@ -54,9 +55,9 @@ fun AudiobookPlayerScreen(
     viewModel: AudiobookPlayerViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {}
 ) {
-    val audiobookState by viewModel.audiobookState.collectAsState()
-    val synchronizationState by viewModel.synchronizationState.collectAsState()
-    val highlightedText by viewModel.highlightedText.collectAsState()
+    val audiobookState by viewModel.audiobookState.collectAsStateWithLifecycle()
+    val synchronizationState by viewModel.synchronizationState.collectAsStateWithLifecycle()
+    val highlightedText by viewModel.highlightedText.collectAsStateWithLifecycle()
 
     var showChapterList by remember { mutableStateOf(false) }
     var showBookmarks by remember { mutableStateOf(false) }
@@ -140,7 +141,7 @@ fun AudiobookPlayerScreen(
 
                     // Playback Controls
                     AudiobookPlaybackControls(
-                        isPlaying = viewModel.isPlaying.collectAsState().value,
+                        isPlaying = viewModel.isPlaying.collectAsStateWithLifecycle().value,
                         playbackSpeed = audiobookState.playbackSpeed,
                         skipSilenceEnabled = audiobookState.skipSilenceEnabled,
                         onPlayPause = viewModel::togglePlayback,

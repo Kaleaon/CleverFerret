@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.radio.HDRadioStation
 
 /**
@@ -35,10 +36,10 @@ fun HDRadioScreen(
     onNavigateBack: () -> Unit,
     viewModel: HDRadioViewModel = hiltViewModel()
 ) {
-    val stations by viewModel.stations.collectAsState()
-    val currentStation by viewModel.currentStation.collectAsState()
-    val genres by viewModel.genres.collectAsState()
-    val uiState by viewModel.uiState.collectAsState()
+    val stations by viewModel.stations.collectAsStateWithLifecycle()
+    val currentStation by viewModel.currentStation.collectAsStateWithLifecycle()
+    val genres by viewModel.genres.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("All") }

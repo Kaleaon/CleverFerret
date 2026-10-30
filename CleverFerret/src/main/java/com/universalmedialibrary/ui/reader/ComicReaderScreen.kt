@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.universalmedialibrary.ui.accessibility.headingSemantics
@@ -73,7 +74,7 @@ fun ComicReaderScreen(
     var dragAccumulator by remember { mutableFloatStateOf(0f) }
     val scope = rememberCoroutineScope()
 
-    val uiState by comicReaderViewModel.uiState.collectAsState()
+    val uiState by comicReaderViewModel.uiState.collectAsStateWithLifecycle()
     val isRtl = uiState.readingDirection == ReadingDirection.RIGHT_TO_LEFT
     val isWebtoon = uiState.readingMode == ReadingMode.WEBTOON || uiState.readingDirection == ReadingDirection.VERTICAL
 
@@ -227,7 +228,7 @@ fun ComicReaderScreen(
                 ) {
                     currentBitmap?.let { bmp ->
                         Image(bitmap = bmp.asImageBitmap(), contentDescription = "Media image")
-                        val apiSettings = settingsViewModel.apiSettings.collectAsState().value
+                        val apiSettings = settingsViewModel.apiSettings.collectAsStateWithLifecycle().value
                         val enabled = apiSettings.comicApis.geminiBubbleTranslationEnabled
                         if (enabled && translationsJson != null) {
                             Surface(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)) {
@@ -243,7 +244,7 @@ fun ComicReaderScreen(
                 }
 
                 // Action row for translation
-                val apiSettings = settingsViewModel.apiSettings.collectAsState().value
+                val apiSettings = settingsViewModel.apiSettings.collectAsStateWithLifecycle().value
                 if (apiSettings.comicApis.geminiBubbleTranslationEnabled) {
                     Row(
                         modifier = Modifier

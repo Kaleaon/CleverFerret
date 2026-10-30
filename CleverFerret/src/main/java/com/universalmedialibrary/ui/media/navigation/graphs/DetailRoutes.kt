@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
@@ -52,7 +53,7 @@ fun NavGraphBuilder.detailRoutes(
         val mediaType = backStackEntry.arguments?.getString("mediaType") ?: "book"
         val mediaId = backStackEntry.arguments?.getString("mediaId") ?: ""
         val viewModel: MediaDetailViewModel = hiltViewModel()
-        val vmState by viewModel.uiState.collectAsState()
+        val vmState by viewModel.uiState.collectAsStateWithLifecycle()
         
         // Create screen state from viewmodel state
         val screenState = MediaDetailState(

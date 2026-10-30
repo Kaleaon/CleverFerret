@@ -1,6 +1,6 @@
 package com.universalmedialibrary.ui.media.navigation
 
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -89,7 +89,7 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
 
     composable("theme_showcase") {
         val mainViewModel: MainViewModel = hiltViewModel()
-        val selectedTheme by mainViewModel.selectedTheme.collectAsState(CleverFerretTheme.NAVY_GOLD)
+        val selectedTheme by mainViewModel.selectedTheme.collectAsStateWithLifecycle(CleverFerretTheme.NAVY_GOLD)
 
         com.universalmedialibrary.ui.screens.ThemeShowcaseScreen(
             currentTheme = selectedTheme,
