@@ -68,6 +68,7 @@ fun CFTheme(
     ) {
         MaterialTheme(
             colorScheme = palette.scheme,
+            shapes = palette.tokens.layout.corners.toMaterial3Shapes(),
             typography = cfTypography(palette.tokens.typography),
             content = content,
         )
