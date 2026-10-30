@@ -33,8 +33,11 @@ internal fun PodcastTopBar(
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
     onDiscoverClick: () -> Unit,
-    onImportClick: () -> Unit
+    onImportClick: () -> Unit,
+    onExportClick: () -> Unit = {}
 ) {
+    var showMenu by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -76,12 +79,45 @@ internal fun PodcastTopBar(
                     tint = MediaColors.TextSecondary
                 )
             }
-            IconButton(onClick = onImportClick) {
-                Icon(
-                    imageVector = Icons.Default.FileUpload,
-                    contentDescription = "Import OPML",
-                    tint = MediaColors.TextSecondary
-                )
+            Box {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "OPML Menu",
+                        tint = MediaColors.TextSecondary
+                    )
+                }
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Import OPML") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.FileUpload,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            showMenu = false
+                            onImportClick()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Export OPML") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.FileDownload,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            showMenu = false
+                            onExportClick()
+                        }
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

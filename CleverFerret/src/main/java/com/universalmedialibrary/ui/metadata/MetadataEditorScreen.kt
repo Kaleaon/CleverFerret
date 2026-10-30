@@ -17,6 +17,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ktheme.compose.AccessibleRatingGroup
+import com.ktheme.compose.accessibleButton
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
@@ -349,29 +351,31 @@ private fun RatingInput(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        Row {
-            repeat(5) { index ->
-                val starRating = index + 1
-                IconButton(
-                    onClick = {
-                        // Toggle rating - if same rating clicked, clear it
-                        onRatingChange(if (rating == starRating) null else starRating)
+        AccessibleRatingGroup(
+            rating = rating?.toFloat(),
+            maxStars = 5,
+            onRatingChange = onRatingChange
+        ) { index, isFilled ->
+            val starRating = index + 1
+            IconButton(
+                onClick = {
+                    onRatingChange(if (rating == starRating) null else starRating)
+                },
+                modifier = Modifier.accessibleButton(onClickLabel = "Rate $starRating stars")
+            ) {
+                Icon(
+                    imageVector = if (isFilled) {
+                        PhosphorIcons.Star
+                    } else {
+                        Icons.Outlined.Star
+                    },
+                    contentDescription = "Rate $starRating stars",
+                    tint = if (isFilled) {
+                        Color(0xFFFFD700)
+                    } else {
+                        Color.Gray
                     }
-                ) {
-                    Icon(
-                        imageVector = if (rating != null && starRating <= rating) {
-                            PhosphorIcons.Star
-                        } else {
-                            Icons.Outlined.Star
-                        },
-                        contentDescription = "Rate $starRating stars",
-                        tint = if (rating != null && starRating <= rating) {
-                            Color(0xFFFFD700) // Gold
-                        } else {
-                            Color.Gray
-                        }
-                    )
-                }
+                )
             }
         }
 
