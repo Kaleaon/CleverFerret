@@ -88,6 +88,32 @@ tasks.matching { it.name.startsWith("ksp") }.configureEach {
     dependsOn(patchRoomMigrationJar)
 }
 
+val copyKthemeTokens = tasks.register("copyKthemeTokens") {
+    val kthemeDist = file("${rootProject.projectDir}/../Ktheme/packages/tokens/dist")
+    val assetsTarget = file("$projectDir/src/main/assets/ktheme")
+    doLast {
+        if (kthemeDist.exists()) {
+            assetsTarget.mkdirs()
+            val tokensFile = File(kthemeDist, "tokens.json")
+            if (tokensFile.exists()) {
+                tokensFile.copyTo(File(assetsTarget, "tokens.json"), overwrite = true)
+            }
+            val jsonDir = File(kthemeDist, "json")
+            if (jsonDir.exists()) {
+                jsonDir.listFiles()?.forEach { jsonFile ->
+                    if (jsonFile.extension == "json") {
+                        jsonFile.copyTo(File(assetsTarget, jsonFile.name), overwrite = true)
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.matching { it.name == "preBuild" }.configureEach {
+    dependsOn(copyKthemeTokens)
+}
+
 afterEvaluate {
     configurations.findByName("kspDebugKotlinProcessorClasspath")?.let { config ->
         val patchedJar = layout.buildDirectory.file("patched-room-migration-jvm.jar").get().asFile
@@ -214,7 +240,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 95
+        versionCode = 97
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -261,6 +287,12 @@ android {
         }
     }
     
+    sourceSets {
+        getByName("test") {
+            resources.srcDirs("src/main/assets")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -329,7 +361,22 @@ fun getGitCommitHash(): String {
 
 dependencies {
     implementation(project(":core:design-system"))
+    implementation(project(":CleverFerretV2:feature:ai"))
+    implementation(project(":CleverFerretV2:feature:audio"))
+    implementation(project(":CleverFerretV2:feature:collections"))
+    implementation(project(":CleverFerretV2:feature:library"))
+    implementation(project(":CleverFerretV2:feature:metadata"))
     implementation(project(":CleverFerretV2:feature:opds"))
+    implementation(project(":CleverFerretV2:feature:plex"))
+    implementation(project(":CleverFerretV2:feature:podcast"))
+    implementation(project(":CleverFerretV2:feature:radio"))
+    implementation(project(":CleverFerretV2:feature:reader"))
+    implementation(project(":CleverFerretV2:feature:search"))
+    implementation(project(":CleverFerretV2:feature:settings"))
+    implementation(project(":CleverFerretV2:feature:stats"))
+    implementation(project(":CleverFerretV2:feature:sync"))
+    implementation(project(":CleverFerretV2:feature:webfiction"))
+    implementation(project(":CleverFerretV2:feature:widgets"))
 
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
