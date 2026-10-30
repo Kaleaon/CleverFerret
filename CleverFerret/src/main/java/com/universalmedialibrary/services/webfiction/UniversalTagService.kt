@@ -15,6 +15,11 @@ import javax.inject.Singleton
  * Universal tag service for all fanfiction sites
  * Provides tag browsing and discovery across multiple platforms
  */
+internal const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
+internal const val REQUEST_TIMEOUT = 30000
+internal const val SCRIBBLE_HUB_PAGE_SIZE = 25
+internal val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
+
 @Singleton
 class UniversalTagService @Inject constructor(
     private val metabodsTagService: MetabodsTagService,
@@ -23,14 +28,6 @@ class UniversalTagService @Inject constructor(
     private val contentFilterHelper: ContentFilterHelper,
     private val fileNameSanitizer: FileNameSanitizer
 ) {
-
-    companion object {
-        internal const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
-        internal const val REQUEST_TIMEOUT = 30000
-        internal const val SCRIBBLE_HUB_PAGE_SIZE = 25
-    }
-
-    internal val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
 
     private suspend fun ensureAdultAccess(siteType: WebFictionSiteType): Result<Unit> {
         if (!siteType.isAdultSite()) return Result.success(Unit)
