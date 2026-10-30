@@ -60,12 +60,18 @@ class EnhancedRadioViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val currentStation: StateFlow<RadioStation?> = _uiState.map { it.nowPlaying }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-    val playbackState = exoPlayerService.playbackState
+    val playbackState = exoPlayerService.playerState
     val nowPlayingInfo: StateFlow<com.universalmedialibrary.services.radio.NowPlayingInfo?> = MutableStateFlow<com.universalmedialibrary.services.radio.NowPlayingInfo?>(null).asStateFlow()
     val isIdentifying: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
 
     fun playStation(station: RadioStation) = playInternetStation(station)
-    fun togglePlayback() = exoPlayerService.togglePlayPause()
+    fun togglePlayback() {
+        if (exoPlayerService.playerState.value.isPlaying) {
+            exoPlayerService.pause()
+        } else {
+            exoPlayerService.play()
+        }
+    }
     fun playNextStation() {}
     fun playPreviousStation() {}
     fun stop() = stopInternetRadio()
