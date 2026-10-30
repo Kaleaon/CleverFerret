@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.cache
 
+import android.content.Context
 import android.os.StatFs
 import android.util.Log
 import com.universalmedialibrary.data.local.dao.MediaCacheDao
@@ -7,6 +8,7 @@ import com.universalmedialibrary.data.local.entity.DownloadPriority
 import com.universalmedialibrary.data.local.entity.DownloadState
 import com.universalmedialibrary.data.local.entity.MediaCacheItem
 import com.universalmedialibrary.data.repository.SettingsRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.io.File
@@ -22,8 +24,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class MediaCacheManager @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val mediaCacheDao: MediaCacheDao,
-    private val cacheManager: CacheManager,
     private val settingsRepository: SettingsRepository
 ) {
     companion object {
@@ -33,10 +35,10 @@ class MediaCacheManager @Inject constructor(
 
     /**
      * Get the dedicated media cache directory for storing streamed media files.
+     * Enforces app-private internal cache storage constraints to prevent external exposure.
      */
     suspend fun getMediaCacheDirectory(): File {
-        val baseCacheDir = cacheManager.getCacheDirectory()
-        val mediaDir = File(baseCacheDir, "media")
+        val mediaDir = File(context.cacheDir, "media")
         if (!mediaDir.exists()) {
             mediaDir.mkdirs()
         }

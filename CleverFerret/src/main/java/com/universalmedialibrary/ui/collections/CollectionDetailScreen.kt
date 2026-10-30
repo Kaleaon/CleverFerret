@@ -28,8 +28,7 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.CollectionType
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.UnifiedCollection
-import kotlin.math.log10
-import kotlin.math.pow
+import com.universalmedialibrary.utils.formatFileSize
 
 /**
  * Collection detail screen showing items in a collection
@@ -364,14 +363,4 @@ private fun AddItemsToCollectionDialog(
     )
 }
 
-private fun formatFileSize(bytes: Long): String {
-    if (bytes <= 0) return "0 B"
-    val units = arrayOf("B", "KB", "MB", "GB", "TB")
-    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt().coerceIn(0, units.lastIndex)
-    return String.format(
-        java.util.Locale.US,
-        "%.1f %s",
-        bytes / 1024.0.pow(digitGroups.toDouble()),
-        units[digitGroups]
-    )
-}
+
