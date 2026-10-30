@@ -32,10 +32,10 @@ class MediaCacheManagerTest {
     val tempFolder = TemporaryFolder()
 
     @MockK
-    lateinit var mediaCacheDao: MediaCacheDao
+    lateinit var context: Context
 
     @MockK
-    lateinit var context: Context
+    lateinit var mediaCacheDao: MediaCacheDao
 
     @MockK
     lateinit var settingsRepository: SettingsRepository

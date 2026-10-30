@@ -29,7 +29,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.sha256
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -759,9 +759,7 @@ class CloudSyncEngine @Inject constructor(
             is Bookmark -> json.encodeToString(data)
             else -> data.toString()
         }
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(dataString.toByteArray(Charsets.UTF_8))
-        return hashBytes.joinToString("") { "%02x".format(it) }
+        return dataString.sha256()
     }
 
     companion object {

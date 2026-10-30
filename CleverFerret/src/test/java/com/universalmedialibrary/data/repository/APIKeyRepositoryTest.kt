@@ -6,6 +6,7 @@ import com.universalmedialibrary.data.local.dao.ProviderKeyPair
 import com.universalmedialibrary.data.local.entity.APIKey
 import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import com.universalmedialibrary.data.settings.ImageGeneratorType
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,18 @@ import org.junit.Test
 class APIKeyRepositoryTest {
 
     private val dao = FakeApiKeyDao()
-    private val credentialVault: EncryptedCredentialVault = mockk(relaxed = true)
+    private val vaultKeys = mutableMapOf<String, String>()
+    private val credentialVault: EncryptedCredentialVault = mockk(relaxed = true) {
+        every { saveApiKey(any(), any()) } answers {
+            vaultKeys[firstArg<String>().lowercase()] = secondArg()
+        }
+        every { getApiKey(any()) } answers {
+            vaultKeys[firstArg<String>().lowercase()]
+        }
+        every { deleteApiKey(any()) } answers {
+            vaultKeys.remove(firstArg<String>().lowercase())
+        }
+    }
     private val repository = APIKeyRepository(dao, credentialVault)
 
     @Test

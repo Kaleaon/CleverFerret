@@ -17,13 +17,15 @@ import kotlinx.coroutines.launch
 import java.net.URI
 import java.net.URISyntaxException
 import java.io.File
+import com.universalmedialibrary.services.podcast.PodcastService
 import javax.inject.Inject
 
 @HiltViewModel
 class PodcastViewModel @Inject constructor(
     private val repository: PodcastRepository,
     private val downloadManager: com.universalmedialibrary.services.podcast.PodcastDownloadManager,
-    private val downloadSafetyChecker: DownloadSafetyChecker
+    private val downloadSafetyChecker: DownloadSafetyChecker,
+    private val podcastService: PodcastService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PodcastUiState())
@@ -412,6 +414,33 @@ class PodcastViewModel @Inject constructor(
                 playbackFailureReason = failureReason,
                 recoveryActionLabel = recoveryActionLabel
             )
+        }
+    }
+
+    fun importOpml(opmlContent: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                podcastService.importOPML(opmlContent)
+                _userMessages.tryEmit("OPML imported successfully")
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "Failed to import OPML: ${e.message}"
+                )
+                _userMessages.tryEmit("Failed to import OPML: ${e.message}")
+            } finally {
+                _uiState.value = _uiState.value.copy(isLoading = false)
+            }
+        }
+    }
+
+    suspend fun exportOpml(): String {
+        return try {
+            val podcasts = repository.getSubscribedPodcasts().firstOrNull().orEmpty()
+            podcastService.exportToOPML(podcasts)
+        } catch (e: Exception) {
+            _userMessages.tryEmit("Failed to export OPML: ${e.message}")
+            ""
         }
     }
 }

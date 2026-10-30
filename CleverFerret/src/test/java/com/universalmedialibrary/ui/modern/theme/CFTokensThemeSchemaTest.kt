@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.modern.theme
 
 import androidx.compose.ui.graphics.Color
+import com.cleverferret.core.designsystem.theme.CFLayout
 import com.universalmedialibrary.services.manga.source.MangaState
 import com.universalmedialibrary.services.webfiction.DownloadStatus
 import com.universalmedialibrary.services.webfiction.StoryStatus
@@ -128,5 +129,31 @@ class CFTokensThemeSchemaTest {
         assertEquals(Color(0xFF00FFFF), hc.status.ongoing)
         assertEquals(Color.Yellow, hc.playerControls.playButtonContainer)
         assertEquals(Color.Black, hc.playerControls.playButtonIcon)
+    }
+
+    @Test
+    fun testCFLayoutIntegrationAndLegacyMappings() {
+        val lcarsTheme = CFThemes.byId("lcars").tokens
+        assertEquals(CFLayout.SWEEP, lcarsTheme.layout)
+        assertEquals("Sweep Console", lcarsTheme.layout.displayName)
+        assertNotNull(lcarsTheme.layout.lcarsFrame)
+
+        val metroTheme = CFThemes.byId("metro").tokens
+        assertEquals(CFLayout.TILES, metroTheme.layout)
+        assertEquals("Metro Tiles", metroTheme.layout.displayName)
+
+        val navyGoldTheme = CFThemes.byId("navy-gold").tokens
+        assertEquals(CFLayout.COMPOSE, navyGoldTheme.layout)
+        assertEquals(18, navyGoldTheme.layout.corners.largeDp)
+        assertEquals(14, navyGoldTheme.layout.corners.panelDp)
+
+        // Legacy ID migration map test
+        assertEquals(CFLayout.COMPOSE, CFLayout.fromId("compose"))
+        assertEquals(CFLayout.SWEEP, CFLayout.fromId("lcars"))
+        assertEquals(CFLayout.TILES, CFLayout.fromId("metro"))
+        assertEquals(CFLayout.TERMINAL, CFLayout.fromId("terminal"))
+        assertEquals(CFLayout.GLASS, CFLayout.fromId("glass"))
+        assertEquals(CFLayout.RULES, CFLayout.fromId("rules"))
+        assertEquals(CFLayout.PRESS, CFLayout.fromId("press"))
     }
 }
