@@ -10,6 +10,7 @@ import android.util.LruCache
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.PlexMediaItem
 import com.universalmedialibrary.services.cache.CacheManager
+import com.universalmedialibrary.utils.sha256
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -601,9 +602,7 @@ class ArtworkLoader @Inject constructor(
      */
     private fun generateStableHash(input: String): String {
         return try {
-            val digest = java.security.MessageDigest.getInstance("SHA-256")
-            val hashBytes = digest.digest(input.toByteArray())
-            hashBytes.joinToString("") { "%02x".format(it) }.substring(0, 16)
+            input.sha256().substring(0, 16)
         } catch (e: Exception) {
             // Fallback to simple hash if SHA-256 unavailable
             input.hashCode().toString()

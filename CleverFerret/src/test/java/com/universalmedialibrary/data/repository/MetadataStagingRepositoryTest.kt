@@ -328,7 +328,9 @@ class MetadataStagingRepositoryTest {
         }
 
         override suspend fun updateAvailability(filePath: String, isAvailable: Boolean) {}
-        override suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean) {}
+        override suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean) {
+            map[itemId]?.let { map[itemId] = it.copy(isAvailable = isAvailable) }
+        }
         override suspend fun getMediaItemsModifiedSince(sinceTimestamp: Long): List<MediaItem> =
             map.values.filter { it.lastModified > sinceTimestamp }
 
