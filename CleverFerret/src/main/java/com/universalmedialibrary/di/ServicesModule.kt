@@ -3,6 +3,7 @@ package com.universalmedialibrary.di
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import com.universalmedialibrary.data.repository.StoryRepository
 import com.universalmedialibrary.services.StorageAccessService
 import com.universalmedialibrary.services.audio.MultiRoomAudioService
@@ -63,7 +64,10 @@ object ServicesModule {
      */
     @Provides
     @Singleton
-    fun provideAPIKeyRepository(apiKeyDao: APIKeyDao): APIKeyRepository = APIKeyRepository(apiKeyDao)
+    fun provideAPIKeyRepository(
+        apiKeyDao: APIKeyDao,
+        credentialVault: EncryptedCredentialVault
+    ): APIKeyRepository = APIKeyRepository(apiKeyDao, credentialVault)
 
     /**
      * Creates a singleton StoryUpdateManager using the provided StoryRepository.
