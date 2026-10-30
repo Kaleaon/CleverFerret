@@ -138,11 +138,16 @@ class ComprehensiveMetadataService @Inject constructor(
         author: String? = null,
         isbn: String? = null
     ): CompleteBookMetadata = withContext(Dispatchers.IO) {
-        val basicMetadata = realMetadataService.searchBookMetadata(
-            title = title,
-            author = author,
-            isbn = isbn
-        )
+        val basicMetadata = try {
+            realMetadataService.searchBookMetadata(
+                title = title,
+                author = author,
+                isbn = isbn
+            )
+        } catch (e: Exception) {
+            // Continue with other sources
+            com.universalmedialibrary.services.metadata.BookMetadataResult(null, emptyList())
+        }
 
         CompleteBookMetadata(
             title = basicMetadata.metadata?.title ?: title,
@@ -170,11 +175,16 @@ class ComprehensiveMetadataService @Inject constructor(
         album: String? = null,
         track: String? = null
     ): CompleteMusicMetadata = withContext(Dispatchers.IO) {
-        val basicMetadata = realMetadataService.searchMusicMetadata(
-            artist = artist,
-            album = album,
-            track = track
-        )
+        val basicMetadata = try {
+            realMetadataService.searchMusicMetadata(
+                artist = artist,
+                album = album,
+                track = track
+            )
+        } catch (e: Exception) {
+            // Continue with other sources
+            com.universalmedialibrary.services.metadata.MusicMetadataResult(null, emptyList())
+        }
 
         CompleteMusicMetadata(
             title = basicMetadata.metadata?.title ?: track ?: "",
@@ -191,15 +201,16 @@ class ComprehensiveMetadataService @Inject constructor(
      * Check API key availability for various services
      */
     suspend fun checkAPIKeyAvailability(): APIKeyAvailability = withContext(Dispatchers.IO) {
+        val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
         APIKeyAvailability(
-            hasTMDB = !apiKeyRepository.getAPIKeyValue("tmdb").isNullOrEmpty(),
-            hasOMDb = !apiKeyRepository.getAPIKeyValue("omdb").isNullOrEmpty(),
-            hasYouTube = !apiKeyRepository.getAPIKeyValue("youtube").isNullOrEmpty(),
-            hasNYT = !apiKeyRepository.getAPIKeyValue("nyt").isNullOrEmpty(),
+            hasTMDB = !apiKeys["tmdb"].isNullOrEmpty(),
+            hasOMDb = !apiKeys["omdb"].isNullOrEmpty(),
+            hasYouTube = !apiKeys["youtube"].isNullOrEmpty(),
+            hasNYT = !apiKeys["nyt"].isNullOrEmpty(),
             hasGoogleBooks = true, // No key required
             hasOpenLibrary = true, // No key required
             hasMusicBrainz = true, // No key required
-            hasGemini = !apiKeyRepository.getAPIKeyValue("gemini").isNullOrEmpty()
+            hasGemini = !apiKeys["gemini"].isNullOrEmpty()
         )
     }
 }

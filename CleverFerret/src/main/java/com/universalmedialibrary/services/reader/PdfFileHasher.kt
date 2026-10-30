@@ -2,7 +2,8 @@ package com.universalmedialibrary.services.reader
 
 import java.io.File
 import java.io.RandomAccessFile
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.HashUtils
+import com.universalmedialibrary.utils.toHexString
 
 /**
  * Fast, deterministic PDF file hasher.
@@ -24,7 +25,7 @@ object PdfFileHasher {
             val length = file.length()
             val lastModified = file.lastModified()
 
-            val digest = MessageDigest.getInstance("SHA-256")
+            val digest = HashUtils.getDigest(HashUtils.ALG_SHA256)
 
             // Include metadata (size + modification time) in digest
             val metadataStr = "$length:$lastModified"
@@ -63,7 +64,7 @@ object PdfFileHasher {
                 }
             }
 
-            digest.digest().joinToString("") { "%02x".format(it) }
+            digest.digest().toHexString()
         } catch (e: Exception) {
             // Fallback hash if file read fails
             "${file.name}_${file.length()}_${file.lastModified()}"
