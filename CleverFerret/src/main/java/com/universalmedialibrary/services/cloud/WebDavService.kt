@@ -262,7 +262,7 @@ data class WebDavFile(
     val name: String,
     val path: String,
     val size: Long,
-    val isDirectory: Boolean,
+    val isDirectory: Boolean = false,
     val modifiedTime: Long,
     val contentType: String? = null
 )
