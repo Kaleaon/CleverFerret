@@ -47,7 +47,10 @@ def collect_violations(root: Path) -> list[Violation]:
     if not root.exists():
         return violations
 
-    for file in root.rglob("*.kt"):
+    files = [root] if root.is_file() else root.rglob("*.kt")
+    for file in files:
+        if file.suffix != ".kt":
+            continue
         if "build" in file.parts:
             continue
         text = file.read_text(encoding="utf-8")
