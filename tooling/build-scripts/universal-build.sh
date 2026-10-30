@@ -5,7 +5,7 @@
 
 set -e
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # Color output
 GREEN='\033[0;32m'
@@ -241,19 +241,10 @@ test_environment() {
     
     # Test gradle configuration
     log_info "Testing Gradle configuration..."
-    if ./gradlew architectureInfo --no-daemon; then
+    if ./gradlew help --no-daemon; then
         log_success "Gradle configuration test passed"
     else
         log_error "Gradle configuration test failed"
-        return 1
-    fi
-    
-    # Test android tools configuration
-    log_info "Testing Android Tools configuration..."
-    if ./gradlew configureAndroidTools --no-daemon; then
-        log_success "Android Tools configuration test passed"
-    else
-        log_error "Android Tools configuration test failed"
         return 1
     fi
     

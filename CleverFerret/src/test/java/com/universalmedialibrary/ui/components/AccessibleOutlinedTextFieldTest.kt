@@ -126,7 +126,7 @@ class AccessibleOutlinedTextFieldTest {
 
         composeTestRule.onNodeWithText("Error: Invalid URL scheme")
             .assertExists()
-            .assert(hasKey(SemanticsProperties.LiveRegion))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
     }
 
     @Test
@@ -143,7 +143,7 @@ class AccessibleOutlinedTextFieldTest {
 
         composeTestRule.onNodeWithText("Error: Invalid RSS feed URL scheme (must start with http or https)")
             .assertExists()
-            .assert(hasKey(SemanticsProperties.LiveRegion))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
     }
 
     @Test
@@ -161,7 +161,7 @@ class AccessibleOutlinedTextFieldTest {
 
         composeTestRule.onNodeWithText("Invalid TMDB API key format")
             .assertExists()
-            .assert(hasKey(SemanticsProperties.LiveRegion))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
     }
 
     @Test
@@ -178,6 +178,6 @@ class AccessibleOutlinedTextFieldTest {
 
         composeTestRule.onNodeWithText("API key verification failed (HTTP 401)")
             .assertExists()
-            .assert(hasKey(SemanticsProperties.LiveRegion))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
     }
 }
