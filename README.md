@@ -38,14 +38,14 @@ CleverFerret is a comprehensive media library application for Android, designed 
 
 ## 📂 Project Structure (Verified October 30, 2026)
 
-`settings.gradle.kts` currently includes `:CleverFerret`, `:core:design-system`, `:benchmark-macro`, and the `CleverFerretV2` modules listed below.
+`settings.gradle.kts` currently includes `:CleverFerret`, `:core:design-system`, and `:benchmark-macro`. CleverFerretV2 was closed out on October 30, 2026 (see below).
 
 ### Module status (source of truth)
 
 | Path | Status | Notes |
 |------|--------|-------|
 | `CleverFerret/` | ✅ Canonical runtime app module | The only module included in `settings.gradle.kts` and the primary Android app path. |
-| `CleverFerretV2/` | 🧪 Incubation | Present in repo and **included** in `settings.gradle.kts` (~22 modules: app, core:*, feature:*). |
+| `CleverFerretV2/` | Closed out Oct 30, 2026 | Removed from the repo and from `settings.gradle.kts`; recoverable from git history before the close-out commit. |
 | `archive/` | 🗃️ Archived | Historical artifacts and intentionally non-runtime content. |
 
 ### Top-level folder map and ownership
@@ -55,7 +55,7 @@ CleverFerret is a comprehensive media library application for Android, designed 
 | Top-level folder | Classification | Ownership | Purpose |
 |------------------|----------------|-----------|---------|
 | `CleverFerret/` | Canonical app path | `@Kaleaon` | Main Android application source code and resources. |
-| `CleverFerretV2/` | Active but non-canonical (incubation) | `@Kaleaon` | V2 architecture experiments and migration target work. |
+| _(removed)_ `CleverFerretV2/` | Closed out Oct 30, 2026 | `@Kaleaon` | Was: V2 architecture experiments. |
 | `docs/` | Active support | `@Kaleaon` | Product, engineering, governance, and recovery docs. |
 | `tooling/` | Active support | `@Kaleaon` | Build and local developer automation scripts. |
 | `infra/` | Active support | `@Kaleaon` | CI/CD and deployment definitions. |

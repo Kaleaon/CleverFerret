@@ -45,30 +45,6 @@ include(":core:design-system")
 // docs/planning/PREMIERE_ROADMAP.md and benchmark-macro/build.gradle.kts.
 include(":benchmark-macro")
 
-// CleverFerretV2 submodules
-include(":CleverFerretV2:app")
-include(":CleverFerretV2:core:common")
-include(":CleverFerretV2:core:auth")
-include(":CleverFerretV2:core:database")
-include(":CleverFerretV2:core:network")
-include(":CleverFerretV2:core:data")
-include(":CleverFerretV2:core:media")
-include(":CleverFerretV2:core:ui")
-include(":CleverFerretV2:feature:settings")
-include(":CleverFerretV2:feature:sync")
-include(":CleverFerretV2:feature:metadata")
-include(":CleverFerretV2:feature:widgets")
-include(":CleverFerretV2:feature:search")
-include(":CleverFerretV2:feature:stats")
-include(":CleverFerretV2:feature:reader")
-include(":CleverFerretV2:feature:podcast")
-include(":CleverFerretV2:feature:audio")
-include(":CleverFerretV2:feature:ai")
-include(":CleverFerretV2:feature:library")
-include(":CleverFerretV2:feature:webfiction")
-include(":CleverFerretV2:feature:opds")
-include(":CleverFerretV2:feature:collections")
-include(":CleverFerretV2:feature:radio")
-include(":CleverFerretV2:feature:plex")
-
-
+// CleverFerretV2 was closed out on 2026-10-30 (owner decision): its modules are
+// no longer included. The V2 tree was removed from the repo in the same change;
+// it remains in git history before this commit.
