@@ -7,23 +7,6 @@ import org.jsoup.Jsoup
 import java.net.URLEncoder
 import java.util.Locale
 
-internal fun buildSearchResult(
-    criteria: StorySearchCriteria,
-    stories: List<WebFictionStory>
-): StorySearchResult {
-    val sliced = stories.drop(criteria.offset)
-    val limited = sliced.take(criteria.limit)
-    val consumed = criteria.offset + limited.size
-    val hasMore = stories.size > consumed
-    val nextOffset = if (hasMore) consumed else null
-    return StorySearchResult(
-        stories = limited,
-        totalCount = stories.size,
-        hasMore = hasMore,
-        nextOffset = nextOffset
-    )
-}
-
 private val fileNameSanitizer = FileNameSanitizer()
 
 internal suspend fun fetchAO3Tags(): Result<List<WebFictionTag>> {
