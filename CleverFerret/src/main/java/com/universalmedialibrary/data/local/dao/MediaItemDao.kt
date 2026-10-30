@@ -159,6 +159,12 @@ interface MediaItemDao {
      */
     @Query("SELECT * FROM media_items ORDER BY dateAdded DESC")
     suspend fun getAllMediaItems(): List<MediaItem>
+
+    /**
+     * Get media items modified since timestamp for incremental cloud sync
+     */
+    @Query("SELECT * FROM media_items WHERE lastModified > :sinceTimestamp")
+    suspend fun getMediaItemsModifiedSince(sinceTimestamp: Long): List<MediaItem>
     
     /**
      * Get books by series name

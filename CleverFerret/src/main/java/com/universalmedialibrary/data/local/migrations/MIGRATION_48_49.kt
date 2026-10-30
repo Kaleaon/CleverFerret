@@ -7,10 +7,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * Migration 48 -> 49:
  * 1. Introduces central `external_media_entities` mapping table and updates `media_fts` triggers
  *    to index unified entities directly without artificial row ID offsets.
- * 2. Adds `remote_sync_mutations` table for enqueuing outbound sync progress/rating updates.
+ * 2. Adds index on lastModified column in media_items table to optimize background sync queries.
+ * 3. Adds `remote_sync_mutations` table for enqueuing outbound sync progress/rating updates.
  */
 val MIGRATION_48_49: Migration = object : Migration(48, 49) {
     override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE INDEX IF NOT EXISTS index_media_items_lastModified ON media_items(lastModified)")
+
         // 1. Create central external_media_entities table
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS `external_media_entities` (
@@ -125,3 +128,4 @@ val MIGRATION_48_49: Migration = object : Migration(48, 49) {
         """.trimIndent())
     }
 }
+

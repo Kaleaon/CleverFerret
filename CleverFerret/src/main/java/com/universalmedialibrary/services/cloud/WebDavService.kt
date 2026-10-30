@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.cloud
 
 import android.content.Context
 import android.net.Uri
+import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +27,8 @@ import com.universalmedialibrary.core.logging.AppLogger
 @Singleton
 class WebDavService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val webDavClient: WebDavClient
+    private val webDavClient: WebDavClient,
+    private val credentialVault: EncryptedCredentialVault
 ) {
     
     private val _isAuthenticated = MutableStateFlow(false)
@@ -224,12 +226,20 @@ class WebDavService @Inject constructor(
     }
 
     private fun getStoredCredentials(): WebDavCredentials? {
+        val vaultCreds = credentialVault.getWebDavCredentials()
+        if (vaultCreds != null) {
+            return WebDavCredentials(vaultCreds.serverUrl, vaultCreds.username, vaultCreds.password)
+        }
+
         val prefs = context.getSharedPreferences("webdav_prefs", Context.MODE_PRIVATE)
         val url = prefs.getString("server_url", null)
         val user = prefs.getString("username", null)
         val pass = prefs.getString("password", null)
         
         return if (url != null && user != null && pass != null) {
+            credentialVault.saveWebDavCredentials(url, user, pass)
+            prefs.edit().clear().apply()
+            context.deleteSharedPreferences("webdav_prefs")
             WebDavCredentials(url, user, pass)
         } else {
             null
@@ -237,21 +247,11 @@ class WebDavService @Inject constructor(
     }
 
     private fun storeCredentials(url: String, username: String, password: String) {
-        val prefs = context.getSharedPreferences("webdav_prefs", Context.MODE_PRIVATE)
-        prefs.edit()
-            .putString("server_url", url)
-            .putString("username", username)
-            .putString("password", password)
-            .apply()
+        credentialVault.saveWebDavCredentials(url, username, password)
     }
 
     private fun clearCredentials() {
-        val prefs = context.getSharedPreferences("webdav_prefs", Context.MODE_PRIVATE)
-        prefs.edit()
-            .remove("server_url")
-            .remove("username")
-            .remove("password")
-            .apply()
+        credentialVault.clearWebDavCredentials()
     }
 }
 
