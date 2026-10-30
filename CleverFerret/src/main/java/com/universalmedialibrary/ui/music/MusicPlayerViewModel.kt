@@ -208,7 +208,10 @@ class MusicPlayerViewModel @Inject constructor(
      */
     fun setVolume(volume: Float) {
         _volume.value = volume
-        exoPlayerService.setVolume(volume)
+        sleepTimerManager.setBaseVolume(volume)
+        if (!sleepTimerManager.shouldFadeOut()) {
+            exoPlayerService.setVolume(volume)
+        }
     }
     
     /**
@@ -340,6 +343,8 @@ class MusicPlayerViewModel @Inject constructor(
         sleepTimerManager.startTimer(
             durationMinutes = minutes,
             fadeOut = true,
+            initialBaseVolume = _volume.value,
+            onVolumeChange = { vol -> exoPlayerService.setVolume(vol) },
             onComplete = {
                 musicPlayerService.pause()
             }

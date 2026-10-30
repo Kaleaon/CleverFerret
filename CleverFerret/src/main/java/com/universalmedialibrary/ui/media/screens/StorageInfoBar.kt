@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.utils.formatFileSize
 
 @Composable
 internal fun StorageInfoBar(
@@ -40,12 +41,12 @@ internal fun StorageInfoBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                "${formatSize(usedSpace)} used",
+                "${formatFileSize(usedSpace)} used",
                 style = MediaTypography.LabelSmall,
                 color = MediaColors.TextSecondary
             )
             Text(
-                "${formatSize(freeSpace)} free",
+                "${formatFileSize(freeSpace)} free",
                 style = MediaTypography.LabelSmall,
                 color = MediaColors.TextTertiary
             )

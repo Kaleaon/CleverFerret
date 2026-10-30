@@ -44,8 +44,25 @@ import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material3.*
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+
+/*
+data class NavigationItem
+object NavigationItems
+
+Media type routes:
+label = "Home" home
+label = "Books" library_details/1
+label = "Comics" library_details/3
+label = "Audiobooks" library_details/2
+label = "Music" music
+label = "Movies" library_details/4
+label = "TV Shows" library_details/5
+label = "Radio" radio
+*/
+
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -254,6 +271,9 @@ fun ResponsiveNavigationScaffold(
     val currentDestination = navBackStackEntry?.destination
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val configuration = LocalConfiguration.current
+    val isCompact = configuration.screenWidthDp < 600
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -668,7 +688,7 @@ private fun NavDestination?.isDestinationSelected(item: NavigationItem): Boolean
         val route = destination.route
         candidates.any { candidate ->
             when {
-                candidate.contains("{") -> route == candidate
+                candidate.contains("\u007B") -> route == candidate
                 route == candidate -> true
                 else -> route?.startsWith(candidate) == true
             }
