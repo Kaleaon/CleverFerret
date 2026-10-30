@@ -7,7 +7,6 @@ import com.universalmedialibrary.data.local.dao.SecuritySettingsDao
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.data.repository.ReaderSettingsRepository
 import com.universalmedialibrary.data.repository.SettingsRepository
-import com.universalmedialibrary.services.billing.BillingService
 import com.universalmedialibrary.data.settings.ApiSettings
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
@@ -53,9 +52,6 @@ class SettingsViewModelTest {
     @MockK
     lateinit var generalSettingsDao: GeneralSettingsDao
 
-    @MockK
-    lateinit var billingService: BillingService
-
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
@@ -87,8 +83,7 @@ class SettingsViewModelTest {
             apiKeyRepository,
             readerSettingsRepository,
             securitySettingsDao,
-            generalSettingsDao,
-            billingService
+            generalSettingsDao
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -106,8 +101,7 @@ class SettingsViewModelTest {
             apiKeyRepository,
             readerSettingsRepository,
             securitySettingsDao,
-            generalSettingsDao,
-            billingService
+            generalSettingsDao
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -115,23 +109,5 @@ class SettingsViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         coVerify { settingsRepository.setWifiOnlyDownloads(false) }
-    }
-
-    @Test
-    fun `manageSubscriptions delegates to billingService`() = runTest {
-        val viewModel = SettingsViewModel(
-            context,
-            settingsRepository,
-            apiKeyRepository,
-            readerSettingsRepository,
-            securitySettingsDao,
-            generalSettingsDao,
-            billingService
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        viewModel.manageSubscriptions(context, "theme_pro_monthly")
-
-        io.mockk.verify { billingService.launchManageSubscriptions(context, "theme_pro_monthly") }
     }
 }

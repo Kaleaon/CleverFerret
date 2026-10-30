@@ -1,6 +1,5 @@
 package com.universalmedialibrary.ui.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -192,50 +191,6 @@ internal fun PodcastSettingsSection(
                 Switch(
                     checked = uiState.wifiOnlyDownloads,
                     onCheckedChange = onWifiOnlyChanged
-                )
-            }
-        }
-    }
-}
-
-@Suppress("FunctionNaming")
-@Composable
-internal fun AccountSettingsSection(
-    onManageSubscriptions: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    MetallicText(
-        text = "Account",
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-    )
-
-    MetallicCard(modifier = modifier) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onManageSubscriptions() }
-                    .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Subscriptions & Billing",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = "Manage Google Play Store subscriptions and active perks",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                MetallicButton(
-                    text = "Manage",
-                    onClick = onManageSubscriptions
                 )
             }
         }

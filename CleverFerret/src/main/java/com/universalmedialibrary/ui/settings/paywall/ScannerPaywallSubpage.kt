@@ -110,8 +110,7 @@ fun ScannerPaywallSubpage(
             if (uiState.isUnlocked) {
                 AlreadyUnlockedCard(
                     title = "Scanner Pro Active",
-                    description = "Unlimited batch cataloging and metadata enrichment are active.",
-                    onManageSubscriptions = { viewModel.manageSubscription(context) }
+                    description = "Unlimited batch cataloging and metadata enrichment are active."
                 )
             } else if (uiState.billingState is BillingState.Offline || uiState.billingState is BillingState.Error) {
                 OfflineErrorStateCard(

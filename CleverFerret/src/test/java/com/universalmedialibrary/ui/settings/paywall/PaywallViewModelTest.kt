@@ -87,15 +87,4 @@ class PaywallViewModelTest {
 
         assertEquals(BillingState.Connected, viewModel.uiState.value.billingState)
     }
-
-    @Test
-    fun paywallViewModel_manageSubscription_callsBillingService() = runTest {
-        val billingService = io.mockk.mockk<com.universalmedialibrary.services.billing.BillingService>(relaxed = true)
-        val viewModel = ThemePaywallViewModel(billingService, themeHandler)
-        val mockContext = io.mockk.mockk<android.content.Context>(relaxed = true)
-
-        viewModel.manageSubscription(mockContext, "theme_pro_monthly")
-
-        io.mockk.verify { billingService.launchManageSubscriptions(mockContext, "theme_pro_monthly") }
-    }
 }

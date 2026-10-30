@@ -1,7 +1,6 @@
 package com.universalmedialibrary.ui.settings.paywall
 
 import android.app.Activity
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.billing.BillingService
@@ -97,10 +96,6 @@ class ThemePaywallViewModel @Inject constructor(
     fun dismissPurchaseResult() {
         _uiState.value = _uiState.value.copy(purchaseResult = null)
     }
-
-    fun manageSubscription(context: Context, sku: String? = null) {
-        billingService.launchManageSubscriptions(context, sku ?: _uiState.value.selectedProductId)
-    }
 }
 
 @HiltViewModel
@@ -165,10 +160,6 @@ class ScannerPaywallViewModel @Inject constructor(
     fun dismissPurchaseResult() {
         _uiState.value = _uiState.value.copy(purchaseResult = null)
     }
-
-    fun manageSubscription(context: Context, sku: String? = null) {
-        billingService.launchManageSubscriptions(context, sku ?: _uiState.value.selectedProductId)
-    }
 }
 
 @HiltViewModel
@@ -232,9 +223,5 @@ class CloudPaywallViewModel @Inject constructor(
 
     fun dismissPurchaseResult() {
         _uiState.value = _uiState.value.copy(purchaseResult = null)
-    }
-
-    fun manageSubscription(context: Context, sku: String? = null) {
-        billingService.launchManageSubscriptions(context, sku ?: _uiState.value.selectedProductId)
     }
 }
