@@ -1044,14 +1044,6 @@
     <ID>FunctionNaming:MediaTypeFilterRow.kt$@Composable internal fun MediaTypeFilterRow( selectedMediaType: MediaType?, onMediaTypeChange: (MediaType?) -&gt; Unit )</ID>
     <ID>FunctionNaming:MediaVideoPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MediaVideoPlayerScreen( state: VideoPlayerState, onPlayPause: () -&gt; Unit, onSeek: (Long) -&gt; Unit, onSeekRelative: (Long) -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onSkipIntro: () -&gt; Unit, onSubtitleChange: (SubtitleTrack?) -&gt; Unit, onAudioTrackChange: (AudioTrack) -&gt; Unit, onQualityChange: (VideoQuality) -&gt; Unit, onCastClick: () -&gt; Unit, onPipClick: () -&gt; Unit, onClose: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:MediaWideCard.kt$@Composable fun MediaWideCard( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier = Modifier, width: Dp = MediaSizes.CardXLarge, showOverlayInfo: Boolean = true )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun AdvancedFiltersCard( criteria: StorySearchCriteria, onCriteriaChange: (StorySearchCriteria) -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun ErrorCard(error: String, onDismiss: () -&gt; Unit)</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun MetadataChip(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String)</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun SelectedTagsRow( selectedTags: List&lt;String&gt;, allTags: List&lt;WebFictionTag&gt;, onRemoveTag: (String) -&gt; Unit, onClearAll: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun StoryResultCard( story: WebFictionStory, onStoryClick: () -&gt; Unit, onOpenUrl: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun TagCategoriesSection( tags: List&lt;WebFictionTag&gt;, selectedTags: List&lt;String&gt;, expandedCategory: TagCategory?, onTagToggle: (String) -&gt; Unit, onCategoryToggle: (TagCategory) -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@OptIn(ExperimentalLayoutApi::class) @Composable private fun TagCategoryCard( category: TagCategory, tags: List&lt;WebFictionTag&gt;, selectedTags: List&lt;String&gt;, isExpanded: Boolean, onToggleExpand: () -&gt; Unit, onTagToggle: (String) -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun MetabodsTagBrowserScreen( navController: NavController, viewModel: MetabodsTagBrowserViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:MetadataEditorScreen.kt$@Composable private fun MetadataFields( metadata: EditableMetadata, originalMetadata: EditableMetadata?, onMetadataChange: (MetadataField) -&gt; Unit )</ID>
     <ID>FunctionNaming:MetadataEditorScreen.kt$@Composable private fun MetadataTextField( label: String, value: String, originalValue: String?, onValueChange: (String) -&gt; Unit, singleLine: Boolean = true, minLines: Int = 1, keyboardOptions: KeyboardOptions = KeyboardOptions.Default )</ID>
     <ID>FunctionNaming:MetadataEditorScreen.kt$@Composable private fun PhoneLayout( uiState: MetadataEditorUiState, onMetadataChange: (MetadataField) -&gt; Unit, modifier: Modifier = Modifier )</ID>
@@ -2340,11 +2332,6 @@
     <ID>LongMethod:MediaVideoPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MediaVideoPlayerScreen( state: VideoPlayerState, onPlayPause: () -&gt; Unit, onSeek: (Long) -&gt; Unit, onSeekRelative: (Long) -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onSkipIntro: () -&gt; Unit, onSubtitleChange: (SubtitleTrack?) -&gt; Unit, onAudioTrackChange: (AudioTrack) -&gt; Unit, onQualityChange: (VideoQuality) -&gt; Unit, onCastClick: () -&gt; Unit, onPipClick: () -&gt; Unit, onClose: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:MediaViewerManager.kt$MediaViewerManager$fun analyzeMedia(context: Context, uri: Uri): MediaInfo</ID>
     <ID>LongMethod:MediaWideCard.kt$@Composable fun MediaWideCard( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier = Modifier, width: Dp = MediaSizes.CardXLarge, showOverlayInfo: Boolean = true )</ID>
-    <ID>LongMethod:MetabodsTagBrowserScreen.kt$@Composable private fun AdvancedFiltersCard( criteria: StorySearchCriteria, onCriteriaChange: (StorySearchCriteria) -&gt; Unit )</ID>
-    <ID>LongMethod:MetabodsTagBrowserScreen.kt$@Composable private fun StoryResultCard( story: WebFictionStory, onStoryClick: () -&gt; Unit, onOpenUrl: () -&gt; Unit )</ID>
-    <ID>LongMethod:MetabodsTagBrowserScreen.kt$@OptIn(ExperimentalLayoutApi::class) @Composable private fun TagCategoryCard( category: TagCategory, tags: List&lt;WebFictionTag&gt;, selectedTags: List&lt;String&gt;, isExpanded: Boolean, onToggleExpand: () -&gt; Unit, onTagToggle: (String) -&gt; Unit )</ID>
-    <ID>LongMethod:MetabodsTagBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun MetabodsTagBrowserScreen( navController: NavController, viewModel: MetabodsTagBrowserViewModel = hiltViewModel() )</ID>
-    <ID>LongMethod:MetabodsTagBrowserViewModel.kt$MetabodsTagBrowserViewModel$fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false)</ID>
     <ID>LongMethod:MetadataEditorScreen.kt$@Composable private fun MetadataFields( metadata: EditableMetadata, originalMetadata: EditableMetadata?, onMetadataChange: (MetadataField) -&gt; Unit )</ID>
     <ID>LongMethod:MetadataEditorViewModel.kt$MetadataEditorViewModel$fun saveMetadata()</ID>
     <ID>LongMethod:MetadataFetchRepository.kt$MetadataFetchRepository$suspend fun fetchAndSaveBookMetadata( itemId: Long, title: String? = null, author: String? = null, isbn: String? = null ): MetadataFetchResult</ID>
@@ -2828,7 +2815,6 @@
     <ID>LongParameterList:MediaSidebar.kt$( currentRoute: String, onNavigate: (String) -&gt; Unit, isExpanded: Boolean, onToggleExpanded: () -&gt; Unit, userAvatarUrl: String? = null, userName: String = "User", modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:MediaSquareCard.kt$( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier = Modifier, size: Dp = MediaSizes.CardMedium, showTitle: Boolean = true, showSubtitle: Boolean = true )</ID>
     <ID>LongParameterList:MediaVideoPlayerScreen.kt$( state: VideoPlayerState, onPlayPause: () -&gt; Unit, onSeek: (Long) -&gt; Unit, onSeekRelative: (Long) -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onSkipIntro: () -&gt; Unit, onSubtitleChange: (SubtitleTrack?) -&gt; Unit, onAudioTrackChange: (AudioTrack) -&gt; Unit, onQualityChange: (VideoQuality) -&gt; Unit, onCastClick: () -&gt; Unit, onPipClick: () -&gt; Unit, onClose: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>LongParameterList:MetabodsTagBrowserScreen.kt$( category: TagCategory, tags: List&lt;WebFictionTag&gt;, selectedTags: List&lt;String&gt;, isExpanded: Boolean, onToggleExpand: () -&gt; Unit, onTagToggle: (String) -&gt; Unit )</ID>
     <ID>LongParameterList:MetadataDao.kt$MetadataDao$( itemId: Long, waveformData: ByteArray?, sampleCount: Int, frameDurationMs: Int, offsetMs: Int, generatedAt: Long, version: Int = 1 )</ID>
     <ID>LongParameterList:MetadataEditorScreen.kt$( label: String, value: String, originalValue: String?, onValueChange: (String) -&gt; Unit, singleLine: Boolean = true, minLines: Int = 1, keyboardOptions: KeyboardOptions = KeyboardOptions.Default )</ID>
     <ID>LongParameterList:MetadataReviewQueueScreen.kt$( state: MetadataReviewQueueUiState, onBackClick: () -&gt; Unit, onFilterChange: (ConfidenceFilter) -&gt; Unit, onApproveCandidate: (Long) -&gt; Unit, onApproveAll: () -&gt; Unit, onDiscardCandidate: (Long) -&gt; Unit, onDiscardAll: () -&gt; Unit, onSelectCandidateForEdit: (StagedMetadataCandidate?) -&gt; Unit, onSaveAndApproveEdited: (StagedMetadataCandidate) -&gt; Unit )</ID>
@@ -4739,7 +4725,6 @@
     <ID>MagicNumber:MediaVideoPlayerScreen.kt$0.5f</ID>
     <ID>MagicNumber:MediaVideoPlayerScreen.kt$10000</ID>
     <ID>MagicNumber:MediaVideoPlayerScreen.kt$4000</ID>
-    <ID>MagicNumber:MetabodsTagBrowserScreen.kt$5</ID>
     <ID>MagicNumber:MetadataApiService.kt$MetadataApiService$4</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$0xFFFFD700</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$3</ID>
@@ -7082,7 +7067,6 @@
     <ID>TooGenericExceptionCaught:MediaScanningService.kt$MediaScanningService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaSectionPagingSource.kt$MediaSectionPagingSource$error: Throwable</ID>
     <ID>TooGenericExceptionCaught:MediaServerRepository.kt$MediaServerRepository$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:MetabodsTagBrowserViewModel.kt$MetabodsTagBrowserViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MetabodsTagService.kt$MetabodsTagService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MetadataApiService.kt$MetadataApiService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MetadataEditorViewModel.kt$MetadataEditorViewModel$e: Exception</ID>
@@ -9529,12 +9513,6 @@
     <ID>WildcardImport:MediaWideCard.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:MediaWideCard.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:MediaWideCard.kt$import com.universalmedialibrary.ui.media.theme.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import com.universalmedialibrary.services.webfiction.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserViewModel.kt$import com.universalmedialibrary.services.webfiction.*</ID>
     <ID>WildcardImport:MetadataDao.kt$import com.universalmedialibrary.data.local.entity.*</ID>
     <ID>WildcardImport:MetadataEditorScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:MetadataEditorScreen.kt$import androidx.compose.material3.*</ID>
