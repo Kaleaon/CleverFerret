@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.utils.formatFileSize
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -92,7 +93,7 @@ internal fun FileListItem(
                 ) {
                     if (!item.isDirectory) {
                         Text(
-                            formatSize(item.size),
+                            formatFileSize(item.size),
                             style = MediaTypography.LabelSmall,
                             color = MediaColors.TextTertiary
                         )

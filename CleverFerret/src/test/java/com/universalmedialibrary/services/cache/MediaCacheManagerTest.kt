@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.cache
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.MediaCacheDao
 import com.universalmedialibrary.data.local.entity.DownloadPriority
@@ -11,6 +12,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -19,8 +21,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.io.File
 
+@RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class MediaCacheManagerTest {
 
@@ -31,11 +36,9 @@ class MediaCacheManagerTest {
     lateinit var mediaCacheDao: MediaCacheDao
 
     @MockK
-    lateinit var cacheManager: CacheManager
-
-    @MockK
     lateinit var settingsRepository: SettingsRepository
 
+    private lateinit var context: Context
     private lateinit var mediaCacheManager: MediaCacheManager
 
     @Before
@@ -43,12 +46,13 @@ class MediaCacheManagerTest {
         MockKAnnotations.init(this)
 
         val cacheDir = tempFolder.newFolder("cache")
-        coEvery { cacheManager.getCacheDirectory() } returns cacheDir
+        context = mockk<Context>(relaxed = true)
+        every { context.cacheDir } returns cacheDir
         coEvery { settingsRepository.maxCacheSizeMBFlow } returns flowOf(100) // 100 MB limit
 
         mediaCacheManager = MediaCacheManager(
+            context = context,
             mediaCacheDao = mediaCacheDao,
-            cacheManager = cacheManager,
             settingsRepository = settingsRepository
         )
     }
