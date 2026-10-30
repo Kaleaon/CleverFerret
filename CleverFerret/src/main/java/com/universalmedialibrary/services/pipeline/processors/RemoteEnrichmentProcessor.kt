@@ -119,7 +119,7 @@ class RemoteEnrichmentProcessor @Inject constructor(
             if (year != null) updated = updated.copy(year = year)
         }
         if (updated.rating == null && details?.rating != null) {
-            updated = updated.copy(rating = details.rating.average)
+            updated = updated.copy(rating = details.rating?.average)
         }
         if (updated.coverImagePath.isNullOrBlank() && !coverUrl.isNullOrBlank()) {
             updated = updated.copy(coverImagePath = coverUrl)

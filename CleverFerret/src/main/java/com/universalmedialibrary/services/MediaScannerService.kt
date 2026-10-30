@@ -76,6 +76,7 @@ class MediaScannerService : Service() {
     companion object {
         const val ACTION_SCAN_ALL = "com.universalmedialibrary.ACTION_SCAN_ALL"
         const val ACTION_SCAN_LIBRARY = "com.universalmedialibrary.ACTION_SCAN_LIBRARY"
+        const val ACTION_CANCEL_SCAN = "com.universalmedialibrary.ACTION_CANCEL_SCAN"
         const val EXTRA_LIBRARY_ID = "library_id"
         const val EXTRA_SCAN_PATH = "scan_path"
 
@@ -91,21 +92,36 @@ class MediaScannerService : Service() {
         val IMAGE_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "tiff")
         val COMIC_EXTENSIONS = setOf("cbz", "cbr", "cb7", "cbt")
 
-        private val _scanProgress = MutableStateFlow(ScanProgress())
+        internal val _scanProgress = MutableStateFlow(ScanProgress())
         val scanProgress: StateFlow<ScanProgress> = _scanProgress.asStateFlow()
+
+        fun cancelScan(context: Context? = null) {
+            _scanProgress.value = ScanProgress(isScanning = false, statusText = "Scan canceled")
+            context?.let {
+                try {
+                    val intent = Intent(it, MediaScannerService::class.java).apply {
+                        action = ACTION_CANCEL_SCAN
+                    }
+                    it.startService(intent)
+                } catch (e: Exception) {
+                    Log.e("MediaScannerService", "Failed to send cancel scan intent", e)
+                }
+            }
+        }
     }
 
 data class ScanProgress(
     val isScanning: Boolean = false,
     val statusText: String = "",
-    val itemsFound: Int = 0
+    val itemsFound: Int = 0,
+    val scannedCount: Int = 0,
+    val totalEstimatedCount: Int = 0,
+    val progressPercentage: Float? = null,
+    val isIndeterminate: Boolean = false,
+    val currentFileName: String? = null,
+    val latestDiscoveredItem: MediaItem? = null,
+    val libraryId: Long? = null
 )
-
-    internal data class ResolvedScanSettings(
-        val config: LibraryScanSettings,
-        val includeMatchers: List<String>,
-        val excludeMatchers: List<String>
-    )
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -128,8 +144,19 @@ data class ScanProgress(
                     scanLibrary(libraryId, scanPath)
                 }
             }
+            ACTION_CANCEL_SCAN -> {
+                cancelScanInstance()
+            }
         }
         return START_NOT_STICKY
+    }
+
+    fun cancelScanInstance() {
+        scanJob?.cancel()
+        scanJob = null
+        _scanProgress.value = ScanProgress(isScanning = false, statusText = "Scan canceled")
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     private fun scanAllMedia() {
@@ -154,6 +181,8 @@ data class ScanProgress(
                 updateNotification("Media scan complete!")
                 delay(2000)
                 stopSelf()
+            } catch (e: CancellationException) {
+                _scanProgress.value = ScanProgress(isScanning = false, statusText = "Scan canceled")
             } catch (e: Exception) {
                 ErrorLogger.logMediaScanError("Media scan failed", e)
                 _scanProgress.value = ScanProgress(isScanning = false, statusText = "Scan failed: ${e.message}", itemsFound = _scanProgress.value.itemsFound)
@@ -164,27 +193,76 @@ data class ScanProgress(
         }
     }
 
-    private fun scanLibrary(libraryId: Long, scanPath: String?) {
+    internal fun scanLibrary(libraryId: Long, scanPath: String?) {
         scanJob?.cancel()
         scanJob = serviceScope.launch {
             try {
-                _scanProgress.value = ScanProgress(isScanning = true, statusText = "Scanning library...", itemsFound = 0)
-                updateNotification("Scanning library...")
+                _scanProgress.value = ScanProgress(
+                    isScanning = true,
+                    statusText = "Analyzing library files...",
+                    libraryId = libraryId
+                )
+                updateNotification("Analyzing library files...")
+
                 val library = libraryDao.getLibraryById(libraryId)
                 if (library != null) {
                     val path = scanPath ?: library.path
                     val dir = File(path)
                     if (dir.exists() && dir.isDirectory) {
-                        scanDirectory(dir, forcedLibrary = library)
+                        val settings = getCachedScanSettings(library)
+
+                        // Pass 1: Quick non-blocking file count bounded by 1500ms timeout
+                        val totalEstimated = withTimeoutOrNull(1500L) {
+                            countEligibleFiles(dir, settings)
+                        }
+
+                        val isIndeterminate = totalEstimated == null || totalEstimated == 0
+                        val initialPercentage = if (isIndeterminate) null else 0f
+
+                        _scanProgress.value = ScanProgress(
+                            isScanning = true,
+                            statusText = if (isIndeterminate) "Scanning library..." else "Scanning library (0/${totalEstimated})...",
+                            itemsFound = 0,
+                            scannedCount = 0,
+                            totalEstimatedCount = totalEstimated ?: 0,
+                            progressPercentage = initialPercentage,
+                            isIndeterminate = isIndeterminate,
+                            libraryId = libraryId
+                        )
+                        updateNotificationProgress(initialPercentage, 0, totalEstimated ?: 0)
+
+                        // Pass 2: Process files & emit progress
+                        scanDirectory(dir, settings, library)
                     }
                 }
-                _scanProgress.value = ScanProgress(isScanning = false, statusText = "Library scan complete!", itemsFound = _scanProgress.value.itemsFound)
+
+                val finalItems = _scanProgress.value.itemsFound
+                val finalScanned = _scanProgress.value.scannedCount
+                val finalTotal = _scanProgress.value.totalEstimatedCount
+                _scanProgress.value = ScanProgress(
+                    isScanning = false,
+                    statusText = "Library scan complete!",
+                    itemsFound = finalItems,
+                    scannedCount = finalScanned,
+                    totalEstimatedCount = finalTotal,
+                    progressPercentage = 100f,
+                    isIndeterminate = false,
+                    libraryId = libraryId
+                )
                 updateNotification("Library scan complete!")
                 delay(2000)
                 stopSelf()
+            } catch (e: CancellationException) {
+                _scanProgress.value = ScanProgress(isScanning = false, statusText = "Scan canceled")
             } catch (e: Exception) {
                 ErrorLogger.logMediaScanError("Library scan failed", e)
-                _scanProgress.value = ScanProgress(isScanning = false, statusText = "Scan failed: ${e.message}", itemsFound = _scanProgress.value.itemsFound)
+                _scanProgress.value = ScanProgress(
+                    isScanning = false,
+                    statusText = "Scan failed: ${e.message}",
+                    itemsFound = _scanProgress.value.itemsFound,
+                    scannedCount = _scanProgress.value.scannedCount,
+                    totalEstimatedCount = _scanProgress.value.totalEstimatedCount
+                )
                 updateNotification("Scan failed: ${e.message}")
                 delay(2000)
                 stopSelf()
@@ -192,274 +270,6 @@ data class ScanProgress(
         }
     }
 
-    private suspend fun scanBooksWithMediaStore() {
-        withContext(Dispatchers.IO) {
-            val projection = arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.SIZE,
-                MediaStore.Files.FileColumns.DATE_MODIFIED,
-                MediaStore.Files.FileColumns.MIME_TYPE
-            )
-
-            val selection = buildString {
-                append("(")
-                BOOK_EXTENSIONS.forEachIndexed { index, ext ->
-                    if (index > 0) append(" OR ")
-                    append("${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.${ext}'")
-                }
-                append(")")
-            }
-
-            val cursor = contentResolver.query(
-                MediaStore.Files.getContentUri("external"),
-                projection,
-                selection,
-                null,
-                "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
-            )
-
-            cursor?.use {
-                while (it.moveToNext()) {
-                    val name = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
-                    val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
-                    val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID))
-                    val mimeType = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE))
-                    val itemUri = Uri.withAppendedPath(MediaStore.Files.getContentUri("external"), id.toString())
-                    val mediaType = if (name.substringAfterLast('.', "").lowercase() in COMIC_EXTENSIONS) "COMIC" else "BOOK"
-                    processMediaStoreItem(itemUri, name, size, mediaType, mimeType)
-                }
-            }
-        }
-    }
-
-    private suspend fun scanDirectoryForBooks(directory: File?) {
-        directory?.listFiles()?.forEach { file ->
-            when {
-                file.isDirectory && !file.name.startsWith(".") -> {
-                    scanDirectoryForBooks(file)
-                }
-                file.isFile -> {
-                    val extension = file.extension.lowercase()
-                    if (extension in BOOK_EXTENSIONS || extension in COMIC_EXTENSIONS) {
-                        processMediaFile(file, if (extension in COMIC_EXTENSIONS) "COMIC" else "BOOK")
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun scanAudioWithMediaStore() {
-        withContext(Dispatchers.IO) {
-            val projection = arrayOf(
-                MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.SIZE,
-                MediaStore.Audio.Media.DATE_MODIFIED,
-                MediaStore.Audio.Media.MIME_TYPE,
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.DURATION
-            )
-
-            val cursor = contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                null,
-                null,
-                "${MediaStore.Audio.Media.DATE_MODIFIED} DESC"
-            )
-
-            cursor?.use {
-                while (it.moveToNext()) {
-                    val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID))
-                    val name = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
-                    val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE))
-                    val duration = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
-                    val mimeType = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE))
-                    val itemUri = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
-
-                    if (size < MIN_AUDIO_FILE_SIZE_BYTES || duration < MIN_AUDIO_DURATION_MS) {
-                        continue
-                    }
-                    processMediaStoreItem(itemUri, name, size, "MUSIC", mimeType)
-                }
-            }
-        }
-    }
-
-    private suspend fun scanVideoWithMediaStore() {
-        withContext(Dispatchers.IO) {
-            val projection = arrayOf(
-                MediaStore.Video.Media._ID,
-                MediaStore.Video.Media.DISPLAY_NAME,
-                MediaStore.Video.Media.SIZE,
-                MediaStore.Video.Media.DATE_MODIFIED,
-                MediaStore.Video.Media.MIME_TYPE,
-                MediaStore.Video.Media.DURATION,
-                MediaStore.Video.Media.WIDTH,
-                MediaStore.Video.Media.HEIGHT
-            )
-
-            val cursor = contentResolver.query(
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                null,
-                null,
-                "${MediaStore.Video.Media.DATE_MODIFIED} DESC"
-            )
-
-            cursor?.use {
-                while (it.moveToNext()) {
-                    val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Video.Media._ID))
-                    val name = it.getString(it.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME))
-                    val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE))
-                    val duration = it.getLong(it.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION))
-                    val width = it.getInt(it.getColumnIndexOrThrow(MediaStore.Video.Media.WIDTH))
-                    val height = it.getInt(it.getColumnIndexOrThrow(MediaStore.Video.Media.HEIGHT))
-                    val mimeType = it.getString(it.getColumnIndexOrThrow(MediaStore.Video.Media.MIME_TYPE))
-                    val itemUri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id.toString())
-
-                    val mediaItem = processMediaStoreItem(itemUri, name, size, "MOVIE", mimeType)
-
-                    // Add video-specific metadata
-                    mediaItem?.let { item ->
-                        val metadata = MetadataMovie(
-                            itemId = item.itemId,
-                            runtime = (duration / 1000 / 60).toInt(),
-                            imdbId = null,
-                            tmdbId = null,
-                            resolution = "${width}x${height}",
-                            videoCodec = null,
-                            audioCodec = null
-                        )
-                        metadataDao.insertMetadataMovie(metadata)
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun scanImagesWithMediaStore() {
-        withContext(Dispatchers.IO) {
-            val projection = arrayOf(
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.SIZE,
-                MediaStore.Images.Media.DATE_MODIFIED,
-                MediaStore.Images.Media.MIME_TYPE,
-                MediaStore.Images.Media.WIDTH,
-                MediaStore.Images.Media.HEIGHT
-            )
-
-            val cursor = contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                null,
-                null,
-                "${MediaStore.Images.Media.DATE_MODIFIED} DESC"
-            )
-
-            cursor?.use {
-                var count = 0
-                while (it.moveToNext() && count < 1000) { // Limit to 1000 images
-                    val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
-                    val name = it.getString(it.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME))
-                    val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE))
-                    val mimeType = it.getString(it.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE))
-                    val itemUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id.toString())
-                    if (size > 100000) { // Only process images > 100KB
-                        processMediaStoreItem(itemUri, name, size, "DOCUMENT", mimeType)
-                        count++
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun processMediaStoreItem(
-        itemUri: Uri,
-        displayName: String,
-        size: Long,
-        mediaType: String,
-        mimeType: String?
-    ): MediaItem? = withContext(Dispatchers.IO) {
-        try {
-            val pathKey = itemUri.toString()
-            mediaItemDao.getItemByPath(pathKey)?.let { return@withContext it }
-
-            var library = libraryDao.getLibrariesByType(mediaType).firstOrNull()
-            if (library == null) {
-                library = Library(
-                    name = "${mediaType.lowercase().replaceFirstChar { it.uppercase() }} Library",
-                    type = mediaType,
-                    path = "mediastore://external",
-                    dateModified = System.currentTimeMillis()
-                )
-                val libraryId = libraryDao.insertLibrary(library)
-                library = library.copy(libraryId = libraryId)
-            }
-
-            val extension = displayName.substringAfterLast('.', "").lowercase()
-            val item = MediaItem(
-                libraryId = library.libraryId,
-                filePath = pathKey,
-                fileName = displayName,
-                fileExtension = extension,
-                fileSize = size,
-                fileHash = null,
-                dateAdded = System.currentTimeMillis(),
-                lastScanned = System.currentTimeMillis(),
-                lastModified = System.currentTimeMillis(),
-                mediaType = mediaType,
-                mimeType = mimeType,
-                isAvailable = true,
-                hasMetadata = false,
-                hasThumbnail = false,
-                thumbnailPath = null
-            )
-            val newId = mediaItemDao.insertMediaItem(item)
-            val inserted = item.copy(itemId = newId)
-
-            _scanProgress.update {
-                it.copy(
-                    statusText = "Found: $displayName",
-                    itemsFound = it.itemsFound + 1
-                )
-            }
-
-            metadataStagingRepository.stageMetadataCommon(
-                itemId = newId,
-                metadata = MetadataCommon(
-                    itemId = newId,
-                    title = displayName.substringBeforeLast('.'),
-                    sortTitle = null,
-                    originalTitle = null,
-                    year = null,
-                    releaseDate = null,
-                    rating = null,
-                    userRating = null,
-                    communityRating = null,
-                    summary = null,
-                    plot = null,
-                    tagline = null,
-                    coverImagePath = null,
-                    backdropImagePath = null,
-                    language = null,
-                    country = null,
-                    lastUpdated = System.currentTimeMillis(),
-                    metadataSource = "MediaStore",
-                    externalId = null
-                ),
-                source = "MediaStore"
-            )
-            inserted
-        } catch (e: Exception) {
-            ErrorLogger.logMediaScanError("Error processing MediaStore URI", e)
-            null
-        }
-    }
 
     private suspend fun scanStandardDirectories() {
         // Scan common directories for media files
@@ -624,10 +434,17 @@ data class ScanProgress(
                 val itemId = mediaItemDao.insertMediaItem(mediaItem)
                 val newItem = mediaItem.copy(itemId = itemId)
 
-                _scanProgress.update {
-                    it.copy(
+                _scanProgress.update { curr ->
+                    val newScanned = curr.scannedCount + 1
+                    val total = curr.totalEstimatedCount
+                    val percentage = if (curr.isIndeterminate || total <= 0) null else (newScanned.toFloat() / total * 100f).coerceAtMost(100f)
+                    curr.copy(
                         statusText = "Found: ${file.name}",
-                        itemsFound = it.itemsFound + 1
+                        itemsFound = curr.itemsFound + 1,
+                        scannedCount = newScanned,
+                        progressPercentage = percentage,
+                        currentFileName = file.name,
+                        latestDiscoveredItem = newItem
                     )
                 }
 
@@ -645,7 +462,12 @@ data class ScanProgress(
                     persistMusicTrackMetadata(processedItem, musicInfo)
                 }
 
-                updateNotification("Found: ${file.name}")
+                val currentProgress = _scanProgress.value
+                updateNotificationProgress(
+                    currentProgress.progressPercentage,
+                    currentProgress.scannedCount,
+                    currentProgress.totalEstimatedCount
+                )
                 processedItem
             } catch (e: Exception) {
                 ErrorLogger.logMediaScanError("Error processing media file", e)
@@ -788,27 +610,6 @@ data class ScanProgress(
         return ResolvedScanSettings(this, includes, excludes)
     }
 
-    private fun ResolvedScanSettings.shouldSkipDirectory(directory: File): Boolean {
-        val normalized = directory.normalizedPath()
-        return excludeMatchers.any { normalized.startsWith(it) }
-    }
-
-    private fun ResolvedScanSettings.allowsFile(file: File): Boolean {
-        val normalizedPath = file.normalizedPath()
-        val includeOk = if (includeMatchers.isEmpty()) {
-            true
-        } else if (config.includeSubdirectories) {
-            includeMatchers.any { normalizedPath.startsWith(it) }
-        } else {
-            val parent = file.parent?.normalizeMatcher() ?: ""
-            includeMatchers.any { parent == it || normalizedPath == it }
-        }
-        if (!includeOk) return false
-        if (excludeMatchers.any { normalizedPath.startsWith(it) }) return false
-        if (config.minFileSizeBytes > 0 && file.length() < config.minFileSizeBytes) return false
-        return true
-    }
-
 
 
     private fun createNotificationChannel() {
@@ -830,6 +631,15 @@ data class ScanProgress(
         .setSmallIcon(android.R.drawable.stat_sys_download)
         .setOngoing(true)
         .build()
+
+    internal fun updateNotificationProgress(percentage: Float?, scannedCount: Int, totalEstimatedCount: Int) {
+        val text = if (percentage != null) {
+            "Scanning library... ${percentage.toInt()}% ($scannedCount/$totalEstimatedCount files)"
+        } else {
+            "Scanning library... ($scannedCount files found)"
+        }
+        updateNotification(text)
+    }
 
     internal fun updateNotification(text: String) {
         val notification = createNotification(text)
