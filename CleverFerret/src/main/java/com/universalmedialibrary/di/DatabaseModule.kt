@@ -411,4 +411,12 @@ object DatabaseModule {
         return database.searchHistoryDao()
     }
 
+    /**
+     * Provides the DAO for CRDT operation journal entries.
+     */
+    @Provides
+    fun provideCrdtOperationJournalDao(database: AppDatabase): CrdtOperationJournalDao {
+        return database.crdtOperationJournalDao()
+    }
+
 }

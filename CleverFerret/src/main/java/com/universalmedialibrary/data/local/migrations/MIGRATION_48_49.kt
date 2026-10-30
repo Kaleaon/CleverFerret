@@ -10,6 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * 2. Adds index on lastModified column in media_items table to optimize background sync queries.
  * 3. Adds `remote_sync_mutations` table for enqueuing outbound sync progress/rating updates.
  * 4. Adds multi-column composite indices for collaborative session queries.
+ * 5. Adds `crdt_operation_journal` table and indexes for operation-based delta CRDT syncing.
  */
 val MIGRATION_48_49: Migration = object : Migration(48, 49) {
     override fun migrate(database: SupportSQLiteDatabase) {
@@ -118,6 +119,9 @@ val MIGRATION_48_49: Migration = object : Migration(48, 49) {
         // 7. Create collaborative session and queue composite indices
         createSessionIndices(database)
         createQueueAndVoteIndices(database)
+
+        // 8. Create crdt_operation_journal table and indices
+        createCrdtOperationJournalTable(database)
     }
 }
 
@@ -203,5 +207,43 @@ private fun createQueueAndVoteIndices(database: SupportSQLiteDatabase) {
         CREATE INDEX IF NOT EXISTS index_session_votes_clientId_queueItemId
         ON session_votes(clientId, queueItemId)
         """.trimIndent()
+    )
+}
+
+private fun createCrdtOperationJournalTable(database: SupportSQLiteDatabase) {
+    database.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `crdt_operation_journal` (
+            `operationId` TEXT NOT NULL,
+            `entityId` TEXT NOT NULL,
+            `entityType` TEXT NOT NULL,
+            `fieldPath` TEXT NOT NULL,
+            `operationType` TEXT NOT NULL,
+            `valueJson` TEXT,
+            `elementId` TEXT,
+            `deviceId` TEXT NOT NULL,
+            `lamportTimestamp` INTEGER NOT NULL,
+            `wallTimestamp` INTEGER NOT NULL,
+            `isSynced` INTEGER NOT NULL,
+            `isCompacted` INTEGER NOT NULL,
+            PRIMARY KEY(`operationId`)
+        )
+        """.trimIndent()
+    )
+    database.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_entityId_fieldPath` " +
+            "ON `crdt_operation_journal` (`entityId`, `fieldPath`)"
+    )
+    database.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_lamportTimestamp` " +
+            "ON `crdt_operation_journal` (`lamportTimestamp`)"
+    )
+    database.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_isSynced` " +
+            "ON `crdt_operation_journal` (`isSynced`)"
+    )
+    database.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_isCompacted` " +
+            "ON `crdt_operation_journal` (`isCompacted`)"
     )
 }

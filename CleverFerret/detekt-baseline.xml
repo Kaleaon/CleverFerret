@@ -1563,7 +1563,7 @@
     <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFMetalButton( text: String, onClick: () -&gt; Unit, leadingIcon: ImageVector? = null, enabled: Boolean = true, modifier: Modifier = Modifier, )</ID>
     <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFSectionHeader( title: String, subtitle: String? = null, actionLabel: String? = null, onAction: (() -&gt; Unit)? = null, modifier: Modifier = Modifier, )</ID>
     <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFSettingsRow( icon: ImageVector, title: String, subtitle: String? = null, onClick: () -&gt; Unit, trailing: @Composable (() -&gt; Unit)? = null, modifier: Modifier = Modifier, )</ID>
-    <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFTagChip(text: String, modifier: Modifier = Modifier, selected: Boolean = false)</ID>
+    <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFTagChip( text: String, modifier: Modifier = Modifier, selected: Boolean = false, onClick: (() -&gt; Unit)? = null )</ID>
     <ID>FunctionNaming:Scaffolding.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CFTopBar( title: String, onBack: (() -&gt; Unit)? = null, actions: @Composable RowScope.() -&gt; Unit = {}, modifier: Modifier = Modifier, )</ID>
     <ID>FunctionNaming:ScannedFileItem.kt$@Composable internal fun ScannedFileItem( file: ScannedFile, isSelected: Boolean, onToggleSelect: () -&gt; Unit, onFetchMetadata: () -&gt; Unit )</ID>
     <ID>FunctionNaming:ScannerPaywallSubpage.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ScannerPaywallSubpage( onNavigateBack: () -&gt; Unit, modifier: Modifier = Modifier, viewModel: ScannerPaywallViewModel = hiltViewModel() )</ID>
@@ -4729,7 +4729,6 @@
     <ID>MagicNumber:MetadataApiService.kt$MetadataApiService$4</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$0xFFFFD700</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$3</ID>
-    <ID>MagicNumber:MetadataEditorScreen.kt$5</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$600</ID>
     <ID>MagicNumber:MetadataExtractionService.kt$MetadataExtractionService$4</ID>
     <ID>MagicNumber:MetadataExtractor.kt$MetadataExtractor$0.1</ID>
@@ -6066,7 +6065,6 @@
     <ID>MaxLineLength:CFTheme.kt$labelLarge = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, lineHeight = 18.sp, letterSpacing = 0.2.sp)</ID>
     <ID>MaxLineLength:CFTheme.kt$labelMedium = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 1.4.sp)</ID>
     <ID>MaxLineLength:CFTheme.kt$labelSmall = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold, fontSize = 10.sp, lineHeight = 14.sp, letterSpacing = 1.6.sp)</ID>
-    <ID>MaxLineLength:CFTokens.kt$CFTokens$val liveRegion: com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy = com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy()</ID>
     <ID>MaxLineLength:CentralizedTagConsolidationTest.kt$CentralizedTagConsolidationTest$val bookItem = MediaItem(itemId = 101L, libraryId = 1L, filePath = "/books/scifi.epub", fileName = "Space Odyssey.epub", fileExtension = "epub", mediaType = "BOOK", fileSize = 1000L)</ID>
     <ID>MaxLineLength:CentralizedTagConsolidationTest.kt$CentralizedTagConsolidationTest$val musicItem = MediaItem(itemId = 102L, libraryId = 2L, filePath = "/music/scifi_track.mp3", fileName = "Space Ambient.mp3", fileExtension = "mp3", mediaType = "MUSIC", fileSize = 2000L)</ID>
     <ID>MaxLineLength:CentralizedTagConsolidationTest.kt$CentralizedTagConsolidationTest$val videoItem = MediaItem(itemId = 104L, libraryId = 4L, filePath = "/movies/action.mp4", fileName = "Action Movie.mp4", fileExtension = "mp4", mediaType = "MOVIE", fileSize = 5000L)</ID>
