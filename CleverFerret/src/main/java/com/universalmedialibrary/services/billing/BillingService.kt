@@ -48,4 +48,9 @@ interface BillingService {
      * Set offline mode simulation for testing or offline recovery handling.
      */
     fun setOfflineSimulated(offline: Boolean)
+
+    /**
+     * Launch Google Play Store subscriptions center or a specific SKU manage page.
+     */
+    fun launchManageSubscriptions(context: android.content.Context, sku: String? = null)
 }

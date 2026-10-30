@@ -45,7 +45,7 @@ class ReaderSettingsRepositoryTest {
     }
 
     @Test
-    fun importCustomFont_validTtf_persistsToStorageAndDatabase() = runBlocking {
+    fun importCustomFont_validTtf_persistsToStorageAndDatabase(): Unit = runBlocking {
         // Create sample TTF file
         val tempFontFile = File(context.cacheDir, "sample_font.ttf").apply {
             writeBytes("TTF_DUMMY_FONT_BYTES_1234567890".toByteArray())
@@ -75,7 +75,7 @@ class ReaderSettingsRepositoryTest {
     }
 
     @Test
-    fun importCustomFont_validOtf_persistsToStorageAndDatabase() = runBlocking {
+    fun importCustomFont_validOtf_persistsToStorageAndDatabase(): Unit = runBlocking {
         // Create sample OTF file
         val tempFontFile = File(context.cacheDir, "sample_font.otf").apply {
             writeBytes("OTF_DUMMY_FONT_BYTES_0987654321".toByteArray())
@@ -96,7 +96,7 @@ class ReaderSettingsRepositoryTest {
     }
 
     @Test
-    fun importCustomFont_invalidExtension_throwsException() = runBlocking {
+    fun importCustomFont_invalidExtension_throwsException(): Unit = runBlocking {
         val tempTextFile = File(context.cacheDir, "document.txt").apply {
             writeText("This is plain text, not a font file.")
         }
@@ -117,7 +117,7 @@ class ReaderSettingsRepositoryTest {
     }
 
     @Test
-    fun deleteCustomFont_removesDiskFileAndDatabaseRecord() = runBlocking {
+    fun deleteCustomFont_removesDiskFileAndDatabaseRecord(): Unit = runBlocking {
         val tempFontFile = File(context.cacheDir, "to_delete.ttf").apply {
             writeBytes("DUMMY_FONT_BYTES".toByteArray())
         }

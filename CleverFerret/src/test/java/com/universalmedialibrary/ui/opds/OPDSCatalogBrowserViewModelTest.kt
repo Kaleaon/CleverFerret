@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.opds
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
 import com.universalmedialibrary.data.local.entity.OPDSCatalog
 import com.universalmedialibrary.services.opds.OPDSCatalogService
+import com.universalmedialibrary.services.opds.OPDSChallengeAuthenticator
 import com.universalmedialibrary.services.opds.OPDSDownloadService
 import com.universalmedialibrary.services.opds.OPDSEntry
 import com.universalmedialibrary.services.opds.OPDSFeed
@@ -12,6 +13,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -33,6 +35,7 @@ class OPDSCatalogBrowserViewModelTest {
     private val catalogDao: OPDSCatalogDao = mockk(relaxed = true)
     private val opdsCatalogService: OPDSCatalogService = mockk(relaxed = true)
     private val downloadService: OPDSDownloadService = mockk(relaxed = true)
+    private val opdsChallengeAuthenticator: OPDSChallengeAuthenticator = mockk(relaxed = true)
 
     private val testCatalog = OPDSCatalog(
         id = 100L,
@@ -44,15 +47,15 @@ class OPDSCatalogBrowserViewModelTest {
     private val initialFeed = OPDSFeed(
         title = "Initial Feed",
         entries = listOf(
-            OPDSEntry(id = "1", title = "The Great Gatsby")
+            OPDSEntry(title = "The Great Gatsby")
         )
     )
 
     private val updatedFeed = OPDSFeed(
         title = "Updated Feed",
         entries = listOf(
-            OPDSEntry(id = "1", title = "The Great Gatsby"),
-            OPDSEntry(id = "2", title = "Moby Dick")
+            OPDSEntry(title = "The Great Gatsby"),
+            OPDSEntry(title = "Moby Dick")
         )
     )
 
@@ -60,6 +63,7 @@ class OPDSCatalogBrowserViewModelTest {
     fun setUp() {
         every { catalogDao.getAllCatalogs() } returns flowOf(listOf(testCatalog))
         every { downloadService.activeDownloads } returns MutableStateFlow(emptyMap())
+        every { opdsChallengeAuthenticator.challengeEvent } returns MutableSharedFlow()
     }
 
     @Test
@@ -69,7 +73,8 @@ class OPDSCatalogBrowserViewModelTest {
         val viewModel = OPDSCatalogBrowserViewModel(
             catalogDao = catalogDao,
             opdsCatalogService = opdsCatalogService,
-            downloadService = downloadService
+            downloadService = downloadService,
+            opdsChallengeAuthenticator = opdsChallengeAuthenticator
         )
 
         viewModel.selectCatalog(testCatalog)
@@ -89,7 +94,8 @@ class OPDSCatalogBrowserViewModelTest {
         val viewModel = OPDSCatalogBrowserViewModel(
             catalogDao = catalogDao,
             opdsCatalogService = opdsCatalogService,
-            downloadService = downloadService
+            downloadService = downloadService,
+            opdsChallengeAuthenticator = opdsChallengeAuthenticator
         )
 
         viewModel.selectCatalog(testCatalog)
@@ -118,7 +124,8 @@ class OPDSCatalogBrowserViewModelTest {
         val viewModel = OPDSCatalogBrowserViewModel(
             catalogDao = catalogDao,
             opdsCatalogService = opdsCatalogService,
-            downloadService = downloadService
+            downloadService = downloadService,
+            opdsChallengeAuthenticator = opdsChallengeAuthenticator
         )
 
         viewModel.selectCatalog(testCatalog)
