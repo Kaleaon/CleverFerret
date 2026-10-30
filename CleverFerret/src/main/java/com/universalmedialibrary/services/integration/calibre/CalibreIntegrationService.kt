@@ -24,6 +24,11 @@ class CalibreIntegrationService @Inject constructor(
     private val calibreReader: CalibreDatabaseReader
 ) {
 
+    constructor(
+        context: Context,
+        apiKeyRepository: APIKeyRepository
+    ) : this(context, apiKeyRepository, CalibreDatabaseReader(context))
+
     private val _calibreState = MutableStateFlow(CalibreState())
     val calibreState: StateFlow<CalibreState> = _calibreState.asStateFlow()
 
