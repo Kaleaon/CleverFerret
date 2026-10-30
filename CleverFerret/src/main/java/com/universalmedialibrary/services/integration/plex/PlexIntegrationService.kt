@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import com.universalmedialibrary.services.ai.SmartContentAnalyzer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,6 +36,7 @@ import javax.inject.Singleton
 @Singleton
 class PlexIntegrationService @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val contentAnalyzer: SmartContentAnalyzer,
     private val plexAuthService: com.universalmedialibrary.services.plex.PlexAuthService,
     private val externalMediaEntityDao: ExternalMediaEntityDao
 ) : IntegrationProvider {

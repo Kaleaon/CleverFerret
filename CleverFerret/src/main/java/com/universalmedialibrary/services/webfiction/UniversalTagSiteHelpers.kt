@@ -1,7 +1,5 @@
 package com.universalmedialibrary.services.webfiction
 
-import com.universalmedialibrary.services.webfiction.UniversalTagService.Companion.REQUEST_TIMEOUT
-import com.universalmedialibrary.services.webfiction.UniversalTagService.Companion.USER_AGENT
 import com.universalmedialibrary.utils.FileNameSanitizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -9,8 +7,24 @@ import org.jsoup.Jsoup
 import java.net.URLEncoder
 import java.util.Locale
 
+internal fun buildSearchResult(
+    criteria: StorySearchCriteria,
+    stories: List<WebFictionStory>
+): StorySearchResult {
+    val sliced = stories.drop(criteria.offset)
+    val limited = sliced.take(criteria.limit)
+    val consumed = criteria.offset + limited.size
+    val hasMore = stories.size > consumed
+    val nextOffset = if (hasMore) consumed else null
+    return StorySearchResult(
+        stories = limited,
+        totalCount = stories.size,
+        hasMore = hasMore,
+        nextOffset = nextOffset
+    )
+}
+
 private val fileNameSanitizer = FileNameSanitizer()
-private val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
 
 internal suspend fun fetchAO3Tags(): Result<List<WebFictionTag>> {
     return withContext(Dispatchers.IO) {

@@ -1,8 +1,5 @@
 package com.universalmedialibrary.services.webfiction
 
-import com.universalmedialibrary.services.webfiction.UniversalTagService.Companion.REQUEST_TIMEOUT
-import com.universalmedialibrary.services.webfiction.UniversalTagService.Companion.SCRIBBLE_HUB_PAGE_SIZE
-import com.universalmedialibrary.services.webfiction.UniversalTagService.Companion.USER_AGENT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
