@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cleverferret.core.designsystem.theme.CFLayout
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
 import com.universalmedialibrary.services.manga.source.MangaState
 import com.universalmedialibrary.services.webfiction.DownloadStatus
@@ -104,8 +105,6 @@ data class CFMetro(
     val magenta: Color, val crimson: Color, val orange: Color,
     val lime: Color, val violet: Color,
 )
-
-enum class CFLayout { Compose, Lcars, Metro }
 
 data class CFGridMinItemWidth(
     val quickAction: Dp = 100.dp,

@@ -297,13 +297,13 @@
     <ID>EmptyCatchBlock:AudioEffectsController.kt$AudioEffectsController${ }</ID>
     <ID>EmptyFunctionBlock:DragCancelledAnimation.kt$NoDragCancelledAnimation${}</ID>
     <ID>EmptyFunctionBlock:EnhancedRadioViewModel.kt$EnhancedRadioViewModel${}</ID>
+    <ID>EmptyFunctionBlock:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMediaItemDao${}</ID>
     <ID>EmptyFunctionBlock:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMetadataDao${}</ID>
     <ID>EmptyFunctionBlock:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMediaItemDao${}</ID>
     <ID>EmptyFunctionBlock:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMetadataDao${}</ID>
     <ID>EmptyFunctionBlock:OPDSChallengeAuthenticatorTest.kt$OPDSChallengeAuthenticatorTest.FakeSharedPreferences${}</ID>
     <ID>EmptyFunctionBlock:OPDSCredentialVaultTest.kt$OPDSCredentialVaultTest.FakeSharedPreferences${}</ID>
     <ID>EnumNaming:MediaViewerManager.kt$MediaViewerManager.VideoFormat$_3GP</ID>
-    <ID>ExplicitItLambdaParameter:ParentalControlsSettings.kt$ParentalControlsSettings${ str, it -&gt; str + "%02x".format(it) }</ID>
     <ID>ForEachOnRange:AudioProfilesScreen.kt$0..6</ID>
     <ID>ForEachOnRange:EnhancedBookshelfScreen.kt$0..5</ID>
     <ID>ForEachOnRange:ModernPinAccessScreen.kt$1..9</ID>
@@ -1423,17 +1423,17 @@
     <ID>FunctionNaming:PodcastManagerScreen.kt$@Composable fun PodcastDownloadsTab( downloads: List&lt;PodcastEpisode&gt;, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onDeleteClick: (PodcastEpisode) -&gt; Unit )</ID>
     <ID>FunctionNaming:PodcastManagerScreen.kt$@Composable fun PodcastEpisodesTab( episodes: List&lt;PodcastEpisode&gt;, downloadStatuses: Map&lt;Long, DownloadStatus&gt;, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onDownloadClick: (PodcastEpisode) -&gt; Unit, onRetryClick: (PodcastEpisode) -&gt; Unit, onPlayClick: (PodcastEpisode) -&gt; Unit )</ID>
     <ID>FunctionNaming:PodcastManagerScreen.kt$@Composable fun PodcastSubscriptionsTab( podcasts: List&lt;Podcast&gt;, onPodcastClick: (Podcast) -&gt; Unit, onUnsubscribe: (Podcast) -&gt; Unit )</ID>
-    <ID>FunctionNaming:PodcastManagerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PodcastManagerScreen( navController: NavController, viewModel: PodcastViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:PodcastManagerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PodcastManagerScreen( navController: NavController, viewModel: PodcastViewModel = hiltViewModel(), onImportOPML: () -&gt; Unit = {}, onExportOPML: () -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:PodcastMiniPlayer.kt$@Composable internal fun PodcastMiniPlayer( episode: PodcastEpisode, onTap: () -&gt; Unit, onPlayPause: () -&gt; Unit, onSeekForward: () -&gt; Unit, onSeekBackward: () -&gt; Unit )</ID>
     <ID>FunctionNaming:PodcastPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PodcastPlayerScreen( episodeId: Long, onBack: () -&gt; Unit, onNavigateToVisualizer: () -&gt; Unit = {}, viewModel: PodcastPlayerViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:PodcastScreen.kt$@Composable internal fun PodcastEmptyState( icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String )</ID>
     <ID>FunctionNaming:PodcastScreen.kt$@Composable private fun PodcastDownloadsPage( episodes: List&lt;PodcastEpisode&gt;, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit )</ID>
     <ID>FunctionNaming:PodcastScreen.kt$@Composable private fun PodcastQueuePage( episodes: List&lt;PodcastEpisode&gt;, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit )</ID>
     <ID>FunctionNaming:PodcastScreen.kt$@Composable private fun PodcastShowsPage( shows: List&lt;PodcastShow&gt;, onShowClick: (PodcastShow) -&gt; Unit )</ID>
-    <ID>FunctionNaming:PodcastScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun PodcastScreen( state: PodcastScreenState, onShowClick: (PodcastShow) -&gt; Unit, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit, onDownloadEpisode: (PodcastEpisode) -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportOPML: () -&gt; Unit, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onOpenNowPlaying: () -&gt; Unit = {}, onPlayPause: () -&gt; Unit = {}, onSeekForward: () -&gt; Unit = {}, onSeekBackward: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:PodcastScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun PodcastScreen( state: PodcastScreenState, onShowClick: (PodcastShow) -&gt; Unit, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit, onDownloadEpisode: (PodcastEpisode) -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportOPML: () -&gt; Unit, onExportOPML: () -&gt; Unit = {}, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onOpenNowPlaying: () -&gt; Unit = {}, onPlayPause: () -&gt; Unit = {}, onSeekForward: () -&gt; Unit = {}, onSeekBackward: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:PodcastSearchDialog.kt$@Composable fun PodcastSearchDialog( searchResults: List&lt;PodcastSearchResult&gt;, isSearching: Boolean, onDismiss: () -&gt; Unit, onSearch: (String) -&gt; Unit, onSubscribe: (PodcastSearchResult) -&gt; Unit )</ID>
     <ID>FunctionNaming:PodcastShowCard.kt$@Composable internal fun PodcastShowCard( show: PodcastShow, onClick: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:PodcastTopBar.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun PodcastTopBar( onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:PodcastTopBar.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun PodcastTopBar( onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportClick: () -&gt; Unit, onExportClick: () -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:PresetBrowserScreen.kt$@Composable private fun ImportPresetDialog( onDismiss: () -&gt; Unit, onImport: (String) -&gt; Unit )</ID>
     <ID>FunctionNaming:PresetBrowserScreen.kt$@Composable private fun PresetCard( preset: VisualizerPreset, onClick: () -&gt; Unit, onShare: () -&gt; Unit, onEdit: () -&gt; Unit )</ID>
     <ID>FunctionNaming:PresetBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PresetBrowserScreen( onBack: () -&gt; Unit, onPresetSelected: (VisualizerPreset) -&gt; Unit, onNavigateToEditor: (String?) -&gt; Unit = {}, viewModel: PresetBrowserViewModel = hiltViewModel() )</ID>
@@ -2478,12 +2478,13 @@
     <ID>LongMethod:PodcastCard.kt$@Composable fun PodcastCard( podcast: Podcast, onClick: () -&gt; Unit, onUnsubscribe: () -&gt; Unit )</ID>
     <ID>LongMethod:PodcastDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PodcastDetailScreen( navController: NavController, viewModel: PodcastDetailViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:PodcastEpisodeCard.kt$@Composable internal fun PodcastEpisodeCard( episode: PodcastEpisode, isPlaying: Boolean, onClick: () -&gt; Unit, onPlay: () -&gt; Unit, onDownload: () -&gt; Unit )</ID>
-    <ID>LongMethod:PodcastManagerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PodcastManagerScreen( navController: NavController, viewModel: PodcastViewModel = hiltViewModel() )</ID>
+    <ID>LongMethod:PodcastManagerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PodcastManagerScreen( navController: NavController, viewModel: PodcastViewModel = hiltViewModel(), onImportOPML: () -&gt; Unit = {}, onExportOPML: () -&gt; Unit = {} )</ID>
     <ID>LongMethod:PodcastMiniPlayer.kt$@Composable internal fun PodcastMiniPlayer( episode: PodcastEpisode, onTap: () -&gt; Unit, onPlayPause: () -&gt; Unit, onSeekForward: () -&gt; Unit, onSeekBackward: () -&gt; Unit )</ID>
     <ID>LongMethod:PodcastPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PodcastPlayerScreen( episodeId: Long, onBack: () -&gt; Unit, onNavigateToVisualizer: () -&gt; Unit = {}, viewModel: PodcastPlayerViewModel = hiltViewModel() )</ID>
-    <ID>LongMethod:PodcastScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun PodcastScreen( state: PodcastScreenState, onShowClick: (PodcastShow) -&gt; Unit, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit, onDownloadEpisode: (PodcastEpisode) -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportOPML: () -&gt; Unit, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onOpenNowPlaying: () -&gt; Unit = {}, onPlayPause: () -&gt; Unit = {}, onSeekForward: () -&gt; Unit = {}, onSeekBackward: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:PodcastScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun PodcastScreen( state: PodcastScreenState, onShowClick: (PodcastShow) -&gt; Unit, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit, onDownloadEpisode: (PodcastEpisode) -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportOPML: () -&gt; Unit, onExportOPML: () -&gt; Unit = {}, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onOpenNowPlaying: () -&gt; Unit = {}, onPlayPause: () -&gt; Unit = {}, onSeekForward: () -&gt; Unit = {}, onSeekBackward: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:PodcastSearchDialog.kt$@Composable fun PodcastSearchDialog( searchResults: List&lt;PodcastSearchResult&gt;, isSearching: Boolean, onDismiss: () -&gt; Unit, onSearch: (String) -&gt; Unit, onSubscribe: (PodcastSearchResult) -&gt; Unit )</ID>
     <ID>LongMethod:PodcastShowCard.kt$@Composable internal fun PodcastShowCard( show: PodcastShow, onClick: () -&gt; Unit )</ID>
+    <ID>LongMethod:PodcastTopBar.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun PodcastTopBar( onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportClick: () -&gt; Unit, onExportClick: () -&gt; Unit = {} )</ID>
     <ID>LongMethod:PodcastViewModel.kt$PodcastViewModel$fun downloadEpisode(episode: PodcastEpisode, bypassPin: Boolean = false)</ID>
     <ID>LongMethod:PresetBrowserScreen.kt$@Composable private fun PresetCard( preset: VisualizerPreset, onClick: () -&gt; Unit, onShare: () -&gt; Unit, onEdit: () -&gt; Unit )</ID>
     <ID>LongMethod:PresetBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PresetBrowserScreen( onBack: () -&gt; Unit, onPresetSelected: (VisualizerPreset) -&gt; Unit, onNavigateToEditor: (String?) -&gt; Unit = {}, viewModel: PresetBrowserViewModel = hiltViewModel() )</ID>
@@ -2916,7 +2917,7 @@
     <ID>LongParameterList:PlexSyncService.kt$PlexSyncService$( @ApplicationContext private val context: Context, private val database: AppDatabase, private val plexServerDao: PlexServerDao, private val plexMediaItemDao: PlexMediaItemDao, private val plexSyncDao: PlexSyncDao, private val mediaItemDao: MediaItemDao, private val libraryDao: LibraryDao, private val authService: PlexAuthService, private val ingestionPipeline: IngestionPipeline, private val plexVirtualUriResolver: PlexVirtualUriResolver? = null, private val downloadScheduler: com.universalmedialibrary.services.cache.MediaDownloadScheduler? = null, private val remoteSyncMutationDao: com.universalmedialibrary.data.local.dao.RemoteSyncMutationDao? = null, private val credentialManager: com.universalmedialibrary.services.sync.ServerCredentialManager? = null )</ID>
     <ID>LongParameterList:PodcastAutoDownloadWorker.kt$PodcastAutoDownloadWorker$( @Assisted context: Context, @Assisted params: WorkerParameters, private val subscriptionDao: PodcastSubscriptionDao, private val podcastRepository: PodcastRepository, private val episodeDao: PodcastEpisodeDao, private val podcastDao: PodcastDao, private val downloadManager: PodcastDownloadManager )</ID>
     <ID>LongParameterList:PodcastManagerScreen.kt$( episodes: List&lt;PodcastEpisode&gt;, downloadStatuses: Map&lt;Long, DownloadStatus&gt;, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onDownloadClick: (PodcastEpisode) -&gt; Unit, onRetryClick: (PodcastEpisode) -&gt; Unit, onPlayClick: (PodcastEpisode) -&gt; Unit )</ID>
-    <ID>LongParameterList:PodcastScreen.kt$( state: PodcastScreenState, onShowClick: (PodcastShow) -&gt; Unit, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit, onDownloadEpisode: (PodcastEpisode) -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportOPML: () -&gt; Unit, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onOpenNowPlaying: () -&gt; Unit = {}, onPlayPause: () -&gt; Unit = {}, onSeekForward: () -&gt; Unit = {}, onSeekBackward: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:PodcastScreen.kt$( state: PodcastScreenState, onShowClick: (PodcastShow) -&gt; Unit, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit, onDownloadEpisode: (PodcastEpisode) -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportOPML: () -&gt; Unit, onExportOPML: () -&gt; Unit = {}, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onOpenNowPlaying: () -&gt; Unit = {}, onPlayPause: () -&gt; Unit = {}, onSeekForward: () -&gt; Unit = {}, onSeekBackward: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:ProviderConfigurationScreen.kt$( provider: ApiProvider, configuration: ApiConfiguration?, onSave: (ApiConfiguration) -&gt; Unit, onDelete: () -&gt; Unit, onBackClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:PurchaseLinksDialog.kt$( bookTitle: String, isbn: String?, onDismiss: () -&gt; Unit, onOpenLink: (BookPurchaseLinksService.PurchaseLink) -&gt; Unit, onShareLink: (BookPurchaseLinksService.PurchaseLink) -&gt; Unit, purchaseLinks: List&lt;BookPurchaseLinksService.PurchaseLink&gt;, modifier: Modifier = Modifier, onNavigateToScannerPaywall: () -&gt; Unit = {} )</ID>
     <ID>LongParameterList:QueueSheet.kt$( entries: List&lt;AudioQueueEntry&gt;, onPlay: (Int) -&gt; Unit, onMoveUp: (Int) -&gt; Unit, onMoveDown: (Int) -&gt; Unit, onRemove: (Int) -&gt; Unit, onClose: () -&gt; Unit )</ID>
@@ -3493,6 +3494,7 @@
     <ID>MagicNumber:AudioEffectsService.kt$AudioEffectsService$800</ID>
     <ID>MagicNumber:AudioMetadataService.kt$AudioMetadataService$4</ID>
     <ID>MagicNumber:AudioMetadataService.kt$AudioMetadataService$5</ID>
+    <ID>MagicNumber:AudioMetadataUtils.kt$AudioMetadataUtils$4</ID>
     <ID>MagicNumber:AudioPackImportScreen.kt$5</ID>
     <ID>MagicNumber:AudioPackImporter.kt$AudioPackImporter$10</ID>
     <ID>MagicNumber:AudioPackImporter.kt$AudioPackImporter$1024</ID>
@@ -3654,7 +3656,6 @@
     <ID>MagicNumber:CacheSettingsScreen.kt$10_240</ID>
     <ID>MagicNumber:CacheSettingsScreen.kt$256</ID>
     <ID>MagicNumber:CacheSettingsScreen.kt$512</ID>
-    <ID>MagicNumber:CalibreImportService.kt$CalibreImportService$8192</ID>
     <ID>MagicNumber:CanonicalMediaCard.kt$0.7f</ID>
     <ID>MagicNumber:CharacterVoiceService.kt$CharacterVoiceService$0.9f</ID>
     <ID>MagicNumber:CharacterVoiceService.kt$CharacterVoiceService$1.1f</ID>
@@ -4344,7 +4345,6 @@
     <ID>MagicNumber:MediaScannerService.kt$MediaScannerService$1500L</ID>
     <ID>MagicNumber:MediaScannerService.kt$MediaScannerService$2000</ID>
     <ID>MagicNumber:MediaScannerService.kt$MediaScannerService$90</ID>
-    <ID>MagicNumber:MediaScanningService.kt$MediaScanningService$8192</ID>
     <ID>MagicNumber:MediaSearchEngine.kt$AudioSearchEngine$10.0</ID>
     <ID>MagicNumber:MediaSearchEngine.kt$AudioSearchEngine$5</ID>
     <ID>MagicNumber:MediaSearchEngine.kt$AudioSearchEngine$50.0</ID>
@@ -6049,6 +6049,7 @@
     <ID>MaxLineLength:AppDatabaseMigrationsTest.kt$AppDatabaseMigrationsTest$assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_metadata_music_track_itemId ON metadata_music_track") }).isTrue()</ID>
     <ID>MaxLineLength:ArtworkAPISection.kt$OutlinedTextField(value = fanartKey, onValueChange = { fanartKey = it }, label = { Text("Fanart.tv API Key") }, modifier = Modifier.fillMaxWidth())</ID>
     <ID>MaxLineLength:ArtworkAPISection.kt$OutlinedTextField(value = lastfmKey, onValueChange = { lastfmKey = it }, label = { Text("Last.fm API Key") }, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:AudioMetadataUtils.kt$AudioMetadataUtils$val bitrate = (retriever.extractMetadata("bitrate") ?: retriever.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VARIANT_BITRATE))?.toIntOrNull()</ID>
     <ID>MaxLineLength:AudioPlaybackManager.kt$AudioPlaybackManager$fun moveQueueItem(from: Int, to: Int)</ID>
     <ID>MaxLineLength:AudioPlaybackManager.kt$AudioPlaybackManager$fun removeFromQueue(index: Int)</ID>
     <ID>MaxLineLength:AudioPlaybackManager.kt$AudioPlaybackManager$try { uris.add(Uri.parse(trimmed)) } catch (e: Exception) { Log.w("AudioPlaybackManager", "Error parsing URI: $trimmed", e) }</ID>
@@ -6159,7 +6160,9 @@
     <ID>MaxLineLength:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMediaItemDao$override fun getMediaItemsByType(mediaType: String): Flow&lt;List&lt;MediaItem&gt;&gt;</ID>
     <ID>MaxLineLength:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMediaItemDao$override fun getMediaItemsForLibrary(libraryId: Long): Flow&lt;List&lt;MediaItem&gt;&gt;</ID>
     <ID>MaxLineLength:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMediaItemDao$override suspend fun getExistingFilePaths(filePaths: List&lt;String&gt;): List&lt;String&gt;</ID>
+    <ID>MaxLineLength:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMediaItemDao$override suspend fun getItemByPathOrCachePath(path: String): MediaItem?</ID>
     <ID>MaxLineLength:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMediaItemDao$override suspend fun getItemCountsByTypeForLibrary(libraryId: Long): List&lt;com.universalmedialibrary.data.local.dao.MediaTypeCount&gt;</ID>
+    <ID>MaxLineLength:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMediaItemDao$override suspend fun getMediaItemsByDownloadStatus(status: String): List&lt;MediaItem&gt;</ID>
     <ID>MaxLineLength:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMetadataDao$override suspend fun getMetadataBookBatch(itemIds: List&lt;Long&gt;): List&lt;com.universalmedialibrary.data.local.entity.MetadataBook&gt;</ID>
     <ID>MaxLineLength:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMetadataDao$override suspend fun getMetadataMusicTrackByItemId(itemId: Long): com.universalmedialibrary.data.local.entity.MetadataMusicTrack?</ID>
     <ID>MaxLineLength:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMetadataDao$override suspend fun getMonthlyCompletionCounts(libraryId: Long, since: Long): List&lt;com.universalmedialibrary.data.local.dao.MonthlyCompletionCount&gt;</ID>
@@ -6230,6 +6233,8 @@
     <ID>MaxLineLength:MetadataFetchRepositoryConcurrencyTest.kt$MetadataFetchRepositoryConcurrencyTest$coEvery { unifiedMetadataFacade.searchBookMetadata(title = "book_${item.itemId}", query = any(), isbn = any(), author = any()) }</ID>
     <ID>MaxLineLength:MetadataFetchRepositoryConcurrencyTest.kt$MetadataFetchRepositoryConcurrencyTest$coEvery { unifiedMetadataFacade.searchBookMetadata(title = "book_${item.itemId}", query = any(), isbn = any(), author = any()) } throws RuntimeException("Network error")</ID>
     <ID>MaxLineLength:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest$val item = MediaItem(itemId = 100L, libraryId = 1L, filePath = "/path/book.epub", fileName = "book.epub", fileExtension = "epub", fileSize = 1024L, mediaType = "BOOK", hasMetadata = false)</ID>
+    <ID>MaxLineLength:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMediaItemDao$override suspend fun getItemByPathOrCachePath(path: String): MediaItem?</ID>
+    <ID>MaxLineLength:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMediaItemDao$override suspend fun getMediaItemsByDownloadStatus(status: String): List&lt;MediaItem&gt;</ID>
     <ID>MaxLineLength:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMetadataDao$override suspend fun getMetadataBookBatch(itemIds: List&lt;Long&gt;): List&lt;com.universalmedialibrary.data.local.entity.MetadataBook&gt;</ID>
     <ID>MaxLineLength:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMetadataDao$override suspend fun getMetadataMusicTrackByItemId(itemId: Long): com.universalmedialibrary.data.local.entity.MetadataMusicTrack?</ID>
     <ID>MaxLineLength:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMetadataDao$override suspend fun getMonthlyCompletionCounts(libraryId: Long, since: Long): List&lt;com.universalmedialibrary.data.local.dao.MonthlyCompletionCount&gt;</ID>
@@ -6354,6 +6359,7 @@
     <ID>MaxLineLength:PodcastEpisodeDao.kt$PodcastEpisodeDao$@Query("UPDATE podcast_episodes SET downloaded = 1, localFilePath = :filePath, localFileChecksum = :checksum, downloadedAt = :timestamp, fileSize = CASE WHEN :fileSize &gt; 0 THEN :fileSize ELSE fileSize END WHERE id = :id")</ID>
     <ID>MaxLineLength:PodcastEpisodeDao.kt$PodcastEpisodeDao$@Query("UPDATE podcast_episodes SET downloaded = :downloaded, localFilePath = :filePath, localFileChecksum = :checksum, downloadedAt = :timestamp WHERE id = :id")</ID>
     <ID>MaxLineLength:PodcastService.kt$PodcastService$try { resolvedApiKeys["spotify_token"]?.let { allResults.addAll(searchSpotifyPodcasts(query, it)) } } catch (_: Exception) {}</ID>
+    <ID>MaxLineLength:PodcastViewModelTest.kt$PodcastViewModelTest$val expectedOpml = "&lt;opml version=\"2.0\"&gt;&lt;head&gt;&lt;title&gt;Podcasts&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;outline text=\"Test Podcast\" xmlUrl=\"https://example.com/feed.xml\"/&gt;&lt;/body&gt;&lt;/opml&gt;"</ID>
     <ID>MaxLineLength:ProcessorsTest.kt$ProcessorsTest$val dummyMediaItem = MediaItem(itemId = 300L, libraryId = 1L, filePath = file.absolutePath, fileName = file.name, fileExtension = "epub", fileSize = 100L, mediaType = "BOOK")</ID>
     <ID>MaxLineLength:ProjectMVisualizer.kt$VisualizerStyle.BEAT_REACTIVE -&gt; BeatReactiveVisualizer(visualizerState, VisualizerColors.neonMagenta, VisualizerColors.neonCyan, VisualizerColors.neonGreen)</ID>
     <ID>MaxLineLength:ProjectMVisualizer.kt$VisualizerStyle.FLUID -&gt; FluidVisualizer(visualizerState, VisualizerColors.auroraTeal, VisualizerColors.auroraPurple, VisualizerColors.auroraBlue)</ID>
@@ -6544,7 +6550,6 @@
     <ID>NestedBlockDepth:SmartRecommendationService.kt$SmartRecommendationService$private fun parseRecommendations(responseText: String, library: List&lt;Track&gt;): RecommendationResult</ID>
     <ID>NestedBlockDepth:StorageDocumentFileHelpers.kt$internal fun copyStream(context: Context, src: Uri, dst: Uri): Boolean</ID>
     <ID>NestedBlockDepth:StorageImportPlanBuilder.kt$internal fun buildPlanRecursively( context: Context, input: DocumentFile, out: MutableList&lt;ImportPlanItem&gt;, progressCallback: (String) -&gt; Unit, options: ImportSortOptions )</ID>
-    <ID>NestedBlockDepth:StorageImportPlanBuilder.kt$internal fun computeSha256(context: Context, uri: Uri): String?</ID>
     <ID>NestedBlockDepth:StorageMetadataDerivers.kt$internal fun deriveMetadataForComicArchive(context: Context, uri: Uri, fallbackName: String): DerivedMetadata</ID>
     <ID>NestedBlockDepth:StorageMetadataDerivers.kt$internal fun deriveMetadataForEpub(context: Context, uri: Uri, fallbackName: String): DerivedMetadata</ID>
     <ID>NestedBlockDepth:StorageMetadataDerivers.kt$internal fun deriveMetadataForPdf(context: Context, uri: Uri, fallbackName: String): DerivedMetadata</ID>
@@ -6616,6 +6621,7 @@
     <ID>ReturnCount:AdvancedMusicPlayerService.kt$AdvancedMusicPlayerService$override fun skipNext()</ID>
     <ID>ReturnCount:AdvancedMusicPlayerService.kt$AdvancedMusicPlayerService$override fun skipPrevious()</ID>
     <ID>ReturnCount:AmazonCoverSource.kt$AmazonCoverSource$private suspend fun searchOnDomain( domain: String, isbn: String?, title: String?, author: String? ): CoverResult?</ID>
+    <ID>ReturnCount:AudioMetadataUtils.kt$AudioMetadataUtils$fun extractAudioMetadata(file: File): AudioTrackMetadata</ID>
     <ID>ReturnCount:BookSourceService.kt$BookSourceService$private fun extractText(element: org.jsoup.nodes.Element, selector: String?): String</ID>
     <ID>ReturnCount:BookSourceService.kt$BookSourceService$suspend fun getBookChapters(sourceId: Long, bookUrl: String): List&lt;BookChapter&gt;</ID>
     <ID>ReturnCount:BookSourceService.kt$BookSourceService$suspend fun getBookInfo(sourceId: Long, bookUrl: String): BookInfo?</ID>
@@ -6896,6 +6902,7 @@
     <ID>TooGenericExceptionCaught:AudioEffectsService.kt$AudioEffectsService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AudioEffectsSettingsScreen.kt$AudioEffectsViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AudioMetadataService.kt$AudioMetadataService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AudioMetadataUtils.kt$AudioMetadataUtils$t: Throwable</ID>
     <ID>TooGenericExceptionCaught:AudioPackImporter.kt$AudioPackImporter$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AudioPlaybackManager.kt$AudioPlaybackManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AudioPlayerViewModel.kt$AudioPlayerViewModel$e: Exception</ID>
@@ -7038,6 +7045,7 @@
     <ID>TooGenericExceptionCaught:LibraryListViewModel.kt$LibraryListViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:LibraryManagementScreen.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:LibraryManagementViewModel.kt$LibraryManagementViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:LibraryRoutes.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:LocalLLMProvider.kt$LocalLLMProvider$e: Exception</ID>
     <ID>TooGenericExceptionCaught:LrcParser.kt$LrcParser$e: Exception</ID>
     <ID>TooGenericExceptionCaught:LyricsService.kt$LyricsService$e: Exception</ID>
@@ -7064,7 +7072,6 @@
     <ID>TooGenericExceptionCaught:MediaOpenViewModel.kt$MediaOpenViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaPlaybackWidgetService.kt$MediaPlaybackWidgetService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaPlayerViewModel.kt$VideoPlayerViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:MediaScannerHelpers.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaScannerMediaStoreHelpers.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaScannerService.kt$MediaScannerService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaScannerService.kt$MediaScannerService.Companion$e: Exception</ID>
@@ -7386,7 +7393,6 @@
     <ID>UnusedParameter:LastFmScrobblerService.kt$LastFmScrobblerService$enabled: Boolean</ID>
     <ID>UnusedParameter:LegacyRoutes.kt$onShowSnackbar: (String) -&gt; Unit</ID>
     <ID>UnusedParameter:LibraryRepository.kt$LibraryRepository$isActive: Boolean</ID>
-    <ID>UnusedParameter:LibraryRoutes.kt$onShowSnackbar: (String) -&gt; Unit</ID>
     <ID>UnusedParameter:LibraryStorageSection.kt$uiState: SettingsUiState</ID>
     <ID>UnusedParameter:ListBookItem.kt$onLongClick: () -&gt; Unit</ID>
     <ID>UnusedParameter:LocalLLMProvider.kt$LocalLLMProvider$model: String</ID>
@@ -7567,6 +7573,7 @@
     <ID>UnusedParameter:WebContentSection.kt$viewModel: SettingsViewModel</ID>
     <ID>UnusedParameter:WebFictionExtractors.kt$story: WebFictionStory</ID>
     <ID>UnusedParameter:WebFictionScreen.kt$onSourceClick: (WebFictionSource) -&gt; Unit</ID>
+    <ID>UnusedPrivateMember:AccessibleOutlinedTextFieldTest.kt$AccessibleOutlinedTextFieldTest$private fun hasKey(key: SemanticsPropertyKey&lt;*&gt;)</ID>
     <ID>UnusedPrivateMember:AudioVisualizerService.kt$AudioVisualizerService$private fun calculateDb(magnitude: Float): Float</ID>
     <ID>UnusedPrivateMember:DropboxService.kt$DropboxService$private fun getDownloadPath(fileName: String): String</ID>
     <ID>UnusedPrivateMember:DropboxService.kt$DropboxService$private suspend fun getLocalMediaFiles(): List&lt;LocalMediaFile&gt;</ID>
@@ -7706,7 +7713,6 @@
     <ID>UnusedPrivateProperty:ImportSorterScreen.kt$val p: ImportPlan = runtime.plan!!</ID>
     <ID>UnusedPrivateProperty:IntegrationManager.kt$IntegrationManager$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:JellyfinClient.kt$JellyfinClient$private val okHttpClient: OkHttpClient</ID>
-    <ID>UnusedPrivateProperty:LegacyContentRoutes.kt$val context = LocalContext.current</ID>
     <ID>UnusedPrivateProperty:LegacyContentRoutes.kt$val storyId = backStackEntry.arguments?.getString("storyId") ?: ""</ID>
     <ID>UnusedPrivateProperty:LegacyEbookParsers.kt$LegacyEbookParser$private val tika = Tika()</ID>
     <ID>UnusedPrivateProperty:LegacyRoutes.kt$val genreId = backStackEntry.arguments?.getString("genreId") ?: ""</ID>

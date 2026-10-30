@@ -9,23 +9,6 @@ import java.util.Locale
 
 private val fileNameSanitizer = FileNameSanitizer()
 
-internal fun buildSearchResult(
-    criteria: StorySearchCriteria,
-    stories: List<WebFictionStory>
-): StorySearchResult {
-    val sliced = stories.drop(criteria.offset)
-    val limited = sliced.take(criteria.limit)
-    val consumed = criteria.offset + limited.size
-    val hasMore = stories.size > consumed
-    val nextOffset = if (hasMore) consumed else null
-    return StorySearchResult(
-        stories = limited,
-        totalCount = stories.size,
-        hasMore = hasMore,
-        nextOffset = nextOffset
-    )
-}
-
 internal suspend fun fetchAO3Tags(): Result<List<WebFictionTag>> {
     return withContext(Dispatchers.IO) {
         try {

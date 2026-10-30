@@ -10,7 +10,8 @@ import com.universalmedialibrary.utils.ErrorLogger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.sha1
+import com.universalmedialibrary.utils.computeSha1
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -27,82 +28,19 @@ internal fun determineMediaType(file: File): String? {
 }
 
 internal fun extractAudioDuration(file: File): Long? {
-    val retriever = MediaMetadataRetriever()
-    return try {
-        retriever.setDataSource(file.absolutePath)
-        retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
-    } catch (_: Exception) {
-        null
-    } finally {
-        try {
-            retriever.release()
-        } catch (e: Exception) { Log.w("MediaScannerService", "Error releasing MediaMetadataRetriever", e) }
-    }
+    return AudioMetadataUtils.extractAudioDuration(file)
 }
 
 internal fun extractMusicTrackInfo(file: File): MusicTrackInfo {
-    val retriever = MediaMetadataRetriever()
-    return try {
-        retriever.setDataSource(file.absolutePath)
-        val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-        val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-        val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-        val albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
-        val composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER)
-        val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
-        val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
-        val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toIntOrNull()
-        val sampleRate = AudioMetadataUtils.extractSampleRate(file)
-        val trackPair = parseNumberPair(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER))
-        val discPair = parseNumberPair(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER))
-        val totalTracks = trackPair.second
-            ?: retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS)?.toIntOrNull()
-
-        MusicTrackInfo(
-            title = title ?: file.nameWithoutExtension,
-            artist = artist,
-            album = album,
-            albumArtist = albumArtist,
-            composer = composer,
-            genre = genre,
-            trackNumber = trackPair.first,
-            totalTracks = totalTracks,
-            discNumber = discPair.first,
-            totalDiscs = discPair.second,
-            durationMs = duration,
-            bitrate = bitrate,
-            sampleRate = sampleRate,
-            channels = null
-        )
-    } catch (_: Exception) {
-        MusicTrackInfo(title = file.nameWithoutExtension)
-    } finally {
-        try {
-            retriever.release()
-        } catch (e: Exception) { Log.w("MediaScannerService", "Error releasing MediaMetadataRetriever", e) }
-    }
+    return AudioMetadataUtils.extractMusicTrackInfo(file)
 }
 
 internal fun parseNumberPair(raw: String?): Pair<Int?, Int?> {
-    if (raw.isNullOrBlank()) return null to null
-    val parts = raw.split("/")
-    val first = parts.getOrNull(0)?.toIntOrNull()
-    val second = parts.getOrNull(1)?.toIntOrNull()
-    return first to second
+    return AudioMetadataUtils.parseNumberPair(raw)
 }
 
 internal fun extractEmbeddedAlbumArtBytes(filePath: String): ByteArray? {
-    val retriever = MediaMetadataRetriever()
-    return try {
-        retriever.setDataSource(filePath)
-        retriever.embeddedPicture
-    } catch (_: Exception) {
-        null
-    } finally {
-        try {
-            retriever.release()
-        } catch (e: Exception) { Log.w("MediaScannerService", "Error releasing MediaMetadataRetriever", e) }
-    }
+    return AudioMetadataUtils.extractEmbeddedAlbumArtBytes(filePath)
 }
 
 internal fun scaleBitmap(bitmap: Bitmap, maxDimension: Int): Bitmap {
@@ -115,23 +53,12 @@ internal fun scaleBitmap(bitmap: Bitmap, maxDimension: Int): Bitmap {
 }
 
 internal fun hashString(input: String): String {
-    val digest = MessageDigest.getInstance("SHA-1")
-    val bytes = digest.digest(input.toByteArray())
-    return bytes.joinToString("") { "%02x".format(it) }
+    return input.sha1()
 }
 
 internal fun computeFileHash(file: File): String? {
     return try {
-        val digest = MessageDigest.getInstance("SHA-1")
-        file.inputStream().use { stream ->
-            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-            var bytesRead = stream.read(buffer)
-            while (bytesRead > 0) {
-                digest.update(buffer, 0, bytesRead)
-                bytesRead = stream.read(buffer)
-            }
-        }
-        digest.digest().joinToString("") { "%02x".format(it) }
+        file.computeSha1()
     } catch (_: Exception) {
         null
     }

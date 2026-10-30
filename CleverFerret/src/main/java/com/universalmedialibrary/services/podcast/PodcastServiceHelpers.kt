@@ -1,7 +1,7 @@
 package com.universalmedialibrary.services.podcast
 
 import com.universalmedialibrary.utils.FileNameSanitizer
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.sha1
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URL
@@ -36,9 +36,7 @@ internal fun createPodcastIndexAuthorizationSignature(
 }
 
 internal fun sha1(input: String): String {
-    val digest = MessageDigest.getInstance("SHA-1")
-    val hash = digest.digest(input.toByteArray(Charsets.UTF_8))
-    return hash.joinToString("") { "%02x".format(it) }
+    return input.sha1()
 }
 
 internal fun deduplicatePodcastResults(results: List<PodcastSearchResult>): List<PodcastSearchResult> {

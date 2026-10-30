@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import java.net.URLEncoder
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.md5
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.io.encoding.Base64
@@ -247,9 +247,7 @@ class LastFmScrobblerService @Inject constructor(
         val concatenated = sorted.map { "${it.key}${it.value}" }.joinToString("") + secret
         
         // MD5 hash
-        val md = MessageDigest.getInstance("MD5")
-        val digest = md.digest(concatenated.toByteArray())
-        return digest.joinToString("") { "%02x".format(it) }
+        return concatenated.md5()
     }
     
     /**

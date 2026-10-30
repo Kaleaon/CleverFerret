@@ -129,4 +129,30 @@ class CFTokensThemeSchemaTest {
         assertEquals(Color.Yellow, hc.playerControls.playButtonContainer)
         assertEquals(Color.Black, hc.playerControls.playButtonIcon)
     }
+
+    @Test
+    fun testCFLayoutIntegrationAndLegacyMappings() {
+        val lcarsTheme = CFThemes.byId("lcars").tokens
+        assertEquals(CFLayout.SWEEP, lcarsTheme.layout)
+        assertEquals("Sweep Console", lcarsTheme.layout.displayName)
+        assertNotNull(lcarsTheme.layout.lcarsFrame)
+
+        val metroTheme = CFThemes.byId("metro").tokens
+        assertEquals(CFLayout.TILES, metroTheme.layout)
+        assertEquals("Metro Tiles", metroTheme.layout.displayName)
+
+        val navyGoldTheme = CFThemes.byId("navy-gold").tokens
+        assertEquals(CFLayout.COMPOSE, navyGoldTheme.layout)
+        assertEquals(18, navyGoldTheme.layout.corners.largeDp)
+        assertEquals(14, navyGoldTheme.layout.corners.panelDp)
+
+        // Legacy ID migration map test
+        assertEquals(CFLayout.COMPOSE, CFLayout.fromId("compose"))
+        assertEquals(CFLayout.SWEEP, CFLayout.fromId("lcars"))
+        assertEquals(CFLayout.TILES, CFLayout.fromId("metro"))
+        assertEquals(CFLayout.TERMINAL, CFLayout.fromId("terminal"))
+        assertEquals(CFLayout.GLASS, CFLayout.fromId("glass"))
+        assertEquals(CFLayout.RULES, CFLayout.fromId("rules"))
+        assertEquals(CFLayout.PRESS, CFLayout.fromId("press"))
+    }
 }
