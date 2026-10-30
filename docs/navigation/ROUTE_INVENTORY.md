@@ -17,50 +17,50 @@ could be resolved statically (dynamic targets such as `item.route` are not liste
 | Route | Replacement | Kind | Registered in | Call sites reaching only legacy |
 | --- | --- | --- | --- | --- |
 | `album/{albumId}` | `MediaRoutes.mediaDetailRoute("album", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:202` | _none_ |
-| `ambient` | `MediaRoutes.AMBIENT_SOUNDS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:280` | _none_ |
+| `ambient` | `MediaRoutes.AMBIENT_SOUNDS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:325` | _none_ |
 | `artist/{artistId}` | `MediaRoutes.mediaDetailRoute("artist", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:232` | _none_ |
 | `audio_player/{path}` | `MediaRoutes.audioPlayerRoute("music")` | unclear | `ui/media/navigation/graphs/LegacyRoutes.kt:113` | _none_ |
 | `audioplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("audiobook")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:340` | _none_ |
 | `book_details/{bookId}` | `MediaRoutes.mediaDetailRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:172` | _none_ |
-| `bookshelf` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:51` | _none_ |
-| `collections` | `MediaRoutes.COLLECTIONS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:302` | _none_ |
-| `comic_reader/{uriString}/{fileName}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:69` | _none_ |
-| `detail/{itemId}` | `MediaRoutes.mediaDetailRoute(type, id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:358` | _none_ |
+| `bookshelf` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:53` | _none_ |
+| `collections` | `MediaRoutes.COLLECTIONS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:347` | _none_ |
+| `comic_reader/{uriString}/{fileName}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:71` | _none_ |
+| `detail/{itemId}` | `MediaRoutes.mediaDetailRoute(type, id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:403` | _none_ |
 | `documentviewer/{mediaId}` | `MediaRoutes.readerRoute("document", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:433` | _none_ |
 | `epub_reader/{path}` | `MediaRoutes.epubReaderRoute(path)` | new-route | `ui/media/navigation/graphs/LegacyRoutes.kt:301` | _none_ |
 | `ereader/{mediaId}` | `MediaRoutes.readerRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:321` | _none_ |
-| `fanfiction_download` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:398` | _none_ |
-| `free_audiobooks` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:226` | _none_ |
-| `free_media` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:241` | _none_ |
-| `free_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:233` | _none_ |
+| `fanfiction_download` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:443` | _none_ |
+| `free_audiobooks` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:228` | _none_ |
+| `free_media` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:243` | _none_ |
+| `free_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:235` | _none_ |
 | `genre/{genreId}` | `MediaRoutes.libraryRoute("music")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:262` | _none_ |
-| `hivefy_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:135` | _none_ |
-| `library_details/{typeId}` | `MediaRoutes.libraryRoute(type)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:317` | _none_ |
+| `hivefy_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:137` | _none_ |
+| `library_details/{typeId}` | `MediaRoutes.libraryRoute(type)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:362` | _none_ |
 | `magazinereader/{mediaId}` | `MediaRoutes.readerRoute("document", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:415` | _none_ |
-| `metabods_tag_browser` | `MediaRoutes.discoveryRoute(type = "WEB_FICTION")` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:122` | _none_ |
-| `metadata_editor/{itemId}` | `MediaRoutes.metadataEditorRoute(id)` | new-route | `ui/media/navigation/graphs/LegacyContentRoutes.kt:389` | _none_ |
-| `music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:294` | _none_ |
+| `metabods_tag_browser` | `MediaRoutes.discoveryRoute(type = "WEB_FICTION")` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:124` | _none_ |
+| `metadata_editor/{itemId}` | `MediaRoutes.metadataEditorRoute(id)` | new-route | `ui/media/navigation/graphs/LegacyContentRoutes.kt:434` | _none_ |
+| `music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:339` | _none_ |
 | `music_player` | `MediaRoutes.audioPlayerRoute("music")` | redirect | `ui/media/navigation/graphs/LegacyRoutes.kt:77` | _none_ |
 | `musicplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("music")` | redirect | `ui/media/navigation/graphs/LegacyRoutes.kt:384` | _none_ |
-| `opds_catalog` | `MediaRoutes.OPDS_BROWSER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:143` | _none_ |
-| `otr_series_detail/{seriesTitle}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:58` | _none_ |
+| `opds_catalog` | `MediaRoutes.OPDS_BROWSER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:145` | _none_ |
+| `otr_series_detail/{seriesTitle}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:60` | _none_ |
 | `pdf_reader/{path}` | `MediaRoutes.pdfReaderRoute(path)` | new-route | `ui/media/navigation/graphs/LegacyRoutes.kt:309` | _none_ |
 | `podcast_detail/{podcastId}` | `MediaRoutes.mediaDetailRoute("podcast", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:142` | _none_ |
 | `podcast_player/{episodeId}` | `MediaRoutes.audioPlayerRoute("podcast")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:85` | _none_ |
 | `podcastplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("podcast")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:392` | _none_ |
-| `podcasts` | `MediaRoutes.PODCASTS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:247` | _none_ |
-| `radio` | `MediaRoutes.RADIO` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:268` | _none_ |
+| `podcasts` | `MediaRoutes.PODCASTS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:249` | _none_ |
+| `radio` | `MediaRoutes.RADIO` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:313` | _none_ |
 | `reader/{mediaId}` | `MediaRoutes.readerRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:282` | _none_ |
-| `reading_statistics` | `(delete)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:208` | _none_ |
-| `storage_browser` | `MediaRoutes.ENHANCED_FILE_BROWSER` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:167` | _none_ |
-| `story_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:87` | _none_ |
-| `universal_tag_browser` | `MediaRoutes.discoveryRoute(type = "WEB_FICTION")` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:129` | _none_ |
+| `reading_statistics` | `(delete)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:210` | _none_ |
+| `storage_browser` | `MediaRoutes.ENHANCED_FILE_BROWSER` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:169` | _none_ |
+| `story_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:89` | _none_ |
+| `universal_tag_browser` | `MediaRoutes.discoveryRoute(type = "WEB_FICTION")` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:131` | _none_ |
 | `video_player/{videoId}` | `MediaRoutes.videoPlayerRoute(id)` | duplicate | `ui/media/navigation/graphs/LegacyRoutes.kt:50` | _none_ |
 | `videoplayer/{mediaId}` | `MediaRoutes.videoPlayerRoute(id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:363` | _none_ |
-| `visualizer` | `MediaRoutes.VISUALIZER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:274` | _none_ |
-| `web_comic_downloader` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:114` | _none_ |
-| `webfiction_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:79` | _none_ |
-| `webfiction_story/{storyId}` | `MediaRoutes.readerRoute("webfiction", id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:95` | _none_ |
+| `visualizer` | `MediaRoutes.VISUALIZER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:319` | _none_ |
+| `web_comic_downloader` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:116` | _none_ |
+| `webfiction_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:81` | _none_ |
+| `webfiction_story/{storyId}` | `MediaRoutes.readerRoute("webfiction", id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:97` | _none_ |
 
 Kinds: `redirect` (already forwards to the live route), `duplicate` (live route hosts the
 same destination), `remap` (live route exists but arguments differ), `new-route` (live
@@ -157,15 +157,15 @@ These would throw `IllegalArgumentException` at runtime. They are tracked in
 | `file-browser` | `ui/media/navigation/graphs/SyncImportRoutes.kt:99` |
 | `folder-import` | `ui/media/navigation/graphs/SyncImportRoutes.kt:71` |
 | `home` | `ui/media/navigation/graphs/MainSectionRoutes.kt:50` |
-| `home/see-all/{section}` | `ui/media/navigation/graphs/LibraryRoutes.kt:57` |
+| `home/see-all/{section}` | `ui/media/navigation/graphs/LibraryRoutes.kt:59` |
 | `import-export` | `ui/media/navigation/graphs/SyncImportRoutes.kt:58` |
 | `landseek` | `ui/media/navigation/graphs/OnboardingLandseekRoutes.kt:61` |
-| `library` | `ui/media/navigation/graphs/LibraryRoutes.kt:49` |
-| `library/music` | `ui/media/navigation/graphs/LibraryRoutes.kt:110` |
-| `library/podcast` | `ui/media/navigation/graphs/LibraryRoutes.kt:131` |
-| `library/radio` | `ui/media/navigation/graphs/LibraryRoutes.kt:160` |
-| `library/webfiction` | `ui/media/navigation/graphs/LibraryRoutes.kt:153` |
-| `library/{mediaType}` | `ui/media/navigation/graphs/LibraryRoutes.kt:75` |
+| `library` | `ui/media/navigation/graphs/LibraryRoutes.kt:51` |
+| `library/music` | `ui/media/navigation/graphs/LibraryRoutes.kt:112` |
+| `library/podcast` | `ui/media/navigation/graphs/LibraryRoutes.kt:133` |
+| `library/radio` | `ui/media/navigation/graphs/LibraryRoutes.kt:205` |
+| `library/webfiction` | `ui/media/navigation/graphs/LibraryRoutes.kt:198` |
+| `library/{mediaType}` | `ui/media/navigation/graphs/LibraryRoutes.kt:77` |
 | `metadata-editor/{itemId}` | `ui/media/navigation/graphs/DetailRoutes.kt:105` |
 | `metadata-review-queue` | `ui/media/navigation/graphs/SyncImportRoutes.kt:82` |
 | `news` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:170` |
