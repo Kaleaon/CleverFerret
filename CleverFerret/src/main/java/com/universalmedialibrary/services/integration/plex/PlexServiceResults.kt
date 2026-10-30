@@ -24,15 +24,6 @@ sealed class SmartCollectionResult {
     data class Error(val message: String, val exception: Throwable? = null) : SmartCollectionResult()
 }
 
-data class PlexServerInfo(
-    val name: String,
-    val url: String,
-    val version: String,
-    val platform: String,
-    val machineIdentifier: String,
-    val libraryCount: Int
-)
-
 data class DuplicateGroup(
     val items: List<MediaItem>,
     val similarity: Float,
