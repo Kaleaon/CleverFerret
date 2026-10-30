@@ -53,6 +53,7 @@ fun PodcastScreen(
     onDownloadEpisode: (PodcastEpisode) -> Unit,
     onDiscoverClick: () -> Unit,
     onImportOPML: () -> Unit,
+    onExportOPML: () -> Unit = {},
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
     onOpenNowPlaying: () -> Unit = {},
@@ -73,7 +74,8 @@ fun PodcastScreen(
                 onBackClick = onBackClick,
                 onSearchClick = onSearchClick,
                 onDiscoverClick = onDiscoverClick,
-                onImportClick = onImportOPML
+                onImportClick = onImportOPML,
+                onExportClick = onExportOPML
             )
         },
         bottomBar = {

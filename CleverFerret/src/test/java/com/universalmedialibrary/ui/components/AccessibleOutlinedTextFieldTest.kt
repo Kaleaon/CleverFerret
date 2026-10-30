@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
@@ -107,9 +107,11 @@ class AccessibleOutlinedTextFieldTest {
         assertEquals(
             "Node should not have Error semantics property when errorMessage is null",
             null,
-            textNode.config.getOrNull(SemanticsProperties.Error)
+            if (SemanticsProperties.Error in textNode.config) textNode.config[SemanticsProperties.Error] else null
         )
     }
+
+    private fun hasKey(key: SemanticsPropertyKey<*>) = SemanticsMatcher("has key ${key.name}") { key in it.config }
 
     @Test
     fun urlImportDialog_whenInvalidUrlScheme_exposesErrorSemanticsAndLiveRegion() {

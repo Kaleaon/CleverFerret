@@ -11,8 +11,6 @@ import com.universalmedialibrary.parsers.ParserFactory
 import com.universalmedialibrary.parsers.DocumentParser
 import com.universalmedialibrary.parsers.ParsedDocument
 import com.universalmedialibrary.parsers.DocumentMetadata
-import com.universalmedialibrary.services.media.MediaContentResolver
-import com.universalmedialibrary.services.media.ResolvedContent
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -32,20 +30,10 @@ class UnifiedReaderServiceIntegrationTest {
     private val geminiComicService = mockk<GeminiComicService>(relaxed = true)
     private val audioPlaybackManager = mockk<AudioPlaybackManager>(relaxed = true)
     private val formatRegistry = mockk<FormatRegistry>(relaxed = true)
-    private val mediaContentResolver = mockk<MediaContentResolver>(relaxed = true)
+    private val plexVirtualUriResolver = mockk<com.universalmedialibrary.services.plex.PlexVirtualUriResolver>(relaxed = true)
 
     @Before
     fun setUp() {
-        coEvery { mediaContentResolver.resolvePath(any()) } answers {
-            val path = firstArg<String>()
-            val file = File(path)
-            if (file.exists()) {
-                ResolvedContent.LocalFile(file)
-            } else {
-                ResolvedContent.Error("File not found: $path")
-            }
-        }
-
         unifiedReaderService = UnifiedReaderService(
             context,
             readiumEpubService,
@@ -54,7 +42,7 @@ class UnifiedReaderServiceIntegrationTest {
             geminiComicService,
             audioPlaybackManager,
             formatRegistry,
-            null
+            plexVirtualUriResolver
         )
         mockkObject(ParserFactory)
     }
