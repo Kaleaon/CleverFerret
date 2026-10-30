@@ -46,8 +46,7 @@ import com.universalmedialibrary.ui.components.showUserFeedback
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.log10
-import kotlin.math.pow
+import com.universalmedialibrary.utils.formatFileSize
 
 /**
  * Storage Browser Screen - Moon+ Reader style file navigation
@@ -399,17 +398,7 @@ private fun ErrorView(
     }
 }
 
-internal fun formatFileSize(bytes: Long): String {
-    if (bytes <= 0) return "0 B"
-    val units = arrayOf("B", "KB", "MB", "GB", "TB")
-    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt().coerceIn(0, units.lastIndex)
-    return String.format(
-        java.util.Locale.US,
-        "%.1f %s",
-        bytes / 1024.0.pow(digitGroups.toDouble()),
-        units[digitGroups]
-    )
-}
+
 
 internal fun formatDate(timestamp: Long): String {
     val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())

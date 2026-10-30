@@ -115,7 +115,7 @@ class RemoteEnrichmentProcessor @Inject constructor(
             updated = updated.copy(summary = details?.description)
         }
         if (updated.year == null && details?.publishDate != null) {
-            val year = details.publishDate?.take(YEAR_CHARS_COUNT)?.toIntOrNull()
+            val year = details.publishDate.take(YEAR_CHARS_COUNT).toIntOrNull()
             if (year != null) updated = updated.copy(year = year)
         }
         if (updated.rating == null && details?.rating != null) {

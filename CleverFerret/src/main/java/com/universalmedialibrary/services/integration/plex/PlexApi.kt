@@ -60,14 +60,27 @@ interface PlexApi {
 }
 
 // Data models for Plex API responses
-data class PlexApiServerInfo(
-    val friendlyName: String,
-    val machineIdentifier: String,
-    val version: String,
-    val platform: String,
-    val platformVersion: String,
-    val updatedAt: Long,
-    val myPlex: Boolean
+data class PlexServerInfo(
+    val name: String = "",
+    val url: String = "",
+    val friendlyName: String = "",
+    val machineIdentifier: String = "",
+    val version: String = "",
+    val platform: String = "",
+    val platformVersion: String = "",
+    val updatedAt: Long = 0,
+    val myPlex: Boolean = false,
+    val libraryCount: Int = 0
+)
+
+typealias PlexApiServerInfo = PlexServerInfo
+
+data class PlexMediaItem(
+    val ratingKey: String,
+    val key: String,
+    val guid: String = "",
+    val title: String = "",
+    val type: String = ""
 )
 
 data class PlexLibrariesResponse(

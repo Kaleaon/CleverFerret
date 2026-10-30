@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import android.content.Context
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
@@ -337,11 +338,19 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
+                val appContext = context.applicationContext
+                val keyManager = DatabaseKeyManager(appContext)
+                val passphrase = keyManager.getPassphrase()
+                SQLCipherDatabaseMigration.migrateIfNeeded(appContext, DATABASE_NAME, passphrase)
+
+                val factory = SupportOpenHelperFactory(passphrase)
+
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
+                    appContext,
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
+                    .openHelperFactory(factory)
                     .addMigrations(
                         AppDatabaseMigrations.MIGRATION_20_21,
                         AppDatabaseMigrations.MIGRATION_21_22,

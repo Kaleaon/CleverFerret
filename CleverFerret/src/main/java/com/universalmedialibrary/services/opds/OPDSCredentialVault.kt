@@ -38,28 +38,49 @@ class OPDSCredentialVault @Inject constructor(
     }
 
     private val prefs: SharedPreferences by lazy {
+        purgeFallbackStorage()
         initPreferences()
     }
 
+    @Suppress("TooGenericExceptionCaught")
+    private fun purgeFallbackStorage() {
+        try {
+            context.deleteSharedPreferences(FALLBACK_PREFS_NAME)
+        } catch (e: Exception) {
+            Log.w(TAG, "Error purging legacy fallback preferences", e)
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
     private fun initPreferences(): SharedPreferences {
         return try {
-            val masterKey = MasterKey.Builder(context)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .build()
-
-            EncryptedSharedPreferences.create(
-                context,
-                PREFS_NAME,
-                masterKey,
-                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            )
-        } catch (e: Throwable) {
+            createEncryptedPreferences()
+        } catch (e: Exception) {
+            Log.w(TAG, "EncryptedSharedPreferences initialization failed. Regenerating KeyStore MasterKey...", e)
             try {
-                Log.w(TAG, "EncryptedSharedPreferences initialization failed, falling back to standard storage", e)
-            } catch (_: Throwable) {}
-            context.getSharedPreferences(FALLBACK_PREFS_NAME, Context.MODE_PRIVATE)
+                context.deleteSharedPreferences(PREFS_NAME)
+                val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")
+                keyStore.load(null)
+                keyStore.deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS)
+            } catch (cleanEx: Exception) {
+                Log.e(TAG, "Error cleaning KeyStore entry during recovery", cleanEx)
+            }
+            createEncryptedPreferences()
         }
+    }
+
+    private fun createEncryptedPreferences(): SharedPreferences {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        return EncryptedSharedPreferences.create(
+            context,
+            PREFS_NAME,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
 
     /**

@@ -9,8 +9,8 @@ could be resolved statically (dynamic targets such as `item.route` are not liste
 
 ## Summary
 
-- Registered routes: 91 current, 45 legacy
-- Resolvable `navigate` calls: 156 (156 reach a current route, 0 reach only a legacy route, 0 match no registered route)
+- Registered routes: 92 current, 45 legacy
+- Resolvable `navigate` calls: 162 (162 reach a current route, 0 reach only a legacy route, 0 match no registered route)
 
 ## Legacy routes
 
@@ -136,10 +136,10 @@ These would throw `IllegalArgumentException` at runtime. They are tracked in
 | Route | Registered in |
 | --- | --- |
 | `activity` | `ui/media/navigation/graphs/MainSectionRoutes.kt:192` |
-| `advanced_effects_showcase` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:109` |
+| `advanced_effects_showcase` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:165` |
 | `ambient` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:156` |
-| `ambient/import` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:263` |
-| `ambient/theme_manager` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:258` |
+| `ambient/import` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:290` |
+| `ambient/theme_manager` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:284` |
 | `collection/{collectionId}` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:60` |
 | `collections` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:46` |
 | `debug` | `ui/media/navigation/graphs/DebugMenuRoutes.kt:46` |
@@ -153,7 +153,7 @@ These would throw `IllegalArgumentException` at runtime. They are tracked in
 | `enhanced-file-browser` | `ui/media/navigation/graphs/OnboardingLandseekRoutes.kt:74` |
 | `enhanced_search?query={query}&tags={tags}&mediaTypes={mediaTypes}` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:123` |
 | `epub-reader/{path}` | `ui/media/navigation/graphs/PlayerRoutes.kt:150` |
-| `fanfiction_hub` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:269` |
+| `fanfiction_hub` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:296` |
 | `file-browser` | `ui/media/navigation/graphs/SyncImportRoutes.kt:99` |
 | `folder-import` | `ui/media/navigation/graphs/SyncImportRoutes.kt:71` |
 | `home` | `ui/media/navigation/graphs/MainSectionRoutes.kt:50` |
@@ -178,51 +178,52 @@ These would throw `IllegalArgumentException` at runtime. They are tracked in
 | `reader/{mediaType}/{mediaId}?chapter={chapter}` | `ui/media/navigation/graphs/PlayerRoutes.kt:46` |
 | `room-chat/{roomName}` | `ui/media/navigation/graphs/MainSectionRoutes.kt:198` |
 | `search` | `ui/media/navigation/graphs/MainSectionRoutes.kt:184` |
-| `settings` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:15` |
-| `settings/about` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:234` |
-| `settings/accounts` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:29` |
-| `settings/api` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:23` |
-| `settings/appearance` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:35` |
+| `settings` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:16` |
+| `settings/about` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:260` |
+| `settings/accounts` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:82` |
+| `settings/api` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:76` |
+| `settings/appearance` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:88` |
 | `settings/audio-effects` | `ui/settings/AudioEffectsSettingsScreen.kt:42` |
-| `settings/audio_effects` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:155` |
-| `settings/audio_profiles` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:173` |
-| `settings/auto-scan` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:53` |
-| `settings/cache` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:75` |
-| `settings/casting` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:85` |
-| `settings/cloud` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:149` |
-| `settings/display` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:58` |
-| `settings/downloads` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:70` |
+| `settings/audio_effects` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:208` |
+| `settings/audio_profiles` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:217` |
+| `settings/auto-scan` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:109` |
+| `settings/cache` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:128` |
+| `settings/casting` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:140` |
+| `settings/developer` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:63` |
+| `settings/display` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:115` |
+| `settings/downloads` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:122` |
+| `settings/features` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:68` |
 | `settings/features` | `ui/settings/FeatureFlagsSettings.kt:26` |
-| `settings/feedback` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:90` |
-| `settings/import_export` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:125` |
-| `settings/import_history` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:119` |
-| `settings/import_sorter` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:113` |
-| `settings/lastfm` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:179` |
-| `settings/media-servers` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:137` |
-| `settings/media_servers` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:131` |
-| `settings/metadata` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:47` |
-| `settings/network_storage` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:143` |
-| `settings/organizer` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:209` |
-| `settings/parental` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:203` |
-| `settings/parental_controls` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:197` |
-| `settings/paywall/cloud` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:252` |
-| `settings/paywall/scanner` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:246` |
-| `settings/paywall/themes` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:240` |
-| `settings/playback` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:164` |
-| `settings/privacy` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:80` |
-| `settings/reader` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:221` |
-| `settings/security` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:228` |
-| `settings/social` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:41` |
-| `settings/storage` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:215` |
-| `settings/text-size` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:64` |
-| `settings/tts` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:191` |
-| `settings/tts_provider` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:185` |
+| `settings/feedback` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:146` |
+| `settings/hub/appearance` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:25` |
+| `settings/hub/integrations` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:47` |
+| `settings/hub/library` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:33` |
+| `settings/hub/playback` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:40` |
+| `settings/hub/system` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:54` |
+| `settings/import_export` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:181` |
+| `settings/import_history` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:175` |
+| `settings/import_sorter` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:169` |
+| `settings/lastfm` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:223` |
+| `settings/media_servers` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:187` |
+| `settings/metadata` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:102` |
+| `settings/network_storage` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:193` |
+| `settings/parental_controls` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:235` |
+| `settings/paywall/cloud` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:278` |
+| `settings/paywall/scanner` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:272` |
+| `settings/paywall/themes` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:266` |
+| `settings/playback` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:199` |
+| `settings/privacy` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:134` |
+| `settings/reader` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:247` |
+| `settings/security` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:254` |
+| `settings/social` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:95` |
+| `settings/storage` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:241` |
+| `settings/tts_provider` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:229` |
 | `smart_collection/{ruleId}` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:111` |
 | `smart_collections` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:104` |
 | `sync` | `ui/media/navigation/graphs/SyncImportRoutes.kt:46` |
 | `tag_explorer` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:86` |
 | `tag_manager` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:79` |
 | `tags` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:95` |
-| `theme_showcase` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:96` |
+| `theme_showcase` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:152` |
 | `universal_search` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:155` |
 | `visualizer` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:179` |
