@@ -31,7 +31,14 @@ repos:
         name: validate-android14-widgets
         entry: python3 scripts/ci/validate_android14_widget_background_updates.py
         language: python
-        files: ^CleverFerret/src/main/res/xml/.*widget.*_info\.xml$
+        files: ^(.+/)?res/xml/.*widget.*\.xml$
+
+      - id: check-compose-semantic-tokens
+        name: check-compose-semantic-tokens
+        entry: python3 scripts/ci/check_compose_semantic_tokens.py
+        language: python
+        types: [kotlin]
+        files: ^CleverFerretV2/feature/
 
       - id: check-kotlin-quality
         name: check-kotlin-quality
