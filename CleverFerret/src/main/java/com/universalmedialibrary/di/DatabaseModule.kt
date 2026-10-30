@@ -104,6 +104,11 @@ object DatabaseModule {
         return database.plexSyncDao()
     }
 
+    @Provides
+    fun provideRemoteSyncMutationDao(database: AppDatabase): RemoteSyncMutationDao {
+        return database.remoteSyncMutationDao()
+    }
+
     // Emby/Jellyfin/YAACC DAOs
     @Provides
     fun provideEmbyServerDao(database: AppDatabase): EmbyServerDao {

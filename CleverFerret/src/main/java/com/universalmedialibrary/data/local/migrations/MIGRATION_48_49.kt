@@ -4,9 +4,10 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
- * Migration from database version 48 to 49.
- * Introduces central `external_media_entities` mapping table and updates `media_fts` triggers
- * to index unified entities directly without artificial row ID offsets (eliminating 1000000000 + pmi.id logic).
+ * Migration 48 -> 49:
+ * 1. Introduces central `external_media_entities` mapping table and updates `media_fts` triggers
+ *    to index unified entities directly without artificial row ID offsets.
+ * 2. Adds `remote_sync_mutations` table for enqueuing outbound sync progress/rating updates.
  */
 val MIGRATION_48_49: Migration = object : Migration(48, 49) {
     override fun migrate(database: SupportSQLiteDatabase) {
@@ -105,6 +106,22 @@ val MIGRATION_48_49: Migration = object : Migration(48, 49) {
             BEGIN
                 DELETE FROM media_fts WHERE rowid = OLD.id AND item_source = UPPER(OLD.providerId);
             END;
+        """.trimIndent())
+
+        // 6. Create remote_sync_mutations table
+        database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `remote_sync_mutations` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `serverType` TEXT NOT NULL,
+                `serverId` INTEGER NOT NULL,
+                `targetItemId` TEXT NOT NULL,
+                `mutationType` TEXT NOT NULL,
+                `payloadJson` TEXT NOT NULL,
+                `retryCount` INTEGER NOT NULL,
+                `status` TEXT NOT NULL,
+                `createdAt` INTEGER NOT NULL,
+                `lastAttemptAt` INTEGER
+            );
         """.trimIndent())
     }
 }

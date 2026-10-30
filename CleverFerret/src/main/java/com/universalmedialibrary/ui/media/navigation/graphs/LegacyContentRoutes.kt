@@ -120,19 +120,16 @@ fun NavGraphBuilder.legacyContentRoutes(
     }
     
     composable("metabods_tag_browser") {
-        LaunchedEffect(Unit) {
-            navController.navigate(MediaRoutes.discoveryRoute(type = "WEB_FICTION")) {
-                popUpTo("metabods_tag_browser") { inclusive = true }
-            }
-        }
+        com.universalmedialibrary.ui.webfiction.UniversalTagBrowserScreen(
+            initialSiteType = com.universalmedialibrary.services.webfiction.WebFictionSiteType.METABODS,
+            navController = navController
+        )
     }
     
     composable("universal_tag_browser") {
-        LaunchedEffect(Unit) {
-            navController.navigate(MediaRoutes.discoveryRoute(type = "WEB_FICTION")) {
-                popUpTo("universal_tag_browser") { inclusive = true }
-            }
-        }
+        com.universalmedialibrary.ui.webfiction.UniversalTagBrowserScreen(
+            navController = navController
+        )
     }
     
     composable("hivefy_music") {

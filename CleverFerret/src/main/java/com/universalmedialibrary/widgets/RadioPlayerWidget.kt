@@ -2,22 +2,14 @@ package com.universalmedialibrary.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.widget.RemoteViews
 import com.universalmedialibrary.R
-import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.data.local.dao.RadioStationDao
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
@@ -26,15 +18,13 @@ import javax.inject.Inject
  * Shows currently playing radio station with controls
  */
 @AndroidEntryPoint
-class RadioPlayerWidget : AppWidgetProvider() {
+class RadioPlayerWidget : BaseWidgetProvider() {
 
     @Inject
     lateinit var audioPlaybackManager: AudioPlaybackManager
 
     @Inject
     lateinit var radioStationDao: RadioStationDao
-
-    private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onUpdate(
         context: Context,
@@ -70,7 +60,7 @@ class RadioPlayerWidget : AppWidgetProvider() {
             val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
             
             val currentStation = if (currentStationId > 0 && radioStationDao != null) {
-                radioStationDao.getStationByIdDirect(currentStationId) // ✅ Already in suspend context
+                radioStationDao.getStationByIdDirect(currentStationId)
             } else {
                 null
             }
@@ -100,34 +90,20 @@ class RadioPlayerWidget : AppWidgetProvider() {
             )
 
             // Click to open app
-            val intent = Intent(context, MainActivity::class.java).apply {
-                action = "OPEN_RADIO_PLAYER"
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val pendingIntent = PendingIntent.getActivity(
-                context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            val pendingIntent = getActivityPendingIntent(context, "OPEN_RADIO_PLAYER")
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
         private fun getPendingIntent(context: Context, action: String): PendingIntent {
-            val intent = Intent(context, RadioPlayerWidget::class.java).apply {
-                this.action = action
-            }
-            // Use unique request code per action to avoid PendingIntent reuse
             val requestCode = when (action) {
                 ACTION_PLAY_PAUSE -> 4001
                 ACTION_NEXT_STATION -> 4002
                 ACTION_PREV_STATION -> 4003
                 else -> 4000
             }
-            return PendingIntent.getBroadcast(
-                context, requestCode, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            return getBroadcastPendingIntent(context, RadioPlayerWidget::class.java, action, requestCode)
         }
     }
 
@@ -207,11 +183,5 @@ class RadioPlayerWidget : AppWidgetProvider() {
                 updateAppWidget(context, appWidgetManager, id, audioPlaybackManager, radioStationDao)
             }
         }
-    }
-
-    override fun onDisabled(context: Context) {
-        super.onDisabled(context)
-        // Cancel coroutine scope when all widgets removed to prevent leaks
-        widgetScope.cancel()
     }
 }

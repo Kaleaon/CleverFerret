@@ -28,6 +28,8 @@ enum class UnifiedThemePalette {
     PAPER_INK
 }
 
+typealias ThemePalette = UnifiedThemePalette
+
 // Theme 13: Paper & Ink (Minimalist Reader)
 object PaperInkUnified {
     private val Ink = Color(0xFF2C2C2C)

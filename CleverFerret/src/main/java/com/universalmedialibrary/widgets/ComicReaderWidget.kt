@@ -1,19 +1,15 @@
 package com.universalmedialibrary.widgets
 
-import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.content.Intent
 import android.widget.RemoteViews
 import com.universalmedialibrary.R
-import com.universalmedialibrary.MainActivity
 
 /**
  * Comic Reader Widget
  * Shows currently reading comic with quick navigation
  */
-class ComicReaderWidget : AppWidgetProvider() {
+class ComicReaderWidget : BaseWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -40,14 +36,7 @@ class ComicReaderWidget : AppWidgetProvider() {
             views.setProgressBar(R.id.widget_progress, 100, 62, false)
 
             // Click to open app
-            val intent = Intent(context, MainActivity::class.java).apply {
-                action = "OPEN_COMIC_READER"
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val pendingIntent = PendingIntent.getActivity(
-                context, 7000, intent, // Unique request code for comic widget
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            val pendingIntent = getActivityPendingIntent(context, "OPEN_COMIC_READER", requestCode = 7000)
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)

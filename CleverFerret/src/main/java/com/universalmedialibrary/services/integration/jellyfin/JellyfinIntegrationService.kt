@@ -39,8 +39,12 @@ class JellyfinIntegrationService @Inject constructor(
     private var serverUrl: String? = null
     private var apiKey: String? = null
 
-    fun createApi(baseUrl: String): JellyfinApi {
-        val client = OkHttpClient.Builder().build()
+    fun createApi(baseUrl: String, interceptor: okhttp3.Interceptor? = null): JellyfinApi {
+        val clientBuilder = OkHttpClient.Builder()
+        if (interceptor != null) {
+            clientBuilder.addInterceptor(interceptor)
+        }
+        val client = clientBuilder.build()
         return Retrofit.Builder()
             .baseUrl(if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/")
             .client(client)
