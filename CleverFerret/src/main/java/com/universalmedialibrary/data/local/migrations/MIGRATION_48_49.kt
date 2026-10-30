@@ -8,6 +8,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * - Adds index on lastModified column in media_items table to optimize background sync queries.
  * - Adds `remote_sync_mutations` table for enqueuing outbound sync progress/rating updates.
  * - Adds multi-column composite indices for collaborative session queries.
+ * - Adds `crdt_operation_journal` table and indexes for operation-based delta CRDT syncing.
  */
 val MIGRATION_48_49: Migration = object : Migration(48, 49) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -15,6 +16,7 @@ val MIGRATION_48_49: Migration = object : Migration(48, 49) {
         createRemoteSyncMutationsTable(db)
         createSessionIndices(db)
         createQueueAndVoteIndices(db)
+        createCrdtOperationJournalTable(db)
     }
 }
 
@@ -100,5 +102,43 @@ private fun createQueueAndVoteIndices(database: SupportSQLiteDatabase) {
         CREATE INDEX IF NOT EXISTS index_session_votes_clientId_queueItemId
         ON session_votes(clientId, queueItemId)
         """.trimIndent()
+    )
+}
+
+private fun createCrdtOperationJournalTable(database: SupportSQLiteDatabase) {
+    database.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `crdt_operation_journal` (
+            `operationId` TEXT NOT NULL,
+            `entityId` TEXT NOT NULL,
+            `entityType` TEXT NOT NULL,
+            `fieldPath` TEXT NOT NULL,
+            `operationType` TEXT NOT NULL,
+            `valueJson` TEXT,
+            `elementId` TEXT,
+            `deviceId` TEXT NOT NULL,
+            `lamportTimestamp` INTEGER NOT NULL,
+            `wallTimestamp` INTEGER NOT NULL,
+            `isSynced` INTEGER NOT NULL,
+            `isCompacted` INTEGER NOT NULL,
+            PRIMARY KEY(`operationId`)
+        )
+        """.trimIndent()
+    )
+    database.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_entityId_fieldPath` " +
+            "ON `crdt_operation_journal` (`entityId`, `fieldPath`)"
+    )
+    database.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_lamportTimestamp` " +
+            "ON `crdt_operation_journal` (`lamportTimestamp`)"
+    )
+    database.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_isSynced` " +
+            "ON `crdt_operation_journal` (`isSynced`)"
+    )
+    database.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_crdt_operation_journal_isCompacted` " +
+            "ON `crdt_operation_journal` (`isCompacted`)"
     )
 }

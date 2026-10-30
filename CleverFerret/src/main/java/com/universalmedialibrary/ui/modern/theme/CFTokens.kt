@@ -125,7 +125,7 @@ data class CFTokens(
     val status: CFStatusColors = CFStatusColors(),
     val playerControls: CFPlayerControls = CFPlayerControls(),
     val gridMinItemWidth: CFGridMinItemWidth = CFGridMinItemWidth(),
-    val liveRegion: com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy = com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy(),
+    val liveRegion: KthemeThemeAdapterV1.LiveRegionPolicy = KthemeThemeAdapterV1.LiveRegionPolicy(),
 )
 
 val LocalCFTokens = staticCompositionLocalOf<CFTokens> {

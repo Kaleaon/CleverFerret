@@ -17,6 +17,8 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEn
 import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
 import com.universalmedialibrary.data.local.converters.AudioChapterListConverter
 import com.universalmedialibrary.data.Tag
+import com.universalmedialibrary.data.crdt.CrdtOperationRecord
+import com.universalmedialibrary.data.crdt.CrdtTypeConverters
 
 
 /**
@@ -199,13 +201,23 @@ import com.universalmedialibrary.data.Tag
         MediaCacheItem::class,
 
         // Remote Sync Queue Mutation
-        RemoteSyncMutation::class
+        RemoteSyncMutation::class,
+
+        // CRDT Operation Journal
+        CrdtOperationRecord::class
 
     ],
     version = 49,
     exportSchema = false
 )
-@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
+@TypeConverters(
+    Converters::class,
+    AudioChapterListConverter::class,
+    AmbientSoundConverters::class,
+    AudioPackConverters::class,
+    CollaborativeSessionConverters::class,
+    CrdtTypeConverters::class
+)
 abstract class AppDatabase : RoomDatabase() {
 
 
@@ -309,6 +321,9 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Collaborative Session DAO
     abstract fun collaborativeSessionDao(): CollaborativeSessionDao
+
+    // CRDT Operation Journal DAO
+    abstract fun crdtOperationJournalDao(): CrdtOperationJournalDao
 
     // Enhanced Tag System DAOs
     abstract fun tagHierarchyDao(): TagHierarchyDao

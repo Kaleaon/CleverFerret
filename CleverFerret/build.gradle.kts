@@ -253,6 +253,13 @@ android {
 
     }
 
+    sourceSets {
+        getByName("main") {
+            java.srcDir(layout.buildDirectory.dir("generated/ksp/debug/java"))
+            java.srcDir(layout.buildDirectory.dir("generated/ksp/debug/kotlin"))
+        }
+    }
+
     buildTypes {
         debug {
             isDebuggable = true
