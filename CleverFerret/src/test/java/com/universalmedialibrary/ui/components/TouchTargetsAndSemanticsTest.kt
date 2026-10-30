@@ -52,8 +52,17 @@ class TouchTargetsAndSemanticsTest {
         val compactThemeSelectorSwatchDp = 24
         val themePreviewScreenSwatchDp = 24
 
-        assertTrue("ModernThemePickerScreen swatch size must be >= 24dp (WCAG 2.2 SC 2.5.8)", modernThemePickerSwatchDp >= minSwatchTargetDp)
-        assertTrue("CompactThemeSelector swatch preview size must be >= 24dp (WCAG 2.2 SC 2.5.8)", compactThemeSelectorSwatchDp >= minSwatchTargetDp)
-        assertTrue("ThemePreviewScreen swatch surface size must be >= 24dp (WCAG 2.2 SC 2.5.8)", themePreviewScreenSwatchDp >= minSwatchTargetDp)
+        assertTrue(
+            "ModernThemePickerScreen swatch size must be >= 24dp (WCAG 2.2 SC 2.5.8)",
+            modernThemePickerSwatchDp >= minSwatchTargetDp
+        )
+        assertTrue(
+            "CompactThemeSelector swatch preview size must be >= 24dp (WCAG 2.2 SC 2.5.8)",
+            compactThemeSelectorSwatchDp >= minSwatchTargetDp
+        )
+        assertTrue(
+            "ThemePreviewScreen swatch surface size must be >= 24dp (WCAG 2.2 SC 2.5.8)",
+            themePreviewScreenSwatchDp >= minSwatchTargetDp
+        )
     }
 }

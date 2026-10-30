@@ -1,0 +1,301 @@
+{
+  "version": 1,
+  "units": "logical",
+  "scope": "Application-owned layout conventions inspired by the named references; not an official specification of those references.",
+  "common": {
+    "minimumTarget": 48,
+    "bodyContrast": 4.5,
+    "largeTextContrast": 3,
+    "focusContrast": 3,
+    "adaptiveWidth": 720,
+    "contentCase": "preserve",
+    "motion": "respect-system",
+    "status": "icon-and-text",
+    "themeLayers": [
+      "layout",
+      "palette",
+      "effect"
+    ]
+  },
+  "layouts": {
+    "compose": {
+      "id": "compose",
+      "name": "Compose",
+      "navigation": {
+        "phone": "bar",
+        "wide": "rail"
+      },
+      "corners": {
+        "large": 18,
+        "panel": 14,
+        "tile": 12,
+        "cover": 6,
+        "control": 999,
+        "icon": 10,
+        "artwork": 20
+      },
+      "typography": {
+        "body": "Roboto",
+        "minimumMetadata": 10,
+        "contentCase": "preserve",
+        "navigationCase": "preserve",
+        "mediaTracking": 0,
+        "wrap": "word-safe"
+      },
+      "surfaces": "compose",
+      "actions": "theme-effect",
+      "player": "docked",
+      "shadow": "theme-effect",
+      "referenceEffect": null,
+      "acceptance": [
+        "48-unit targets and named actions",
+        "phone/wide navigation remains reachable",
+        "preserve media identity and avoid unnecessary word splitting",
+        "text contrast on rendered surfaces and gradient samples",
+        "content is not obscured by playback or feedback"
+      ]
+    },
+    "terminal": {
+      "id": "terminal",
+      "name": "Ink Terminal",
+      "navigation": {
+        "phone": "bar",
+        "wide": "rail"
+      },
+      "corners": {
+        "large": 4,
+        "panel": 4,
+        "tile": 4,
+        "cover": 4,
+        "control": 4,
+        "icon": 4,
+        "artwork": 4
+      },
+      "typography": {
+        "body": "JetBrains Mono",
+        "minimumMetadata": 12,
+        "contentCase": "uppercase",
+        "navigationCase": "uppercase",
+        "mediaTracking": 0,
+        "wrap": "word-safe"
+      },
+      "surfaces": "box",
+      "actions": "theme-effect",
+      "player": "docked",
+      "shadow": "none",
+      "referenceEffect": null,
+      "acceptance": [
+        "48-unit targets and named actions",
+        "phone/wide navigation remains reachable",
+        "preserve media identity and avoid unnecessary word splitting",
+        "text contrast on rendered surfaces and gradient samples",
+        "content is not obscured by playback or feedback"
+      ]
+    },
+    "sweep": {
+      "id": "sweep",
+      "name": "Sweep Console",
+      "navigation": {
+        "phone": "sweep",
+        "wide": "sweep"
+      },
+      "corners": {
+        "large": 0,
+        "panel": 0,
+        "tile": 0,
+        "cover": 0,
+        "control": 999,
+        "icon": 999,
+        "artwork": 0
+      },
+      "typography": {
+        "body": "Antonio + Nunito Sans",
+        "minimumMetadata": 10,
+        "contentCase": "uppercase",
+        "navigationCase": "uppercase",
+        "mediaTracking": 0,
+        "wrap": "word-safe"
+      },
+      "surfaces": "lcars",
+      "actions": "filled-text",
+      "player": "docked-text",
+      "shadow": "none",
+      "referenceEffect": "flat",
+      "acceptance": [
+        "48-unit targets and named actions",
+        "phone/wide navigation remains reachable",
+        "preserve media identity and avoid unnecessary word splitting",
+        "text contrast on rendered surfaces and gradient samples",
+        "content is not obscured by playback or feedback"
+      ],
+      "frame": {
+        "rail": 76,
+        "bar": 12,
+        "gap": 4,
+        "inner": 18,
+        "arm": 48,
+        "header": 64,
+        "elbow": 48,
+        "footer": 24,
+        "field": "#000000",
+        "outerRadiusRule": "inner + rail horizontally; inner + bar vertically",
+        "readouts": "unboxed-in-field",
+        "feedback": "docked",
+        "variants": "LCARS-inspired when palette or effect differs from the reference",
+        "deviations": [
+          "content pictograms",
+          "platform status bar"
+        ]
+      }
+    },
+    "tiles": {
+      "id": "tiles",
+      "name": "Metro Tiles",
+      "navigation": {
+        "phone": "pivot-appbar",
+        "wide": "pivot-appbar"
+      },
+      "corners": {
+        "large": 0,
+        "panel": 0,
+        "tile": 0,
+        "cover": 0,
+        "control": 0,
+        "icon": 0,
+        "artwork": 0
+      },
+      "typography": {
+        "body": "Open Sans",
+        "minimumMetadata": 10,
+        "contentCase": "preserve",
+        "navigationCase": "lowercase",
+        "mediaTracking": 0,
+        "wrap": "word-safe"
+      },
+      "surfaces": "flat",
+      "actions": "accent-tile",
+      "player": "docked",
+      "shadow": "theme-effect",
+      "referenceEffect": null,
+      "acceptance": [
+        "48-unit targets and named actions",
+        "phone/wide navigation remains reachable",
+        "preserve media identity and avoid unnecessary word splitting",
+        "text contrast on rendered surfaces and gradient samples",
+        "content is not obscured by playback or feedback"
+      ],
+      "maximumQuickActionHeight": 160
+    },
+    "glass": {
+      "id": "glass",
+      "name": "Aero Glass",
+      "navigation": {
+        "phone": "bar",
+        "wide": "rail"
+      },
+      "corners": {
+        "large": 18,
+        "panel": 16,
+        "tile": 12,
+        "cover": 8,
+        "control": 12,
+        "icon": 12,
+        "artwork": 22
+      },
+      "typography": {
+        "body": "Nunito Sans",
+        "minimumMetadata": 10,
+        "contentCase": "preserve",
+        "navigationCase": "preserve",
+        "mediaTracking": 0,
+        "wrap": "word-safe"
+      },
+      "surfaces": "soft",
+      "actions": "theme-effect",
+      "player": "docked",
+      "shadow": "theme-effect",
+      "referenceEffect": "glass",
+      "acceptance": [
+        "48-unit targets and named actions",
+        "phone/wide navigation remains reachable",
+        "preserve media identity and avoid unnecessary word splitting",
+        "text contrast on rendered surfaces and gradient samples",
+        "content is not obscured by playback or feedback"
+      ]
+    },
+    "rules": {
+      "id": "rules",
+      "name": "Rule & Rail",
+      "navigation": {
+        "phone": "rail",
+        "wide": "rail"
+      },
+      "corners": {
+        "large": 0,
+        "panel": 0,
+        "tile": 0,
+        "cover": 0,
+        "control": 0,
+        "icon": 0,
+        "artwork": 0
+      },
+      "typography": {
+        "body": "Jost",
+        "minimumMetadata": 10,
+        "contentCase": "uppercase",
+        "navigationCase": "uppercase",
+        "mediaTracking": 0.04,
+        "wrap": "word-safe"
+      },
+      "surfaces": "rule",
+      "actions": "theme-effect",
+      "player": "docked",
+      "shadow": "none",
+      "referenceEffect": null,
+      "acceptance": [
+        "48-unit targets and named actions",
+        "phone/wide navigation remains reachable",
+        "preserve media identity and avoid unnecessary word splitting",
+        "text contrast on rendered surfaces and gradient samples",
+        "content is not obscured by playback or feedback"
+      ]
+    },
+    "press": {
+      "id": "press",
+      "name": "Press",
+      "navigation": {
+        "phone": "bar",
+        "wide": "rail"
+      },
+      "corners": {
+        "large": 6,
+        "panel": 3,
+        "tile": 2,
+        "cover": 2,
+        "control": 2,
+        "icon": 2,
+        "artwork": 4
+      },
+      "typography": {
+        "body": "Source Serif 4 + Jost",
+        "minimumMetadata": 10,
+        "contentCase": "preserve",
+        "navigationCase": "preserve",
+        "mediaTracking": 0,
+        "wrap": "word-safe"
+      },
+      "surfaces": "quiet",
+      "actions": "quiet-solid",
+      "player": "docked",
+      "shadow": "none",
+      "referenceEffect": null,
+      "acceptance": [
+        "48-unit targets and named actions",
+        "phone/wide navigation remains reachable",
+        "preserve media identity and avoid unnecessary word splitting",
+        "text contrast on rendered surfaces and gradient samples",
+        "content is not obscured by playback or feedback"
+      ]
+    }
+  }
+}
