@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.modern.components.CFSectionHeader
 import com.universalmedialibrary.ui.modern.components.CFSettingsRow
+import com.universalmedialibrary.utils.formatFileSize
 import com.universalmedialibrary.ui.modern.components.CFTopBar
 import com.universalmedialibrary.ui.modern.theme.CFSpacing
 
@@ -177,7 +178,7 @@ private fun StorageCard(state: ModernMaintenanceUiState) {
     ) {
         Text("STORAGE", style = MaterialTheme.typography.labelMedium, color = cs.onSurfaceVariant)
         Text(
-            "${state.storageUsedBytes.formatBytes()} / ${state.storageBudgetBytes.formatBytes()}",
+            "${state.storageUsedBytes.formatFileSize()} / ${state.storageBudgetBytes.formatFileSize()}",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Black,
         )
@@ -191,14 +192,4 @@ private fun StorageCard(state: ModernMaintenanceUiState) {
     }
 }
 
-private fun Long.formatBytes(): String {
-    val kb = this / 1024.0
-    val mb = kb / 1024.0
-    val gb = mb / 1024.0
-    return when {
-        gb >= 1.0 -> "%.2f GB".format(gb)
-        mb >= 1.0 -> "%.1f MB".format(mb)
-        kb >= 1.0 -> "%.0f KB".format(kb)
-        else      -> "$this B"
-    }
-}
+
