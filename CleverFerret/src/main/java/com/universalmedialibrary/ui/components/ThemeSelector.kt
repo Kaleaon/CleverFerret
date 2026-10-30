@@ -106,6 +106,7 @@ private fun ThemeCard(
             // Color preview
             Box(
                 modifier = Modifier
+                    .defaultMinSize(minWidth = 24.dp, minHeight = 24.dp)
                     .size(60.dp)
                     .clip(MaterialTheme.shapes.small)
                     .background(
@@ -372,6 +373,7 @@ fun CompactThemeSelector(
                             // Color preview
                             Box(
                                 modifier = Modifier
+                                    .defaultMinSize(minWidth = 24.dp, minHeight = 24.dp)
                                     .size(24.dp)
                                     .clip(MaterialTheme.shapes.extraSmall)
                                     .background(
