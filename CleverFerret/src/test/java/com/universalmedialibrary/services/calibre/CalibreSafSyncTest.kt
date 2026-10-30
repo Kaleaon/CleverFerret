@@ -15,7 +15,10 @@ import com.universalmedialibrary.services.CalibreDatabaseReader
 import com.universalmedialibrary.services.CalibreImportService
 import com.universalmedialibrary.services.RawCalibreBook
 import com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -167,7 +170,8 @@ class CalibreSafSyncTest {
     }
 
     @Test
-    fun `CalibreImportService processes items in batch chunks and preserves custom tags and series index`() = kotlinx.coroutines.test.runTest {
+    fun `CalibreImportService processes items in batch chunks and preserves custom tags and series index`() =
+        kotlinx.coroutines.test.runTest {
         val mockDatabase = mockk<AppDatabase>(relaxed = true)
         val mockMediaItemDao = mockk<MediaItemDao>(relaxed = true)
         val mockMetadataDao = mockk<MetadataDao>(relaxed = true)

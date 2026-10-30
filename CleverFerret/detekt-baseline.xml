@@ -1625,11 +1625,17 @@
     <ID>FunctionNaming:SettingsDialog.kt$@Composable private fun PasswordTextField( value: String, onValueChange: (String) -&gt; Unit, label: String, hint: String, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:SettingsDialog.kt$@Composable private fun ReaderTab( readerSettings: ReaderSettings, onReaderSettingsChange: (ReaderSettings) -&gt; Unit )</ID>
     <ID>FunctionNaming:SettingsDialog.kt$@Composable private fun SettingSwitch( label: String, checked: Boolean, onCheckedChange: (Boolean) -&gt; Unit, description: String? = null, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:SettingsHubScreens.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AppearanceHubScreen( onBack: () -&gt; Unit, navController: NavController, availableBottomItems: List&lt;NavigationItem&gt;, viewModel: SettingsViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:SettingsHubScreens.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun IntegrationsHubScreen( onBack: () -&gt; Unit, navController: NavController, viewModel: SettingsViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:SettingsHubScreens.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LibraryHubScreen( onBack: () -&gt; Unit, navController: NavController, viewModel: SettingsViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:SettingsHubScreens.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PlaybackHubScreen( onBack: () -&gt; Unit, navController: NavController, viewModel: SettingsViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:SettingsHubScreens.kt$@Suppress("LongMethod") @OptIn(ExperimentalMaterial3Api::class) @Composable fun SystemHubScreen( onBack: () -&gt; Unit, navController: NavController, viewModel: SettingsViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:SettingsItem.kt$@Composable internal fun SettingsItem( icon: ImageVector, iconColor: Color, title: String, subtitle: String, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:SettingsPrimarySections.kt$@Composable internal fun AppearanceSettingsSection( uiState: SettingsUiState, navController: NavController, onOpenThemePicker: () -&gt; Unit, onDarkModeChanged: (Boolean) -&gt; Unit, onReduceMotionChanged: (Boolean) -&gt; Unit )</ID>
     <ID>FunctionNaming:SettingsPrimarySections.kt$@Composable internal fun PodcastSettingsSection( uiState: SettingsUiState, onAutoDownloadChanged: (Boolean) -&gt; Unit, onWifiOnlyChanged: (Boolean) -&gt; Unit )</ID>
     <ID>FunctionNaming:SettingsScreen.kt$@Composable internal fun GearPositionOption( label: String, position: BottomGearPosition, current: BottomGearPosition, onSelect: (BottomGearPosition) -&gt; Unit )</ID>
-    <ID>FunctionNaming:SettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( onBack: () -&gt; Unit, navController: NavController, availableBottomItems: List&lt;NavigationItem&gt;, viewModel: SettingsViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable private fun SettingsCategoryHubCard( title: String, description: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Suppress("LongMethod") @OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( onBack: () -&gt; Unit, navController: NavController, availableBottomItems: List&lt;NavigationItem&gt;, viewModel: SettingsViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:SettingsSubPages.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AppearanceSettingsScreen( onBack: () -&gt; Unit, navController: NavController, viewModel: SettingsViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:SettingsSubPages.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SocialIntegrationsSettingsScreen( onBack: () -&gt; Unit, navController: NavController )</ID>
     <ID>FunctionNaming:SettingsToggleItem.kt$@Composable internal fun SettingsToggleItem( title: String, subtitle: String, isChecked: Boolean, onCheckedChange: (Boolean) -&gt; Unit )</ID>
@@ -2555,7 +2561,6 @@
     <ID>LongMethod:SettingsDialog.kt$@Composable private fun ReaderTab( readerSettings: ReaderSettings, onReaderSettingsChange: (ReaderSettings) -&gt; Unit )</ID>
     <ID>LongMethod:SettingsPrimarySections.kt$@Composable internal fun AppearanceSettingsSection( uiState: SettingsUiState, navController: NavController, onOpenThemePicker: () -&gt; Unit, onDarkModeChanged: (Boolean) -&gt; Unit, onReduceMotionChanged: (Boolean) -&gt; Unit )</ID>
     <ID>LongMethod:SettingsPrimarySections.kt$@Composable internal fun PodcastSettingsSection( uiState: SettingsUiState, onAutoDownloadChanged: (Boolean) -&gt; Unit, onWifiOnlyChanged: (Boolean) -&gt; Unit )</ID>
-    <ID>LongMethod:SettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( onBack: () -&gt; Unit, navController: NavController, availableBottomItems: List&lt;NavigationItem&gt;, viewModel: SettingsViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:SharingService.kt$SharingService$private fun generateQuoteImage(quote: Quote): Bitmap</ID>
     <ID>LongMethod:SimpleEpubCreator.kt$SimpleEpubCreator$private fun addStylesheet(zip: ZipOutputStream)</ID>
     <ID>LongMethod:SinglePageView.kt$@Composable internal fun SinglePageView( pages: List&lt;String&gt;, currentPage: Int, panels: List&lt;Rect&gt;, currentPanel: Int, panelByPanelMode: Boolean, showPanelBorders: Boolean, scale: Float, offsetX: Float, offsetY: Float, onPageChanged: (Int) -&gt; Unit, onPanelSelected: (Int) -&gt; Unit, onScaleChanged: (Float) -&gt; Unit, onOffsetChanged: (Float, Float) -&gt; Unit, onTap: () -&gt; Unit )</ID>
@@ -6429,7 +6434,6 @@
     <ID>MaxLineLength:SecurityAndAboutScreens.kt$text = "A comprehensive media library application supporting books, audiobooks, comics, movies, TV shows, and music with advanced reading features and metadata management."</ID>
     <ID>MaxLineLength:SecurityAndAboutScreens.kt$text = "All your reading data and settings are stored locally on your device. No personal information is sent to external servers without your explicit consent."</ID>
     <ID>MaxLineLength:ServerIntegrationScreen.kt$serverUrl.isNotBlank() &amp;&amp; !serverUrl.startsWith("http://", ignoreCase = true) &amp;&amp; !serverUrl.startsWith("https://", ignoreCase = true)</ID>
-    <ID>MaxLineLength:SettingsScreen.kt$navigationSection(uiState = uiState, viewModel = viewModel, navController = navController, availableBottomItems = availableBottomItems)</ID>
     <ID>MaxLineLength:SharedLinkDao.kt$SharedLinkDao$@Query("SELECT * FROM shared_links WHERE token = :token AND enabled = 1 AND (expiresAt IS NULL OR expiresAt &gt; strftime('%s','now')*1000)")</ID>
     <ID>MaxLineLength:StatusComponents.kt$Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = state.content(MaterialTheme.colorScheme.onSurface))</ID>
     <ID>MaxLineLength:StorageAccessServiceTest.kt$StorageAccessServiceTest$verify { resolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }</ID>
@@ -7494,6 +7498,8 @@
     <ID>UnusedParameter:ServerIntegrationViewModel.kt$ServerIntegrationViewModel$serverId: Long</ID>
     <ID>UnusedParameter:ServerIntegrationViewModel.kt$ServerIntegrationViewModel$url: String</ID>
     <ID>UnusedParameter:ServerIntegrationViewModel.kt$ServerIntegrationViewModel$username: String</ID>
+    <ID>UnusedParameter:SettingsScreen.kt$availableBottomItems: List&lt;NavigationItem&gt;</ID>
+    <ID>UnusedParameter:SettingsScreen.kt$viewModel: SettingsViewModel = hiltViewModel()</ID>
     <ID>UnusedParameter:SharingService.kt$SharingService$text: String</ID>
     <ID>UnusedParameter:SinglePageView.kt$onPageChanged: (Int) -&gt; Unit</ID>
     <ID>UnusedParameter:SleepTimerDialog.kt$currentTimerMinutes: Int?</ID>
@@ -10787,11 +10793,6 @@
     <ID>WildcardImport:SettingsItem.kt$import com.universalmedialibrary.api.plugin.*</ID>
     <ID>WildcardImport:SettingsItem.kt$import com.universalmedialibrary.ui.media.theme.*</ID>
     <ID>WildcardImport:SettingsRepository.kt$import com.universalmedialibrary.data.settings.*</ID>
-    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:SettingsScreen.kt$import com.universalmedialibrary.ui.theme.*</ID>
     <ID>WildcardImport:SettingsSubPages.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:SettingsSubPages.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:SettingsSubPages.kt$import androidx.compose.material3.*</ID>
