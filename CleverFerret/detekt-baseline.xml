@@ -231,9 +231,10 @@
     <ID>CyclomaticComplexMethod:ParentalControlsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentalControlsScreen( navController: NavController, viewModel: ParentalControlsViewModel = hiltViewModel() )</ID>
     <ID>CyclomaticComplexMethod:PlexIntegrationService.kt$PlexIntegrationService$suspend fun syncAllLibraries( conflictPolicy: SyncConflictPolicy = _plexState.value.syncConflictPolicy ): PlexSyncResult</ID>
     <ID>CyclomaticComplexMethod:PodcastPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PodcastPlayerScreen( episodeId: Long, onBack: () -&gt; Unit, onNavigateToVisualizer: () -&gt; Unit = {}, viewModel: PodcastPlayerViewModel = hiltViewModel() )</ID>
+    <ID>CyclomaticComplexMethod:PodcastViewModel.kt$PodcastViewModel$private fun enrichEpisodesWithPlaybackState(episodes: List&lt;PodcastEpisode&gt;): List&lt;PodcastEpisode&gt;</ID>
     <ID>CyclomaticComplexMethod:ProjectMVisualizer.kt$@Composable fun ProjectMVisualizer( visualizerState: VisualizerState, modifier: Modifier = Modifier, style: VisualizerStyle = VisualizerStyle.SPECTRUM_BARS )</ID>
     <ID>CyclomaticComplexMethod:ProviderConfigurationScreen.kt$@Composable fun ProviderConfigurationScreen( provider: ApiProvider, configuration: ApiConfiguration?, onSave: (ApiConfiguration) -&gt; Unit, onDelete: () -&gt; Unit, onBackClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>CyclomaticComplexMethod:RadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RadioScreen( onBack: () -&gt; Unit, viewModel: EnhancedRadioViewModel = hiltViewModel() )</ID>
+    <ID>CyclomaticComplexMethod:RadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RadioScreen( onBack: () -&gt; Unit, viewModel: RadioScreenViewModel = hiltViewModel() )</ID>
     <ID>CyclomaticComplexMethod:ReaderEngineFactory.kt$ReaderEngineFactory$fun detectBookFormat(filename: String): BookFormat</ID>
     <ID>CyclomaticComplexMethod:ReaderEngineFactory.kt$ReaderEngineFactory$fun getFormatDisplayName(format: BookFormat): String</ID>
     <ID>CyclomaticComplexMethod:ReaderGestureHandler.kt$@Composable fun ReaderGestureOverlay( onPreviousPage: () -&gt; Unit, onNextPage: () -&gt; Unit, onToggleUI: () -&gt; Unit, onShowMenu: () -&gt; Unit, onTextSelection: (startX: Float, startY: Float, endX: Float, endY: Float) -&gt; Unit, onFontSizeAdjust: ((delta: Float) -&gt; Unit)? = null, onBrightnessAdjust: ((delta: Float) -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
@@ -1481,7 +1482,7 @@
     <ID>FunctionNaming:RadioScreen.kt$@Composable private fun RadioMediaPlayerBar( isVisible: Boolean, station: RadioStation?, nowPlayingInfo: NowPlayingInfo?, isPlaying: Boolean, isIdentifying: Boolean, onPlayPause: () -&gt; Unit, onSkipNext: () -&gt; Unit, onSkipPrevious: () -&gt; Unit, onIdentifySong: () -&gt; Unit )</ID>
     <ID>FunctionNaming:RadioScreen.kt$@Composable private fun RadioStationCard( station: RadioStation, isPlaying: Boolean, onPlay: () -&gt; Unit, onToggleFavorite: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
     <ID>FunctionNaming:RadioScreen.kt$@Composable private fun StationList( stations: List&lt;RadioStation&gt;, currentStation: RadioStation?, onPlayStation: (RadioStation) -&gt; Unit, onToggleFavorite: (RadioStation) -&gt; Unit, onDeleteStation: (RadioStation) -&gt; Unit )</ID>
-    <ID>FunctionNaming:RadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RadioScreen( onBack: () -&gt; Unit, viewModel: EnhancedRadioViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:RadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RadioScreen( onBack: () -&gt; Unit, viewModel: RadioScreenViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:RadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun RadioScreen( state: RadioScreenState, onStationClick: (RadioStation) -&gt; Unit, onFavoriteToggle: (RadioStation) -&gt; Unit, onCategoryClick: (RadioCategory) -&gt; Unit, onSearchClick: () -&gt; Unit, onBackClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:RadioStationCard.kt$@Composable internal fun RadioStationCard( station: RadioStation, onClick: () -&gt; Unit, onFavorite: () -&gt; Unit )</ID>
     <ID>FunctionNaming:RadioStationListItem.kt$@Composable internal fun RadioStationListItem( station: RadioStation, isPlaying: Boolean, onClick: () -&gt; Unit, onFavorite: () -&gt; Unit )</ID>
@@ -2470,6 +2471,7 @@
     <ID>LongMethod:PodcastScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun PodcastScreen( state: PodcastScreenState, onShowClick: (PodcastShow) -&gt; Unit, onEpisodeClick: (PodcastEpisode) -&gt; Unit, onPlayEpisode: (PodcastEpisode) -&gt; Unit, onDownloadEpisode: (PodcastEpisode) -&gt; Unit, onDiscoverClick: () -&gt; Unit, onImportOPML: () -&gt; Unit, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onOpenNowPlaying: () -&gt; Unit = {}, onPlayPause: () -&gt; Unit = {}, onSeekForward: () -&gt; Unit = {}, onSeekBackward: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:PodcastSearchDialog.kt$@Composable fun PodcastSearchDialog( searchResults: List&lt;PodcastSearchResult&gt;, isSearching: Boolean, onDismiss: () -&gt; Unit, onSearch: (String) -&gt; Unit, onSubscribe: (PodcastSearchResult) -&gt; Unit )</ID>
     <ID>LongMethod:PodcastShowCard.kt$@Composable internal fun PodcastShowCard( show: PodcastShow, onClick: () -&gt; Unit )</ID>
+    <ID>LongMethod:PodcastViewModel.kt$PodcastViewModel$fun downloadEpisode(episode: PodcastEpisode, bypassPin: Boolean = false)</ID>
     <ID>LongMethod:PresetBrowserScreen.kt$@Composable private fun PresetCard( preset: VisualizerPreset, onClick: () -&gt; Unit, onShare: () -&gt; Unit, onEdit: () -&gt; Unit )</ID>
     <ID>LongMethod:PresetBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PresetBrowserScreen( onBack: () -&gt; Unit, onPresetSelected: (VisualizerPreset) -&gt; Unit, onNavigateToEditor: (String?) -&gt; Unit = {}, viewModel: PresetBrowserViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:PresetSharingUtil.kt$@Composable fun PresetShareDialog( preset: VisualizerPreset, onDismiss: () -&gt; Unit )</ID>
@@ -2486,13 +2488,14 @@
     <ID>LongMethod:RadioScreen.kt$@Composable private fun AddRadioStationDialog( onDismiss: () -&gt; Unit, onAdd: (String, String, String?, String?) -&gt; Unit )</ID>
     <ID>LongMethod:RadioScreen.kt$@Composable private fun RadioMediaPlayerBar( isVisible: Boolean, station: RadioStation?, nowPlayingInfo: NowPlayingInfo?, isPlaying: Boolean, isIdentifying: Boolean, onPlayPause: () -&gt; Unit, onSkipNext: () -&gt; Unit, onSkipPrevious: () -&gt; Unit, onIdentifySong: () -&gt; Unit )</ID>
     <ID>LongMethod:RadioScreen.kt$@Composable private fun RadioStationCard( station: RadioStation, isPlaying: Boolean, onPlay: () -&gt; Unit, onToggleFavorite: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
-    <ID>LongMethod:RadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RadioScreen( onBack: () -&gt; Unit, viewModel: EnhancedRadioViewModel = hiltViewModel() )</ID>
+    <ID>LongMethod:RadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RadioScreen( onBack: () -&gt; Unit, viewModel: RadioScreenViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:RadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun RadioScreen( state: RadioScreenState, onStationClick: (RadioStation) -&gt; Unit, onFavoriteToggle: (RadioStation) -&gt; Unit, onCategoryClick: (RadioCategory) -&gt; Unit, onSearchClick: () -&gt; Unit, onBackClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:RadioStationCard.kt$@Composable internal fun RadioStationCard( station: RadioStation, onClick: () -&gt; Unit, onFavorite: () -&gt; Unit )</ID>
     <ID>LongMethod:RadioStationListItem.kt$@Composable internal fun RadioStationListItem( station: RadioStation, isPlaying: Boolean, onClick: () -&gt; Unit, onFavorite: () -&gt; Unit )</ID>
     <ID>LongMethod:RadioTab.kt$@Composable fun RadioStationDialog( station: RadioStation? = null, onDismiss: () -&gt; Unit, onSave: (name: String, url: String, genre: String?, country: String?, bitrate: Int?) -&gt; Unit )</ID>
     <ID>LongMethod:RadioTab.kt$@Composable fun RadioTab( stations: List&lt;RadioStation&gt;, onPlayStation: (RadioStation) -&gt; Unit, onAddStation: () -&gt; Unit, onEditStation: (RadioStation) -&gt; Unit, onDeleteStation: (RadioStation) -&gt; Unit )</ID>
     <ID>LongMethod:RadioTab.kt$@Composable private fun RadioStationItem( station: RadioStation, onPlay: () -&gt; Unit, onEdit: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
+    <ID>LongMethod:RadioViewModel.kt$RadioScreenViewModel$private fun loadDefaultStations()</ID>
     <ID>LongMethod:ReaderBottomBar.kt$@Composable internal fun ReaderBottomBar( currentPage: Int, totalPages: Int, chapterProgress: Float, currentChapterIndex: Int, totalChapters: Int, onPageChange: (Int) -&gt; Unit, onPreviousChapter: () -&gt; Unit, onNextChapter: () -&gt; Unit, theme: ReaderTheme )</ID>
     <ID>LongMethod:ReaderControlsOverlay.kt$@Composable internal fun ReaderControlsOverlay( state: BookReaderState, onClose: () -&gt; Unit, onShowSettings: () -&gt; Unit, onShowTOC: () -&gt; Unit, onShowSearch: () -&gt; Unit, onShowBookmarks: () -&gt; Unit, onBookmarkToggle: () -&gt; Unit, onTTSToggle: () -&gt; Unit, onPageSelect: (Int) -&gt; Unit )</ID>
     <ID>LongMethod:ReaderGestureHandler.kt$@Composable fun ReaderGestureOverlay( onPreviousPage: () -&gt; Unit, onNextPage: () -&gt; Unit, onToggleUI: () -&gt; Unit, onShowMenu: () -&gt; Unit, onTextSelection: (startX: Float, startY: Float, endX: Float, endY: Float) -&gt; Unit, onFontSizeAdjust: ((delta: Float) -&gt; Unit)? = null, onBrightnessAdjust: ((delta: Float) -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
@@ -3666,6 +3669,8 @@
     <ID>MagicNumber:CollectionDetailScreen.kt$0xFF4CAF50</ID>
     <ID>MagicNumber:CollectionDetailScreen.kt$0xFF78909C</ID>
     <ID>MagicNumber:CollectionDetailScreen.kt$0xFF9C27B0</ID>
+    <ID>MagicNumber:ComicArchiveUtils.kt$ComicArchiveUtils$5</ID>
+    <ID>MagicNumber:ComicArchiveUtils.kt$ComicArchiveUtils$60</ID>
     <ID>MagicNumber:ComicMetadataService.kt$ComicMetadataService$3</ID>
     <ID>MagicNumber:ComicReaderScreen.kt$0.35f</ID>
     <ID>MagicNumber:ComicReaderScreen.kt$0.65f</ID>
@@ -6476,7 +6481,8 @@
     <ID>NestedBlockDepth:CloudSyncEngine.kt$CloudSyncEngine$private suspend fun uploadLocalChange(change: SyncChange)</ID>
     <ID>NestedBlockDepth:ComicArchiveHandler.kt$ComicArchiveHandler$fun getPageBitmapFromSevenZip(file: File, entryName: String): Bitmap?</ID>
     <ID>NestedBlockDepth:ComicArchiveHandler.kt$ComicArchiveHandler$fun getPageBitmapFromTar(file: File, entryName: String): Bitmap?</ID>
-    <ID>NestedBlockDepth:ComicArchiveUtils.kt$ComicArchiveUtils$fun extractComicInfoFromCbr(context: Context, uri: Uri): ComicInfo?</ID>
+    <ID>NestedBlockDepth:ComicArchiveUtils.kt$ComicArchiveUtils$fun &lt;T&gt; executeWithTempCacheFile( context: Context, uri: Uri, prefix: String = "comic", suffix: String = ".cbr", block: (File) -&gt; T ): T?</ID>
+    <ID>NestedBlockDepth:ComicArchiveUtils.kt$ComicArchiveUtils$fun cleanupStaleComicTempFiles( context: Context, maxAgeMillis: Long = 5 * 60 * 1000L ): Int</ID>
     <ID>NestedBlockDepth:ComicArchiveUtils.kt$ComicArchiveUtils$fun extractComicInfoFromCbz(context: Context, uri: Uri): ComicInfo?</ID>
     <ID>NestedBlockDepth:ComicInfoHandler.kt$ComicInfoHandler$fun writeToCBZ(cbzPath: String, comicInfo: ComicInfo)</ID>
     <ID>NestedBlockDepth:ComicInfoHandler.kt$ComicInfoHandler$private fun parseComicInfo(xml: String): ComicInfo</ID>
@@ -7084,7 +7090,6 @@
     <ID>TooGenericExceptionCaught:OPDSClient.kt$OPDSClient$e: Exception</ID>
     <ID>TooGenericExceptionCaught:OPDSClient.kt$OPDSClient$error: Throwable</ID>
     <ID>TooGenericExceptionCaught:OPDSClient.kt$OPDSClient$parseError: Exception</ID>
-    <ID>TooGenericExceptionCaught:OPDSCredentialVault.kt$OPDSCredentialVault$e: Throwable</ID>
     <ID>TooGenericExceptionCaught:OPDSDownloadService.kt$OPDSDownloadService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:OcrRepository.kt$OcrRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:OcrViewModel.kt$OcrViewModel$e: Exception</ID>
@@ -7132,6 +7137,7 @@
     <ID>TooGenericExceptionCaught:RadioDnsService.kt$RadioDnsService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:RadioIdentificationService.kt$RadioIdentificationService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:RadioLogoService.kt$RadioLogoService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:RadioViewModel.kt$RadioScreenViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ReaderSettingsViewModel.kt$ReaderSettingsViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ReaderViewModel.kt$ReaderViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ReadingPreferencesScreen.kt$ReadingPreferencesViewModel$e: Exception</ID>
@@ -7214,6 +7220,7 @@
     <ID>TooGenericExceptionThrown:AdvancedComicReaderViewModel.kt$AdvancedComicReaderViewModel$throw Exception("PDF comic format not yet supported. Please use CBZ format.")</ID>
     <ID>TooGenericExceptionThrown:AdvancedComicReaderViewModel.kt$AdvancedComicReaderViewModel$throw Exception("Unsupported comic format")</ID>
     <ID>TooGenericExceptionThrown:AniListTracker.kt$AniListTracker$throw Exception("GraphQL error: $errorMessage")</ID>
+    <ID>TooGenericExceptionThrown:ComicArchiveUtilsTest.kt$ComicArchiveUtilsTest$throw RuntimeException("Simulated parsing error inside Junrar Archive")</ID>
     <ID>TooGenericExceptionThrown:ComicInfoHandler.kt$ComicInfoHandler$throw Exception("Failed to write ComicInfo.xml: ${e.message}", e)</ID>
     <ID>TooGenericExceptionThrown:DebugMenuViewModel.kt$DebugMenuViewModel$throw RuntimeException("Test crash triggered from Debug Menu")</ID>
     <ID>TooGenericExceptionThrown:ElevenLabsTtsService.kt$ElevenLabsTtsService$throw Exception("ElevenLabs API error (${response.code}): $errorBody")</ID>
@@ -10442,6 +10449,7 @@
     <ID>WildcardImport:RadioUnavailableState.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:RadioUnavailableState.kt$import com.universalmedialibrary.ui.media.components.*</ID>
     <ID>WildcardImport:RadioUnavailableState.kt$import com.universalmedialibrary.ui.media.theme.*</ID>
+    <ID>WildcardImport:RadioViewModel.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>WildcardImport:ReaderBottomBar.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:ReaderBottomBar.kt$import androidx.compose.foundation.*</ID>
     <ID>WildcardImport:ReaderBottomBar.kt$import androidx.compose.foundation.gestures.*</ID>
