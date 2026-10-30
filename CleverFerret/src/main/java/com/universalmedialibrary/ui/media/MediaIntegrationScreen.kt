@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * Main screen for Plex integration
@@ -24,8 +25,8 @@ fun MediaIntegrationScreen(
     onBack: () -> Unit,
     viewModel: MediaIntegrationViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val plexState by viewModel.plexState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val plexState by viewModel.plexState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.fanfiction.models.StoryMetadata
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.icons.PhosphorIcons
@@ -26,8 +27,8 @@ fun FanfictionDownloadScreen(
     onDownloadComplete: () -> Unit = {}
 ) {
     var url by remember { mutableStateOf("") }
-    val downloadState by viewModel.downloadState.collectAsState()
-    val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
+    val downloadState by viewModel.downloadState.collectAsStateWithLifecycle()
+    val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsStateWithLifecycle()
     
     LaunchedEffect(downloadState) {
         if (downloadState is DownloadState.Success) {

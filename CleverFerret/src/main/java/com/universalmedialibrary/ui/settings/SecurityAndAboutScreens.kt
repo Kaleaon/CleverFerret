@@ -14,6 +14,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.settings.SecuritySettings
 import com.universalmedialibrary.data.settings.GeneralSettings
 
@@ -23,7 +24,7 @@ fun SecuritySettingsLegacyScreen(
     navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val securitySettings by viewModel.securitySettings.collectAsState()
+    val securitySettings by viewModel.securitySettings.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -68,7 +69,7 @@ fun AboutScreen(
     navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val generalSettings by viewModel.generalSettings.collectAsState()
+    val generalSettings by viewModel.generalSettings.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

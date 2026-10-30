@@ -9,7 +9,7 @@ import com.universalmedialibrary.services.importer.ImportLogInfo
 import com.universalmedialibrary.services.importer.ImportTransactionLog
 import com.universalmedialibrary.services.importer.ImportOperationStatus
 
-private val importLogJson = Json {
+internal val importLogJson = Json {
     ignoreUnknownKeys = true
     prettyPrint = true
 }

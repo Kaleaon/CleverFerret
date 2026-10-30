@@ -90,3 +90,17 @@ style:
     active: true
     excludeImports:
       - 'java.util.*'
+  ForbiddenMethodCall:
+    active: true
+    methods:
+      - 'androidx.compose.runtime.collectAsState'
+      - 'collectAsState'
+      - '*.collectAsState'
+      - 'collectAsState()'
+
+  ForbiddenImport:
+    active: true
+    imports:
+      - 'androidx.compose.runtime.collectAsState'
+
+

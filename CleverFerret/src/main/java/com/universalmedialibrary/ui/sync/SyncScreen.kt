@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.sync.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,9 +26,9 @@ fun SyncScreen(
     navController: NavController,
     viewModel: SyncViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val syncState by viewModel.syncState.collectAsState()
-    val syncOptions by viewModel.syncOptions.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val syncState by viewModel.syncState.collectAsStateWithLifecycle()
+    val syncOptions by viewModel.syncOptions.collectAsStateWithLifecycle()
 
     var showOptions by remember { mutableStateOf(false) }
 

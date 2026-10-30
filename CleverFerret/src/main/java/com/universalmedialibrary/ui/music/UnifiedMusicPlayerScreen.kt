@@ -413,7 +413,7 @@ fun UnifiedMusicPlayerScreen(
     }
 
     if (showAddToPlaylistDialog) {
-        val playlists by viewModel.playlists.collectAsState()
+        val playlists by viewModel.playlists.collectAsStateWithLifecycle()
         AddToPlaylistDialog(
             playlists = playlists.map { it.name },
             onPlaylistSelected = { playlistName ->

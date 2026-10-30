@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
@@ -77,7 +78,7 @@ fun NavGraphBuilder.libraryRoutes(
     ) { backStackEntry ->
         val mediaType = backStackEntry.arguments?.getString("mediaType") ?: "book"
         val viewModel: MediaLibraryViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         UiErrorBoundary(
             boundaryName = "Route:${MediaRoutes.LIBRARY}",
@@ -108,7 +109,7 @@ fun NavGraphBuilder.libraryRoutes(
     // Music library with special tabbed view
     composable(MediaRoutes.MUSIC) {
         val viewModel: MusicViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         MusicLibraryScreen(
             state = state,
@@ -129,7 +130,7 @@ fun NavGraphBuilder.libraryRoutes(
     // Podcasts with special tabbed view
     composable(MediaRoutes.PODCASTS) {
         val viewModel: PodcastViewModel = hiltViewModel()
-        val state by viewModel.uiState.collectAsState()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
         
         PodcastScreen(
             state = state,

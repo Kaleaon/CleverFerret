@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.PermissionDialog
 import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
@@ -69,8 +70,8 @@ private fun MediaAppRoot(
     playbackStateManager: PlaybackStateManager
 ) {
     val mainViewModel: MainViewModel = hiltViewModel()
-    val palette by mainViewModel.selectedTheme.collectAsState(CleverFerretTheme.NAVY_GOLD)
-    val darkMode by mainViewModel.darkMode.collectAsState(true)
+    val palette by mainViewModel.selectedTheme.collectAsStateWithLifecycle(CleverFerretTheme.NAVY_GOLD)
+    val darkMode by mainViewModel.darkMode.collectAsStateWithLifecycle(true)
 
     CleverFerretTheme(
         palette = palette,
@@ -96,9 +97,9 @@ fun MediaMainScreen(
     playbackStateManager: PlaybackStateManager,
     mainViewModel: MainViewModel = hiltViewModel()
 ) {
-    val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsState(BottomBarPreferences.Default)
-    val gearPosition by mainViewModel.bottomGearPosition.collectAsState(BottomGearPosition.RIGHT)
-    val hasCompletedOnboarding by mainViewModel.hasCompletedOnboarding.collectAsState()
+    val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsStateWithLifecycle(BottomBarPreferences.Default)
+    val gearPosition by mainViewModel.bottomGearPosition.collectAsStateWithLifecycle(BottomGearPosition.RIGHT)
+    val hasCompletedOnboarding by mainViewModel.hasCompletedOnboarding.collectAsStateWithLifecycle()
     val startDestination = if (hasCompletedOnboarding) MediaRoutes.HOME else MediaRoutes.ONBOARDING
 
     val navController = rememberNavController()
@@ -120,7 +121,7 @@ fun MediaMainScreen(
     }
     
     // Check if we should show mini player
-    val playbackState by playbackStateManager.currentPlayback.collectAsState()
+    val playbackState by playbackStateManager.currentPlayback.collectAsStateWithLifecycle()
     val showMiniPlayer = remember(playbackState, currentRoute) {
         playbackState != null && !currentRoute.orEmpty().startsWith("player/")
     }

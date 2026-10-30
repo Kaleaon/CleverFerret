@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.data.oldtimeradio.OTRSeries
 
@@ -30,8 +31,8 @@ fun OldTimeRadioScreen(
     onNavigateToEpisode: (Long) -> Unit,
     viewModel: OldTimeRadioViewModel = hiltViewModel()
 ) {
-    val series by viewModel.series.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val series by viewModel.series.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     var selectedTab by remember { mutableStateOf(0) }
 
     Scaffold(
