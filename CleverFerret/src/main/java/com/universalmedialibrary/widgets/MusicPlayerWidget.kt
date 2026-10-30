@@ -2,12 +2,10 @@ package com.universalmedialibrary.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import com.universalmedialibrary.R
-import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -17,7 +15,7 @@ import javax.inject.Inject
  * Shows currently playing music with playback controls
  */
 @AndroidEntryPoint
-class MusicPlayerWidget : AppWidgetProvider() {
+class MusicPlayerWidget : BaseWidgetProvider() {
 
     @Inject
     lateinit var audioPlaybackManager: AudioPlaybackManager
@@ -66,34 +64,20 @@ class MusicPlayerWidget : AppWidgetProvider() {
             )
 
             // Click to open app
-            val intent = Intent(context, MainActivity::class.java).apply {
-                action = "OPEN_MUSIC_PLAYER"
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val pendingIntent = PendingIntent.getActivity(
-                context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            val pendingIntent = getActivityPendingIntent(context, "OPEN_MUSIC_PLAYER")
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
         private fun getPendingIntent(context: Context, action: String): PendingIntent {
-            val intent = Intent(context, MusicPlayerWidget::class.java).apply {
-                this.action = action
-            }
-            // Use unique request code per action to avoid PendingIntent reuse
             val requestCode = when (action) {
                 ACTION_PLAY_PAUSE -> 1001
                 ACTION_NEXT -> 1002
                 ACTION_PREV -> 1003
                 else -> 1000
             }
-            return PendingIntent.getBroadcast(
-                context, requestCode, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            return getBroadcastPendingIntent(context, MusicPlayerWidget::class.java, action, requestCode)
         }
     }
 

@@ -17,6 +17,7 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.duplicates.DuplicateGroup
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import com.universalmedialibrary.utils.formatFileSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -389,15 +390,4 @@ private fun ThresholdDialog(
     )
 }
 
-/**
- * Format file size in bytes to human-readable format
- */
-private fun formatFileSize(bytes: Long): String {
-    if (bytes < 1024) return "$bytes B"
-    val kb = bytes / 1024.0
-    if (kb < 1024) return String.format(java.util.Locale.US, "%.1f KB", kb)
-    val mb = kb / 1024.0
-    if (mb < 1024) return String.format(java.util.Locale.US, "%.1f MB", mb)
-    val gb = mb / 1024.0
-    return String.format(java.util.Locale.US, "%.1f GB", gb)
-}
+
