@@ -13,6 +13,8 @@ import com.ktheme.models.MetallicGradient as KthemeMetallicGradient
 import com.ktheme.models.Theme
 import com.ktheme.models.ThemeMetadata
 import com.ktheme.models.VisualEffects
+import com.universalmedialibrary.ui.modern.theme.CFThemes
+import com.universalmedialibrary.ui.modern.theme.DynamicCFThemeRegistry
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -47,29 +49,46 @@ object KthemeBridge {
         }
     }
 
+    fun resolveColorScheme(themeId: String, darkTheme: Boolean = true): ColorScheme {
+        val palette = DynamicCFThemeRegistry.byId(themeId)
+        if (!darkTheme && palette.tokens.id == "navy-gold") {
+            return NavyGoldUnified.lightScheme
+        }
+        return palette.scheme
+    }
+
     fun resolveMetallicGradient(theme: CleverFerretTheme): com.universalmedialibrary.ui.theme.MetallicGradient {
         return metallicGradientCache.getOrPut(theme) {
             computeMetallicGradient(theme)
         }
     }
 
+    fun resolveMetallicGradient(themeId: String): com.universalmedialibrary.ui.theme.MetallicGradient {
+        val palette = DynamicCFThemeRegistry.byId(themeId)
+        val metal = palette.tokens.metal
+        return com.universalmedialibrary.ui.theme.MetallicGradient(
+            base = metal.base,
+            highlight = metal.highlight,
+            shadow = metal.shadow,
+            shimmer = metal.shimmer
+        )
+    }
+
     private fun computeColorScheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme {
-        val themeId = theme.toKthemeId(darkTheme)
-        val themeObj = engine.getTheme(themeId) ?: return legacyColorScheme(theme, darkTheme)
-        return themeObj.colorScheme.toComposeColorScheme(darkTheme)
+        val themeId = theme.name.lowercase().replace('_', '-')
+        if (!darkTheme && theme == CleverFerretTheme.NAVY_GOLD) {
+            return NavyGoldUnified.lightScheme
+        }
+        val palette = DynamicCFThemeRegistry.byId(themeId)
+        if (!darkTheme && palette.tokens.id != "paper-ink" && palette.tokens.id != "e-ink") {
+            return legacyColorScheme(theme, darkTheme)
+        }
+        return palette.scheme
     }
 
     private fun computeMetallicGradient(theme: CleverFerretTheme): com.universalmedialibrary.ui.theme.MetallicGradient {
-        val themeId = theme.toKthemeId(darkTheme = true)
-        val themeObj = engine.getTheme(themeId)
-        val metallic = themeObj?.effects?.metallic?.gradient ?: return legacyMetallicGradient(theme)
-
-        return com.universalmedialibrary.ui.theme.MetallicGradient(
-            base = metallic.base.toComposeColor(),
-            highlight = metallic.highlight.toComposeColor(),
-            shadow = metallic.shadow.toComposeColor(),
-            shimmer = metallic.shimmer.toComposeColor()
-        )
+        val themeId = theme.name.lowercase().replace('_', '-')
+        return resolveMetallicGradient(themeId)
     }
 
     private fun Theme.toComposeColorScheme(darkTheme: Boolean): ColorScheme =

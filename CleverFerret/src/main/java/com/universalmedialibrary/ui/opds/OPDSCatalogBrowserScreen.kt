@@ -1,5 +1,9 @@
 package com.universalmedialibrary.ui.opds
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -24,6 +29,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.accessibility.headingSemantics
+import com.universalmedialibrary.ui.components.ShimmerLoadingList
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
 import com.universalmedialibrary.data.local.entity.OPDSCatalog
 import com.universalmedialibrary.services.opds.*
@@ -46,6 +52,7 @@ fun OPDSCatalogBrowserScreen(
     val catalogs by viewModel.catalogs.collectAsStateWithLifecycle()
     val selectedCatalog by viewModel.selectedCatalog.collectAsStateWithLifecycle()
     val feedResult by viewModel.currentFeed.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val downloads by viewModel.activeDownloads.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val transientMessage by viewModel.userMessage.collectAsStateWithLifecycle()
@@ -130,46 +137,47 @@ fun OPDSCatalogBrowserScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            when {
-                selectedCatalog == null -> {
-                    // Show catalog list
-                    CatalogListView(
+            AnimatedContent(
+                targetState = when {
+                    selectedCatalog == null -> 0
+                    feedResult == null -> 1
+                    feedResult!!.isSuccess -> 2
+                    else -> 3
+                },
+                transitionSpec = {
+                    fadeIn() togetherWith fadeOut()
+                },
+                label = "OPDSCatalogContentTransition"
+            ) { stateKey ->
+                when (stateKey) {
+                    0 -> CatalogListView(
                         catalogs = catalogs,
                         onCatalogClick = { viewModel.selectCatalog(it) },
                         onCatalogRemove = { viewModel.removeCatalog(it) }
                     )
-                }
-                
-                feedResult != null -> {
-                    val result = feedResult!!
-                    when {
-                        result.isSuccess -> {
-                            val feed = result.getOrNull()!!
-                            PublicationListView(
-                                entries = feed.entries,
-                                navigationLinks = feed.navigation,
-                                onPublicationClick = { entry ->
-                                    viewModel.downloadPublication(selectedCatalog!!.id, entry)
-                                },
-                                onNavigationClick = { url ->
-                                    viewModel.navigateToUrl(url)
-                                }
-                            )
-                        }
-                        result.isFailure -> {
-                            val error = result.exceptionOrNull()
-                            ErrorView(
-                                message = error?.message ?: "Unknown error",
-                                onRetry = { viewModel.refreshFeed() },
-                                onReportFeed = { viewModel.reportFeedIssue() }
-                            )
-                        }
+                    1 -> ShimmerLoadingList()
+                    2 -> {
+                        val feed = feedResult!!.getOrNull()!!
+                        PublicationListView(
+                            entries = feed.entries,
+                            navigationLinks = feed.navigation,
+                            isRefreshing = isRefreshing,
+                            onPublicationClick = { entry ->
+                                viewModel.downloadPublication(selectedCatalog!!.id, entry)
+                            },
+                            onNavigationClick = { url ->
+                                viewModel.navigateToUrl(url)
+                            }
+                        )
                     }
-                }
-                
-                else -> {
-                    // Show loading
-                    LoadingView()
+                    else -> {
+                        val error = feedResult!!.exceptionOrNull()
+                        ErrorView(
+                            message = error?.message ?: "Unknown error",
+                            onRetry = { viewModel.refreshFeed() },
+                            onReportFeed = { viewModel.reportFeedIssue() }
+                        )
+                    }
                 }
             }
         }
@@ -303,6 +311,7 @@ private fun CatalogCard(
 private fun PublicationListView(
     entries: List<OPDSEntry>,
     navigationLinks: List<OPDSLink> = emptyList(),
+    isRefreshing: Boolean = false,
     onPublicationClick: (OPDSEntry) -> Unit,
     onNavigationClick: (String) -> Unit = {}
 ) {
@@ -315,6 +324,9 @@ private fun PublicationListView(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        if (isRefreshing) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
         // Navigation buttons at top
         if (prevLink != null || nextLink != null) {
             Row(
@@ -479,16 +491,7 @@ private fun PublicationCard(
 
 @Composable
 private fun LoadingView() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
-            Spacer(Modifier.height(16.dp))
-            Text("Loading catalog...")
-        }
-    }
+    ShimmerLoadingList()
 }
 
 @Composable
@@ -691,6 +694,9 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
     private val _currentFeed = MutableStateFlow<Result<OPDSFeed>?>(null)
     val currentFeed = _currentFeed.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
@@ -729,12 +735,15 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
 
     fun selectCatalog(catalog: OPDSCatalog) {
         _selectedCatalog.value = catalog
+        _currentFeed.value = null
+        _isRefreshing.value = false
         refreshFeed()
     }
 
     fun clearSelection() {
         _selectedCatalog.value = null
         _currentFeed.value = null
+        _isRefreshing.value = false
         _searchQuery.value = ""
         _lastFailureContext.value = null
     }
@@ -743,9 +752,12 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         val catalog = _selectedCatalog.value ?: return
         
         viewModelScope.launch {
-            _currentFeed.value = null // Show loading
+            if (_currentFeed.value != null) {
+                _isRefreshing.value = true
+            }
             val result = opdsCatalogService.browseCatalog(catalog)
             _currentFeed.value = result
+            _isRefreshing.value = false
             if (result.isSuccess) {
                 _lastFailureContext.value = null
             } else {
@@ -765,10 +777,13 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         _searchQuery.value = query
         
         viewModelScope.launch {
-            _currentFeed.value = null
+            if (_currentFeed.value != null) {
+                _isRefreshing.value = true
+            }
             val searchUrl = catalog.searchUrl?.let { opdsCatalogService.buildSearchUrl(it, query) } ?: catalog.url
             val result = opdsCatalogService.searchCatalog(catalog, query)
             _currentFeed.value = result
+            _isRefreshing.value = false
             if (result.isSuccess) {
                 _lastFailureContext.value = null
             } else {
@@ -804,13 +819,17 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
 
     fun navigateToUrl(url: String) {
         viewModelScope.launch {
-            _currentFeed.value = null // Show loading
+            if (_currentFeed.value != null) {
+                _isRefreshing.value = true
+            }
             try {
                 val feed = opdsCatalogService.fetchUrl(url)
                 _currentFeed.value = Result.success(feed)
                 _lastFailureContext.value = null
             } catch (e: Exception) {
-                _currentFeed.value = Result.failure(e)
+                if (_currentFeed.value == null) {
+                    _currentFeed.value = Result.failure(e)
+                }
                 _lastFailureContext.value = OPDSFailureContext(
                     catalogName = _selectedCatalog.value?.name,
                     requestedUrl = url,
@@ -818,6 +837,8 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
                     errorMessage = e.message ?: "Failed to open feed link."
                 )
                 _userMessage.value = e.message ?: "Failed to open feed link."
+            } finally {
+                _isRefreshing.value = false
             }
         }
     }
@@ -860,5 +881,13 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         viewModelScope.launch {
             opdsCatalogService.deleteCatalog(catalog)
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun OPDSCatalogShimmerLoadingPreview() {
+    MaterialTheme {
+        ShimmerLoadingList()
     }
 }

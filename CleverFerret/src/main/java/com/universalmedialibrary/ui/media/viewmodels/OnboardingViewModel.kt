@@ -22,7 +22,7 @@ class OnboardingViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
-    val isOnboardingCompleted: StateFlow<Boolean> = settingsRepository.onboardingCompletedFlow
+    val isOnboardingCompleted: StateFlow<Boolean> = settingsRepository.hasCompletedOnboardingFlow
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -43,7 +43,6 @@ class OnboardingViewModel @Inject constructor(
     fun triggerInitialScan() {
         if (PermissionsHandler.hasStoragePermissions(appContext)) {
             viewModelScope.launch {
-                settingsRepository.setInitialScanStarted(true)
                 _isScanDispatched.value = true
                 val intent = Intent(appContext, MediaScannerService::class.java).apply {
                     action = MediaScannerService.ACTION_SCAN_ALL
