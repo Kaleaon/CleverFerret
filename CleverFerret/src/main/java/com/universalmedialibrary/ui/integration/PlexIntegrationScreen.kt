@@ -14,6 +14,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.integration.plex.PlexIntegrationService
 import com.universalmedialibrary.services.integration.plex.PlexSyncDiagnostics
 import java.text.SimpleDateFormat
@@ -25,7 +26,7 @@ import java.util.Locale
 fun MediaIntegrationScreen(
     viewModel: MediaIntegrationViewModel = hiltViewModel()
 ) {
-    val plexState by viewModel.plexState.collectAsState()
+    val plexState by viewModel.plexState.collectAsStateWithLifecycle()
     var showAddServerDialog by remember { mutableStateOf(false) }
 
     Surface(

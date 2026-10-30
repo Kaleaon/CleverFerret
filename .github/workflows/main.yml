@@ -27,6 +27,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      pull-requests: write
     env:
       COMPILE_LOG: compile_output_${{ github.sha }}_${{ github.run_attempt }}.txt
 
@@ -53,6 +54,17 @@ jobs:
         echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
         echo "Using Android SDK at: $SDK_PATH"
 
+    - name: Cache Android SDK components
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ANDROID_SDK_ROOT }}/build-tools
+          ${{ env.ANDROID_SDK_ROOT }}/platforms
+          ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+        key: ${{ runner.os }}-android-sdk-${{ hashFiles('.github/workflows/main.yml', '**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
+
     - name: Install required Android SDK packages
       run: |
         yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
@@ -74,8 +86,17 @@ jobs:
     - name: Check docs local links
       run: ./scripts/ci/check_doc_links.py
 
+    - name: Check lifecycle flow collection
+      run: ./gradlew checkLifecycleFlowCollection --stacktrace
+
     - name: Check navigation routes
       run: python3 scripts/ci/check_nav_routes.py
+
+    - name: Check lint configuration
+      run: python3 tooling/scripts/check-lint-config.py
+
+    - name: Audit hardcoded dimensions
+      run: ./scripts/ci/audit_hardcoded_dimensions.sh
 
     - name: Run Detekt and Android Lint
       run: ./gradlew detekt lintDebug -Plint.abortOnError=true --stacktrace
@@ -130,12 +151,16 @@ jobs:
             const repository = process.env.REPOSITORY;
             const runId = process.env.RUN_ID;
             const body = `### 🔍 Quality Gate & Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/${repository}/actions/runs/${runId}) for details.`;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } catch (error) {
+              core.warning(`Failed to post comment on PR: ${error.message}`);
+            }
           }
 
   test:
@@ -165,6 +190,17 @@ jobs:
         echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
         echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
         echo "Using Android SDK at: $SDK_PATH"
+
+    - name: Cache Android SDK components
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ANDROID_SDK_ROOT }}/build-tools
+          ${{ env.ANDROID_SDK_ROOT }}/platforms
+          ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+        key: ${{ runner.os }}-android-sdk-${{ hashFiles('.github/workflows/main.yml', '**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
 
     - name: Install required Android SDK packages
       run: |
@@ -320,6 +356,17 @@ jobs:
         echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
         echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
         echo "Using Android SDK at: $SDK_PATH"
+
+    - name: Cache Android SDK components
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ANDROID_SDK_ROOT }}/build-tools
+          ${{ env.ANDROID_SDK_ROOT }}/platforms
+          ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+        key: ${{ runner.os }}-android-sdk-${{ hashFiles('.github/workflows/main.yml', '**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
 
     - name: Install required Android SDK packages
       run: |
@@ -540,6 +587,17 @@ jobs:
         echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
         echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
         echo "Using Android SDK at: $SDK_PATH"
+
+    - name: Cache Android SDK components
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ANDROID_SDK_ROOT }}/build-tools
+          ${{ env.ANDROID_SDK_ROOT }}/platforms
+          ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+        key: ${{ runner.os }}-android-sdk-${{ hashFiles('.github/workflows/main.yml', '**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
 
     - name: Install required Android SDK packages
       run: |

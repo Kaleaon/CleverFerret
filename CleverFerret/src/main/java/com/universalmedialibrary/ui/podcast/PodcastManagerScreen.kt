@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
@@ -29,6 +30,7 @@ import com.universalmedialibrary.services.podcast.PodcastSearchResult
 import com.universalmedialibrary.services.podcast.DownloadStatus
 import com.universalmedialibrary.ui.components.ConfirmationDialog
 import com.universalmedialibrary.ui.components.PinAccessDialog
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import com.universalmedialibrary.ui.theme.MetallicFAB
 import com.universalmedialibrary.ui.theme.MetallicTopAppBar
 import kotlinx.coroutines.flow.collectLatest
@@ -41,9 +43,9 @@ fun PodcastManagerScreen(
     navController: NavController,
     viewModel: PodcastViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val downloadStatuses by viewModel.downloadProgress.collectAsState()
-    val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val downloadStatuses by viewModel.downloadProgress.collectAsStateWithLifecycle()
+    val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsStateWithLifecycle()
     var showSearchDialog by remember { mutableStateOf(false) }
     var showAddFeedDialog by remember { mutableStateOf(false) }
     var pendingDeleteEpisode by remember { mutableStateOf<PodcastEpisode?>(null) }
@@ -377,23 +379,41 @@ fun AddPodcastFeedDialog(
     onAdd: (String) -> Unit
 ) {
     var feedUrl by remember { mutableStateOf("") }
+    var hasSubmitted by remember { mutableStateOf(false) }
+
+    val errorMessage = when {
+        feedUrl.isNotBlank() && !feedUrl.startsWith("http://", ignoreCase = true) &&
+                !feedUrl.startsWith("https://", ignoreCase = true) &&
+                !feedUrl.startsWith("feed://", ignoreCase = true) ->
+            "Error: Invalid RSS feed URL scheme (must start with http or https)"
+        hasSubmitted && feedUrl.isBlank() -> "RSS feed URL cannot be empty"
+        else -> null
+    }
+
+    val isValid = errorMessage == null && feedUrl.isNotBlank()
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Podcast Feed") },
         text = {
-            OutlinedTextField(
+            AccessibleOutlinedTextField(
                 value = feedUrl,
                 onValueChange = { feedUrl = it },
                 label = { Text("RSS Feed URL") },
                 placeholder = { Text("https://example.com/podcast/feed.xml") },
+                errorMessage = errorMessage,
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
         },
         confirmButton = {
             Button(
-                onClick = { onAdd(feedUrl) },
-                enabled = feedUrl.isNotBlank()
+                onClick = {
+                    hasSubmitted = true
+                    if (isValid) {
+                        onAdd(feedUrl)
+                    }
+                }
             ) {
                 Text("Add")
             }

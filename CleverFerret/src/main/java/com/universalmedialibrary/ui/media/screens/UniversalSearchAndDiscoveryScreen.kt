@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.R
 import com.universalmedialibrary.data.local.entity.DownloadedStory
 import com.universalmedialibrary.data.local.entity.UnifiedTag
@@ -40,7 +41,7 @@ fun UniversalSearchAndDiscoveryScreen(
     viewModel: UniversalSearchViewModel = hiltViewModel(),
     onBackClick: (() -> Unit)? = null
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isSearching = uiState.isLoading
 
     val mediaTypes = remember {

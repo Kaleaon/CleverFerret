@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.services.webfiction.*
@@ -41,8 +42,8 @@ fun UniversalTagBrowserScreen(
     navController: NavController,
     viewModel: UniversalTagBrowserViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsStateWithLifecycle()
 
     // Set initial site if provided
     LaunchedEffect(initialSiteType) {

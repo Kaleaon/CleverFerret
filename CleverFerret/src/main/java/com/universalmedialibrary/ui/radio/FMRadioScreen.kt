@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.R
 import com.universalmedialibrary.data.local.dao.RadioStationDao
@@ -59,16 +60,16 @@ fun FMRadioScreen(
     viewModel: FMRadioViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val currentFrequency by viewModel.currentFrequency.collectAsState()
-    val isPlaying by viewModel.isPlaying.collectAsState()
-    val isAvailable by viewModel.isAvailable.collectAsState()
-    val rdsData by viewModel.rdsData.collectAsState()
-    val dnsMetadata by viewModel.dnsMetadata.collectAsState()
-    val presets by viewModel.presets.collectAsState(initial = emptyList())
-    val signalStrength by viewModel.signalStrength.collectAsState()
-    val hasInternetStream by viewModel.hasInternetStream.collectAsState()
-    val songInfo by viewModel.songInfo.collectAsState()
-    val similarItems by viewModel.similarItems.collectAsState()
+    val currentFrequency by viewModel.currentFrequency.collectAsStateWithLifecycle()
+    val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
+    val isAvailable by viewModel.isAvailable.collectAsStateWithLifecycle()
+    val rdsData by viewModel.rdsData.collectAsStateWithLifecycle()
+    val dnsMetadata by viewModel.dnsMetadata.collectAsStateWithLifecycle()
+    val presets by viewModel.presets.collectAsStateWithLifecycle(initialValue = emptyList())
+    val signalStrength by viewModel.signalStrength.collectAsStateWithLifecycle()
+    val hasInternetStream by viewModel.hasInternetStream.collectAsStateWithLifecycle()
+    val songInfo by viewModel.songInfo.collectAsStateWithLifecycle()
+    val similarItems by viewModel.similarItems.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

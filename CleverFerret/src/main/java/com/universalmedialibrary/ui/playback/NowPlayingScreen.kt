@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.QueueItem
 import com.universalmedialibrary.services.playback.UnifiedPlaybackState
@@ -34,11 +35,11 @@ import java.util.Locale
         viewModel: NowPlayingViewModel = hiltViewModel(),
         onNavigateBack: () -> Unit = {}
     ) {
-    val playbackState by viewModel.playbackState.collectAsState()
-    val currentItem by viewModel.currentItem.collectAsState()
-    val queueItems by viewModel.queueItems.collectAsState()
-    val currentQueue by viewModel.currentQueue.collectAsState()
-    val playlists by viewModel.availablePlaylists.collectAsState()
+    val playbackState by viewModel.playbackState.collectAsStateWithLifecycle()
+    val currentItem by viewModel.currentItem.collectAsStateWithLifecycle()
+    val queueItems by viewModel.queueItems.collectAsStateWithLifecycle()
+    val currentQueue by viewModel.currentQueue.collectAsStateWithLifecycle()
+    val playlists by viewModel.availablePlaylists.collectAsStateWithLifecycle()
     
     var showPlaylistDialog by remember { mutableStateOf(false) }
 

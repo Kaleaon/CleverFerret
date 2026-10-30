@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.AudiobookEntity
 import com.universalmedialibrary.ui.icons.PhosphorIcons
@@ -28,10 +29,10 @@ fun AudiobookLibraryScreen(
     onExploreFreeAudiobooks: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val audiobooks by viewModel.allAudiobooks.collectAsState()
-    val inProgress by viewModel.inProgress.collectAsState()
-    val finished by viewModel.finished.collectAsState()
-    val selectedFilter by viewModel.selectedFilter.collectAsState()
+    val audiobooks by viewModel.allAudiobooks.collectAsStateWithLifecycle()
+    val inProgress by viewModel.inProgress.collectAsStateWithLifecycle()
+    val finished by viewModel.finished.collectAsStateWithLifecycle()
+    val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
     
     var showFilterMenu by remember { mutableStateOf(false) }
     
