@@ -31,10 +31,30 @@ repos:
         name: validate-android14-widgets
         entry: python3 scripts/ci/validate_android14_widget_background_updates.py
         language: python
-        files: ^CleverFerret/src/main/res/xml/.*widget.*_info\.xml$
+        files: ^(.+/)?res/xml/.*widget.*\.xml$
+
+      - id: check-compose-semantic-tokens
+        name: check-compose-semantic-tokens
+        entry: python3 scripts/ci/check_compose_semantic_tokens.py
+        language: python
+        types: [kotlin]
+        files: ^CleverFerretV2/feature/
 
       - id: check-kotlin-quality
         name: check-kotlin-quality
         entry: scripts/check-kotlin-quality.sh
         language: script
         types: [kotlin]
+
+      - id: check-lint-config
+        name: check-lint-config
+        entry: python3 tooling/scripts/check-lint-config.py
+        language: python
+        pass_filenames: false
+        files: ^(CleverFerret|CleverFerretV2)/(build\.gradle\.kts|lint\.xml|src/main/res/values/(strings|colors)\.xml|src/main/AndroidManifest\.xml)$
+
+      - id: audit-hardcoded-dimensions
+        name: audit-hardcoded-dimensions
+        entry: scripts/ci/audit_hardcoded_dimensions.sh
+        language: script
+        files: ^(CleverFerret|CleverFerretV2)/src/main/java/.*\.kt$
