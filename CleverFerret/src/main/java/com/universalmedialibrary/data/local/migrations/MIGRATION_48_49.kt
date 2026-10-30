@@ -5,8 +5,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * Migration from database version 48 to 49.
- * Adds custom_fonts table for imported custom TTF/OTF font registry
- * and remote_sync_mutations table for enqueuing outbound sync progress/rating updates.
+ * - Adds custom_fonts table for imported custom TTF/OTF font registry.
+ * - Adds remote_sync_mutations table for enqueuing outbound sync progress/rating updates.
+ * - Adds index on lastModified column in media_items table to optimize background sync queries.
  */
 val MIGRATION_48_49: Migration = object : Migration(48, 49) {
     override fun migrate(database: SupportSQLiteDatabase) {
@@ -38,5 +39,7 @@ val MIGRATION_48_49: Migration = object : Migration(48, 49) {
             )
             """.trimIndent()
         )
+
+        database.execSQL("CREATE INDEX IF NOT EXISTS index_media_items_lastModified ON media_items(lastModified)")
     }
 }
