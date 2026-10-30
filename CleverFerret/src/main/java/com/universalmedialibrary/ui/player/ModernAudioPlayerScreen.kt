@@ -274,7 +274,7 @@ fun ModernAudioPlayerScreen(
                     contentDescription = "Audio playback waveform slider",
                     valueTextFormatter = { frac ->
                         val posMs = (frac * uiState.duration).toLong()
-                        formatTime(posMs) + " / " + formatTime(uiState.duration)
+                        posMs.formatAsMediaTime() + " / " + uiState.duration.formatAsMediaTime()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
