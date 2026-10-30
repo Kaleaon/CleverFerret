@@ -9,58 +9,58 @@ could be resolved statically (dynamic targets such as `item.route` are not liste
 
 ## Summary
 
-- Registered routes: 90 current, 45 legacy
+- Registered routes: 91 current, 45 legacy
 - Resolvable `navigate` calls: 156 (156 reach a current route, 0 reach only a legacy route, 0 match no registered route)
 
 ## Legacy routes
 
 | Route | Replacement | Kind | Registered in | Call sites reaching only legacy |
 | --- | --- | --- | --- | --- |
-| `album/{albumId}` | `MediaRoutes.mediaDetailRoute("album", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:201` | _none_ |
-| `ambient` | `MediaRoutes.AMBIENT_SOUNDS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:282` | _none_ |
-| `artist/{artistId}` | `MediaRoutes.mediaDetailRoute("artist", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:231` | _none_ |
-| `audio_player/{path}` | `MediaRoutes.audioPlayerRoute("music")` | unclear | `ui/media/navigation/graphs/LegacyRoutes.kt:112` | _none_ |
-| `audioplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("audiobook")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:339` | _none_ |
-| `book_details/{bookId}` | `MediaRoutes.mediaDetailRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:171` | _none_ |
-| `bookshelf` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:50` | _none_ |
-| `collections` | `MediaRoutes.COLLECTIONS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:304` | _none_ |
-| `comic_reader/{uriString}/{fileName}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:68` | _none_ |
-| `detail/{itemId}` | `MediaRoutes.mediaDetailRoute(type, id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:360` | _none_ |
-| `documentviewer/{mediaId}` | `MediaRoutes.readerRoute("document", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:432` | _none_ |
-| `epub_reader/{path}` | `MediaRoutes.epubReaderRoute(path)` | new-route | `ui/media/navigation/graphs/LegacyRoutes.kt:300` | _none_ |
-| `ereader/{mediaId}` | `MediaRoutes.readerRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:320` | _none_ |
-| `fanfiction_download` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:400` | _none_ |
-| `free_audiobooks` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:228` | _none_ |
-| `free_media` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:243` | _none_ |
-| `free_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:235` | _none_ |
-| `genre/{genreId}` | `MediaRoutes.libraryRoute("music")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:261` | _none_ |
-| `hivefy_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:137` | _none_ |
-| `library_details/{typeId}` | `MediaRoutes.libraryRoute(type)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:319` | _none_ |
-| `magazinereader/{mediaId}` | `MediaRoutes.readerRoute("document", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:414` | _none_ |
-| `metabods_tag_browser` | `MediaRoutes.discoveryRoute(type = "WEB_FICTION")` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:121` | _none_ |
-| `metadata_editor/{itemId}` | `MediaRoutes.metadataEditorRoute(id)` | new-route | `ui/media/navigation/graphs/LegacyContentRoutes.kt:391` | _none_ |
-| `music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:296` | _none_ |
-| `music_player` | `MediaRoutes.audioPlayerRoute("music")` | redirect | `ui/media/navigation/graphs/LegacyRoutes.kt:76` | _none_ |
-| `musicplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("music")` | redirect | `ui/media/navigation/graphs/LegacyRoutes.kt:383` | _none_ |
-| `opds_catalog` | `MediaRoutes.OPDS_BROWSER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:145` | _none_ |
-| `otr_series_detail/{seriesTitle}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:57` | _none_ |
-| `pdf_reader/{path}` | `MediaRoutes.pdfReaderRoute(path)` | new-route | `ui/media/navigation/graphs/LegacyRoutes.kt:308` | _none_ |
-| `podcast_detail/{podcastId}` | `MediaRoutes.mediaDetailRoute("podcast", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:141` | _none_ |
-| `podcast_player/{episodeId}` | `MediaRoutes.audioPlayerRoute("podcast")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:84` | _none_ |
-| `podcastplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("podcast")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:391` | _none_ |
-| `podcasts` | `MediaRoutes.PODCASTS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:249` | _none_ |
-| `radio` | `MediaRoutes.RADIO` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:270` | _none_ |
-| `reader/{mediaId}` | `MediaRoutes.readerRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:281` | _none_ |
-| `reading_statistics` | `(delete)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:210` | _none_ |
-| `storage_browser` | `MediaRoutes.ENHANCED_FILE_BROWSER` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:169` | _none_ |
-| `story_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:86` | _none_ |
+| `album/{albumId}` | `MediaRoutes.mediaDetailRoute("album", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:202` | _none_ |
+| `ambient` | `MediaRoutes.AMBIENT_SOUNDS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:280` | _none_ |
+| `artist/{artistId}` | `MediaRoutes.mediaDetailRoute("artist", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:232` | _none_ |
+| `audio_player/{path}` | `MediaRoutes.audioPlayerRoute("music")` | unclear | `ui/media/navigation/graphs/LegacyRoutes.kt:113` | _none_ |
+| `audioplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("audiobook")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:340` | _none_ |
+| `book_details/{bookId}` | `MediaRoutes.mediaDetailRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:172` | _none_ |
+| `bookshelf` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:51` | _none_ |
+| `collections` | `MediaRoutes.COLLECTIONS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:302` | _none_ |
+| `comic_reader/{uriString}/{fileName}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:69` | _none_ |
+| `detail/{itemId}` | `MediaRoutes.mediaDetailRoute(type, id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:358` | _none_ |
+| `documentviewer/{mediaId}` | `MediaRoutes.readerRoute("document", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:433` | _none_ |
+| `epub_reader/{path}` | `MediaRoutes.epubReaderRoute(path)` | new-route | `ui/media/navigation/graphs/LegacyRoutes.kt:301` | _none_ |
+| `ereader/{mediaId}` | `MediaRoutes.readerRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:321` | _none_ |
+| `fanfiction_download` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:398` | _none_ |
+| `free_audiobooks` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:226` | _none_ |
+| `free_media` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:241` | _none_ |
+| `free_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:233` | _none_ |
+| `genre/{genreId}` | `MediaRoutes.libraryRoute("music")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:262` | _none_ |
+| `hivefy_music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:135` | _none_ |
+| `library_details/{typeId}` | `MediaRoutes.libraryRoute(type)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:317` | _none_ |
+| `magazinereader/{mediaId}` | `MediaRoutes.readerRoute("document", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:415` | _none_ |
+| `metabods_tag_browser` | `MediaRoutes.discoveryRoute(type = "WEB_FICTION")` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:122` | _none_ |
+| `metadata_editor/{itemId}` | `MediaRoutes.metadataEditorRoute(id)` | new-route | `ui/media/navigation/graphs/LegacyContentRoutes.kt:389` | _none_ |
+| `music` | `MediaRoutes.MUSIC` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:294` | _none_ |
+| `music_player` | `MediaRoutes.audioPlayerRoute("music")` | redirect | `ui/media/navigation/graphs/LegacyRoutes.kt:77` | _none_ |
+| `musicplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("music")` | redirect | `ui/media/navigation/graphs/LegacyRoutes.kt:384` | _none_ |
+| `opds_catalog` | `MediaRoutes.OPDS_BROWSER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:143` | _none_ |
+| `otr_series_detail/{seriesTitle}` | `(none yet)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:58` | _none_ |
+| `pdf_reader/{path}` | `MediaRoutes.pdfReaderRoute(path)` | new-route | `ui/media/navigation/graphs/LegacyRoutes.kt:309` | _none_ |
+| `podcast_detail/{podcastId}` | `MediaRoutes.mediaDetailRoute("podcast", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:142` | _none_ |
+| `podcast_player/{episodeId}` | `MediaRoutes.audioPlayerRoute("podcast")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:85` | _none_ |
+| `podcastplayer/{mediaId}` | `MediaRoutes.audioPlayerRoute("podcast")` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:392` | _none_ |
+| `podcasts` | `MediaRoutes.PODCASTS` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:247` | _none_ |
+| `radio` | `MediaRoutes.RADIO` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:268` | _none_ |
+| `reader/{mediaId}` | `MediaRoutes.readerRoute("book", id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:282` | _none_ |
+| `reading_statistics` | `(delete)` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:208` | _none_ |
+| `storage_browser` | `MediaRoutes.ENHANCED_FILE_BROWSER` | unclear | `ui/media/navigation/graphs/LegacyContentRoutes.kt:167` | _none_ |
+| `story_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:87` | _none_ |
 | `universal_tag_browser` | `MediaRoutes.discoveryRoute(type = "WEB_FICTION")` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:129` | _none_ |
-| `video_player/{videoId}` | `MediaRoutes.videoPlayerRoute(id)` | duplicate | `ui/media/navigation/graphs/LegacyRoutes.kt:49` | _none_ |
-| `videoplayer/{mediaId}` | `MediaRoutes.videoPlayerRoute(id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:362` | _none_ |
-| `visualizer` | `MediaRoutes.VISUALIZER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:276` | _none_ |
-| `web_comic_downloader` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:113` | _none_ |
-| `webfiction_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:78` | _none_ |
-| `webfiction_story/{storyId}` | `MediaRoutes.readerRoute("webfiction", id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:94` | _none_ |
+| `video_player/{videoId}` | `MediaRoutes.videoPlayerRoute(id)` | duplicate | `ui/media/navigation/graphs/LegacyRoutes.kt:50` | _none_ |
+| `videoplayer/{mediaId}` | `MediaRoutes.videoPlayerRoute(id)` | remap | `ui/media/navigation/graphs/LegacyRoutes.kt:363` | _none_ |
+| `visualizer` | `MediaRoutes.VISUALIZER` | duplicate | `ui/media/navigation/graphs/LegacyContentRoutes.kt:274` | _none_ |
+| `web_comic_downloader` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:114` | _none_ |
+| `webfiction_manager` | `MediaRoutes.WEB_FICTION` | redirect | `ui/media/navigation/graphs/LegacyContentRoutes.kt:79` | _none_ |
+| `webfiction_story/{storyId}` | `MediaRoutes.readerRoute("webfiction", id)` | remap | `ui/media/navigation/graphs/LegacyContentRoutes.kt:95` | _none_ |
 
 Kinds: `redirect` (already forwards to the live route), `duplicate` (live route hosts the
 same destination), `remap` (live route exists but arguments differ), `new-route` (live
@@ -135,30 +135,30 @@ These would throw `IllegalArgumentException` at runtime. They are tracked in
 
 | Route | Registered in |
 | --- | --- |
-| `activity` | `ui/media/navigation/graphs/MainSectionRoutes.kt:191` |
-| `advanced_effects_showcase` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:103` |
-| `ambient` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:155` |
-| `ambient/import` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:257` |
-| `ambient/theme_manager` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:252` |
-| `collection/{collectionId}` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:59` |
-| `collections` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:45` |
+| `activity` | `ui/media/navigation/graphs/MainSectionRoutes.kt:192` |
+| `advanced_effects_showcase` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:109` |
+| `ambient` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:156` |
+| `ambient/import` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:263` |
+| `ambient/theme_manager` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:258` |
+| `collection/{collectionId}` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:60` |
+| `collections` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:46` |
 | `debug` | `ui/media/navigation/graphs/DebugMenuRoutes.kt:46` |
-| `detail/{mediaType}/{mediaId}` | `ui/media/navigation/graphs/DetailRoutes.kt:45` |
-| `discover` | `ui/media/navigation/graphs/MainSectionRoutes.kt:137` |
-| `discover/podcasts` | `ui/media/navigation/graphs/MainSectionRoutes.kt:151` |
-| `discover/webfiction` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:73` |
-| `discover/webfiction/{source}` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:83` |
-| `discovery?query={query}&tags={tags}&type={type}` | `ui/media/navigation/graphs/MainSectionRoutes.kt:158` |
-| `document-reader/{uri}/{name}` | `ui/media/navigation/graphs/PlayerRoutes.kt:133` |
+| `detail/{mediaType}/{mediaId}` | `ui/media/navigation/graphs/DetailRoutes.kt:46` |
+| `discover` | `ui/media/navigation/graphs/MainSectionRoutes.kt:138` |
+| `discover/podcasts` | `ui/media/navigation/graphs/MainSectionRoutes.kt:152` |
+| `discover/webfiction` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:74` |
+| `discover/webfiction/{source}` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:84` |
+| `discovery?query={query}&tags={tags}&type={type}` | `ui/media/navigation/graphs/MainSectionRoutes.kt:159` |
+| `document-reader/{uri}/{name}` | `ui/media/navigation/graphs/PlayerRoutes.kt:134` |
 | `enhanced-file-browser` | `ui/media/navigation/graphs/OnboardingLandseekRoutes.kt:74` |
-| `enhanced_search?query={query}&tags={tags}&mediaTypes={mediaTypes}` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:122` |
-| `epub-reader/{path}` | `ui/media/navigation/graphs/PlayerRoutes.kt:149` |
-| `fanfiction_hub` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:263` |
-| `file-browser` | `ui/media/navigation/graphs/SyncImportRoutes.kt:98` |
-| `folder-import` | `ui/media/navigation/graphs/SyncImportRoutes.kt:70` |
-| `home` | `ui/media/navigation/graphs/MainSectionRoutes.kt:49` |
+| `enhanced_search?query={query}&tags={tags}&mediaTypes={mediaTypes}` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:123` |
+| `epub-reader/{path}` | `ui/media/navigation/graphs/PlayerRoutes.kt:150` |
+| `fanfiction_hub` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:269` |
+| `file-browser` | `ui/media/navigation/graphs/SyncImportRoutes.kt:99` |
+| `folder-import` | `ui/media/navigation/graphs/SyncImportRoutes.kt:71` |
+| `home` | `ui/media/navigation/graphs/MainSectionRoutes.kt:50` |
 | `home/see-all/{section}` | `ui/media/navigation/graphs/LibraryRoutes.kt:57` |
-| `import-export` | `ui/media/navigation/graphs/SyncImportRoutes.kt:57` |
+| `import-export` | `ui/media/navigation/graphs/SyncImportRoutes.kt:58` |
 | `landseek` | `ui/media/navigation/graphs/OnboardingLandseekRoutes.kt:61` |
 | `library` | `ui/media/navigation/graphs/LibraryRoutes.kt:49` |
 | `library/music` | `ui/media/navigation/graphs/LibraryRoutes.kt:110` |
@@ -166,62 +166,63 @@ These would throw `IllegalArgumentException` at runtime. They are tracked in
 | `library/radio` | `ui/media/navigation/graphs/LibraryRoutes.kt:160` |
 | `library/webfiction` | `ui/media/navigation/graphs/LibraryRoutes.kt:153` |
 | `library/{mediaType}` | `ui/media/navigation/graphs/LibraryRoutes.kt:75` |
-| `metadata-editor/{itemId}` | `ui/media/navigation/graphs/DetailRoutes.kt:104` |
-| `metadata-review-queue` | `ui/media/navigation/graphs/SyncImportRoutes.kt:81` |
-| `news` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:169` |
-| `not-found?path={path}` | `ui/media/navigation/graphs/MainSectionRoutes.kt:115` |
+| `metadata-editor/{itemId}` | `ui/media/navigation/graphs/DetailRoutes.kt:105` |
+| `metadata-review-queue` | `ui/media/navigation/graphs/SyncImportRoutes.kt:82` |
+| `news` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:170` |
+| `not-found?path={path}` | `ui/media/navigation/graphs/MainSectionRoutes.kt:116` |
 | `onboarding` | `ui/media/navigation/graphs/OnboardingLandseekRoutes.kt:45` |
-| `opds` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:46` |
-| `pdf-reader/{path}` | `ui/media/navigation/graphs/PlayerRoutes.kt:160` |
-| `player/audio/{playerType}` | `ui/media/navigation/graphs/PlayerRoutes.kt:87` |
-| `player/video/{videoId}` | `ui/media/navigation/graphs/PlayerRoutes.kt:104` |
-| `reader/{mediaType}/{mediaId}?chapter={chapter}` | `ui/media/navigation/graphs/PlayerRoutes.kt:45` |
-| `room-chat/{roomName}` | `ui/media/navigation/graphs/MainSectionRoutes.kt:197` |
-| `search` | `ui/media/navigation/graphs/MainSectionRoutes.kt:183` |
+| `opds` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:47` |
+| `pdf-reader/{path}` | `ui/media/navigation/graphs/PlayerRoutes.kt:161` |
+| `player/audio/{playerType}` | `ui/media/navigation/graphs/PlayerRoutes.kt:88` |
+| `player/video/{videoId}` | `ui/media/navigation/graphs/PlayerRoutes.kt:105` |
+| `reader/{mediaType}/{mediaId}?chapter={chapter}` | `ui/media/navigation/graphs/PlayerRoutes.kt:46` |
+| `room-chat/{roomName}` | `ui/media/navigation/graphs/MainSectionRoutes.kt:198` |
+| `search` | `ui/media/navigation/graphs/MainSectionRoutes.kt:184` |
 | `settings` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:15` |
-| `settings/about` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:228` |
+| `settings/about` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:234` |
+| `settings/accounts` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:29` |
 | `settings/api` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:23` |
-| `settings/appearance` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:29` |
-| `settings/audio-effects` | `ui/settings/AudioEffectsSettingsScreen.kt:41` |
-| `settings/audio_effects` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:149` |
-| `settings/audio_profiles` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:167` |
-| `settings/auto-scan` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:47` |
-| `settings/cache` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:69` |
-| `settings/casting` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:79` |
-| `settings/cloud` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:143` |
-| `settings/display` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:52` |
-| `settings/downloads` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:64` |
+| `settings/appearance` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:35` |
+| `settings/audio-effects` | `ui/settings/AudioEffectsSettingsScreen.kt:42` |
+| `settings/audio_effects` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:155` |
+| `settings/audio_profiles` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:173` |
+| `settings/auto-scan` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:53` |
+| `settings/cache` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:75` |
+| `settings/casting` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:85` |
+| `settings/cloud` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:149` |
+| `settings/display` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:58` |
+| `settings/downloads` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:70` |
 | `settings/features` | `ui/settings/FeatureFlagsSettings.kt:26` |
-| `settings/feedback` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:84` |
-| `settings/import_export` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:119` |
-| `settings/import_history` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:113` |
-| `settings/import_sorter` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:107` |
-| `settings/lastfm` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:173` |
-| `settings/media-servers` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:131` |
-| `settings/media_servers` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:125` |
-| `settings/metadata` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:41` |
-| `settings/network_storage` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:137` |
-| `settings/organizer` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:203` |
-| `settings/parental` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:197` |
-| `settings/parental_controls` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:191` |
-| `settings/paywall/cloud` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:246` |
-| `settings/paywall/scanner` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:240` |
-| `settings/paywall/themes` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:234` |
-| `settings/playback` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:158` |
-| `settings/privacy` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:74` |
-| `settings/reader` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:215` |
-| `settings/security` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:222` |
-| `settings/social` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:35` |
-| `settings/storage` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:209` |
-| `settings/text-size` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:58` |
-| `settings/tts` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:185` |
-| `settings/tts_provider` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:179` |
-| `smart_collection/{ruleId}` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:110` |
-| `smart_collections` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:103` |
-| `sync` | `ui/media/navigation/graphs/SyncImportRoutes.kt:45` |
-| `tag_explorer` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:85` |
-| `tag_manager` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:78` |
-| `tags` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:94` |
-| `theme_showcase` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:90` |
-| `universal_search` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:154` |
-| `visualizer` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:178` |
+| `settings/feedback` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:90` |
+| `settings/import_export` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:125` |
+| `settings/import_history` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:119` |
+| `settings/import_sorter` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:113` |
+| `settings/lastfm` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:179` |
+| `settings/media-servers` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:137` |
+| `settings/media_servers` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:131` |
+| `settings/metadata` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:47` |
+| `settings/network_storage` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:143` |
+| `settings/organizer` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:209` |
+| `settings/parental` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:203` |
+| `settings/parental_controls` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:197` |
+| `settings/paywall/cloud` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:252` |
+| `settings/paywall/scanner` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:246` |
+| `settings/paywall/themes` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:240` |
+| `settings/playback` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:164` |
+| `settings/privacy` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:80` |
+| `settings/reader` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:221` |
+| `settings/security` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:228` |
+| `settings/social` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:41` |
+| `settings/storage` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:215` |
+| `settings/text-size` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:64` |
+| `settings/tts` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:191` |
+| `settings/tts_provider` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:185` |
+| `smart_collection/{ruleId}` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:111` |
+| `smart_collections` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:104` |
+| `sync` | `ui/media/navigation/graphs/SyncImportRoutes.kt:46` |
+| `tag_explorer` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:86` |
+| `tag_manager` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:79` |
+| `tags` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:95` |
+| `theme_showcase` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:96` |
+| `universal_search` | `ui/media/navigation/graphs/CollectionsOrgRoutes.kt:155` |
+| `visualizer` | `ui/media/navigation/graphs/DiscoveryRoutes.kt:179` |

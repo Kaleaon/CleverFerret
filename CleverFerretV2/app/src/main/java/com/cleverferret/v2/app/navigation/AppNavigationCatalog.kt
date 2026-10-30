@@ -1,5 +1,15 @@
 package com.cleverferret.v2.app.navigation
 
+import com.cleverferret.v2.feature.audio.api.AudioNavDestination
+import com.cleverferret.v2.feature.library.api.LibraryNavDestination
+import com.cleverferret.v2.feature.opds.api.OpdsNavDestination
+import com.cleverferret.v2.feature.radio.api.RadioNavDestination
+import com.cleverferret.v2.feature.reader.api.ReaderNavDestination
+import com.cleverferret.v2.feature.search.api.SearchNavDestination
+import com.cleverferret.v2.feature.settings.api.SettingsNavDestination
+import com.cleverferret.v2.feature.sync.api.SyncNavDestination
+import com.cleverferret.v2.feature.webfiction.api.WebfictionNavDestination
+
 object AppNavigationCatalog {
     private fun domain(
         route: String,
@@ -9,52 +19,52 @@ object AppNavigationCatalog {
 
     val topLevelDestinations: Map<V2NavigationGraph.TopLevelDomain, List<AppDestination>> = mapOf(
         V2NavigationGraph.TopLevelDomain.LIBRARY to listOf(
-            domain("library/home", "Library", supportsSearch = true),
-            domain("library/item/{itemId}", "Item Details"),
-            domain("library/collection/{collectionId}", "Collection"),
-            domain("library/series/{seriesId}", "Series"),
-            domain("library/search", "Library Search", supportsSearch = true),
+            domain(LibraryNavDestination.Home.route, "Library", supportsSearch = true),
+            domain(LibraryNavDestination.Item("{itemId}").route, "Item Details"),
+            domain(LibraryNavDestination.Collection("{collectionId}").route, "Collection"),
+            domain(LibraryNavDestination.Series("{seriesId}").route, "Series"),
+            domain(LibraryNavDestination.Search.route, "Library Search", supportsSearch = true),
         ),
         V2NavigationGraph.TopLevelDomain.READER to listOf(
-            domain("reader/session/{itemId}", "Reader"),
-            domain("reader/contents/{itemId}", "Contents"),
-            domain("reader/annotations/{itemId}", "Annotations"),
-            domain("reader/theme", "Theme"),
+            domain(ReaderNavDestination.Session("{itemId}").route, "Reader"),
+            domain(ReaderNavDestination.Contents("{itemId}").route, "Contents"),
+            domain(ReaderNavDestination.Annotations("{itemId}").route, "Annotations"),
+            domain(ReaderNavDestination.Theme.route, "Theme"),
         ),
         V2NavigationGraph.TopLevelDomain.AUDIO to listOf(
-            domain("audio/home", "Audio", supportsSearch = true),
-            domain("audio/now-playing", "Now Playing"),
-            domain("audio/queue", "Queue"),
-            domain("audio/audiobooks", "Audiobooks", supportsSearch = true),
-            domain("audio/podcasts", "Podcasts", supportsSearch = true),
-            domain("audio/music", "Music", supportsSearch = true),
+            domain(AudioNavDestination.Home.route, "Audio", supportsSearch = true),
+            domain(AudioNavDestination.NowPlaying.route, "Now Playing"),
+            domain(AudioNavDestination.Queue.route, "Queue"),
+            domain(AudioNavDestination.Audiobooks.route, "Audiobooks", supportsSearch = true),
+            domain(AudioNavDestination.Podcasts.route, "Podcasts", supportsSearch = true),
+            domain(AudioNavDestination.Music.route, "Music", supportsSearch = true),
         ),
         V2NavigationGraph.TopLevelDomain.RADIO to listOf(
-            domain("radio/home", "Radio", supportsSearch = true),
-            domain("radio/station/{stationId}", "Station"),
-            domain("radio/favorites", "Favorites"),
+            domain(RadioNavDestination.Home.route, "Radio", supportsSearch = true),
+            domain(RadioNavDestination.Station("{stationId}").route, "Station"),
+            domain(RadioNavDestination.Favorites.route, "Favorites"),
         ),
         V2NavigationGraph.TopLevelDomain.DISCOVER to listOf(
             domain("discover/home", "Discover", supportsSearch = true),
-            domain("discover/search", "Discover Search", supportsSearch = true),
-            domain("discover/opds", "OPDS Catalogs"),
-            domain("discover/webfiction", "Web Fiction"),
+            domain(SearchNavDestination.DiscoverSearch.route, "Discover Search", supportsSearch = true),
+            domain(OpdsNavDestination.Catalog.route, "OPDS Catalogs"),
+            domain(WebfictionNavDestination.Home.route, "Web Fiction"),
             domain("discover/recommendations", "Recommendations"),
         ),
         V2NavigationGraph.TopLevelDomain.SYNC to listOf(
-            domain("sync/home", "Sync"),
-            domain("sync/providers", "Providers"),
-            domain("sync/history", "History"),
-            domain("sync/conflicts", "Conflicts"),
+            domain(SyncNavDestination.Home.route, "Sync"),
+            domain(SyncNavDestination.Providers.route, "Providers"),
+            domain(SyncNavDestination.History.route, "History"),
+            domain(SyncNavDestination.Conflicts.route, "Conflicts"),
         ),
         V2NavigationGraph.TopLevelDomain.SETTINGS to listOf(
-            domain("settings/home", "Settings", supportsSearch = true),
-            domain("settings/reader", "Reader Preferences"),
-            domain("settings/playback", "Playback Preferences"),
-            domain("settings/network", "Network Preferences"),
-            domain("settings/security", "Security"),
-            domain("settings/import-export", "Import and Export"),
-            domain("settings/about", "About"),
+            domain(SettingsNavDestination.Home.route, "Settings", supportsSearch = true),
+            domain(SettingsNavDestination.Reader.route, "Reader Preferences"),
+            domain(SettingsNavDestination.Playback.route, "Playback Preferences"),
+            domain(SettingsNavDestination.Network.route, "Network Preferences"),
+            domain(SettingsNavDestination.Security.route, "Security"),
+            domain(SettingsNavDestination.ImportExport.route, "Import and Export"),
+            domain(SettingsNavDestination.About.route, "About"),
         ),
     )
 

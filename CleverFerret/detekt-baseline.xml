@@ -639,6 +639,7 @@
     <ID>FunctionNaming:EnhancedLoadingStates.kt$@Composable fun ShimmerListItem( modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:EnhancedLoadingStates.kt$@Composable fun ShimmerLoadingGrid( columns: Int = 2, itemCount: Int = 6, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:EnhancedLoadingStates.kt$@Composable fun ShimmerLoadingList( itemCount: Int = 5, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:EnhancedMetadataEditor.kt$@Composable private fun SearchResultsDialog( searchQuery: String, searchResults: List&lt;SearchResult&gt;, isSearching: Boolean, onDismiss: () -&gt; Unit, onSelectResult: (SearchResult) -&gt; Unit )</ID>
     <ID>FunctionNaming:EnhancedMetadataEditor.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EnhancedMetadataEditorScreen( mediaId: Long, navController: NavController, metadataApiService: MetadataApiService = hiltViewModel&lt;EnhancedMetadataViewModel&gt;().metadataApiService )</ID>
     <ID>FunctionNaming:EnhancedMusicPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EnhancedMusicPlayerScreen( onNavigateBack: () -&gt; Unit, onNavigateToQueue: () -&gt; Unit, onNavigateToAlbum: (String) -&gt; Unit, onNavigateToVisualizer: () -&gt; Unit = {}, viewModel: MusicPlayerViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:EnhancedPDFReaderScreen.kt$@Composable fun SelectionContainer( enabled: Boolean, content: @Composable () -&gt; Unit )</ID>
@@ -693,6 +694,7 @@
     <ID>FunctionNaming:EnhancedSearchScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun FilterBottomSheet( filters: SearchFilters, facets: com.universalmedialibrary.services.search.SearchFacets?, onDismiss: () -&gt; Unit, onFiltersChange: (SearchFilters) -&gt; Unit, onClearFilters: () -&gt; Unit )</ID>
     <ID>FunctionNaming:EnhancedSearchScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun SearchTopBar( searchQuery: String, onSearchQueryChange: (String) -&gt; Unit, onNavigateBack: () -&gt; Unit, onClearSearch: () -&gt; Unit, showFilterBadge: Boolean, onShowFilters: () -&gt; Unit, onShowSort: () -&gt; Unit )</ID>
     <ID>FunctionNaming:EnhancedSearchScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun SortBottomSheet( currentSort: SortBy, onDismiss: () -&gt; Unit, onSortChange: (SortBy) -&gt; Unit )</ID>
+    <ID>FunctionNaming:EnhancedSearchScreen.kt$@Preview(showBackground = true) @Composable private fun EnhancedSearchShimmerLoadingPreview()</ID>
     <ID>FunctionNaming:EnhancedStorageBrowserScreen.kt$@Composable private fun EmptyFolderView()</ID>
     <ID>FunctionNaming:EnhancedStorageBrowserScreen.kt$@Composable private fun ErrorView( message: String, onRetry: () -&gt; Unit, showPermissionHint: Boolean = false, onRequestPermission: () -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:EnhancedStorageBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun EnhancedStorageBrowserScreen( onNavigateBack: () -&gt; Unit, onFilesSelected: (List&lt;File&gt;) -&gt; Unit = {}, onFoldersSelected: (List&lt;File&gt;) -&gt; Unit = {}, allowMultipleSelection: Boolean = true, allowFolderSelection: Boolean = true, filterMediaTypes: List&lt;String&gt; = listOf( "epub", "pdf", "mp3", "mp4", "mkv", "cbz", "cbr", "txt", "mobi", "azw", "azw3", "fb2", "djvu", "doc", "docx", "rtf", "html", "htm", "jpg", "jpeg", "png", "gif" ), viewModel: StorageBrowserViewModel = hiltViewModel() )</ID>
@@ -1042,14 +1044,6 @@
     <ID>FunctionNaming:MediaTypeFilterRow.kt$@Composable internal fun MediaTypeFilterRow( selectedMediaType: MediaType?, onMediaTypeChange: (MediaType?) -&gt; Unit )</ID>
     <ID>FunctionNaming:MediaVideoPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MediaVideoPlayerScreen( state: VideoPlayerState, onPlayPause: () -&gt; Unit, onSeek: (Long) -&gt; Unit, onSeekRelative: (Long) -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onSkipIntro: () -&gt; Unit, onSubtitleChange: (SubtitleTrack?) -&gt; Unit, onAudioTrackChange: (AudioTrack) -&gt; Unit, onQualityChange: (VideoQuality) -&gt; Unit, onCastClick: () -&gt; Unit, onPipClick: () -&gt; Unit, onClose: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:MediaWideCard.kt$@Composable fun MediaWideCard( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier = Modifier, width: Dp = MediaSizes.CardXLarge, showOverlayInfo: Boolean = true )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun AdvancedFiltersCard( criteria: StorySearchCriteria, onCriteriaChange: (StorySearchCriteria) -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun ErrorCard(error: String, onDismiss: () -&gt; Unit)</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun MetadataChip(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String)</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun SelectedTagsRow( selectedTags: List&lt;String&gt;, allTags: List&lt;WebFictionTag&gt;, onRemoveTag: (String) -&gt; Unit, onClearAll: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun StoryResultCard( story: WebFictionStory, onStoryClick: () -&gt; Unit, onOpenUrl: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@Composable private fun TagCategoriesSection( tags: List&lt;WebFictionTag&gt;, selectedTags: List&lt;String&gt;, expandedCategory: TagCategory?, onTagToggle: (String) -&gt; Unit, onCategoryToggle: (TagCategory) -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@OptIn(ExperimentalLayoutApi::class) @Composable private fun TagCategoryCard( category: TagCategory, tags: List&lt;WebFictionTag&gt;, selectedTags: List&lt;String&gt;, isExpanded: Boolean, onToggleExpand: () -&gt; Unit, onTagToggle: (String) -&gt; Unit )</ID>
-    <ID>FunctionNaming:MetabodsTagBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun MetabodsTagBrowserScreen( navController: NavController, viewModel: MetabodsTagBrowserViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:MetadataEditorScreen.kt$@Composable private fun MetadataFields( metadata: EditableMetadata, originalMetadata: EditableMetadata?, onMetadataChange: (MetadataField) -&gt; Unit )</ID>
     <ID>FunctionNaming:MetadataEditorScreen.kt$@Composable private fun MetadataTextField( label: String, value: String, originalValue: String?, onValueChange: (String) -&gt; Unit, singleLine: Boolean = true, minLines: Int = 1, keyboardOptions: KeyboardOptions = KeyboardOptions.Default )</ID>
     <ID>FunctionNaming:MetadataEditorScreen.kt$@Composable private fun PhoneLayout( uiState: MetadataEditorUiState, onMetadataChange: (MetadataField) -&gt; Unit, modifier: Modifier = Modifier )</ID>
@@ -1323,9 +1317,10 @@
     <ID>FunctionNaming:OPDSCatalogBrowserScreen.kt$@Composable private fun LoadingView()</ID>
     <ID>FunctionNaming:OPDSCatalogBrowserScreen.kt$@Composable private fun OPDSAuthChallengeDialog( catalogName: String, host: String, onAuthenticate: (String, String) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>FunctionNaming:OPDSCatalogBrowserScreen.kt$@Composable private fun PublicationCard( entry: OPDSEntry, onClick: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:OPDSCatalogBrowserScreen.kt$@Composable private fun PublicationListView( entries: List&lt;OPDSEntry&gt;, navigationLinks: List&lt;OPDSLink&gt; = emptyList(), onPublicationClick: (OPDSEntry) -&gt; Unit, onNavigationClick: (String) -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:OPDSCatalogBrowserScreen.kt$@Composable private fun PublicationListView( entries: List&lt;OPDSEntry&gt;, navigationLinks: List&lt;OPDSLink&gt; = emptyList(), isRefreshing: Boolean = false, onPublicationClick: (OPDSEntry) -&gt; Unit, onNavigationClick: (String) -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:OPDSCatalogBrowserScreen.kt$@Composable private fun SearchDialog( currentQuery: String, onDismiss: () -&gt; Unit, onSearch: (String) -&gt; Unit )</ID>
     <ID>FunctionNaming:OPDSCatalogBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OPDSCatalogBrowserScreen( onBack: () -&gt; Unit, viewModel: OPDSCatalogBrowserViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:OPDSCatalogBrowserScreen.kt$@Preview(showBackground = true) @Composable private fun OPDSCatalogShimmerLoadingPreview()</ID>
     <ID>FunctionNaming:OcrOverlay.kt$@Composable fun OcrFab( onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:OcrOverlay.kt$@Composable fun OcrResultDialog( text: String, onDismiss: () -&gt; Unit, onCopy: () -&gt; Unit )</ID>
     <ID>FunctionNaming:OcrOverlay.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OcrOverlay( bitmap: Bitmap?, onRecognizeText: () -&gt; Unit, ocrResult: String?, isProcessing: Boolean, onDismiss: () -&gt; Unit, modifier: Modifier = Modifier, onSpeakText: ((String) -&gt; Unit)? = null, onStopSpeaking: (() -&gt; Unit)? = null, isSpeaking: Boolean = false, currentLanguage: com.universalmedialibrary.services.ocr.OcrLanguage? = null, availableLanguages: List&lt;com.universalmedialibrary.services.ocr.OcrLanguage&gt;? = null, onLanguageChange: ((com.universalmedialibrary.services.ocr.OcrLanguage) -&gt; Unit)? = null )</ID>
@@ -1688,6 +1683,8 @@
     <ID>FunctionNaming:StorageBrowserScreen.kt$@Composable private fun ErrorView( message: String, onRetry: () -&gt; Unit, showPermissionHint: Boolean = false, onRequestPermission: () -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:StorageBrowserScreen.kt$@Composable private fun FileItem( file: File, viewMode: ViewMode, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:StorageBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun StorageBrowserScreen( onNavigateBack: () -&gt; Unit, onFileSelected: (File) -&gt; Unit, filterMediaTypes: List&lt;String&gt; = listOf("epub", "pdf", "mp3", "mp4", "mkv", "cbz", "cbr"), viewModel: StorageBrowserViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:StorageBrowserScreen.kt$@Preview(showBackground = true) @Composable private fun StorageBrowserShimmerGridPreview()</ID>
+    <ID>FunctionNaming:StorageBrowserScreen.kt$@Preview(showBackground = true) @Composable private fun StorageBrowserShimmerListPreview()</ID>
     <ID>FunctionNaming:StorageInfoBar.kt$@Composable internal fun StorageInfoBar( totalSpace: Long, usedSpace: Long, freeSpace: Long )</ID>
     <ID>FunctionNaming:StorageOrganizerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StorageOrganizerScreen( onBack: () -&gt; Unit, viewModel: SettingsViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:StoragePermissionBanner.kt$@Composable fun StoragePermissionBanner( onRequestPermission: () -&gt; Unit, modifier: Modifier = Modifier, title: String = "Storage Access Required", message: String = "Storage access is needed to browse and play local media files stored on your device.", icon: ImageVector = Icons.Default.FolderSpecial, actionText: String = "Grant Access", onDismiss: (() -&gt; Unit)? = null )</ID>
@@ -2128,6 +2125,7 @@
     <ID>LongMethod:EnhancedLoadingStates.kt$@Composable fun EnhancedLoadingState( message: String = "Loading...", icon: ImageVector = Icons.Default.HourglassEmpty, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:EnhancedLoadingStates.kt$@Composable fun ShimmerGridItem( modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:EnhancedLoadingStates.kt$@Composable fun ShimmerListItem( modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:EnhancedMetadataEditor.kt$@Composable private fun SearchResultsDialog( searchQuery: String, searchResults: List&lt;SearchResult&gt;, isSearching: Boolean, onDismiss: () -&gt; Unit, onSelectResult: (SearchResult) -&gt; Unit )</ID>
     <ID>LongMethod:EnhancedMetadataEditor.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EnhancedMetadataEditorScreen( mediaId: Long, navController: NavController, metadataApiService: MetadataApiService = hiltViewModel&lt;EnhancedMetadataViewModel&gt;().metadataApiService )</ID>
     <ID>LongMethod:EnhancedMetadataService.kt$EnhancedMetadataService$suspend fun extractMetadata(filePath: String): EnhancedTrackMetadata</ID>
     <ID>LongMethod:EnhancedMusicPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EnhancedMusicPlayerScreen( onNavigateBack: () -&gt; Unit, onNavigateToQueue: () -&gt; Unit, onNavigateToAlbum: (String) -&gt; Unit, onNavigateToVisualizer: () -&gt; Unit = {}, viewModel: MusicPlayerViewModel = hiltViewModel() )</ID>
@@ -2334,11 +2332,6 @@
     <ID>LongMethod:MediaVideoPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MediaVideoPlayerScreen( state: VideoPlayerState, onPlayPause: () -&gt; Unit, onSeek: (Long) -&gt; Unit, onSeekRelative: (Long) -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onSkipIntro: () -&gt; Unit, onSubtitleChange: (SubtitleTrack?) -&gt; Unit, onAudioTrackChange: (AudioTrack) -&gt; Unit, onQualityChange: (VideoQuality) -&gt; Unit, onCastClick: () -&gt; Unit, onPipClick: () -&gt; Unit, onClose: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:MediaViewerManager.kt$MediaViewerManager$fun analyzeMedia(context: Context, uri: Uri): MediaInfo</ID>
     <ID>LongMethod:MediaWideCard.kt$@Composable fun MediaWideCard( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier = Modifier, width: Dp = MediaSizes.CardXLarge, showOverlayInfo: Boolean = true )</ID>
-    <ID>LongMethod:MetabodsTagBrowserScreen.kt$@Composable private fun AdvancedFiltersCard( criteria: StorySearchCriteria, onCriteriaChange: (StorySearchCriteria) -&gt; Unit )</ID>
-    <ID>LongMethod:MetabodsTagBrowserScreen.kt$@Composable private fun StoryResultCard( story: WebFictionStory, onStoryClick: () -&gt; Unit, onOpenUrl: () -&gt; Unit )</ID>
-    <ID>LongMethod:MetabodsTagBrowserScreen.kt$@OptIn(ExperimentalLayoutApi::class) @Composable private fun TagCategoryCard( category: TagCategory, tags: List&lt;WebFictionTag&gt;, selectedTags: List&lt;String&gt;, isExpanded: Boolean, onToggleExpand: () -&gt; Unit, onTagToggle: (String) -&gt; Unit )</ID>
-    <ID>LongMethod:MetabodsTagBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun MetabodsTagBrowserScreen( navController: NavController, viewModel: MetabodsTagBrowserViewModel = hiltViewModel() )</ID>
-    <ID>LongMethod:MetabodsTagBrowserViewModel.kt$MetabodsTagBrowserViewModel$fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false)</ID>
     <ID>LongMethod:MetadataEditorScreen.kt$@Composable private fun MetadataFields( metadata: EditableMetadata, originalMetadata: EditableMetadata?, onMetadataChange: (MetadataField) -&gt; Unit )</ID>
     <ID>LongMethod:MetadataEditorViewModel.kt$MetadataEditorViewModel$fun saveMetadata()</ID>
     <ID>LongMethod:MetadataFetchRepository.kt$MetadataFetchRepository$suspend fun fetchAndSaveBookMetadata( itemId: Long, title: String? = null, author: String? = null, isbn: String? = null ): MetadataFetchResult</ID>
@@ -2429,7 +2422,7 @@
     <ID>LongMethod:OPDSBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OPDSBrowserScreen( state: OPDSScreenState, onCatalogClick: (OPDSCatalog) -&gt; Unit, onEntryClick: (OPDSEntry) -&gt; Unit, onSearch: (String) -&gt; Unit, onAddCatalog: (String) -&gt; Unit, onBackClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:OPDSBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun OPDSTopBar( currentPath: String, isSearching: Boolean, searchQuery: String, onSearchQueryChange: (String) -&gt; Unit, onSearchToggle: () -&gt; Unit, onSearch: () -&gt; Unit, onAddCatalog: () -&gt; Unit, onBackClick: () -&gt; Unit )</ID>
     <ID>LongMethod:OPDSCatalogBrowserScreen.kt$@Composable private fun PublicationCard( entry: OPDSEntry, onClick: () -&gt; Unit )</ID>
-    <ID>LongMethod:OPDSCatalogBrowserScreen.kt$@Composable private fun PublicationListView( entries: List&lt;OPDSEntry&gt;, navigationLinks: List&lt;OPDSLink&gt; = emptyList(), onPublicationClick: (OPDSEntry) -&gt; Unit, onNavigationClick: (String) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:OPDSCatalogBrowserScreen.kt$@Composable private fun PublicationListView( entries: List&lt;OPDSEntry&gt;, navigationLinks: List&lt;OPDSLink&gt; = emptyList(), isRefreshing: Boolean = false, onPublicationClick: (OPDSEntry) -&gt; Unit, onNavigationClick: (String) -&gt; Unit = {} )</ID>
     <ID>LongMethod:OPDSCatalogBrowserScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OPDSCatalogBrowserScreen( onBack: () -&gt; Unit, viewModel: OPDSCatalogBrowserViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:OPDSClient.kt$OPDSClient$private fun parseFeed(stream: InputStream, requestUrl: String): OPDSFeed</ID>
     <ID>LongMethod:OPDSDownloadService.kt$OPDSDownloadService$private fun startDownload(downloadId: Long, title: String, url: String, extension: String)</ID>
@@ -2822,7 +2815,6 @@
     <ID>LongParameterList:MediaSidebar.kt$( currentRoute: String, onNavigate: (String) -&gt; Unit, isExpanded: Boolean, onToggleExpanded: () -&gt; Unit, userAvatarUrl: String? = null, userName: String = "User", modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:MediaSquareCard.kt$( item: MediaItem, onClick: () -&gt; Unit, modifier: Modifier = Modifier, size: Dp = MediaSizes.CardMedium, showTitle: Boolean = true, showSubtitle: Boolean = true )</ID>
     <ID>LongParameterList:MediaVideoPlayerScreen.kt$( state: VideoPlayerState, onPlayPause: () -&gt; Unit, onSeek: (Long) -&gt; Unit, onSeekRelative: (Long) -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onSkipIntro: () -&gt; Unit, onSubtitleChange: (SubtitleTrack?) -&gt; Unit, onAudioTrackChange: (AudioTrack) -&gt; Unit, onQualityChange: (VideoQuality) -&gt; Unit, onCastClick: () -&gt; Unit, onPipClick: () -&gt; Unit, onClose: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>LongParameterList:MetabodsTagBrowserScreen.kt$( category: TagCategory, tags: List&lt;WebFictionTag&gt;, selectedTags: List&lt;String&gt;, isExpanded: Boolean, onToggleExpand: () -&gt; Unit, onTagToggle: (String) -&gt; Unit )</ID>
     <ID>LongParameterList:MetadataDao.kt$MetadataDao$( itemId: Long, waveformData: ByteArray?, sampleCount: Int, frameDurationMs: Int, offsetMs: Int, generatedAt: Long, version: Int = 1 )</ID>
     <ID>LongParameterList:MetadataEditorScreen.kt$( label: String, value: String, originalValue: String?, onValueChange: (String) -&gt; Unit, singleLine: Boolean = true, minLines: Int = 1, keyboardOptions: KeyboardOptions = KeyboardOptions.Default )</ID>
     <ID>LongParameterList:MetadataReviewQueueScreen.kt$( state: MetadataReviewQueueUiState, onBackClick: () -&gt; Unit, onFilterChange: (ConfidenceFilter) -&gt; Unit, onApproveCandidate: (Long) -&gt; Unit, onApproveAll: () -&gt; Unit, onDiscardCandidate: (Long) -&gt; Unit, onDiscardAll: () -&gt; Unit, onSelectCandidateForEdit: (StagedMetadataCandidate?) -&gt; Unit, onSaveAndApproveEdited: (StagedMetadataCandidate) -&gt; Unit )</ID>
@@ -3458,12 +3450,6 @@
     <ID>MagicNumber:AnnotationService.kt$AnnotationService$50</ID>
     <ID>MagicNumber:AnnotationService.kt$AnnotationService$60</ID>
     <ID>MagicNumber:AppModule.kt$AppModule$30</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$12</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$128</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$30000L</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$4</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$5</ID>
-    <ID>MagicNumber:AppSecurityService.kt$AppSecurityService$60000</ID>
     <ID>MagicNumber:AppShortcuts.kt$AppShortcutsManager$3</ID>
     <ID>MagicNumber:AppShortcuts.kt$AppShortcutsManager$5</ID>
     <ID>MagicNumber:ArchiveComparator.kt$ArchiveComparator$0.3f</ID>
@@ -3968,6 +3954,7 @@
     <ID>MagicNumber:EnhancedReadingStatisticsScreen.kt$1_000_000.0</ID>
     <ID>MagicNumber:EnhancedReadingStatisticsViewModel.kt$EnhancedReadingStatisticsViewModel$11</ID>
     <ID>MagicNumber:EnhancedReadingStatisticsViewModel.kt$EnhancedReadingStatisticsViewModel$86400000</ID>
+    <ID>MagicNumber:EnhancedSearchScreen.kt$3</ID>
     <ID>MagicNumber:EnhancedSearchScreen.kt$80f</ID>
     <ID>MagicNumber:EnhancedSearchService.kt$EnhancedSearchService$10</ID>
     <ID>MagicNumber:EnhancedSearchService.kt$EnhancedSearchService$1024</ID>
@@ -4738,7 +4725,6 @@
     <ID>MagicNumber:MediaVideoPlayerScreen.kt$0.5f</ID>
     <ID>MagicNumber:MediaVideoPlayerScreen.kt$10000</ID>
     <ID>MagicNumber:MediaVideoPlayerScreen.kt$4000</ID>
-    <ID>MagicNumber:MetabodsTagBrowserScreen.kt$5</ID>
     <ID>MagicNumber:MetadataApiService.kt$MetadataApiService$4</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$0xFFFFD700</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$3</ID>
@@ -6628,8 +6614,6 @@
     <ID>ReturnCount:AdvancedMusicPlayerService.kt$AdvancedMusicPlayerService$override fun skipNext()</ID>
     <ID>ReturnCount:AdvancedMusicPlayerService.kt$AdvancedMusicPlayerService$override fun skipPrevious()</ID>
     <ID>ReturnCount:AmazonCoverSource.kt$AmazonCoverSource$private suspend fun searchOnDomain( domain: String, isbn: String?, title: String?, author: String? ): CoverResult?</ID>
-    <ID>ReturnCount:AppSecurityService.kt$AppSecurityService$fun verifyPattern(pattern: List&lt;Int&gt;): Boolean</ID>
-    <ID>ReturnCount:AppSecurityService.kt$AppSecurityService$fun verifyPin(pin: String): Boolean</ID>
     <ID>ReturnCount:BookSourceService.kt$BookSourceService$private fun extractText(element: org.jsoup.nodes.Element, selector: String?): String</ID>
     <ID>ReturnCount:BookSourceService.kt$BookSourceService$suspend fun getBookChapters(sourceId: Long, bookUrl: String): List&lt;BookChapter&gt;</ID>
     <ID>ReturnCount:BookSourceService.kt$BookSourceService$suspend fun getBookInfo(sourceId: Long, bookUrl: String): BookInfo?</ID>
@@ -6703,7 +6687,6 @@
     <ID>SwallowedException:AmbientSoundService.kt$AmbientSoundService$e: Exception</ID>
     <ID>SwallowedException:AmbientSoundViewModel.kt$AmbientSoundViewModel$e: Exception</ID>
     <ID>SwallowedException:AndroidTextToSpeechService.kt$AndroidTextToSpeechService$e: Exception</ID>
-    <ID>SwallowedException:AppSecurityService.kt$AppSecurityService$e: Exception</ID>
     <ID>SwallowedException:AppleBooksCoverSource.kt$AppleBooksCoverSource$e: Exception</ID>
     <ID>SwallowedException:ArchiveComparator.kt$ArchiveComparator$e: Exception</ID>
     <ID>SwallowedException:ArtistDetailScreen.kt$ArtistDetailViewModel$e: Exception</ID>
@@ -6898,7 +6881,6 @@
     <ID>TooGenericExceptionCaught:AmbientSoundViewModel.kt$AmbientSoundViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AndroidTextToSpeechService.kt$AndroidTextToSpeechService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AniListTracker.kt$AniListTracker$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:AppSecurityService.kt$AppSecurityService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppUpgradeManager.kt$AppUpgradeManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppleBooksCoverSource.kt$AppleBooksCoverSource$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ArchiveComparator.kt$ArchiveComparator$e: Exception</ID>
@@ -7085,7 +7067,6 @@
     <ID>TooGenericExceptionCaught:MediaScanningService.kt$MediaScanningService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaSectionPagingSource.kt$MediaSectionPagingSource$error: Throwable</ID>
     <ID>TooGenericExceptionCaught:MediaServerRepository.kt$MediaServerRepository$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:MetabodsTagBrowserViewModel.kt$MetabodsTagBrowserViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MetabodsTagService.kt$MetabodsTagService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MetadataApiService.kt$MetadataApiService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MetadataEditorViewModel.kt$MetadataEditorViewModel$e: Exception</ID>
@@ -7580,6 +7561,7 @@
     <ID>UnusedPrivateMember:EnhancedMetadataService.kt$EnhancedMetadataService$private fun getChannelCount(retriever: MediaMetadataRetriever): Int?</ID>
     <ID>UnusedPrivateMember:EnhancedQueueScreen.kt$@androidx.compose.ui.tooling.preview.Preview @Composable private fun QueueTrackItemPreview()</ID>
     <ID>UnusedPrivateMember:EnhancedReadingStatisticsViewModel.kt$EnhancedReadingStatisticsViewModel$private fun generateMonthlyData(): List&lt;MonthlyReading&gt;</ID>
+    <ID>UnusedPrivateMember:EnhancedSearchScreen.kt$@Preview(showBackground = true) @Composable private fun EnhancedSearchShimmerLoadingPreview()</ID>
     <ID>UnusedPrivateMember:FanfictionDownloaderViewModel.kt$FanfictionDownloaderViewModel$private fun extractChapterCount(file: File): Int</ID>
     <ID>UnusedPrivateMember:FanfictionDownloaderViewModel.kt$FanfictionDownloaderViewModel$private fun extractTitle(file: File): String</ID>
     <ID>UnusedPrivateMember:FanfictionEpubBuilder.kt$private fun JSONArray?.toStringList(): List&lt;String&gt;</ID>
@@ -7600,6 +7582,8 @@
     <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun aggregateGenres(tracks: List&lt;Track&gt;): List&lt;Genre&gt;</ID>
     <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun scanMusicFromMediaStore(): List&lt;Track&gt;</ID>
     <ID>UnusedPrivateMember:MusicMetadataService.kt$MusicMetadataService$private fun parseMusicBrainzTrackResponse(response: String): MusicBrainzTrackInfo?</ID>
+    <ID>UnusedPrivateMember:OPDSCatalogBrowserScreen.kt$@Composable private fun LoadingView()</ID>
+    <ID>UnusedPrivateMember:OPDSCatalogBrowserScreen.kt$@Preview(showBackground = true) @Composable private fun OPDSCatalogShimmerLoadingPreview()</ID>
     <ID>UnusedPrivateMember:PDFReaderViewModel.kt$PDFReaderViewModel$private fun generateSamplePDFContent(pageNumber: Int): String</ID>
     <ID>UnusedPrivateMember:PodcastManagerScreen.kt$private fun formatTime(milliseconds: Long): String</ID>
     <ID>UnusedPrivateMember:PodcastService.kt$PodcastService$private suspend fun searchPodcastsByRSSDiscovery(query: String): List&lt;PodcastSearchResult&gt;</ID>
@@ -7609,6 +7593,8 @@
     <ID>UnusedPrivateMember:RedditFanficDownloader.kt$RedditFanficDownloader$private fun formatTimestamp(createdUtc: Long): String?</ID>
     <ID>UnusedPrivateMember:SettingsBackupService.kt$SettingsBackupService$private fun exportApiKeys(): String</ID>
     <ID>UnusedPrivateMember:StorageBrowserScreen.kt$@Composable private fun ErrorView( message: String, onRetry: () -&gt; Unit, showPermissionHint: Boolean = false, onRequestPermission: () -&gt; Unit = {} )</ID>
+    <ID>UnusedPrivateMember:StorageBrowserScreen.kt$@Preview(showBackground = true) @Composable private fun StorageBrowserShimmerGridPreview()</ID>
+    <ID>UnusedPrivateMember:StorageBrowserScreen.kt$@Preview(showBackground = true) @Composable private fun StorageBrowserShimmerListPreview()</ID>
     <ID>UnusedPrivateMember:UnifiedThemeSystem.kt$private fun getColorSchemeForTheme(theme: CleverFerretTheme, darkTheme: Boolean): ColorScheme</ID>
     <ID>UnusedPrivateMember:UnifiedThemeSystem.kt$private fun getMetallicColorsForTheme(theme: CleverFerretTheme): MetallicGradient</ID>
     <ID>UnusedPrivateMember:WebFictionViewModel.kt$WebFictionManagerScreenViewModel$private fun createDemoStories(): List&lt;WebFictionStory&gt;</ID>
@@ -8757,7 +8743,6 @@
     <ID>WildcardImport:EnhancedReadingStatisticsScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:EnhancedReadingStatisticsScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:EnhancedReadingStatisticsScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:EnhancedSearchScreen.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:EnhancedSearchScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:EnhancedSearchScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:EnhancedSearchScreen.kt$import androidx.compose.material3.*</ID>
@@ -9525,12 +9510,6 @@
     <ID>WildcardImport:MediaWideCard.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:MediaWideCard.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:MediaWideCard.kt$import com.universalmedialibrary.ui.media.theme.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserScreen.kt$import com.universalmedialibrary.services.webfiction.*</ID>
-    <ID>WildcardImport:MetabodsTagBrowserViewModel.kt$import com.universalmedialibrary.services.webfiction.*</ID>
     <ID>WildcardImport:MetadataDao.kt$import com.universalmedialibrary.data.local.entity.*</ID>
     <ID>WildcardImport:MetadataEditorScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:MetadataEditorScreen.kt$import androidx.compose.material3.*</ID>

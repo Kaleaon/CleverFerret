@@ -12,7 +12,16 @@ from pathlib import Path
 
 class LintConfigChecker:
     def __init__(self, project_root):
-        self.project_root = Path(project_root)
+        root_path = Path(project_root).resolve()
+        if root_path.is_file():
+            root_path = root_path.parent
+        curr = root_path
+        while curr != curr.parent:
+            if (curr / "settings.gradle.kts").exists():
+                root_path = curr
+                break
+            curr = curr.parent
+        self.project_root = root_path
         # Detect module from settings.gradle.kts include(":<module>")
         settings_file = self.project_root / "settings.gradle.kts"
         module_name = None
@@ -244,7 +253,7 @@ def main():
     if len(sys.argv) > 1:
         project_root = sys.argv[1]
     else:
-        project_root = "/app"
+        project_root = Path(__file__).resolve().parents[2]
     
     checker = LintConfigChecker(project_root)
     success = checker.run_all_checks()
