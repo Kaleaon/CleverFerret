@@ -139,6 +139,20 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     /**
+     * Start playback
+     */
+    fun play() {
+        exoPlayer?.play()
+    }
+
+    /**
+     * Pause playback
+     */
+    fun pause() {
+        exoPlayer?.pause()
+    }
+
+    /**
      * Seek to specific position
      */
     fun seekTo(positionMs: Long) {

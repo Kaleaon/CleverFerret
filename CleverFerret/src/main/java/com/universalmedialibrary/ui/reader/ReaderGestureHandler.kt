@@ -208,28 +208,24 @@ fun ReaderGestureOverlay(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .focusable()
-            .onKeyEvent { keyEvent ->
-                if (keyEvent.type == KeyEventType.KeyDown) {
-                    when (keyEvent.key) {
-                        Key.DirectionLeft, Key.PageUp -> {
-                            onPreviousPage()
-                            true
-                        }
-                        Key.DirectionRight, Key.PageDown -> {
-                            onNextPage()
-                            true
-                        }
-                        Key.DirectionCenter, Key.Enter, Key.Spacebar -> {
-                            onToggleUI()
-                            true
-                        }
-                        else -> false
-                    }
-                } else {
-                    false
+            .readerKeyController(
+                onNextPage = {
+                    onNextPage()
+                    true
+                },
+                onPreviousPage = {
+                    onPreviousPage()
+                    true
+                },
+                onToggleUI = {
+                    onToggleUI()
+                    true
+                },
+                onShowMenu = {
+                    onShowMenu()
+                    true
                 }
-            }
+            )
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = { offset ->
