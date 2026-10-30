@@ -246,9 +246,10 @@ object DatabaseModule {
     fun provideSearchRepository(
         mediaItemDao: MediaItemDao,
         metadataDao: MetadataDao,
-        tagDao: UnifiedTagDao
+        tagDao: UnifiedTagDao,
+        externalMediaEntityDao: ExternalMediaEntityDao
     ): SearchRepository {
-        return SearchRepository(mediaItemDao, metadataDao, tagDao)
+        return SearchRepository(mediaItemDao, metadataDao, tagDao, externalMediaEntityDao)
     }
 
     // Import/Export Repository

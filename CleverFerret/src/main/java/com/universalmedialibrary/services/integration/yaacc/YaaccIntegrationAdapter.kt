@@ -62,11 +62,11 @@ class YaaccIntegrationAdapter @Inject constructor(
         for (server in servers) {
             val entity = ExternalMediaEntity(
                 providerId = "yaacc",
-                externalId = server.udn,
+                externalId = server.udn ?: server.id.toString(),
                 title = server.name,
                 creator = server.manufacturer ?: "DLNA/UPnP",
                 mediaType = "DLNA_SERVER",
-                uri = server.locationUrl,
+                uri = server.url,
                 lastSyncedAt = System.currentTimeMillis()
             )
             externalMediaEntityDao.insertEntity(entity)

@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
+import com.universalmedialibrary.services.opds.OPDSChallengeAuthenticator
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -38,7 +39,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(rateLimiter: com.universalmedialibrary.services.network.PerProviderRateLimiter): OkHttpClient {
+    fun provideOkHttpClient(
+        rateLimiter: com.universalmedialibrary.services.network.PerProviderRateLimiter,
+        opdsChallengeAuthenticator: OPDSChallengeAuthenticator
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .authenticator(opdsChallengeAuthenticator)
             .connectTimeout(30, TimeUnit.SECONDS)

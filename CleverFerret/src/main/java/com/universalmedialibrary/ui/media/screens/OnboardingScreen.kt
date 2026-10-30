@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.media.theme.*
 import com.universalmedialibrary.ui.media.viewmodels.OnboardingViewModel
+import com.universalmedialibrary.utils.PermissionState
 import com.universalmedialibrary.utils.PermissionsHandler
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import kotlinx.coroutines.launch
@@ -263,13 +264,17 @@ private fun FeaturesPage() {
 }
 
 @Composable
-private fun StoragePage() {
+private fun StoragePage(
+    permissionState: PermissionState = rememberPermissionsHandler(),
+    onGrantSuccess: () -> Unit = {}
+) {
     val context = LocalContext.current
     var hasTriggeredScan by remember { mutableStateOf(false) }
 
     fun triggerScan() {
         if (!hasTriggeredScan) {
             hasTriggeredScan = true
+            onGrantSuccess()
             val intent = Intent(context, MediaScannerService::class.java).apply {
                 action = MediaScannerService.ACTION_SCAN_ALL
             }

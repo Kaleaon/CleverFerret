@@ -31,6 +31,9 @@ interface YaaccServerDao {
     @Query("SELECT * FROM yaacc_servers ORDER BY name ASC")
     fun getAll(): Flow<List<YaaccServer>>
 
+    @Query("SELECT * FROM yaacc_servers ORDER BY name ASC")
+    suspend fun getAllServers(): List<YaaccServer>
+
     @Query("SELECT * FROM yaacc_servers WHERE isActive = 1 ORDER BY lastSynced DESC")
     fun getActiveServers(): Flow<List<YaaccServer>>
 
