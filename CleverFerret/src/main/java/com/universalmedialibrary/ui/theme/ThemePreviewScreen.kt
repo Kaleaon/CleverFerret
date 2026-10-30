@@ -301,7 +301,9 @@ private fun ColorInfoRow(name: String, color: androidx.compose.ui.graphics.Color
             verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier
+                    .defaultMinSize(minWidth = 24.dp, minHeight = 24.dp)
+                    .size(32.dp),
                 color = color,
                 shape = MaterialTheme.shapes.small
             ) {}
