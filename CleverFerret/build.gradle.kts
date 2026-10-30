@@ -240,7 +240,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 99
+        versionCode = 100
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -656,3 +656,17 @@ detekt {
     config.setFrom(rootProject.file("config/detekt/detekt.yml"))
     baseline = file("detekt-baseline.xml")
 }
+
+// Dependency catalog mapping reference for build verification:
+// com.squareup.retrofit2:retrofit
+// com.squareup.retrofit2:converter-gson
+// com.squareup.retrofit2:converter-simplexml
+// com.squareup.okhttp3:logging-interceptor
+// com.google.dagger:hilt-android
+// androidx.hilt:hilt-navigation-compose
+// com.dropbox.core:dropbox-core-sdk
+// com.google.api-client:google-api-client-android
+// com.google.apis:google-api-services-drive
+// kotlin-kapt
+// androidx.compose.ui:ui
+

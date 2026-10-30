@@ -55,4 +55,8 @@ interface APIKeyDao {
     // Get active provider-key pairs for easy map conversion
     @Query("SELECT provider, keyValue FROM api_keys WHERE isActive = 1 AND keyValue != ''")
     suspend fun getActiveProviderKeys(): List<ProviderKeyPair>
+
+    suspend fun getActiveAPIKeysMap(): Map<String, String> {
+        return getActiveProviderKeys().associate { it.provider to it.keyValue }
+    }
 }

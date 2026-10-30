@@ -24,7 +24,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
 import com.universalmedialibrary.utils.FileNameSanitizer
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.computeSha256
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -448,16 +448,7 @@ class PodcastDownloadManager @Inject constructor(
     }
 
     private fun computeSha256(file: File): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        file.inputStream().use { input ->
-            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-            while (true) {
-                val read = input.read(buffer)
-                if (read <= 0) break
-                digest.update(buffer, 0, read)
-            }
-        }
-        return digest.digest().joinToString("") { "%02x".format(it) }
+        return file.computeSha256()
     }
 
     private fun sanitizeFileName(name: String): String {
