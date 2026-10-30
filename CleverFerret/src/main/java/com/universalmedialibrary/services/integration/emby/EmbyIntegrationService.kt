@@ -8,8 +8,12 @@ import javax.inject.Singleton
 
 @Singleton
 class EmbyIntegrationService @Inject constructor() {
-    fun createApi(baseUrl: String): EmbyApi {
-        val client = OkHttpClient.Builder().build()
+    fun createApi(baseUrl: String, interceptor: okhttp3.Interceptor? = null): EmbyApi {
+        val clientBuilder = OkHttpClient.Builder()
+        if (interceptor != null) {
+            clientBuilder.addInterceptor(interceptor)
+        }
+        val client = clientBuilder.build()
         return Retrofit.Builder()
             .baseUrl(if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/")
             .client(client)

@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 2,
+  "metadata": {
+    "id": "aurora-glass-night",
+    "name": "Aurora Glass Night",
+    "description": "Night-first glass aesthetic with aurora accents and disciplined blur",
+    "author": "Ktheme",
+    "version": "1.0.0",
+    "tags": ["metallic", "modern", "dark", "aurora", "glass", "consumer"],
+    "createdAt": "2026-02-16T13:00:59.876Z",
+    "updatedAt": "2026-02-16T13:00:59.876Z"
+  },
+  "darkMode": true,
+  "colorScheme": {
+    "error": "#CF6679",
+    "onError": "#FFFFFF",
+    "errorContainer": "#93000A",
+    "onErrorContainer": "#FFDAD6",
+    "primary": "#6DE8FF",
+    "onPrimary": "#03212A",
+    "primaryContainer": "#2A6F85",
+    "onPrimaryContainer": "#D6F7FF",
+    "secondary": "#8C7CFF",
+    "onSecondary": "#1A133C",
+    "secondaryContainer": "#4B4299",
+    "onSecondaryContainer": "#E3DDFF",
+    "tertiary": "#7CFFD8",
+    "onTertiary": "#053425",
+    "tertiaryContainer": "#2A7B63",
+    "onTertiaryContainer": "#D5FFEF",
+    "background": "#0A1224",
+    "onBackground": "#E7F0FF",
+    "surface": "#101C33",
+    "onSurface": "#E7F0FF",
+    "surfaceVariant": "#1D2B4A",
+    "onSurfaceVariant": "#B5C7E9",
+    "outline": "#6A7EAA",
+    "outlineVariant": "#334364",
+    "scrim": "#000000",
+    "inverseSurface": "#E7F0FF",
+    "inverseOnSurface": "#0A1224",
+    "inversePrimary": "#2D8CA8"
+  },
+  "effects": {
+    "metallic": {
+      "enabled": false,
+      "variant": "TITANIUM",
+      "gradient": {
+        "base": "#878681",
+        "highlight": "#BDBBB8",
+        "shadow": "#4A4A48",
+        "shimmer": "#D0CFCC"
+      },
+      "intensity": 0
+    },
+    "shadows": {
+      "enabled": true,
+      "elevation": 3,
+      "blur": 6,
+      "color": "#00000055"
+    },
+    "blur": {
+      "enabled": true,
+      "radius": 14
+    },
+    "overlays": {
+      "enabled": true,
+      "color": "#8CCBFF",
+      "opacity": 0.18,
+      "blendMode": "screen"
+    }
+  },
+  "adaptation": {}
+}

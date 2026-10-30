@@ -34,18 +34,54 @@ class SleepTimerManager @Inject constructor() {
     private val _state = MutableStateFlow(SleepTimerState())
     val state: StateFlow<SleepTimerState> = _state.asStateFlow()
     
+    var onVolumeChange: ((Float) -> Unit)? = null
+    private var baseVolume: Float = 1.0f
+
+    /**
+     * Set a registerable volume delegate callback
+     */
+    fun setVolumeDelegate(delegate: ((Float) -> Unit)?) {
+        this.onVolumeChange = delegate
+    }
+
+    /**
+     * Set base volume and adjust attenuated volume immediately if currently fading out
+     */
+    fun setBaseVolume(volume: Float) {
+        val clamped = volume.coerceIn(0f, 1f)
+        baseVolume = clamped
+        if (shouldFadeOut()) {
+            val attenuated = baseVolume * getFadeOutProgress()
+            onVolumeChange?.invoke(attenuated)
+        }
+    }
+
+    /**
+     * Get current base volume
+     */
+    fun getBaseVolume(): Float = baseVolume
+
     /**
      * Start sleep timer
      * @param durationMinutes Timer duration in minutes
      * @param fadeOut Whether to fade out audio before stopping
+     * @param initialBaseVolume Initial user volume to store as base volume
+     * @param onVolumeChange Callback when volume is adjusted during fade out
      * @param onComplete Callback when timer completes
      */
     fun startTimer(
         durationMinutes: Int,
         fadeOut: Boolean = true,
+        initialBaseVolume: Float = 1.0f,
+        onVolumeChange: ((Float) -> Unit)? = null,
         onComplete: () -> Unit
     ) {
         stopTimer()
+        
+        if (onVolumeChange != null) {
+            this.onVolumeChange = onVolumeChange
+        }
+        this.baseVolume = initialBaseVolume.coerceIn(0f, 1f)
         
         val durationSeconds = durationMinutes * 60L
         _state.value = SleepTimerState(
@@ -56,6 +92,10 @@ class SleepTimerManager @Inject constructor() {
             fadeOut = fadeOut
         )
         
+        if (shouldFadeOut()) {
+            this.onVolumeChange?.invoke(baseVolume * getFadeOutProgress())
+        }
+
         timerJob = scope.launch {
             var remaining = durationSeconds
             
@@ -67,6 +107,11 @@ class SleepTimerManager @Inject constructor() {
                     _state.value = _state.value.copy(
                         remainingSeconds = remaining
                     )
+
+                    if (shouldFadeOut()) {
+                        val attenuated = baseVolume * getFadeOutProgress()
+                        this@SleepTimerManager.onVolumeChange?.invoke(attenuated)
+                    }
                 } else {
                     delay(100)
                 }
@@ -77,6 +122,7 @@ class SleepTimerManager @Inject constructor() {
                     isActive = false,
                     remainingSeconds = 0
                 )
+                this@SleepTimerManager.onVolumeChange?.invoke(baseVolume)
                 onComplete()
             }
         }
@@ -104,9 +150,13 @@ class SleepTimerManager @Inject constructor() {
      * Stop and cancel the timer
      */
     fun stopTimer() {
+        val wasActive = _state.value.isActive
         timerJob?.cancel()
         timerJob = null
         _state.value = SleepTimerState()
+        if (wasActive) {
+            onVolumeChange?.invoke(baseVolume)
+        }
     }
     
     /**
@@ -115,11 +165,15 @@ class SleepTimerManager @Inject constructor() {
      */
     fun addTime(additionalMinutes: Int) {
         if (_state.value.isActive) {
+            val wasFadingOut = shouldFadeOut()
             val additionalSeconds = additionalMinutes * 60L
             _state.value = _state.value.copy(
                 totalSeconds = _state.value.totalSeconds + additionalSeconds,
                 remainingSeconds = _state.value.remainingSeconds + additionalSeconds
             )
+            if (wasFadingOut && !shouldFadeOut()) {
+                onVolumeChange?.invoke(baseVolume)
+            }
         }
     }
     

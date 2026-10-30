@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import android.content.Context
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
@@ -195,10 +196,13 @@ import com.universalmedialibrary.data.Tag
         MediaFtsEntity::class,
 
         // Media Stream Cache
-        MediaCacheItem::class
+        MediaCacheItem::class,
+
+        // Remote Sync Queue Mutation
+        RemoteSyncMutation::class
 
     ],
-    version = 48,
+    version = 49,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -248,6 +252,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun plexServerDao(): PlexServerDao
     abstract fun plexMediaItemDao(): PlexMediaItemDao
     abstract fun plexSyncDao(): PlexSyncDao
+    abstract fun remoteSyncMutationDao(): RemoteSyncMutationDao
 
     // Reader enhancement DAOs
     abstract fun annotationDao(): AnnotationDao
@@ -318,11 +323,19 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
+                val appContext = context.applicationContext
+                val keyManager = DatabaseKeyManager(appContext)
+                val passphrase = keyManager.getPassphrase()
+                SQLCipherDatabaseMigration.migrateIfNeeded(appContext, DATABASE_NAME, passphrase)
+
+                val factory = SupportOpenHelperFactory(passphrase)
+
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
+                    appContext,
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
+                    .openHelperFactory(factory)
                     .addMigrations(
                         AppDatabaseMigrations.MIGRATION_20_21,
                         AppDatabaseMigrations.MIGRATION_21_22,
@@ -348,7 +361,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_44_45,
                         AppDatabaseMigrations.MIGRATION_45_46,
                         AppDatabaseMigrations.MIGRATION_46_47,
-                        AppDatabaseMigrations.MIGRATION_47_48
+                        AppDatabaseMigrations.MIGRATION_47_48,
+                        AppDatabaseMigrations.MIGRATION_48_49
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

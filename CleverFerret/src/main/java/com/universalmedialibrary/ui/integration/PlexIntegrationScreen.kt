@@ -23,6 +23,15 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun PlexIntegrationScreen(
+    viewModel: PlexIntegrationViewModel = hiltViewModel()
+) {
+    val state = viewModel.plexState.collectAsState().value
+    MediaIntegrationScreen(viewModel = viewModel)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun MediaIntegrationScreen(
     viewModel: MediaIntegrationViewModel = hiltViewModel()
 ) {

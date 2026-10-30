@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "metadata": {
+    "id": "midnight-amber",
+    "name": "Midnight Amber",
+    "description": "Sophisticated midnight blue with warm amber metallic accents",
+    "author": "Ktheme",
+    "version": "1.0.0",
+    "tags": ["metallic", "sophisticated", "dark"],
+    "createdAt": "2026-02-15T20:42:39.611Z",
+    "updatedAt": "2026-02-15T20:42:39.611Z"
+  },
+  "darkMode": true,
+  "colorScheme": {
+    "error": "#CF6679",
+    "onError": "#FFFFFF",
+    "errorContainer": "#93000A",
+    "onErrorContainer": "#FFDAD6",
+    "primary": "#FFBF00",
+    "onPrimary": "#0C1824",
+    "primaryContainer": "#CC9900",
+    "onPrimaryContainer": "#FFD14D",
+    "secondary": "#1A2332",
+    "onSecondary": "#E8EEF5",
+    "secondaryContainer": "#15202E",
+    "onSecondaryContainer": "#E8EEF5",
+    "tertiary": "#D4A76A",
+    "onTertiary": "#0C1824",
+    "tertiaryContainer": "#A68254",
+    "onTertiaryContainer": "#F5E6D3",
+    "background": "#0C1824",
+    "onBackground": "#E8EEF5",
+    "surface": "#15202E",
+    "onSurface": "#E8EEF5",
+    "surfaceVariant": "#253447",
+    "onSurfaceVariant": "#B8C5D6",
+    "outline": "#8A95A6",
+    "outlineVariant": "#3D4854",
+    "scrim": "#000000",
+    "inverseSurface": "#E8EEF5",
+    "inverseOnSurface": "#0C1824",
+    "inversePrimary": "#8A6F00"
+  },
+  "effects": {
+    "metallic": {
+      "enabled": true,
+      "variant": "GOLD",
+      "gradient": {
+        "base": "#D4AF37",
+        "highlight": "#FFD700",
+        "shadow": "#856D34",
+        "shimmer": "#FFF8DC"
+      },
+      "intensity": 0.75
+    },
+    "shadows": {
+      "enabled": true,
+      "elevation": 3,
+      "blur": 6,
+      "color": "#00000055"
+    }
+  },
+  "adaptation": {}
+}

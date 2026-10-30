@@ -289,9 +289,6 @@ data class MetadataQuery(
     val limit: Int = 20
 )
 
-typealias SearchResult = MetadataSearchResult
-typealias MetadataDetails = MetadataSearchResult
-
 /**
  * Search result from metadata provider
  */
@@ -308,6 +305,9 @@ data class MetadataSearchResult(
     val relevanceScore: Float = 0f,
     val additionalInfo: Map<String, String> = emptyMap()
 )
+
+typealias SearchResult = MetadataSearchResult
+typealias MetadataDetails = MediaMetadata
 
 /**
  * Complete media metadata

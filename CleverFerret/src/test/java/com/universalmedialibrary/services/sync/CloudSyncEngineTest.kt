@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.sync
 
 import com.universalmedialibrary.data.local.entity.Bookmark
+import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.ReadingProgress
 import com.universalmedialibrary.services.cloud.CloudProvider
 import kotlinx.coroutines.Dispatchers
@@ -305,6 +306,37 @@ class CloudSyncEngineTest {
         assertEquals(CloudProvider.ONEDRIVE, mapToCloudProvider(SyncProvider.ONEDRIVE))
         assertEquals(CloudProvider.WEBDAV, mapToCloudProvider(SyncProvider.CUSTOM_SERVER))
         assertNull(mapToCloudProvider(SyncProvider.LOCAL_NETWORK))
+    }
+
+    @Test
+    fun testMediaItemsModifiedSinceFiltering() {
+        val sinceTimestamp = 1000L
+        val item1 = MediaItem(
+            itemId = 1L,
+            libraryId = 1L,
+            filePath = "/path/1",
+            fileName = "book1.epub",
+            fileExtension = "epub",
+            fileSize = 100L,
+            mediaType = "BOOK",
+            lastModified = 500L
+        )
+        val item2 = MediaItem(
+            itemId = 2L,
+            libraryId = 1L,
+            filePath = "/path/2",
+            fileName = "book2.epub",
+            fileExtension = "epub",
+            fileSize = 200L,
+            mediaType = "BOOK",
+            lastModified = 1500L
+        )
+
+        val items = listOf(item1, item2)
+        val modifiedItems = items.filter { it.lastModified > sinceTimestamp }
+
+        assertEquals(1, modifiedItems.size)
+        assertEquals(2L, modifiedItems.first().itemId)
     }
 
     private fun mapToCloudProvider(provider: SyncProvider): CloudProvider? {

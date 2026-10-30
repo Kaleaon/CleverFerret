@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.cloud
 
 import android.content.Context
+import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +30,8 @@ import com.universalmedialibrary.core.logging.AppLogger
 @Singleton
 class OneDriveService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val okHttpClient: OkHttpClient
+    private val okHttpClient: OkHttpClient,
+    private val credentialVault: EncryptedCredentialVault
 ) {
     
     private val _isAuthenticated = MutableStateFlow(false)
@@ -249,18 +251,26 @@ class OneDriveService @Inject constructor(
     }
 
     private fun getStoredAccessToken(): String? {
+        val vaultToken = credentialVault.getOneDriveAccessToken()
+        if (!vaultToken.isNullOrBlank()) {
+            return vaultToken
+        }
         val prefs = context.getSharedPreferences("onedrive_prefs", Context.MODE_PRIVATE)
-        return prefs.getString("access_token", null)
+        val legacy = prefs.getString("access_token", null)
+        if (!legacy.isNullOrBlank()) {
+            credentialVault.saveOneDriveAccessToken(legacy)
+            prefs.edit().remove("access_token").apply()
+            return legacy
+        }
+        return null
     }
 
     private fun storeAccessToken(token: String) {
-        val prefs = context.getSharedPreferences("onedrive_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putString("access_token", token).apply()
+        credentialVault.saveOneDriveAccessToken(token)
     }
 
     private fun clearStoredToken() {
-        val prefs = context.getSharedPreferences("onedrive_prefs", Context.MODE_PRIVATE)
-        prefs.edit().remove("access_token").apply()
+        credentialVault.clearOneDriveAccessToken()
     }
 }
 

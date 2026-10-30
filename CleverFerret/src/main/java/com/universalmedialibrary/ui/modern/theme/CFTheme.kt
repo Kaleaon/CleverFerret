@@ -3,6 +3,7 @@
 
 package com.universalmedialibrary.ui.modern.theme
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
 import com.cleverferret.core.designsystem.theme.LocalLiveRegionPolicy
 import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
+import com.universalmedialibrary.ui.theme.rememberFocusHighlightIndication
 
 internal fun cfTypography(family: FontFamily = FontFamily.Default): Typography = Typography(
     displayLarge   = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold,     fontSize = 44.sp, lineHeight = 52.sp, letterSpacing = (-1.0).sp),
@@ -56,13 +58,17 @@ fun CFTheme(
         KthemeThemeAdapterV1.adapt(kthemeSnapshot)
     }
 
+    val focusIndication = rememberFocusHighlightIndication(focusColor = palette.scheme.primary)
+
     CompositionLocalProvider(
         LocalCFTokens provides palette.tokens,
         LocalSemanticTheme provides semanticTheme,
-        LocalLiveRegionPolicy provides semanticTheme.liveRegion
+        LocalLiveRegionPolicy provides semanticTheme.liveRegion,
+        LocalIndication provides focusIndication
     ) {
         MaterialTheme(
             colorScheme = palette.scheme,
+            shapes = palette.tokens.layout.corners.toMaterial3Shapes(),
             typography = cfTypography(palette.tokens.typography),
             content = content,
         )

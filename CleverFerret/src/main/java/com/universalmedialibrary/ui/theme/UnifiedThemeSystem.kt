@@ -21,8 +21,6 @@ import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
  * - 3 Ancient Architect variants (Ancient Bronze, Silver Architect, Obsidian Tech)
  */
 
-typealias ThemePalette = CleverFerretTheme
-
 /**
  * Master theme enum including all available themes
  */

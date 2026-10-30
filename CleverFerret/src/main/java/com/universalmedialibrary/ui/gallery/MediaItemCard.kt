@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.universalmedialibrary.services.gallery.*
+import com.universalmedialibrary.ui.components.accessibleClickable
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -53,11 +54,12 @@ internal fun MediaItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(4.dp))
-            .combinedClickable(
+            .accessibleClickable(
+                shape = RoundedCornerShape(4.dp),
                 onClick = onClick,
                 onLongClick = onLongClick
             )
+            .clip(RoundedCornerShape(4.dp))
     ) {
         AsyncImage(
                     

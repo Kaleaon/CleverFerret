@@ -1,7 +1,6 @@
 package com.cleverferret.v2.feature.webfiction.dto
 
 import com.cleverferret.v2.core.common.VersionedContract
-import java.util.List
 
 data class StoryMetadataDtoV1(
     val title: String,

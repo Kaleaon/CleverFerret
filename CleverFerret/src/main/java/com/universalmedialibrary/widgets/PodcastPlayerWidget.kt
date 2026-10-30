@@ -2,18 +2,12 @@ package com.universalmedialibrary.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import com.universalmedialibrary.R
-import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,12 +16,10 @@ import javax.inject.Inject
  * Shows currently playing podcast episode with controls
  */
 @AndroidEntryPoint
-class PodcastPlayerWidget : AppWidgetProvider() {
+class PodcastPlayerWidget : BaseWidgetProvider() {
 
     @Inject
     lateinit var queueManager: UnifiedPlaybackQueueManager
-
-    private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onUpdate(
         context: Context,
@@ -60,17 +52,17 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_podcast_title, currentItem?.title ?: "No Podcast Playing")
             views.setTextViewText(R.id.widget_episode_title, currentItem?.artist ?: "")
             
-            val durationText = if (playbackState != null && playbackState.duration > 0) {
-                "${formatTime(playbackState.currentPositionMs)} / ${formatTime(playbackState.duration)}"
-            } else {
-                "--:-- / --:--"
-            }
+            val durationText = formatDuration(
+                playbackState?.currentPositionMs ?: 0L,
+                playbackState?.duration ?: 0L
+            )
             views.setTextViewText(R.id.widget_episode_duration, durationText)
             views.setTextViewText(R.id.widget_playback_speed, "${playbackState?.playbackSpeed ?: 1.0f}x")
             
-            val progress = if (playbackState != null && playbackState.duration > 0) {
-                ((playbackState.currentPositionMs.toFloat() / playbackState.duration) * 100).toInt()
-            } else 0
+            val progress = calculateProgressPercentage(
+                playbackState?.currentPositionMs ?: 0L,
+                playbackState?.duration ?: 0L
+            )
             views.setProgressBar(R.id.widget_progress, 100, progress, false)
 
             // Set up button intents
@@ -92,24 +84,13 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             )
 
             // Click to open app
-            val intent = Intent(context, MainActivity::class.java).apply {
-                action = "OPEN_PODCAST_PLAYER"
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val pendingIntent = PendingIntent.getActivity(
-                context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            val pendingIntent = getActivityPendingIntent(context, "OPEN_PODCAST_PLAYER")
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
         private fun getPendingIntent(context: Context, action: String): PendingIntent {
-            val intent = Intent(context, PodcastPlayerWidget::class.java).apply {
-                this.action = action
-            }
-            // Use unique request code per action to avoid PendingIntent reuse
             val requestCode = when (action) {
                 ACTION_PLAY_PAUSE -> 3001
                 ACTION_REWIND -> 3002
@@ -117,19 +98,9 @@ class PodcastPlayerWidget : AppWidgetProvider() {
                 ACTION_SPEED -> 3004
                 else -> 3000
             }
-            return PendingIntent.getBroadcast(
-                context, requestCode, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            return getBroadcastPendingIntent(context, PodcastPlayerWidget::class.java, action, requestCode)
         }
-
-        private fun formatTime(millis: Long): String {
-            val totalSeconds = millis / 1000
-            val minutes = totalSeconds / 60
-            val seconds = totalSeconds % 60
-            return "%d:%02d".format(minutes, seconds)
-        }
-    } // end companion object
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -160,12 +131,7 @@ class PodcastPlayerWidget : AppWidgetProvider() {
                 ACTION_SPEED -> {
                     // Cycle playback speed: 1.0x -> 1.25x -> 1.5x -> 2.0x -> 1.0x
                     val currentSpeed = queueManager.playbackState.value.playbackSpeed
-                    val newSpeed = when {
-                        currentSpeed < 1.25f -> 1.25f
-                        currentSpeed < 1.5f -> 1.5f
-                        currentSpeed < 2.0f -> 2.0f
-                        else -> 1.0f
-                    }
+                    val newSpeed = getNextPlaybackSpeed(currentSpeed)
                     queueManager.setPlaybackSpeed(newSpeed)
                     updateAllWidgets(context)
                 }
@@ -179,11 +145,5 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             android.content.ComponentName(context, PodcastPlayerWidget::class.java)
         )
         onUpdate(context, appWidgetManager, ids)
-    }
-
-    override fun onDisabled(context: Context) {
-        super.onDisabled(context)
-        // Cancel coroutine scope when all widgets removed to prevent leaks
-        widgetScope.cancel()
     }
 }

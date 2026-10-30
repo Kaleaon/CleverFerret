@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "metadata": {
+    "id": "e-ink",
+    "name": "E-Ink Monochrome",
+    "description": "High contrast monochrome palette optimized for E-Ink displays",
+    "author": "Ktheme",
+    "version": "1.0.0",
+    "tags": [
+      "e-ink",
+      "monochrome",
+      "light"
+    ]
+  },
+  "darkMode": false,
+  "colorScheme": {
+    "primary": "#000000",
+    "onPrimary": "#FFFFFF",
+    "primaryContainer": "#E0E0E0",
+    "onPrimaryContainer": "#000000",
+    "secondary": "#000000",
+    "onSecondary": "#FFFFFF",
+    "background": "#FFFFFF",
+    "onBackground": "#000000",
+    "surface": "#FFFFFF",
+    "onSurface": "#000000",
+    "surfaceVariant": "#E0E0E0",
+    "onSurfaceVariant": "#000000",
+    "outline": "#000000",
+    "error": "#000000",
+    "onError": "#FFFFFF"
+  },
+  "effects": {
+    "metallic": {
+      "enabled": false,
+      "variant": "MONOCHROME",
+      "gradient": {
+        "base": "#000000",
+        "highlight": "#808080",
+        "shadow": "#404040",
+        "shimmer": "#D3D3D3"
+      },
+      "intensity": 0.0
+    }
+  }
+}

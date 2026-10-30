@@ -277,4 +277,21 @@ object WorkScheduler {
             )
         )
     }
+
+    fun scheduleRemoteSyncWorker(context: Context) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val request = OneTimeWorkRequestBuilder<com.universalmedialibrary.services.sync.RemoteSyncWorker>()
+            .setConstraints(constraints)
+            .addTag("remote_sync_worker")
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "remote_sync_worker",
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
 }

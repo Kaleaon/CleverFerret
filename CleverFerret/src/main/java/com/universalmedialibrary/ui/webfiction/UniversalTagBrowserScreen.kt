@@ -404,7 +404,7 @@ private fun TagBrowsingContent(
     }
 }
 
-// Reuse components from MetabodsTagBrowserScreen
+// Shared composable components for Universal Tag Browser
 @Composable
 private fun SelectedTagsRow(
     selectedTags: List<String>,

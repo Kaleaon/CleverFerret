@@ -2,20 +2,18 @@ package com.universalmedialibrary.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.widget.RemoteViews
 import com.universalmedialibrary.R
-import com.universalmedialibrary.MainActivity
 
 /**
  * Text-to-Speech Widget
  * Shows current TTS playback with controls
  * Note: TTS state is managed by EnhancedEReaderViewModel and shared via preferences
  */
-class TextToSpeechWidget : AppWidgetProvider() {
+class TextToSpeechWidget : BaseWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -74,34 +72,20 @@ class TextToSpeechWidget : AppWidgetProvider() {
             )
 
             // Click to open app
-            val intent = Intent(context, MainActivity::class.java).apply {
-                action = "OPEN_TTS_READER"
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val pendingIntent = PendingIntent.getActivity(
-                context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            val pendingIntent = getActivityPendingIntent(context, "OPEN_TTS_READER")
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
         private fun getPendingIntent(context: Context, action: String): PendingIntent {
-            val intent = Intent(context, TextToSpeechWidget::class.java).apply {
-                this.action = action
-            }
-            // Use unique request code per action to avoid PendingIntent reuse
             val requestCode = when (action) {
                 ACTION_PLAY_PAUSE -> 5001
                 ACTION_PREV_SENTENCE -> 5002
                 ACTION_NEXT_SENTENCE -> 5003
                 else -> 5000
             }
-            return PendingIntent.getBroadcast(
-                context, requestCode, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            return getBroadcastPendingIntent(context, TextToSpeechWidget::class.java, action, requestCode)
         }
     }
 
@@ -140,12 +124,7 @@ class TextToSpeechWidget : AppWidgetProvider() {
             ACTION_SPEED -> {
                 // Cycle TTS speed: 1.0x -> 1.25x -> 1.5x -> 2.0x -> 1.0x
                 val currentSpeed = prefs.getFloat(PREF_TTS_SPEED, 1.0f)
-                val newSpeed = when {
-                    currentSpeed < 1.25f -> 1.25f
-                    currentSpeed < 1.5f -> 1.5f
-                    currentSpeed < 2.0f -> 2.0f
-                    else -> 1.0f
-                }
+                val newSpeed = getNextPlaybackSpeed(currentSpeed)
                 prefs.edit().putFloat(PREF_TTS_SPEED, newSpeed).apply()
                 
                 // Broadcast speed change (explicit broadcast for security)

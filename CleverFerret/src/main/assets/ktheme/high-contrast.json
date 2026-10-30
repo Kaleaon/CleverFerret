@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "metadata": {
+    "id": "high-contrast",
+    "name": "High Contrast",
+    "description": "Ultra high contrast palette for maximum readability and accessibility",
+    "author": "Ktheme",
+    "version": "1.0.0",
+    "tags": [
+      "accessibility",
+      "high-contrast",
+      "dark"
+    ]
+  },
+  "darkMode": true,
+  "colorScheme": {
+    "primary": "#FFFF00",
+    "onPrimary": "#000000",
+    "primaryContainer": "#FFFF00",
+    "onPrimaryContainer": "#000000",
+    "secondary": "#00FFFF",
+    "onSecondary": "#000000",
+    "background": "#000000",
+    "onBackground": "#FFFFFF",
+    "surface": "#000000",
+    "onSurface": "#FFFFFF",
+    "surfaceVariant": "#1C1C1C",
+    "onSurfaceVariant": "#FFFFFF",
+    "outline": "#FFFF00",
+    "error": "#FF0000",
+    "onError": "#000000"
+  },
+  "effects": {
+    "metallic": {
+      "enabled": true,
+      "variant": "HIGH_CONTRAST",
+      "gradient": {
+        "base": "#FFFF00",
+        "highlight": "#FFFFFF",
+        "shadow": "#FFFF00",
+        "shimmer": "#FFFFFF"
+      },
+      "intensity": 1.0
+    }
+  }
+}

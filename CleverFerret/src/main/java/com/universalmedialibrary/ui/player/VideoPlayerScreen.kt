@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.player
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -14,6 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -72,6 +78,45 @@ fun VideoPlayerScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black)
+                .focusable()
+                .onKeyEvent { keyEvent ->
+                    if (keyEvent.type == KeyEventType.KeyDown) {
+                        when (keyEvent.key) {
+                            Key.DirectionCenter, Key.Enter, Key.Spacebar -> {
+                                viewModel.togglePlayPause()
+                                showControls = true
+                                true
+                            }
+                            Key.DirectionLeft -> {
+                                val newPosition = maxOf(0L, currentPosition - 10000L)
+                                currentPosition = newPosition
+                                viewModel.seekTo(newPosition)
+                                showControls = true
+                                true
+                            }
+                            Key.DirectionRight -> {
+                                val newPosition = minOf(uiState.duration, currentPosition + 10000L)
+                                currentPosition = newPosition
+                                viewModel.seekTo(newPosition)
+                                showControls = true
+                                true
+                            }
+                            Key.DirectionUp -> {
+                                volume = minOf(1f, volume + 0.1f)
+                                showControls = true
+                                true
+                            }
+                            Key.DirectionDown -> {
+                                volume = maxOf(0f, volume - 0.1f)
+                                showControls = true
+                                true
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                }
                 .clickable { showControls = !showControls }
         ) {
             when {

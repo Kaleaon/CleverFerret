@@ -23,7 +23,9 @@ import com.universalmedialibrary.ui.open.MediaOpenScreen
 import com.universalmedialibrary.ui.reader.EnhancedEReaderScreen
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen
-import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.*
+import com.universalmedialibrary.ui.integration.PlexIntegrationScreen
+import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.utils.ScreenTimeoutManager
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -67,7 +69,7 @@ class MainActivity : ComponentActivity() {
             val selectedTheme by mainViewModel.selectedTheme.collectAsStateWithLifecycle(CleverFerretTheme.NAVY_GOLD)
             val darkMode by mainViewModel.darkMode.collectAsStateWithLifecycle(true)
             
-            CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
+            UnifiedCleverFerretTheme(theme = selectedTheme, darkTheme = darkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -277,3 +279,14 @@ private fun NoFileScreen(onOpenApp: () -> Unit) {
         }
     }
 }
+
+@Composable
+private fun IntegrationNavigationContainer(navController: androidx.navigation.NavHostController = androidx.navigation.compose.rememberNavController()) {
+    ResponsiveNavigationScaffold(
+        navController = navController
+    ) {
+        // settings/integrations/plex
+        PlexIntegrationScreen()
+    }
+}
+

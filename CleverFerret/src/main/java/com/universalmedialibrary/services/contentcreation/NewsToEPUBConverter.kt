@@ -406,16 +406,16 @@ p {
 
 .author {
     font-style: italic;
-    color: #666;
+    color: #595959;
 }
 
 .date {
-    color: #999;
+    color: #595959;
     font-size: 0.9em;
 }
 
 .source {
-    color: #999;
+    color: #595959;
     font-size: 0.8em;
     margin-bottom: 2em;
 }

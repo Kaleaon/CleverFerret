@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.components.media.*
 
 /**
@@ -48,6 +49,7 @@ fun LibraryManagementScreen(
     val libraryItemCounts by viewModel.libraryItemCounts.collectAsStateWithLifecycle()
     val bulkMetadataTask by viewModel.bulkMetadataTask.collectAsStateWithLifecycle()
     val bulkThumbnailTask by viewModel.bulkThumbnailTask.collectAsStateWithLifecycle()
+    val scanProgress by viewModel.scanProgress.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -153,6 +155,13 @@ fun LibraryManagementScreen(
                 )
             }
 
+            if (scanProgress.isScanning) {
+                ScanProgressCard(
+                    progress = scanProgress,
+                    onCancel = { viewModel.cancelScan() }
+                )
+            }
+
             if (libraries.isEmpty()) {
                 WelcomeScreen(
                     onCreateLibrary = { showCreateDialog = true },
@@ -224,6 +233,79 @@ fun LibraryManagementScreen(
         }
         is LibraryManagementUiState.Success -> {
             // Content already shown above
+        }
+    }
+}
+
+@Composable
+private fun ScanProgressCard(
+    progress: MediaScannerService.ScanProgress,
+    onCancel: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (progress.progressPercentage != null) {
+                        "Scanning Media... ${progress.progressPercentage.toInt()}%"
+                    } else {
+                        "Scanning Media..."
+                    },
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                TextButton(onClick = onCancel) {
+                    Text("Cancel", color = MaterialTheme.colorScheme.error)
+                }
+            }
+
+            if (progress.isIndeterminate || progress.progressPercentage == null) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            } else {
+                LinearProgressIndicator(
+                    progress = (progress.progressPercentage / 100f).coerceIn(0f, 1f),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val countText = if (progress.totalEstimatedCount > 0) {
+                    "${progress.scannedCount} / ${progress.totalEstimatedCount} files"
+                } else {
+                    "${progress.scannedCount} files found"
+                }
+                Text(
+                    text = countText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                if (!progress.currentFileName.isNullOrBlank()) {
+                    Text(
+                        text = progress.currentFileName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                        maxLines = 1
+                    )
+                }
+            }
         }
     }
 }

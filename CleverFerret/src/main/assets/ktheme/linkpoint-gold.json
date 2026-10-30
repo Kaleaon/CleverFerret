@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 2,
+  "metadata": {
+    "id": "linkpoint-gold",
+    "name": "Linkpoint Gold",
+    "description": "Signature Linkpoint UI kit theme featuring high-contrast gold metallic accents and deep navy obsidian background",
+    "author": "Linkpoint & Ktheme",
+    "version": "1.0.0",
+    "tags": ["metallic", "linkpoint", "dark", "hero", "gold"],
+    "createdAt": "2026-02-15T20:42:39.610Z",
+    "updatedAt": "2026-02-15T20:42:39.610Z"
+  },
+  "darkMode": true,
+  "colorScheme": {
+    "error": "#EF4444",
+    "onError": "#FFFFFF",
+    "errorContainer": "#7F1D1D",
+    "onErrorContainer": "#FEE2E2",
+    "primary": "#D4AF37",
+    "onPrimary": "#0A0D14",
+    "primaryContainer": "#856D34",
+    "onPrimaryContainer": "#FFF8DC",
+    "secondary": "#818CF8",
+    "onSecondary": "#0A0D14",
+    "secondaryContainer": "#312E81",
+    "onSecondaryContainer": "#E0E7FF",
+    "tertiary": "#38BDF8",
+    "onTertiary": "#0A0D14",
+    "tertiaryContainer": "#075985",
+    "onTertiaryContainer": "#E0F2FE",
+    "background": "#0A0D14",
+    "onBackground": "#F3F4F6",
+    "surface": "#141722",
+    "onSurface": "#F3F4F6",
+    "surfaceVariant": "#1F293D",
+    "onSurfaceVariant": "#9CA3AF",
+    "outline": "#374151",
+    "outlineVariant": "#1F293D",
+    "scrim": "#000000",
+    "inverseSurface": "#F3F4F6",
+    "inverseOnSurface": "#0A0D14",
+    "inversePrimary": "#856D34"
+  },
+  "effects": {
+    "metallic": {
+      "enabled": true,
+      "variant": "GOLD",
+      "gradient": {
+        "base": "#D4AF37",
+        "highlight": "#FFD700",
+        "shadow": "#856D34",
+        "shimmer": "#FFF8DC"
+      },
+      "intensity": 0.85
+    },
+    "shadows": {
+      "enabled": true,
+      "elevation": 6,
+      "blur": 12,
+      "color": "#00000080"
+    },
+    "shimmer": {
+      "enabled": true,
+      "speed": 2.5,
+      "intensity": 0.7,
+      "angle": 135
+    }
+  },
+  "typography": {
+    "fontFamily": "Inter, system-ui, -apple-system, sans-serif",
+    "fontSize": {
+      "small": 12,
+      "medium": 14,
+      "large": 18,
+      "xlarge": 24
+    },
+    "fontWeight": {
+      "light": 300,
+      "regular": 400,
+      "medium": 500,
+      "bold": 700
+    },
+    "lineHeight": 1.5,
+    "letterSpacing": 0
+  },
+  "adaptation": {}
+}

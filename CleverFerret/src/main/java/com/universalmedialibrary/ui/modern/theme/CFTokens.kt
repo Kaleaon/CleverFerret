@@ -15,9 +15,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cleverferret.core.designsystem.theme.CFLayout
+import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
 import com.universalmedialibrary.services.manga.source.MangaState
 import com.universalmedialibrary.services.webfiction.DownloadStatus
 import com.universalmedialibrary.services.webfiction.StoryStatus
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 // ─── Domain status & player control tokens ─────────────────────────────
 data class CFStatusColors(
@@ -101,8 +105,6 @@ data class CFMetro(
     val magenta: Color, val crimson: Color, val orange: Color,
     val lime: Color, val violet: Color,
 )
-
-enum class CFLayout { Compose, Lcars, Metro }
 
 data class CFGridMinItemWidth(
     val quickAction: Dp = 100.dp,
@@ -551,8 +553,374 @@ val HighContrastTokens = CFTokens(
     ),
 )
 
-// ─── Theme registry ──────────────────────────────────────────────────────
+// ─── Theme registry & Dynamic Loader ─────────────────────────────────────
 data class CFPalette(val scheme: ColorScheme, val tokens: CFTokens)
+
+@Serializable
+data class KthemeMetadataDto(
+    val id: String = "unknown",
+    val name: String = "Unknown Theme",
+    val description: String = "",
+    val author: String = "Ktheme",
+    val version: String = "1.0.0",
+    val tags: List<String> = emptyList()
+)
+
+@Serializable
+data class KthemeColorSchemeDto(
+    val primary: String? = null,
+    val onPrimary: String? = null,
+    val primaryContainer: String? = null,
+    val onPrimaryContainer: String? = null,
+    val secondary: String? = null,
+    val onSecondary: String? = null,
+    val secondaryContainer: String? = null,
+    val onSecondaryContainer: String? = null,
+    val tertiary: String? = null,
+    val onTertiary: String? = null,
+    val tertiaryContainer: String? = null,
+    val onTertiaryContainer: String? = null,
+    val background: String? = null,
+    val onBackground: String? = null,
+    val surface: String? = null,
+    val onSurface: String? = null,
+    val surfaceVariant: String? = null,
+    val onSurfaceVariant: String? = null,
+    val outline: String? = null,
+    val outlineVariant: String? = null,
+    val scrim: String? = null,
+    val error: String? = null,
+    val onError: String? = null,
+    val errorContainer: String? = null,
+    val onErrorContainer: String? = null,
+    val inverseSurface: String? = null,
+    val inverseOnSurface: String? = null,
+    val inversePrimary: String? = null
+)
+
+@Serializable
+data class KthemeMetallicGradientDto(
+    val base: String? = null,
+    val highlight: String? = null,
+    val shadow: String? = null,
+    val shimmer: String? = null
+)
+
+@Serializable
+data class KthemeMetallicEffectDto(
+    val enabled: Boolean = false,
+    val variant: String = "",
+    val gradient: KthemeMetallicGradientDto? = null,
+    val intensity: Float = 1.0f
+)
+
+@Serializable
+data class KthemeEffectsDto(
+    val metallic: KthemeMetallicEffectDto? = null
+)
+
+@Serializable
+data class KthemeLiveRegionDto(
+    val mode: String = "polite",
+    val atomic: Boolean = true,
+    val relevant: String = "all"
+)
+
+@Serializable
+data class KthemeAccessibilityDto(
+    val liveRegion: KthemeLiveRegionDto? = null
+)
+
+@Serializable
+data class KthemeLayoutDto(
+    val accessibility: KthemeAccessibilityDto? = null
+)
+
+@Serializable
+data class KthemeAdaptationDto(
+    val layout: KthemeLayoutDto? = null
+)
+
+@Serializable
+data class KthemeThemeDefinitionDto(
+    val schemaVersion: Int = 1,
+    val metadata: KthemeMetadataDto = KthemeMetadataDto(),
+    val darkMode: Boolean = true,
+    val colorScheme: KthemeColorSchemeDto = KthemeColorSchemeDto(),
+    val effects: KthemeEffectsDto? = null,
+    val adaptation: KthemeAdaptationDto? = null
+)
+
+private fun hexToColor(hex: String?, fallback: Color): Color {
+    if (hex.isNullOrBlank()) return fallback
+    val cleanHex = hex.removePrefix("#")
+    return try {
+        val longVal = cleanHex.toLong(16)
+        if (cleanHex.length == 6) {
+            Color((longVal or 0xFF000000L).toInt())
+        } else if (cleanHex.length == 8) {
+            Color(longVal.toInt())
+        } else {
+            fallback
+        }
+    } catch (_: Exception) {
+        fallback
+    }
+}
+
+fun KthemeThemeDefinitionDto.toCFPalette(): CFPalette {
+    val id = metadata.id.ifBlank { "unknown" }
+    val isDark = darkMode
+
+    val baseScheme = if (isDark) {
+        if (id == "navy-gold") NavyGoldScheme else darkColorScheme()
+    } else {
+        if (id == "paper-ink") PaperInkScheme else lightColorScheme()
+    }
+
+    val scheme = if (isDark) {
+        darkColorScheme(
+            primary = hexToColor(colorScheme.primary, baseScheme.primary),
+            onPrimary = hexToColor(colorScheme.onPrimary, baseScheme.onPrimary),
+            primaryContainer = hexToColor(colorScheme.primaryContainer, baseScheme.primaryContainer),
+            onPrimaryContainer = hexToColor(colorScheme.onPrimaryContainer, baseScheme.onPrimaryContainer),
+            secondary = hexToColor(colorScheme.secondary, baseScheme.secondary),
+            onSecondary = hexToColor(colorScheme.onSecondary, baseScheme.onSecondary),
+            secondaryContainer = hexToColor(colorScheme.secondaryContainer, baseScheme.secondaryContainer),
+            onSecondaryContainer = hexToColor(colorScheme.onSecondaryContainer, baseScheme.onSecondaryContainer),
+            tertiary = hexToColor(colorScheme.tertiary, baseScheme.tertiary),
+            onTertiary = hexToColor(colorScheme.onTertiary, baseScheme.onTertiary),
+            tertiaryContainer = hexToColor(colorScheme.tertiaryContainer, baseScheme.tertiaryContainer),
+            onTertiaryContainer = hexToColor(colorScheme.onTertiaryContainer, baseScheme.onTertiaryContainer),
+            background = hexToColor(colorScheme.background, baseScheme.background),
+            onBackground = hexToColor(colorScheme.onBackground, baseScheme.onBackground),
+            surface = hexToColor(colorScheme.surface, baseScheme.surface),
+            onSurface = hexToColor(colorScheme.onSurface, baseScheme.onSurface),
+            surfaceVariant = hexToColor(colorScheme.surfaceVariant, baseScheme.surfaceVariant),
+            onSurfaceVariant = hexToColor(colorScheme.onSurfaceVariant, baseScheme.onSurfaceVariant),
+            outline = hexToColor(colorScheme.outline, baseScheme.outline),
+            outlineVariant = hexToColor(colorScheme.outlineVariant, baseScheme.outlineVariant),
+            scrim = hexToColor(colorScheme.scrim, baseScheme.scrim),
+            error = hexToColor(colorScheme.error, baseScheme.error),
+            onError = hexToColor(colorScheme.onError, baseScheme.onError),
+            errorContainer = hexToColor(colorScheme.errorContainer, baseScheme.errorContainer),
+            onErrorContainer = hexToColor(colorScheme.onErrorContainer, baseScheme.onErrorContainer),
+            inverseSurface = hexToColor(colorScheme.inverseSurface, baseScheme.inverseSurface),
+            inverseOnSurface = hexToColor(colorScheme.inverseOnSurface, baseScheme.inverseOnSurface),
+            inversePrimary = hexToColor(colorScheme.inversePrimary, baseScheme.inversePrimary)
+        )
+    } else {
+        lightColorScheme(
+            primary = hexToColor(colorScheme.primary, baseScheme.primary),
+            onPrimary = hexToColor(colorScheme.onPrimary, baseScheme.onPrimary),
+            primaryContainer = hexToColor(colorScheme.primaryContainer, baseScheme.primaryContainer),
+            onPrimaryContainer = hexToColor(colorScheme.onPrimaryContainer, baseScheme.onPrimaryContainer),
+            secondary = hexToColor(colorScheme.secondary, baseScheme.secondary),
+            onSecondary = hexToColor(colorScheme.onSecondary, baseScheme.onSecondary),
+            secondaryContainer = hexToColor(colorScheme.secondaryContainer, baseScheme.secondaryContainer),
+            onSecondaryContainer = hexToColor(colorScheme.onSecondaryContainer, baseScheme.onSecondaryContainer),
+            tertiary = hexToColor(colorScheme.tertiary, baseScheme.tertiary),
+            onTertiary = hexToColor(colorScheme.onTertiary, baseScheme.onTertiary),
+            tertiaryContainer = hexToColor(colorScheme.tertiaryContainer, baseScheme.tertiaryContainer),
+            onTertiaryContainer = hexToColor(colorScheme.onTertiaryContainer, baseScheme.onTertiaryContainer),
+            background = hexToColor(colorScheme.background, baseScheme.background),
+            onBackground = hexToColor(colorScheme.onBackground, baseScheme.onBackground),
+            surface = hexToColor(colorScheme.surface, baseScheme.surface),
+            onSurface = hexToColor(colorScheme.onSurface, baseScheme.onSurface),
+            surfaceVariant = hexToColor(colorScheme.surfaceVariant, baseScheme.surfaceVariant),
+            onSurfaceVariant = hexToColor(colorScheme.onSurfaceVariant, baseScheme.onSurfaceVariant),
+            outline = hexToColor(colorScheme.outline, baseScheme.outline),
+            outlineVariant = hexToColor(colorScheme.outlineVariant, baseScheme.outlineVariant),
+            scrim = hexToColor(colorScheme.scrim, baseScheme.scrim),
+            error = hexToColor(colorScheme.error, baseScheme.error),
+            onError = hexToColor(colorScheme.onError, baseScheme.onError),
+            errorContainer = hexToColor(colorScheme.errorContainer, baseScheme.errorContainer),
+            onErrorContainer = hexToColor(colorScheme.onErrorContainer, baseScheme.onErrorContainer),
+            inverseSurface = hexToColor(colorScheme.inverseSurface, baseScheme.inverseSurface),
+            inverseOnSurface = hexToColor(colorScheme.inverseOnSurface, baseScheme.inverseOnSurface),
+            inversePrimary = hexToColor(colorScheme.inversePrimary, baseScheme.inversePrimary)
+        )
+    }
+
+    val grad = effects?.metallic?.gradient
+    val primaryColor = scheme.primary
+    val metal = CFMetal(
+        shadow = hexToColor(grad?.shadow, primaryColor),
+        base = hexToColor(grad?.base, primaryColor),
+        highlight = hexToColor(grad?.highlight, primaryColor),
+        shimmer = hexToColor(grad?.shimmer, primaryColor)
+    )
+
+    val layoutType = when (id.lowercase()) {
+        "lcars" -> CFLayout.Lcars
+        "metro", "windows-phone-metro" -> CFLayout.Metro
+        else -> CFLayout.Compose
+    }
+
+    val liveReg = adaptation?.layout?.accessibility?.liveRegion
+    val livePolicy = KthemeThemeAdapterV1.LiveRegionPolicy(
+        mode = liveReg?.mode ?: "polite",
+        atomic = liveReg?.atomic ?: true,
+        relevant = liveReg?.relevant ?: "all"
+    )
+
+    val tokens = CFTokens(
+        id = id,
+        displayName = metadata.name.ifBlank { id },
+        layout = layoutType,
+        metal = metal,
+        lcars = if (layoutType == CFLayout.Lcars) LcarsTokens.lcars else null,
+        metro = if (layoutType == CFLayout.Metro) MetroTokens.metro else null,
+        status = when (id) {
+            "e-ink" -> EInkTokens.status
+            "high-contrast" -> HighContrastTokens.status
+            "paper-ink" -> PaperInkTokens.status
+            else -> CFStatusColors(
+                completed = hexToColor(colorScheme.primary, CFStatusColors().completed),
+                ongoing = hexToColor(colorScheme.secondary, CFStatusColors().ongoing),
+                neutral = hexToColor(colorScheme.onSurfaceVariant, CFStatusColors().neutral)
+            )
+        },
+        playerControls = when (id) {
+            "e-ink" -> EInkTokens.playerControls
+            "high-contrast" -> HighContrastTokens.playerControls
+            "paper-ink" -> PaperInkTokens.playerControls
+            else -> CFPlayerControls(
+                playButtonContainer = scheme.primary,
+                playButtonIcon = scheme.onPrimary,
+                controlIcon = scheme.onSurface,
+                secondaryControlContainer = scheme.primaryContainer.copy(alpha = 0.2f),
+                activeTrack = scheme.primary,
+                inactiveTrack = scheme.onSurface.copy(alpha = 0.25f),
+                thumb = scheme.primary,
+                activeAccent = scheme.primary,
+                surfaceOverlay = scheme.background,
+                sheetBackground = scheme.surface
+            )
+        },
+        liveRegion = livePolicy
+    )
+
+    return CFPalette(scheme = scheme, tokens = tokens)
+}
+
+object DynamicCFThemeRegistry {
+    private val jsonInstance = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        coerceInputValues = true
+    }
+
+    private val staticDefaultPalettes = mapOf(
+        "navy-gold" to CFThemes.NavyGold,
+        "rose-gold" to CFThemes.RoseGold,
+        "emerald-silver" to CFThemes.EmeraldSilver,
+        "midnight-amber" to CFThemes.MidnightAmber,
+        "paper-ink" to CFThemes.PaperInk,
+        "neo-noir-neon" to CFThemes.NeoNoirNeon,
+        "lcars" to CFThemes.Lcars,
+        "metro" to CFThemes.Metro,
+        "e-ink" to CFThemes.EInk,
+        "high-contrast" to CFThemes.HighContrast,
+    )
+
+    private val dynamicPalettes = java.util.concurrent.ConcurrentHashMap<String, CFPalette>()
+
+    @Volatile
+    private var isInitialized = false
+
+    private fun ensureAutoInitialized() {
+        if (!isInitialized) {
+            synchronized(this) {
+                if (!isInitialized) {
+                    loadFromClasspathResources()
+                    isInitialized = true
+                }
+            }
+        }
+    }
+
+    fun loadFromAssets(context: android.content.Context) {
+        try {
+            val assetManager = context.assets
+            val files = assetManager.list("ktheme") ?: emptyArray()
+            for (file in files) {
+                if (file.endsWith(".json") && file != "tokens.json") {
+                    try {
+                        assetManager.open("ktheme/$file").use { inputStream ->
+                            parseAndRegisterJsonStream(inputStream)
+                        }
+                    } catch (_: Exception) {}
+                }
+            }
+        } catch (_: Exception) {}
+        isInitialized = true
+    }
+
+    fun loadFromClasspathResources() {
+        val knownAssetFiles = listOf(
+            "art-deco.json", "art-nouveau.json", "aurora-glass-night.json", "burgundy-rose-gold.json",
+            "calm-clinical.json", "charcoal-champagne.json", "deep-purple-platinum.json", "e-ink.json",
+            "emerald-silver.json", "forest-copper.json", "frutiger-aero.json", "high-contrast.json",
+            "ink-terminal-modern.json", "lcars.json", "linkpoint-cobalt.json", "linkpoint-gold.json",
+            "midnight-amber.json", "navy-gold.json", "neo-noir-neon.json", "obsidian-crimson.json",
+            "paper-ink.json", "rose-gold.json", "royal-bronze.json", "royal-silver.json",
+            "slate-cyan.json", "slate-gunmetal.json", "solarpunk-civic.json", "windows-phone-metro.json"
+        )
+        val classLoader = DynamicCFThemeRegistry::class.java.classLoader
+        for (fileName in knownAssetFiles) {
+            val resourcePaths = listOf("ktheme/$fileName", "assets/ktheme/$fileName")
+            for (path in resourcePaths) {
+                val stream = classLoader?.getResourceAsStream(path)
+                if (stream != null) {
+                    try {
+                        stream.use { parseAndRegisterJsonStream(it) }
+                        break
+                    } catch (_: Exception) {}
+                }
+            }
+        }
+    }
+
+    fun parseAndRegisterJsonString(jsonStr: String): CFPalette? {
+        if (jsonStr.isBlank()) return null
+        return try {
+            val dto = jsonInstance.decodeFromString<KthemeThemeDefinitionDto>(jsonStr)
+            val palette = dto.toCFPalette()
+            dynamicPalettes[palette.tokens.id] = palette
+            palette
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun parseAndRegisterJsonStream(inputStream: java.io.InputStream): CFPalette? {
+        val jsonStr = inputStream.bufferedReader().use { it.readText() }
+        return parseAndRegisterJsonString(jsonStr)
+    }
+
+    val allPalettes: List<CFPalette>
+        get() {
+            ensureAutoInitialized()
+            val result = LinkedHashMap<String, CFPalette>()
+            staticDefaultPalettes.forEach { (id, palette) -> result[id] = palette }
+            dynamicPalettes.forEach { (id, palette) -> result[id] = palette }
+            return result.values.toList()
+        }
+
+    fun byId(id: String): CFPalette {
+        ensureAutoInitialized()
+        if (id.isBlank()) return staticDefaultPalettes["navy-gold"] ?: CFThemes.NavyGold
+
+        dynamicPalettes[id]?.let { return it }
+        staticDefaultPalettes[id]?.let { return it }
+
+        dynamicPalettes.entries.firstOrNull { it.key.equals(id, ignoreCase = true) }?.value?.let { return it }
+        staticDefaultPalettes.entries.firstOrNull { it.key.equals(id, ignoreCase = true) }?.value?.let { return it }
+
+        return staticDefaultPalettes["navy-gold"] ?: CFThemes.NavyGold
+    }
+}
 
 object CFThemes {
     val NavyGold       = CFPalette(NavyGoldScheme,       NavyGoldTokens)
@@ -566,10 +934,9 @@ object CFThemes {
     val EInk           = CFPalette(EInkScheme,           EInkTokens)
     val HighContrast   = CFPalette(HighContrastScheme,   HighContrastTokens)
 
-    val All = listOf(NavyGold, RoseGold, EmeraldSilver, MidnightAmber,
-                     PaperInk, NeoNoirNeon, Lcars, Metro, EInk, HighContrast)
+    val All: List<CFPalette> get() = DynamicCFThemeRegistry.allPalettes
 
-    fun byId(id: String): CFPalette = All.first { it.tokens.id == id }
+    fun byId(id: String): CFPalette = DynamicCFThemeRegistry.byId(id)
 }
 
 // ─── Spacing & shape ─────────────────────────────────────────────────────

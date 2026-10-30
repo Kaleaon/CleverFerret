@@ -187,6 +187,7 @@ class AudioPlayerViewModel @Inject constructor(
         sleepTimerManager.startTimer(
             durationMinutes = minutes,
             fadeOut = true,
+            onVolumeChange = { vol -> musicPlayerService.setVolume(vol) },
             onComplete = { musicPlayerService.pause() }
         )
     }
