@@ -8,6 +8,7 @@ import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
 import com.universalmedialibrary.data.local.entity.MetadataMovie
 import com.universalmedialibrary.data.repository.MediaRepository
+import com.universalmedialibrary.utils.media.AudioMetadataUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -65,29 +66,21 @@ class MetadataExtractionService @Inject constructor(
     }
 
     private fun extractMusicRawMetadata(file: File): com.universalmedialibrary.services.pipeline.RawMetadata {
-        val retriever = MediaMetadataRetriever()
         return try {
-            retriever.setDataSource(file.absolutePath)
-            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)?.takeIf { it.isNotBlank() }
-                ?: file.nameWithoutExtension
-            val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)?.takeIf { it.isNotBlank() }
-            val albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)?.takeIf { it.isNotBlank() }
-            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)?.takeIf { it.isNotBlank() }
-            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
-            val trackNumber = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)?.toIntOrNull()
-
-            val creators = listOfNotNull(artist, albumArtist).distinct()
+            val meta = AudioMetadataUtils.extractAudioMetadata(file)
+            val title = meta.title?.takeIf { it.isNotBlank() } ?: file.nameWithoutExtension
+            val creators = listOfNotNull(meta.artist, meta.albumArtist).distinct()
 
             com.universalmedialibrary.services.pipeline.RawMetadata(
                 title = title,
                 creators = creators,
-                album = album,
-                albumArtist = albumArtist,
-                durationMs = duration,
-                trackNumber = trackNumber,
+                album = meta.album,
+                albumArtist = meta.albumArtist,
+                durationMs = meta.durationMs,
+                trackNumber = meta.trackNumber,
                 format = file.extension.uppercase(),
-                confidenceScore = if (artist != null && album != null) 0.90f else 0.75f,
-                source = "ID3_TAG_EXTRACTION"
+                confidenceScore = if (meta.artist != null && meta.album != null) 0.90f else 0.75f,
+                source = "FFMPEG_TAG_EXTRACTION"
             )
         } catch (e: Exception) {
             com.universalmedialibrary.services.pipeline.RawMetadata(
@@ -96,8 +89,6 @@ class MetadataExtractionService @Inject constructor(
                 confidenceScore = 0.60f,
                 source = "MUSIC_FALLBACK"
             )
-        } finally {
-            try { retriever.release() } catch (_: Exception) {}
         }
     }
 
@@ -234,18 +225,10 @@ class MetadataExtractionService @Inject constructor(
     }
 
     private fun extractMusicMetadata(mediaItem: EntityMediaItem): MetadataResult {
-        val retriever = MediaMetadataRetriever()
-
+        val file = File(mediaItem.filePath)
         return try {
-            retriever.setDataSource(mediaItem.filePath)
-
-            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-                ?: File(mediaItem.filePath).nameWithoutExtension
-            val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
-            val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toIntOrNull()
-            val trackNumber = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)?.toIntOrNull()
+            val meta = AudioMetadataUtils.extractAudioMetadata(file)
+            val title = meta.title ?: file.nameWithoutExtension
 
             val commonMetadata = MetadataCommon(
                 itemId = 0,
@@ -255,23 +238,16 @@ class MetadataExtractionService @Inject constructor(
 
             val musicMetadata = MetadataMusicTrack(
                 itemId = 0,
-                album = album,
-                artist = artist,
-                duration = duration,
-                bitrate = bitrate,
-                trackNumber = trackNumber
+                album = meta.album,
+                artist = meta.artist,
+                duration = meta.durationMs,
+                bitrate = meta.bitrate,
+                trackNumber = meta.trackNumber
             )
 
             MetadataResult(commonMetadata, musicMetadata = musicMetadata)
-
         } catch (e: Exception) {
-            MetadataResult.basic(File(mediaItem.filePath).nameWithoutExtension)
-        } finally {
-            try {
-                retriever.release()
-            } catch (e: Exception) {
-                // Ignore release errors
-            }
+            MetadataResult.basic(file.nameWithoutExtension)
         }
     }
 
