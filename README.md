@@ -36,16 +36,16 @@ CleverFerret is a comprehensive media library application for Android, designed 
 *   **Async:** Coroutines & Flow
 *   **Media Engine:** ExoPlayer (Media3)
 
-## 📂 Project Structure (Verified April 18, 2026)
+## 📂 Project Structure (Verified October 30, 2026)
 
-`settings.gradle.kts` currently includes only one active Gradle module: `:CleverFerret`.
+`settings.gradle.kts` currently includes `:CleverFerret`, `:core:design-system`, `:benchmark-macro`, and the `CleverFerretV2` modules listed below.
 
 ### Module status (source of truth)
 
 | Path | Status | Notes |
 |------|--------|-------|
 | `CleverFerret/` | ✅ Canonical runtime app module | The only module included in `settings.gradle.kts` and the primary Android app path. |
-| `CleverFerretV2/` | 🧪 Incubation / not built by default | Present in repo, but **not** currently included in `settings.gradle.kts`. |
+| `CleverFerretV2/` | 🧪 Incubation | Present in repo and **included** in `settings.gradle.kts` (~22 modules: app, core:*, feature:*). |
 | `archive/` | 🗃️ Archived | Historical artifacts and intentionally non-runtime content. |
 
 ### Top-level folder map and ownership
@@ -60,7 +60,7 @@ CleverFerret is a comprehensive media library application for Android, designed 
 | `tooling/` | Active support | `@Kaleaon` | Build and local developer automation scripts. |
 | `infra/` | Active support | `@Kaleaon` | CI/CD and deployment definitions. |
 | `archive/` | Archived | `@Kaleaon` | Historical non-runtime artifacts. |
-| `android-sdk/` | Legacy/support | `@Kaleaon` | Local bundled Android SDK for legacy/containerized setups. |
+| `android-sdk/` | Local only (not in git) | `@Kaleaon` | Bundled Android SDK, untracked since the Oct 30, 2026 cleanup. Fresh clones: set `ANDROID_HOME`/`ANDROID_SDK_ROOT` or provide `local.properties`; `settings.gradle.kts` still uses a local `android-sdk/` folder as a fallback when present. |
 | `buildSrc/` | Build logic | `@Kaleaon` | Shared Gradle build logic and conventions. |
 | `gradle/` | Build tooling | `@Kaleaon` | Gradle wrapper and shared build configuration files. |
 | `.github/` | Governance/automation | `@Kaleaon` | Workflows, issue templates, and CODEOWNERS policy. |
