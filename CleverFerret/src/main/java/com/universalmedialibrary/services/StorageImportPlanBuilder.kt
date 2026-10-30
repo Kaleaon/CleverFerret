@@ -5,24 +5,17 @@ import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.universalmedialibrary.services.StorageAccessService.DerivedMetadata
 import com.universalmedialibrary.utils.FileNameSanitizer
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.HashUtils
+import com.universalmedialibrary.utils.hashStream
 import java.util.Locale
 
 private val fileNameSanitizer = FileNameSanitizer()
 
 internal fun computeSha256(context: Context, uri: Uri): String? {
     return try {
-        val digest = MessageDigest.getInstance("SHA-256")
         context.contentResolver.openInputStream(uri).use { input ->
-            if (input == null) return null
-            val buf = ByteArray(1024 * 64)
-            while (true) {
-                val n = input.read(buf)
-                if (n <= 0) break
-                digest.update(buf, 0, n)
-            }
+            input?.hashStream(HashUtils.ALG_SHA256, 1024 * 64)
         }
-        digest.digest().joinToString("") { "%02x".format(it) }
     } catch (_: Exception) {
         null
     }

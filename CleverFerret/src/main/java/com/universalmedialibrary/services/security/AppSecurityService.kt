@@ -407,8 +407,7 @@ class AppSecurityService @Inject constructor(
      */
     private fun hashPin(pin: String): String {
         return android.util.Base64.encodeToString(
-            java.security.MessageDigest.getInstance("SHA-256")
-                .digest(pin.toByteArray()),
+            com.universalmedialibrary.utils.HashUtils.digest(pin),
             android.util.Base64.DEFAULT
         )
     }
@@ -418,8 +417,7 @@ class AppSecurityService @Inject constructor(
      */
     private fun hashPattern(pattern: String): String {
         return android.util.Base64.encodeToString(
-            java.security.MessageDigest.getInstance("SHA-256")
-                .digest(pattern.toByteArray()),
+            com.universalmedialibrary.utils.HashUtils.digest(pattern),
             android.util.Base64.DEFAULT
         )
     }

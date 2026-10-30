@@ -6,8 +6,7 @@ import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.*
 import java.io.File
-import java.io.FileInputStream
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.computeMd5
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -212,16 +211,6 @@ class CalibreImportService @Inject constructor(
     }
 
     private fun calculateMD5(file: File): String {
-        // PERFORMANCE & RESOURCE FIX: Use .use {} to ensure stream is properly closed
-        val digest = MessageDigest.getInstance("MD5")
-        FileInputStream(file).use { inputStream ->
-            val buffer = ByteArray(8192)
-            var read: Int
-            while (inputStream.read(buffer).also { read = it } > 0) {
-                digest.update(buffer, 0, read)
-            }
-        }
-        val md5sum = digest.digest()
-        return md5sum.joinToString("") { "%02x".format(it) }
+        return file.computeMd5()
     }
 }
