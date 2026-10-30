@@ -10,7 +10,7 @@ could be resolved statically (dynamic targets such as `item.route` are not liste
 ## Summary
 
 - Registered routes: 92 current, 45 legacy
-- Resolvable `navigate` calls: 158 (158 reach a current route, 0 reach only a legacy route, 0 match no registered route)
+- Resolvable `navigate` calls: 162 (162 reach a current route, 0 reach only a legacy route, 0 match no registered route)
 
 ## Legacy routes
 
