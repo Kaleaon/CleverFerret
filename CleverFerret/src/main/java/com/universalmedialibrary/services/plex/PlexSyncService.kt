@@ -18,6 +18,7 @@ import com.universalmedialibrary.data.local.entity.PlexProgress
 import com.universalmedialibrary.data.local.entity.PlexRating
 import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.plex.PlexLibrary
+import com.universalmedialibrary.services.plex.PlexMetadata
 import com.universalmedialibrary.services.ingestion.IngestionPipeline
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
