@@ -88,6 +88,32 @@ tasks.matching { it.name.startsWith("ksp") }.configureEach {
     dependsOn(patchRoomMigrationJar)
 }
 
+val copyKthemeTokens = tasks.register("copyKthemeTokens") {
+    val kthemeDist = file("${rootProject.projectDir}/../Ktheme/packages/tokens/dist")
+    val assetsTarget = file("$projectDir/src/main/assets/ktheme")
+    doLast {
+        if (kthemeDist.exists()) {
+            assetsTarget.mkdirs()
+            val tokensFile = File(kthemeDist, "tokens.json")
+            if (tokensFile.exists()) {
+                tokensFile.copyTo(File(assetsTarget, "tokens.json"), overwrite = true)
+            }
+            val jsonDir = File(kthemeDist, "json")
+            if (jsonDir.exists()) {
+                jsonDir.listFiles()?.forEach { jsonFile ->
+                    if (jsonFile.extension == "json") {
+                        jsonFile.copyTo(File(assetsTarget, jsonFile.name), overwrite = true)
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.matching { it.name == "preBuild" }.configureEach {
+    dependsOn(copyKthemeTokens)
+}
+
 afterEvaluate {
     configurations.findByName("kspDebugKotlinProcessorClasspath")?.let { config ->
         val patchedJar = layout.buildDirectory.file("patched-room-migration-jvm.jar").get().asFile
@@ -214,7 +240,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 97
+        versionCode = 98
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -261,6 +287,12 @@ android {
         }
     }
     
+    sourceSets {
+        getByName("test") {
+            resources.srcDirs("src/main/assets")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

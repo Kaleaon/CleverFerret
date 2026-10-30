@@ -195,7 +195,10 @@ import com.universalmedialibrary.data.Tag
         MediaFtsEntity::class,
 
         // Media Stream Cache
-        MediaCacheItem::class
+        MediaCacheItem::class,
+
+        // Remote Sync Queue Mutation
+        RemoteSyncMutation::class
 
     ],
     version = 49,
@@ -248,6 +251,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun plexServerDao(): PlexServerDao
     abstract fun plexMediaItemDao(): PlexMediaItemDao
     abstract fun plexSyncDao(): PlexSyncDao
+    abstract fun remoteSyncMutationDao(): RemoteSyncMutationDao
 
     // Reader enhancement DAOs
     abstract fun annotationDao(): AnnotationDao

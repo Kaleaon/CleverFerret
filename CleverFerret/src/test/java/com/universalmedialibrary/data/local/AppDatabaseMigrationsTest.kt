@@ -97,6 +97,19 @@ class AppDatabaseMigrationsTest {
     }
 
     @Test
+    fun `migration 48_49 creates index on media_items lastModified and remote sync table`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_48_49.migrate(database)
+
+        val expectedQuery = "CREATE INDEX IF NOT EXISTS index_media_items_lastModified ON media_items(lastModified)"
+        assertThat(executedSql.any { it.contains(expectedQuery) }).isTrue()
+        assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `remote_sync_mutations`") }).isTrue()
+    }
+
+    @Test
     fun `migration 48_49 creates composite indexes for collaborative sessions`() {
         val database = mockk<SupportSQLiteDatabase>()
         val executedSql = mutableListOf<String>()
@@ -104,7 +117,7 @@ class AppDatabaseMigrationsTest {
 
         AppDatabaseMigrations.MIGRATION_48_49.migrate(database)
 
-        assertThat(executedSql).hasSize(10)
+        assertThat(executedSql).hasSize(12)
         assertThat(executedSql.any { it.contains("index_collaborative_sessions_status_createdAt") }).isTrue()
         assertThat(executedSql.any { it.contains("index_collaborative_sessions_hostDeviceId_createdAt") }).isTrue()
         assertThat(executedSql.any { it.contains("index_session_clients_sessionId_isConnected") }).isTrue()
