@@ -16,16 +16,16 @@ import org.junit.Test
 class APIKeyRepositoryTest {
 
     private val dao = FakeApiKeyDao()
-    private val vaultMap = mutableMapOf<String, String>()
-    private val credentialVault = mockk<EncryptedCredentialVault>().also { vault ->
-        every { vault.saveApiKey(any(), any()) } answers {
-            vaultMap[firstArg()] = secondArg()
+    private val vaultKeys = mutableMapOf<String, String>()
+    private val credentialVault: EncryptedCredentialVault = mockk(relaxed = true) {
+        every { saveApiKey(any(), any()) } answers {
+            vaultKeys[firstArg<String>().lowercase()] = secondArg()
         }
-        every { vault.getApiKey(any()) } answers {
-            vaultMap[firstArg()]
+        every { getApiKey(any()) } answers {
+            vaultKeys[firstArg<String>().lowercase()]
         }
-        every { vault.deleteApiKey(any()) } answers {
-            vaultMap.remove(firstArg())
+        every { deleteApiKey(any()) } answers {
+            vaultKeys.remove(firstArg<String>().lowercase())
         }
     }
     private val repository = APIKeyRepository(dao, credentialVault)

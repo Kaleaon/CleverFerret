@@ -33,12 +33,14 @@ class MediaCacheManagerTest {
     val tempFolder = TemporaryFolder()
 
     @MockK
+    lateinit var context: Context
+
+    @MockK
     lateinit var mediaCacheDao: MediaCacheDao
 
     @MockK
     lateinit var settingsRepository: SettingsRepository
 
-    private lateinit var context: Context
     private lateinit var mediaCacheManager: MediaCacheManager
 
     @Before
@@ -46,7 +48,6 @@ class MediaCacheManagerTest {
         MockKAnnotations.init(this)
 
         val cacheDir = tempFolder.newFolder("cache")
-        context = mockk<Context>(relaxed = true)
         every { context.cacheDir } returns cacheDir
         coEvery { settingsRepository.maxCacheSizeMBFlow } returns flowOf(100) // 100 MB limit
 

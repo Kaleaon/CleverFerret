@@ -36,7 +36,6 @@ class UnifiedReaderServiceIntegrationTest {
     @Before
     fun setUp() {
         coEvery { plexVirtualUriResolver.isVirtualUri(any()) } returns false
-
         unifiedReaderService = UnifiedReaderService(
             context,
             readiumEpubService,

@@ -7,6 +7,10 @@ import java.util.Locale
  */
 object MediaTimeFormatter {
 
+    private const val MILLIS_PER_SECOND = 1000L
+    private const val SECONDS_PER_MINUTE = 60L
+    private const val SECONDS_PER_HOUR = 3600L
+
     /**
      * Formats millisecond duration into media time format: `m:ss` for durations under 1 hour,
      * or `h:mm:ss` for durations of 1 hour or longer, using [Locale.getDefault].
@@ -17,10 +21,10 @@ object MediaTimeFormatter {
         if (milliseconds == null || milliseconds <= 0L) {
             return "0:00"
         }
-        val totalSeconds = milliseconds / 1000L
-        val hours = totalSeconds / 3600L
-        val minutes = (totalSeconds % 3600L) / 60L
-        val seconds = totalSeconds % 60L
+        val totalSeconds = milliseconds / MILLIS_PER_SECOND
+        val hours = totalSeconds / SECONDS_PER_HOUR
+        val minutes = (totalSeconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
+        val seconds = totalSeconds % SECONDS_PER_MINUTE
 
         return if (hours > 0L) {
             String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
@@ -38,10 +42,10 @@ object MediaTimeFormatter {
         if (milliseconds == null || milliseconds <= 0L) {
             return "0s"
         }
-        val totalSeconds = milliseconds / 1000L
-        val hours = totalSeconds / 3600L
-        val minutes = (totalSeconds % 3600L) / 60L
-        val seconds = totalSeconds % 60L
+        val totalSeconds = milliseconds / MILLIS_PER_SECOND
+        val hours = totalSeconds / SECONDS_PER_HOUR
+        val minutes = (totalSeconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
+        val seconds = totalSeconds % SECONDS_PER_MINUTE
 
         return when {
             hours > 0L && minutes > 0L -> "${hours}h ${minutes}m"

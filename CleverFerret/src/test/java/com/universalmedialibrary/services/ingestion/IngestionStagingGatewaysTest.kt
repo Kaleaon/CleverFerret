@@ -412,7 +412,6 @@ class IngestionStagingGatewaysTest {
         }
 
         override suspend fun getMediaItemsByDownloadStatus(status: String): List<MediaItem> = map.values.filter { it.downloadStatus == status }
-
         override suspend fun getItemByPathOrCachePath(path: String): MediaItem? = map.values.find { it.filePath == path || it.localCachePath == path }
 
         override suspend fun deleteMediaItem(mediaItem: MediaItem) {
