@@ -195,10 +195,13 @@ import com.universalmedialibrary.data.Tag
         MediaFtsEntity::class,
 
         // Media Stream Cache
-        MediaCacheItem::class
+        MediaCacheItem::class,
+
+        // Remote Sync Queue Mutation
+        RemoteSyncMutation::class
 
     ],
-    version = 48,
+    version = 49,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -248,6 +251,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun plexServerDao(): PlexServerDao
     abstract fun plexMediaItemDao(): PlexMediaItemDao
     abstract fun plexSyncDao(): PlexSyncDao
+    abstract fun remoteSyncMutationDao(): RemoteSyncMutationDao
 
     // Reader enhancement DAOs
     abstract fun annotationDao(): AnnotationDao
@@ -348,7 +352,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_44_45,
                         AppDatabaseMigrations.MIGRATION_45_46,
                         AppDatabaseMigrations.MIGRATION_46_47,
-                        AppDatabaseMigrations.MIGRATION_47_48
+                        AppDatabaseMigrations.MIGRATION_47_48,
+                        AppDatabaseMigrations.MIGRATION_48_49
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
