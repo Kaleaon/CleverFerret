@@ -248,10 +248,6 @@ data class SyncResult(
     val errorMessage: String? = error
 )
 
-enum class ConflictResolutionStrategy {
-    LOCAL_WINS, CLOUD_WINS, MANUAL
-}
-
 data class SyncLocalMediaFile(
     val id: String,
     val name: String,

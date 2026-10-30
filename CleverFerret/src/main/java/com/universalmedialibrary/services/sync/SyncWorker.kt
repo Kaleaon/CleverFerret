@@ -4,10 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.universalmedialibrary.services.pipeline.JobContractType
-import com.universalmedialibrary.services.pipeline.JobExecutionState
-import com.universalmedialibrary.services.pipeline.JobStatusBus
-import com.universalmedialibrary.services.pipeline.JobStatusEvent
+import com.universalmedialibrary.jobs.JobContractType
+import com.universalmedialibrary.jobs.JobExecutionState
+import com.universalmedialibrary.jobs.JobStatusBus
+import com.universalmedialibrary.jobs.JobStatusEvent
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
