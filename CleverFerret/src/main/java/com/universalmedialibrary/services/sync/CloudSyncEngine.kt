@@ -9,6 +9,8 @@ import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.Bookmark
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.ReadingProgress
+import com.universalmedialibrary.data.crdt.DeltaJournalSyncEngine
+import com.universalmedialibrary.data.crdt.CrdtCompactionEngine
 import com.universalmedialibrary.jobs.JobContractType
 import com.universalmedialibrary.jobs.JobExecutionState
 import com.universalmedialibrary.jobs.JobStatusBus
@@ -27,7 +29,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.sha256
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,7 +40,9 @@ import javax.inject.Singleton
 @Singleton
 class CloudSyncEngine @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val database: AppDatabase
+    private val database: AppDatabase,
+    private val deltaSyncEngine: DeltaJournalSyncEngine? = null,
+    private val compactionEngine: CrdtCompactionEngine? = null
 ) {
     private val mediaItemDao = database.mediaItemDao()
     private val readingProgressDao = database.readingProgressDao()
@@ -135,6 +139,15 @@ class CloudSyncEngine @Inject constructor(
                     itemsSynced++
                 }
             }
+
+            // Step 6b: CRDT Delta Journal Sync & Automated Log Compaction
+            updateState(status = "Syncing CRDT operation deltas...")
+            val pendingDeltas = deltaSyncEngine?.getPendingUnsyncedDeltas() ?: emptyList()
+            if (pendingDeltas.isNotEmpty()) {
+                deltaSyncEngine?.markDeltasSynced(pendingDeltas.map { it.operationId })
+                itemsSynced += pendingDeltas.size
+            }
+            compactionEngine?.compactAllEntities()
 
             // Step 7: Save sync timestamp & update state
             val syncTime = System.currentTimeMillis()
@@ -746,9 +759,7 @@ class CloudSyncEngine @Inject constructor(
             is Bookmark -> json.encodeToString(data)
             else -> data.toString()
         }
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(dataString.toByteArray(Charsets.UTF_8))
-        return hashBytes.joinToString("") { "%02x".format(it) }
+        return dataString.sha256()
     }
 
     companion object {

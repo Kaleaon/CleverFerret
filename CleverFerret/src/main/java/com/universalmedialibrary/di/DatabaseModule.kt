@@ -26,11 +26,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
-    @Provides
-    @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return AppDatabase.getDatabase(context)
-    }
+    // Note: provideAppDatabase and provideAPIKeyDao are provided in ServicesModule
 
     // Core DAOs
     @Provides
@@ -42,11 +38,6 @@ object DatabaseModule {
       fun provideLibraryScanSettingsDao(database: AppDatabase): LibraryScanSettingsDao {
           return database.libraryScanSettingsDao()
       }
-
-    @Provides
-    fun provideAPIKeyDao(appDatabase: AppDatabase): APIKeyDao {
-        return appDatabase.apiKeyDao()
-    }
 
     @Provides
     fun provideMediaItemDao(appDatabase: AppDatabase): MediaItemDao {
@@ -417,6 +408,14 @@ object DatabaseModule {
     @Provides
     fun provideSearchHistoryDao(database: AppDatabase): SearchHistoryDao {
         return database.searchHistoryDao()
+    }
+
+    /**
+     * Provides the DAO for CRDT operation journal entries.
+     */
+    @Provides
+    fun provideCrdtOperationJournalDao(database: AppDatabase): CrdtOperationJournalDao {
+        return database.crdtOperationJournalDao()
     }
 
 }

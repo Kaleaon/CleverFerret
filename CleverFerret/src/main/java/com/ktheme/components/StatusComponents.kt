@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.ktheme.compose.accessibleSelectable
 
 @Composable
 fun StatCard(
@@ -51,7 +52,7 @@ fun SelectableChip(
     Row(
         modifier = modifier
             .background(bg, RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick)
+            .accessibleSelectable(selected = selected, onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically

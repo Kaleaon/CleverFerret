@@ -29,14 +29,6 @@ class UniversalTagService @Inject constructor(
     private val fileNameSanitizer: FileNameSanitizer
 ) {
 
-    companion object {
-        internal const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
-        internal const val REQUEST_TIMEOUT = 30000
-        internal const val SCRIBBLE_HUB_PAGE_SIZE = 25
-    }
-
-    internal val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
-
     private suspend fun ensureAdultAccess(siteType: WebFictionSiteType): Result<Unit> {
         if (!siteType.isAdultSite()) return Result.success(Unit)
         return if (parentalControlsSettings.isAdultSourcesAllowed()) {
@@ -224,20 +216,3 @@ data class SiteCapabilities(
     val hasDownloadButton: Boolean,
     val supportedRatings: List<String>
 )
-
-internal fun buildSearchResult(
-    criteria: StorySearchCriteria,
-    stories: List<WebFictionStory>
-): StorySearchResult {
-    val sliced = stories.drop(criteria.offset)
-    val limited = sliced.take(criteria.limit)
-    val consumed = criteria.offset + limited.size
-    val hasMore = stories.size > consumed
-    val nextOffset = if (hasMore) consumed else null
-    return StorySearchResult(
-        stories = limited,
-        totalCount = stories.size,
-        hasMore = hasMore,
-        nextOffset = nextOffset
-    )
-}

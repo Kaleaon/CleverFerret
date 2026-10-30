@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MediaIntegrationViewModel @Inject constructor(
+open class MediaIntegrationViewModel @Inject constructor(
     private val plexService: PlexIntegrationService
 ) : ViewModel() {
     private var authPollingJob: Job? = null
@@ -154,3 +154,9 @@ class MediaIntegrationViewModel @Inject constructor(
         plexService.clearError()
     }
 }
+
+@HiltViewModel
+class PlexIntegrationViewModel @Inject constructor(
+    plexService: PlexIntegrationService
+) : MediaIntegrationViewModel(plexService)
+

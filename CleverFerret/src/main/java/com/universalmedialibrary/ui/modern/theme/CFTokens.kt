@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cleverferret.core.designsystem.theme.CFLayout
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
 import com.universalmedialibrary.services.manga.source.MangaState
 import com.universalmedialibrary.services.webfiction.DownloadStatus
@@ -105,8 +106,6 @@ data class CFMetro(
     val lime: Color, val violet: Color,
 )
 
-enum class CFLayout { Compose, Lcars, Metro }
-
 data class CFGridMinItemWidth(
     val quickAction: Dp = 100.dp,
     val poster: Dp = 160.dp,
@@ -126,7 +125,7 @@ data class CFTokens(
     val status: CFStatusColors = CFStatusColors(),
     val playerControls: CFPlayerControls = CFPlayerControls(),
     val gridMinItemWidth: CFGridMinItemWidth = CFGridMinItemWidth(),
-    val liveRegion: com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy = com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy(),
+    val liveRegion: KthemeThemeAdapterV1.LiveRegionPolicy = KthemeThemeAdapterV1.LiveRegionPolicy(),
 )
 
 val LocalCFTokens = staticCompositionLocalOf<CFTokens> {

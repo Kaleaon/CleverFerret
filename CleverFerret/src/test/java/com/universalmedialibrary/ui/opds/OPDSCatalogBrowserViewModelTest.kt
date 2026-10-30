@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.opds
 
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
 import com.universalmedialibrary.data.local.entity.OPDSCatalog
+import com.universalmedialibrary.services.opds.OPDSAuthChallengeEvent
 import com.universalmedialibrary.services.opds.OPDSCatalogService
 import com.universalmedialibrary.services.opds.OPDSChallengeAuthenticator
 import com.universalmedialibrary.services.opds.OPDSDownloadService
@@ -63,7 +64,7 @@ class OPDSCatalogBrowserViewModelTest {
     fun setUp() {
         every { catalogDao.getAllCatalogs() } returns flowOf(listOf(testCatalog))
         every { downloadService.activeDownloads } returns MutableStateFlow(emptyMap())
-        every { opdsChallengeAuthenticator.challengeEvent } returns MutableSharedFlow()
+        every { opdsChallengeAuthenticator.challengeEvent } returns MutableSharedFlow<OPDSAuthChallengeEvent>()
     }
 
     @Test
