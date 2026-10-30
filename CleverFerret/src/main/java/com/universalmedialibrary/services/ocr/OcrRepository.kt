@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.md5
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -152,9 +152,7 @@ class OcrRepository @Inject constructor(
             }
         }
         
-        val digest = MessageDigest.getInstance("MD5")
-        val hash = digest.digest(data.toByteArray())
-        return hash.joinToString("") { "%02x".format(it) }
+        return data.md5()
     }
 
     private fun serializeBlocks(blocks: List<TextBlock>): String {

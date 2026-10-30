@@ -10,7 +10,8 @@ import com.universalmedialibrary.utils.ErrorLogger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.sha1
+import com.universalmedialibrary.utils.computeSha1
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -52,23 +53,12 @@ internal fun scaleBitmap(bitmap: Bitmap, maxDimension: Int): Bitmap {
 }
 
 internal fun hashString(input: String): String {
-    val digest = MessageDigest.getInstance("SHA-1")
-    val bytes = digest.digest(input.toByteArray())
-    return bytes.joinToString("") { "%02x".format(it) }
+    return input.sha1()
 }
 
 internal fun computeFileHash(file: File): String? {
     return try {
-        val digest = MessageDigest.getInstance("SHA-1")
-        file.inputStream().use { stream ->
-            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-            var bytesRead = stream.read(buffer)
-            while (bytesRead > 0) {
-                digest.update(buffer, 0, bytesRead)
-                bytesRead = stream.read(buffer)
-            }
-        }
-        digest.digest().joinToString("") { "%02x".format(it) }
+        file.computeSha1()
     } catch (_: Exception) {
         null
     }
