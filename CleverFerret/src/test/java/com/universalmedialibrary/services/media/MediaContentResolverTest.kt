@@ -11,10 +11,15 @@ import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.cache.CacheManager
 import com.universalmedialibrary.services.network.NetworkMonitor
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -72,7 +77,12 @@ class MediaContentResolverTest {
         val testFile = tempFolder.newFile("sample.mp3")
         val mediaItem = MediaItem(
             itemId = 100L,
+            libraryId = 1L,
             filePath = testFile.absolutePath,
+            fileName = testFile.name,
+            fileExtension = "mp3",
+            fileSize = testFile.length(),
+            mediaType = "MUSIC_TRACK",
             mimeType = "audio/mpeg"
         )
 
@@ -88,7 +98,12 @@ class MediaContentResolverTest {
         val cachedFile = tempFolder.newFile("cached_track.mp3")
         val mediaItem = MediaItem(
             itemId = 101L,
+            libraryId = 1L,
             filePath = "jellyfin://1/item999",
+            fileName = "item999.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK",
             localCachePath = cachedFile.absolutePath,
             downloadStatus = "COMPLETED"
         )
@@ -108,7 +123,12 @@ class MediaContentResolverTest {
 
         val mediaItem = MediaItem(
             itemId = 102L,
-            filePath = "jellyfin://1/item123"
+            libraryId = 1L,
+            filePath = "jellyfin://1/item123",
+            fileName = "item123.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK"
         )
 
         val result = resolver.resolve(mediaItem)
@@ -126,7 +146,12 @@ class MediaContentResolverTest {
 
         val mediaItem = MediaItem(
             itemId = 103L,
-            filePath = "emby://2/item456"
+            libraryId = 1L,
+            filePath = "emby://2/item456",
+            fileName = "item456.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK"
         )
 
         val result = resolver.resolve(mediaItem)
@@ -144,7 +169,12 @@ class MediaContentResolverTest {
 
         val mediaItem = MediaItem(
             itemId = 104L,
-            filePath = "plex://machine123/part789"
+            libraryId = 1L,
+            filePath = "plex://machine123/part789",
+            fileName = "part789.mp4",
+            fileExtension = "mp4",
+            fileSize = 1000L,
+            mediaType = "MOVIE"
         )
 
         val result = resolver.resolve(mediaItem)
@@ -159,8 +189,12 @@ class MediaContentResolverTest {
 
         val mediaItem = MediaItem(
             itemId = 105L,
+            libraryId = 1L,
             filePath = "jellyfin://1/item123",
-            fileName = "track.mp3"
+            fileName = "track.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK"
         )
 
         val result = resolver.resolve(mediaItem)
@@ -183,7 +217,12 @@ class MediaContentResolverTest {
 
         val mediaItem = MediaItem(
             itemId = 106L,
-            filePath = virtualUri
+            libraryId = 1L,
+            filePath = virtualUri,
+            fileName = "track.mp3",
+            fileExtension = "mp3",
+            fileSize = 1000L,
+            mediaType = "MUSIC_TRACK"
         )
 
         val result = resolver.resolve(mediaItem)
