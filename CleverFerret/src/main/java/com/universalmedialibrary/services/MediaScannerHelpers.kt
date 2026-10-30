@@ -154,29 +154,59 @@ internal fun String.normalizeMatcher(): String? {
 internal fun File.normalizedPath(): String =
     absolutePath.normalizeMatcher() ?: absolutePath.lowercase()
 
-internal fun MediaScannerService.scanLibrary(libraryId: Long, scanPath: String?) {
-    scanJob?.cancel()
-    scanJob = serviceScope.launch {
-        try {
-            val library = libraryDao.getLibraryById(libraryId)
-            if (library != null) {
-                val path = scanPath ?: library.path
-                val directory = File(path)
-                if (directory.exists() && directory.isDirectory) {
-                    val resolvedSettings = getCachedScanSettings(library)
-                    updateNotification("Scanning ${library.name}...")
-                    scanDirectory(directory, resolvedSettings, library)
-                    updateNotification("Library scan complete!")
+internal data class ResolvedScanSettings(
+    val config: LibraryScanSettings,
+    val includeMatchers: List<String>,
+    val excludeMatchers: List<String>
+)
+
+internal fun ResolvedScanSettings.shouldSkipDirectory(directory: File): Boolean {
+    val normalized = directory.normalizedPath()
+    return excludeMatchers.any { normalized.startsWith(it) }
+}
+
+internal fun ResolvedScanSettings.allowsFile(file: File): Boolean {
+    val normalizedPath = file.normalizedPath()
+    val includeOk = if (includeMatchers.isEmpty()) {
+        true
+    } else if (config.includeSubdirectories) {
+        includeMatchers.any { normalizedPath.startsWith(it) }
+    } else {
+        val parent = file.parent?.normalizeMatcher() ?: ""
+        includeMatchers.any { parent == it || normalizedPath == it }
+    }
+    if (!includeOk) return false
+    if (excludeMatchers.any { normalizedPath.startsWith(it) }) return false
+    if (config.minFileSizeBytes > 0 && file.length() < config.minFileSizeBytes) return false
+    return true
+}
+
+internal fun countEligibleFiles(
+    directory: File,
+    settings: ResolvedScanSettings?
+): Int {
+    var count = 0
+    val stack = java.util.ArrayDeque<File>()
+    stack.push(directory)
+    while (!stack.isEmpty()) {
+        val current = stack.pop()
+        val files = current.listFiles() ?: continue
+        for (f in files) {
+            if (f.isDirectory && !f.name.startsWith(".")) {
+                if (settings == null || !settings.shouldSkipDirectory(f)) {
+                    stack.push(f)
+                }
+            } else if (f.isFile) {
+                val mediaType = determineMediaType(f)
+                if (mediaType != null) {
+                    if (settings == null || settings.allowsFile(f)) {
+                        count++
+                    }
                 }
             }
-            delay(2000)
-            stopSelf()
-        } catch (e: Exception) {
-            ErrorLogger.logMediaScanError("Library scan failed", e)
-            updateNotification("Scan failed: ${e.message}")
-            delay(2000)
-            stopSelf()
         }
     }
+    return count
 }
+
 

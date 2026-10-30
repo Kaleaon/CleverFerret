@@ -20,7 +20,10 @@ class ResponsiveNavigationTester:
     """Test suite for responsive navigation components"""
     
     def __init__(self):
-        self.app_path = "/app"
+        default_repo_root = Path(__file__).resolve().parent.parent.parent
+        self.app_path = os.environ.get("APP_PATH", str(default_repo_root))
+        if not os.path.exists(os.path.join(self.app_path, "CleverFerret")) and os.path.exists("/app/CleverFerret"):
+            self.app_path = "/app/CleverFerret"
         self.test_results = []
         self.errors = []
         self.warnings = []

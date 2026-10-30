@@ -11,6 +11,7 @@ internal const val REQUEST_TIMEOUT = 30000
 internal const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
 internal const val SCRIBBLE_HUB_PAGE_SIZE = 25
 internal val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
+
 private val fileNameSanitizer = FileNameSanitizer()
 
 internal fun buildSearchResult(
