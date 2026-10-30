@@ -87,3 +87,9 @@ fun DownloadedEpisodeCard(
         }
     }
 }
+
+private fun formatDuration(durationSeconds: Long): String {
+    val minutes = durationSeconds / 60
+    val seconds = durationSeconds % 60
+    return String.format(java.util.Locale.getDefault(), "%d:%02d", minutes, seconds)
+}

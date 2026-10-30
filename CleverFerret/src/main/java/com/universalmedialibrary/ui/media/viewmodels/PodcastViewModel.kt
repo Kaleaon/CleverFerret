@@ -31,6 +31,10 @@ class PodcastViewModel @Inject constructor(
     private val nowPlaying = MutableStateFlow<PodcastEpisode?>(null)
     private val isLoading = MutableStateFlow(true)
 
+    val downloadProgress = downloadManager.downloadProgress
+    val pendingPinChallenge: StateFlow<Any?> = MutableStateFlow(null).asStateFlow()
+    val userMessages: SharedFlow<String> = MutableSharedFlow()
+
     private data class Snapshot(
         val podcasts: List<DomainPodcast>,
         val newEpisodes: List<DomainEpisode>,

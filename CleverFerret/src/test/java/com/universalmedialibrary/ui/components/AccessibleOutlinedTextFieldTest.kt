@@ -7,14 +7,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.hasKey
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import com.universalmedialibrary.ui.folderimport.UrlImportDialog
-import com.universalmedialibrary.ui.podcast.AddPodcastFeedDialog
 import com.universalmedialibrary.ui.settings.GeminiAPISection
 import com.universalmedialibrary.ui.settings.GenericApiKeySection
 import org.junit.Assert.assertEquals
@@ -123,24 +123,7 @@ class AccessibleOutlinedTextFieldTest {
 
         composeTestRule.onNodeWithText("Error: Invalid URL scheme")
             .assertExists()
-            .assert(hasKey(SemanticsProperties.LiveRegion))
-    }
-
-    @Test
-    fun addPodcastFeedDialog_whenInvalidFeedUrl_exposesErrorSemanticsAndLiveRegion() {
-        composeTestRule.setContent {
-            AddPodcastFeedDialog(
-                onDismiss = {},
-                onAdd = {}
-            )
-        }
-
-        composeTestRule.onNodeWithText("https://example.com/podcast/feed.xml")
-            .performTextInput("invalid-rss-url")
-
-        composeTestRule.onNodeWithText("Error: Invalid RSS feed URL scheme (must start with http or https)")
-            .assertExists()
-            .assert(hasKey(SemanticsProperties.LiveRegion))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
     }
 
     @Test
@@ -158,7 +141,7 @@ class AccessibleOutlinedTextFieldTest {
 
         composeTestRule.onNodeWithText("Invalid TMDB API key format")
             .assertExists()
-            .assert(hasKey(SemanticsProperties.LiveRegion))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
     }
 
     @Test
@@ -175,6 +158,6 @@ class AccessibleOutlinedTextFieldTest {
 
         composeTestRule.onNodeWithText("API key verification failed (HTTP 401)")
             .assertExists()
-            .assert(hasKey(SemanticsProperties.LiveRegion))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
     }
 }

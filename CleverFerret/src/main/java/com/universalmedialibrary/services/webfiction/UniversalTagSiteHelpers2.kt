@@ -1,5 +1,8 @@
 package com.universalmedialibrary.services.webfiction
 
+import com.universalmedialibrary.services.webfiction.UniversalTagService.Companion.REQUEST_TIMEOUT
+import com.universalmedialibrary.services.webfiction.UniversalTagService.Companion.SCRIBBLE_HUB_PAGE_SIZE
+import com.universalmedialibrary.services.webfiction.UniversalTagService.Companion.USER_AGENT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -228,7 +231,7 @@ internal fun parseScribbleHubId(url: String): String {
         ?: url.hashCode().toString()
 }
 
-internal suspend fun browseNiftyByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+internal suspend fun UniversalTagService.browseNiftyByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
     return withContext(Dispatchers.IO) {
         try {
             if (criteria.tags.isEmpty()) {
@@ -272,7 +275,7 @@ internal suspend fun browseNiftyByTags(criteria: StorySearchCriteria): Result<St
     }
 }
 
-internal suspend fun browseAdultFanFictionByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+internal suspend fun UniversalTagService.browseAdultFanFictionByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
     return withContext(Dispatchers.IO) {
         try {
             if (criteria.tags.isEmpty()) {
@@ -318,7 +321,7 @@ internal suspend fun browseAdultFanFictionByTags(criteria: StorySearchCriteria):
     }
 }
 
-internal suspend fun browseBdsmlibraryByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+internal suspend fun UniversalTagService.browseBdsmlibraryByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
     return withContext(Dispatchers.IO) {
         try {
             if (criteria.tags.isEmpty()) {
@@ -362,7 +365,7 @@ internal suspend fun browseBdsmlibraryByTags(criteria: StorySearchCriteria): Res
     }
 }
 
-internal suspend fun browseMcstoriesByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+internal suspend fun UniversalTagService.browseMcstoriesByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
     return withContext(Dispatchers.IO) {
         try {
             if (criteria.tags.isEmpty()) {

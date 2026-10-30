@@ -43,7 +43,6 @@ class OnboardingViewModel @Inject constructor(
     fun triggerInitialScan() {
         if (PermissionsHandler.hasStoragePermissions(appContext)) {
             viewModelScope.launch {
-                settingsRepository.setHasCompletedOnboarding(true)
                 _isScanDispatched.value = true
                 val intent = Intent(appContext, MediaScannerService::class.java).apply {
                     action = MediaScannerService.ACTION_SCAN_ALL
