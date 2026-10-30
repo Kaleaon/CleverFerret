@@ -44,4 +44,16 @@ class TouchTargetsAndSemanticsTest {
         assertTrue("Format button interactive target must be >= 48dp", formatButtonTargetDp >= minInteractiveTargetDp)
         assertTrue("Stepper button interactive target must be >= 48dp", stepperButtonTargetDp >= minInteractiveTargetDp)
     }
+
+    @Test
+    fun colorSwatchMinimumTargetSize_isAtLeast24dp() {
+        val minSwatchTargetDp = 24
+        val modernThemePickerSwatchDp = 24
+        val compactThemeSelectorSwatchDp = 24
+        val themePreviewScreenSwatchDp = 24
+
+        assertTrue("ModernThemePickerScreen swatch size must be >= 24dp (WCAG 2.2 SC 2.5.8)", modernThemePickerSwatchDp >= minSwatchTargetDp)
+        assertTrue("CompactThemeSelector swatch preview size must be >= 24dp (WCAG 2.2 SC 2.5.8)", compactThemeSelectorSwatchDp >= minSwatchTargetDp)
+        assertTrue("ThemePreviewScreen swatch surface size must be >= 24dp (WCAG 2.2 SC 2.5.8)", themePreviewScreenSwatchDp >= minSwatchTargetDp)
+    }
 }
