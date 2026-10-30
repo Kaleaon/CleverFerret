@@ -26,6 +26,12 @@ internal fun NavGraphBuilder.addSettingsRoutes(navController: NavController) {
         )
     }
 
+    composable("settings/accounts") {
+        com.universalmedialibrary.ui.settings.APISettingsScreen(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
     composable(MediaRoutes.SETTINGS_APPEARANCE) {
         com.universalmedialibrary.ui.settings.AppearanceSettingsScreen(
             onBack = { navController.popBackStack() },

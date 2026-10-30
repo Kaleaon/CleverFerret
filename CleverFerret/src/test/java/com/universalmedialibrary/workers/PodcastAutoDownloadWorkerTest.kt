@@ -10,7 +10,7 @@ import com.universalmedialibrary.data.local.dao.PodcastSubscriptionDao
 import com.universalmedialibrary.data.local.entity.podcast.PodcastEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastEpisodeEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEntity
-import com.universalmedialibrary.data.repository.podcast.PodcastOperationResult
+import com.universalmedialibrary.services.podcast.PodcastOperationResult
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.podcast.PodcastDownloadManager
 import io.mockk.MockKAnnotations

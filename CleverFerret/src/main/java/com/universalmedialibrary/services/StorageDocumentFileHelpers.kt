@@ -6,6 +6,7 @@ import android.util.Log
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import com.universalmedialibrary.services.StorageAccessService.CopyResult
+import com.universalmedialibrary.core.logging.AppLogger
 import com.universalmedialibrary.utils.ErrorLogger
 import com.universalmedialibrary.utils.FileNameSanitizer
 
