@@ -144,7 +144,8 @@ private fun PaletteCard(
 private fun Swatch(color: androidx.compose.ui.graphics.Color) {
     Box(
         Modifier
-            .size(20.dp)
+            .defaultMinSize(minWidth = 24.dp, minHeight = 24.dp)
+            .size(24.dp)
             .clip(CircleShape)
             .background(color)
             .border(1.dp, color.copy(alpha = 0.6f), CircleShape),

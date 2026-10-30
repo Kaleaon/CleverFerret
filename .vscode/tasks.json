@@ -101,7 +101,7 @@
       "label": "Architecture Info",
       "type": "shell",
       "command": "./gradlew",
-      "args": ["architectureInfo"], 
+      "args": ["help"], 
       "group": "build",
       "presentation": {
         "echo": true,

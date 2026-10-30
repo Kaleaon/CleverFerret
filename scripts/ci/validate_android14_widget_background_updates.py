@@ -38,20 +38,18 @@ def main() -> int:
         xml_files = [
             pathlib.Path(arg).resolve()
             for arg in sys.argv[1:]
-            if arg.endswith(".xml") and "widget" in arg and pathlib.Path(arg).exists()
+            if arg.endswith(".xml") and "widget" in arg and "res/xml" in arg and pathlib.Path(arg).exists()
         ]
         if not xml_files:
             print("No matching widget provider XML files to validate.")
             return 0
     else:
-        root = REPO_ROOT / "CleverFerret/src/main/res/xml"
-        if not root.exists():
-            print(f"ERROR: widget XML directory not found: {root}")
-            return 1
-
-        xml_files = sorted(root.glob(WIDGET_XML_GLOB))
+        xml_files = sorted([
+            p for p in REPO_ROOT.glob("**/res/xml/*widget*.xml")
+            if "android-sdk" not in p.parts and "archive" not in p.parts
+        ])
         if not xml_files:
-            print(f"ERROR: no widget provider XML files matched {WIDGET_XML_GLOB} in {root}")
+            print(f"ERROR: no widget provider XML files matched in {REPO_ROOT}")
             return 1
 
     failures: list[str] = []
