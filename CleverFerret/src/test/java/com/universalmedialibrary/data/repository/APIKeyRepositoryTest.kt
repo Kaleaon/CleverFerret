@@ -4,7 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.APIKeyDao
 import com.universalmedialibrary.data.local.dao.ProviderKeyPair
 import com.universalmedialibrary.data.local.entity.APIKey
+import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import com.universalmedialibrary.data.settings.ImageGeneratorType
+import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -13,7 +15,8 @@ import org.junit.Test
 class APIKeyRepositoryTest {
 
     private val dao = FakeApiKeyDao()
-    private val repository = APIKeyRepository(dao)
+    private val credentialVault: EncryptedCredentialVault = mockk(relaxed = true)
+    private val repository = APIKeyRepository(dao, credentialVault)
 
     @Test
     fun `saveAPIKey sets pending validation for non blank values`() = runTest {
