@@ -1,12 +1,19 @@
 package com.universalmedialibrary.ui.filepicker
 
 import android.os.Environment
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -26,9 +33,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.ui.components.ShimmerLoadingGrid
+import com.universalmedialibrary.ui.components.ShimmerLoadingList
 import com.universalmedialibrary.ui.components.UserFeedbackMessage
 import com.universalmedialibrary.ui.components.UserFeedbackSeverity
 import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
@@ -36,8 +46,7 @@ import com.universalmedialibrary.ui.components.showUserFeedback
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.log10
-import kotlin.math.pow
+import com.universalmedialibrary.utils.formatFileSize
 
 /**
  * Storage Browser Screen - Moon+ Reader style file navigation
@@ -162,40 +171,73 @@ fun StorageBrowserScreen(
             HorizontalDivider()
 
             // File list
-            when {
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
+            AnimatedContent(
+                targetState = Triple(uiState.isLoading, uiState.files.isEmpty(), uiState.viewMode),
+                transitionSpec = {
+                    fadeIn() togetherWith fadeOut()
+                },
+                label = "StorageBrowserContentTransition"
+            ) { (isLoading, isEmpty, viewMode) ->
+                when {
+                    isLoading -> {
+                        if (viewMode == ViewMode.GRID) {
+                            ShimmerLoadingGrid()
+                        } else {
+                            ShimmerLoadingList()
+                        }
                     }
-                }
-                uiState.files.isEmpty() -> {
-                    EmptyFolderView()
-                }
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        items(
-                            items = uiState.files,
-                            key = { it.absolutePath }
-                        ) { file ->
-                            FileItem(
-                                file = file,
-                                viewMode = uiState.viewMode,
-                                onClick = {
-                                    if (file.isDirectory) {
-                                        viewModel.navigateInto(file)
-                                    } else {
-                                        onFileSelected(file)
-                                    }
-                                },
-                                modifier = Modifier
-                            )
+                    isEmpty -> {
+                        EmptyFolderView()
+                    }
+                    else -> {
+                        if (viewMode == ViewMode.GRID) {
+                            LazyVerticalGrid(
+                                columns = GridCells.Adaptive(minSize = 140.dp),
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(
+                                    items = uiState.files,
+                                    key = { it.absolutePath }
+                                ) { file ->
+                                    FileItem(
+                                        file = file,
+                                        viewMode = viewMode,
+                                        onClick = {
+                                            if (file.isDirectory) {
+                                                viewModel.navigateInto(file)
+                                            } else {
+                                                onFileSelected(file)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                items(
+                                    items = uiState.files,
+                                    key = { it.absolutePath }
+                                ) { file ->
+                                    FileItem(
+                                        file = file,
+                                        viewMode = viewMode,
+                                        onClick = {
+                                            if (file.isDirectory) {
+                                                viewModel.navigateInto(file)
+                                            } else {
+                                                onFileSelected(file)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -356,17 +398,7 @@ private fun ErrorView(
     }
 }
 
-internal fun formatFileSize(bytes: Long): String {
-    if (bytes <= 0) return "0 B"
-    val units = arrayOf("B", "KB", "MB", "GB", "TB")
-    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt().coerceIn(0, units.lastIndex)
-    return String.format(
-        java.util.Locale.US,
-        "%.1f %s",
-        bytes / 1024.0.pow(digitGroups.toDouble()),
-        units[digitGroups]
-    )
-}
+
 
 internal fun formatDate(timestamp: Long): String {
     val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
@@ -374,3 +406,19 @@ internal fun formatDate(timestamp: Long): String {
 }
 
 // ViewMode enum is defined in EnhancedFileBrowser.kt to avoid duplication
+
+@Preview(showBackground = true)
+@Composable
+private fun StorageBrowserShimmerListPreview() {
+    MaterialTheme {
+        ShimmerLoadingList()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun StorageBrowserShimmerGridPreview() {
+    MaterialTheme {
+        ShimmerLoadingGrid()
+    }
+}

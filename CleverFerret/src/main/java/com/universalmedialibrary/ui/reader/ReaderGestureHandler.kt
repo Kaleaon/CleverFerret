@@ -4,11 +4,17 @@ import android.content.Context
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -202,6 +208,28 @@ fun ReaderGestureOverlay(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .focusable()
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.type == KeyEventType.KeyDown) {
+                    when (keyEvent.key) {
+                        Key.DirectionLeft, Key.PageUp -> {
+                            onPreviousPage()
+                            true
+                        }
+                        Key.DirectionRight, Key.PageDown -> {
+                            onNextPage()
+                            true
+                        }
+                        Key.DirectionCenter, Key.Enter, Key.Spacebar -> {
+                            onToggleUI()
+                            true
+                        }
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+            }
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = { offset ->

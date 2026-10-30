@@ -52,6 +52,65 @@ class EnhancedRadioViewModel @Inject constructor(
 
     private val favoriteStreamUrls = MutableStateFlow<Set<String>>(emptySet())
     
+    val allStations: StateFlow<List<RadioStation>> = _uiState.map { it.popularStations }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val favoriteStations: StateFlow<List<RadioStation>> = _uiState.map { it.favoriteStations }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val recentlyPlayed: StateFlow<List<RadioStation>> = _uiState.map { it.recentlyPlayed }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val currentStation: StateFlow<RadioStation?> = _uiState.map { it.nowPlaying }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    val playbackState = exoPlayerService.playerState
+    val nowPlayingInfo: StateFlow<com.universalmedialibrary.services.radio.NowPlayingInfo?> = MutableStateFlow<com.universalmedialibrary.services.radio.NowPlayingInfo?>(null).asStateFlow()
+    val isIdentifying: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
+
+    fun playStation(station: RadioStation) = playInternetStation(station)
+    fun togglePlayback() {
+        if (exoPlayerService.playerState.value.isPlaying) {
+            exoPlayerService.pause()
+        } else {
+            exoPlayerService.play()
+        }
+    }
+    fun playNextStation() {}
+    fun playPreviousStation() {}
+    fun stop() = stopInternetRadio()
+    fun identifyCurrentSong() {}
+    fun addCustomStation(
+        name: String,
+        streamUrl: String,
+        description: String? = null,
+        genre: String? = null
+    ) {
+        viewModelScope.launch {
+            try {
+                radioStationDao.insertStation(
+                    com.universalmedialibrary.data.local.entity.RadioStation(
+                        name = name,
+                        streamUrl = streamUrl,
+                        description = description,
+                        genre = genre
+                    )
+                )
+                _uiState.update { it.copy(showAddStationDialog = false) }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to add station", e)
+            }
+        }
+    }
+    fun deleteStation(station: RadioStation) {
+        viewModelScope.launch {
+            val dbStation = radioStationDao.getStationByStreamUrl(station.streamUrl)
+            if (dbStation != null) {
+                radioStationDao.deleteStation(dbStation)
+            }
+        }
+    }
+    fun setShowAddStationDialog(show: Boolean) {
+        _uiState.update { it.copy(showAddStationDialog = show) }
+    }
+    fun retryLastAction() {}
+    
     init {
         loadCategories()
         loadPopularStations()
@@ -582,8 +641,13 @@ data class EnhancedRadioState(
     val hdAvailable: Boolean = false,
     val isLoading: Boolean = true,
     val isSearching: Boolean = false,
-    val error: String? = null
-)
+    val error: String? = null,
+    val showAddStationDialog: Boolean = false
+) {
+    val errorTitle: String? get() = if (error != null) "Radio Error" else null
+    val errorDetail: String? get() = error
+    val canRetry: Boolean get() = false
+}
 
 data class FMRadioState(
     val currentFrequency: Int = 87500,

@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 2,
+  "metadata": {
+    "id": "windows-phone-metro",
+    "name": "Windows Phone Metro",
+    "description": "Flat, tile-first Metro-inspired interface theme",
+    "author": "Ktheme",
+    "version": "1.0.0",
+    "tags": ["modern", "dark", "metro", "windows-phone", "flat"],
+    "createdAt": "2026-02-16T11:46:58.141Z",
+    "updatedAt": "2026-02-16T11:46:58.141Z"
+  },
+  "darkMode": true,
+  "colorScheme": {
+    "error": "#CF6679",
+    "onError": "#FFFFFF",
+    "errorContainer": "#93000A",
+    "onErrorContainer": "#FFDAD6",
+    "primary": "#00AEEF",
+    "onPrimary": "#00151F",
+    "primaryContainer": "#0078D7",
+    "onPrimaryContainer": "#E8F7FF",
+    "secondary": "#005A9E",
+    "onSecondary": "#EAF4FF",
+    "secondaryContainer": "#232930",
+    "onSecondaryContainer": "#E8F0F5",
+    "tertiary": "#2D89EF",
+    "onTertiary": "#001021",
+    "tertiaryContainer": "#547D8F",
+    "onTertiaryContainer": "#D9EDF5",
+    "background": "#001A33",
+    "onBackground": "#F0F8FF",
+    "surface": "#002448",
+    "onSurface": "#F0F8FF",
+    "surfaceVariant": "#3D4854",
+    "onSurfaceVariant": "#B8CAD6",
+    "outline": "#7A8A99",
+    "outlineVariant": "#4D5A66",
+    "scrim": "#000000",
+    "inverseSurface": "#E8F0F5",
+    "inverseOnSurface": "#1A1F24",
+    "inversePrimary": "#0080A0"
+  },
+  "effects": {
+    "metallic": {
+      "enabled": false,
+      "variant": "TITANIUM",
+      "gradient": {
+        "base": "#878681",
+        "highlight": "#BDBBB8",
+        "shadow": "#4A4A48",
+        "shimmer": "#D0CFCC"
+      },
+      "intensity": 0
+    },
+    "shadows": {
+      "enabled": true,
+      "elevation": 3,
+      "blur": 6,
+      "color": "#00000055"
+    }
+  },
+  "adaptation": {
+    "layout": {
+      "density": "spacious",
+      "cornerStyle": "sharp",
+      "spacingScale": 1.25,
+      "panelStyle": "flat",
+      "navigationStyle": "pivot",
+      "accessibility": {
+        "landmarks": {
+          "main": "main",
+          "nav": "navigation",
+          "header": "header",
+          "footer": "footer"
+        },
+        "naming": {
+          "strategy": "native",
+          "main": "Main Content",
+          "nav": "Primary Navigation",
+          "header": "Application Header",
+          "footer": "Footer"
+        },
+        "keyboard": {
+          "order": "document",
+          "focusPolicy": "native",
+          "trapFocusWithinModals": true
+        },
+        "liveRegion": {
+          "mode": "polite",
+          "atomic": true,
+          "relevant": "additions"
+        }
+      }
+    },
+    "icons": {
+      "family": "fluent",
+      "style": "line",
+      "sizeScale": 1,
+      "strokeWidth": 1.6,
+      "cornerStyle": "sharp"
+    },
+    "componentOverrides": [
+      {
+        "selector": ".tile-grid",
+        "styles": {
+          "gap": 14,
+          "grid-auto-rows": 92
+        }
+      },
+      {
+        "selector": ".tile",
+        "styles": {
+          "border-radius": 0,
+          "text-transform": "uppercase"
+        }
+      }
+    ]
+  }
+}

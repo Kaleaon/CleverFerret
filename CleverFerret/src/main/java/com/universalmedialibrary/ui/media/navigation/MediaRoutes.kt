@@ -110,6 +110,7 @@ object MediaRoutes {
     
     // Settings sub-routes
     const val SETTINGS_API = "settings/api"
+    const val SETTINGS_ACCOUNTS = "settings/accounts"
     const val SETTINGS_APPEARANCE = "settings/appearance"
     const val SETTINGS_PLAYBACK = "settings/playback"
     const val SETTINGS_READER = "settings/reader"
@@ -119,8 +120,20 @@ object MediaRoutes {
     const val SETTINGS_PAYWALL_THEMES = "settings/paywall/themes"
     const val SETTINGS_PAYWALL_SCANNER = "settings/paywall/scanner"
     const val SETTINGS_PAYWALL_CLOUD = "settings/paywall/cloud"
-    // Legacy route compatibility (underscore is the primary route in the legacy settings UI)
     const val SETTINGS_MEDIA_SERVERS = "settings/media_servers"
+    const val SETTINGS_NETWORK_STORAGE = "settings/network_storage"
+    const val SETTINGS_TTS_PROVIDER = "settings/tts_provider"
+    const val SETTINGS_AUDIO_EFFECTS = "settings/audio_effects"
+    const val SETTINGS_PARENTAL = "settings/parental_controls"
+    const val SETTINGS_DEVELOPER = "settings/developer"
+    const val SETTINGS_FEATURES = "settings/features"
+
+    // Settings Landing Hub routes
+    const val SETTINGS_HUB_APPEARANCE = "settings/hub/appearance"
+    const val SETTINGS_HUB_LIBRARY = "settings/hub/library"
+    const val SETTINGS_HUB_PLAYBACK = "settings/hub/playback"
+    const val SETTINGS_HUB_INTEGRATIONS = "settings/hub/integrations"
+    const val SETTINGS_HUB_SYSTEM = "settings/hub/system"
     const val FILE_BROWSER = "file-browser"
     
     // Onboarding
