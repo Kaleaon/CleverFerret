@@ -67,3 +67,9 @@ __pycache__/
 # Archives and long-term stored artifacts
 /archive/test-files/
 /archive/reports/
+
+# Tool/editor junk (untracked 2026-10-30 cleanup)
+.cursor/
+.emergent/
+.replit
+/META-INF/

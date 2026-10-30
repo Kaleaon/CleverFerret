@@ -10,13 +10,13 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 ## 📖 Getting Started
 
 - [README](../README.md) - Project overview and quick start
-- [REPOSITORY_STATUS_REPORT](REPOSITORY_STATUS_REPORT.md) - **NEW** Comprehensive repository status and readiness report
+- [REPOSITORY_STATUS_REPORT](archive/REPOSITORY_STATUS_REPORT.md) - **NEW** Comprehensive repository status and readiness report
 - [FEATURES_STATUS](FEATURES_STATUS.md) - Comprehensive feature status (enabled/disabled/planned)
-- [IMPROVEMENTS_SUMMARY](IMPROVEMENTS_SUMMARY.md) - Recent improvements and reorganization
+- [IMPROVEMENTS_SUMMARY](archive/IMPROVEMENTS_SUMMARY.md) - Recent improvements and reorganization
 - [FEATURES](FEATURES.md) - Supported file formats and key features
 - [ROADMAP](ROADMAP.md) - Planned features and development priorities
 - [Build Toolchain Versions](BUILD_TOOLCHAIN_VERSIONS.md) - Canonical AGP/Kotlin/KSP/Gradle version sources and upgrade steps
-- [Post-Recovery State](POST_RECOVERY_STATE.md) - Branch source-of-truth and safe contribution workflow
+- [Post-Recovery State](archive/POST_RECOVERY_STATE.md) - Branch source-of-truth and safe contribution workflow
 - [Branch Protection Guide](governance/BRANCH_PROTECTION.md) - Protection rules and CODEOWNERS governance
 - [Git Pre-Commit Hooks](governance/GIT_HOOKS.md) - Pre-commit hook setup, Detekt integration, and execution
 - [Documentation Lifecycle Policy](governance/DOC_LIFECYCLE_POLICY.md) - Canonical/derived docs, ownership, archive triggers, and SLA
@@ -48,7 +48,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 
 ## 🔍 Code Review & Quality
 
-- [Code Review](CODE_REVIEW.md) - **NEW** Comprehensive code review and recommendations
+- [Code Review](archive/CODE_REVIEW.md) - **NEW** Comprehensive code review and recommendations
 
 ---
 
@@ -103,7 +103,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [Parser Implementation Summary](implementation/PARSER_IMPLEMENTATION_SUMMARY.md) - Current parser implementation status
 - [Parser Integration Guide](implementation/PARSER_INTEGRATION_GUIDE.md) - Active parser integration roadmap
 - [Roadmap](ROADMAP.md) - Product roadmap and milestone sequencing
-- [Improvements Summary](IMPROVEMENTS_SUMMARY.md) - App improvement opportunities
+- [Improvements Summary](archive/IMPROVEMENTS_SUMMARY.md) - App improvement opportunities
 
 ### Archived PWA / Historical planning
 - [Archived Improvements Needed](archive/ARCHIVED_IMPROVEMENTS_NEEDED.md) - Former PWA-focused improvement plan (archived)
@@ -123,13 +123,13 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 - [PR Review Summary](archive/completed/PR_REVIEW_SUMMARY.md) - PR review summary
 
 ### UI Improvements
-- [UI Navigation Final Report](UI_Navigation_Final_Report.md) - Navigation system improvements
-- [UI Visualizer Fixes Completed](UI_Visualizer_Fixes_Completed.md) - Audio visualizer fixes
-- [UI Visualizer Fixes Plan](UI_Visualizer_Fixes_Plan.md) - Visualizer improvement plan
+- [UI Navigation Final Report](archive/UI_Navigation_Final_Report.md) - Navigation system improvements
+- [UI Visualizer Fixes Completed](archive/UI_Visualizer_Fixes_Completed.md) - Audio visualizer fixes
+- [UI Visualizer Fixes Plan](archive/UI_Visualizer_Fixes_Plan.md) - Visualizer improvement plan
 
 ### APK Fixes
-- [APK High Priority Fixes Completed](APK_HIGH_PRIORITY_FIXES_COMPLETED.md) - Critical APK fixes
-- [APK TODO Fixes](APK_TODO_FIXES.md) - Remaining APK improvements
+- [APK High Priority Fixes Completed](archive/APK_HIGH_PRIORITY_FIXES_COMPLETED.md) - Critical APK fixes
+- [APK TODO Fixes](archive/APK_TODO_FIXES.md) - Remaining APK improvements
 
 ### PWA Enhancement
 - [PWA Enhancement Summary](archive/completed/PWA_ENHANCEMENT_SUMMARY.md) - Progressive Web App improvements
@@ -201,7 +201,7 @@ Complete index of all documentation for the CleverFerret Universal Media Library
 ## 🏛️ Status Governance
 
 - `CleverFerretV2/docs/v2/feature-matrix.md` is the canonical active planning status source.
-- Any PR that changes capability status/target/ownership must update the matrix and every impacted summary document in the same PR (for example: `docs/FEATURES_STATUS.md`, `docs/ROADMAP.md`, `docs/REPOSITORY_STATUS_REPORT.md`, and parser summaries).
+- Any PR that changes capability status/target/ownership must update the matrix and every impacted summary document in the same PR (for example: `docs/FEATURES_STATUS.md`, `docs/ROADMAP.md`, `docs/archive/REPOSITORY_STATUS_REPORT.md`, and parser summaries).
 - Status terms in planning/status docs must use the shared taxonomy verbatim: `Ready`, `Partial`, `Stub`, `Planned`, `Archived`.
 
 ---
