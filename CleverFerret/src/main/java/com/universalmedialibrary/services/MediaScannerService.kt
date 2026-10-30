@@ -67,7 +67,6 @@ class MediaScannerService : Service() {
     @Inject lateinit var metadataStagingRepository: MetadataStagingRepository
     @Inject lateinit var waveformGenerator: WaveformGenerator
     @Inject lateinit var catalogingPipelineEngine: CatalogingPipelineEngine
-    @Inject lateinit var unifiedTagDao: com.universalmedialibrary.data.local.dao.UnifiedTagDao
 
     internal val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val scanSettingsCache = mutableMapOf<Long, ResolvedScanSettings>()
