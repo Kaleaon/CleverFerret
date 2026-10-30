@@ -11,10 +11,15 @@ import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.cache.CacheManager
 import com.universalmedialibrary.services.network.NetworkMonitor
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -74,9 +79,9 @@ class MediaContentResolverTest {
             itemId = 100L,
             libraryId = 1L,
             filePath = testFile.absolutePath,
-            fileName = "sample.mp3",
+            fileName = testFile.name,
             fileExtension = "mp3",
-            fileSize = 1000L,
+            fileSize = testFile.length(),
             mediaType = "MUSIC_TRACK",
             mimeType = "audio/mpeg"
         )
@@ -95,7 +100,7 @@ class MediaContentResolverTest {
             itemId = 101L,
             libraryId = 1L,
             filePath = "jellyfin://1/item999",
-            fileName = "cached_track.mp3",
+            fileName = "item999.mp3",
             fileExtension = "mp3",
             fileSize = 1000L,
             mediaType = "MUSIC_TRACK",
@@ -166,10 +171,10 @@ class MediaContentResolverTest {
             itemId = 104L,
             libraryId = 1L,
             filePath = "plex://machine123/part789",
-            fileName = "part789.mp3",
-            fileExtension = "mp3",
+            fileName = "part789.mp4",
+            fileExtension = "mp4",
             fileSize = 1000L,
-            mediaType = "MUSIC_TRACK"
+            mediaType = "MOVIE"
         )
 
         val result = resolver.resolve(mediaItem)
@@ -214,7 +219,7 @@ class MediaContentResolverTest {
             itemId = 106L,
             libraryId = 1L,
             filePath = virtualUri,
-            fileName = "buffer_106.mp3",
+            fileName = "track.mp3",
             fileExtension = "mp3",
             fileSize = 1000L,
             mediaType = "MUSIC_TRACK"

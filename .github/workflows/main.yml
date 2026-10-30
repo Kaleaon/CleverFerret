@@ -27,6 +27,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      pull-requests: write
     env:
       COMPILE_LOG: compile_output_${{ github.sha }}_${{ github.run_attempt }}.txt
 
@@ -52,6 +53,17 @@ jobs:
         echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
         echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
         echo "Using Android SDK at: $SDK_PATH"
+
+    - name: Cache Android SDK components
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ANDROID_SDK_ROOT }}/build-tools
+          ${{ env.ANDROID_SDK_ROOT }}/platforms
+          ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+        key: ${{ runner.os }}-android-sdk-${{ hashFiles('.github/workflows/main.yml', '**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
 
     - name: Install required Android SDK packages
       run: |
@@ -133,12 +145,16 @@ jobs:
             const repository = process.env.REPOSITORY;
             const runId = process.env.RUN_ID;
             const body = `### 🔍 Quality Gate & Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/${repository}/actions/runs/${runId}) for details.`;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } catch (error) {
+              core.warning(`Failed to post comment on PR: ${error.message}`);
+            }
           }
 
   test:
@@ -168,6 +184,17 @@ jobs:
         echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
         echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
         echo "Using Android SDK at: $SDK_PATH"
+
+    - name: Cache Android SDK components
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ANDROID_SDK_ROOT }}/build-tools
+          ${{ env.ANDROID_SDK_ROOT }}/platforms
+          ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+        key: ${{ runner.os }}-android-sdk-${{ hashFiles('.github/workflows/main.yml', '**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
 
     - name: Install required Android SDK packages
       run: |
@@ -323,6 +350,17 @@ jobs:
         echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
         echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
         echo "Using Android SDK at: $SDK_PATH"
+
+    - name: Cache Android SDK components
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ANDROID_SDK_ROOT }}/build-tools
+          ${{ env.ANDROID_SDK_ROOT }}/platforms
+          ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+        key: ${{ runner.os }}-android-sdk-${{ hashFiles('.github/workflows/main.yml', '**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
 
     - name: Install required Android SDK packages
       run: |
@@ -543,6 +581,17 @@ jobs:
         echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
         echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
         echo "Using Android SDK at: $SDK_PATH"
+
+    - name: Cache Android SDK components
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ANDROID_SDK_ROOT }}/build-tools
+          ${{ env.ANDROID_SDK_ROOT }}/platforms
+          ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+        key: ${{ runner.os }}-android-sdk-${{ hashFiles('.github/workflows/main.yml', '**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
 
     - name: Install required Android SDK packages
       run: |
