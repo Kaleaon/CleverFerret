@@ -25,6 +25,8 @@ import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.UnifiedCleverFerretTheme
+import com.universalmedialibrary.ui.integration.PlexIntegrationScreen
+import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.utils.ScreenTimeoutManager
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -278,3 +280,14 @@ private fun NoFileScreen(onOpenApp: () -> Unit) {
         }
     }
 }
+
+@Composable
+private fun IntegrationNavigationContainer(navController: androidx.navigation.NavHostController = androidx.navigation.compose.rememberNavController()) {
+    ResponsiveNavigationScaffold(
+        navController = navController
+    ) {
+        // settings/integrations/plex
+        PlexIntegrationScreen()
+    }
+}
+

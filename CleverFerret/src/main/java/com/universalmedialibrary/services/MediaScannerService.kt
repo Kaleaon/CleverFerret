@@ -22,6 +22,7 @@ import com.universalmedialibrary.data.local.dao.LibraryScanSettingsDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.UnifiedTagDao
+import com.universalmedialibrary.data.local.entity.TagType
 import com.universalmedialibrary.data.repository.MetadataStagingRepository
 import com.universalmedialibrary.data.local.entity.*
 import com.universalmedialibrary.services.audio.WaveformGenerator
@@ -63,10 +64,10 @@ class MediaScannerService : Service() {
     @Inject lateinit var libraryScanSettingsDao: LibraryScanSettingsDao
     @Inject lateinit var mediaItemDao: MediaItemDao
     @Inject lateinit var metadataDao: MetadataDao
+    @Inject lateinit var unifiedTagDao: UnifiedTagDao
     @Inject lateinit var metadataStagingRepository: MetadataStagingRepository
     @Inject lateinit var waveformGenerator: WaveformGenerator
     @Inject lateinit var catalogingPipelineEngine: CatalogingPipelineEngine
-    @Inject lateinit var unifiedTagDao: UnifiedTagDao
 
     internal val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val scanSettingsCache = mutableMapOf<Long, ResolvedScanSettings>()
