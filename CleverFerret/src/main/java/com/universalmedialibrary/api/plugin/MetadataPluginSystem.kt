@@ -306,6 +306,9 @@ data class MetadataSearchResult(
     val additionalInfo: Map<String, String> = emptyMap()
 )
 
+typealias SearchResult = MetadataSearchResult
+typealias MetadataDetails = MediaMetadata
+
 /**
  * Complete media metadata
  */
