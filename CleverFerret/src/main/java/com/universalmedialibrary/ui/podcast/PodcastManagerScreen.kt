@@ -1,6 +1,5 @@
 package com.universalmedialibrary.ui.podcast
 
-import com.universalmedialibrary.ui.media.viewmodels.PodcastViewModel
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
