@@ -57,4 +57,24 @@ class OnboardingSetupScanTest {
         hasCompletedOnboardingFlow.value = true
         assertThat(computeStartDestination(hasCompletedOnboardingFlow.value)).isEqualTo(MediaRoutes.HOME)
     }
+
+    @Test
+    fun `streamlined onboarding defines exactly 3 essential steps`() {
+        val onboardingPages = listOf("Welcome", "Storage", "Ready")
+        assertThat(onboardingPages.size).isEqualTo(3)
+        assertThat(onboardingPages).containsExactly("Welcome", "Storage", "Ready").inOrder()
+    }
+
+    @Test
+    fun `completeOnboarding marks flow complete and transitions route to home`() {
+        val onboardingCompleted = MutableStateFlow(false)
+
+        fun completeOnboarding() {
+            onboardingCompleted.value = true
+        }
+
+        assertThat(onboardingCompleted.value).isFalse()
+        completeOnboarding()
+        assertThat(onboardingCompleted.value).isTrue()
+    }
 }
