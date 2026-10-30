@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.universalmedialibrary.data.local.entity.RadioStation
+import com.universalmedialibrary.ui.media.screens.RadioStation
 import com.universalmedialibrary.services.radio.NowPlayingInfo
 import com.universalmedialibrary.ui.components.UserFeedbackMessage
 import com.universalmedialibrary.ui.components.UserFeedbackSeverity
@@ -542,7 +542,7 @@ private fun RadioStationCard(
                     }
                 }
 
-                station.description?.let {
+                (station.currentTrack ?: station.genre).let {
                     Text(
                         text = it,
                         style = MaterialTheme.typography.bodySmall,
