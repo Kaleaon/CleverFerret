@@ -63,6 +63,7 @@ class MediaScannerService : Service() {
     @Inject lateinit var libraryScanSettingsDao: LibraryScanSettingsDao
     @Inject lateinit var mediaItemDao: MediaItemDao
     @Inject lateinit var metadataDao: MetadataDao
+    @Inject lateinit var tagDao: com.universalmedialibrary.data.local.dao.UnifiedTagDao
     @Inject lateinit var metadataStagingRepository: MetadataStagingRepository
     @Inject lateinit var waveformGenerator: WaveformGenerator
     @Inject lateinit var catalogingPipelineEngine: CatalogingPipelineEngine
