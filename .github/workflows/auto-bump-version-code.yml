@@ -30,6 +30,10 @@ jobs:
         uses: actions/setup-python@v7
         with:
           python-version: '3.x'
+          cache: 'pip'
+          cache-dependency-path: |
+            .github/workflows/auto-bump-version-code.yml
+            **/requirements*.txt
 
       - name: Compute base/head version codes
         id: versions
