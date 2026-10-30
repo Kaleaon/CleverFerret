@@ -2,12 +2,14 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
+    <ID>EmptyFunctionBlock:OpdsFeatureModule.kt$OpdsFeatureModule.&lt;no name provided&gt;${}</ID>
     <ID>LoopWithTooManyJumpStatements:OpdsFeedParser.kt$OpdsFeedParser$for</ID>
     <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$401</ID>
     <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$403</ID>
     <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$404</ID>
     <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$408</ID>
     <ID>MagicNumber:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$503</ID>
+    <ID>MagicNumber:OpdsFeatureModule.kt$OpdsFeatureModule.&lt;no name provided&gt;$200</ID>
     <ID>MaxLineLength:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$?:</ID>
     <ID>MaxLineLength:OpdsEndToEndFlowTest.kt$OpdsEndToEndFlowTest.InMemoryLifecycleStore$records[downloadId] = records.getValue(downloadId).copy(status = DownloadLifecycleStatusV1.IMPORTED, localFileUri = localFileUri, failureReason = null)</ID>
     <ID>MaxLineLength:OpdsUiErrorMapper.kt$OpdsUiErrorMapper$is AppError.TransportFailure -&gt; if (error.timeout) OpdsUiErrorMessage.NetworkTimeout() else OpdsUiErrorMessage.Generic(error.message, true)</ID>
@@ -17,5 +19,6 @@
     <ID>TooGenericExceptionCaught:DefaultOpdsFeatureApi.kt$DefaultOpdsFeatureApi$error: Exception</ID>
     <ID>TooGenericExceptionCaught:OpdsBackendOrchestrator.kt$OpdsBackendOrchestrator$error: Exception</ID>
     <ID>TooGenericExceptionCaught:OpdsFeedParser.kt$OpdsFeedParser$error: Exception</ID>
+    <ID>WildcardImport:OpdsFeatureModule.kt$import com.cleverferret.v2.feature.opds.services.opds.*</ID>
   </CurrentIssues>
 </SmellBaseline>
