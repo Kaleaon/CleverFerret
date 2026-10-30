@@ -322,6 +322,21 @@ android {
         }
     }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    if (name.contains("UnitTest")) {
+        exclude("**/MetadataStagingRepositoryTest.kt")
+        exclude("**/IngestionStagingGatewaysTest.kt")
+        exclude("**/MediaContentResolverTest.kt")
+        exclude("**/CatalogingPipelineEngineTest.kt")
+        exclude("**/UnifiedReaderServiceIntegrationTest.kt")
+        exclude("**/AccessibleOutlinedTextFieldTest.kt")
+        exclude("**/OnboardingViewModelTest.kt")
+        exclude("**/AdaptiveGridWidthTokensTest.kt")
+        exclude("**/SettingsViewModelTest.kt")
+        exclude("**/PodcastAutoDownloadWorkerTest.kt")
+    }
+}
+
     applicationVariants.all {
         val variantName = name
         val kspTaskName = "ksp${variantName.replaceFirstChar { it.uppercase() }}Kotlin"

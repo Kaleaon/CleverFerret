@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.utils.formatFileSize
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.cloud.*
 
@@ -340,11 +341,3 @@ private fun getProviderIcon(provider: CloudProvider): ImageVector {
     }
 }
 
-private fun formatFileSize(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "${bytes}B"
-        bytes < 1024 * 1024 -> "${bytes / 1024}KB"
-        bytes < 1024 * 1024 * 1024 -> "${bytes / (1024 * 1024)}MB"
-        else -> "${bytes / (1024 * 1024 * 1024)}GB"
-    }
-}

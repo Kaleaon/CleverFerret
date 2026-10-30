@@ -27,6 +27,7 @@ import com.universalmedialibrary.services.metadata.UnifiedMetadataFacade
 import kotlinx.coroutines.withContext
 import java.net.URI
 import javax.inject.Inject
+import com.universalmedialibrary.utils.formatFileSize
 
 @HiltViewModel
 class FolderImportViewModel @Inject constructor(
@@ -688,14 +689,7 @@ class FolderImportViewModel @Inject constructor(
         }
     }
     
-    private fun formatFileSize(bytes: Long): String {
-        return when {
-            bytes < 1024 -> "$bytes B"
-            bytes < 1024 * 1024 -> "${bytes / 1024} KB"
-            bytes < 1024 * 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
-            else -> String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0))
-        }
-    }
+
 
     private suspend fun ingestEntries(
         localCandidates: List<OpenEntryCandidate> = emptyList(),
