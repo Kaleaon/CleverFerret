@@ -693,10 +693,12 @@ fun CleverFerretUnifiedTheme(
 
     val configuration = LocalConfiguration.current
     val reduceMotion = remember(configuration) { MediaMotion.isReducedMotionEnabled() }
+    val focusIndication = rememberFocusHighlightIndication(focusColor = colorScheme.primary)
 
     CompositionLocalProvider(
         LocalMetallicGradient provides metallicGradient,
-        LocalReduceMotion provides reduceMotion
+        LocalReduceMotion provides reduceMotion,
+        LocalIndication provides focusIndication
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

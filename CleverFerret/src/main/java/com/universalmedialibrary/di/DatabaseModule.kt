@@ -26,11 +26,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
-    @Provides
-    @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return AppDatabase.getDatabase(context)
-    }
+    // Note: provideAppDatabase and provideAPIKeyDao are provided in ServicesModule
 
     // Core DAOs
     @Provides
@@ -44,11 +40,6 @@ object DatabaseModule {
       }
 
     @Provides
-    fun provideAPIKeyDao(appDatabase: AppDatabase): APIKeyDao {
-        return appDatabase.apiKeyDao()
-    }
-
-    @Provides
     fun provideMediaItemDao(appDatabase: AppDatabase): MediaItemDao {
         return appDatabase.mediaItemDao()
     }
@@ -56,6 +47,11 @@ object DatabaseModule {
     @Provides
     fun provideMediaFtsDao(appDatabase: AppDatabase): MediaFtsDao {
         return appDatabase.mediaFtsDao()
+    }
+
+    @Provides
+    fun provideExternalMediaEntityDao(appDatabase: AppDatabase): ExternalMediaEntityDao {
+        return appDatabase.externalMediaEntityDao()
     }
 
       @Provides
@@ -246,9 +242,10 @@ object DatabaseModule {
     fun provideSearchRepository(
         mediaItemDao: MediaItemDao,
         metadataDao: MetadataDao,
-        tagDao: UnifiedTagDao
+        tagDao: UnifiedTagDao,
+        externalMediaEntityDao: ExternalMediaEntityDao
     ): SearchRepository {
-        return SearchRepository(mediaItemDao, metadataDao, tagDao)
+        return SearchRepository(mediaItemDao, metadataDao, tagDao, externalMediaEntityDao)
     }
 
     // Import/Export Repository
@@ -412,6 +409,14 @@ object DatabaseModule {
     @Provides
     fun provideSearchHistoryDao(database: AppDatabase): SearchHistoryDao {
         return database.searchHistoryDao()
+    }
+
+    /**
+     * Provides the DAO for CRDT operation journal entries.
+     */
+    @Provides
+    fun provideCrdtOperationJournalDao(database: AppDatabase): CrdtOperationJournalDao {
+        return database.crdtOperationJournalDao()
     }
 
 }

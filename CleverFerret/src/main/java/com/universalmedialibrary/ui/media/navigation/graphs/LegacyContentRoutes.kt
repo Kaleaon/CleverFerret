@@ -37,6 +37,8 @@ import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.EPUBReaderScreen
 import kotlinx.coroutines.launch
 import java.io.File
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.navigation.libraryTypeOptions
 import com.universalmedialibrary.ui.media.screens.LibraryMediaTypeOption
@@ -247,7 +249,49 @@ fun NavGraphBuilder.legacyContentRoutes(
     composable("podcasts") {
         val viewModel: PodcastViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsStateWithLifecycle()
-        
+        val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
+
+        val importLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            uri?.let {
+                coroutineScope.launch {
+                    try {
+                        context.contentResolver.openInputStream(it)?.use { inputStream ->
+                            val content = inputStream.bufferedReader().readText()
+                            viewModel.importOpml(content)
+                            onShowSnackbar("OPML imported successfully")
+                        }
+                    } catch (e: Exception) {
+                        onShowSnackbar("Failed to import OPML: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        val exportLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("text/x-opml+xml")
+        ) { uri: Uri? ->
+            uri?.let {
+                coroutineScope.launch {
+                    try {
+                        val opmlContent = viewModel.exportOpml()
+                        if (opmlContent.isNotBlank()) {
+                            context.contentResolver.openOutputStream(it)?.use { outputStream ->
+                                outputStream.write(opmlContent.toByteArray())
+                            }
+                            onShowSnackbar("OPML exported successfully")
+                        } else {
+                            onShowSnackbar("No subscriptions to export or export failed")
+                        }
+                    } catch (e: Exception) {
+                        onShowSnackbar("Failed to export OPML: ${e.message}")
+                    }
+                }
+            }
+        }
+
         PodcastScreen(
             state = state,
             onShowClick = { show ->
@@ -259,15 +303,16 @@ fun NavGraphBuilder.legacyContentRoutes(
             onPlayEpisode = { episode -> viewModel.playEpisode(episode) },
             onDownloadEpisode = { episode -> viewModel.downloadEpisode(episode) },
             onDiscoverClick = { navController.navigate(MediaRoutes.PODCAST_DISCOVER) },
-            onImportOPML = { },
+            onImportOPML = { importLauncher.launch("*/*") },
+            onExportOPML = { exportLauncher.launch("podcasts.opml") },
             onBackClick = { navController.popBackStack() },
             onSearchClick = { navController.navigate(MediaRoutes.SEARCH) }
         )
     }
     
     composable("radio") {
-        com.universalmedialibrary.ui.radio.RadioScreen(
-            onBack = { navController.popBackStack() }
+        com.universalmedialibrary.ui.radio.EnhancedRadioScreen(
+            onNavigateBack = { navController.popBackStack() }
         )
     }
     

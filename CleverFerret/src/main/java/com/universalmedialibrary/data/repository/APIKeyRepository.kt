@@ -3,6 +3,7 @@ package com.universalmedialibrary.data.repository
 import com.universalmedialibrary.data.local.dao.APIKeyDao
 import com.universalmedialibrary.data.local.dao.ProviderKeyPair
 import com.universalmedialibrary.data.local.entity.APIKey
+import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import com.universalmedialibrary.data.settings.ImageGeneratorType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -10,7 +11,8 @@ import javax.inject.Singleton
 
 @Singleton
 class APIKeyRepository @Inject constructor(
-    private val apiKeyDao: APIKeyDao
+    private val apiKeyDao: APIKeyDao,
+    private val credentialVault: EncryptedCredentialVault
 ) {
 
     fun getAllAPIKeys(): Flow<List<APIKey>> = apiKeyDao.getAllAPIKeys()
@@ -26,21 +28,22 @@ class APIKeyRepository @Inject constructor(
     suspend fun getGeminiApiKey(): String? = getAPIKeyValue("gemini")
 
     suspend fun saveAPIKey(provider: String, keyValue: String, category: String, isRequired: Boolean = false) {
+        credentialVault.saveApiKey(provider, keyValue)
         val existingKey = apiKeyDao.getAPIKeyByProvider(provider)
 
         if (existingKey != null) {
-            // Update existing key
+            // Update existing key metadata in DB, keeping sensitive value in vault
             val updatedKey = existingKey.copy(
-                keyValue = keyValue,
+                keyValue = "",
                 lastUsed = System.currentTimeMillis(),
                 validationStatus = if (keyValue.isBlank()) "UNKNOWN" else "PENDING_VALIDATION"
             )
             apiKeyDao.updateAPIKey(updatedKey)
         } else {
-            // Create new key
+            // Create new key metadata entry
             val newKey = APIKey(
                 displayName = getDisplayNameForProvider(provider),
-                keyValue = keyValue,
+                keyValue = "",
                 provider = provider,
                 category = category,
                 validationStatus = if (keyValue.isBlank()) "UNKNOWN" else "PENDING_VALIDATION"
@@ -50,6 +53,7 @@ class APIKeyRepository @Inject constructor(
     }
 
     suspend fun deleteAPIKey(provider: String) {
+        credentialVault.deleteApiKey(provider)
         apiKeyDao.deleteAPIKeyByProvider(provider)
     }
 
@@ -57,12 +61,32 @@ class APIKeyRepository @Inject constructor(
         apiKeyDao.updateValidationStatus(provider, status, System.currentTimeMillis())
     }
 
-    suspend fun getAPIKeyValue(provider: String): String? =
-        apiKeyDao.getAPIKeyValue(provider)
+    suspend fun getAPIKeyValue(provider: String): String? {
+        val vaultValue = credentialVault.getApiKey(provider)
+        if (!vaultValue.isNullOrBlank()) {
+            return vaultValue
+        }
+        // Fallback and migrate legacy unencrypted DB value if present
+        val dbValue = apiKeyDao.getAPIKeyValue(provider)
+        if (!dbValue.isNullOrBlank()) {
+            credentialVault.saveApiKey(provider, dbValue)
+            val existingKey = apiKeyDao.getAPIKeyByProvider(provider)
+            if (existingKey != null) {
+                apiKeyDao.updateAPIKey(existingKey.copy(keyValue = ""))
+            }
+            return dbValue
+        }
+        return null
+    }
 
     suspend fun getActiveAPIKeysMap(): Map<String, String> {
         val pairs = apiKeyDao.getActiveProviderKeys()
-        return pairs.associate { it.provider to it.keyValue }
+        return pairs.mapNotNull { pair ->
+            val value = getAPIKeyValue(pair.provider)
+            if (!value.isNullOrBlank()) {
+                pair.provider to value
+            } else null
+        }.toMap()
     }
 
     suspend fun getValidAPIKeysCountByCategory(category: String): Int =

@@ -10,7 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.computeMd5
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -213,15 +213,7 @@ class MediaScanningService @Inject constructor(
 
     private fun generateFileHash(file: File): String? {
         return try {
-            val digest = MessageDigest.getInstance("MD5")
-            file.inputStream().use { fis ->
-                val buffer = ByteArray(8192)
-                var read: Int
-                while (fis.read(buffer).also { read = it } != -1) {
-                    digest.update(buffer, 0, read)
-                }
-            }
-            digest.digest().joinToString("") { "%02x".format(it) }
+            file.computeMd5()
         } catch (e: Exception) {
             null
         }

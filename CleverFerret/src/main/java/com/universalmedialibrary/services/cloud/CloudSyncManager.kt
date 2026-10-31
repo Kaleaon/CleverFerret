@@ -237,7 +237,6 @@ enum class SyncStatus {
 enum class ConflictResolutionStrategy {
     LOCAL_WINS, CLOUD_WINS, MANUAL
 }
-
 data class SyncResult(
     val provider: CloudProvider = CloudProvider.GOOGLE_DRIVE,
     val success: Boolean,

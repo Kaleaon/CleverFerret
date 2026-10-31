@@ -23,6 +23,16 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun PlexIntegrationScreen(
+    viewModel: PlexIntegrationViewModel = hiltViewModel()
+) {
+    @Suppress("UnusedPrivateProperty")
+    val state = viewModel.plexState.collectAsStateWithLifecycle().value
+    MediaIntegrationScreen(viewModel = viewModel)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun MediaIntegrationScreen(
     viewModel: MediaIntegrationViewModel = hiltViewModel()
 ) {

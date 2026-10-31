@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.cloud
 
 import android.content.Context
+import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +12,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import com.universalmedialibrary.services.network.withProgressCallback
 import org.json.JSONObject
 import java.io.File
 import java.time.Instant
@@ -32,7 +35,8 @@ import com.universalmedialibrary.core.logging.AppLogger
 @Singleton
 class GoogleDriveService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val okHttpClient: OkHttpClient
+    private val okHttpClient: OkHttpClient,
+    private val credentialVault: EncryptedCredentialVault
 ) {
     
     private val _isAuthenticated = MutableStateFlow(false)
@@ -134,18 +138,22 @@ class GoogleDriveService @Inject constructor(
                 }
             }
 
+            val mediaPayload = localFile.asRequestBody("application/octet-stream".toMediaType())
+
             val multipart = MultipartBody.Builder()
                 .setType("multipart/related".toMediaType())
                 .addPart(
                     metadata.toString().toRequestBody("application/json; charset=UTF-8".toMediaType())
                 )
-                .addPart(localFile.readBytes().toRequestBody("application/octet-stream".toMediaType()))
+                .addPart(mediaPayload)
                 .build()
+
+            val requestBody = multipart.withProgressCallback(progressCallback)
 
             val request = Request.Builder()
                 .url("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart")
                 .addHeader("Authorization", "Bearer $token")
-                .post(multipart)
+                .post(requestBody)
                 .build()
 
             okHttpClient.newCall(request).execute().use { response ->
@@ -330,33 +338,49 @@ class GoogleDriveService @Inject constructor(
     }
 
     private fun getStoredAccountName(): String? {
+        val vaultAccount = credentialVault.getGoogleDriveAccountName()
+        if (!vaultAccount.isNullOrBlank()) {
+            return vaultAccount
+        }
         val prefs = context.getSharedPreferences("google_drive_prefs", Context.MODE_PRIVATE)
-        return prefs.getString("account_name", null)
+        val legacy = prefs.getString("account_name", null)
+        if (!legacy.isNullOrBlank()) {
+            credentialVault.saveGoogleDriveAccountName(legacy)
+            prefs.edit().remove("account_name").apply()
+            return legacy
+        }
+        return null
     }
 
     private fun getStoredAccessToken(): String? {
+        val vaultToken = credentialVault.getGoogleDriveAccessToken()
+        if (!vaultToken.isNullOrBlank()) {
+            return vaultToken
+        }
         val prefs = context.getSharedPreferences("google_drive_prefs", Context.MODE_PRIVATE)
-        return prefs.getString("access_token", null)
+        val legacy = prefs.getString("access_token", null)
+        if (!legacy.isNullOrBlank()) {
+            credentialVault.saveGoogleDriveAccessToken(legacy)
+            prefs.edit().remove("access_token").apply()
+            return legacy
+        }
+        return null
     }
 
     private fun storeAccountName(name: String) {
-        val prefs = context.getSharedPreferences("google_drive_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putString("account_name", name).apply()
+        credentialVault.saveGoogleDriveAccountName(name)
     }
 
     private fun storeAccessToken(token: String) {
-        val prefs = context.getSharedPreferences("google_drive_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putString("access_token", token).apply()
+        credentialVault.saveGoogleDriveAccessToken(token)
     }
 
     private fun clearStoredAccount() {
-        val prefs = context.getSharedPreferences("google_drive_prefs", Context.MODE_PRIVATE)
-        prefs.edit().remove("account_name").apply()
+        credentialVault.clearGoogleDriveAccountName()
     }
 
     private fun clearStoredAccessToken() {
-        val prefs = context.getSharedPreferences("google_drive_prefs", Context.MODE_PRIVATE)
-        prefs.edit().remove("access_token").apply()
+        credentialVault.clearGoogleDriveAccessToken()
     }
 }
 

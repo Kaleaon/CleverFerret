@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.universalmedialibrary.utils.formatFileSize
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -30,6 +31,10 @@ class PodcastViewModel @Inject constructor(
 
     private val nowPlaying = MutableStateFlow<PodcastEpisode?>(null)
     private val isLoading = MutableStateFlow(true)
+
+    val downloadProgress = downloadManager.downloadProgress
+    val pendingPinChallenge: StateFlow<Any?> = MutableStateFlow(null).asStateFlow()
+    val userMessages: SharedFlow<String> = MutableSharedFlow()
 
     private data class Snapshot(
         val podcasts: List<DomainPodcast>,
@@ -217,7 +222,7 @@ class PodcastViewModel @Inject constructor(
             isNew = isNew,
             isDownloaded = downloaded,
             isPlaying = false,
-            fileSize = if (fileSize > 0) formatBytes(fileSize) else null
+            fileSize = if (fileSize > 0) formatFileSize(fileSize) else null
         )
     }
 
@@ -234,17 +239,7 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
-    private fun formatBytes(bytes: Long): String {
-        val kb = 1024.0
-        val mb = kb * 1024.0
-        val gb = mb * 1024.0
-        return when {
-            bytes >= gb -> "%.1f GB".format(bytes / gb)
-            bytes >= mb -> "%.1f MB".format(bytes / mb)
-            bytes >= kb -> "%.0f KB".format(bytes / kb)
-            else -> "$bytes B"
-        }
-    }
+
 
     private fun formatDate(epochMs: Long): String {
         return try {

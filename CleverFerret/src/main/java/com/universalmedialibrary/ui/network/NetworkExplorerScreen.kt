@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.network.*
+import com.universalmedialibrary.utils.formatFileSize
 
 /**
  * Network Explorer Screen for CleverFerret
@@ -397,11 +398,3 @@ private fun getFileIcon(mimeType: String): ImageVector {
     }
 }
 
-private fun formatFileSize(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "${bytes}B"
-        bytes < 1024 * 1024 -> "${bytes / 1024}KB"
-        bytes < 1024 * 1024 * 1024 -> "${bytes / (1024 * 1024)}MB"
-        else -> "${bytes / (1024 * 1024 * 1024)}GB"
-    }
-}

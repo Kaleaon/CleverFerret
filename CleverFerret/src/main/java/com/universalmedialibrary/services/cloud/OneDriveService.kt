@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.cloud
 
 import android.content.Context
+import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -10,7 +11,9 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import com.universalmedialibrary.services.network.withProgressCallback
 import org.json.JSONObject
 import java.io.File
 import javax.inject.Inject
@@ -29,7 +32,8 @@ import com.universalmedialibrary.core.logging.AppLogger
 @Singleton
 class OneDriveService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val okHttpClient: OkHttpClient
+    private val okHttpClient: OkHttpClient,
+    private val credentialVault: EncryptedCredentialVault
 ) {
     
     private val _isAuthenticated = MutableStateFlow(false)
@@ -96,17 +100,22 @@ class OneDriveService @Inject constructor(
     suspend fun uploadFile(
         localPath: String,
         fileName: String,
-        folderPath: String = APP_FOLDER
+        folderPath: String = APP_FOLDER,
+        progressCallback: ((Float) -> Unit)? = null
     ): String? {
         return withContext(Dispatchers.IO) {
             val token = accessToken ?: return@withContext null
             val file = File(localPath)
             if (!file.exists()) return@withContext null
             val remotePath = buildDrivePath(folderPath, fileName)
+
+            val rawBody = file.asRequestBody("application/octet-stream".toMediaType())
+            val requestBody = rawBody.withProgressCallback(progressCallback)
+
             val request = Request.Builder()
                 .url("https://graph.microsoft.com/v1.0/me/drive/root:$remotePath:/content")
                 .addHeader("Authorization", "Bearer $token")
-                .put(file.readBytes().toRequestBody("application/octet-stream".toMediaType()))
+                .put(requestBody)
                 .build()
 
             okHttpClient.newCall(request).execute().use { response ->
@@ -249,18 +258,26 @@ class OneDriveService @Inject constructor(
     }
 
     private fun getStoredAccessToken(): String? {
+        val vaultToken = credentialVault.getOneDriveAccessToken()
+        if (!vaultToken.isNullOrBlank()) {
+            return vaultToken
+        }
         val prefs = context.getSharedPreferences("onedrive_prefs", Context.MODE_PRIVATE)
-        return prefs.getString("access_token", null)
+        val legacy = prefs.getString("access_token", null)
+        if (!legacy.isNullOrBlank()) {
+            credentialVault.saveOneDriveAccessToken(legacy)
+            prefs.edit().remove("access_token").apply()
+            return legacy
+        }
+        return null
     }
 
     private fun storeAccessToken(token: String) {
-        val prefs = context.getSharedPreferences("onedrive_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putString("access_token", token).apply()
+        credentialVault.saveOneDriveAccessToken(token)
     }
 
     private fun clearStoredToken() {
-        val prefs = context.getSharedPreferences("onedrive_prefs", Context.MODE_PRIVATE)
-        prefs.edit().remove("access_token").apply()
+        credentialVault.clearOneDriveAccessToken()
     }
 }
 

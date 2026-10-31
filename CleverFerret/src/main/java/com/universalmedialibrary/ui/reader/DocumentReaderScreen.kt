@@ -11,6 +11,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -32,6 +33,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -338,6 +344,40 @@ private fun PdfReaderView(uri: Uri) {
                 .weight(1f)
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
+                .focusable()
+                .onKeyEvent { keyEvent ->
+                    if (keyEvent.type == KeyEventType.KeyDown) {
+                        when (keyEvent.key) {
+                            Key.DirectionLeft, Key.PageUp -> {
+                                if (currentPageIndex > 0) {
+                                    currentPageIndex--
+                                    scale = 1f
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                    renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+                                }
+                                true
+                            }
+                            Key.DirectionRight, Key.PageDown -> {
+                                if (currentPageIndex < pageCount - 1) {
+                                    currentPageIndex++
+                                    scale = 1f
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                    renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+                                }
+                                true
+                            }
+                            Key.DirectionCenter, Key.Enter, Key.Spacebar -> {
+                                showControls = !showControls
+                                true
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                }
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { showControls = !showControls },

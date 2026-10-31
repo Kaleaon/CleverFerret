@@ -27,7 +27,8 @@ import kotlinx.serialization.Serializable
     indices = [
         Index(value = ["libraryId"]),
         Index(value = ["filePath"], unique = true),
-        Index(value = ["fileHash"])
+        Index(value = ["fileHash"]),
+        Index(value = ["lastModified"])
     ]
 )
 data class MediaItem(

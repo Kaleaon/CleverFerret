@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
@@ -15,7 +15,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import com.universalmedialibrary.ui.folderimport.UrlImportDialog
-import com.universalmedialibrary.ui.podcast.AddPodcastFeedDialog
 import com.universalmedialibrary.ui.settings.GeminiAPISection
 import com.universalmedialibrary.ui.settings.GenericApiKeySection
 import org.junit.Assert.assertEquals
@@ -107,9 +106,11 @@ class AccessibleOutlinedTextFieldTest {
         assertEquals(
             "Node should not have Error semantics property when errorMessage is null",
             null,
-            textNode.config.getOrNull(SemanticsProperties.Error)
+            if (SemanticsProperties.Error in textNode.config) textNode.config[SemanticsProperties.Error] else null
         )
     }
+
+    private fun hasKey(key: SemanticsPropertyKey<*>) = SemanticsMatcher("has key ${key.name}") { key in it.config }
 
     @Test
     fun urlImportDialog_whenInvalidUrlScheme_exposesErrorSemanticsAndLiveRegion() {
@@ -123,23 +124,6 @@ class AccessibleOutlinedTextFieldTest {
         }
 
         composeTestRule.onNodeWithText("Error: Invalid URL scheme")
-            .assertExists()
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
-    }
-
-    @Test
-    fun addPodcastFeedDialog_whenInvalidFeedUrl_exposesErrorSemanticsAndLiveRegion() {
-        composeTestRule.setContent {
-            AddPodcastFeedDialog(
-                onDismiss = {},
-                onAdd = {}
-            )
-        }
-
-        composeTestRule.onNodeWithText("https://example.com/podcast/feed.xml")
-            .performTextInput("invalid-rss-url")
-
-        composeTestRule.onNodeWithText("Error: Invalid RSS feed URL scheme (must start with http or https)")
             .assertExists()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
     }

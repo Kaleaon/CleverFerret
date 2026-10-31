@@ -36,6 +36,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.MediaType
+import com.universalmedialibrary.services.MediaScannerService
+import com.universalmedialibrary.ui.components.ShimmerGridItem
+import com.universalmedialibrary.ui.components.ShimmerListItem
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -51,6 +54,7 @@ fun UniversalMediaLibraryScreen(
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val selectedMediaType by viewModel.selectedMediaType.collectAsStateWithLifecycle()
     val showFilters by viewModel.showFilters.collectAsStateWithLifecycle()
+    val scanProgress by viewModel.scanProgress.collectAsStateWithLifecycle()
 
     var showSortMenu by remember { mutableStateOf(false) }
     var showViewModeMenu by remember { mutableStateOf(false) }
@@ -191,6 +195,13 @@ fun UniversalMediaLibraryScreen(
                     }
                 )
             }
+        }
+
+        if (scanProgress.isScanning) {
+            ScanBanner(
+                progress = scanProgress,
+                onCancel = { viewModel.cancelScan() }
+            )
         }
 
         // Filters Row (if enabled)
@@ -421,8 +432,82 @@ data class MediaItemWithMetadata(
     val author: String? = null,
     val dateAdded: Long,
     val isFavorite: Boolean = false,
-    val progress: Float = 0f
+    val progress: Float = 0f,
+    val isPlaceholder: Boolean = false
 )
+
+@Composable
+private fun ScanBanner(
+    progress: MediaScannerService.ScanProgress,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (progress.progressPercentage != null) {
+                        "Scanning Library... ${progress.progressPercentage.toInt()}%"
+                    } else {
+                        "Scanning Library..."
+                    },
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                TextButton(onClick = onCancel) {
+                    Text("Cancel", color = MaterialTheme.colorScheme.error)
+                }
+            }
+
+            if (progress.isIndeterminate || progress.progressPercentage == null) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            } else {
+                LinearProgressIndicator(
+                    progress = (progress.progressPercentage / 100f).coerceIn(0f, 1f),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val countText = if (progress.totalEstimatedCount > 0) {
+                    "${progress.scannedCount} / ${progress.totalEstimatedCount} files"
+                } else {
+                    "${progress.scannedCount} files found"
+                }
+                Text(
+                    text = countText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                if (!progress.currentFileName.isNullOrBlank()) {
+                    Text(
+                        text = progress.currentFileName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun MediaItemCard(
@@ -431,6 +516,11 @@ fun MediaItemCard(
     onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    if (item.isPlaceholder) {
+        ShimmerGridItem(modifier = modifier)
+        return
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -507,6 +597,11 @@ fun MediaItemListItem(
     onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    if (item.isPlaceholder) {
+        ShimmerListItem(modifier = modifier)
+        return
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()

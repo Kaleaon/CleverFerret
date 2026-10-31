@@ -272,7 +272,8 @@ class PlexSyncService @Inject constructor(
                             thumbnailPath = metadata.thumb
                         )
                         val insertedId = mediaItemDao.insertMediaItem(mediaItem)
-                        val downloadUrl = "http://${server.host}:${server.port}/library/metadata/${metadata.ratingKey}?X-Plex-Token=${server.token}"
+                        val downloadUrl = "http://${server.host}:${server.port}" +
+                            "/library/metadata/${metadata.ratingKey}?X-Plex-Token=${server.token}"
                         downloadScheduler?.scheduleDownload(
                             itemId = insertedId,
                             remoteUri = path,
