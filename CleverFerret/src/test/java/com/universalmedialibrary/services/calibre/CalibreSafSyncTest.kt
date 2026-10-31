@@ -2,6 +2,8 @@ package com.universalmedialibrary.services.calibre
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import androidx.room.Room
+import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.AppDatabase
@@ -14,8 +16,10 @@ import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.services.CalibreDatabaseReader
 import com.universalmedialibrary.services.CalibreImportService
 import com.universalmedialibrary.services.RawCalibreBook
+import com.universalmedialibrary.services.integration.calibre.CalibreConnectionResult
 import com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -176,16 +180,21 @@ class CalibreSafSyncTest {
         val mockMediaItemDao = mockk<MediaItemDao>(relaxed = true)
         val mockMetadataDao = mockk<MetadataDao>(relaxed = true)
 
+        coEvery { mockDatabase.withTransaction<Any>(any()) } coAnswers {
+            val block = firstArg<suspend () -> Any>()
+            block.invoke()
+        }
+
         coEvery { mockMediaItemDao.getExistingFilePaths(any()) } returns emptyList()
         coEvery { mockMediaItemDao.insertMediaItem(any()) } returns 101L
 
         val slotCommon = slot<MetadataCommon>()
         val slotBook = slot<MetadataBook>()
-        coEvery { mockMetadataDao.insertMetadataCommon(capture(slotCommon)) } returns 101L
-        coEvery { mockMetadataDao.insertMetadataBook(capture(slotBook)) } returns 101L
+        coEvery { mockMetadataDao.insertMetadataCommon(capture(slotCommon)) } returns Unit
+        coEvery { mockMetadataDao.insertMetadataBook(capture(slotBook)) } returns Unit
 
         val importService = CalibreImportService(
-            database = mockDatabase,
+            database = testDb,
             mediaItemDao = mockMediaItemDao,
             metadataDao = mockMetadataDao,
             calibreReader = calibreReader
@@ -211,7 +220,7 @@ class CalibreSafSyncTest {
         assertThat(lastImported).isEqualTo(3)
         assertThat(lastTotal).isEqualTo(3)
 
-        verify(atLeast = 3) { mockMetadataDao.insertMetadataBook(any()) }
+        coVerify(atLeast = 3) { mockMetadataDao.insertMetadataBook(any()) }
         assertThat(slotBook.isCaptured).isTrue()
         assertThat(slotBook.captured.series).isEqualTo("Dune Chronicles")
     }
