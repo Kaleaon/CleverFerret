@@ -158,6 +158,11 @@ object DatabaseModule {
     }
 
     @Provides
+    fun provideCustomFontDao(database: AppDatabase): CustomFontDao {
+        return database.customFontDao()
+    }
+
+    @Provides
     fun provideGeneralSettingsDao(database: AppDatabase): GeneralSettingsDao {
         return database.generalSettingsDao()
     }
