@@ -303,6 +303,7 @@
     <ID>EmptyFunctionBlock:OPDSChallengeAuthenticatorTest.kt$OPDSChallengeAuthenticatorTest.FakeSharedPreferences${}</ID>
     <ID>EmptyFunctionBlock:OPDSCredentialVaultTest.kt$OPDSCredentialVaultTest.FakeSharedPreferences${}</ID>
     <ID>EmptyFunctionBlock:PluginRegistryImplTest.kt$PluginRegistryImplTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:RemotePluginProxyTest.kt$DummyLocalMetadataPlugin${}</ID>
     <ID>EnumNaming:MediaViewerManager.kt$MediaViewerManager.VideoFormat$_3GP</ID>
     <ID>ForEachOnRange:AudioProfilesScreen.kt$0..6</ID>
     <ID>ForEachOnRange:EnhancedBookshelfScreen.kt$0..5</ID>
@@ -6795,6 +6796,7 @@
     <ID>SwallowedException:PdfReaderEngine.kt$PdfReaderEngine$e: Exception</ID>
     <ID>SwallowedException:PlexIntegrationService.kt$PlexIntegrationService$e: Exception</ID>
     <ID>SwallowedException:PlexVirtualUriResolver.kt$PlexVirtualUriResolver$fallbackEx: Exception</ID>
+    <ID>SwallowedException:PluginRegistryImpl.kt$PluginRegistryImpl$e: Exception</ID>
     <ID>SwallowedException:PodcastDownloadManager.kt$PodcastDownloadManager$e: Exception</ID>
     <ID>SwallowedException:PodcastRepository.kt$PodcastRepository$e2: Exception</ID>
     <ID>SwallowedException:PodcastRepository.kt$PodcastRepository$e: Exception</ID>
@@ -7130,6 +7132,9 @@
     <ID>TooGenericExceptionCaught:PlexSyncService.kt$PlexSyncService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PlexVirtualUriResolver.kt$PlexVirtualUriResolver$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PlexVirtualUriResolver.kt$PlexVirtualUriResolver$fallbackEx: Exception</ID>
+    <ID>TooGenericExceptionCaught:PluginIPCBridge.kt$PluginIPCBridgeBinder$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PluginPermissionValidator.kt$PluginPermissionValidator$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PluginProcessMonitor.kt$PluginProcessMonitor$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PluginRegistryImpl.kt$PluginRegistryImpl$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PodcastAutoDownloadWorker.kt$PodcastAutoDownloadWorker$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PodcastDownloadManager.kt$PodcastDownloadManager$e: Exception</ID>
@@ -7257,6 +7262,8 @@
     <ID>TooGenericExceptionThrown:PodcastService.kt$PodcastService$throw Exception("Empty RSS feed")</ID>
     <ID>TooGenericExceptionThrown:PodcastService.kt$PodcastService$throw Exception("Invalid RSS feed - no channel found")</ID>
     <ID>TooGenericExceptionThrown:QRCodeSharingService.kt$QRCodeSharingService$throw RuntimeException("Failed to generate QR code", e)</ID>
+    <ID>TooGenericExceptionThrown:RemotePluginProxyTest.kt$DummyLocalMetadataPlugin$throw RuntimeException("Simulated plugin process crash")</ID>
+    <ID>TooGenericExceptionThrown:RoyalRoadAdapter.kt$RoyalRoadAdapter$throw Exception("HTTP error: ${response.code}")</ID>
     <ID>TooGenericExceptionThrown:SettingsBackupService.kt$SettingsBackupService$throw Exception("Backup version ${backup.version} is newer than supported version $BACKUP_VERSION")</ID>
     <ID>TooGenericExceptionThrown:StoryUpdateManager.kt$StoryUpdateManager$throw Exception("Failed to fetch chapter count: ${e.message}")</ID>
     <ID>TooGenericExceptionThrown:UnifiedReaderService.kt$UnifiedReaderService$throw Exception("Failed to extract MHTML content: ${e.message}")</ID>
@@ -7455,6 +7462,7 @@
     <ID>UnusedParameter:PianoRollEditor.kt$onNoteRemove: (MidiNote) -&gt; Unit</ID>
     <ID>UnusedParameter:PlayerRoutes.kt$onShowSnackbar: (String) -&gt; Unit</ID>
     <ID>UnusedParameter:PlexIntegrationService.kt$PlexIntegrationService$items: List&lt;MediaItem&gt;</ID>
+    <ID>UnusedParameter:PluginPermissionValidator.kt$PluginPermissionValidator$grantedPermissions: Set&lt;String&gt;</ID>
     <ID>UnusedParameter:PodcastService.kt$PodcastService$episode: PodcastEpisode</ID>
     <ID>UnusedParameter:PodcastService.kt$PodcastService$query: String</ID>
     <ID>UnusedParameter:ProjectMVisualizer.kt$secondaryColor: Color</ID>
