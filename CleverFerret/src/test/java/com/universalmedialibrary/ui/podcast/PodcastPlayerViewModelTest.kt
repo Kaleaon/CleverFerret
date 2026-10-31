@@ -12,6 +12,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,6 +46,13 @@ class PodcastPlayerViewModelTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
+        mockkStatic(Uri::class)
+        every { Uri.parse(any()) } answers {
+            val uriString = firstArg<String>()
+            val uri = mockk<Uri>()
+            every { uri.toString() } returns uriString
+            uri
+        }
         Dispatchers.setMain(dispatcher)
 
         every { audioPlaybackManager.state } returns MutableStateFlow(AudioPlaybackManager.AudioState())
@@ -58,6 +67,7 @@ class PodcastPlayerViewModelTest {
 
     @After
     fun tearDown() {
+        unmockkStatic(Uri::class)
         Dispatchers.resetMain()
     }
 

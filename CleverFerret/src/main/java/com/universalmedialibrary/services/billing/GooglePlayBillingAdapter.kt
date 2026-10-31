@@ -125,33 +125,6 @@ class GooglePlayBillingAdapter @Inject constructor(
         return productIds.mapNotNull { catalog[it] }
     }
 
-    @Suppress("TooGenericExceptionCaught", "SwallowedException")
-    fun launchManageSubscriptions(context: Context, sku: String?) {
-        val url = if (!sku.isNullOrEmpty()) {
-            "https://play.google.com/store/account/subscriptions?sku=$sku&package=${context.packageName}"
-        } else {
-            "https://play.google.com/store/account/subscriptions?package=${context.packageName}"
-        }
-
-        val playStoreIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-            setPackage("com.android.vending")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-
-        try {
-            context.startActivity(playStoreIntent)
-        } catch (ignored: Exception) {
-            val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            try {
-                context.startActivity(fallbackIntent)
-            } catch (ignoredFallback: Exception) {
-                // Non-fatal if no activity can handle the intent
-            }
-        }
-    }
-
     override suspend fun launchBillingFlow(activity: Activity?, productId: String): PurchaseResult {
         if (_billingState.value is BillingState.Offline || _billingState.value is BillingState.Disconnected) {
             val result = PurchaseResult.Error("Service unavailable. Device is offline.", errorCode = -1)
@@ -219,6 +192,33 @@ class GooglePlayBillingAdapter @Inject constructor(
     override fun setOfflineSimulated(offline: Boolean) {
         isSimulatedOffline = offline
         _billingState.value = if (offline) BillingState.Offline else BillingState.Connected
+    }
+
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
+    override fun launchManageSubscriptions(context: Context, sku: String?) {
+        val url = if (!sku.isNullOrEmpty()) {
+            "https://play.google.com/store/account/subscriptions?sku=$sku&package=${context.packageName}"
+        } else {
+            "https://play.google.com/store/account/subscriptions?package=${context.packageName}"
+        }
+
+        val playStoreIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            setPackage("com.android.vending")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        try {
+            context.startActivity(playStoreIntent)
+        } catch (e: Exception) {
+            val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            try {
+                context.startActivity(fallbackIntent)
+            } catch (e: Exception) {
+                // Non-fatal if no activity can handle the intent
+            }
+        }
     }
 
     private fun processPurchaseSuccess(productId: String) {

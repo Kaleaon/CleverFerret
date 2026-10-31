@@ -20,8 +20,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.io.File
 
+@RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class MediaCacheManagerTest {
 
@@ -29,10 +32,10 @@ class MediaCacheManagerTest {
     val tempFolder = TemporaryFolder()
 
     @MockK
-    lateinit var mediaCacheDao: MediaCacheDao
+    lateinit var context: Context
 
     @MockK
-    lateinit var context: Context
+    lateinit var mediaCacheDao: MediaCacheDao
 
     @MockK
     lateinit var settingsRepository: SettingsRepository
