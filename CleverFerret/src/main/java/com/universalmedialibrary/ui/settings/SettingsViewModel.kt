@@ -31,9 +31,11 @@ import android.content.Context
 import com.universalmedialibrary.jobs.WorkScheduler
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -55,6 +57,13 @@ class SettingsViewModel @Inject constructor(
 
     private val _readerSettings = MutableStateFlow(ReaderSettings.fromEntity(ReaderSettingsEntity()))
     val readerSettings: StateFlow<ReaderSettings> = _readerSettings.asStateFlow()
+
+    val customFonts: StateFlow<List<com.universalmedialibrary.data.local.entity.CustomFontEntity>> = readerSettingsRepository.getCustomFontsFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     private val _securitySettings = MutableStateFlow(SecuritySettings())
     val securitySettings: StateFlow<SecuritySettings> = _securitySettings.asStateFlow()
@@ -316,6 +325,26 @@ class SettingsViewModel @Inject constructor(
             _readerSettings.value = settings
             // Persist to repository - convert view model to entity
             readerSettingsRepository.updateGlobalSettings(settings.toEntity())
+        }
+    }
+
+    fun importCustomFont(uri: android.net.Uri) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.importCustomFont(uri)
+            } catch (e: Exception) {
+                // Log or handle error
+            }
+        }
+    }
+
+    fun deleteCustomFont(fontId: String) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.deleteCustomFont(fontId)
+            } catch (e: Exception) {
+                // Log or handle error
+            }
         }
     }
 

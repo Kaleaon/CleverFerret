@@ -10,7 +10,6 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -53,9 +52,6 @@ class CentralizedAccessibilityWrappersTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private fun hasKey(key: SemanticsPropertyKey<*>): SemanticsMatcher =
-        SemanticsMatcher.keyIsDefined(key)
-
     @Test
     fun accessibleButton_setsButtonRoleAndClickSemantics() {
         var clicked = false
@@ -69,8 +65,8 @@ class CentralizedAccessibilityWrappersTest {
         }
 
         composeTestRule.onNodeWithText("Click Me")
-            .assert(hasKey(SemanticsProperties.Role))
-            .assert(hasKey(SemanticsActions.OnClick))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Role))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnClick))
             .performClick()
 
         assertTrue("Button click callback should trigger", clicked)
@@ -125,8 +121,8 @@ class CentralizedAccessibilityWrappersTest {
         }
 
         val node = composeTestRule.onNodeWithText("Chip Text")
-        node.assert(hasKey(SemanticsProperties.Selected))
-        node.assert(hasKey(SemanticsProperties.Role))
+        node.assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected))
+        node.assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Role))
         node.performClick()
 
         assertTrue(clicked)
@@ -145,7 +141,7 @@ class CentralizedAccessibilityWrappersTest {
         }
 
         composeTestRule.onNodeWithText("Selectable Chip")
-            .assert(hasKey(SemanticsProperties.Selected))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected))
             .performClick()
 
         assertTrue(clicked)
@@ -163,7 +159,7 @@ class CentralizedAccessibilityWrappersTest {
         }
 
         composeTestRule.onNodeWithText("Tag Chip")
-            .assert(hasKey(SemanticsProperties.Selected))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected))
             .performClick()
 
         assertTrue(clicked)
@@ -183,8 +179,8 @@ class CentralizedAccessibilityWrappersTest {
         }
 
         composeTestRule.onNodeWithText("Toggle Title")
-            .assert(hasKey(SemanticsProperties.Role))
-            .assert(hasKey(SemanticsProperties.ToggleableState))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Role))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.ToggleableState))
             .performClick()
 
         assertTrue(toggled)
@@ -203,7 +199,7 @@ class CentralizedAccessibilityWrappersTest {
         }
 
         composeTestRule.onNodeWithText("Dark Theme")
-            .assert(hasKey(SemanticsProperties.Role))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Role))
             .performClick()
 
         assertTrue(toggled)

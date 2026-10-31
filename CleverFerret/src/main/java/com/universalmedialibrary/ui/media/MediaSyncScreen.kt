@@ -15,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.plex.PlexSyncStatus
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import com.universalmedialibrary.ui.components.media.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import java.text.SimpleDateFormat
@@ -261,6 +262,11 @@ private fun AddPlexServerDialog(
     var port by remember { mutableStateOf("32400") }
     var token by remember { mutableStateOf("") }
 
+    val portNumber = port.toIntOrNull()
+    val portError = if (port.isNotBlank() && (portNumber == null || portNumber !in 1..65535)) {
+        "Port must be between 1 and 65535"
+    } else null
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Plex Server") },
@@ -268,29 +274,34 @@ private fun AddPlexServerDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Server Name") },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = host,
                     onValueChange = { host = it },
                     label = { Text("Host") },
                     placeholder = { Text("192.168.1.100") },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = port,
                     onValueChange = { port = it },
                     label = { Text("Port") },
+                    errorMessage = portError,
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = token,
                     onValueChange = { token = it },
                     label = { Text("Access Token") },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -298,9 +309,9 @@ private fun AddPlexServerDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onAddServer(name, host, port.toIntOrNull() ?: 32400, token)
+                    onAddServer(name, host, portNumber ?: 32400, token)
                 },
-                enabled = name.isNotBlank() && host.isNotBlank() && token.isNotBlank()
+                enabled = name.isNotBlank() && host.isNotBlank() && token.isNotBlank() && portError == null
             ) {
                 Text("Add")
             }

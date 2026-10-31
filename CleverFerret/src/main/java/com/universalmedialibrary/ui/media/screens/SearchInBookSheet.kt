@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
 import kotlinx.coroutines.launch
@@ -51,7 +52,7 @@ internal fun SearchInBookSheet(
                 .fillMaxWidth()
                 .padding(MediaSpacing.MD)
         ) {
-            OutlinedTextField(
+            AccessibleOutlinedTextField(
                 value = query,
                 onValueChange = {
                     query = it
@@ -59,6 +60,7 @@ internal fun SearchInBookSheet(
                 },
                 placeholder = { Text("Search in book...", color = MediaColors.TextTertiary) },
                 leadingIcon = { Icon(Icons.Default.Search, null, tint = MediaColors.TextSecondary) },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MediaColors.AccentPrimary,

@@ -9,9 +9,12 @@ import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.AutoDetectParser
 import org.apache.tika.parser.ParseContext
 import org.apache.tika.sax.BodyContentHandler
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStream
 
 /**
@@ -34,6 +37,11 @@ import java.io.InputStream
  * - Text content extraction via Tika
  */
 class MobiParser : DocumentParser {
+
+    companion object {
+        const val MEMORY_THRESHOLD_BYTES = 2 * 1024 * 1024 // 2MB
+        private const val BUFFER_SIZE = 8192
+    }
     
     // Tika instance not used directly as we create AutoDetectParser, but kept for potential future use or removed if strictly unused.
     // private val tika = Tika()
@@ -79,52 +87,99 @@ class MobiParser : DocumentParser {
     
     override suspend fun parse(inputStream: InputStream, fileName: String): ParsedDocument =
         withContext(Dispatchers.IO) {
+            var tempFile: File? = null
             try {
-                // Read all bytes from the input stream once, so we can create
-                // independent streams for metadata extraction and content extraction.
-                // This avoids the problem of MobiHeader.read potentially closing
-                // or consuming the stream before Tika can use it.
-                val bytes = inputStream.readBytes()
+                val (inMemoryBytes, spooledFile) = readStreamWithThreshold(inputStream)
+                tempFile = spooledFile
 
-                // 1. Extract metadata using lib-mobi from a new stream
-                val metadata = try {
-                    DataInputStream(bytes.inputStream()).use { dis ->
-                        val header = MobiHeader.read(dis)
-                        extractMetadata(header, fileName)
-                    }
-                } catch (e: Exception) {
-                    DocumentMetadata(
-                        title = fileName,
-                        format = "MOBI",
-                        customProperties = emptyMap()
-                    )
+                if (tempFile != null) {
+                    parse(tempFile.absolutePath)
+                } else {
+                    parseInMemory(inMemoryBytes ?: ByteArray(0), fileName)
                 }
-
-                // 2. Extract content using Tika from a new stream
-                val content = try {
-                    extractContentWithTika(bytes.inputStream())
-                } catch (e: Exception) {
-                    // Fallback if Tika fails: extract summary info from lib-mobi
-                    try {
-                        "Failed to extract text content. \n\n" +
-                        DataInputStream(bytes.inputStream()).use { dis ->
-                            val header = MobiHeader.read(dis)
-                            extractContentInfo(header, fileName)
-                        }
-                    } catch (e2: Exception) {
-                        "Failed to extract text content from MOBI stream: $fileName"
-                    }
-                }
-
-                return@withContext ParsedDocument(
-                    content = content,
-                    metadata = metadata,
-                    structure = null
-                )
+            } catch (e: ParserException) {
+                throw e
             } catch (e: Exception) {
                 throw ParserException("Failed to parse MOBI stream: $fileName", e)
+            } finally {
+                tempFile?.delete()
             }
         }
+
+    private fun readStreamWithThreshold(inputStream: InputStream): Pair<ByteArray?, File?> {
+        val buffer = ByteArray(BUFFER_SIZE)
+        val baos = ByteArrayOutputStream()
+        var totalBytes = 0L
+        var tempFile: File? = null
+        var fileOutputStream: FileOutputStream? = null
+
+        try {
+            while (true) {
+                val bytesRead = inputStream.read(buffer)
+                if (bytesRead == -1) break
+
+                totalBytes += bytesRead
+                if (tempFile == null && totalBytes > MEMORY_THRESHOLD_BYTES) {
+                    val spoolFile = File.createTempFile("mobi_spool_", ".mobi")
+                    tempFile = spoolFile
+                    fileOutputStream = FileOutputStream(spoolFile)
+                    baos.writeTo(fileOutputStream)
+                    baos.reset()
+                    fileOutputStream.write(buffer, 0, bytesRead)
+                } else if (fileOutputStream != null) {
+                    fileOutputStream.write(buffer, 0, bytesRead)
+                } else {
+                    baos.write(buffer, 0, bytesRead)
+                }
+            }
+        } catch (e: Exception) {
+            tempFile?.delete()
+            throw e
+        } finally {
+            fileOutputStream?.close()
+        }
+
+        return if (tempFile != null) {
+            Pair(null, tempFile)
+        } else {
+            Pair(baos.toByteArray(), null)
+        }
+    }
+
+    private fun parseInMemory(bytes: ByteArray, fileName: String): ParsedDocument {
+        val metadata = try {
+            DataInputStream(ByteArrayInputStream(bytes)).use { dis ->
+                val header = MobiHeader.read(dis)
+                extractMetadata(header, fileName)
+            }
+        } catch (e: Exception) {
+            DocumentMetadata(
+                title = fileName,
+                format = "MOBI",
+                customProperties = emptyMap()
+            )
+        }
+
+        val content = try {
+            extractContentWithTika(ByteArrayInputStream(bytes))
+        } catch (e: Exception) {
+            try {
+                "Failed to extract text content. \n\n" +
+                DataInputStream(ByteArrayInputStream(bytes)).use { dis ->
+                    val header = MobiHeader.read(dis)
+                    extractContentInfo(header, fileName)
+                }
+            } catch (e2: Exception) {
+                "Failed to extract text content from MOBI stream: $fileName"
+            }
+        }
+
+        return ParsedDocument(
+            content = content,
+            metadata = metadata,
+            structure = null
+        )
+    }
 
     private fun extractContentWithTika(inputStream: InputStream): String {
         val handler = BodyContentHandler(-1) // No limit
