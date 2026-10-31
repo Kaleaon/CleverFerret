@@ -13,32 +13,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.AudiobookEntity
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import kotlin.time.Duration.Companion.seconds
 
-enum class AudiobookFilter {
-    ALL,
-    IN_PROGRESS,
-    FINISHED,
-    BY_AUTHOR,
-    BY_GENRE
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AudiobookLibraryScreen(
-    audiobooks: List<AudiobookEntity> = emptyList(),
-    inProgress: List<AudiobookEntity> = emptyList(),
-    finished: List<AudiobookEntity> = emptyList(),
+    viewModel: AudiobookViewModel = hiltViewModel(),
     onAudiobookClick: (AudiobookEntity) -> Unit,
     onImportClick: () -> Unit,
     onExploreFreeAudiobooks: () -> Unit,
-    onNavigateBack: () -> Unit,
-    onDeleteAudiobook: (String) -> Unit = {}
+    onNavigateBack: () -> Unit
 ) {
-    var selectedFilter by remember { mutableStateOf(AudiobookFilter.ALL) }
+    val audiobooks by viewModel.allAudiobooks.collectAsStateWithLifecycle()
+    val inProgress by viewModel.inProgress.collectAsStateWithLifecycle()
+    val finished by viewModel.finished.collectAsStateWithLifecycle()
+    val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
+    
     var showFilterMenu by remember { mutableStateOf(false) }
     
     val displayedAudiobooks = remember(audiobooks, inProgress, finished, selectedFilter) {
@@ -86,7 +81,7 @@ fun AudiobookLibraryScreen(
                             DropdownMenuItem(
                                 text = { Text(filter.name.replace("_", " ")) },
                                 onClick = {
-                                    selectedFilter = filter
+                                    viewModel.setFilter(filter)
                                     showFilterMenu = false
                                 },
                                 leadingIcon = {
@@ -133,7 +128,7 @@ fun AudiobookLibraryScreen(
                     AudiobookCard(
                         audiobook = audiobook,
                         onClick = { onAudiobookClick(audiobook) },
-                        onDelete = { onDeleteAudiobook(audiobook.id) }
+                        onDelete = { viewModel.deleteAudiobook(audiobook.id) }
                     )
                 }
             }
