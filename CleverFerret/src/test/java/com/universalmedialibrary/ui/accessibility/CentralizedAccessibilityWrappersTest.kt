@@ -8,13 +8,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasKey
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -51,6 +53,8 @@ class CentralizedAccessibilityWrappersTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    private fun hasKey(key: SemanticsPropertyKey<*>) = SemanticsMatcher.keyIsDefined(key)
+
     @Test
     fun accessibleButton_setsButtonRoleAndClickSemantics() {
         var clicked = false
@@ -65,7 +69,7 @@ class CentralizedAccessibilityWrappersTest {
 
         composeTestRule.onNodeWithText("Click Me")
             .assert(hasKey(SemanticsProperties.Role))
-            .assert(hasKey(SemanticsProperties.OnClick))
+            .assert(hasKey(SemanticsActions.OnClick))
             .performClick()
 
         assertTrue("Button click callback should trigger", clicked)
