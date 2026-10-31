@@ -240,7 +240,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 101
+        versionCode = 103
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -251,6 +251,13 @@ android {
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
 
+    }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDir(layout.buildDirectory.dir("generated/ksp/debug/java"))
+            java.srcDir(layout.buildDirectory.dir("generated/ksp/debug/kotlin"))
+        }
     }
 
     buildTypes {
@@ -360,6 +367,16 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
         htmlOutput = file("build/reports/lint-results-debug.html")
         xmlOutput = file("build/reports/lint-results-debug.xml")
         textOutput = file("build/reports/lint-results-debug.txt")
+    }
+
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+            all { testTask ->
+                testTask.systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2/")
+                testTask.systemProperty("robolectric.dependency.repo.id", "gcs-maven-central")
+            }
+        }
     }
 }
 

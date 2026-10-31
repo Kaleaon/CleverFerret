@@ -1,5 +1,6 @@
 package com.universalmedialibrary.api.plugin.grpc
 
+import com.universalmedialibrary.api.plugin.CoverSize
 import com.universalmedialibrary.api.plugin.HealthStatus
 import com.universalmedialibrary.api.plugin.MediaMetadata
 import com.universalmedialibrary.api.plugin.MediaType
@@ -127,6 +128,15 @@ class RemotePluginProxyTest {
 }
 
 class DummyLocalMetadataPlugin : MetadataProviderPlugin {
+    override val manifest: com.universalmedialibrary.api.plugin.PluginManifest =
+        com.universalmedialibrary.api.plugin.PluginManifest(
+            id = "dummy_provider",
+            name = "Dummy Metadata Provider",
+            version = "1.0.0",
+            minHostVersion = "1.0.0",
+            description = "Test plugin",
+            author = "Unit Test"
+        )
     override val id: String = "dummy_provider"
     override val name: String = "Dummy Metadata Provider"
     override val version: String = "1.0.0"

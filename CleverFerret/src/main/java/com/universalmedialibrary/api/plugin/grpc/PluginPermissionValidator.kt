@@ -23,8 +23,14 @@ class PluginPermissionValidator(
     fun validatePluginPackage(packageName: String): Result<Unit> {
         if (context == null) {
             // Null context environment (e.g. unit testing without Android mock context)
-            Log.d(TAG, "Context is null, bypassing system package check for package $packageName")
-            return Result.success(Unit)
+            return if (packageName.startsWith("com.universalmedialibrary") || packageName.startsWith("com.plugin")) {
+                Log.d(TAG, "Context is null, bypassing system package check for trusted prefix $packageName")
+                Result.success(Unit)
+            } else {
+                val errorMsg = "Untrusted plugin package prefix in non-context environment: $packageName"
+                Log.w(TAG, errorMsg)
+                Result.failure(SecurityException(errorMsg))
+            }
         }
 
         return try {

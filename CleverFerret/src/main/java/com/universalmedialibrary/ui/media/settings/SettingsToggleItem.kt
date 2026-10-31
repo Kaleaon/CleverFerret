@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.ktheme.compose.AccessibleToggleRow
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.api.plugin.*
 import com.universalmedialibrary.ui.media.theme.*
@@ -43,10 +44,11 @@ internal fun SettingsToggleItem(
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    Row(
+    AccessibleToggleRow(
+        checked = isChecked,
+        onCheckedChange = onCheckedChange,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!isChecked) }
             .padding(MediaSpacing.MD),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -65,7 +67,7 @@ internal fun SettingsToggleItem(
         
         Switch(
             checked = isChecked,
-            onCheckedChange = onCheckedChange,
+            onCheckedChange = null,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MediaColors.AccentPrimary,
                 checkedTrackColor = MediaColors.AccentPrimary.copy(alpha = 0.5f)

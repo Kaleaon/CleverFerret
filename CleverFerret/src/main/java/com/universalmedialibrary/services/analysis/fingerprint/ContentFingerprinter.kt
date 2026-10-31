@@ -7,7 +7,7 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.security.MessageDigest
+import com.universalmedialibrary.utils.sha256
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -287,15 +287,11 @@ class ContentFingerprinter @Inject constructor() {
     }
 
     private fun generateHash(input: String): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(input.toByteArray())
-        return hashBytes.joinToString("") { "%02x".format(it) }
+        return input.sha256()
     }
 
     private fun generateHash(input: ByteArray): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(input)
-        return hashBytes.joinToString("") { "%02x".format(it) }
+        return input.sha256()
     }
 
     private fun calculateSimilarity(fp1: ContentFingerprint, fp2: ContentFingerprint): Float {

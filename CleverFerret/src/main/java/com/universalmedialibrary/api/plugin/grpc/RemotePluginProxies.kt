@@ -18,6 +18,7 @@ import com.universalmedialibrary.api.plugin.Plugin
 import com.universalmedialibrary.api.plugin.PluginCapability
 import com.universalmedialibrary.api.plugin.PluginCategory
 import com.universalmedialibrary.api.plugin.PluginHealth
+import com.universalmedialibrary.api.plugin.PluginManifest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -36,18 +37,27 @@ import kotlinx.serialization.json.jsonPrimitive
  */
 @Suppress("LongParameterList")
 abstract class RemotePluginProxy(
-    override val id: String,
-    override val name: String,
-    override val version: String,
-    override val description: String,
-    override val author: String,
+    id: String,
+    name: String,
+    version: String,
+    description: String,
+    author: String,
     override val category: PluginCategory,
     override var isEnabled: Boolean = true,
-    override val capabilities: Set<PluginCapability> = emptySet(),
+    capabilities: Set<PluginCapability> = emptySet(),
     override val configurationOptions: List<ConfigurationOption> = emptyList(),
     private val ipcBridge: IPluginIPCBridge,
     private val processMonitor: PluginProcessMonitor? = null,
-    val callTimeoutMs: Long = DEFAULT_CALL_TIMEOUT_MS
+    val callTimeoutMs: Long = DEFAULT_CALL_TIMEOUT_MS,
+    override val manifest: PluginManifest = PluginManifest(
+        id = id,
+        name = name,
+        version = version,
+        minHostVersion = "1.0.0",
+        requiredCapabilities = capabilities,
+        author = author,
+        description = description
+    )
 ) : Plugin {
 
     companion object {
@@ -127,10 +137,30 @@ class RemoteMetadataProviderProxy(
     override val supportedMediaTypes: Set<MediaType>,
     ipcBridge: IPluginIPCBridge,
     processMonitor: PluginProcessMonitor? = null,
-    callTimeoutMs: Long = DEFAULT_CALL_TIMEOUT_MS
+    callTimeoutMs: Long = DEFAULT_CALL_TIMEOUT_MS,
+    manifest: PluginManifest? = null
 ) : RemotePluginProxy(
-    id, name, version, description, author, category, isEnabled,
-    capabilities, configurationOptions, ipcBridge, processMonitor, callTimeoutMs
+    id = id,
+    name = name,
+    version = version,
+    description = description,
+    author = author,
+    category = category,
+    isEnabled = isEnabled,
+    capabilities = capabilities,
+    configurationOptions = configurationOptions,
+    ipcBridge = ipcBridge,
+    processMonitor = processMonitor,
+    callTimeoutMs = callTimeoutMs,
+    manifest = manifest ?: PluginManifest(
+        id = id,
+        name = name,
+        version = version,
+        minHostVersion = "1.0.0",
+        requiredCapabilities = capabilities,
+        author = author,
+        description = description
+    )
 ), MetadataProviderPlugin {
 
     override suspend fun search(query: MetadataQuery): Result<List<MetadataSearchResult>> {
@@ -181,10 +211,30 @@ class RemoteContentSourceProxy(
     override val supportedFormats: Set<String>,
     ipcBridge: IPluginIPCBridge,
     processMonitor: PluginProcessMonitor? = null,
-    callTimeoutMs: Long = DEFAULT_CALL_TIMEOUT_MS
+    callTimeoutMs: Long = DEFAULT_CALL_TIMEOUT_MS,
+    manifest: PluginManifest? = null
 ) : RemotePluginProxy(
-    id, name, version, description, author, category, isEnabled,
-    capabilities, configurationOptions, ipcBridge, processMonitor, callTimeoutMs
+    id = id,
+    name = name,
+    version = version,
+    description = description,
+    author = author,
+    category = category,
+    isEnabled = isEnabled,
+    capabilities = capabilities,
+    configurationOptions = configurationOptions,
+    ipcBridge = ipcBridge,
+    processMonitor = processMonitor,
+    callTimeoutMs = callTimeoutMs,
+    manifest = manifest ?: PluginManifest(
+        id = id,
+        name = name,
+        version = version,
+        minHostVersion = "1.0.0",
+        requiredCapabilities = capabilities,
+        author = author,
+        description = description
+    )
 ), ContentSourcePlugin {
 
     override suspend fun browse(

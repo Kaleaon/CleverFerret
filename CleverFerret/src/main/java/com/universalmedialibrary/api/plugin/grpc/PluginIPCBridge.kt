@@ -6,6 +6,7 @@ import android.os.Parcel
 import android.util.Log
 import com.universalmedialibrary.api.plugin.Plugin
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -58,7 +59,9 @@ class PluginIPCBridgeBinder(
 
             val response = runBlocking {
                 try {
-                    val resultJson = executePluginMethod(plugin, request.methodName, request.payloadJson)
+                    val resultJson = withTimeout(request.timeoutMs) {
+                        executePluginMethod(plugin, request.methodName, request.payloadJson)
+                    }
                     PluginIpcResponse(
                         success = true,
                         payloadJson = resultJson

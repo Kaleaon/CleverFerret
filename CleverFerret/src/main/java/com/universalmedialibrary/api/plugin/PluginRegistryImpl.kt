@@ -21,13 +21,19 @@ import javax.inject.Singleton
 @Singleton
 class PluginRegistryImpl @Inject constructor() : PluginRegistry {
     
+    companion object {
+        const val DEFAULT_HOST_API_VERSION = "1.0.0"
+    }
+
+    var hostApiVersion: String = DEFAULT_HOST_API_VERSION
+
     private val plugins = ConcurrentHashMap<String, Plugin>()
     private val pluginConfigs = ConcurrentHashMap<String, MutableMap<String, Any>>()
     private val lifecycleCallbacks = java.util.concurrent.CopyOnWriteArrayList<PluginLifecycleCallback>()
     
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     
-    private val _events = MutableSharedFlow<PluginEvent>(replay = 0)
+    private val _events = MutableSharedFlow<PluginEvent>(replay = 64, extraBufferCapacity = 64)
     val events: SharedFlow<PluginEvent> = _events.asSharedFlow()
     
     val permissionValidator = com.universalmedialibrary.api.plugin.grpc.PluginPermissionValidator()
@@ -97,6 +103,23 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
     }
     
     override fun registerPlugin(plugin: Plugin) {
+        val validationResult = PluginManifestValidator.validate(plugin.manifest, hostApiVersion)
+        if (validationResult is ManifestValidationResult.Invalid) {
+            val pluginId = plugin.manifest.id.ifBlank { "unknown" }
+            Log.w("PluginRegistryImpl", "Rejected plugin registration '$pluginId': ${validationResult.reason}")
+            lifecycleCallbacks.forEach { callback ->
+                try {
+                    callback.onPluginRejected(pluginId, validationResult.reason)
+                } catch (e: Exception) {
+                    Log.e("PluginRegistryImpl", "Error in lifecycle callback onPluginRejected", e)
+                }
+            }
+            scope.launch {
+                _events.emit(PluginEvent.PluginRejected(pluginId, validationResult.reason))
+            }
+            return
+        }
+
         plugins[plugin.id] = plugin
         
         // Initialize default config
@@ -118,7 +141,10 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
         if (plugin.isEnabled) {
             scope.launch {
                 try {
-                    plugin.initialize()
+                    val initResult = plugin.initialize()
+                    if (initResult.isFailure) {
+                        _events.emit(PluginEvent.PluginError(plugin.id, initResult.exceptionOrNull() ?: Exception("Plugin initialization failed")))
+                    }
                 } catch (e: Exception) {
                     _events.emit(PluginEvent.PluginError(plugin.id, e))
                 }
