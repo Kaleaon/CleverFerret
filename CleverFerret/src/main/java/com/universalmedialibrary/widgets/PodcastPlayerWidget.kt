@@ -1,5 +1,7 @@
 package com.universalmedialibrary.widgets
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
+
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -52,10 +54,11 @@ class PodcastPlayerWidget : BaseWidgetProvider() {
             views.setTextViewText(R.id.widget_podcast_title, currentItem?.title ?: "No Podcast Playing")
             views.setTextViewText(R.id.widget_episode_title, currentItem?.artist ?: "")
             
-            val durationText = formatDuration(
-                playbackState?.currentPositionMs ?: 0L,
-                playbackState?.duration ?: 0L
-            )
+            val durationText = if (playbackState != null && playbackState.duration > 0) {
+                "${playbackState.currentPositionMs.formatAsMediaTime()} / ${playbackState.duration.formatAsMediaTime()}"
+            } else {
+                "--:-- / --:--"
+            }
             views.setTextViewText(R.id.widget_episode_duration, durationText)
             views.setTextViewText(R.id.widget_playback_speed, "${playbackState?.playbackSpeed ?: 1.0f}x")
             

@@ -1,5 +1,7 @@
 package com.universalmedialibrary.ui.podcast
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -88,7 +90,7 @@ fun EpisodeCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = formatDuration(episode.duration),
+                        text = episode.duration.formatAsMediaTime(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

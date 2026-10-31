@@ -3,8 +3,8 @@ package com.universalmedialibrary.ui.opds
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
 import com.universalmedialibrary.data.local.entity.OPDSCatalog
 import com.universalmedialibrary.services.opds.OPDSAuthChallengeEvent
-import com.universalmedialibrary.services.opds.OPDSCatalogService
 import com.universalmedialibrary.services.opds.OPDSChallengeAuthenticator
+import com.universalmedialibrary.services.opds.OPDSCatalogService
 import com.universalmedialibrary.services.opds.OPDSDownloadService
 import com.universalmedialibrary.services.opds.OPDSEntry
 import com.universalmedialibrary.services.opds.OPDSFeed

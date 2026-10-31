@@ -11,6 +11,7 @@ import com.universalmedialibrary.parsers.ParserFactory
 import com.universalmedialibrary.parsers.DocumentParser
 import com.universalmedialibrary.parsers.ParsedDocument
 import com.universalmedialibrary.parsers.DocumentMetadata
+import com.universalmedialibrary.services.plex.PlexVirtualUriResolver
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -30,10 +31,11 @@ class UnifiedReaderServiceIntegrationTest {
     private val geminiComicService = mockk<GeminiComicService>(relaxed = true)
     private val audioPlaybackManager = mockk<AudioPlaybackManager>(relaxed = true)
     private val formatRegistry = mockk<FormatRegistry>(relaxed = true)
-    private val plexVirtualUriResolver = mockk<com.universalmedialibrary.services.plex.PlexVirtualUriResolver>(relaxed = true)
+    private val plexVirtualUriResolver = mockk<PlexVirtualUriResolver>(relaxed = true)
 
     @Before
     fun setUp() {
+        coEvery { plexVirtualUriResolver.isVirtualUri(any()) } returns false
         unifiedReaderService = UnifiedReaderService(
             context,
             readiumEpubService,

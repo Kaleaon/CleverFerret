@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.media.player
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -239,12 +240,12 @@ fun MediaAudioPlayerScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = formatTime(state.currentPosition),
+                        text = state.currentPosition.formatAsMediaTime(),
                         style = MediaTypography.LabelSmall,
                         color = MediaColors.TextSecondary
                     )
                     Text(
-                        text = "-${formatTime(state.duration - state.currentPosition)}",
+                        text = "-${(state.duration - state.currentPosition).formatAsMediaTime()}",
                         style = MediaTypography.LabelSmall,
                         color = MediaColors.TextSecondary
                     )
@@ -509,18 +510,6 @@ fun MediaAudioPlayerScreen(
 // =============================================================================
 // HELPERS
 // =============================================================================
-
-internal fun formatTime(ms: Long): String {
-    val seconds = (ms / 1000) % 60
-    val minutes = (ms / (1000 * 60)) % 60
-    val hours = ms / (1000 * 60 * 60)
-    
-    return if (hours > 0) {
-        "%d:%02d:%02d".format(hours, minutes, seconds)
-    } else {
-        "%d:%02d".format(minutes, seconds)
-    }
-}
 
 // =============================================================================
 // DATA MODELS
