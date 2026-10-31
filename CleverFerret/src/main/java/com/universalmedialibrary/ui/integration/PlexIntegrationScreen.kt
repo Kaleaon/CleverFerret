@@ -26,6 +26,8 @@ import java.util.Locale
 fun PlexIntegrationScreen(
     viewModel: PlexIntegrationViewModel = hiltViewModel()
 ) {
+    @Suppress("UnusedPrivateProperty")
+    val state = viewModel.plexState.collectAsState().value // @Suppress
     MediaIntegrationScreen(viewModel = viewModel)
 }
 

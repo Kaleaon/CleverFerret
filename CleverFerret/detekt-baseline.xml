@@ -302,6 +302,7 @@
     <ID>EmptyFunctionBlock:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMetadataDao${}</ID>
     <ID>EmptyFunctionBlock:OPDSChallengeAuthenticatorTest.kt$OPDSChallengeAuthenticatorTest.FakeSharedPreferences${}</ID>
     <ID>EmptyFunctionBlock:OPDSCredentialVaultTest.kt$OPDSCredentialVaultTest.FakeSharedPreferences${}</ID>
+    <ID>EmptyFunctionBlock:PluginRegistryImplTest.kt$PluginRegistryImplTest.&lt;no name provided&gt;${}</ID>
     <ID>EnumNaming:MediaViewerManager.kt$MediaViewerManager.VideoFormat$_3GP</ID>
     <ID>ForEachOnRange:AudioProfilesScreen.kt$0..6</ID>
     <ID>ForEachOnRange:EnhancedBookshelfScreen.kt$0..5</ID>
@@ -1568,7 +1569,7 @@
     <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFMetalButton( text: String, onClick: () -&gt; Unit, leadingIcon: ImageVector? = null, enabled: Boolean = true, modifier: Modifier = Modifier, )</ID>
     <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFSectionHeader( title: String, subtitle: String? = null, actionLabel: String? = null, onAction: (() -&gt; Unit)? = null, modifier: Modifier = Modifier, )</ID>
     <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFSettingsRow( icon: ImageVector, title: String, subtitle: String? = null, onClick: () -&gt; Unit, trailing: @Composable (() -&gt; Unit)? = null, modifier: Modifier = Modifier, )</ID>
-    <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFTagChip(text: String, modifier: Modifier = Modifier, selected: Boolean = false)</ID>
+    <ID>FunctionNaming:Scaffolding.kt$@Composable fun CFTagChip( text: String, modifier: Modifier = Modifier, selected: Boolean = false, onClick: (() -&gt; Unit)? = null )</ID>
     <ID>FunctionNaming:Scaffolding.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CFTopBar( title: String, onBack: (() -&gt; Unit)? = null, actions: @Composable RowScope.() -&gt; Unit = {}, modifier: Modifier = Modifier, )</ID>
     <ID>FunctionNaming:ScannedFileItem.kt$@Composable internal fun ScannedFileItem( file: ScannedFile, isSelected: Boolean, onToggleSelect: () -&gt; Unit, onFetchMetadata: () -&gt; Unit )</ID>
     <ID>FunctionNaming:ScannerPaywallSubpage.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ScannerPaywallSubpage( onNavigateBack: () -&gt; Unit, modifier: Modifier = Modifier, viewModel: ScannerPaywallViewModel = hiltViewModel() )</ID>
@@ -4724,7 +4725,6 @@
     <ID>MagicNumber:MetadataApiService.kt$MetadataApiService$4</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$0xFFFFD700</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$3</ID>
-    <ID>MagicNumber:MetadataEditorScreen.kt$5</ID>
     <ID>MagicNumber:MetadataEditorScreen.kt$600</ID>
     <ID>MagicNumber:MetadataExtractionService.kt$MetadataExtractionService$4</ID>
     <ID>MagicNumber:MetadataExtractor.kt$MetadataExtractor$0.1</ID>
@@ -6023,7 +6023,6 @@
     <ID>MaxLineLength:AdvancedPlaybackSheet.kt$Text("Trim quiet gaps automatically", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
     <ID>MaxLineLength:AncientArchitectButton.kt$interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }</ID>
     <ID>MaxLineLength:ApiSettings.kt$BookApiSettings$val priority: List&lt;String&gt; = listOf("Open Library", "Google Books", "Hardcover", "ISBN DB", "Goodreads", "Amazon", "ISFDB", "Fantastic Fiction", "FictionDB", "Library Thing", "WorldCat")</ID>
-    <ID>MaxLineLength:AppDatabase.kt$AppDatabase$@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)</ID>
     <ID>MaxLineLength:AppDatabaseMigrationsTest.kt$AppDatabaseMigrationsTest$assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_extended_metadata_itemId ON extended_metadata") }).isTrue()</ID>
     <ID>MaxLineLength:AppDatabaseMigrationsTest.kt$AppDatabaseMigrationsTest$assertThat(executedSql.any { it.contains("CREATE INDEX IF NOT EXISTS index_metadata_music_track_itemId ON metadata_music_track") }).isTrue()</ID>
     <ID>MaxLineLength:ArtworkAPISection.kt$OutlinedTextField(value = fanartKey, onValueChange = { fanartKey = it }, label = { Text("Fanart.tv API Key") }, modifier = Modifier.fillMaxWidth())</ID>
@@ -6050,7 +6049,6 @@
     <ID>MaxLineLength:CFTheme.kt$labelLarge = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, lineHeight = 18.sp, letterSpacing = 0.2.sp)</ID>
     <ID>MaxLineLength:CFTheme.kt$labelMedium = TextStyle(fontFamily = family, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 1.4.sp)</ID>
     <ID>MaxLineLength:CFTheme.kt$labelSmall = TextStyle(fontFamily = family, fontWeight = FontWeight.Bold, fontSize = 10.sp, lineHeight = 14.sp, letterSpacing = 1.6.sp)</ID>
-    <ID>MaxLineLength:CFTokens.kt$CFTokens$val liveRegion: com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy = com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1.LiveRegionPolicy()</ID>
     <ID>MaxLineLength:CentralizedTagConsolidationTest.kt$CentralizedTagConsolidationTest$val bookItem = MediaItem(itemId = 101L, libraryId = 1L, filePath = "/books/scifi.epub", fileName = "Space Odyssey.epub", fileExtension = "epub", mediaType = "BOOK", fileSize = 1000L)</ID>
     <ID>MaxLineLength:CentralizedTagConsolidationTest.kt$CentralizedTagConsolidationTest$val musicItem = MediaItem(itemId = 102L, libraryId = 2L, filePath = "/music/scifi_track.mp3", fileName = "Space Ambient.mp3", fileExtension = "mp3", mediaType = "MUSIC", fileSize = 2000L)</ID>
     <ID>MaxLineLength:CentralizedTagConsolidationTest.kt$CentralizedTagConsolidationTest$val videoItem = MediaItem(itemId = 104L, libraryId = 4L, filePath = "/movies/action.mp4", fileName = "Action Movie.mp4", fileExtension = "mp4", mediaType = "MOVIE", fileSize = 5000L)</ID>
@@ -6336,6 +6334,8 @@
     <ID>MaxLineLength:PlaylistSettingsScreen.kt$OutlinedButton(onClick = { importLauncher.launch(arrayOf("audio/x-mpegurl", "application/vnd.apple.mpegurl", "text/plain")) }) { Text("Import M3U") }</ID>
     <ID>MaxLineLength:PlexIntegrationService.kt$PlexIntegrationService$suspend</ID>
     <ID>MaxLineLength:PlexSyncService.kt$PlexSyncService$payloadJson = "{\"time\":${progressItem.localProgress},\"state\":\"paused\",\"ratingKey\":\"${plexItem.plexRatingKey}\"}"</ID>
+    <ID>MaxLineLength:PluginManifestValidator.kt$PluginManifestValidator$"Plugin manifest version range invalid: minHostVersion '${manifest.minHostVersion}' is greater than maxHostVersion '$maxHostStr'"</ID>
+    <ID>MaxLineLength:PluginRegistryImpl.kt$PluginRegistryImpl$_events.emit(PluginEvent.PluginError(plugin.id, initResult.exceptionOrNull() ?: Exception("Plugin initialization failed")))</ID>
     <ID>MaxLineLength:PodcastEpisodeDao.kt$PodcastEpisodeDao$@Query("UPDATE podcast_episodes SET downloaded = 1, localFilePath = :filePath, localFileChecksum = :checksum, downloadedAt = :timestamp, fileSize = CASE WHEN :fileSize &gt; 0 THEN :fileSize ELSE fileSize END WHERE id = :id")</ID>
     <ID>MaxLineLength:PodcastEpisodeDao.kt$PodcastEpisodeDao$@Query("UPDATE podcast_episodes SET downloaded = :downloaded, localFilePath = :filePath, localFileChecksum = :checksum, downloadedAt = :timestamp WHERE id = :id")</ID>
     <ID>MaxLineLength:PodcastService.kt$PodcastService$try { resolvedApiKeys["spotify_token"]?.let { allResults.addAll(searchSpotifyPodcasts(query, it)) } } catch (_: Exception) {}</ID>
@@ -6649,6 +6649,8 @@
     <ID>ReturnCount:ParentalControlsSettings.kt$ParentalControlsSettings$fun shouldHideContent( state: ParentalControlsState, rating: String?, mediaType: String? = null, tags: Collection&lt;String&gt; = emptyList() ): Boolean</ID>
     <ID>ReturnCount:PlexAuthService.kt$PlexAuthService$suspend fun authenticateWithCredentials( username: String, password: String ): Result&lt;PlexAuthResult&gt;</ID>
     <ID>ReturnCount:PlexVirtualUriResolver.kt$PlexVirtualUriResolver$suspend fun isItemAvailable(uri: String): Boolean</ID>
+    <ID>ReturnCount:PluginManifestValidator.kt$PluginManifestValidator$fun validate(manifest: PluginManifest?, currentHostVersion: String): ManifestValidationResult</ID>
+    <ID>ReturnCount:PluginManifestValidator.kt$SemVer.Companion$fun parse(versionStr: String?): SemVer?</ID>
     <ID>ReturnCount:PodcastDownloadManager.kt$PodcastDownloadManager$suspend fun verifyEpisodeChecksum(episodeId: Long): Boolean</ID>
     <ID>ReturnCount:PublicationEngineRegistry.kt$PublicationEngineRegistry$suspend fun route(request: PublicationRequest): ParserResult</ID>
     <ID>ReturnCount:RadioDnsService.kt$RadioDnsService$private fun fetchServiceInformation(host: String, port: Int): StationMetadata?</ID>

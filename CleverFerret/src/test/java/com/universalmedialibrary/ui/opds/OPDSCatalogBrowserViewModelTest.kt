@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.opds
 
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
 import com.universalmedialibrary.data.local.entity.OPDSCatalog
+import com.universalmedialibrary.services.opds.OPDSAuthChallengeEvent
 import com.universalmedialibrary.services.opds.OPDSChallengeAuthenticator
 import com.universalmedialibrary.services.opds.OPDSCatalogService
 import com.universalmedialibrary.services.opds.OPDSDownloadService
@@ -13,6 +14,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -62,6 +64,7 @@ class OPDSCatalogBrowserViewModelTest {
     fun setUp() {
         every { catalogDao.getAllCatalogs() } returns flowOf(listOf(testCatalog))
         every { downloadService.activeDownloads } returns MutableStateFlow(emptyMap())
+        every { opdsChallengeAuthenticator.challengeEvent } returns MutableSharedFlow<OPDSAuthChallengeEvent>()
     }
 
     @Test
