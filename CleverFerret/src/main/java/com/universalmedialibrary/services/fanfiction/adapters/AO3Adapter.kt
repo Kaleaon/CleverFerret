@@ -27,8 +27,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class AO3Adapter @Inject constructor(
-    private val httpClient: OkHttpClient
-) : FanfictionSiteAdapter {
+    httpClient: OkHttpClient
+) : BaseFanfictionAdapter(httpClient) {
     
     override val siteName = "Archive of Our Own"
     override val baseUrl = "https://archiveofourown.org"
@@ -152,20 +152,6 @@ class AO3Adapter @Inject constructor(
     
     // Helper functions
     
-    private suspend fun fetchDocument(url: String): Document {
-        val request = Request.Builder()
-            .url(url)
-            .header("User-Agent", "CleverFerret/1.0 (Android)")
-            .build()
-        
-        return httpClient.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw Exception("HTTP error: ${response.code}")
-            }
-            Jsoup.parse(response.body?.string() ?: "")
-        }
-    }
-    
     private fun extractStatus(doc: Document): CompletionStatus {
         val statusText = doc.select("dd.status").text().lowercase()
         return when {
@@ -193,9 +179,5 @@ class AO3Adapter @Inject constructor(
         } catch (e: Exception) {
             null
         }
-    }
-    
-    private fun countWords(text: String): Int {
-        return text.split(Regex("\\s+")).count { it.isNotBlank() }
     }
 }
