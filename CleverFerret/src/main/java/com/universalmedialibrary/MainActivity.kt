@@ -23,7 +23,8 @@ import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.reader.EnhancedEReaderScreen
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen
-import com.universalmedialibrary.ui.theme.*
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.UnifiedCleverFerretTheme
 import com.universalmedialibrary.ui.integration.PlexIntegrationScreen
 import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.utils.ScreenTimeoutManager

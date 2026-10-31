@@ -405,6 +405,8 @@ class IngestionStagingGatewaysTest {
         override suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean) {
             map[itemId]?.let { map[itemId] = it.copy(isAvailable = isAvailable) }
         }
+        override suspend fun getMediaItemsModifiedSince(sinceTimestamp: Long): List<MediaItem> =
+            map.values.filter { it.lastModified > sinceTimestamp }
 
         override suspend fun updateDownloadInfo(itemId: Long, cachePath: String?, status: String, progress: Float) {
             map[itemId]?.let { map[itemId] = it.copy(localCachePath = cachePath, downloadStatus = status, downloadProgress = progress) }
@@ -469,9 +471,6 @@ class IngestionStagingGatewaysTest {
             map.values.find { it.filePath == filePath }?.let { item ->
                 map[item.itemId] = item.copy(isAvailable = isAvailable)
             }
-        }
-        override suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean) {
-            map[itemId]?.let { map[itemId] = it.copy(isAvailable = isAvailable) }
         }
         override suspend fun updateDownloadInfo(itemId: Long, cachePath: String?, status: String, progress: Float) {
             map[itemId]?.let { map[itemId] = it.copy(localCachePath = cachePath, downloadStatus = status, downloadProgress = progress) }
