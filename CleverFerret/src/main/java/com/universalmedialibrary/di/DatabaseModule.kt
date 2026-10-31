@@ -49,6 +49,11 @@ object DatabaseModule {
         return appDatabase.mediaFtsDao()
     }
 
+    @Provides
+    fun provideExternalMediaEntityDao(appDatabase: AppDatabase): ExternalMediaEntityDao {
+        return appDatabase.externalMediaEntityDao()
+    }
+
       @Provides
       fun provideListenHistoryDao(appDatabase: AppDatabase): ListenHistoryDao {
           return appDatabase.listenHistoryDao()
@@ -242,9 +247,10 @@ object DatabaseModule {
     fun provideSearchRepository(
         mediaItemDao: MediaItemDao,
         metadataDao: MetadataDao,
-        tagDao: UnifiedTagDao
+        tagDao: UnifiedTagDao,
+        externalMediaEntityDao: ExternalMediaEntityDao
     ): SearchRepository {
-        return SearchRepository(mediaItemDao, metadataDao, tagDao)
+        return SearchRepository(mediaItemDao, metadataDao, tagDao, externalMediaEntityDao)
     }
 
     // Import/Export Repository

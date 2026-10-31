@@ -11,7 +11,9 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import com.universalmedialibrary.services.network.withProgressCallback
 import org.json.JSONObject
 import java.io.File
 import javax.inject.Inject
@@ -98,17 +100,22 @@ class OneDriveService @Inject constructor(
     suspend fun uploadFile(
         localPath: String,
         fileName: String,
-        folderPath: String = APP_FOLDER
+        folderPath: String = APP_FOLDER,
+        progressCallback: ((Float) -> Unit)? = null
     ): String? {
         return withContext(Dispatchers.IO) {
             val token = accessToken ?: return@withContext null
             val file = File(localPath)
             if (!file.exists()) return@withContext null
             val remotePath = buildDrivePath(folderPath, fileName)
+
+            val rawBody = file.asRequestBody("application/octet-stream".toMediaType())
+            val requestBody = rawBody.withProgressCallback(progressCallback)
+
             val request = Request.Builder()
                 .url("https://graph.microsoft.com/v1.0/me/drive/root:$remotePath:/content")
                 .addHeader("Authorization", "Bearer $token")
-                .put(file.readBytes().toRequestBody("application/octet-stream".toMediaType()))
+                .put(requestBody)
                 .build()
 
             okHttpClient.newCall(request).execute().use { response ->

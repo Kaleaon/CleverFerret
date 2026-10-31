@@ -139,17 +139,25 @@ object ServicesModule {
     fun providePlexIntegrationService(
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
         contentAnalyzer: com.universalmedialibrary.services.ai.SmartContentAnalyzer,
-        plexAuthService: com.universalmedialibrary.services.plex.PlexAuthService
+        plexAuthService: com.universalmedialibrary.services.plex.PlexAuthService,
+        externalMediaEntityDao: ExternalMediaEntityDao
     ): com.universalmedialibrary.services.integration.plex.PlexIntegrationService =
-        com.universalmedialibrary.services.integration.plex.PlexIntegrationService(context, contentAnalyzer, plexAuthService)
+        com.universalmedialibrary.services.integration.plex.PlexIntegrationService(context, contentAnalyzer, plexAuthService, externalMediaEntityDao)
 
     @Provides
     @Singleton
     fun provideCalibreIntegrationService(
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
-        apiKeyRepository: APIKeyRepository
-    ): com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService =
-        com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService(context, apiKeyRepository)
+        apiKeyRepository: APIKeyRepository,
+        externalMediaEntityDao: ExternalMediaEntityDao
+    ): com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService {
+        // CalibreIntegrationService(context, apiKeyRepository)
+        return com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService(
+            context,
+            apiKeyRepository,
+            externalMediaEntityDao
+        )
+    }
 
     @Provides
     @Singleton
@@ -173,10 +181,26 @@ object ServicesModule {
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
         plexService: com.universalmedialibrary.services.integration.plex.PlexIntegrationService,
         calibreService: com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService,
+        jellyfinService: com.universalmedialibrary.services.integration.jellyfin.JellyfinIntegrationService,
+        embyService: com.universalmedialibrary.services.integration.emby.EmbyIntegrationService,
+        yaaccAdapter: com.universalmedialibrary.services.integration.yaacc.YaaccIntegrationAdapter,
+        powerampAdapter: com.universalmedialibrary.services.integration.poweramp.PowerampIntegrationAdapter,
         cloudService: com.universalmedialibrary.services.integration.cloud.CloudStorageService,
         bookServices: com.universalmedialibrary.services.integration.books.BookServicesIntegration
-    ): com.universalmedialibrary.services.integration.IntegrationManager =
-        com.universalmedialibrary.services.integration.IntegrationManager(context, plexService, calibreService, cloudService, bookServices)
+    ): com.universalmedialibrary.services.integration.IntegrationManager {
+        // IntegrationManager(context, plexService, calibreService, cloudService, bookServices)
+        return com.universalmedialibrary.services.integration.IntegrationManager(
+            context,
+            plexService,
+            calibreService,
+            jellyfinService,
+            embyService,
+            yaaccAdapter,
+            powerampAdapter,
+            cloudService,
+            bookServices
+        )
+    }
 
     // Database and Metadata Providers
     @Provides

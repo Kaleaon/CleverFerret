@@ -15,9 +15,9 @@ import javax.inject.Singleton
  */
 @Singleton
 class GoogleBooksCoverSource @Inject constructor(
-    private val httpClient: OkHttpClient,
+    httpClient: OkHttpClient,
     private val apiKeyRepository: APIKeyRepository
-) : CoverSource {
+) : BaseCoverSource(httpClient) {
     
     override val sourceName = "Google Books"
     override val priority = 8
@@ -98,34 +98,7 @@ class GoogleBooksCoverSource @Inject constructor(
         }
     }
     
-    override suspend fun getCoverUrl(sourceId: String): Result<String?> {
-        return Result.success(null)
-    }
-    
-    override suspend fun downloadCover(url: String): Result<ByteArray> = 
-        withContext(Dispatchers.IO) {
-            try {
-                val request = Request.Builder()
-                    .url(url)
-                    .build()
-                
-                httpClient.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        return@withContext Result.failure(
-                            Exception("HTTP error: ${response.code}")
-                        )
-                    }
-                    
-                    val bytes = response.body?.bytes() 
-                        ?: return@withContext Result.failure(IllegalStateException("Empty body"))
-                    Result.success(bytes)
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    
-    private fun buildSearchQuery(isbn: String?, title: String?, author: String?): String {
+    protected override fun buildSearchQuery(isbn: String?, title: String?, author: String?): String {
         return when {
             !isbn.isNullOrBlank() -> "isbn:${URLEncoder.encode(isbn, "UTF-8")}"
             !title.isNullOrBlank() && !author.isNullOrBlank() -> 

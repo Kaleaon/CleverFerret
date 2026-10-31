@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import java.net.URLEncoder
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,8 +13,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class AppleBooksCoverSource @Inject constructor(
-    private val httpClient: OkHttpClient
-) : CoverSource {
+    httpClient: OkHttpClient
+) : BaseCoverSource(httpClient) {
     
     override val sourceName = "Apple Books"
     override val priority = 10 // Highest - best quality
@@ -68,41 +67,6 @@ class AppleBooksCoverSource @Inject constructor(
             }
         } catch (e: Exception) {
             Result.success(null) // Don't fail, just return null
-        }
-    }
-    
-    override suspend fun getCoverUrl(sourceId: String): Result<String?> {
-        return Result.success(null) // Not implemented
-    }
-    
-    override suspend fun downloadCover(url: String): Result<ByteArray> = 
-        withContext(Dispatchers.IO) {
-            try {
-                val request = Request.Builder()
-                    .url(url)
-                    .build()
-                
-                httpClient.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        return@withContext Result.failure(
-                            Exception("HTTP error: ${response.code}")
-                        )
-                    }
-                    
-                    Result.success(response.body?.bytes() ?: ByteArray(0))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    
-    private fun buildSearchQuery(isbn: String?, title: String?, author: String?): String {
-        return when {
-            !isbn.isNullOrBlank() -> URLEncoder.encode(isbn, "UTF-8")
-            !title.isNullOrBlank() && !author.isNullOrBlank() -> 
-                URLEncoder.encode("$title $author", "UTF-8")
-            !title.isNullOrBlank() -> URLEncoder.encode(title, "UTF-8")
-            else -> ""
         }
     }
 }
