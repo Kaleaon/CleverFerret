@@ -5909,7 +5909,6 @@
     <ID>MagicNumber:ValidationUtils.kt$ValidationUtils$8</ID>
     <ID>MagicNumber:VideoControlsComponents.kt$10_000</ID>
     <ID>MagicNumber:VideoLibraryScreen.kt$60</ID>
-    <ID>MagicNumber:VideoPlayerScreen.kt$0.1f</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$0.8f</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$10000</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$10000L</ID>
@@ -7057,6 +7056,7 @@
     <ID>TooGenericExceptionCaught:MediaOpenViewModel.kt$MediaOpenViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaPlaybackWidgetService.kt$MediaPlaybackWidgetService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaPlayerViewModel.kt$VideoPlayerViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MediaScannerHelpers.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaScannerMediaStoreHelpers.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaScannerService.kt$MediaScannerService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MediaScannerService.kt$MediaScannerService.Companion$e: Exception</ID>

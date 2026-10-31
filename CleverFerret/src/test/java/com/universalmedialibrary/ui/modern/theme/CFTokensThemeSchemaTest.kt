@@ -99,7 +99,7 @@ class CFTokensThemeSchemaTest {
         val defaultTokens = CFTokens(
             id = "test-custom",
             displayName = "Custom Test Theme",
-            layout = CFLayout.Compose,
+            layout = CFLayout.COMPOSE,
             metal = CFMetal(
                 shadow = Color.Black,
                 base = Color.Gray,

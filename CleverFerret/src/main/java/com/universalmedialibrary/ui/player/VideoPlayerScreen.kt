@@ -81,45 +81,34 @@ fun VideoPlayerScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black)
-                .focusable()
-                .onKeyEvent { keyEvent ->
-                    if (keyEvent.type == KeyEventType.KeyDown) {
-                        when (keyEvent.key) {
-                            Key.DirectionCenter, Key.Enter, Key.Spacebar -> {
-                                viewModel.togglePlayPause()
-                                showControls = true
-                                true
-                            }
-                            Key.DirectionLeft -> {
-                                val newPosition = maxOf(0L, currentPosition - 10000L)
-                                currentPosition = newPosition
-                                viewModel.seekTo(newPosition)
-                                showControls = true
-                                true
-                            }
-                            Key.DirectionRight -> {
-                                val newPosition = minOf(uiState.duration, currentPosition + 10000L)
-                                currentPosition = newPosition
-                                viewModel.seekTo(newPosition)
-                                showControls = true
-                                true
-                            }
-                            Key.DirectionUp -> {
-                                volume = minOf(1f, volume + 0.1f)
-                                showControls = true
-                                true
-                            }
-                            Key.DirectionDown -> {
-                                volume = maxOf(0f, volume - 0.1f)
-                                showControls = true
-                                true
-                            }
-                            else -> false
-                        }
-                    } else {
-                        false
+                .playerKeyController(
+                    onTogglePlayPause = {
+                        viewModel.togglePlayPause()
+                        true
+                    },
+                    onPlay = {
+                        viewModel.play()
+                        true
+                    },
+                    onPause = {
+                        viewModel.pause()
+                        true
+                    },
+                    onSeekBackward = {
+                        val newPosition = maxOf(0L, currentPosition - 10000L)
+                        viewModel.seekTo(newPosition)
+                        true
+                    },
+                    onSeekForward = {
+                        val newPosition = minOf(uiState.duration, currentPosition + 10000L)
+                        viewModel.seekTo(newPosition)
+                        true
+                    },
+                    onToggleControls = {
+                        showControls = !showControls
+                        true
                     }
-                }
+                )
                 .clickable { showControls = !showControls }
         ) {
             when {

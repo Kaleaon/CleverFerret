@@ -35,11 +35,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.universalmedialibrary.services.gallery.*
-import com.universalmedialibrary.ui.components.accessibleClickable
+import com.universalmedialibrary.ui.components.FocusableContainer
+import com.universalmedialibrary.ui.theme.rememberFocusHighlightIndication
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -50,17 +52,26 @@ internal fun MediaItemCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    Box(
+    val interactionSource = remember { MutableInteractionSource() }
+
+    FocusableContainer(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f)
-            .accessibleClickable(
-                shape = RoundedCornerShape(4.dp),
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
-            .clip(RoundedCornerShape(4.dp))
-    ) {
+            .aspectRatio(1f),
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(4.dp)
+    ) { isFocused ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(4.dp))
+                .combinedClickable(
+                    interactionSource = interactionSource,
+                    indication = rememberFocusHighlightIndication(),
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                )
+        ) {
         AsyncImage(
                     
             model = ImageRequest.Builder(LocalContext.current)
@@ -123,4 +134,5 @@ internal fun MediaItemCard(
             )
         }
     }
+}
 }
