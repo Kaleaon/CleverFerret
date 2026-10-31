@@ -29,13 +29,13 @@ class OnboardingViewModel @Inject constructor(
             initialValue = false
         )
 
-    val totalMediaItemsCount: StateFlow<Int> = mediaItemDao.getAllMediaItemsFlow()
-        .map { items -> items.size }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = 0
-        )
+    val totalMediaItemsCount: StateFlow<Int> = flow {
+        emit(mediaItemDao.getMediaItemCount())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
+    )
 
     private val _isScanDispatched = MutableStateFlow(false)
     val isScanDispatched: StateFlow<Boolean> = _isScanDispatched.asStateFlow()
