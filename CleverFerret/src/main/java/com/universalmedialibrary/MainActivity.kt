@@ -19,7 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.media.MediaMainActivity
-import com.universalmedialibrary.ui.open.MediaOpenScreen
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.reader.EnhancedEReaderScreen
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen
