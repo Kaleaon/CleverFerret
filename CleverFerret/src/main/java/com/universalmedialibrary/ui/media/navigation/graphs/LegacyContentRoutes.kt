@@ -311,8 +311,8 @@ fun NavGraphBuilder.legacyContentRoutes(
     }
     
     composable("radio") {
-        com.universalmedialibrary.ui.radio.RadioScreen(
-            onBack = { navController.popBackStack() }
+        com.universalmedialibrary.ui.radio.EnhancedRadioScreen(
+            onNavigateBack = { navController.popBackStack() }
         )
     }
     

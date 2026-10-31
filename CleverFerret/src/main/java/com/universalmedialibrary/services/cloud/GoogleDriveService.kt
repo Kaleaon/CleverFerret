@@ -12,7 +12,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import com.universalmedialibrary.services.network.withProgressCallback
 import org.json.JSONObject
 import java.io.File
 import java.time.Instant
@@ -136,18 +138,22 @@ class GoogleDriveService @Inject constructor(
                 }
             }
 
+            val mediaPayload = localFile.asRequestBody("application/octet-stream".toMediaType())
+
             val multipart = MultipartBody.Builder()
                 .setType("multipart/related".toMediaType())
                 .addPart(
                     metadata.toString().toRequestBody("application/json; charset=UTF-8".toMediaType())
                 )
-                .addPart(localFile.readBytes().toRequestBody("application/octet-stream".toMediaType()))
+                .addPart(mediaPayload)
                 .build()
+
+            val requestBody = multipart.withProgressCallback(progressCallback)
 
             val request = Request.Builder()
                 .url("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart")
                 .addHeader("Authorization", "Bearer $token")
-                .post(multipart)
+                .post(requestBody)
                 .build()
 
             okHttpClient.newCall(request).execute().use { response ->
