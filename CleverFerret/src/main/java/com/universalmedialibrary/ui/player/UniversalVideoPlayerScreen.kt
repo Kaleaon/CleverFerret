@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.player
 
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -398,12 +399,12 @@ private fun EnhancedVideoControls(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = formatTime(playerState.currentPosition),
+                    text = playerState.currentPosition.formatAsMediaTime(),
                     color = Color.White.copy(alpha = 0.8f),
                     style = MaterialTheme.typography.labelSmall
                 )
                 Text(
-                    text = formatTime(playerState.duration),
+                    text = playerState.duration.formatAsMediaTime(),
                     color = Color.White.copy(alpha = 0.8f),
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -461,17 +462,5 @@ private fun ErrorOverlay(
                 }
             }
         }
-    }
-}
-
-private fun formatTime(milliseconds: Long): String {
-    val seconds = milliseconds / 1000
-    val minutes = seconds / 60
-    val hours = minutes / 60
-
-    return if (hours > 0) {
-        "%d:%02d:%02d".format(hours, minutes % 60, seconds % 60)
-    } else {
-        "%d:%02d".format(minutes, seconds % 60)
     }
 }
