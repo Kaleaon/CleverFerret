@@ -162,4 +162,58 @@ class AccessibleOutlinedTextFieldTest {
             .assertExists()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
     }
+
+    @Test
+    fun accessibleOutlinedTextField_whenPortNumberInvalid_exposesErrorSemanticsAndLiveRegion() {
+        val errorMessage = "Port must be between 1 and 65535"
+
+        composeTestRule.setContent {
+            AccessibleOutlinedTextField(
+                value = "999999",
+                onValueChange = {},
+                label = { Text("Port") },
+                errorMessage = errorMessage
+            )
+        }
+
+        composeTestRule.onNodeWithText(errorMessage)
+            .assertExists()
+            .assert(hasKey(SemanticsProperties.LiveRegion))
+
+        val textNode = composeTestRule.onNodeWithText("999999")
+            .fetchSemanticsNode()
+
+        assertEquals(
+            "Node should have Error semantics matching port error message",
+            errorMessage,
+            textNode.config[SemanticsProperties.Error]
+        )
+    }
+
+    @Test
+    fun accessibleOutlinedTextField_whenOpdsCatalogUrlInvalid_exposesErrorSemanticsAndLiveRegion() {
+        val errorMessage = "URL must start with http:// or https://"
+
+        composeTestRule.setContent {
+            AccessibleOutlinedTextField(
+                value = "ftp://invalid-opds-catalog.org",
+                onValueChange = {},
+                label = { Text("Catalog URL") },
+                errorMessage = errorMessage
+            )
+        }
+
+        composeTestRule.onNodeWithText(errorMessage)
+            .assertExists()
+            .assert(hasKey(SemanticsProperties.LiveRegion))
+
+        val textNode = composeTestRule.onNodeWithText("ftp://invalid-opds-catalog.org")
+            .fetchSemanticsNode()
+
+        assertEquals(
+            "Node should have Error semantics matching URL error message",
+            errorMessage,
+            textNode.config[SemanticsProperties.Error]
+        )
+    }
 }

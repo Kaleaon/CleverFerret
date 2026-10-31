@@ -296,7 +296,6 @@
     <ID>EmptyCatchBlock:AudioEffectsController.kt$AudioEffectsController${ }</ID>
     <ID>EmptyFunctionBlock:DragCancelledAnimation.kt$NoDragCancelledAnimation${}</ID>
     <ID>EmptyFunctionBlock:EnhancedRadioViewModel.kt$EnhancedRadioViewModel${}</ID>
-    <ID>EmptyFunctionBlock:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMediaItemDao${}</ID>
     <ID>EmptyFunctionBlock:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMetadataDao${}</ID>
     <ID>EmptyFunctionBlock:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMediaItemDao${}</ID>
     <ID>EmptyFunctionBlock:MetadataStagingRepositoryTest.kt$MetadataStagingRepositoryTest.FakeMetadataDao${}</ID>
@@ -3393,9 +3392,7 @@
     <ID>MagicNumber:AdvancedVideoPlayerScreen.kt$0.8f</ID>
     <ID>MagicNumber:AdvancedVideoPlayerScreen.kt$10000</ID>
     <ID>MagicNumber:AdvancedVideoPlayerScreen.kt$16</ID>
-    <ID>MagicNumber:AdvancedVideoPlayerScreen.kt$3600</ID>
     <ID>MagicNumber:AdvancedVideoPlayerScreen.kt$4000</ID>
-    <ID>MagicNumber:AdvancedVideoPlayerScreen.kt$60</ID>
     <ID>MagicNumber:AdvancedVideoPlayerScreen.kt$9</ID>
     <ID>MagicNumber:AdvancedVideoPlayerViewModel.kt$AdvancedVideoPlayerViewModel$10000</ID>
     <ID>MagicNumber:AdvancedVideoPlayerViewModel.kt$AdvancedVideoPlayerViewModel$60</ID>
@@ -3505,8 +3502,6 @@
     <ID>MagicNumber:AudioPlaybackManager.kt$AudioPlaybackManager$3000</ID>
     <ID>MagicNumber:AudioPlaybackManager.kt$AudioPlaybackManager$60_000L</ID>
     <ID>MagicNumber:AudioPlayerScreen.kt$0.8f</ID>
-    <ID>MagicNumber:AudioPlayerScreen.kt$3600</ID>
-    <ID>MagicNumber:AudioPlayerScreen.kt$60</ID>
     <ID>MagicNumber:AudioPlayerViewModel.kt$AudioPlayerViewModel$2000L</ID>
     <ID>MagicNumber:AudioPlayerViewModel.kt$AudioPlayerViewModel$50L</ID>
     <ID>MagicNumber:AudioProfileService.kt$AudioProfileService$3</ID>
@@ -3537,8 +3532,6 @@
     <ID>MagicNumber:AudiobookMakerService.kt$AudiobookMakerService$5000</ID>
     <ID>MagicNumber:AudiobookMakerService.kt$AudiobookMakerService$60000</ID>
     <ID>MagicNumber:AudiobookPlayerScreen.kt$0.8f</ID>
-    <ID>MagicNumber:AudiobookPlayerScreen.kt$3600</ID>
-    <ID>MagicNumber:AudiobookPlayerScreen.kt$60</ID>
     <ID>MagicNumber:AudiobookPlayerScreen.kt$60L</ID>
     <ID>MagicNumber:AudiobookPlayerWidget.kt$AudiobookPlayerWidget$30000</ID>
     <ID>MagicNumber:AudiobookPlayerWidget.kt$AudiobookPlayerWidget.Companion$2000</ID>
@@ -3918,7 +3911,6 @@
     <ID>MagicNumber:EnhancedMangaReaderEngine.kt$EnhancedMangaReaderEngine$255f</ID>
     <ID>MagicNumber:EnhancedMetadataEditor.kt$4.2f</ID>
     <ID>MagicNumber:EnhancedMetadataEditor.kt$5</ID>
-    <ID>MagicNumber:EnhancedMusicPlayerScreen.kt$60</ID>
     <ID>MagicNumber:EnhancedPDFReaderScreen.kt$0.5f</ID>
     <ID>MagicNumber:EnhancedPDFReaderScreen.kt$1.5f</ID>
     <ID>MagicNumber:EnhancedPDFReaderScreen.kt$5f</ID>
@@ -3989,8 +3981,6 @@
     <ID>MagicNumber:EnhancedTrackInfoComponents.kt$128000</ID>
     <ID>MagicNumber:EnhancedTrackInfoComponents.kt$192000</ID>
     <ID>MagicNumber:EnhancedTrackInfoComponents.kt$320000</ID>
-    <ID>MagicNumber:EnhancedTrackInfoComponents.kt$60</ID>
-    <ID>MagicNumber:EpisodeCard.kt$60</ID>
     <ID>MagicNumber:EpubCreatorService.kt$EpubCreatorService$9</ID>
     <ID>MagicNumber:EpubReaderEngine.kt$EpubReaderEngine$50</ID>
     <ID>MagicNumber:EpubReaderService.kt$EpubReaderService$50</ID>
@@ -4235,7 +4225,6 @@
     <ID>MagicNumber:MediaAmbientScreen.kt$5</ID>
     <ID>MagicNumber:MediaAmbientScreen.kt$60</ID>
     <ID>MagicNumber:MediaAmbientScreen.kt$90</ID>
-    <ID>MagicNumber:MediaAudioPlayerScreen.kt$60</ID>
     <ID>MagicNumber:MediaBadge.kt$0.3f</ID>
     <ID>MagicNumber:MediaButtonReceiver.kt$MediaButtonReceiver$30000</ID>
     <ID>MagicNumber:MediaCacheManager.kt$MediaCacheManager$1024L</ID>
@@ -4319,7 +4308,6 @@
     <ID>MagicNumber:MediaNavigation.kt$4</ID>
     <ID>MagicNumber:MediaNavigation.kt$600</ID>
     <ID>MagicNumber:MediaPlaybackWidgetService.kt$MediaPlaybackWidgetService$85</ID>
-    <ID>MagicNumber:MediaPlaybackWidgetState.kt$MediaPlaybackWidgetState$60</ID>
     <ID>MagicNumber:MediaPlayerViewModel.kt$AudioPlayerViewModel$10000L</ID>
     <ID>MagicNumber:MediaPlayerViewModel.kt$AudioPlayerViewModel$30000L</ID>
     <ID>MagicNumber:MediaPlayerViewModel.kt$VideoPlayerViewModel$90000</ID>
@@ -4783,7 +4771,6 @@
     <ID>MagicNumber:ModernAudioPlayerScreen.kt$1.2f</ID>
     <ID>MagicNumber:ModernAudioPlayerScreen.kt$10000</ID>
     <ID>MagicNumber:ModernAudioPlayerScreen.kt$4f</ID>
-    <ID>MagicNumber:ModernAudioPlayerScreen.kt$60</ID>
     <ID>MagicNumber:ModernAudioPlayerScreen.kt$96</ID>
     <ID>MagicNumber:ModernAudioPlayerViewModel.kt$ModernAudioPlayerViewModel$0.25f</ID>
     <ID>MagicNumber:ModernAudioPlayerViewModel.kt$ModernAudioPlayerViewModel$0.6f</ID>
@@ -4827,7 +4814,6 @@
     <ID>MagicNumber:ModernVideoPlayerScreen.kt$0.75f</ID>
     <ID>MagicNumber:ModernVideoPlayerScreen.kt$1.25f</ID>
     <ID>MagicNumber:ModernVideoPlayerScreen.kt$1.5f</ID>
-    <ID>MagicNumber:ModernVideoPlayerScreen.kt$60</ID>
     <ID>MagicNumber:ModernVideoPlayerViewModel.kt$ModernVideoPlayerViewModel$0.5f</ID>
     <ID>MagicNumber:ModernVideoPlayerViewModel.kt$ModernVideoPlayerViewModel$0.75f</ID>
     <ID>MagicNumber:ModernVideoPlayerViewModel.kt$ModernVideoPlayerViewModel$1.25f</ID>
@@ -4888,7 +4874,6 @@
     <ID>MagicNumber:MusicPlayerDialogs.kt$5</ID>
     <ID>MagicNumber:MusicPlayerDialogs.kt$60</ID>
     <ID>MagicNumber:MusicPlayerDialogs.kt$90</ID>
-    <ID>MagicNumber:MusicPlayerScreen.kt$60</ID>
     <ID>MagicNumber:MusicPlayerWidget.kt$MusicPlayerWidget.Companion$1001</ID>
     <ID>MagicNumber:MusicPlayerWidget.kt$MusicPlayerWidget.Companion$1002</ID>
     <ID>MagicNumber:MusicPlayerWidget.kt$MusicPlayerWidget.Companion$1003</ID>
@@ -5554,7 +5539,6 @@
     <ID>MagicNumber:SlideUpMediaBar.kt$1.75f</ID>
     <ID>MagicNumber:SlideUpMediaBar.kt$2.5f</ID>
     <ID>MagicNumber:SlideUpMediaBar.kt$3.0f</ID>
-    <ID>MagicNumber:SlideUpMediaBar.kt$60</ID>
     <ID>MagicNumber:SmartCollectionEngine.kt$SmartCollectionEngine$0.1f</ID>
     <ID>MagicNumber:SmartCollectionEngine.kt$SmartCollectionEngine$0.2f</ID>
     <ID>MagicNumber:SmartCollectionEngine.kt$SmartCollectionEngine$0.3f</ID>
@@ -5789,7 +5773,6 @@
     <ID>MagicNumber:TranslationService.kt$TranslationService$0.3</ID>
     <ID>MagicNumber:UnifiedFanfictionHubScreen.kt$1_000_000</ID>
     <ID>MagicNumber:UnifiedFanfictionHubScreen.kt$1_000_000.0</ID>
-    <ID>MagicNumber:UnifiedMusicPlayerScreen.kt$60</ID>
     <ID>MagicNumber:UniversalMediaLibraryScreen.kt$0.7f</ID>
     <ID>MagicNumber:UniversalMediaLibraryViewModel.kt$UniversalMediaLibraryViewModel$50</ID>
     <ID>MagicNumber:UniversalReaderService.kt$UniversalReaderService$50</ID>
@@ -5822,7 +5805,6 @@
     <ID>MagicNumber:UniversalVideoPlayerScreen.kt$1.25f</ID>
     <ID>MagicNumber:UniversalVideoPlayerScreen.kt$1.5f</ID>
     <ID>MagicNumber:UniversalVideoPlayerScreen.kt$3</ID>
-    <ID>MagicNumber:UniversalVideoPlayerScreen.kt$60</ID>
     <ID>MagicNumber:UserLibraryBackupService.kt$UserLibraryBackupService$1024</ID>
     <ID>MagicNumber:UtilityIcons.kt$10.0f</ID>
     <ID>MagicNumber:UtilityIcons.kt$10.34f</ID>
@@ -5925,17 +5907,12 @@
     <ID>MagicNumber:ValidationUtils.kt$ValidationUtils$65535</ID>
     <ID>MagicNumber:ValidationUtils.kt$ValidationUtils$8</ID>
     <ID>MagicNumber:VideoControlsComponents.kt$10_000</ID>
-    <ID>MagicNumber:VideoControlsComponents.kt$3600</ID>
-    <ID>MagicNumber:VideoControlsComponents.kt$60</ID>
     <ID>MagicNumber:VideoLibraryScreen.kt$60</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$0.1f</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$0.8f</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$10000</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$10000L</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$3000</ID>
-    <ID>MagicNumber:VideoPlayerScreen.kt$3600</ID>
-    <ID>MagicNumber:VideoPlayerScreen.kt$60</ID>
-    <ID>MagicNumber:VideoPlayerScreen.kt$60000</ID>
     <ID>MagicNumber:VideoPlayerWidget.kt$VideoPlayerWidget.Companion$63</ID>
     <ID>MagicNumber:VisualControls.kt$0xFF263238</ID>
     <ID>MagicNumber:VisualControls.kt$0xFF3E2723</ID>
@@ -6049,8 +6026,8 @@
     <ID>MaxLineLength:AudioPlaybackManager.kt$AudioPlaybackManager$try { uris.add(Uri.parse(trimmed)) } catch (e: Exception) { Log.w("AudioPlaybackManager", "Error parsing URI: $trimmed", e) }</ID>
     <ID>MaxLineLength:AudioPlayerScreen.kt$Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Volume", modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
     <ID>MaxLineLength:AudioPlayerScreen.kt$Icon(Icons.Default.VolumeDown, contentDescription = "Volume down", modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
-    <ID>MaxLineLength:AudioPlayerScreen.kt$Text(formatTime(uiState.currentPosition), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
-    <ID>MaxLineLength:AudioPlayerScreen.kt$Text(formatTime(uiState.duration), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
+    <ID>MaxLineLength:AudioPlayerScreen.kt$Text(uiState.currentPosition.formatAsMediaTime(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
+    <ID>MaxLineLength:AudioPlayerScreen.kt$Text(uiState.duration.formatAsMediaTime(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)</ID>
     <ID>MaxLineLength:AudioPlayerScreen.kt$tint = if (uiState.isShuffleEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant</ID>
     <ID>MaxLineLength:AudioPlayerScreen.kt$val tint = if (uiState.repeatMode == RepeatMode.OFF) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary</ID>
     <ID>MaxLineLength:AudiobookPlayerViewModelErrorTest.kt$AudiobookPlayerViewModelErrorTest$val bookmark = AudiobookBookmark(id = "1", audiobookId = "ab1", chapterIndex = 0, position = 12000L, currentPosition = 12000L, title = "Bookmark 1")</ID>
