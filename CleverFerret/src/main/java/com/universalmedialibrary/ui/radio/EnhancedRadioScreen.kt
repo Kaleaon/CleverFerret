@@ -31,10 +31,10 @@ import com.universalmedialibrary.services.radio.NowPlayingInfo
 @Composable
 fun EnhancedRadioScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToOTR: () -> Unit,
-    onNavigateToInternetRadio: () -> Unit,
-    onNavigateToFMRadio: () -> Unit,
-    onNavigateToHDRadio: () -> Unit,
+    onNavigateToOTR: () -> Unit = {},
+    onNavigateToInternetRadio: () -> Unit = {},
+    onNavigateToFMRadio: () -> Unit = {},
+    onNavigateToHDRadio: () -> Unit = {},
     viewModel: EnhancedRadioViewModel = hiltViewModel()
 ) {
     val nowPlaying by viewModel.nowPlaying.collectAsStateWithLifecycle()

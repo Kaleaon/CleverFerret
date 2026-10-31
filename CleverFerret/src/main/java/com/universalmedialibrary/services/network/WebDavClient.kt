@@ -115,17 +115,21 @@ class WebDavClient @Inject constructor(
     /**
      * Upload a file to WebDAV server
      */
-    suspend fun uploadFile(localUri: Uri, remotePath: String): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun uploadFile(
+        localUri: Uri,
+        remotePath: String,
+        progressCallback: ((Float) -> Unit)? = null
+    ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val url = "$baseUrl${remotePath.ensureStartsWithSlash()}"
-            
-            val inputStream = context.contentResolver.openInputStream(localUri)
-                ?: return@withContext Result.failure(
-                    Exception("Cannot open input stream for: $localUri")
-                )
-            
-            val bytes = inputStream.use { it.readBytes() }
-            val requestBody = bytes.toRequestBody("application/octet-stream".toMediaType())
+            val contentLength = getUriSize(context, localUri)
+
+            val rawRequestBody = InputStreamRequestBody(
+                contentType = "application/octet-stream".toMediaType(),
+                contentLength = contentLength,
+                inputStreamProvider = { context.contentResolver.openInputStream(localUri) }
+            )
+            val requestBody = rawRequestBody.withProgressCallback(progressCallback)
             
             val request = Request.Builder()
                 .url(url)
@@ -144,6 +148,31 @@ class WebDavClient @Inject constructor(
             }
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    private fun getUriSize(context: Context, uri: Uri): Long {
+        if (uri.scheme == "file") {
+            return uri.path?.let { java.io.File(it).length() } ?: -1L
+        }
+        return queryContentUriSize(context, uri)
+    }
+
+    private fun queryContentUriSize(context: Context, uri: Uri): Long {
+        return try {
+            val projection = arrayOf(android.provider.OpenableColumns.SIZE)
+            val cursor = context.contentResolver.query(uri, projection, null, null, null)
+                ?: return -1L
+            cursor.use {
+                val sizeIndex = it.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                if (sizeIndex != -1 && it.moveToFirst() && !it.isNull(sizeIndex)) {
+                    it.getLong(sizeIndex)
+                } else {
+                    -1L
+                }
+            }
+        } catch (e: Exception) {
+            -1L
         }
     }
 
