@@ -176,14 +176,11 @@ class CalibreSafSyncTest {
     @Test
     fun `CalibreImportService processes items in batch chunks and preserves custom tags and series index`() =
         kotlinx.coroutines.test.runTest {
-        val mockDatabase = mockk<AppDatabase>(relaxed = true)
+        val testDb = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
         val mockMediaItemDao = mockk<MediaItemDao>(relaxed = true)
         val mockMetadataDao = mockk<MetadataDao>(relaxed = true)
-
-        coEvery { mockDatabase.withTransaction<Any>(any()) } coAnswers {
-            val block = firstArg<suspend () -> Any>()
-            block.invoke()
-        }
 
         coEvery { mockMediaItemDao.getExistingFilePaths(any()) } returns emptyList()
         coEvery { mockMediaItemDao.insertMediaItem(any()) } returns 101L
@@ -223,6 +220,7 @@ class CalibreSafSyncTest {
         coVerify(atLeast = 3) { mockMetadataDao.insertMetadataBook(any()) }
         assertThat(slotBook.isCaptured).isTrue()
         assertThat(slotBook.captured.series).isEqualTo("Dune Chronicles")
+        testDb.close()
     }
 
     private fun calculateFileHash(file: File): String {
