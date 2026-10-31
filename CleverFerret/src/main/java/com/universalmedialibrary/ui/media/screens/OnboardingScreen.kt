@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.media.theme.*
 import com.universalmedialibrary.ui.media.viewmodels.OnboardingViewModel
+import com.universalmedialibrary.utils.PermissionState
 import com.universalmedialibrary.utils.PermissionsHandler
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import kotlinx.coroutines.launch

@@ -106,6 +106,7 @@ class AppDatabaseMigrationsTest {
 
         val expectedQuery = "CREATE INDEX IF NOT EXISTS index_media_items_lastModified ON media_items(lastModified)"
         assertThat(executedSql.any { it.contains(expectedQuery) }).isTrue()
+        assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `external_media_entities`") }).isTrue()
         assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `remote_sync_mutations`") }).isTrue()
     }
 
@@ -117,7 +118,7 @@ class AppDatabaseMigrationsTest {
 
         AppDatabaseMigrations.MIGRATION_48_49.migrate(database)
 
-        assertThat(executedSql).hasSize(17)
+        assertThat(executedSql).hasSize(29)
         assertThat(executedSql.any { it.contains("index_collaborative_sessions_status_createdAt") }).isTrue()
         assertThat(executedSql.any { it.contains("index_collaborative_sessions_hostDeviceId_createdAt") }).isTrue()
         assertThat(executedSql.any { it.contains("index_session_clients_sessionId_isConnected") }).isTrue()

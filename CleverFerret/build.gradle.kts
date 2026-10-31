@@ -368,6 +368,16 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
         xmlOutput = file("build/reports/lint-results-debug.xml")
         textOutput = file("build/reports/lint-results-debug.txt")
     }
+
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+            all { testTask ->
+                testTask.systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2/")
+                testTask.systemProperty("robolectric.dependency.repo.id", "gcs-maven-central")
+            }
+        }
+    }
 }
 
 fun getGitCommitHash(): String {
