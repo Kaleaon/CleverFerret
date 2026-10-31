@@ -1,8 +1,10 @@
 package com.universalmedialibrary.data.repository
 
+import com.universalmedialibrary.data.local.dao.ExternalMediaEntityDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.UnifiedTagDao
+import com.universalmedialibrary.data.local.entity.ExternalMediaEntity
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import kotlinx.coroutines.Dispatchers
@@ -16,13 +18,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Repository for search and filter operations
+ * Repository for search and filter operations across local and external platform sources
  */
 @Singleton
 class SearchRepository @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao,
-    private val tagDao: UnifiedTagDao
+    private val tagDao: UnifiedTagDao,
+    private val externalMediaEntityDao: ExternalMediaEntityDao
 ) {
 
     /**
@@ -197,6 +200,35 @@ class SearchRepository @Inject constructor(
     fun saveRecentSearch(query: String) {
         // Not yet implemented
     }
+
+    /**
+     * Execute a unified search query across all connected platform sources (local and external)
+     */
+    suspend fun searchAllSources(
+        query: String,
+        mediaTypes: List<String> = emptyList(),
+        limit: Int = 100
+    ): UnifiedSearchResults = withContext(Dispatchers.IO) {
+        val localItems = if (query.isNotBlank()) {
+            searchMedia(query = query, mediaTypes = mediaTypes)
+        } else {
+            emptyList()
+        }
+
+        val externalEntities = if (query.isNotBlank()) {
+            externalMediaEntityDao.searchEntities(query = query, limit = limit).filter { entity ->
+                mediaTypes.isEmpty() || mediaTypes.any { it.equals(entity.mediaType, ignoreCase = true) }
+            }
+        } else {
+            emptyList()
+        }
+
+        UnifiedSearchResults(
+            localItems = localItems,
+            externalEntities = externalEntities,
+            totalCount = localItems.size + externalEntities.size
+        )
+    }
 }
 
 /**
@@ -258,3 +290,12 @@ data class SearchFilters(
         return count
     }
 }
+
+/**
+ * Unified search result containing both local media items and external mapped platform entities
+ */
+data class UnifiedSearchResults(
+    val localItems: List<MediaItemWithMetadata>,
+    val externalEntities: List<ExternalMediaEntity>,
+    val totalCount: Int
+)

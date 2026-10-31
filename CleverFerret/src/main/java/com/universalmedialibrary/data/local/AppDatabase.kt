@@ -200,6 +200,9 @@ import com.universalmedialibrary.data.crdt.CrdtTypeConverters
         // Media Stream Cache
         MediaCacheItem::class,
 
+        // Unified Integration External Media Entities
+        ExternalMediaEntity::class,
+
         // Remote Sync Queue Mutation
         RemoteSyncMutation::class,
 
@@ -229,6 +232,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun mediaFtsDao(): MediaFtsDao
     abstract fun mediaCacheDao(): MediaCacheDao
+    abstract fun externalMediaEntityDao(): ExternalMediaEntityDao
     abstract fun metadataDao(): MetadataDao
     abstract fun stagedMetadataCandidateDao(): StagedMetadataCandidateDao
     abstract fun extendedMetadataDao(): ExtendedMetadataDao

@@ -27,7 +27,7 @@ fun PlexIntegrationScreen(
     viewModel: PlexIntegrationViewModel = hiltViewModel()
 ) {
     @Suppress("UnusedPrivateProperty")
-    val state = viewModel.plexState.collectAsState().value // @Suppress
+    val state = viewModel.plexState.collectAsStateWithLifecycle().value
     MediaIntegrationScreen(viewModel = viewModel)
 }
 

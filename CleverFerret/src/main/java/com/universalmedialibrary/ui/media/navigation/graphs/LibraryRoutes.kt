@@ -203,8 +203,8 @@ fun NavGraphBuilder.libraryRoutes(
     
     // Radio screen
     composable(MediaRoutes.RADIO) {
-        com.universalmedialibrary.ui.radio.RadioScreen(
-            onBack = { navController.popBackStack() }
+        com.universalmedialibrary.ui.radio.EnhancedRadioScreen(
+            onNavigateBack = { navController.popBackStack() }
         )
     }
     

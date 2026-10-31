@@ -228,7 +228,7 @@ internal fun parseScribbleHubId(url: String): String {
         ?: url.hashCode().toString()
 }
 
-internal suspend fun browseNiftyByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+internal suspend fun UniversalTagService.browseNiftyByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
     return withContext(Dispatchers.IO) {
         try {
             if (criteria.tags.isEmpty()) {
@@ -272,7 +272,7 @@ internal suspend fun browseNiftyByTags(criteria: StorySearchCriteria): Result<St
     }
 }
 
-internal suspend fun browseAdultFanFictionByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+internal suspend fun UniversalTagService.browseAdultFanFictionByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
     return withContext(Dispatchers.IO) {
         try {
             if (criteria.tags.isEmpty()) {
@@ -318,7 +318,7 @@ internal suspend fun browseAdultFanFictionByTags(criteria: StorySearchCriteria):
     }
 }
 
-internal suspend fun browseBdsmlibraryByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+internal suspend fun UniversalTagService.browseBdsmlibraryByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
     return withContext(Dispatchers.IO) {
         try {
             if (criteria.tags.isEmpty()) {
@@ -362,7 +362,7 @@ internal suspend fun browseBdsmlibraryByTags(criteria: StorySearchCriteria): Res
     }
 }
 
-internal suspend fun browseMcstoriesByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+internal suspend fun UniversalTagService.browseMcstoriesByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
     return withContext(Dispatchers.IO) {
         try {
             if (criteria.tags.isEmpty()) {
@@ -405,22 +405,5 @@ internal suspend fun browseMcstoriesByTags(criteria: StorySearchCriteria): Resul
             Result.failure(e)
         }
     }
-}
-
-internal fun buildSearchResult(
-    criteria: StorySearchCriteria,
-    stories: List<WebFictionStory>
-): StorySearchResult {
-    val sliced = stories.drop(criteria.offset)
-    val limited = sliced.take(criteria.limit)
-    val consumed = criteria.offset + limited.size
-    val hasMore = stories.size > consumed
-    val nextOffset = if (hasMore) consumed else null
-    return StorySearchResult(
-        stories = limited,
-        totalCount = stories.size,
-        hasMore = hasMore,
-        nextOffset = nextOffset
-    )
 }
 
