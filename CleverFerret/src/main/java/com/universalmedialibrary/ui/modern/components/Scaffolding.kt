@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.ktheme.compose.accessibleButton
+import com.ktheme.compose.accessibleSelectable
 import com.universalmedialibrary.ui.accessibility.headingSemantics
 import com.universalmedialibrary.ui.modern.theme.CFSpacing
 import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
@@ -119,7 +121,7 @@ fun CFMetalButton(
         modifier
             .clip(CircleShape)
             .background(if (enabled) tokens.metal.brush() else SolidColor(cs.onSurface.copy(alpha = 0.12f)))
-            .clickable(enabled = enabled, onClick = onClick)
+            .accessibleButton(enabled = enabled, onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -140,7 +142,12 @@ fun CFMetalButton(
  * Tonal outlined chip used for filters / tags / metadata pills.
  */
 @Composable
-fun CFTagChip(text: String, modifier: Modifier = Modifier, selected: Boolean = false) {
+fun CFTagChip(
+    text: String,
+    modifier: Modifier = Modifier,
+    selected: Boolean = false,
+    onClick: (() -> Unit)? = null
+) {
     val cs = MaterialTheme.colorScheme
     val bg = if (selected) cs.primaryContainer else cs.surfaceVariant
     val fg = if (selected) cs.onPrimaryContainer else cs.onSurfaceVariant
@@ -149,6 +156,7 @@ fun CFTagChip(text: String, modifier: Modifier = Modifier, selected: Boolean = f
             .clip(CircleShape)
             .background(bg)
             .border(1.dp, cs.outline.copy(alpha = 0.4f), CircleShape)
+            .accessibleSelectable(selected = selected, onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 6.dp),
     ) {
         Text(text, style = MaterialTheme.typography.labelMedium, color = fg)
