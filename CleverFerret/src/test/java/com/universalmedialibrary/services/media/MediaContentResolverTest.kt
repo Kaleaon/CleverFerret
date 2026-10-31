@@ -10,6 +10,7 @@ import com.universalmedialibrary.data.local.entity.JellyfinServer
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.cache.CacheManager
+import com.universalmedialibrary.services.cache.MediaCacheManager
 import com.universalmedialibrary.services.network.NetworkMonitor
 import io.mockk.coEvery
 import io.mockk.every
@@ -37,6 +38,7 @@ class MediaContentResolverTest {
     private val embyServerDao = mockk<EmbyServerDao>(relaxed = true)
     private val plexServerDao = mockk<PlexServerDao>(relaxed = true)
     private val cacheManager = mockk<CacheManager>(relaxed = true)
+    private val mediaCacheManager = mockk<MediaCacheManager>(relaxed = true)
     private val networkMonitor = mockk<NetworkMonitor>(relaxed = true)
 
     private lateinit var resolver: MediaContentResolverImpl
@@ -46,6 +48,8 @@ class MediaContentResolverTest {
         val cacheDir = tempFolder.newFolder("cache")
         coEvery { cacheManager.getCacheDirectory() } returns cacheDir
         every { networkMonitor.isOnline() } returns true
+        coEvery { mediaCacheManager.getCachedFile(any()) } returns null
+        coEvery { mediaCacheManager.getCachedFileForUri(any()) } returns null
 
         resolver = MediaContentResolverImpl(
             context,
@@ -54,7 +58,8 @@ class MediaContentResolverTest {
             embyServerDao,
             plexServerDao,
             cacheManager,
-            networkMonitor
+            networkMonitor,
+            mediaCacheManager
         )
     }
 
@@ -229,5 +234,41 @@ class MediaContentResolverTest {
         assertTrue(result is ResolvedContent.LocalFile)
         val localResult = result as ResolvedContent.LocalFile
         assertEquals(bufferedFile.absolutePath, localResult.file.absolutePath)
+    }
+
+    @Test
+    fun testMediaCacheManagerLookupByItemId() = runBlocking {
+        val cachedFile = tempFolder.newFile("media_cached.mp3")
+        coEvery { mediaCacheManager.getCachedFile(200L) } returns cachedFile
+
+        val mediaItem = MediaItem(
+            itemId = 200L,
+            title = "Cached in MediaCacheManager",
+            filePath = "jellyfin://1/item200"
+        )
+
+        val result = resolver.resolve(mediaItem)
+        assertTrue(result is ResolvedContent.LocalFile)
+        val localResult = result as ResolvedContent.LocalFile
+        assertEquals(cachedFile.absolutePath, localResult.file.absolutePath)
+    }
+
+    @Test
+    fun testHeadersInStreamUrlForPlex() = runBlocking {
+        val plexServer = mockk<PlexServerEntity>(relaxed = true)
+        every { plexServer.url } returns "http://plex.local:32400"
+        every { plexServer.token } returns "plex_token_abc"
+        coEvery { plexServerDao.getServerByMachineId("machine1") } returns plexServer
+
+        val mediaItem = MediaItem(
+            itemId = 300L,
+            title = "Plex Track Headers",
+            filePath = "plex://machine1/part1"
+        )
+
+        val result = resolver.resolve(mediaItem)
+        assertTrue(result is ResolvedContent.StreamUrl)
+        val streamResult = result as ResolvedContent.StreamUrl
+        assertEquals("plex_token_abc", streamResult.headers["X-Plex-Token"])
     }
 }

@@ -203,6 +203,11 @@ class PluginRegistryImplTest {
             maxHostVersion = "2.0.0"
         )
 
+        // Warm up JIT and class loading
+        repeat(10) {
+            PluginManifestValidator.validate(manifest, "1.5.0")
+        }
+
         val elapsedNanos = measureNanoTime {
             PluginManifestValidator.validate(manifest, "1.5.0")
         }

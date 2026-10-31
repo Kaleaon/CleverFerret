@@ -200,6 +200,9 @@ import com.universalmedialibrary.data.crdt.CrdtTypeConverters
         // Media Stream Cache
         MediaCacheItem::class,
 
+        // Custom Font Registry
+        CustomFontEntity::class,
+
         // Unified Integration External Media Entities
         ExternalMediaEntity::class,
 
@@ -276,6 +279,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun bookSourceDao(): BookSourceDao
     abstract fun bookChapterDao(): BookChapterDao
     abstract fun readerSettingsDao(): ReaderSettingsDao
+    abstract fun customFontDao(): CustomFontDao
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
     abstract fun readingAnalyticsDao(): ReadingAnalyticsDao

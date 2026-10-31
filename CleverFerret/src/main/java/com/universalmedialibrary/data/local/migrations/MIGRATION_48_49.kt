@@ -5,16 +5,18 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * Migration 48 -> 49:
- * 1. Introduces central `external_media_entities` mapping table and updates `media_fts` triggers
+ * 1. Adds custom_fonts table for imported custom TTF/OTF font registry.
+ * 2. Introduces central `external_media_entities` mapping table and updates `media_fts` triggers
  *    to index unified entities directly without artificial row ID offsets.
- * 2. Adds index on lastModified column in media_items table to optimize background sync queries.
- * 3. Adds `remote_sync_mutations` table for enqueuing outbound sync progress/rating updates.
- * 4. Adds multi-column composite indices for collaborative session queries.
- * 5. Adds `crdt_operation_journal` table and indexes for operation-based delta CRDT syncing.
+ * 3. Adds index on lastModified column in media_items table to optimize background sync queries.
+ * 4. Adds `remote_sync_mutations` table for enqueuing outbound sync progress/rating updates.
+ * 5. Adds multi-column composite indices for collaborative session queries.
+ * 6. Adds `crdt_operation_journal` table and indexes for operation-based delta CRDT syncing.
  */
 val MIGRATION_48_49: Migration = object : Migration(48, 49) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE INDEX IF NOT EXISTS index_media_items_lastModified ON media_items(lastModified)")
+        createCustomFontsTable(database)
 
         // 1. Create central external_media_entities table
         database.execSQL("""
@@ -123,6 +125,20 @@ val MIGRATION_48_49: Migration = object : Migration(48, 49) {
         // 8. Create crdt_operation_journal table and indices
         createCrdtOperationJournalTable(database)
     }
+}
+
+private fun createCustomFontsTable(database: SupportSQLiteDatabase) {
+    database.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `custom_fonts` (
+            `id` TEXT NOT NULL,
+            `displayName` TEXT NOT NULL,
+            `filePath` TEXT NOT NULL,
+            `importedAt` INTEGER NOT NULL,
+            PRIMARY KEY(`id`)
+        )
+        """.trimIndent()
+    )
 }
 
 private fun createRemoteSyncMutationsTable(database: SupportSQLiteDatabase) {

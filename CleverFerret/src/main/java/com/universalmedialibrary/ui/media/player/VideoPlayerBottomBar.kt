@@ -29,6 +29,7 @@ import com.cleverferret.core.designsystem.slider.AccessibleMediaSlider
 import com.cleverferret.core.designsystem.slider.AccessibleMediaSliderColors
 import com.cleverferret.core.designsystem.slider.MediaChapterMarker
 import com.universalmedialibrary.ui.media.theme.*
+import com.universalmedialibrary.utils.media.formatAsMediaTime
 
 @Composable
 internal fun VideoPlayerBottomBar(
@@ -79,7 +80,7 @@ internal fun VideoPlayerBottomBar(
         ) {
             // Time
             Text(
-                text = "${formatTime(currentPosition)} / ${formatTime(duration)}",
+                text = "${currentPosition.formatAsMediaTime()} / ${duration.formatAsMediaTime()}",
                 style = MediaTypography.LabelMedium,
                 color = Color.White
             )

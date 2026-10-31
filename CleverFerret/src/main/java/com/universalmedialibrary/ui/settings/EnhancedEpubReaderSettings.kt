@@ -5,6 +5,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -32,6 +34,13 @@ fun EnhancedEpubReaderSettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val readerSettings by viewModel.readerSettings.collectAsStateWithLifecycle()
+    val customFonts by viewModel.customFonts.collectAsStateWithLifecycle()
+
+    val fontPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { viewModel.importCustomFont(it) }
+    }
     
     Scaffold(
         topBar = {
@@ -60,11 +69,14 @@ fun EnhancedEpubReaderSettingsScreen(
             SettingsSection(title = "Font & Typography") {
                 FontFamilySelector(
                     currentFont = readerSettings.fontFamily,
+                    customFonts = customFonts,
                     onFontSelected = { font ->
                         viewModel.updateReaderSettings(
                             readerSettings.copy(fontFamily = font)
                         )
-                    }
+                    },
+                    onImportFontClick = { fontPickerLauncher.launch(arrayOf("*/*")) },
+                    onDeleteCustomFont = { fontId -> viewModel.deleteCustomFont(fontId) }
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -133,7 +145,10 @@ fun EnhancedEpubReaderSettingsScreen(
 @Composable
 private fun FontFamilySelector(
     currentFont: String,
-    onFontSelected: (String) -> Unit
+    customFonts: List<com.universalmedialibrary.data.local.entity.CustomFontEntity> = emptyList(),
+    onFontSelected: (String) -> Unit,
+    onImportFontClick: () -> Unit = {},
+    onDeleteCustomFont: (String) -> Unit = {}
 ) {
     val fonts = listOf(
         "System" to "System Default",
@@ -159,6 +174,50 @@ private fun FontFamilySelector(
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
             )
+        }
+
+        if (customFonts.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Custom Fonts",
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            customFonts.forEach { font ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    FilterChip(
+                        selected = currentFont == font.filePath || currentFont == font.displayName || currentFont == font.id,
+                        onClick = { onFontSelected(font.filePath) },
+                        label = { Text(font.displayName) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(vertical = 4.dp)
+                    )
+                    IconButton(onClick = { onDeleteCustomFont(font.id) }) {
+                        Icon(
+                            imageVector = androidx.compose.material.icons.Icons.Default.Delete,
+                            contentDescription = "Delete ${font.displayName}"
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(
+            onClick = onImportFontClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = androidx.compose.material.icons.Icons.Default.Add,
+                contentDescription = null,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text("Import Custom Font (.ttf, .otf)")
         }
     }
 }

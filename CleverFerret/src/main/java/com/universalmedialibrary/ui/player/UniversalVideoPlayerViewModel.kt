@@ -12,21 +12,28 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import com.universalmedialibrary.services.exoplayer.ExoPlayerCacheFactory
+import com.universalmedialibrary.services.media.MediaContentResolver
+import com.universalmedialibrary.services.media.ResolvedContent
 import com.universalmedialibrary.services.video.ComprehensiveVideoService
 import com.universalmedialibrary.services.video.VideoMetadata
 import com.universalmedialibrary.services.video.VideoPlayerType
 import com.universalmedialibrary.utils.ErrorLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 @OptIn(UnstableApi::class)
 class UniversalVideoPlayerViewModel @Inject constructor(
-    private val videoService: ComprehensiveVideoService
+    private val videoService: ComprehensiveVideoService,
+    private val mediaContentResolver: MediaContentResolver,
+    private val exoPlayerCacheFactory: ExoPlayerCacheFactory
 ) : ViewModel() {
 
     private val _playerState = MutableStateFlow(UniversalPlayerState())
@@ -49,29 +56,52 @@ class UniversalVideoPlayerViewModel @Inject constructor(
                 _playerState.value = _playerState.value.copy(isLoading = true, error = null)
                 currentUri = uri
 
+                val resolved = withContext(Dispatchers.IO) {
+                    mediaContentResolver.resolvePath(uri.toString())
+                }
+
+                val (playUri, headers) = when (resolved) {
+                    is ResolvedContent.LocalFile -> Uri.fromFile(resolved.file) to emptyMap()
+                    is ResolvedContent.StreamUrl -> Uri.parse(resolved.url) to resolved.headers
+                    is ResolvedContent.OfflineUnbuffered -> {
+                        _playerState.value = _playerState.value.copy(
+                            isLoading = false,
+                            error = resolved.message
+                        )
+                        return@launch
+                    }
+                    is ResolvedContent.Error -> {
+                        _playerState.value = _playerState.value.copy(
+                            isLoading = false,
+                            error = resolved.message
+                        )
+                        return@launch
+                    }
+                }
+
                 // Determine best player for this format
-                val recommended = videoService.getRecommendedPlayer(uri)
+                val recommended = videoService.getRecommendedPlayer(playUri)
 
                 // Try to init VLC only if recommended
                 val useVLC = if (recommended == VideoPlayerType.VLC) videoService.initializeVLC() else false
 
                 val chosenPlayer = when {
                     recommended == VideoPlayerType.EXOPLAYER -> {
-                        initializeExoPlayer(context, uri)
+                        initializeExoPlayer(context, playUri, headers)
                         VideoPlayerType.EXOPLAYER
                     }
                     recommended == VideoPlayerType.VLC && useVLC -> {
-                        initializeVLCPlayer(context, uri)
+                        initializeVLCPlayer(context, playUri)
                         VideoPlayerType.VLC
                     }
                     else -> {
                         // Fallback to ExoPlayer
-                        initializeExoPlayer(context, uri)
+                        initializeExoPlayer(context, playUri, headers)
                         VideoPlayerType.EXOPLAYER
                     }
                 }
 
-                val metadata = videoService.getVideoMetadata(uri)
+                val metadata = videoService.getVideoMetadata(playUri)
 
                 _playerState.value = _playerState.value.copy(
                     isLoading = false,
@@ -90,7 +120,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         }
     }
 
-    private fun initializeExoPlayer(context: Context, uri: Uri) {
+    private fun initializeExoPlayer(context: Context, uri: Uri, headers: Map<String, String> = emptyMap()) {
         try {
             // Ensure ExoPlayer is released on the main thread before creating new instance
             Handler(Looper.getMainLooper()).post {
@@ -98,21 +128,28 @@ class UniversalVideoPlayerViewModel @Inject constructor(
             }
             val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(context)
                 .setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
-            exoPlayer = ExoPlayer.Builder(context, renderersFactory).build().apply {
-                val mediaItem = MediaItem.fromUri(uri)
-                setMediaItem(mediaItem)
-                prepare()
+            
+            val mediaSourceFactory = androidx.media3.exoplayer.source.DefaultMediaSourceFactory(context)
+                .setDataSourceFactory(exoPlayerCacheFactory.createCacheDataSourceFactory(headers))
 
-                addListener(object : Player.Listener {
-                    override fun onPlaybackStateChanged(playbackState: Int) {
-                        updatePlayerState()
-                    }
+            exoPlayer = ExoPlayer.Builder(context, renderersFactory)
+                .setMediaSourceFactory(mediaSourceFactory)
+                .build()
+                .apply {
+                    val mediaItem = MediaItem.fromUri(uri)
+                    setMediaSource(mediaSourceFactory.createMediaSource(mediaItem))
+                    prepare()
 
-                    override fun onIsPlayingChanged(isPlaying: Boolean) {
-                        _playerState.value = _playerState.value.copy(isPlaying = isPlaying)
-                    }
-                })
-            }
+                    addListener(object : Player.Listener {
+                        override fun onPlaybackStateChanged(playbackState: Int) {
+                            updatePlayerState()
+                        }
+
+                        override fun onIsPlayingChanged(isPlaying: Boolean) {
+                            _playerState.value = _playerState.value.copy(isPlaying = isPlaying)
+                        }
+                    })
+                }
 
             val playerView = PlayerView(context).apply {
                 player = exoPlayer

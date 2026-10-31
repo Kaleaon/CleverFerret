@@ -4,6 +4,7 @@ import android.util.Log
 import android.content.Context
 import android.net.Uri
 import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.services.exoplayer.ExoPlayerCacheFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +32,8 @@ import androidx.media3.common.AudioAttributes
 class UniversalMediaPlayerService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaSessionManager: MediaSessionManager,
-    private val mediaContentResolver: MediaContentResolver
+    private val mediaContentResolver: MediaContentResolver,
+    private val exoPlayerCacheFactory: ExoPlayerCacheFactory
 ) {
 
     private var exoPlayer: ExoPlayer? = null
@@ -47,12 +49,14 @@ class UniversalMediaPlayerService @Inject constructor(
             releaseCurrentPlayer()
 
             val resolved = kotlinx.coroutines.runBlocking { mediaContentResolver.resolve(mediaItem) }
+            var headers: Map<String, String> = emptyMap()
             val mediaUri: Uri = when (resolved) {
                 is ResolvedContent.LocalFile -> Uri.fromFile(resolved.file)
                 is ResolvedContent.StreamUrl -> {
                     if (mediaContentResolver.isVirtualUri(mediaItem.filePath)) {
                         com.universalmedialibrary.jobs.WorkScheduler.scheduleOfflineBuffering(context, mediaItem.itemId)
                     }
+                    headers = resolved.headers
                     Uri.parse(resolved.url)
                 }
                 is ResolvedContent.OfflineUnbuffered -> {
@@ -79,7 +83,9 @@ class UniversalMediaPlayerService @Inject constructor(
             _currentMedia.value = mediaItem
             updatePlaybackState(isLoading = true, error = null)
 
-            player.setMediaItem(exoMediaItem)
+            val mediaSourceFactory = androidx.media3.exoplayer.source.DefaultMediaSourceFactory(context)
+                .setDataSourceFactory(exoPlayerCacheFactory.createCacheDataSourceFactory(headers))
+            player.setMediaSource(mediaSourceFactory.createMediaSource(exoMediaItem))
             mediaSessionManager.updateMetadata(
                 title = mediaItem.title,
                 artist = mediaItem.author,
@@ -174,6 +180,10 @@ class UniversalMediaPlayerService @Inject constructor(
         }
 
         val player = ExoPlayer.Builder(context)
+            .setMediaSourceFactory(
+                androidx.media3.exoplayer.source.DefaultMediaSourceFactory(context)
+                    .setDataSourceFactory(exoPlayerCacheFactory.createCacheDataSourceFactory())
+            )
             .build()
             .apply {
                 setAudioAttributes(
