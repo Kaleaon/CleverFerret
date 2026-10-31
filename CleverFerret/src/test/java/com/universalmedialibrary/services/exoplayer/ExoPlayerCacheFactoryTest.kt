@@ -6,7 +6,8 @@ import com.universalmedialibrary.services.cache.MediaCacheManager
 import io.mockk.coEvery
 import io.mockk.mockk
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
