@@ -331,6 +331,8 @@ class MetadataStagingRepositoryTest {
         override suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean) {
             map[itemId]?.let { map[itemId] = it.copy(isAvailable = isAvailable) }
         }
+        override suspend fun getMediaItemsModifiedSince(sinceTimestamp: Long): List<MediaItem> =
+            map.values.filter { it.lastModified > sinceTimestamp }
         override suspend fun getAllMediaItems(): List<MediaItem> = map.values.toList()
         override suspend fun updateDownloadInfo(itemId: Long, cachePath: String?, status: String, progress: Float) {}
         override suspend fun updateDownloadStatus(itemId: Long, status: String, progress: Float) {}
@@ -393,9 +395,6 @@ class MetadataStagingRepositoryTest {
         override suspend fun getByGenre(genre: String, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getHighlyRated(mediaType: String?, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getBySeries(seriesId: Long, limit: Int, offset: Int): List<MediaItem> = emptyList()
-        override suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean) {
-            map[itemId]?.let { map[itemId] = it.copy(isAvailable = isAvailable) }
-        }
         override suspend fun updateDownloadInfo(itemId: Long, cachePath: String?, status: String, progress: Float) {
             map[itemId]?.let { map[itemId] = it.copy(localCachePath = cachePath, downloadStatus = status, downloadProgress = progress) }
         }
