@@ -155,13 +155,22 @@ class WebDavClient @Inject constructor(
         if (uri.scheme == "file") {
             return uri.path?.let { java.io.File(it).length() } ?: -1L
         }
+        return queryContentUriSize(context, uri)
+    }
+
+    private fun queryContentUriSize(context: Context, uri: Uri): Long {
         return try {
-            context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.SIZE), null, null, null)?.use { cursor ->
-                val sizeIndex = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
-                if (sizeIndex != -1 && cursor.moveToFirst()) {
-                    if (!cursor.isNull(sizeIndex)) cursor.getLong(sizeIndex) else -1L
-                } else -1L
-            } ?: -1L
+            val projection = arrayOf(android.provider.OpenableColumns.SIZE)
+            val cursor = context.contentResolver.query(uri, projection, null, null, null)
+                ?: return -1L
+            cursor.use {
+                val sizeIndex = it.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                if (sizeIndex != -1 && it.moveToFirst() && !it.isNull(sizeIndex)) {
+                    it.getLong(sizeIndex)
+                } else {
+                    -1L
+                }
+            }
         } catch (e: Exception) {
             -1L
         }

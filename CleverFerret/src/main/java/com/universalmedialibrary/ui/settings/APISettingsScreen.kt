@@ -270,15 +270,17 @@ fun APISettingsScreen(
                 onEnabledChanged = { viewModel.setCloudTTSEnabled(it) }
             )
 
-            // Feature Flags Section
-            FeatureFlagsSection(
-                geminiEnabled = uiState.geminiEnabled,
-                exoPlayerEnabled = uiState.exoPlayerEnabled,
-                podcastsEnabled = uiState.podcastsEnabled,
-                onGeminiToggle = { viewModel.setGeminiEnabled(it) },
-                onExoPlayerToggle = { viewModel.setExoPlayerEnabled(it) },
-                onPodcastsToggle = { viewModel.setPodcastsEnabled(it) }
-            )
+            // Feature Flags Section (Debug builds only)
+            if (com.universalmedialibrary.BuildConfig.DEBUG) {
+                FeatureFlagsSection(
+                    geminiEnabled = uiState.geminiEnabled,
+                    exoPlayerEnabled = uiState.exoPlayerEnabled,
+                    podcastsEnabled = uiState.podcastsEnabled,
+                    onGeminiToggle = { viewModel.setGeminiEnabled(it) },
+                    onExoPlayerToggle = { viewModel.setExoPlayerEnabled(it) },
+                    onPodcastsToggle = { viewModel.setPodcastsEnabled(it) }
+                )
+            }
 
             // === Development & Debugging (Debug builds only) ===
             if (com.universalmedialibrary.BuildConfig.DEBUG) {

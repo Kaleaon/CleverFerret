@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.cloud
 
 import android.content.Context
 import android.net.Uri
+import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import com.universalmedialibrary.services.network.WebDavClient
 import io.mockk.every
 import io.mockk.mockk
@@ -18,20 +19,25 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.io.File
 import java.io.FileInputStream
 
+@RunWith(RobolectricTestRunner::class)
 class CloudServicesStreamingUploadTest {
 
     @get:Rule
     val tempFolder = TemporaryFolder()
 
     private lateinit var mockContext: Context
+    private lateinit var mockCredentialVault: EncryptedCredentialVault
     private lateinit var testFile: File
 
     @Before
     fun setUp() {
         mockContext = mockk(relaxed = true)
+        mockCredentialVault = mockk(relaxed = true)
         testFile = tempFolder.newFile("sample_media.mp4")
         // Create 256KB test payload
         val content = ByteArray(256 * 1024) { (it % 128).toByte() }
@@ -118,7 +124,7 @@ class CloudServicesStreamingUploadTest {
             .addInterceptor(interceptor)
             .build()
 
-        val service = OneDriveService(mockContext, okHttpClient)
+        val service = OneDriveService(mockContext, okHttpClient, mockCredentialVault)
         service.authenticate("mock_onedrive_token")
 
         val progressUpdates = mutableListOf<Float>()
@@ -166,7 +172,7 @@ class CloudServicesStreamingUploadTest {
             .addInterceptor(interceptor)
             .build()
 
-        val service = GoogleDriveService(mockContext, okHttpClient)
+        val service = GoogleDriveService(mockContext, okHttpClient, mockCredentialVault)
         service.authenticate("mock_gdrive_token")
 
         val progressUpdates = mutableListOf<Float>()

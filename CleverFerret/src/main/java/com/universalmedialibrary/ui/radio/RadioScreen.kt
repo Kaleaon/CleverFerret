@@ -33,7 +33,6 @@ import com.universalmedialibrary.ui.components.UserFeedbackMessage
 import com.universalmedialibrary.ui.components.UserFeedbackSeverity
 import com.universalmedialibrary.ui.components.UserFeedbackSnackbarHost
 import com.universalmedialibrary.ui.components.showUserFeedback
-import com.universalmedialibrary.ui.media.viewmodels.EnhancedRadioViewModel
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -43,7 +42,7 @@ import com.universalmedialibrary.ui.theme.*
 @Composable
 fun RadioScreen(
     onBack: () -> Unit,
-    viewModel: EnhancedRadioViewModel = hiltViewModel()
+    viewModel: RadioScreenViewModel = hiltViewModel()
 ) {
     val allStations by viewModel.allStations.collectAsStateWithLifecycle()
     val favoriteStations by viewModel.favoriteStations.collectAsStateWithLifecycle()

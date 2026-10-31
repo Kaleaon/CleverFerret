@@ -55,8 +55,11 @@ object PhosphorIcons {
     val CaretDown: ImageVector by lazy { caretDownVector() }
     val Info: ImageVector by lazy { infoVector() }
     val Podcast: ImageVector by lazy { podcastVector() }
-    val Television: ImageVector by lazy { televisionVector() }
-    val FilmSlate: ImageVector by lazy { filmSlateVector() }
+    val Television: ImageVector by lazy { _television ?: televisionVector().also { _television = it } }
+    val FilmSlate: ImageVector by lazy { _filmSlate ?: filmSlateVector().also { _filmSlate = it } }
+    private var _television: ImageVector? = null
+    private var _filmSlate: ImageVector? = null
+
     val HouseFill: ImageVector by lazy { houseFillVector() }
     val BookFill: ImageVector by lazy { bookFillVector() }
     val Books: ImageVector by lazy { booksVector() }

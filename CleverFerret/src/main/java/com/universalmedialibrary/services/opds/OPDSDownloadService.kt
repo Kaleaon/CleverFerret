@@ -112,8 +112,8 @@ class OPDSDownloadService @Inject constructor(
                 catalogDao.updateDownloadProgress(downloadId, DownloadStatus.DOWNLOADING, 0, 0)
                 updateActiveDownload(downloadId, title, 0f, DownloadStatus.DOWNLOADING)
                 
-                // Create output directory
-                val downloadDir = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "opds_books")
+                // Create output directory in internal app-private storage
+                val downloadDir = File(context.filesDir, "opds_books")
                 if (!downloadDir.exists()) {
                     downloadDir.mkdirs()
                 }

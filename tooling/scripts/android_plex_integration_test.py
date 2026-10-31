@@ -25,7 +25,10 @@ class AndroidPlexIntegrationTester:
     """Test suite for Android Plex integration components"""
     
     def __init__(self):
-        self.app_path = "/app"
+        default_repo_root = Path(__file__).resolve().parent.parent.parent
+        self.app_path = os.environ.get("APP_PATH", str(default_repo_root))
+        if not os.path.exists(os.path.join(self.app_path, "CleverFerret")) and os.path.exists("/app/CleverFerret"):
+            self.app_path = "/app/CleverFerret"
         self.test_results = []
         self.errors = []
         self.warnings = []
@@ -542,7 +545,7 @@ class AndroidPlexIntegrationTester:
             
             # Check proper dependency wiring
             dependency_checks = [
-                "PlexIntegrationService(context, contentAnalyzer)",
+                "PlexIntegrationService(context, contentAnalyzer",
                 "CalibreIntegrationService(context, apiKeyRepository)",
                 "CloudStorageService(context, apiKeyRepository)",
                 "BookServicesIntegration(context, apiKeyRepository)",

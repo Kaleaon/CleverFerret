@@ -24,6 +24,7 @@ class ProgressRequestBody(
 
     @Throws(IOException::class)
     override fun writeTo(sink: BufferedSink) {
+        onProgress(0L, contentLength(), 0f)
         val countingSink = CountingSink(sink)
         val bufferedSink = countingSink.buffer()
         delegate.writeTo(bufferedSink)

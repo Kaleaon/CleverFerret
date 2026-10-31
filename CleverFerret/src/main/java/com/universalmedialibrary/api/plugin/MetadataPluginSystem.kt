@@ -18,23 +18,56 @@ import java.util.UUID
 // =============================================================================
 
 /**
+ * Structured manifest defining metadata, capability contracts, and host compatibility requirements.
+ */
+@Serializable
+data class PluginManifest(
+    /** Unique identifier for the plugin */
+    val id: String,
+    
+    /** Human-readable display name */
+    val name: String,
+    
+    /** Semantic version of the plugin */
+    val version: String,
+    
+    /** Minimum host API version required by this plugin */
+    val minHostVersion: String,
+    
+    /** Maximum host API version supported by this plugin (null indicates no upper bound) */
+    val maxHostVersion: String? = null,
+    
+    /** Set of capabilities required/provided by this plugin */
+    val requiredCapabilities: Set<PluginCapability> = emptySet(),
+    
+    /** Plugin author/maintainer metadata */
+    val author: String = "",
+    
+    /** Plugin description */
+    val description: String = ""
+)
+
+/**
  * Base interface for all plugins in the system
  */
 interface Plugin {
+    /** Structured plugin manifest metadata */
+    val manifest: PluginManifest
+
     /** Unique identifier for this plugin */
-    val id: String
+    val id: String get() = manifest.id
     
     /** Human-readable name */
-    val name: String
+    val name: String get() = manifest.name
     
     /** Plugin version */
-    val version: String
+    val version: String get() = manifest.version
     
     /** Plugin description */
-    val description: String
+    val description: String get() = manifest.description
     
     /** Plugin author/maintainer */
-    val author: String
+    val author: String get() = manifest.author
     
     /** Plugin category */
     val category: PluginCategory
@@ -43,7 +76,7 @@ interface Plugin {
     var isEnabled: Boolean
     
     /** Plugin capabilities */
-    val capabilities: Set<PluginCapability>
+    val capabilities: Set<PluginCapability> get() = manifest.requiredCapabilities
     
     /** Configuration options for this plugin */
     val configurationOptions: List<ConfigurationOption>
@@ -765,6 +798,7 @@ sealed class PluginEvent {
     data class PluginDisabled(val pluginId: String) : PluginEvent()
     data class PluginError(val pluginId: String, val error: Throwable) : PluginEvent()
     data class PluginConfigUpdated(val pluginId: String) : PluginEvent()
+    data class PluginRejected(val pluginId: String, val reason: String) : PluginEvent()
 }
 
 /**
@@ -776,4 +810,5 @@ interface PluginLifecycleCallback {
     fun onPluginEnabled(plugin: Plugin)
     fun onPluginDisabled(plugin: Plugin)
     fun onPluginError(pluginId: String, error: Throwable)
+    fun onPluginRejected(pluginId: String, reason: String) {}
 }
