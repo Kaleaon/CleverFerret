@@ -341,6 +341,9 @@ class MetadataStagingRepositoryTest {
         override suspend fun getItemByPathOrCachePath(path: String): MediaItem? =
             map.values.find { it.filePath == path || it.localCachePath == path }
 
+        override suspend fun getMediaItemsModifiedSince(sinceTimestamp: Long): List<MediaItem> =
+            map.values.filter { it.lastModified > sinceTimestamp }
+
         override suspend fun deleteMediaItem(mediaItem: MediaItem) {
             map.remove(mediaItem.itemId)
         }
