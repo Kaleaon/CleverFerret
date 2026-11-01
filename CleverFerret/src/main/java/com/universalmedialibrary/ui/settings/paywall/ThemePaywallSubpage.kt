@@ -159,6 +159,14 @@ fun ThemePaywallSubpage(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                RestorePurchasesButton(
+                    onRestore = { viewModel.restorePurchases() },
+                    enabled = !uiState.isProcessing,
+                    isProcessing = uiState.isProcessing
+                )
             }
 
             // Purchase result feedback dialog/snackbar

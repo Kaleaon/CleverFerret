@@ -211,3 +211,49 @@ fun AlreadyUnlockedCard(
         }
     }
 }
+
+@Suppress("FunctionNaming")
+@Composable
+fun RestorePurchasesButton(
+    onRestore: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    isProcessing: Boolean = false,
+    onClick: (() -> Unit)? = null
+) {
+    val action = onClick ?: onRestore
+    OutlinedButton(
+        onClick = action,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(54.dp),
+        enabled = enabled && !isProcessing
+    ) {
+        if (isProcessing) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 2.dp
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Restoring Purchases...",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Refresh,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Restore Purchases",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
