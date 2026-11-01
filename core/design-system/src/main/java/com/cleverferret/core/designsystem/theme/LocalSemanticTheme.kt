@@ -1,6 +1,8 @@
 package com.cleverferret.core.designsystem.theme
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.cleverferret.core.designsystem.accessibility.LiveRegionManager
+import com.cleverferret.core.designsystem.accessibility.NoOpLiveRegionManager
 
 val LocalSemanticTheme = staticCompositionLocalOf {
     KthemeThemeAdapterV1.adapt(DefaultBaseThemes.LIGHT_BASE)
@@ -8,5 +10,9 @@ val LocalSemanticTheme = staticCompositionLocalOf {
 
 val LocalLiveRegionPolicy = staticCompositionLocalOf {
     KthemeThemeAdapterV1.LiveRegionPolicy()
+}
+
+val LocalLiveRegionManager = staticCompositionLocalOf<LiveRegionManager> {
+    NoOpLiveRegionManager
 }
 

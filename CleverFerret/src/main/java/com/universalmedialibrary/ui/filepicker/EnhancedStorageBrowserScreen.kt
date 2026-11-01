@@ -34,6 +34,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cleverferret.core.designsystem.theme.LocalLiveRegionManager
+import com.universalmedialibrary.ui.components.dynamicStateDescription
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
@@ -67,6 +69,14 @@ fun EnhancedStorageBrowserScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    val liveRegionManager = LocalLiveRegionManager.current
+    
+    // Announce error state assertively
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { errorMsg ->
+            liveRegionManager.announceAssertive("Error: $errorMsg")
+        }
+    }
     
     // Selection state
     var selectedFiles by remember { mutableStateOf<Set<File>>(emptySet()) }
@@ -243,7 +253,9 @@ fun EnhancedStorageBrowserScreen(
                                 // Import progress indicator
                                 LinearProgressIndicator(
                                     progress = importProgress,
-                                    modifier = Modifier.width(120.dp)
+                                    modifier = Modifier
+                                        .width(120.dp)
+                                        .dynamicStateDescription("Importing: ${(importProgress * 100).toInt()}%")
                                 )
                             }
                         }
@@ -364,6 +376,7 @@ fun EnhancedStorageBrowserScreen(
                 scope.launch {
                     isImporting = true
                     importProgress = 0f
+                    liveRegionManager.announcePolite("Import started")
                     
                     try {
                         val allFiles = mutableListOf<File>()
@@ -392,13 +405,17 @@ fun EnhancedStorageBrowserScreen(
                         // Simulate progress updates
                         val chunkSize = maxOf(1, finalFiles.size / 20)
                         finalFiles.chunked(chunkSize).forEachIndexed { index, chunk ->
-                            importProgress = (index + 1).toFloat() / (finalFiles.size / chunkSize + 1)
+                            val progressValue = (index + 1).toFloat() / (finalFiles.size / chunkSize + 1)
+                            importProgress = progressValue
+                            val percent = (progressValue * 100).toInt()
+                            liveRegionManager.announceProgress(percent, "Importing files")
                             kotlinx.coroutines.delay(100) // Small delay for visual feedback
                         }
                         
                         // Complete import
                         onFilesSelected(finalFiles)
                         onFoldersSelected(selectedFolders.toList())
+                        liveRegionManager.announcePolite("Import complete: ${finalFiles.size} files imported")
                         
                         // Clear selection after successful import
                         selectedFiles = emptySet()
@@ -408,6 +425,7 @@ fun EnhancedStorageBrowserScreen(
                     } catch (e: Exception) {
                         // Handle error
                         android.util.Log.e("EnhancedFileBrowser", "Import failed", e)
+                        liveRegionManager.announceAssertive("Import failed: ${e.localizedMessage ?: "Unknown error"}")
                     } finally {
                         isImporting = false
                         importProgress = 0f

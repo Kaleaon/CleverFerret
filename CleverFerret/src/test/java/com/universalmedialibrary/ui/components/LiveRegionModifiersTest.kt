@@ -101,4 +101,11 @@ class LiveRegionModifiersTest {
         assertEquals("Hovered", hoverDesc)
         assertEquals("Normal", normalDesc)
     }
+
+    @Test
+    fun localLiveRegionManager_providesDefaultNoOpImplementation() {
+        val defaultManager = com.cleverferret.core.designsystem.theme.LocalLiveRegionManager.current
+        org.junit.Assert.assertNotNull(defaultManager)
+        org.junit.Assert.assertFalse(defaultManager.isAccessibilityActive)
+    }
 }

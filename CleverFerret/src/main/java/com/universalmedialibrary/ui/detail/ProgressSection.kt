@@ -28,7 +28,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.cleverferret.core.designsystem.theme.LocalLiveRegionManager
 import com.universalmedialibrary.data.local.entity.UnifiedTag
+import com.universalmedialibrary.ui.components.dynamicStateDescription
 import java.text.DecimalFormat
 import kotlin.math.log10
 import kotlin.math.pow
@@ -39,6 +41,13 @@ internal fun ProgressSection(
     lastPosition: Long,
     totalDuration: Long?
 ) {
+    val liveRegionManager = LocalLiveRegionManager.current
+    val percent = (progress * 100).toInt()
+
+    LaunchedEffect(percent) {
+        liveRegionManager.announceProgress(percent, "Reading progress")
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -60,7 +69,7 @@ internal fun ProgressSection(
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "${(progress * 100).toInt()}%",
+                    text = "$percent%",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -72,6 +81,7 @@ internal fun ProgressSection(
                     .fillMaxWidth()
                     .height(8.dp)
                     .clip(RoundedCornerShape(4.dp))
+                    .dynamicStateDescription("$percent%")
             )
             
             totalDuration?.let { duration ->
