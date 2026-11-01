@@ -295,7 +295,6 @@
     <ID>CyclomaticComplexMethod:loadFileItems.kt$internal fun loadFileItems(directory: File, settings: FileBrowserSettings): List&lt;FileItem&gt;</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:ServerIntegrationScreen.kt$val (icon, name, description, color) = when (serverType) { ServerType.PLEX -&gt; Tuple4( Icons.Default.CloudQueue, "Plex Media Server", "Connect to your Plex server for seamless media integration", MaterialTheme.colorScheme.primary ) ServerType.JELLYFIN -&gt; Tuple4( Icons.Default.Cloud, "Jellyfin", "Open-source media system with full API support", MaterialTheme.colorScheme.tertiary ) ServerType.EMBY -&gt; Tuple4( Icons.Default.CloudCircle, "Emby", "Personal media server with extensive features", MaterialTheme.colorScheme.secondary ) }</ID>
     <ID>EmptyCatchBlock:AudioEffectsController.kt$AudioEffectsController${ }</ID>
-    <ID>EmptyFunctionBlock:CalibreIntegrationService.kt$NoOpExternalMediaEntityDao${}</ID>
     <ID>EmptyFunctionBlock:DragCancelledAnimation.kt$NoDragCancelledAnimation${}</ID>
     <ID>EmptyFunctionBlock:EnhancedRadioViewModel.kt$EnhancedRadioViewModel${}</ID>
     <ID>EmptyFunctionBlock:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMetadataDao${}</ID>
