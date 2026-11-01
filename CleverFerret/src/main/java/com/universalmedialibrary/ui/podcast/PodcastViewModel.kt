@@ -421,6 +421,12 @@ class PodcastViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
+                if (opmlContent.isBlank()) {
+                    val errorMsg = "Failed to import OPML: File is empty"
+                    _uiState.value = _uiState.value.copy(error = errorMsg)
+                    _userMessages.tryEmit(errorMsg)
+                    return@launch
+                }
                 podcastService.importOPML(opmlContent)
                 _userMessages.tryEmit("OPML imported successfully")
             } catch (e: Exception) {

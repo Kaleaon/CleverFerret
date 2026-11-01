@@ -18,7 +18,9 @@ import com.cleverferret.core.designsystem.accessibility.rememberLiveRegionManage
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
 import com.cleverferret.core.designsystem.theme.LocalLiveRegionManager
 import com.cleverferret.core.designsystem.theme.LocalLiveRegionPolicy
+import com.cleverferret.core.designsystem.theme.LocalProxyTheme
 import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
+import com.cleverferret.core.designsystem.theme.rememberSnapshotThemeProxy
 import com.universalmedialibrary.ui.theme.rememberFocusHighlightIndication
 
 internal fun cfTypography(family: FontFamily = FontFamily.Default): Typography = Typography(
@@ -62,8 +64,13 @@ fun CFTheme(
 
     val focusIndication = rememberFocusHighlightIndication(focusColor = palette.scheme.primary)
     val liveRegionManager = rememberLiveRegionManager()
+    val snapshotProxy = rememberSnapshotThemeProxy(
+        colorScheme = palette.scheme,
+        semanticTheme = semanticTheme
+    )
 
     CompositionLocalProvider(
+        LocalProxyTheme provides snapshotProxy.proxyTheme,
         LocalCFTokens provides palette.tokens,
         LocalSemanticTheme provides semanticTheme,
         LocalLiveRegionPolicy provides semanticTheme.liveRegion,
