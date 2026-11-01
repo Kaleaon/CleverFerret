@@ -12,7 +12,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE, sdk = [28])
+@Config(application = android.app.Application::class, manifest = Config.NONE, sdk = [28])
 class AudioPlaybackPreferencesStoreTest {
 
     companion object {
