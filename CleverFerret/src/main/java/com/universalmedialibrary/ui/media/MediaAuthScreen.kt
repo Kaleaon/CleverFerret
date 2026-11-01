@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -201,6 +202,7 @@ private fun IdleContent(
                         Icon(Icons.Default.AccountCircle, contentDescription = "Username")
                     },
                     singleLine = true,
+                    autofillTypes = listOf(AutofillType.Username, AutofillType.EmailAddress),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -219,8 +221,13 @@ private fun IdleContent(
                             )
                         }
                     },
-                    visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) {
+                        androidx.compose.ui.text.input.VisualTransformation.None
+                    } else {
+                        androidx.compose.ui.text.input.PasswordVisualTransformation()
+                    },
                     singleLine = true,
+                    autofillTypes = listOf(AutofillType.Password),
                     modifier = Modifier.fillMaxWidth()
                 )
 
