@@ -70,7 +70,12 @@ fun EnhancedEReaderScreen(
         viewModel.loadBook(bookFilePath)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    UnifiedReaderScaffold(
+        isModalOrSearchActive = showSettings || showBookmarks || showTableOfContents || showSearch || showAIInsights,
+        onNextPage = { viewModel.nextChapter() },
+        onPreviousPage = { viewModel.previousChapter() }
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
         // Main reading area
         Box(
             modifier = Modifier
@@ -486,6 +491,7 @@ fun EnhancedEReaderScreen(
             )
         }
     }
+}
 }
 
 

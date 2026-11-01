@@ -130,7 +130,10 @@ fun EnhancedPDFReaderScreen(
         offsetY += panChange.y
     }
 
-    Scaffold(
+    UnifiedReaderScaffold(
+        onNextPage = { viewModel.nextPage() },
+        onPreviousPage = { viewModel.previousPage() },
+        isModalOrSearchActive = showSettingsSheet || showGoToPageDialog || showAnnotationMenu || showPageMenu || uiState.showSearch,
         topBar = {
             AnimatedVisibility(
                 visible = showControls,
