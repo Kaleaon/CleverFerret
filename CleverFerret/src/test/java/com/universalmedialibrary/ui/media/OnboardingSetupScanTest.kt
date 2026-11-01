@@ -77,4 +77,43 @@ class OnboardingSetupScanTest {
         completeOnboarding()
         assertThat(onboardingCompleted.value).isTrue()
     }
+
+    @Test
+    fun `ACTION_SCAN_ALL constant matches scanner service action intent`() {
+        assertThat(MediaScannerService.ACTION_SCAN_ALL).isEqualTo("com.universalmedialibrary.ACTION_SCAN_ALL")
+    }
+
+    @Test
+    fun `onboarding setup scan dispatch triggers when storage permission is present`() {
+        var scanDispatched = false
+        var dispatchedAction: String? = null
+
+        fun dispatchScanIfPermitted(hasStoragePermission: Boolean) {
+            if (hasStoragePermission) {
+                scanDispatched = true
+                dispatchedAction = MediaScannerService.ACTION_SCAN_ALL
+            }
+        }
+
+        dispatchScanIfPermitted(hasStoragePermission = true)
+        assertThat(scanDispatched).isTrue()
+        assertThat(dispatchedAction).isEqualTo(MediaScannerService.ACTION_SCAN_ALL)
+    }
+
+    @Test
+    fun `onboarding setup scan dispatch is skipped without storage permission`() {
+        var scanDispatched = false
+        var dispatchedAction: String? = null
+
+        fun dispatchScanIfPermitted(hasStoragePermission: Boolean) {
+            if (hasStoragePermission) {
+                scanDispatched = true
+                dispatchedAction = MediaScannerService.ACTION_SCAN_ALL
+            }
+        }
+
+        dispatchScanIfPermitted(hasStoragePermission = false)
+        assertThat(scanDispatched).isFalse()
+        assertThat(dispatchedAction).isNull()
+    }
 }

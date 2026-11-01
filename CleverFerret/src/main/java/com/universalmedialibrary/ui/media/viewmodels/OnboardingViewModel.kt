@@ -11,7 +11,12 @@ import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,13 +47,15 @@ class OnboardingViewModel @Inject constructor(
 
     fun triggerInitialScan() {
         if (PermissionsHandler.hasStoragePermissions(appContext)) {
-            viewModelScope.launch {
-                _isScanDispatched.value = true
-                val intent = Intent(appContext, MediaScannerService::class.java).apply {
-                    action = MediaScannerService.ACTION_SCAN_ALL
-                }
+            _isScanDispatched.value = true
+            val intent = Intent(appContext, MediaScannerService::class.java).apply {
+                action = MediaScannerService.ACTION_SCAN_ALL
+            }
+            runCatching {
+                ContextCompat.startForegroundService(appContext, intent)
+            }.onFailure {
                 runCatching {
-                    ContextCompat.startForegroundService(appContext, intent)
+                    appContext.startService(intent)
                 }
             }
         }
