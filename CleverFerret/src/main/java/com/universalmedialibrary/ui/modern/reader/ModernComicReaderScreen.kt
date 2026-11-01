@@ -31,6 +31,7 @@ import com.universalmedialibrary.ui.modern.components.CFTopBar
 import com.universalmedialibrary.ui.modern.domain.ModernUiState
 import com.universalmedialibrary.ui.modern.theme.CFSpacing
 import com.universalmedialibrary.ui.reader.ComicReaderViewModel
+import com.universalmedialibrary.ui.reader.UnifiedReaderScaffold
 import com.universalmedialibrary.ui.settings.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -100,7 +101,25 @@ fun ModernComicReaderScreen(
         }
     }
 
-    Scaffold(
+    val files = (uiState as? ModernUiState.Success<List<File>>)?.data ?: emptyList()
+    val goToPreviousPage = {
+        if (pageIndex > 0 && files.isNotEmpty()) {
+            pageIndex -= 1
+            currentBitmap?.recycle()
+            currentBitmap = loadBitmap(files.getOrNull(pageIndex))
+        }
+    }
+    val goToNextPage = {
+        if (pageIndex < files.size - 1 && files.isNotEmpty()) {
+            pageIndex += 1
+            currentBitmap?.recycle()
+            currentBitmap = loadBitmap(files.getOrNull(pageIndex))
+        }
+    }
+
+    UnifiedReaderScaffold(
+        onNextPage = goToNextPage,
+        onPreviousPage = goToPreviousPage,
         topBar = {
             CFTopBar(
                 title = fileName,
