@@ -15,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import com.universalmedialibrary.ui.components.FocusableContainer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -166,7 +167,8 @@ private fun PosterLayout(
     val scale by animateFloatAsState(
         targetValue = when {
             isPressed -> 0.95f
-            isHovered || isFocused -> 1.03f
+            isFocused -> 1.05f
+            isHovered -> 1.03f
             else -> 1f
         },
         animationSpec = spring(
@@ -178,16 +180,21 @@ private fun PosterLayout(
 
     val widthModifier = if (width != Dp.Unspecified) Modifier.width(width) else Modifier
 
-    Column(
-        modifier = modifier
-            .then(widthModifier)
-            .scale(scale)
-            .accessibleClickable(
-                interactionSource = interactionSource,
-                shape = RoundedCornerShape(MediaCorners.Card),
-                onClick = onClick
-            )
+    FocusableContainer(
+        modifier = modifier.then(widthModifier),
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(MediaCorners.Card),
+        focusedScale = 1f
     ) {
+        Column(
+            modifier = Modifier
+                .scale(scale)
+                .accessibleClickable(
+                    interactionSource = interactionSource,
+                    shape = RoundedCornerShape(MediaCorners.Card),
+                    onClick = onClick
+                )
+        ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -289,6 +296,7 @@ private fun PosterLayout(
         }
     }
 }
+}
 
 @Composable
 private fun SquareLayout(
@@ -306,7 +314,8 @@ private fun SquareLayout(
     val scale by animateFloatAsState(
         targetValue = when {
             isPressed -> 0.95f
-            isHovered || isFocused -> 1.03f
+            isFocused -> 1.05f
+            isHovered -> 1.03f
             else -> 1f
         },
         label = "square_scale"
@@ -314,16 +323,21 @@ private fun SquareLayout(
 
     val sizeModifier = if (size != Dp.Unspecified) Modifier.width(size) else Modifier
 
-    Column(
-        modifier = modifier
-            .then(sizeModifier)
-            .scale(scale)
-            .accessibleClickable(
-                interactionSource = interactionSource,
-                shape = RoundedCornerShape(MediaCorners.Card),
-                onClick = onClick
-            )
+    FocusableContainer(
+        modifier = modifier.then(sizeModifier),
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(MediaCorners.Card),
+        focusedScale = 1f
     ) {
+        Column(
+            modifier = Modifier
+                .scale(scale)
+                .accessibleClickable(
+                    interactionSource = interactionSource,
+                    shape = RoundedCornerShape(MediaCorners.Card),
+                    onClick = onClick
+                )
+        ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -386,6 +400,7 @@ private fun SquareLayout(
         }
     }
 }
+}
 
 @Composable
 private fun WideLayout(
@@ -401,19 +416,24 @@ private fun WideLayout(
 
     val widthModifier = if (width != Dp.Unspecified) Modifier.width(width) else Modifier
 
-    Box(
-        modifier = modifier
-            .then(widthModifier)
-            .aspectRatio(MediaSizes.WidescreenAspectRatio)
-            .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
-            .clip(RoundedCornerShape(MediaCorners.Card))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .accessibleClickable(
-                interactionSource = interactionSource,
-                shape = RoundedCornerShape(MediaCorners.Card),
-                onClick = onClick
-            )
+    FocusableContainer(
+        modifier = modifier.then(widthModifier),
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(MediaCorners.Card)
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(MediaSizes.WidescreenAspectRatio)
+                .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
+                .clip(RoundedCornerShape(MediaCorners.Card))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .accessibleClickable(
+                    interactionSource = interactionSource,
+                    shape = RoundedCornerShape(MediaCorners.Card),
+                    onClick = onClick
+                )
+        ) {
         if (item.backdropUrl != null || item.imageUrl != null) {
             AsyncImage(
                 model = MediaImageModels.resolve(item.backdropUrl ?: item.imageUrl),
@@ -480,6 +500,7 @@ private fun WideLayout(
         }
     }
 }
+}
 
 @Composable
 private fun HeroLayout(
@@ -488,12 +509,23 @@ private fun HeroLayout(
     onPlayClick: (() -> Unit)?,
     modifier: Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(MediaSizes.HeroHeight)
-            .clickable(onClick = onClick)
+    val interactionSource = remember { MutableInteractionSource() }
+
+    FocusableContainer(
+        modifier = modifier,
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(MediaCorners.Card)
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(MediaSizes.HeroHeight)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick
+                )
+        ) {
         if (item.backdropUrl != null || item.imageUrl != null) {
             AsyncImage(
                 model = MediaImageModels.resolve(item.backdropUrl ?: item.imageUrl),
@@ -568,6 +600,7 @@ private fun HeroLayout(
             }
         }
     }
+}
 }
 
 @Composable
