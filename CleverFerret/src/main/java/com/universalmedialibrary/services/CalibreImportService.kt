@@ -150,7 +150,7 @@ class CalibreImportService @Inject constructor(
         }
     }
 
-    private fun resolveFullPath(libraryRootPath: String, relativePath: String): String? {
+    internal fun resolveFullPath(libraryRootPath: String, relativePath: String): String? {
         val file = File(libraryRootPath, relativePath)
         if (file.isDirectory) {
             // File format preference order as specified in IMPORT_LOGIC.md
