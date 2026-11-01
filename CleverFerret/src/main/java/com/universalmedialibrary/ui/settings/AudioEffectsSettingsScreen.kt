@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.data.preferences.AudioPlaybackPreferencesStore
 import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 import com.universalmedialibrary.services.music.EqualizerPreset
 import com.universalmedialibrary.services.music.ReverbPreset
@@ -332,6 +333,102 @@ fun AudioEffectsSettingsScreen(
                 }
             }
 
+            // Skip Intervals Section
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(Icons.Default.FastForward, contentDescription = "Skip Intervals")
+                        Text(
+                            "Playback Skip Intervals",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Text(
+                        "Configure jump durations for forward and backward seek actions",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    // Forward Skip Dropdown
+                    var expandedForward by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = expandedForward,
+                        onExpandedChange = { expandedForward = it }
+                    ) {
+                        OutlinedTextField(
+                            value = "${state.skipForwardIntervalSec} seconds",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Skip Forward Interval") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedForward)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedForward,
+                            onDismissRequest = { expandedForward = false }
+                        ) {
+                            SKIP_INTERVAL_OPTIONS.forEach { seconds ->
+                                DropdownMenuItem(
+                                    text = { Text("$seconds seconds") },
+                                    onClick = {
+                                        viewModel.setSkipForwardInterval(seconds)
+                                        expandedForward = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    // Backward Skip Dropdown
+                    var expandedBackward by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = expandedBackward,
+                        onExpandedChange = { expandedBackward = it }
+                    ) {
+                        OutlinedTextField(
+                            value = "${state.skipBackwardIntervalSec} seconds",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Skip Backward Interval") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedBackward)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedBackward,
+                            onDismissRequest = { expandedBackward = false }
+                        ) {
+                            SKIP_INTERVAL_OPTIONS.forEach { seconds ->
+                                DropdownMenuItem(
+                                    text = { Text("$seconds seconds") },
+                                    onClick = {
+                                        viewModel.setSkipBackwardInterval(seconds)
+                                        expandedBackward = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             // Info Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -367,8 +464,14 @@ fun AudioEffectsSettingsScreen(
  */
 @HiltViewModel
 class AudioEffectsViewModel @Inject constructor(
-    private val musicPlayerService: AdvancedMusicPlayerService
+    private val musicPlayerService: AdvancedMusicPlayerService,
+    private val preferencesStore: AudioPlaybackPreferencesStore? = null
 ) : ViewModel() {
+
+    companion object {
+        const val DEFAULT_FORWARD_SKIP_SEC = 30
+        const val DEFAULT_BACKWARD_SKIP_SEC = 15
+    }
     
     private val _state = MutableStateFlow(AudioEffectsState())
     val state: StateFlow<AudioEffectsState> = _state.asStateFlow()
@@ -376,13 +479,21 @@ class AudioEffectsViewModel @Inject constructor(
     init {
         // Load current settings from service
         loadCurrentSettings()
+        viewModelScope.launch {
+            preferencesStore?.preferences?.collect { prefs ->
+                _state.value = _state.value.copy(
+                    skipForwardIntervalSec = prefs.skipForwardIntervalSec,
+                    skipBackwardIntervalSec = prefs.skipBackwardIntervalSec
+                )
+            }
+        }
     }
     
     private fun loadCurrentSettings() {
         viewModelScope.launch {
             try {
                 val snapshot = musicPlayerService.getAudioEffectsSnapshot()
-                _state.value = AudioEffectsState(
+                _state.value = _state.value.copy(
                     selectedEqPreset = snapshot.eqPreset,
                     bassBoostStrength = snapshot.bassBoostStrength,
                     reverbEnabled = snapshot.reverbEnabled,
@@ -392,7 +503,6 @@ class AudioEffectsViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 Log.w("AudioEffectsViewModel", "Unable to load audio effects snapshot", e)
-                _state.value = AudioEffectsState()
             }
         }
     }
@@ -438,6 +548,22 @@ class AudioEffectsViewModel @Inject constructor(
             musicPlayerService.setReplayGainPreamp(preamp)
         }
     }
+
+    fun setSkipForwardInterval(seconds: Int) {
+        val safeSeconds = if (seconds > 0) seconds else DEFAULT_FORWARD_SKIP_SEC
+        _state.value = _state.value.copy(skipForwardIntervalSec = safeSeconds)
+        viewModelScope.launch {
+            preferencesStore?.setSkipForwardIntervalSec(safeSeconds)
+        }
+    }
+
+    fun setSkipBackwardInterval(seconds: Int) {
+        val safeSeconds = if (seconds > 0) seconds else DEFAULT_BACKWARD_SKIP_SEC
+        _state.value = _state.value.copy(skipBackwardIntervalSec = safeSeconds)
+        viewModelScope.launch {
+            preferencesStore?.setSkipBackwardIntervalSec(safeSeconds)
+        }
+    }
     
     fun resetToDefaults() {
         _state.value = AudioEffectsState()
@@ -449,6 +575,8 @@ class AudioEffectsViewModel @Inject constructor(
             musicPlayerService.enableReverb(false)
             musicPlayerService.setReplayGainEnabled(true)
             musicPlayerService.setReplayGainPreamp(0)
+            preferencesStore?.setSkipForwardIntervalSec(DEFAULT_FORWARD_SKIP_SEC)
+            preferencesStore?.setSkipBackwardIntervalSec(DEFAULT_BACKWARD_SKIP_SEC)
         }
     }
 }
@@ -462,5 +590,9 @@ data class AudioEffectsState(
     val reverbEnabled: Boolean = false,
     val reverbPreset: ReverbPreset = ReverbPreset.SMALL_ROOM,
     val replayGainEnabled: Boolean = true,
-    val replayGainPreamp: Int = 0
+    val replayGainPreamp: Int = 0,
+    val skipForwardIntervalSec: Int = AudioEffectsViewModel.DEFAULT_FORWARD_SKIP_SEC,
+    val skipBackwardIntervalSec: Int = AudioEffectsViewModel.DEFAULT_BACKWARD_SKIP_SEC
 )
+
+private val SKIP_INTERVAL_OPTIONS = listOf(5, 10, 15, 30, 45, 60)
