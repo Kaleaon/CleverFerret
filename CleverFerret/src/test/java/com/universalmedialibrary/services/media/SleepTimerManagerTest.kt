@@ -23,10 +23,107 @@ class SleepTimerManagerTest {
         val state = sleepTimerManager.state.value
         assertFalse(state.isActive)
         assertFalse(state.isPaused)
+        assertFalse(state.isEndOfChapter)
         assertEquals(0L, state.totalSeconds)
         assertEquals(0L, state.remainingSeconds)
         assertTrue(state.fadeOut)
         assertEquals(1.0f, sleepTimerManager.getBaseVolume(), 0.001f)
+    }
+
+    @Test
+    fun startEndOfChapterTimer_updatesStateCorrectly() {
+        var completed = false
+        sleepTimerManager.startEndOfChapterTimer { completed = true }
+
+        val state = sleepTimerManager.state.value
+        assertTrue(state.isActive)
+        assertFalse(state.isPaused)
+        assertTrue(state.isEndOfChapter)
+        assertEquals(0L, state.totalSeconds)
+        assertEquals(0L, state.remainingSeconds)
+        assertFalse(state.fadeOut)
+        assertFalse(sleepTimerManager.shouldFadeOut())
+        assertFalse(completed)
+    }
+
+    @Test
+    fun startEndOfChapterTimer_ignoresDurationCountdownsAndAddTime() {
+        sleepTimerManager.startEndOfChapterTimer { }
+
+        // Adding time to an end-of-chapter timer should not modify duration seconds
+        sleepTimerManager.addTime(15)
+
+        val state = sleepTimerManager.state.value
+        assertTrue(state.isActive)
+        assertTrue(state.isEndOfChapter)
+        assertEquals(0L, state.totalSeconds)
+        assertEquals(0L, state.remainingSeconds)
+    }
+
+    @Test
+    fun notifyChapterOrTrackEnded_triggersCompletionCallbackAndResetsState() {
+        var completedCount = 0
+        sleepTimerManager.startEndOfChapterTimer { completedCount++ }
+
+        sleepTimerManager.notifyChapterOrTrackEnded()
+
+        assertEquals(1, completedCount)
+        val state = sleepTimerManager.state.value
+        assertFalse(state.isActive)
+        assertFalse(state.isEndOfChapter)
+    }
+
+    @Test
+    fun notifyChapterOrTrackEnded_doesNothingWhenEndOfChapterNotActive() {
+        var completed = false
+        // Timer not active
+        sleepTimerManager.notifyChapterOrTrackEnded()
+        assertFalse(completed)
+
+        // Fixed-duration countdown active
+        sleepTimerManager.startTimer(
+            durationMinutes = 10,
+            fadeOut = true,
+            onComplete = { completed = true }
+        )
+
+        sleepTimerManager.notifyChapterOrTrackEnded()
+        assertFalse(completed)
+        assertTrue(sleepTimerManager.state.value.isActive)
+        assertFalse(sleepTimerManager.state.value.isEndOfChapter)
+
+        sleepTimerManager.stopTimer()
+    }
+
+    @Test
+    fun resetEndOfChapterState_resetsStateWithoutTriggeringCompletion() {
+        var completed = false
+        sleepTimerManager.startEndOfChapterTimer { completed = true }
+
+        sleepTimerManager.resetEndOfChapterState()
+
+        assertFalse(completed)
+        assertFalse(sleepTimerManager.state.value.isActive)
+        assertFalse(sleepTimerManager.state.value.isEndOfChapter)
+
+        // Subsequent notification should have no effect
+        sleepTimerManager.notifyChapterOrTrackEnded()
+        assertFalse(completed)
+    }
+
+    @Test
+    fun stopTimer_cancelsEndOfChapterTimerWithoutTriggeringCompletion() {
+        var completed = false
+        sleepTimerManager.startEndOfChapterTimer { completed = true }
+
+        sleepTimerManager.stopTimer()
+
+        assertFalse(completed)
+        assertFalse(sleepTimerManager.state.value.isActive)
+        assertFalse(sleepTimerManager.state.value.isEndOfChapter)
+
+        sleepTimerManager.notifyChapterOrTrackEnded()
+        assertFalse(completed)
     }
 
     @Test

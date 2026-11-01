@@ -1,38 +1,65 @@
 package com.universalmedialibrary.services.integration.calibre
 
 import android.content.Context
+import androidx.room.Room
+import androidx.room.withTransaction
+import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.ExternalMediaEntityDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.ExternalMediaEntity
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.ReadingProgress
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.services.CalibreDatabaseReader
+import com.universalmedialibrary.services.CalibreImportService
+import com.universalmedialibrary.services.RawCalibreBook
 import com.universalmedialibrary.services.integration.IntegrationProvider
 import com.universalmedialibrary.services.integration.ProviderStatus
 import com.universalmedialibrary.services.integration.ProviderSyncResult
 import com.universalmedialibrary.services.integration.ProviderType
+import com.universalmedialibrary.services.opds.OPDSClient
+import com.universalmedialibrary.utils.computeMd5
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import java.io.File
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Calibre Integration Service
- * Connects to local Calibre libraries via Storage Access Framework / SQLite
- * or remote Calibre servers for book management and bi-directional reading progress,
- * metadata updates, and tag synchronization via Calibre Content Server APIs.
+ * Connects to local Calibre libraries via SQLite/metadata.db and remote Calibre servers
+ * via standard OPDS feeds for book management, bidirectional reading progress,
+ * and entity synchronization.
  */
 @Singleton
+@Suppress("LongParameterList")
 class CalibreIntegrationService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository,
-    private val externalMediaEntityDao: ExternalMediaEntityDao,
-    private val calibreReader: CalibreDatabaseReader = CalibreDatabaseReader(context)
+    externalMediaEntityDao: ExternalMediaEntityDao?,
+    mediaItemDao: MediaItemDao?,
+    private val database: AppDatabase? = null,
+    private val calibreImportService: CalibreImportService? = null,
+    private val calibreReader: CalibreDatabaseReader = CalibreDatabaseReader(context),
+    private val opdsClient: OPDSClient = OPDSClient(OkHttpClient())
 ) : IntegrationProvider {
+
+    private val externalMediaEntityDao: ExternalMediaEntityDao =
+        requireNotNull(externalMediaEntityDao) { "ExternalMediaEntityDao must not be null" }
+    private val mediaItemDao: MediaItemDao =
+        requireNotNull(mediaItemDao) { "MediaItemDao must not be null" }
+
+    init {
+        requireNotNull(context) { "Context must not be null" }
+        requireNotNull(apiKeyRepository) { "APIKeyRepository must not be null" }
+    }
 
     override val providerId: String = "calibre"
     override val providerName: String = "Calibre Content Server"
@@ -51,12 +78,94 @@ class CalibreIntegrationService @Inject constructor(
     constructor(
         context: Context,
         apiKeyRepository: APIKeyRepository,
-        externalMediaEntityDao: ExternalMediaEntityDao
+        externalMediaEntityDao: ExternalMediaEntityDao?,
+        mediaItemDao: MediaItemDao?
     ) : this(
         context = context,
         apiKeyRepository = apiKeyRepository,
         externalMediaEntityDao = externalMediaEntityDao,
-        calibreReader = CalibreDatabaseReader(context)
+        mediaItemDao = mediaItemDao,
+        database = null,
+        calibreImportService = null,
+        calibreReader = resolveCalibreReader(context),
+        opdsClient = OPDSClient(OkHttpClient())
+    )
+
+    constructor(
+        context: Context,
+        apiKeyRepository: APIKeyRepository,
+        externalMediaEntityDao: ExternalMediaEntityDao?,
+        mediaItemDao: MediaItemDao?,
+        calibreReader: CalibreDatabaseReader
+    ) : this(
+        context = context,
+        apiKeyRepository = apiKeyRepository,
+        externalMediaEntityDao = externalMediaEntityDao,
+        mediaItemDao = mediaItemDao,
+        database = null,
+        calibreImportService = null,
+        calibreReader = calibreReader,
+        opdsClient = OPDSClient(OkHttpClient())
+    )
+
+    constructor(
+        context: Context,
+        apiKeyRepository: APIKeyRepository,
+        externalMediaEntityDao: ExternalMediaEntityDao?,
+        mediaItemDao: MediaItemDao?,
+        opdsClient: OPDSClient
+    ) : this(
+        context = context,
+        apiKeyRepository = apiKeyRepository,
+        externalMediaEntityDao = externalMediaEntityDao,
+        mediaItemDao = mediaItemDao,
+        database = null,
+        calibreImportService = null,
+        calibreReader = resolveCalibreReader(context),
+        opdsClient = opdsClient
+    )
+
+    private constructor(
+        context: Context,
+        apiKeyRepository: APIKeyRepository,
+        externalMediaEntityDao: ExternalMediaEntityDao?,
+        database: AppDatabase?
+    ) : this(
+        context = context,
+        apiKeyRepository = apiKeyRepository,
+        externalMediaEntityDao = externalMediaEntityDao,
+        mediaItemDao = database?.mediaItemDao(),
+        database = database,
+        calibreImportService = null,
+        calibreReader = resolveCalibreReader(context),
+        opdsClient = OPDSClient(OkHttpClient())
+    )
+
+    constructor(
+        context: Context,
+        apiKeyRepository: APIKeyRepository,
+        externalMediaEntityDao: ExternalMediaEntityDao?
+    ) : this(
+        context = context,
+        apiKeyRepository = apiKeyRepository,
+        externalMediaEntityDao = externalMediaEntityDao,
+        database = resolveDatabase(context)
+    )
+
+    private constructor(
+        context: Context,
+        apiKeyRepository: APIKeyRepository,
+        database: AppDatabase?,
+        calibreReader: CalibreDatabaseReader
+    ) : this(
+        context = context,
+        apiKeyRepository = apiKeyRepository,
+        externalMediaEntityDao = database?.externalMediaEntityDao(),
+        mediaItemDao = database?.mediaItemDao(),
+        database = database,
+        calibreImportService = null,
+        calibreReader = calibreReader,
+        opdsClient = OPDSClient(OkHttpClient())
     )
 
     constructor(
@@ -66,7 +175,7 @@ class CalibreIntegrationService @Inject constructor(
     ) : this(
         context = context,
         apiKeyRepository = apiKeyRepository,
-        externalMediaEntityDao = NoOpExternalMediaEntityDao,
+        database = resolveDatabase(context),
         calibreReader = calibreReader
     )
 
@@ -76,8 +185,8 @@ class CalibreIntegrationService @Inject constructor(
     ) : this(
         context = context,
         apiKeyRepository = apiKeyRepository,
-        externalMediaEntityDao = NoOpExternalMediaEntityDao,
-        calibreReader = CalibreDatabaseReader(context)
+        database = resolveDatabase(context),
+        calibreReader = resolveCalibreReader(context)
     )
 
     private val _calibreState = MutableStateFlow(CalibreState())
@@ -86,9 +195,6 @@ class CalibreIntegrationService @Inject constructor(
     private val connectedServers = mutableMapOf<String, CalibreConnection>()
     private val localLibraryPaths = mutableMapOf<String, String>()
 
-    /**
-     * Connect to a local Calibre library folder or database file.
-     */
     suspend fun connectToLocalLibrary(
         libraryName: String,
         pathOrUri: String
@@ -127,9 +233,6 @@ class CalibreIntegrationService @Inject constructor(
         }
     }
 
-    /**
-     * Connect to a remote Calibre server
-     */
     suspend fun connectToServer(
         serverName: String,
         serverUrl: String,
@@ -139,12 +242,15 @@ class CalibreIntegrationService @Inject constructor(
         try {
             _calibreState.value = _calibreState.value.copy(isConnecting = true)
 
-            // Test connection to Calibre server or local library path
-            val isLocal = serverUrl.startsWith("/") || serverUrl.startsWith("file://") || serverUrl.startsWith("content://")
+            val isLocal = serverUrl.startsWith("/") ||
+                serverUrl.startsWith("file://") ||
+                serverUrl.startsWith("content://")
             val bookCount = if (isLocal) {
                 localLibraryPaths[serverName] = serverUrl
                 calibreReader.readLibraryStats(serverUrl).bookCount
-            } else 1
+            } else {
+                1
+            }
 
             val connection = CalibreConnection(
                 name = serverName,
@@ -165,7 +271,6 @@ class CalibreIntegrationService @Inject constructor(
             _providerStatus.value = _providerStatus.value.copy(isConnected = true)
 
             CalibreConnectionResult.Success(connection)
-
         } catch (e: Exception) {
             _calibreState.value = _calibreState.value.copy(
                 isConnecting = false,
@@ -175,10 +280,6 @@ class CalibreIntegrationService @Inject constructor(
         }
     }
 
-    /**
-     * Bi-directional reading progress sync with Calibre Content Server:
-     * Push local reading progress to Calibre
-     */
     suspend fun syncReadingProgressToCalibre(bookId: String, progress: Float): Boolean = withContext(Dispatchers.IO) {
         try {
             externalMediaEntityDao.updateProgress(
@@ -186,25 +287,39 @@ class CalibreIntegrationService @Inject constructor(
                 externalId = bookId,
                 progress = progress
             )
-            // Send progress update to Calibre server API if connected
+
+            val entity = externalMediaEntityDao.getByProviderAndExternalId("calibre", bookId)
+            val mediaItemId = entity?.mediaItemId
+            if (mediaItemId != null && database != null) {
+                try {
+                    val readingProgressDao = database.readingProgressDao()
+                    val existing = readingProgressDao.getProgressByItemIdSnapshot(mediaItemId)
+                    val updated = existing?.copy(
+                        percentage = progress,
+                        lastUpdate = System.currentTimeMillis(),
+                        lastModified = System.currentTimeMillis()
+                    ) ?: ReadingProgress(
+                        itemId = mediaItemId,
+                        percentage = progress,
+                        lastUpdate = System.currentTimeMillis(),
+                        lastModified = System.currentTimeMillis()
+                    )
+                    readingProgressDao.upsert(updated)
+                } catch (_: Exception) {
+                    // Ignored if local reading progress table is unavailable
+                }
+            }
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
 
-    /**
-     * Bi-directional reading progress sync with Calibre Content Server:
-     * Fetch remote reading progress from Calibre and apply locally
-     */
     suspend fun syncReadingProgressFromCalibre(bookId: String): Float = withContext(Dispatchers.IO) {
         val entity = externalMediaEntityDao.getByProviderAndExternalId("calibre", bookId)
         entity?.progress ?: 0.0f
     }
 
-    /**
-     * Bi-directional metadata and tag update with Calibre Content Server
-     */
     suspend fun syncMetadataAndTags(
         bookId: String,
         title: String?,
@@ -223,54 +338,28 @@ class CalibreIntegrationService @Inject constructor(
                 externalMediaEntityDao.updateEntity(updated)
             }
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
 
-    /**
-     * Sync libraries from connected Calibre databases and remote servers
-     */
     suspend fun syncLibraries(): CalibreSyncResult = withContext(Dispatchers.IO) {
         try {
             _calibreState.value = _calibreState.value.copy(isSyncing = true)
 
             var totalBooks = 0
-            for ((_, pathOrUrl) in localLibraryPaths) {
-                val books = calibreReader.readBooks(pathOrUrl)
-                totalBooks += books.size
+
+            for ((libraryName, pathOrUrl) in localLibraryPaths) {
+                val count = syncLocalLibrary(libraryName, pathOrUrl)
+                totalBooks += count
             }
 
             for ((serverName, connection) in connectedServers) {
                 if (localLibraryPaths.containsKey(serverName)) {
                     continue
                 }
-                // Fetch/Map items to central external_media_entities
-                val mockBooks = listOf(
-                    ExternalMediaEntity(
-                        providerId = "calibre",
-                        externalId = "calibre_1",
-                        title = "Sample Calibre Book 1",
-                        creator = "Author One",
-                        mediaType = "BOOK",
-                        tags = "Fiction, Sci-Fi",
-                        progress = 0.25f,
-                        uri = "${connection.url}/get/epub/sample_1.epub"
-                    ),
-                    ExternalMediaEntity(
-                        providerId = "calibre",
-                        externalId = "calibre_2",
-                        title = "Sample Calibre Book 2",
-                        creator = "Author Two",
-                        mediaType = "BOOK",
-                        tags = "Non-Fiction",
-                        progress = 0.80f,
-                        uri = "${connection.url}/get/epub/sample_2.epub"
-                    )
-                )
-
-                externalMediaEntityDao.insertEntities(mockBooks)
-                totalBooks += mockBooks.size
+                val count = syncRemoteServer(connection)
+                totalBooks += count
             }
 
             _calibreState.value = _calibreState.value.copy(
@@ -283,7 +372,6 @@ class CalibreIntegrationService @Inject constructor(
             )
 
             CalibreSyncResult(true, totalBooks)
-
         } catch (e: Exception) {
             _calibreState.value = _calibreState.value.copy(
                 isSyncing = false,
@@ -293,9 +381,241 @@ class CalibreIntegrationService @Inject constructor(
         }
     }
 
-    /**
-     * Get real library statistics dynamically from local Calibre database files.
-     */
+    private suspend fun syncLocalLibrary(libraryName: String, pathOrUrl: String): Int {
+        val fileTarget = File(pathOrUrl)
+        val calibreDbPath = if (fileTarget.isDirectory) {
+            File(fileTarget, "metadata.db").absolutePath
+        } else {
+            pathOrUrl
+        }
+        val libraryRootPath = if (fileTarget.isDirectory) {
+            pathOrUrl
+        } else {
+            fileTarget.parent ?: pathOrUrl
+        }
+
+        val libraryId = getOrCreateLocalLibraryId(libraryName, libraryRootPath)
+        if (calibreImportService != null) {
+            calibreImportService.importCalibreDatabase(
+                calibreDbPath = calibreDbPath,
+                libraryRootPath = libraryRootPath,
+                libraryId = libraryId
+            )
+        }
+
+        val books = calibreReader.readBooks(calibreDbPath)
+        books.values.chunked(CHUNK_SIZE).forEach { chunk ->
+            if (database != null) {
+                database.withTransaction {
+                    processLocalChunk(chunk, libraryRootPath, libraryId)
+                }
+            } else {
+                processLocalChunk(chunk, libraryRootPath, libraryId)
+            }
+        }
+
+        return books.size
+    }
+
+    private suspend fun processLocalChunk(
+        chunk: List<RawCalibreBook>,
+        libraryRootPath: String,
+        libraryId: Long
+    ) {
+        val chunkEntities = chunk.map { rawBook ->
+            buildLocalEntity(rawBook, libraryRootPath, libraryId)
+        }
+
+        val insertedIds = externalMediaEntityDao.insertEntities(chunkEntities)
+        for (i in chunkEntities.indices) {
+            val ent = chunkEntities[i]
+            val entityId = if (ent.id != 0L) ent.id else insertedIds.getOrNull(i) ?: 0L
+            if (entityId != 0L && ent.mediaItemId != null) {
+                externalMediaEntityDao.linkToLocalMediaItem(entityId, ent.mediaItemId)
+            }
+        }
+    }
+
+    private suspend fun buildLocalEntity(
+        rawBook: RawCalibreBook,
+        libraryRootPath: String,
+        libraryId: Long
+    ): ExternalMediaEntity {
+        val resolvedPath = calibreImportService?.resolveFullPath(libraryRootPath, rawBook.path)
+            ?: resolveLocalBookPath(libraryRootPath, rawBook.path)
+            ?: File(libraryRootPath, rawBook.path).absolutePath
+
+        val file = File(resolvedPath)
+        val isFileAvailable = file.exists()
+        val mediaItemId = resolveMediaItemId(resolvedPath, file, isFileAvailable, rawBook.id, libraryId)
+
+        val fileUri = if (isFileAvailable) resolvedPath else null
+        val existing = externalMediaEntityDao.getByProviderAndExternalId("calibre", rawBook.id.toString())
+
+        return ExternalMediaEntity(
+            id = existing?.id ?: 0L,
+            providerId = "calibre",
+            externalId = rawBook.id.toString(),
+            mediaItemId = mediaItemId,
+            title = rawBook.title,
+            creator = rawBook.authorNames.joinToString(", ").takeIf { it.isNotBlank() },
+            series = rawBook.seriesName,
+            mediaType = "BOOK",
+            uri = fileUri,
+            coverUrl = null,
+            summary = rawBook.comments,
+            tags = rawBook.tags.joinToString(", ").takeIf { it.isNotBlank() },
+            progress = existing?.progress ?: 0f,
+            lastSyncedAt = System.currentTimeMillis()
+        )
+    }
+
+    private suspend fun resolveMediaItemId(
+        resolvedPath: String,
+        file: File,
+        isFileAvailable: Boolean,
+        rawBookId: Long,
+        libraryId: Long
+    ): Long? {
+        val existingItem = mediaItemDao.getItemByPath(resolvedPath)
+        if (existingItem != null) {
+            return existingItem.itemId
+        }
+        if (calibreImportService != null) {
+            return null
+        }
+        val mediaItem = MediaItem(
+            libraryId = libraryId,
+            filePath = resolvedPath,
+            fileName = file.name,
+            fileExtension = if (file.extension.isNotBlank()) file.extension.lowercase(Locale.ROOT) else "epub",
+            fileSize = if (isFileAvailable) file.length() else 0L,
+            fileHash = if (isFileAvailable) file.computeMd5() else "calibre_$rawBookId",
+            dateAdded = System.currentTimeMillis(),
+            lastScanned = System.currentTimeMillis(),
+            lastModified = if (isFileAvailable) file.lastModified() else System.currentTimeMillis(),
+            mediaType = "BOOK",
+            isAvailable = isFileAvailable,
+            hasMetadata = true
+        )
+        return mediaItemDao.insertMediaItem(mediaItem)
+    }
+
+    private suspend fun syncRemoteServer(connection: CalibreConnection): Int {
+        return try {
+            val opdsUrl = normalizeOpdsUrl(connection.url)
+            val feed = opdsClient.fetchFeed(opdsUrl, null)
+            val remoteEntities = feed.entries.mapIndexed { index, entry ->
+                buildRemoteEntity(entry, index)
+            }
+
+            if (remoteEntities.isNotEmpty()) {
+                persistRemoteEntities(remoteEntities)
+            }
+            remoteEntities.size
+        } catch (_: Exception) {
+            0
+        }
+    }
+
+    private fun normalizeOpdsUrl(url: String): String {
+        return if (url.endsWith("/opds") || url.endsWith("/opds/")) {
+            url
+        } else {
+            "${url.trimEnd('/')}/opds"
+        }
+    }
+
+    private suspend fun buildRemoteEntity(
+        entry: com.universalmedialibrary.services.opds.OPDSEntry,
+        index: Int
+    ): ExternalMediaEntity {
+        val entryId = entry.id?.takeIf { it.isNotBlank() } ?: "calibre_${index + 1}"
+        val cleanExternalId = if (entryId.startsWith("urn:calibre:")) {
+            entryId.removePrefix("urn:calibre:")
+        } else {
+            entryId
+        }
+
+        val acquisitionLink = entry.acquisitionLinks.firstOrNull { link ->
+            link.rel.any { it.contains("acquisition") }
+        }?.href ?: entry.acquisitionLinks.firstOrNull()?.href
+
+        val tags = if (entry.categories.isNotEmpty()) {
+            entry.categories.joinToString(", ")
+        } else {
+            null
+        }
+
+        val existing = externalMediaEntityDao.getByProviderAndExternalId("calibre", cleanExternalId)
+
+        return ExternalMediaEntity(
+            id = existing?.id ?: 0L,
+            providerId = "calibre",
+            externalId = cleanExternalId,
+            mediaItemId = existing?.mediaItemId,
+            title = entry.title,
+            creator = entry.authors.joinToString(", ").takeIf { it.isNotBlank() },
+            series = existing?.series,
+            mediaType = "BOOK",
+            uri = acquisitionLink ?: existing?.uri,
+            coverUrl = entry.coverUrl ?: existing?.coverUrl,
+            summary = entry.summary ?: existing?.summary,
+            tags = tags ?: existing?.tags,
+            progress = existing?.progress ?: 0f,
+            lastSyncedAt = System.currentTimeMillis()
+        )
+    }
+
+    private suspend fun persistRemoteEntities(remoteEntities: List<ExternalMediaEntity>) {
+        remoteEntities.chunked(CHUNK_SIZE).forEach { chunk ->
+            if (database != null) {
+                database.withTransaction {
+                    externalMediaEntityDao.insertEntities(chunk)
+                }
+            } else {
+                externalMediaEntityDao.insertEntities(chunk)
+            }
+        }
+    }
+
+    private suspend fun getOrCreateLocalLibraryId(libraryName: String, libraryRootPath: String): Long {
+        return try {
+            val libDao = database?.libraryDao()
+            if (libDao != null) {
+                val existing = libDao.getLibrariesByType("BOOK").firstOrNull {
+                    it.path == libraryRootPath || it.name == libraryName
+                }
+                existing?.libraryId ?: libDao.insertLibrary(
+                    Library(name = libraryName, path = libraryRootPath, type = "BOOK")
+                )
+            } else {
+                DEFAULT_LIBRARY_ID
+            }
+        } catch (_: Exception) {
+            DEFAULT_LIBRARY_ID
+        }
+    }
+
+    private fun resolveLocalBookPath(libraryRootPath: String, relativePath: String): String? {
+        val file = File(libraryRootPath, relativePath)
+        if (file.isDirectory) {
+            val preferredExtensions = listOf("epub", "mobi", "azw3", "pdf", "cbz", "cbr")
+            for (extension in preferredExtensions) {
+                val matchingFile = file.listFiles()?.firstOrNull {
+                    it.extension.equals(extension, ignoreCase = true)
+                }
+                if (matchingFile != null) {
+                    return matchingFile.absolutePath
+                }
+            }
+            return file.listFiles()
+                ?.firstOrNull { it.extension.lowercase(Locale.ROOT) in listOf("epub", "pdf", "mobi", "azw3", "cbz", "cbr", "txt") }
+                ?.absolutePath
+        }
+        return if (file.exists()) file.absolutePath else null
+    }
+
     fun getLibraryStats(): CalibreLibraryStats? {
         if (connectedServers.isEmpty() && localLibraryPaths.isEmpty()) return null
 
@@ -314,10 +634,10 @@ class CalibreIntegrationService @Inject constructor(
 
         if (localLibraryPaths.isEmpty() && connectedServers.isNotEmpty()) {
             return CalibreLibraryStats(
-                books = 1000,
-                authors = 500,
-                series = 200,
-                tags = 150
+                books = DEFAULT_STATS_BOOKS,
+                authors = DEFAULT_STATS_AUTHORS,
+                series = DEFAULT_STATS_SERIES,
+                tags = DEFAULT_STATS_TAGS
             )
         }
 
@@ -329,9 +649,6 @@ class CalibreIntegrationService @Inject constructor(
         )
     }
 
-    /**
-     * Check all connections
-     */
     suspend fun checkConnections(): CalibreConnectionStatus {
         return CalibreConnectionStatus(
             isConnected = connectedServers.isNotEmpty() || localLibraryPaths.isNotEmpty(),
@@ -339,8 +656,6 @@ class CalibreIntegrationService @Inject constructor(
             libraryCount = connectedServers.values.sumOf { it.libraryCount }
         )
     }
-
-    // IntegrationProvider implementation
 
     override suspend fun connect(config: Map<String, String>): Boolean {
         val serverName = config["serverName"] ?: "Calibre Server"
@@ -378,26 +693,41 @@ class CalibreIntegrationService @Inject constructor(
     override suspend fun fetchEntities(): List<ExternalMediaEntity> {
         return externalMediaEntityDao.getEntitiesByProvider("calibre")
     }
+
+    companion object {
+        private const val CHUNK_SIZE = 250
+        private const val DEFAULT_LIBRARY_ID = 1L
+        private const val DEFAULT_STATS_BOOKS = 1000
+        private const val DEFAULT_STATS_AUTHORS = 500
+        private const val DEFAULT_STATS_SERIES = 200
+        private const val DEFAULT_STATS_TAGS = 150
+
+        private fun resolveDatabase(context: Context?): AppDatabase? {
+            if (context == null) return null
+            return try {
+                AppDatabase.getDatabase(context)
+            } catch (_: Throwable) {
+                try {
+                    Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+                        .allowMainThreadQueries()
+                        .build()
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+        }
+
+        private fun resolveCalibreReader(context: Context?): CalibreDatabaseReader {
+            val safeContext = requireNotNull(context) { "Context must not be null" }
+            return try {
+                CalibreDatabaseReader(safeContext)
+            } catch (_: Exception) {
+                CalibreDatabaseReader(safeContext.applicationContext)
+            }
+        }
+    }
 }
 
-private object NoOpExternalMediaEntityDao : ExternalMediaEntityDao {
-    override suspend fun insertEntity(entity: ExternalMediaEntity): Long = 0L
-    override suspend fun insertEntities(entities: List<ExternalMediaEntity>): List<Long> = emptyList()
-    override suspend fun updateEntity(entity: ExternalMediaEntity) {}
-    override suspend fun getById(id: Long): ExternalMediaEntity? = null
-    override suspend fun getByProviderAndExternalId(providerId: String, externalId: String): ExternalMediaEntity? = null
-    override suspend fun getEntitiesByProvider(providerId: String): List<ExternalMediaEntity> = emptyList()
-    override fun getAllEntitiesFlow(): Flow<List<ExternalMediaEntity>> = flowOf(emptyList())
-    override suspend fun getAllEntities(): List<ExternalMediaEntity> = emptyList()
-    override suspend fun deleteByProvider(providerId: String) {}
-    override suspend fun deleteByProviderAndExternalId(providerId: String, externalId: String) {}
-    override suspend fun updateProgress(providerId: String, externalId: String, progress: Float, syncedAt: Long) {}
-    override suspend fun linkToLocalMediaItem(id: Long, mediaItemId: Long) {}
-    override suspend fun searchEntities(query: String, limit: Int): List<ExternalMediaEntity> = emptyList()
-    override suspend fun getEntityCount(): Int = 0
-}
-
-// Data classes
 data class CalibreState(
     val isConnecting: Boolean = false,
     val isSyncing: Boolean = false,
