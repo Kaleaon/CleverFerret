@@ -34,7 +34,8 @@ class PodcastViewModel @Inject constructor(
 
     val downloadProgress = downloadManager.downloadProgress
     val pendingPinChallenge: StateFlow<Any?> = MutableStateFlow(null).asStateFlow()
-    val userMessages: SharedFlow<String> = MutableSharedFlow()
+    private val _userMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val userMessages: SharedFlow<String> = _userMessages.asSharedFlow()
 
     private data class Snapshot(
         val podcasts: List<DomainPodcast>,
@@ -169,9 +170,15 @@ class PodcastViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading.value = true
             try {
+                if (opmlContent.isBlank()) {
+                    _userMessages.tryEmit("Failed to import OPML: File is empty")
+                    return@launch
+                }
                 podcastService.importOPML(opmlContent)
+                _userMessages.tryEmit("OPML imported successfully")
             } catch (e: Exception) {
                 android.util.Log.e("PodcastViewModel", "Failed to import OPML", e)
+                _userMessages.tryEmit("Failed to import OPML: ${e.message}")
             } finally {
                 isLoading.value = false
             }

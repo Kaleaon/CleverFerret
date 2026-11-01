@@ -33,7 +33,17 @@ import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import com.universalmedialibrary.ui.theme.MetallicFAB
 import com.universalmedialibrary.ui.theme.MetallicTopAppBar
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.collectLatest
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -55,6 +65,7 @@ fun PodcastManagerScreen(
     var pendingUnsubscribePodcast by remember { mutableStateOf<Podcast?>(null) }
     var selectedTab by remember { mutableIntStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val importLauncher = rememberOpmlImportLauncher(viewModel)
 
     LaunchedEffect(viewModel) {
         viewModel.userMessages.collectLatest { message ->
@@ -97,6 +108,7 @@ fun PodcastManagerScreen(
                                 onClick = {
                                     showOpmlMenu = false
                                     onImportOPML()
+                                    importLauncher.launch("*/*")
                                 }
                             )
                             DropdownMenuItem(
@@ -475,5 +487,41 @@ private fun formatTime(milliseconds: Long): String {
         "%d:%02d:%02d".format(hours, remainingMinutes, remainingSeconds)
     } else {
         "%d:%02d".format(minutes, remainingSeconds)
+    }
+}
+
+@Composable
+private fun rememberOpmlImportLauncher(
+    viewModel: PodcastViewModel,
+    context: Context = LocalContext.current,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
+) = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.GetContent()
+) { uri: Uri? ->
+    uri?.let {
+        coroutineScope.launch {
+            readAndImportOpml(context, it, viewModel)
+        }
+    }
+}
+
+private suspend fun readAndImportOpml(
+    context: Context,
+    uri: Uri,
+    viewModel: PodcastViewModel
+) {
+    try {
+        val content = withContext(Dispatchers.IO) {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                inputStream.bufferedReader().readText()
+            }
+        }
+        if (content != null) {
+            viewModel.importOpml(content)
+        }
+    } catch (e: IOException) {
+        android.util.Log.e("PodcastManagerScreen", "Failed to read OPML file", e)
+    } catch (e: SecurityException) {
+        android.util.Log.e("PodcastManagerScreen", "Permission denied reading OPML file", e)
     }
 }

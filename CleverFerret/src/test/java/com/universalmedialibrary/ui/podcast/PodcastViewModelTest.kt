@@ -159,6 +159,32 @@ class PodcastViewModelTest {
         coVerify { podcastService.importOPML(opmlContent) }
     }
 
+    @Test
+    fun `importOpml with blank content emits error message and does not call service`() = runTest {
+        val message = async { viewModel.userMessages.first() }
+        viewModel.importOpml("   ")
+        advanceUntilIdle()
+
+        assertThat(message.await()).isEqualTo("Failed to import OPML: File is empty")
+        assertThat(viewModel.uiState.value.error).isEqualTo("Failed to import OPML: File is empty")
+        assertThat(viewModel.uiState.value.isLoading).isFalse()
+        coVerify(exactly = 0) { podcastService.importOPML(any()) }
+    }
+
+    @Test
+    fun `importOpml when service throws exception catches error and emits failure message`() = runTest {
+        val malformedXml = "<malformed><<"
+        coEvery { podcastService.importOPML(malformedXml) } throws RuntimeException("Malformed XML structure")
+
+        val message = async { viewModel.userMessages.first() }
+        viewModel.importOpml(malformedXml)
+        advanceUntilIdle()
+
+        assertThat(message.await()).isEqualTo("Failed to import OPML: Malformed XML structure")
+        assertThat(viewModel.uiState.value.error).isEqualTo("Failed to import OPML: Malformed XML structure")
+        assertThat(viewModel.uiState.value.isLoading).isFalse()
+    }
+
     private fun searchResult(id: String, feedUrl: String) = PodcastSearchResult(
         id = id,
         title = "Podcast $id",

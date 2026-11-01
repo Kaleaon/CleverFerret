@@ -59,7 +59,7 @@ class CatalogingPipelineEngineTest {
     }
 
     @Test
-    fun `test High-Confidence Item passes through all 4 stages and persists directly`() = runBlocking {
+    fun `test High-Confidence Item passes through all 4 stages and routes to staging with unverified status`() = runBlocking {
         val file = tempFolder.newFile("The Great Gatsby.epub")
 
         val raw = RawMetadata(
@@ -86,17 +86,19 @@ class CatalogingPipelineEngineTest {
         coEvery { mediaItemDao.insertMediaItem(any()) } returns 100L
         coEvery { metadataDao.insertMetadataCommon(any()) } returns Unit
         coEvery { metadataDao.insertMetadataBook(any()) } returns Unit
-        coEvery { mediaItemDao.updateMediaItem(any()) } returns Unit
+        coEvery { metadataStagingRepository.stageMetadataCommon(any(), any(), any(), any(), any()) } returns 777L
 
         val result = engine.execute(file, "BOOK", 1L)
 
         assertTrue(result.isSuccess)
-        assertFalse(result.isStaged)
-        assertEquals(PipelineStatus.COMPLETED, result.context.status)
+        assertTrue(result.isStaged)
+        assertEquals(PipelineStatus.STAGED, result.context.status)
         assertEquals("Great Gatsby, The", result.context.normalizedCommon?.sortTitle)
         assertTrue(result.context.confidenceScore >= 0.85f)
+        assertEquals(777L, result.context.stagedCandidateId)
 
-        coVerify { metadataDao.insertMetadataCommon(match { it.isVerified }) }
+        coVerify { metadataDao.insertMetadataCommon(match { !it.isVerified }) }
+        coVerify { metadataStagingRepository.stageMetadataCommon(eq(100L), any(), any(), eq(0.85f), any()) }
     }
 
     @Test

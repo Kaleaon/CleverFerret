@@ -171,4 +171,55 @@ class ProcessorsTest {
 
         coVerify { metadataStagingRepository.stageMetadataCommon(eq(300L), any(), any(), eq(0.65f), any()) }
     }
+
+    @Test
+    fun `test Stage 4 StagingPersistenceProcessor routes high confidence to staging with unverified status`() =
+        runBlocking {
+            val mediaItemDao = mockk<MediaItemDao>()
+            val metadataDao = mockk<MetadataDao>()
+            val metadataStagingRepository = mockk<MetadataStagingRepository>()
+
+            val processor = StagingPersistenceProcessor(mediaItemDao, metadataDao, metadataStagingRepository)
+
+            val file = tempFolder.newFile("high_confidence.epub")
+            val dummyMediaItem = MediaItem(
+                itemId = 301L,
+                libraryId = 1L,
+                filePath = file.absolutePath,
+                fileName = file.name,
+                fileExtension = "epub",
+                fileSize = 100L,
+                mediaType = "BOOK"
+            )
+
+            coEvery { mediaItemDao.getItemByPath(file.absolutePath) } returns dummyMediaItem
+            coEvery { metadataDao.insertMetadataCommon(any()) } returns Unit
+            coEvery { metadataDao.insertMetadataBook(any()) } returns Unit
+            coEvery { metadataStagingRepository.stageMetadataCommon(any(), any(), any(), any(), any()) } returns 889L
+
+            val context = CatalogingPipelineContext(
+                file = file,
+                mediaType = "BOOK",
+                libraryId = 1L,
+                confidenceScore = 0.95f
+            )
+
+            val result = processor.process(context)
+
+            assertTrue(result.isStaged)
+            assertEquals(PipelineStatus.STAGED, result.status)
+            assertEquals(889L, result.stagedCandidateId)
+            assertFalse(result.normalizedCommon?.isVerified ?: true)
+
+            coVerify { metadataDao.insertMetadataCommon(match { !it.isVerified }) }
+            coVerify {
+                metadataStagingRepository.stageMetadataCommon(
+                    eq(301L),
+                    any(),
+                    any(),
+                    eq(0.95f),
+                    any()
+                )
+            }
+        }
 }
