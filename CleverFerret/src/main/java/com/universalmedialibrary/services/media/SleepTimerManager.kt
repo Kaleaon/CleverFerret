@@ -29,6 +29,7 @@ import javax.inject.Singleton
 class SleepTimerManager @Inject constructor() {
     
     private var timerJob: Job? = null
+    private var endOfChapterCallback: (() -> Unit)? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     
     private val _state = MutableStateFlow(SleepTimerState())
@@ -147,12 +148,50 @@ class SleepTimerManager @Inject constructor() {
     }
     
     /**
+     * Start end-of-chapter/episode sleep timer
+     * @param onComplete Callback when the current chapter or track ends
+     */
+    fun startEndOfChapterTimer(onComplete: () -> Unit) {
+        stopTimer()
+        this.endOfChapterCallback = onComplete
+        _state.value = SleepTimerState(
+            isActive = true,
+            isPaused = false,
+            isEndOfChapter = true,
+            totalSeconds = 0,
+            remainingSeconds = 0,
+            fadeOut = false
+        )
+    }
+
+    /**
+     * Notify that a chapter or media track has finished playing
+     */
+    fun notifyChapterOrTrackEnded() {
+        if (_state.value.isActive && _state.value.isEndOfChapter) {
+            val callback = endOfChapterCallback
+            stopTimer()
+            callback?.invoke()
+        }
+    }
+
+    /**
+     * Reset end-of-chapter timer state without executing completion callback
+     */
+    fun resetEndOfChapterState() {
+        if (_state.value.isActive && _state.value.isEndOfChapter) {
+            stopTimer()
+        }
+    }
+
+    /**
      * Stop and cancel the timer
      */
     fun stopTimer() {
         val wasActive = _state.value.isActive
         timerJob?.cancel()
         timerJob = null
+        endOfChapterCallback = null
         _state.value = SleepTimerState()
         if (wasActive) {
             onVolumeChange?.invoke(baseVolume)
@@ -164,7 +203,7 @@ class SleepTimerManager @Inject constructor() {
      * @param additionalMinutes Minutes to add
      */
     fun addTime(additionalMinutes: Int) {
-        if (_state.value.isActive) {
+        if (_state.value.isActive && !_state.value.isEndOfChapter) {
             val wasFadingOut = shouldFadeOut()
             val additionalSeconds = additionalMinutes * 60L
             _state.value = _state.value.copy(
@@ -194,6 +233,7 @@ class SleepTimerManager @Inject constructor() {
     fun shouldFadeOut(): Boolean {
         return _state.value.fadeOut && 
                _state.value.isActive && 
+               !_state.value.isEndOfChapter &&
                _state.value.remainingSeconds <= 10
     }
     
@@ -213,6 +253,7 @@ class SleepTimerManager @Inject constructor() {
 data class SleepTimerState(
     val isActive: Boolean = false,
     val isPaused: Boolean = false,
+    val isEndOfChapter: Boolean = false,
     val totalSeconds: Long = 0,
     val remainingSeconds: Long = 0,
     val fadeOut: Boolean = true

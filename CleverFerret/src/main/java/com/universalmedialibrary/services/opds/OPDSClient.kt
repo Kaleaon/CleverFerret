@@ -169,6 +169,20 @@ class OPDSClient @Inject constructor(
                         "language", "dc:language" -> {
                             currentEntry?.language = parser.nextTextOrEmpty()
                         }
+                        "id" -> {
+                            val text = parser.nextTextOrEmpty()
+                            currentEntry?.id = text
+                        }
+                        "category" -> {
+                            val term = parser.getAttributeValue(null, "term")
+                                ?: parser.getAttributeValue("", "term")
+                            val label = parser.getAttributeValue(null, "label")
+                                ?: parser.getAttributeValue("", "label")
+                            val cat = label?.takeIf { it.isNotBlank() } ?: term
+                            if (!cat.isNullOrBlank()) {
+                                currentEntry?.categories?.add(cat)
+                            }
+                        }
                         "updated" -> currentEntry?.updated = parser.nextTextOrEmpty()
                         "published" -> currentEntry?.published = parser.nextTextOrEmpty()
                         "entry" -> currentEntry = EntryBuilder()
@@ -293,6 +307,7 @@ class OPDSClient @Inject constructor(
     }
 
     private data class EntryBuilder(
+        var id: String? = null,
         var title: String = "",
         var summary: String? = null,
         var published: String? = null,
@@ -300,6 +315,7 @@ class OPDSClient @Inject constructor(
         var language: String? = null,
         var coverUrl: String? = null,
         val authors: MutableList<String> = mutableListOf(),
+        val categories: MutableList<String> = mutableListOf(),
         val acquisitionLinks: MutableList<OPDSLink> = mutableListOf(),
         val navigationLinks: MutableList<OPDSLink> = mutableListOf()
     ) {
@@ -313,7 +329,9 @@ class OPDSClient @Inject constructor(
                 language = language?.takeIf { it.isNotBlank() },
                 coverUrl = coverUrl?.takeIf { it.isNotBlank() },
                 acquisitionLinks = acquisitionLinks.toList(),
-                navigationLinks = navigationLinks.toList()
+                navigationLinks = navigationLinks.toList(),
+                id = id?.takeIf { it.isNotBlank() },
+                categories = categories.filter { it.isNotBlank() }
             )
         }
     }
