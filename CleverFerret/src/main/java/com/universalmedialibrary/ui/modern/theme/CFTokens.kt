@@ -9,6 +9,7 @@ package com.universalmedialibrary.ui.modern.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -128,7 +129,7 @@ data class CFTokens(
     val liveRegion: KthemeThemeAdapterV1.LiveRegionPolicy = KthemeThemeAdapterV1.LiveRegionPolicy(),
 )
 
-val LocalCFTokens = staticCompositionLocalOf<CFTokens> {
+val LocalCFTokens = compositionLocalOf<CFTokens> {
     error("CFTokens not provided — wrap your composable in CFTheme")
 }
 
