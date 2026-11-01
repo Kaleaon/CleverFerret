@@ -10,11 +10,13 @@ import com.universalmedialibrary.services.billing.entitlements.ThemeEntitlementH
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import kotlinx.coroutines.test.runTest
 
 @RunWith(RobolectricTestRunner::class)
 class GooglePlayBillingAdapterTest {
@@ -76,5 +78,22 @@ class GooglePlayBillingAdapterTest {
         val expectedUrl = "https://play.google.com/store/account/subscriptions?" +
             "sku=cloud_pro_annual&package=com.universalmedialibrary"
         assertEquals(expectedUrl, intentSlot[1].dataString)
+    }
+
+    @Test
+    fun restorePurchases_updatesAllSubscribedEntitlementHandlers() = runTest {
+        adapter.addActivePurchase("theme_pro_monthly")
+        adapter.addActivePurchase("scanner_pro_monthly")
+
+        val result = adapter.restorePurchases()
+        assertTrue(result is PurchaseResult.Success)
+        assertTrue(themeHandler.isThemeProUnlocked.value)
+        assertTrue(scannerHandler.isScannerProUnlocked.value)
+    }
+
+    @Test
+    fun restorePurchases_whenNoPurchases_returnsErrorResult() = runTest {
+        val result = adapter.restorePurchases()
+        assertTrue(result is PurchaseResult.Error)
     }
 }

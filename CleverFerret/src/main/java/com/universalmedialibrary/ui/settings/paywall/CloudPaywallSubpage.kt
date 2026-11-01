@@ -158,6 +158,14 @@ fun CloudPaywallSubpage(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                RestorePurchasesButton(
+                    onRestore = { viewModel.restorePurchases() },
+                    enabled = !uiState.isProcessing,
+                    isProcessing = uiState.isProcessing
+                )
             }
 
             uiState.purchaseResult?.let { result ->

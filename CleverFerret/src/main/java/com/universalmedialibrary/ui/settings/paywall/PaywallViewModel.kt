@@ -85,6 +85,15 @@ class ThemePaywallViewModel @Inject constructor(
         }
     }
 
+    fun restorePurchases() {
+        if (_uiState.value.isProcessing) return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isProcessing = true, purchaseResult = null)
+            val result = billingService.restorePurchases()
+            _uiState.value = _uiState.value.copy(isProcessing = false, purchaseResult = result)
+        }
+    }
+
     fun retryConnection() {
         billingService.retryConnection()
     }
@@ -149,6 +158,15 @@ class ScannerPaywallViewModel @Inject constructor(
         }
     }
 
+    fun restorePurchases() {
+        if (_uiState.value.isProcessing) return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isProcessing = true, purchaseResult = null)
+            val result = billingService.restorePurchases()
+            _uiState.value = _uiState.value.copy(isProcessing = false, purchaseResult = result)
+        }
+    }
+
     fun retryConnection() {
         billingService.retryConnection()
     }
@@ -210,6 +228,15 @@ class CloudPaywallViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isProcessing = true, purchaseResult = null)
             billingService.launchBillingFlow(activity, productId)
+        }
+    }
+
+    fun restorePurchases() {
+        if (_uiState.value.isProcessing) return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isProcessing = true, purchaseResult = null)
+            val result = billingService.restorePurchases()
+            _uiState.value = _uiState.value.copy(isProcessing = false, purchaseResult = result)
         }
     }
 
