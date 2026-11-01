@@ -126,6 +126,8 @@ data class CFTokens(
     val playerControls: CFPlayerControls = CFPlayerControls(),
     val gridMinItemWidth: CFGridMinItemWidth = CFGridMinItemWidth(),
     val liveRegion: KthemeThemeAdapterV1.LiveRegionPolicy = KthemeThemeAdapterV1.LiveRegionPolicy(),
+    val mediaCategories: CFMediaCategoryColors = CFMediaCategoryDefaults.darkPalette(),
+    val placeholderCoverColors: List<Color> = emptyList(),
 )
 
 val LocalCFTokens = staticCompositionLocalOf<CFTokens> {
@@ -183,6 +185,17 @@ val NavyGoldTokens = CFTokens(
         activeAccent              = Color(0xFFFFD166),
         surfaceOverlay            = Color(0xFF0E1D33),
         sheetBackground           = Color(0xFF14233F),
+    ),
+    mediaCategories = CFMediaCategoryDefaults.darkPalette(),
+    placeholderCoverColors = listOf(
+        Color(0xFFFFD166),
+        Color(0xFFD4AF37),
+        Color(0xFFB8924A),
+        Color(0xFF7A5B1E),
+        Color(0xFFFFE680),
+        Color(0xFF1F2F4A),
+        Color(0xFFC9C5A8),
+        Color(0xFF14233F)
     ),
 )
 
@@ -368,6 +381,17 @@ val PaperInkTokens = CFTokens(
         surfaceOverlay            = Color(0xFFF0F0EB),
         sheetBackground           = Color(0xFFFAF9F6),
     ),
+    mediaCategories = CFMediaCategoryDefaults.lightPalette(),
+    placeholderCoverColors = listOf(
+        Color(0xFF2C2C2C),
+        Color(0xFF595959),
+        Color(0xFF9A9A9A),
+        Color(0xFF454545),
+        Color(0xFFD6D6D6),
+        Color(0xFFEBEAE4),
+        Color(0xFFC9C9C9),
+        Color(0xFFFAF9F6)
+    ),
 )
 
 // Neo-Noir Neon
@@ -505,6 +529,15 @@ val EInkTokens = CFTokens(
         surfaceOverlay            = Color.White,
         sheetBackground           = Color.White,
     ),
+    mediaCategories = CFMediaCategoryDefaults.lightPalette(),
+    placeholderCoverColors = listOf(
+        Color.Black,
+        Color.DarkGray,
+        Color.Gray,
+        Color.LightGray,
+        Color(0xFFE0E0E0),
+        Color.White
+    ),
 )
 
 // High Contrast
@@ -550,6 +583,15 @@ val HighContrastTokens = CFTokens(
         activeAccent              = Color.Yellow,
         surfaceOverlay            = Color.Black,
         sheetBackground           = Color.Black,
+    ),
+    mediaCategories = CFMediaCategoryDefaults.highContrastPalette(),
+    placeholderCoverColors = listOf(
+        Color.Yellow,
+        Color.Cyan,
+        Color.Magenta,
+        Color.Green,
+        Color(0xFFFF5252),
+        Color.White
     ),
 )
 
@@ -798,7 +840,23 @@ fun KthemeThemeDefinitionDto.toCFPalette(): CFPalette {
                 sheetBackground = scheme.surface
             )
         },
-        liveRegion = livePolicy
+        liveRegion = livePolicy,
+        mediaCategories = when (id) {
+            "e-ink" -> EInkTokens.mediaCategories
+            "high-contrast" -> HighContrastTokens.mediaCategories
+            "paper-ink" -> PaperInkTokens.mediaCategories
+            else -> if (isDark) CFMediaCategoryDefaults.darkPalette() else CFMediaCategoryDefaults.lightPalette()
+        },
+        placeholderCoverColors = listOf(
+            scheme.primary,
+            scheme.secondary,
+            scheme.tertiary,
+            scheme.primaryContainer,
+            scheme.secondaryContainer,
+            scheme.tertiaryContainer,
+            scheme.surfaceVariant,
+            scheme.inversePrimary
+        )
     )
 
     return CFPalette(scheme = scheme, tokens = tokens)

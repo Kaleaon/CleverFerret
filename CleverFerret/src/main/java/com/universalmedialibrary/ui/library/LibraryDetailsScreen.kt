@@ -2,31 +2,49 @@ package com.universalmedialibrary.ui.library
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.universalmedialibrary.data.local.entity.LibraryScanSettings
-import com.universalmedialibrary.data.local.entity.ListenHistoryDailyCount
-import com.universalmedialibrary.data.local.entity.ListenHistoryTopItem
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import com.universalmedialibrary.ui.selection.GlobalSelectionViewModel
 import com.universalmedialibrary.ui.selection.SelectedMediaItem
@@ -56,11 +74,6 @@ fun LibraryDetailsScreen(
         }
     }
 
-    // media-centric colors
-    val backgroundColor = Color(0xFF1A1A1A)
-    val surfaceColor = Color(0xFF1F2326)
-    val primaryColor = Color(0xFFE5A00D)
-
     // Load library details on composition
     LaunchedEffect(libraryId) {
         viewModel.loadLibraryDetails(libraryId.toLong())
@@ -69,7 +82,7 @@ fun LibraryDetailsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column {
             // App Bar
@@ -78,7 +91,7 @@ fun LibraryDetailsScreen(
                     Text(
                         text = uiState.library?.name ?: "Library Contents",
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 navigationIcon = {
@@ -86,7 +99,7 @@ fun LibraryDetailsScreen(
                         Icon(
                             PhosphorIcons.ArrowLeft,
                             contentDescription = "Back",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -95,20 +108,20 @@ fun LibraryDetailsScreen(
                         Icon(
                             imageVector = if (selectionMode) Icons.Filled.CheckBox else Icons.Filled.CheckBoxOutlineBlank,
                             contentDescription = "Toggle Selection",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     IconButton(onClick = { viewModel.refresh(libraryId.toLong()) }) {
                         Icon(
                             PhosphorIcons.ArrowClockwise,
                             contentDescription = "Refresh",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = surfaceColor,
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
 
@@ -127,7 +140,7 @@ fun LibraryDetailsScreen(
                             text = uiState.library?.name ?: "Library",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Light,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onBackground
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
@@ -137,7 +150,7 @@ fun LibraryDetailsScreen(
                         Text(
                             text = "$itemCount items • $libraryType media",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color(0xFFB3B3B3)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -152,7 +165,7 @@ fun LibraryDetailsScreen(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
                                     .clickable { /* Handle bulk API metadata search */ },
-                                color = Color(0xFF2C5F2D).copy(alpha = 0.4f)
+                                color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Row(
                                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -163,12 +176,12 @@ fun LibraryDetailsScreen(
                                         imageVector = PhosphorIcons.MagnifyingGlass,
                                         contentDescription = "Search all metadata",
                                         modifier = Modifier.size(16.dp),
-                                        tint = Color(0xFF97BC62)
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                     Text(
                                         text = "Find Metadata",
                                         style = MaterialTheme.typography.labelMedium,
-                                        color = Color(0xFF97BC62)
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
                             }
@@ -178,7 +191,7 @@ fun LibraryDetailsScreen(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
                                     .clickable { /* Handle bulk metadata edit */ },
-                                color = Color(0xFF1565C0).copy(alpha = 0.4f)
+                                color = MaterialTheme.colorScheme.secondaryContainer
                             ) {
                                 Row(
                                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -189,12 +202,12 @@ fun LibraryDetailsScreen(
                                         imageVector = PhosphorIcons.Pencil,
                                         contentDescription = "Edit metadata",
                                         modifier = Modifier.size(16.dp),
-                                        tint = Color(0xFF42A5F5)
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
                                         text = "Edit Metadata",
                                         style = MaterialTheme.typography.labelMedium,
-                                        color = Color(0xFF42A5F5)
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                 }
                             }
@@ -219,12 +232,12 @@ fun LibraryDetailsScreen(
                                 Text(
                                     "Library Scan Preferences",
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = Color.White
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Icon(
                                     imageVector = if (isSettingsExpanded) PhosphorIcons.CaretUp else PhosphorIcons.CaretDown,
                                     contentDescription = if (isSettingsExpanded) "Collapse" else "Expand",
-                                    tint = Color.White
+                                    tint = MaterialTheme.colorScheme.onBackground
                                 )
                             }
 
@@ -259,13 +272,13 @@ fun LibraryDetailsScreen(
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFF4A1A1A)
+                                    containerColor = MaterialTheme.colorScheme.errorContainer
                                 )
                             ) {
                                 Text(
                                     text = "Error: ${uiState.error}",
                                     modifier = Modifier.padding(16.dp),
-                                    color = Color(0xFFFF6B6B)
+                                    color = MaterialTheme.colorScheme.onErrorContainer
                                 )
                             }
                             Spacer(modifier = Modifier.height(16.dp))
@@ -284,10 +297,10 @@ fun LibraryDetailsScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                CircularProgressIndicator(color = primaryColor)
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                                 Text(
                                     text = "Loading media items...",
-                                    color = Color(0xFFB3B3B3)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -307,17 +320,17 @@ fun LibraryDetailsScreen(
                                     PhosphorIcons.FolderOpen,
                                     contentDescription = "Media image",
                                     modifier = Modifier.size(64.dp),
-                                    tint = Color(0xFF666666)
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
                                 Text(
                                     text = "No media items found",
                                     style = MaterialTheme.typography.headlineSmall,
-                                    color = Color(0xFF666666)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
                                     text = "Add some files to this library to get started",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = Color(0xFF999999)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                                 )
                             }
                         }
@@ -357,336 +370,4 @@ fun LibraryDetailsScreen(
             )
         }
     }
-}
-
-@Composable
-private fun LibraryScanSettingsCard(
-    settings: LibraryScanSettings,
-    onSave: (LibraryScanSettings) -> Unit
-) {
-    var includePaths by remember(settings) { mutableStateOf(settings.includePaths) }
-    var excludePaths by remember(settings) { mutableStateOf(settings.excludePaths) }
-    var includeSubdirectories by remember(settings) { mutableStateOf(settings.includeSubdirectories) }
-    var minFileSizeMb by remember(settings) {
-        mutableStateOf(
-            if (settings.minFileSizeBytes <= 0) "" else (settings.minFileSizeBytes / (1024 * 1024)).toString()
-        )
-    }
-    var minAudioDurationSec by remember(settings) {
-        mutableStateOf(
-            if (settings.minAudioDurationMs <= 0) "" else (settings.minAudioDurationMs / 1000).toString()
-        )
-    }
-    var preventDuplicates by remember(settings) { mutableStateOf(settings.preventDuplicates) }
-    var dedupeStrategy by remember(settings) { mutableStateOf(settings.deduplicationStrategy) }
-    var minListenSeconds by remember(settings) { mutableStateOf(settings.minListenSeconds) }
-    var minListenPercent by remember(settings) { mutableStateOf(settings.minListenPercent.toFloat()) }
-    var showIncludeDialog by remember { mutableStateOf(false) }
-    var showExcludeDialog by remember { mutableStateOf(false) }
-    var strategyExpanded by remember { mutableStateOf(false) }
-    val strategies = listOf("PATH", "FILENAME_SIZE", "HASH")
-
-    if (showIncludeDialog) {
-        PathInputDialog(
-            title = "Add Include Folder",
-            onDismiss = { showIncludeDialog = false },
-            onConfirm = { newPath ->
-                includePaths = includePaths + newPath
-                showIncludeDialog = false
-            }
-        )
-    }
-
-    if (showExcludeDialog) {
-        PathInputDialog(
-            title = "Add Excluded Folder",
-            onDismiss = { showExcludeDialog = false },
-            onConfirm = { newPath ->
-                excludePaths = excludePaths + newPath
-                showExcludeDialog = false
-            }
-        )
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1F1F1F))
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.padding(16.dp)
-        ) {
-            // Title removed to avoid duplication with the collapsible header
-            // Text("Library Scan Preferences", style = MaterialTheme.typography.titleMedium, color = Color.White)
-
-            PreferencePathList(
-                title = "Include folders",
-                paths = includePaths,
-                onRemove = { includePaths = includePaths - it },
-                onAddClick = { showIncludeDialog = true }
-            )
-
-            PreferencePathList(
-                title = "Exclude folders",
-                paths = excludePaths,
-                onRemove = { excludePaths = excludePaths - it },
-                onAddClick = { showExcludeDialog = true }
-            )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Include subdirectories", color = Color.White)
-                Switch(checked = includeSubdirectories, onCheckedChange = { includeSubdirectories = it })
-            }
-
-            OutlinedTextField(
-                value = minFileSizeMb,
-                onValueChange = { minFileSizeMb = it },
-                label = { Text("Minimum file size (MB)") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = minAudioDurationSec,
-                onValueChange = { minAudioDurationSec = it },
-                label = { Text("Minimum audio duration (seconds)") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Prevent duplicates", color = Color.White)
-                Switch(checked = preventDuplicates, onCheckedChange = { preventDuplicates = it })
-            }
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = dedupeStrategy,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Duplicate strategy") },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = "Media image",
-                            modifier = Modifier.clickable { strategyExpanded = !strategyExpanded }
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { strategyExpanded = true }
-                )
-                DropdownMenu(
-                    expanded = strategyExpanded,
-                    onDismissRequest = { strategyExpanded = false }
-                ) {
-                    strategies.forEach { strategy ->
-                        DropdownMenuItem(
-                            text = { Text(strategy) },
-                            onClick = {
-                                dedupeStrategy = strategy
-                                strategyExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            Column {
-                Text("Minimum listen seconds: $minListenSeconds", color = Color.White)
-                Slider(
-                    value = minListenSeconds.toFloat(),
-                    onValueChange = { minListenSeconds = it.toInt() },
-                    valueRange = 5f..120f
-                )
-            }
-
-            Column {
-                Text("Minimum listen percent: ${minListenPercent.toInt()}%", color = Color.White)
-                Slider(
-                    value = minListenPercent,
-                    onValueChange = { minListenPercent = it },
-                    valueRange = 5f..100f
-                )
-            }
-
-            Button(
-                onClick = {
-                    val minSizeBytes = minFileSizeMb.toLongOrNull()?.coerceAtLeast(0)?.times(1024 * 1024) ?: 0L
-                    val minDurationMs = minAudioDurationSec.toLongOrNull()?.coerceAtLeast(0)?.times(1000) ?: 0L
-                    onSave(
-                        settings.copy(
-                            includePaths = includePaths.filter { it.isNotBlank() },
-                            excludePaths = excludePaths.filter { it.isNotBlank() },
-                            includeSubdirectories = includeSubdirectories,
-                            minFileSizeBytes = minSizeBytes,
-                            minAudioDurationMs = minDurationMs,
-                            preventDuplicates = preventDuplicates,
-                            deduplicationStrategy = dedupeStrategy,
-                            minListenSeconds = minListenSeconds,
-                            minListenPercent = minListenPercent.toInt()
-                        )
-                    )
-                },
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text("Save Preferences")
-            }
-        }
-    }
-}
-
-@Composable
-private fun PreferencePathList(
-    title: String,
-    paths: List<String>,
-    onRemove: (String) -> Unit,
-    onAddClick: () -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(title, color = Color.White, fontWeight = FontWeight.SemiBold)
-        if (paths.isEmpty()) {
-            Text("None", color = Color(0xFFB3B3B3), style = MaterialTheme.typography.bodySmall)
-        } else {
-            paths.forEach { path ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF2A2A2A))
-                        .padding(8.dp)
-                ) {
-                    Text(path, color = Color.White, modifier = Modifier.weight(1f))
-                    IconButton(onClick = { onRemove(path) }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Remove", tint = Color(0xFFFF6B6B))
-                    }
-                }
-            }
-        }
-        OutlinedButton(onClick = onAddClick) {
-            Icon(Icons.Default.Add, contentDescription = "Add")
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Add path")
-        }
-    }
-}
-
-@Composable
-private fun HistoryInsightsCard(
-    topItems: List<ListenHistoryTopItem>,
-    dailyCounts: List<ListenHistoryDailyCount>
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1F1F1F))
-    ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Listening Insights", style = MaterialTheme.typography.titleMedium, color = Color.White)
-            Text("Most Played", color = Color(0xFFB3B3B3), style = MaterialTheme.typography.labelMedium)
-            if (topItems.isEmpty()) {
-                Text("No listening history yet.", color = Color(0xFF7A7A7A))
-            } else {
-                topItems.forEach { item ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(item.title, color = Color.White)
-                            item.artist?.let { Text(it, color = Color(0xFFB3B3B3), style = MaterialTheme.typography.bodySmall) }
-                        }
-                        Text("${item.playCount}×", color = Color(0xFFE5A00D), fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-
-            if (dailyCounts.isNotEmpty()) {
-                Text("Recent activity", color = Color(0xFFB3B3B3), style = MaterialTheme.typography.labelMedium)
-                dailyCounts.take(7).forEach { count ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(count.day, color = Color.White)
-                        Text("${count.playCount} plays", color = Color(0xFFE5A00D))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun GlobalSelectionBar(
-    selectionState: com.universalmedialibrary.ui.selection.GlobalSelectionState,
-    onClear: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        tonalElevation = 8.dp,
-        shadowElevation = 16.dp,
-        color = Color(0xFF1F1F1F),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("${selectionState.totalCount} selected", color = Color.White, fontWeight = FontWeight.SemiBold)
-            OutlinedButton(onClick = onClear) {
-                Text("Clear")
-            }
-        }
-    }
-}
-
-@Composable
-private fun PathInputDialog(
-    title: String,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
-) {
-    var text by remember { mutableStateOf("") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                label = { Text("Path or URI") },
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (text.isNotBlank()) {
-                        onConfirm(text.trim())
-                    }
-                }
-            ) {
-                Text("Add")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
 }
