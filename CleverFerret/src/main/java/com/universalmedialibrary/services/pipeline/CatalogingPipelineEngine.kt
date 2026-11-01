@@ -70,18 +70,25 @@ class CatalogingPipelineEngineImpl @Inject constructor(
                     }
                 }
 
-                val finalStatus = currentContext.status
-                val isSuccess = finalStatus == PipelineStatus.COMPLETED || finalStatus == PipelineStatus.STAGED
-                val isStaged = currentContext.isStaged
+                val isSuccess = currentContext.status != PipelineStatus.FAILED
+                val effectiveContext = if (isSuccess) {
+                    currentContext.copy(
+                        status = PipelineStatus.STAGED,
+                        isStaged = true
+                    )
+                } else {
+                    currentContext
+                }
+                val isStaged = effectiveContext.isStaged
 
                 val message = when {
-                    isStaged -> "Media item staged for candidate review with confidence score ${currentContext.confidenceScore}"
-                    isSuccess -> "Cataloging pipeline completed successfully for ${currentContext.file.name}"
-                    else -> "Cataloging pipeline failed: ${currentContext.errors.joinToString("; ")}"
+                    isStaged -> "Media item staged for candidate review with confidence score ${effectiveContext.confidenceScore}"
+                    isSuccess -> "Cataloging pipeline completed successfully for ${effectiveContext.file.name}"
+                    else -> "Cataloging pipeline failed: ${effectiveContext.errors.joinToString("; ")}"
                 }
 
                 CatalogingPipelineResult(
-                    context = currentContext,
+                    context = effectiveContext,
                     isSuccess = isSuccess,
                     isStaged = isStaged,
                     message = message

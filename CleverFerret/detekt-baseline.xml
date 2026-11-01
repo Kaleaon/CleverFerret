@@ -296,7 +296,6 @@
     <ID>CyclomaticComplexMethod:loadFileItems.kt$internal fun loadFileItems(directory: File, settings: FileBrowserSettings): List&lt;FileItem&gt;</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:ServerIntegrationScreen.kt$val (icon, name, description, color) = when (serverType) { ServerType.PLEX -&gt; Tuple4( Icons.Default.CloudQueue, "Plex Media Server", "Connect to your Plex server for seamless media integration", MaterialTheme.colorScheme.primary ) ServerType.JELLYFIN -&gt; Tuple4( Icons.Default.Cloud, "Jellyfin", "Open-source media system with full API support", MaterialTheme.colorScheme.tertiary ) ServerType.EMBY -&gt; Tuple4( Icons.Default.CloudCircle, "Emby", "Personal media server with extensive features", MaterialTheme.colorScheme.secondary ) }</ID>
     <ID>EmptyCatchBlock:AudioEffectsController.kt$AudioEffectsController${ }</ID>
-    <ID>EmptyFunctionBlock:CalibreIntegrationService.kt$NoOpExternalMediaEntityDao${}</ID>
     <ID>EmptyFunctionBlock:DragCancelledAnimation.kt$NoDragCancelledAnimation${}</ID>
     <ID>EmptyFunctionBlock:EnhancedRadioViewModel.kt$EnhancedRadioViewModel${}</ID>
     <ID>EmptyFunctionBlock:IngestionStagingGatewaysTest.kt$IngestionStagingGatewaysTest.FakeMetadataDao${}</ID>
@@ -1641,7 +1640,7 @@
     <ID>FunctionNaming:SiteSelectorCard.kt$@OptIn(ExperimentalLayoutApi::class) @Composable internal fun SiteSelectorCard( selectedSite: WebFictionSiteType?, adultSitesEnabled: Boolean, onSiteSelected: (WebFictionSiteType) -&gt; Unit )</ID>
     <ID>FunctionNaming:SleepTimerBadge.kt$@Composable internal fun SleepTimerBadge( endTime: Long, onClear: () -&gt; Unit, textColor: Color )</ID>
     <ID>FunctionNaming:SleepTimerDialog.kt$@Composable fun SleepTimerDialog( currentTimerMinutes: Int?, remainingSeconds: Int?, onSetTimer: (Int) -&gt; Unit, onCancelTimer: () -&gt; Unit, onSetEndOfChapter: () -&gt; Unit, onDismiss: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:SleepTimerDialog.kt$@Composable fun SleepTimerDialog( onDismiss: () -&gt; Unit, onSetTimer: (minutes: Int) -&gt; Unit )</ID>
+    <ID>FunctionNaming:SleepTimerDialog.kt$@Composable fun SleepTimerDialog( onDismiss: () -&gt; Unit, onSetTimer: (minutes: Int) -&gt; Unit, onSetEndOfChapter: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:SleepTimerDialog.kt$@Composable internal fun SleepTimerDialog( currentTimer: Long?, isActive: Boolean, onSetTimer: (Int) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>FunctionNaming:SlideUpMediaBar.kt$@Composable private fun CollapsedContent( state: SlideUpMediaState, onPlayPause: () -&gt; Unit, onTap: () -&gt; Unit )</ID>
     <ID>FunctionNaming:SlideUpMediaBar.kt$@Composable private fun ExpandedContent( state: SlideUpMediaState, onPlayPause: () -&gt; Unit, onNext: () -&gt; Unit, onPrevious: () -&gt; Unit, onSeek: (Float) -&gt; Unit, onSpeedChange: (Float) -&gt; Unit, onChapterSelect: (Int) -&gt; Unit, onCollapse: () -&gt; Unit )</ID>
@@ -2567,7 +2566,7 @@
     <ID>LongMethod:SimpleEpubCreator.kt$SimpleEpubCreator$private fun addStylesheet(zip: ZipOutputStream)</ID>
     <ID>LongMethod:SinglePageView.kt$@Composable internal fun SinglePageView( pages: List&lt;String&gt;, currentPage: Int, panels: List&lt;Rect&gt;, currentPanel: Int, panelByPanelMode: Boolean, showPanelBorders: Boolean, scale: Float, offsetX: Float, offsetY: Float, onPageChanged: (Int) -&gt; Unit, onPanelSelected: (Int) -&gt; Unit, onScaleChanged: (Float) -&gt; Unit, onOffsetChanged: (Float, Float) -&gt; Unit, onTap: () -&gt; Unit )</ID>
     <ID>LongMethod:SiteSelectorCard.kt$@OptIn(ExperimentalLayoutApi::class) @Composable internal fun SiteSelectorCard( selectedSite: WebFictionSiteType?, adultSitesEnabled: Boolean, onSiteSelected: (WebFictionSiteType) -&gt; Unit )</ID>
-    <ID>LongMethod:SleepTimerDialog.kt$@Composable fun SleepTimerDialog( onDismiss: () -&gt; Unit, onSetTimer: (minutes: Int) -&gt; Unit )</ID>
+    <ID>LongMethod:SleepTimerDialog.kt$@Composable fun SleepTimerDialog( onDismiss: () -&gt; Unit, onSetTimer: (minutes: Int) -&gt; Unit, onSetEndOfChapter: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:SleepTimerDialog.kt$@Composable internal fun SleepTimerDialog( currentTimer: Long?, isActive: Boolean, onSetTimer: (Int) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>LongMethod:SlideUpMediaBar.kt$@Composable private fun CollapsedContent( state: SlideUpMediaState, onPlayPause: () -&gt; Unit, onTap: () -&gt; Unit )</ID>
     <ID>LongMethod:SlideUpMediaBar.kt$@Composable private fun ExpandedContent( state: SlideUpMediaState, onPlayPause: () -&gt; Unit, onNext: () -&gt; Unit, onPrevious: () -&gt; Unit, onSeek: (Float) -&gt; Unit, onSpeedChange: (Float) -&gt; Unit, onChapterSelect: (Int) -&gt; Unit, onCollapse: () -&gt; Unit )</ID>
@@ -2688,7 +2687,7 @@
     <ID>LongParameterList:AnnotationService.kt$AnnotationService$( itemId: Long, chapterIndex: Int, chapterTitle: String?, startOffset: Int, endOffset: Int, selectedText: String, highlightColor: String = "#FFFF00", contextBefore: String? = null, contextAfter: String? = null )</ID>
     <ID>LongParameterList:AnnotationService.kt$AnnotationService$( itemId: Long, chapterIndex: Int, chapterTitle: String?, startOffset: Int, endOffset: Int, selectedText: String, noteText: String, highlightColor: String = "#FFE4B5", contextBefore: String? = null, contextAfter: String? = null )</ID>
     <ID>LongParameterList:AnnotationService.kt$AnnotationService$( itemId: Long, readingTimeMinutes: Int, pagesRead: Int = 0, chaptersCompleted: Int = 0, wordsRead: Int = 0, startProgress: Float, endProgress: Float )</ID>
-    <ID>LongParameterList:AudioPlaybackManager.kt$AudioPlaybackManager$( @ApplicationContext private val context: Context, private val mediaSessionManager: MediaSessionManager, private val listenHistoryRepository: ListenHistoryRepository, private val mediaRepository: MediaRepository, private val libraryRepository: LibraryRepository, private val audioPreferences: AudioPlaybackPreferencesStore, private val audioVisualizerService: AudioVisualizerService )</ID>
+    <ID>LongParameterList:AudioPlaybackManager.kt$AudioPlaybackManager$( @ApplicationContext private val context: Context, private val mediaSessionManager: MediaSessionManager, private val listenHistoryRepository: ListenHistoryRepository, private val mediaRepository: MediaRepository, private val libraryRepository: LibraryRepository, private val audioPreferences: AudioPlaybackPreferencesStore, private val audioVisualizerService: AudioVisualizerService, val sleepTimerManager: SleepTimerManager = SleepTimerManager() )</ID>
     <ID>LongParameterList:AudioPlaybackManager.kt$AudioPlaybackManager$( isLoading: Boolean? = null, isPlaying: Boolean? = null, duration: Long? = null, title: String? = null, artist: String? = null, album: String? = null, isShuffleEnabled: Boolean? = null, repeatMode: RepeatMode? = null, volume: Float? = null, queue: List&lt;AudioQueueEntry&gt;? = null, skipSilenceEnabled: Boolean? = null, crossfadeDurationMs: Int? = null, sleepTimerEndTime: Long? = null, sleepTimerUpdated: Boolean = false, lastSleepTimerMinutes: Int? = null )</ID>
     <ID>LongParameterList:AudioProfilesScreen.kt$( deviceType: AudioDeviceType, profile: AudioProfile?, isExpanded: Boolean, isCurrent: Boolean, onExpandToggle: () -&gt; Unit, onSave: (EqualizerPreset, Int, Int) -&gt; Unit, onReset: () -&gt; Unit )</ID>
     <ID>LongParameterList:AudiobookMakerService.kt$AudiobookMakerService$( @ApplicationContext private val context: Context, private val bookContentAnalyzer: BookContentAnalyzer, private val characterVoiceService: CharacterVoiceService, private val actionSoundService: ActionSoundService, private val ambientSoundService: AmbientSoundService, private val contextDetectionService: ContextDetectionService, private val geminiTtsService: GeminiTTSService, private val ttsProviderManager: TtsProviderManager )</ID>
@@ -5914,7 +5913,6 @@
     <ID>MagicNumber:ValidationUtils.kt$ValidationUtils$8</ID>
     <ID>MagicNumber:VideoControlsComponents.kt$10_000</ID>
     <ID>MagicNumber:VideoLibraryScreen.kt$60</ID>
-    <ID>MagicNumber:VideoPlayerScreen.kt$0.1f</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$0.8f</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$10000</ID>
     <ID>MagicNumber:VideoPlayerScreen.kt$10000L</ID>
@@ -6697,7 +6695,6 @@
     <ID>SwallowedException:CacheManager.kt$CacheManager$e: Exception</ID>
     <ID>SwallowedException:CalibreDatabaseReader.kt$CalibreDatabaseReader$e: Exception</ID>
     <ID>SwallowedException:CalibreExportService.kt$CalibreExportService$e: Exception</ID>
-    <ID>SwallowedException:CalibreIntegrationService.kt$CalibreIntegrationService$e: Exception</ID>
     <ID>SwallowedException:CharacterVoiceService.kt$CharacterVoiceService$e: Exception</ID>
     <ID>SwallowedException:ChromecastManager.kt$ChromecastManager$e: Exception</ID>
     <ID>SwallowedException:ChromecastSessionManager.kt$ChromecastSessionManager$e: Exception</ID>
@@ -7317,7 +7314,7 @@
     <ID>UnusedParameter:AppUpgradeManager.kt$AppUpgradeManager$toVersion: Int</ID>
     <ID>UnusedParameter:AudioPackImportScreen.kt$errors: List&lt;String&gt;</ID>
     <ID>UnusedParameter:AudioPackImportScreen.kt$message: String</ID>
-    <ID>UnusedParameter:AudioPlaybackManager.kt$AudioPlaybackManager$pauseOnComplete: Boolean</ID>
+    <ID>UnusedParameter:AudioPlaybackManager.kt$AudioPlaybackManager$pauseOnComplete: Boolean = true</ID>
     <ID>UnusedParameter:AudiobookMakerService.kt$AudiobookMakerService$context: BookContext</ID>
     <ID>UnusedParameter:AudiobookPlayerScreen.kt$author: String</ID>
     <ID>UnusedParameter:AudiobookPlayerScreen.kt$currentChapter: AudiobookChapter?</ID>
@@ -7519,9 +7516,7 @@
     <ID>UnusedParameter:SharingService.kt$SharingService$text: String</ID>
     <ID>UnusedParameter:SinglePageView.kt$onPageChanged: (Int) -&gt; Unit</ID>
     <ID>UnusedParameter:SleepTimerDialog.kt$currentTimerMinutes: Int?</ID>
-    <ID>UnusedParameter:SleepTimerDialog.kt$modifier: Modifier = Modifier</ID>
     <ID>UnusedParameter:SleepTimerDialog.kt$onCancelTimer: () -&gt; Unit</ID>
-    <ID>UnusedParameter:SleepTimerDialog.kt$onSetEndOfChapter: () -&gt; Unit</ID>
     <ID>UnusedParameter:SleepTimerDialog.kt$remainingSeconds: Int?</ID>
     <ID>UnusedParameter:SlideUpMediaBar.kt$onChapterSelect: (Int) -&gt; Unit</ID>
     <ID>UnusedParameter:SmartCollectionEngine.kt$SmartCollectionEngine$maxItems: Int</ID>

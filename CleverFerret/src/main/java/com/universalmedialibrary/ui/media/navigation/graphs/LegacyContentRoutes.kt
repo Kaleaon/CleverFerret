@@ -35,7 +35,9 @@ import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.EPUBReaderScreen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -258,10 +260,16 @@ fun NavGraphBuilder.legacyContentRoutes(
             uri?.let {
                 coroutineScope.launch {
                     try {
-                        context.contentResolver.openInputStream(it)?.use { inputStream ->
-                            val content = inputStream.bufferedReader().readText()
+                        val content = withContext(Dispatchers.IO) {
+                            context.contentResolver.openInputStream(it)?.use { inputStream ->
+                                inputStream.bufferedReader().readText()
+                            }
+                        }
+                        if (content != null) {
                             viewModel.importOpml(content)
                             onShowSnackbar("OPML imported successfully")
+                        } else {
+                            onShowSnackbar("Failed to import OPML: File could not be read")
                         }
                     } catch (e: Exception) {
                         onShowSnackbar("Failed to import OPML: ${e.message}")
@@ -278,8 +286,10 @@ fun NavGraphBuilder.legacyContentRoutes(
                     try {
                         val opmlContent = viewModel.exportOpml()
                         if (opmlContent.isNotBlank()) {
-                            context.contentResolver.openOutputStream(it)?.use { outputStream ->
-                                outputStream.write(opmlContent.toByteArray())
+                            withContext(Dispatchers.IO) {
+                                context.contentResolver.openOutputStream(it)?.use { outputStream ->
+                                    outputStream.write(opmlContent.toByteArray())
+                                }
                             }
                             onShowSnackbar("OPML exported successfully")
                         } else {
