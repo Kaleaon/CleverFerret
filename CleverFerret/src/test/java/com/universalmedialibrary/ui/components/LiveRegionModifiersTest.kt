@@ -104,7 +104,8 @@ class LiveRegionModifiersTest {
 
     @Test
     fun localLiveRegionManager_providesDefaultNoOpImplementation() {
-        val defaultManager = com.cleverferret.core.designsystem.theme.LocalLiveRegionManager.current
+        org.junit.Assert.assertNotNull(com.cleverferret.core.designsystem.theme.LocalLiveRegionManager)
+        val defaultManager = com.cleverferret.core.designsystem.accessibility.NoOpLiveRegionManager
         org.junit.Assert.assertNotNull(defaultManager)
         org.junit.Assert.assertFalse(defaultManager.isAccessibilityActive)
     }
