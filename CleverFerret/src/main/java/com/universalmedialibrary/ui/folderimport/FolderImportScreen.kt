@@ -41,6 +41,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 import kotlinx.coroutines.launch
 import java.net.URI
 
@@ -556,16 +557,30 @@ private fun MediaTypeChip(
 
 
 // Data classes
-enum class ScannedFileType(val icon: ImageVector, val color: Color) {
-    BOOK(Icons.AutoMirrored.Filled.MenuBook, Color(0xFF4CAF50)),
-    COMIC(Icons.Default.Image, Color(0xFFFF9800)),
-    AUDIOBOOK(Icons.Default.Headphones, Color(0xFF9C27B0)),
-    MUSIC(Icons.Default.MusicNote, Color(0xFF2196F3)),
-    PODCAST(Icons.Default.Podcasts, Color(0xFFE91E63)),
-    VIDEO(Icons.Default.VideoLibrary, Color(0xFFF44336)),
-    DOCUMENT(Icons.Default.Description, Color(0xFF607D8B)),
-    FANFICTION(Icons.Default.Create, Color(0xFF00BCD4)),
-    OTHER(Icons.Default.InsertDriveFile, Color(0xFF9E9E9E))
+enum class ScannedFileType(val icon: ImageVector) {
+    BOOK(Icons.AutoMirrored.Filled.MenuBook),
+    COMIC(Icons.Default.Image),
+    AUDIOBOOK(Icons.Default.Headphones),
+    MUSIC(Icons.Default.MusicNote),
+    PODCAST(Icons.Default.Podcasts),
+    VIDEO(Icons.Default.VideoLibrary),
+    DOCUMENT(Icons.Default.Description),
+    FANFICTION(Icons.Default.Create),
+    OTHER(Icons.Default.InsertDriveFile);
+
+    @Composable
+    fun color(): Color {
+        val tokens = runCatching { LocalCFTokens.current }.getOrNull()
+        return tokens?.mediaCategories?.forScannedFileType(this)
+            ?: MaterialTheme.colorScheme.tertiary
+    }
+
+    val color: Color
+        @Composable
+        get() = color()
+
+    fun color(tokens: com.universalmedialibrary.ui.modern.theme.CFTokens): Color =
+        tokens.mediaCategories.forScannedFileType(this)
 }
 
 enum class MediaFilterType {

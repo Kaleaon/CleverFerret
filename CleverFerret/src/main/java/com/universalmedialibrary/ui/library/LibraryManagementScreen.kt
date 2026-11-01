@@ -26,6 +26,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.components.media.*
+import com.universalmedialibrary.ui.modern.theme.CFTokens
+import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 
 /**
  * Main screen for managing media libraries
@@ -529,15 +531,15 @@ private fun LibraryListContent(
     }
 }
 
-private fun getLibraryGradientColors(type: String): List<Color> {
-    return when (type.uppercase()) {
-        "BOOK", "EBOOK" -> listOf(Color(0xFF2C5F2D), Color(0xFF97BC62))
-        "MOVIE", "TV_SHOW" -> listOf(Color(0xFF1565C0), Color(0xFF42A5F5))
-        "MUSIC_TRACK", "MUSIC_ALBUM" -> listOf(Color(0xFF7B1FA2), Color(0xFFBA68C8))
-        "PODCAST_EPISODE" -> listOf(Color(0xFFEF6C00), Color(0xFFFFB74D))
-        "DOCUMENT" -> listOf(Color(0xFFD32F2F), Color(0xFFF48FB1))
-        else -> listOf(Color(0xFF455A64), Color(0xFF90A4AE))
-    }
+@Composable
+fun getLibraryGradientColors(type: String): List<Color> {
+    val tokens = runCatching { LocalCFTokens.current }.getOrNull()
+    return tokens?.mediaCategories?.gradientFor(type)
+        ?: listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+}
+
+fun getLibraryGradientColors(type: String, tokens: CFTokens): List<Color> {
+    return tokens.mediaCategories.gradientFor(type)
 }
 
 private fun getLibraryIcon(type: String): ImageVector {

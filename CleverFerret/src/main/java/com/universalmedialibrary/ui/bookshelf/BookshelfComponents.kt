@@ -12,11 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.data.local.entity.BookDetails
+import com.universalmedialibrary.ui.modern.theme.LocalCFTokens
 import kotlin.math.absoluteValue
 import com.ktheme.compose.AccessibleRatingGroup
 import com.universalmedialibrary.data.local.entity.ReadingProgress
@@ -360,25 +362,40 @@ fun CoverFlowCard(
     }
 }
 
+private const val LUMINANCE_CONTRAST_THRESHOLD = 0.2f
+
+@Composable
+private fun resolvePlaceholderColors(): List<Color> {
+    val tokens = runCatching { LocalCFTokens.current }.getOrNull()
+    return if (tokens != null && tokens.placeholderCoverColors.isNotEmpty()) {
+        tokens.placeholderCoverColors
+    } else {
+        listOf(
+            MaterialTheme.colorScheme.primary,
+            MaterialTheme.colorScheme.secondary,
+            MaterialTheme.colorScheme.tertiary,
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.secondaryContainer,
+            MaterialTheme.colorScheme.tertiaryContainer,
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.inversePrimary
+        )
+    }
+}
+
 @Composable
 fun EnhancedPlaceholderCover(
     title: String,
     author: String?,
     modifier: Modifier = Modifier
 ) {
-    val colors = listOf(
-        Color(0xFF6200EE),
-        Color(0xFF03DAC6),
-        Color(0xFFFF6B6B),
-        Color(0xFF4ECDC4),
-        Color(0xFF45B7D1),
-        Color(0xFF96CEB4),
-        Color(0xFFFECEA8),
-        Color(0xFFFF9999)
-    )
-
+    val colors = resolvePlaceholderColors()
     val color = colors[title.hashCode().absoluteValue % colors.size]
-    val contentColor = Color.White
+    val contentColor = if (color.luminance() < LUMINANCE_CONTRAST_THRESHOLD) {
+        Color.White
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
 
     Box(
         modifier = modifier
