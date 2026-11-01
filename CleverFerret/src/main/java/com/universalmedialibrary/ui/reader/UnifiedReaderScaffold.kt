@@ -113,7 +113,7 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
  * Unified reader scaffold providing hardware volume key page navigation interception
  * at the Window level before child views consume events.
  */
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LongMethod", "FunctionNaming")
 @Composable
 fun UnifiedReaderScaffold(
     modifier: Modifier = Modifier,
