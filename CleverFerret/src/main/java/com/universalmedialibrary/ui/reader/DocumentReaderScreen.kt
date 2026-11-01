@@ -344,40 +344,32 @@ private fun PdfReaderView(uri: Uri) {
                 .weight(1f)
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .focusable()
-                .onKeyEvent { keyEvent ->
-                    if (keyEvent.type == KeyEventType.KeyDown) {
-                        when (keyEvent.key) {
-                            Key.DirectionLeft, Key.PageUp -> {
-                                if (currentPageIndex > 0) {
-                                    currentPageIndex--
-                                    scale = 1f
-                                    offsetX = 0f
-                                    offsetY = 0f
-                                    renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
-                                }
-                                true
-                            }
-                            Key.DirectionRight, Key.PageDown -> {
-                                if (currentPageIndex < pageCount - 1) {
-                                    currentPageIndex++
-                                    scale = 1f
-                                    offsetX = 0f
-                                    offsetY = 0f
-                                    renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
-                                }
-                                true
-                            }
-                            Key.DirectionCenter, Key.Enter, Key.Spacebar -> {
-                                showControls = !showControls
-                                true
-                            }
-                            else -> false
-                        }
-                    } else {
-                        false
+                .readerKeyController(
+                    onNextPage = {
+                        if (currentPageIndex < pageCount - 1) {
+                            currentPageIndex += 1
+                            scale = 1f
+                            offsetX = 0f
+                            offsetY = 0f
+                            renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+                            true
+                        } else false
+                    },
+                    onPreviousPage = {
+                        if (currentPageIndex > 0) {
+                            currentPageIndex -= 1
+                            scale = 1f
+                            offsetX = 0f
+                            offsetY = 0f
+                            renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+                            true
+                        } else false
+                    },
+                    onToggleUI = {
+                        showControls = !showControls
+                        true
                     }
-                }
+                )
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { showControls = !showControls },

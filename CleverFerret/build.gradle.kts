@@ -240,7 +240,7 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 109
+        versionCode = 110
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -372,6 +372,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
     testOptions {
         unitTests {
             isReturnDefaultValues = true
+            isIncludeAndroidResources = true
             all { testTask ->
                 testTask.systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2/")
                 testTask.systemProperty("robolectric.dependency.repo.id", "gcs-maven-central")

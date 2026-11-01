@@ -15,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import com.universalmedialibrary.ui.components.FocusableContainer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,6 +62,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.cleverferret.core.designsystem.theme.LocalProxyTheme
+import com.cleverferret.core.designsystem.theme.drawWithTheme
+import com.cleverferret.core.designsystem.theme.themeTint
 import com.universalmedialibrary.ui.components.accessibleClickable
 import com.universalmedialibrary.ui.media.theme.MediaColors
 import com.universalmedialibrary.ui.media.theme.MediaCorners
@@ -166,7 +170,8 @@ private fun PosterLayout(
     val scale by animateFloatAsState(
         targetValue = when {
             isPressed -> 0.95f
-            isHovered || isFocused -> 1.03f
+            isFocused -> 1.05f
+            isHovered -> 1.03f
             else -> 1f
         },
         animationSpec = spring(
@@ -177,24 +182,32 @@ private fun PosterLayout(
     )
 
     val widthModifier = if (width != Dp.Unspecified) Modifier.width(width) else Modifier
+    val theme = LocalProxyTheme.current
 
-    Column(
-        modifier = modifier
-            .then(widthModifier)
-            .scale(scale)
-            .accessibleClickable(
-                interactionSource = interactionSource,
-                shape = RoundedCornerShape(MediaCorners.Card),
-                onClick = onClick
-            )
+    FocusableContainer(
+        modifier = modifier.then(widthModifier),
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(MediaCorners.Card),
+        focusedScale = 1f
     ) {
+        Column(
+            modifier = Modifier
+                .scale(scale)
+                .accessibleClickable(
+                    interactionSource = interactionSource,
+                    shape = RoundedCornerShape(MediaCorners.Card),
+                    onClick = onClick
+                )
+        ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(MediaSizes.PosterAspectRatio)
                 .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
                 .clip(RoundedCornerShape(MediaCorners.Card))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .drawWithTheme { currentTheme ->
+                    drawRect(currentTheme.surfaceVariant())
+                }
         ) {
             if (item.imageUrl != null) {
                 AsyncImage(
@@ -209,14 +222,16 @@ private fun PosterLayout(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(
-                                    item.mediaType.color.copy(alpha = 0.3f),
-                                    MaterialTheme.colorScheme.surfaceVariant
+                        .drawWithTheme { currentTheme ->
+                            drawRect(
+                                Brush.linearGradient(
+                                    colors = listOf(
+                                        item.mediaType.color.copy(alpha = 0.3f),
+                                        currentTheme.surfaceVariant()
+                                    )
                                 )
                             )
-                        ),
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -253,15 +268,21 @@ private fun PosterLayout(
             }
 
             if (showProgress && item.progress > 0) {
-                val (progressColor, progressTrackColor) = mediaProgressColors()
-                LinearProgressIndicator(
-                    progress = { item.progress },
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(MediaSizes.ProgressHeight)
-                        .align(Alignment.BottomCenter),
-                    color = progressColor,
-                    trackColor = progressTrackColor
+                        .align(Alignment.BottomCenter)
+                        .drawWithTheme { currentTheme ->
+                            drawRect(color = currentTheme.surfaceContainerHighest())
+                            drawRect(
+                                color = currentTheme.primary(),
+                                size = androidx.compose.ui.geometry.Size(
+                                    width = this.size.width * item.progress.coerceIn(0f, 1f),
+                                    height = this.size.height
+                                )
+                            )
+                        }
                 )
             }
         }
@@ -271,7 +292,8 @@ private fun PosterLayout(
         Text(
             text = item.title,
             style = MediaTypography.BodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.themeTint(theme.onSurface),
+            color = Color.Unspecified,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             fontWeight = FontWeight.Medium
@@ -282,12 +304,14 @@ private fun PosterLayout(
             Text(
                 text = subtitle,
                 style = MediaTypography.BodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.themeTint(theme.onSurfaceVariant),
+                color = Color.Unspecified,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
     }
+}
 }
 
 @Composable
@@ -306,31 +330,40 @@ private fun SquareLayout(
     val scale by animateFloatAsState(
         targetValue = when {
             isPressed -> 0.95f
-            isHovered || isFocused -> 1.03f
+            isFocused -> 1.05f
+            isHovered -> 1.03f
             else -> 1f
         },
         label = "square_scale"
     )
 
     val sizeModifier = if (size != Dp.Unspecified) Modifier.width(size) else Modifier
+    val theme = LocalProxyTheme.current
 
-    Column(
-        modifier = modifier
-            .then(sizeModifier)
-            .scale(scale)
-            .accessibleClickable(
-                interactionSource = interactionSource,
-                shape = RoundedCornerShape(MediaCorners.Card),
-                onClick = onClick
-            )
+    FocusableContainer(
+        modifier = modifier.then(sizeModifier),
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(MediaCorners.Card),
+        focusedScale = 1f
     ) {
+        Column(
+            modifier = Modifier
+                .scale(scale)
+                .accessibleClickable(
+                    interactionSource = interactionSource,
+                    shape = RoundedCornerShape(MediaCorners.Card),
+                    onClick = onClick
+                )
+        ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
                 .clip(RoundedCornerShape(MediaCorners.Card))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .drawWithTheme { currentTheme ->
+                    drawRect(currentTheme.surfaceVariant())
+                }
         ) {
             if (item.imageUrl != null) {
                 AsyncImage(
@@ -368,7 +401,8 @@ private fun SquareLayout(
             Text(
                 text = item.title,
                 style = MediaTypography.BodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.themeTint(theme.onSurface),
+                color = Color.Unspecified,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
@@ -378,13 +412,15 @@ private fun SquareLayout(
                 Text(
                     text = subtitle,
                     style = MediaTypography.BodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.themeTint(theme.onSurfaceVariant),
+                    color = Color.Unspecified,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
         }
     }
+}
 }
 
 @Composable
@@ -401,19 +437,26 @@ private fun WideLayout(
 
     val widthModifier = if (width != Dp.Unspecified) Modifier.width(width) else Modifier
 
-    Box(
-        modifier = modifier
-            .then(widthModifier)
-            .aspectRatio(MediaSizes.WidescreenAspectRatio)
-            .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
-            .clip(RoundedCornerShape(MediaCorners.Card))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .accessibleClickable(
-                interactionSource = interactionSource,
-                shape = RoundedCornerShape(MediaCorners.Card),
-                onClick = onClick
-            )
+    FocusableContainer(
+        modifier = modifier.then(widthModifier),
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(MediaCorners.Card)
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(MediaSizes.WidescreenAspectRatio)
+                .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
+                .clip(RoundedCornerShape(MediaCorners.Card))
+                .drawWithTheme { currentTheme ->
+                    drawRect(currentTheme.surfaceVariant())
+                }
+                .accessibleClickable(
+                    interactionSource = interactionSource,
+                    shape = RoundedCornerShape(MediaCorners.Card),
+                    onClick = onClick
+                )
+        ) {
         if (item.backdropUrl != null || item.imageUrl != null) {
             AsyncImage(
                 model = MediaImageModels.resolve(item.backdropUrl ?: item.imageUrl),
@@ -428,15 +471,17 @@ private fun WideLayout(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            MaterialTheme.colorScheme.scrim.copy(alpha = 0.8f)
-                        ),
-                        startY = 0.3f
+                .drawWithTheme { currentTheme ->
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                currentTheme.scrim().copy(alpha = 0.8f)
+                            ),
+                            startY = 0.3f
+                        )
                     )
-                )
+                }
         )
 
         if (showOverlayInfo) {
@@ -467,18 +512,25 @@ private fun WideLayout(
         }
 
         if (showProgress && item.progress > 0) {
-            val (progressColor, progressTrackColor) = mediaProgressColors()
-            LinearProgressIndicator(
-                progress = { item.progress },
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(MediaSizes.ProgressHeight)
-                    .align(Alignment.BottomCenter),
-                color = progressColor,
-                trackColor = progressTrackColor
+                    .align(Alignment.BottomCenter)
+                    .drawWithTheme { currentTheme ->
+                        drawRect(color = currentTheme.surfaceContainerHighest())
+                        drawRect(
+                            color = currentTheme.primary(),
+                            size = androidx.compose.ui.geometry.Size(
+                                width = this.size.width * item.progress.coerceIn(0f, 1f),
+                                height = this.size.height
+                            )
+                        )
+                    }
             )
         }
     }
+}
 }
 
 @Composable
@@ -488,12 +540,23 @@ private fun HeroLayout(
     onPlayClick: (() -> Unit)?,
     modifier: Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(MediaSizes.HeroHeight)
-            .clickable(onClick = onClick)
+    val interactionSource = remember { MutableInteractionSource() }
+
+    FocusableContainer(
+        modifier = modifier,
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(MediaCorners.Card)
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(MediaSizes.HeroHeight)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick
+                )
+        ) {
         if (item.backdropUrl != null || item.imageUrl != null) {
             AsyncImage(
                 model = MediaImageModels.resolve(item.backdropUrl ?: item.imageUrl),
@@ -508,15 +571,19 @@ private fun HeroLayout(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            MaterialTheme.colorScheme.background
+                .drawWithTheme { currentTheme ->
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                currentTheme.background()
+                            )
                         )
                     )
-                )
+                }
         )
+
+        val theme = LocalProxyTheme.current
 
         Column(
             modifier = Modifier
@@ -527,7 +594,8 @@ private fun HeroLayout(
             Text(
                 text = item.title,
                 style = MediaTypography.Hero,
-                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.themeTint(theme.onBackground),
+                color = Color.Unspecified,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -537,7 +605,8 @@ private fun HeroLayout(
                 Text(
                     text = subtitle,
                     style = MediaTypography.BodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                    modifier = Modifier.themeTint(theme.onBackground),
+                    color = Color.Unspecified,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -550,8 +619,8 @@ private fun HeroLayout(
                     Button(
                         onClick = onPlayClick,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            containerColor = theme.primary(),
+                            contentColor = theme.onPrimary()
                         )
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = "Play")
@@ -568,6 +637,7 @@ private fun HeroLayout(
             }
         }
     }
+}
 }
 
 @Composable

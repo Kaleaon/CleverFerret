@@ -6,6 +6,8 @@ import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.data.security.EncryptedCredentialVault
 import com.universalmedialibrary.data.repository.StoryRepository
 import com.universalmedialibrary.services.StorageAccessService
+import com.universalmedialibrary.services.CalibreImportService
+import com.universalmedialibrary.services.opds.OPDSClient
 import com.universalmedialibrary.services.audio.MultiRoomAudioService
 import com.universalmedialibrary.services.podcast.PodcastService
 import com.universalmedialibrary.utils.FileNameSanitizer
@@ -146,16 +148,25 @@ object ServicesModule {
 
     @Provides
     @Singleton
+    @Suppress("LongParameterList")
     fun provideCalibreIntegrationService(
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
         apiKeyRepository: APIKeyRepository,
-        externalMediaEntityDao: ExternalMediaEntityDao
+        externalMediaEntityDao: ExternalMediaEntityDao,
+        mediaItemDao: MediaItemDao,
+        database: AppDatabase,
+        calibreImportService: CalibreImportService,
+        opdsClient: OPDSClient
     ): com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService {
         // CalibreIntegrationService(context, apiKeyRepository)
         return com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService(
-            context,
-            apiKeyRepository,
-            externalMediaEntityDao
+            context = context,
+            apiKeyRepository = apiKeyRepository,
+            externalMediaEntityDao = externalMediaEntityDao,
+            mediaItemDao = mediaItemDao,
+            database = database,
+            calibreImportService = calibreImportService,
+            opdsClient = opdsClient
         )
     }
 
