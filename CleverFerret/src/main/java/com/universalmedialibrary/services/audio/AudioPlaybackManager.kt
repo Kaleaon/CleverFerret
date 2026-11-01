@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.universalmedialibrary.services.media.MediaNotificationService
 import com.universalmedialibrary.services.media.MediaSessionManager
+import com.universalmedialibrary.services.media.SleepTimerManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,7 +46,8 @@ class AudioPlaybackManager @Inject constructor(
         private val mediaRepository: MediaRepository,
         private val libraryRepository: LibraryRepository,
         private val audioPreferences: AudioPlaybackPreferencesStore,
-        private val audioVisualizerService: AudioVisualizerService
+        private val audioVisualizerService: AudioVisualizerService,
+        val sleepTimerManager: SleepTimerManager = SleepTimerManager()
 ) {
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "cf_music_playback"
@@ -99,6 +101,7 @@ class AudioPlaybackManager @Inject constructor(
                               Player.STATE_ENDED -> {
                                   finalizeHistoryCandidate()
                                   updateState(isPlaying = false)
+                                  sleepTimerManager.notifyChapterOrTrackEnded()
                               }
                         }
                     }
@@ -117,6 +120,11 @@ class AudioPlaybackManager @Inject constructor(
                           publishQueue()
                         updateState(duration = duration)
                         maybeStartCrossfadeFadeIn()
+                        if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
+                            sleepTimerManager.resetEndOfChapterState()
+                        } else {
+                            sleepTimerManager.notifyChapterOrTrackEnded()
+                        }
                     }
                     override fun onRepeatModeChanged(repeatMode: Int) {
                         updateState(repeatMode = when (repeatMode) {
@@ -206,13 +214,18 @@ class AudioPlaybackManager @Inject constructor(
     fun moveQueueItem(from: Int, to: Int) { if (from in queue.indices && to in queue.indices) { val item = queue.removeAt(from); queue.add(to, item); exoPlayer.moveMediaItem(from, to); publishQueue() } }
 
     fun togglePlayPause() { if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play() }
-    fun seekTo(positionMs: Long) { exoPlayer.seekTo(positionMs) }
+    fun seekTo(positionMs: Long) {
+        sleepTimerManager.resetEndOfChapterState()
+        exoPlayer.seekTo(positionMs)
+    }
     fun skipToNext() {
         finalizeHistoryCandidate(exoPlayer.currentPosition)
+        sleepTimerManager.resetEndOfChapterState()
         exoPlayer.seekToNext()
     }
 
     fun skipToPrevious() {
+        sleepTimerManager.resetEndOfChapterState()
         if (exoPlayer.currentPosition > 3000) {
             seekTo(0)
             return
@@ -264,8 +277,13 @@ class AudioPlaybackManager @Inject constructor(
         applyCrossfade(clamped > 0, clamped, persist = true)
     }
 
-    fun scheduleSleepTimer(minutes: Int, pauseOnComplete: Boolean) {
+    fun scheduleSleepTimer(minutes: Int, pauseOnComplete: Boolean = true) {
+        if (minutes == -1) {
+            scheduleEndOfChapterSleepTimer()
+            return
+        }
         sleepTimerJob?.cancel()
+        sleepTimerManager.stopTimer()
         if (minutes <= 0) {
             updateState(sleepTimerEndTime = null, sleepTimerUpdated = true)
             return
@@ -291,15 +309,28 @@ class AudioPlaybackManager @Inject constructor(
         updateState(sleepTimerEndTime = endTime, sleepTimerUpdated = true, lastSleepTimerMinutes = minutes)
     }
 
+    fun scheduleEndOfChapterSleepTimer() {
+        sleepTimerJob?.cancel()
+        sleepTimerJob = null
+        sleepTimerManager.startEndOfChapterTimer {
+            finalizeHistoryCandidate()
+            exoPlayer.pause()
+            updateState(sleepTimerEndTime = null, sleepTimerUpdated = true)
+        }
+        updateState(sleepTimerEndTime = null, sleepTimerUpdated = true)
+    }
+
     fun clearSleepTimer() {
         sleepTimerJob?.cancel()
         sleepTimerJob = null
+        sleepTimerManager.stopTimer()
         updateState(sleepTimerEndTime = null, sleepTimerUpdated = true)
     }
 
     fun playFromQueue(index: Int) {
         if (index !in queue.indices) return
         finalizeHistoryCandidate(exoPlayer.currentPosition)
+        sleepTimerManager.resetEndOfChapterState()
         exoPlayer.seekTo(index, C.TIME_UNSET)
         exoPlayer.playWhenReady = true
         publishQueue()
