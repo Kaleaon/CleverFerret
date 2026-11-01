@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import androidx.compose.ui.semantics.LiveRegionMode
+import com.cleverferret.core.designsystem.theme.LocalLiveRegionManager
 import com.universalmedialibrary.ui.components.dynamicStateDescription
 import com.universalmedialibrary.ui.media.theme.*
 
@@ -227,9 +228,19 @@ fun MediaErrorScreen(
     onRetry: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    val liveRegionManager = LocalLiveRegionManager.current
+
+    LaunchedEffect(title, message) {
+        liveRegionManager.announceAssertive("$title: $message")
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .dynamicStateDescription(
+                stateDescription = "$title: $message",
+                mode = LiveRegionMode.Assertive
+            )
             .padding(MediaSpacing.XL),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
