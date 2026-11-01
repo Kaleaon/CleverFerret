@@ -16,9 +16,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import kotlinx.coroutines.test.runTest
 
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class, sdk = [34])
 class GooglePlayBillingAdapterTest {
 
     private lateinit var themeHandler: ThemeEntitlementHandler
