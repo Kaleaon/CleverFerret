@@ -29,9 +29,11 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class, sdk = [33])
 class OnboardingViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
