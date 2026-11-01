@@ -62,6 +62,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.cleverferret.core.designsystem.theme.LocalProxyTheme
+import com.cleverferret.core.designsystem.theme.drawWithTheme
+import com.cleverferret.core.designsystem.theme.themeTint
 import com.universalmedialibrary.ui.components.accessibleClickable
 import com.universalmedialibrary.ui.media.theme.MediaColors
 import com.universalmedialibrary.ui.media.theme.MediaCorners
@@ -179,6 +182,7 @@ private fun PosterLayout(
     )
 
     val widthModifier = if (width != Dp.Unspecified) Modifier.width(width) else Modifier
+    val theme = LocalProxyTheme.current
 
     FocusableContainer(
         modifier = modifier.then(widthModifier),
@@ -201,7 +205,9 @@ private fun PosterLayout(
                 .aspectRatio(MediaSizes.PosterAspectRatio)
                 .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
                 .clip(RoundedCornerShape(MediaCorners.Card))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .drawWithTheme { currentTheme ->
+                    drawRect(currentTheme.surfaceVariant())
+                }
         ) {
             if (item.imageUrl != null) {
                 AsyncImage(
@@ -216,14 +222,16 @@ private fun PosterLayout(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(
-                                    item.mediaType.color.copy(alpha = 0.3f),
-                                    MaterialTheme.colorScheme.surfaceVariant
+                        .drawWithTheme { currentTheme ->
+                            drawRect(
+                                Brush.linearGradient(
+                                    colors = listOf(
+                                        item.mediaType.color.copy(alpha = 0.3f),
+                                        currentTheme.surfaceVariant()
+                                    )
                                 )
                             )
-                        ),
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -260,15 +268,21 @@ private fun PosterLayout(
             }
 
             if (showProgress && item.progress > 0) {
-                val (progressColor, progressTrackColor) = mediaProgressColors()
-                LinearProgressIndicator(
-                    progress = { item.progress },
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(MediaSizes.ProgressHeight)
-                        .align(Alignment.BottomCenter),
-                    color = progressColor,
-                    trackColor = progressTrackColor
+                        .align(Alignment.BottomCenter)
+                        .drawWithTheme { currentTheme ->
+                            drawRect(color = currentTheme.surfaceContainerHighest())
+                            drawRect(
+                                color = currentTheme.primary(),
+                                size = androidx.compose.ui.geometry.Size(
+                                    width = this.size.width * item.progress.coerceIn(0f, 1f),
+                                    height = this.size.height
+                                )
+                            )
+                        }
                 )
             }
         }
@@ -278,7 +292,8 @@ private fun PosterLayout(
         Text(
             text = item.title,
             style = MediaTypography.BodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.themeTint(theme.onSurface),
+            color = Color.Unspecified,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             fontWeight = FontWeight.Medium
@@ -289,7 +304,8 @@ private fun PosterLayout(
             Text(
                 text = subtitle,
                 style = MediaTypography.BodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.themeTint(theme.onSurfaceVariant),
+                color = Color.Unspecified,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -322,6 +338,7 @@ private fun SquareLayout(
     )
 
     val sizeModifier = if (size != Dp.Unspecified) Modifier.width(size) else Modifier
+    val theme = LocalProxyTheme.current
 
     FocusableContainer(
         modifier = modifier.then(sizeModifier),
@@ -344,7 +361,9 @@ private fun SquareLayout(
                 .aspectRatio(1f)
                 .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
                 .clip(RoundedCornerShape(MediaCorners.Card))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .drawWithTheme { currentTheme ->
+                    drawRect(currentTheme.surfaceVariant())
+                }
         ) {
             if (item.imageUrl != null) {
                 AsyncImage(
@@ -382,7 +401,8 @@ private fun SquareLayout(
             Text(
                 text = item.title,
                 style = MediaTypography.BodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.themeTint(theme.onSurface),
+                color = Color.Unspecified,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
@@ -392,7 +412,8 @@ private fun SquareLayout(
                 Text(
                     text = subtitle,
                     style = MediaTypography.BodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.themeTint(theme.onSurfaceVariant),
+                    color = Color.Unspecified,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -427,7 +448,9 @@ private fun WideLayout(
                 .aspectRatio(MediaSizes.WidescreenAspectRatio)
                 .shadow(MediaElevation.SM, RoundedCornerShape(MediaCorners.Card))
                 .clip(RoundedCornerShape(MediaCorners.Card))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .drawWithTheme { currentTheme ->
+                    drawRect(currentTheme.surfaceVariant())
+                }
                 .accessibleClickable(
                     interactionSource = interactionSource,
                     shape = RoundedCornerShape(MediaCorners.Card),
@@ -448,15 +471,17 @@ private fun WideLayout(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            MaterialTheme.colorScheme.scrim.copy(alpha = 0.8f)
-                        ),
-                        startY = 0.3f
+                .drawWithTheme { currentTheme ->
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                currentTheme.scrim().copy(alpha = 0.8f)
+                            ),
+                            startY = 0.3f
+                        )
                     )
-                )
+                }
         )
 
         if (showOverlayInfo) {
@@ -487,15 +512,21 @@ private fun WideLayout(
         }
 
         if (showProgress && item.progress > 0) {
-            val (progressColor, progressTrackColor) = mediaProgressColors()
-            LinearProgressIndicator(
-                progress = { item.progress },
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(MediaSizes.ProgressHeight)
-                    .align(Alignment.BottomCenter),
-                color = progressColor,
-                trackColor = progressTrackColor
+                    .align(Alignment.BottomCenter)
+                    .drawWithTheme { currentTheme ->
+                        drawRect(color = currentTheme.surfaceContainerHighest())
+                        drawRect(
+                            color = currentTheme.primary(),
+                            size = androidx.compose.ui.geometry.Size(
+                                width = this.size.width * item.progress.coerceIn(0f, 1f),
+                                height = this.size.height
+                            )
+                        )
+                    }
             )
         }
     }
@@ -540,15 +571,19 @@ private fun HeroLayout(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            MaterialTheme.colorScheme.background
+                .drawWithTheme { currentTheme ->
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                currentTheme.background()
+                            )
                         )
                     )
-                )
+                }
         )
+
+        val theme = LocalProxyTheme.current
 
         Column(
             modifier = Modifier
@@ -559,7 +594,8 @@ private fun HeroLayout(
             Text(
                 text = item.title,
                 style = MediaTypography.Hero,
-                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.themeTint(theme.onBackground),
+                color = Color.Unspecified,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -569,7 +605,8 @@ private fun HeroLayout(
                 Text(
                     text = subtitle,
                     style = MediaTypography.BodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                    modifier = Modifier.themeTint(theme.onBackground),
+                    color = Color.Unspecified,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -582,8 +619,8 @@ private fun HeroLayout(
                     Button(
                         onClick = onPlayClick,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            containerColor = theme.primary(),
+                            contentColor = theme.onPrimary()
                         )
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = "Play")
