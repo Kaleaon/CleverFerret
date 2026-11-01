@@ -1,24 +1,50 @@
 package com.universalmedialibrary.ui.onboarding
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.media.viewmodels.OnboardingViewModel
+import com.universalmedialibrary.utils.PermissionsHandler
+import com.universalmedialibrary.utils.rememberPermissionsHandler
 
 /**
  * Onboarding / First-Run Experience
@@ -33,10 +59,45 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
-    onComplete: () -> Unit
+    onComplete: () -> Unit,
+    viewModel: OnboardingViewModel = hiltViewModel()
 ) {
-    var currentPage by remember { mutableStateOf(0) }
+    val context = LocalContext.current
+    var currentPage by remember { mutableIntStateOf(0) }
     val pages = remember { getOnboardingPages() }
+    var permissionsRequested by remember { mutableStateOf(false) }
+    var pendingCompletion by remember { mutableStateOf(false) }
+
+    val handleFinish = {
+        viewModel.completeOnboarding(onComplete)
+    }
+
+    val permissionState = rememberPermissionsHandler(
+        onAllPermissionsGranted = {
+            viewModel.triggerInitialScan()
+            if (pendingCompletion) {
+                handleFinish()
+            }
+        },
+        onPermissionsDenied = {
+            if (pendingCompletion) {
+                handleFinish()
+            }
+        }
+    )
+
+    val requestPermissionsOrComplete = {
+        val hasStorage = PermissionsHandler.hasStoragePermissions(context) ||
+            permissionState.hasStoragePermissions ||
+            permissionState.hasAllPermissions
+        if (!hasStorage && !permissionsRequested) {
+            permissionsRequested = true
+            pendingCompletion = true
+            permissionState.requestPermissions()
+        } else {
+            handleFinish()
+        }
+    }
     
     Box(
         modifier = Modifier
@@ -53,14 +114,25 @@ fun OnboardingScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onComplete) {
+                TextButton(onClick = requestPermissionsOrComplete) {
                     Text("Skip")
                 }
             }
             
             // Current page
             Box(modifier = Modifier.weight(1f)) {
-                OnboardingPage(pages[currentPage])
+                val hasStorage = PermissionsHandler.hasStoragePermissions(context) ||
+                    permissionState.hasStoragePermissions ||
+                    permissionState.hasAllPermissions
+                OnboardingPage(
+                    page = pages[currentPage],
+                    isPermissionPage = currentPage == 1,
+                    hasStoragePermission = hasStorage,
+                    onRequestPermission = {
+                        permissionsRequested = true
+                        permissionState.requestPermissions()
+                    }
+                )
             }
             
             // Page indicator
@@ -94,7 +166,7 @@ fun OnboardingScreen(
                         currentPage++
                     } else {
                         // Complete onboarding
-                        onComplete()
+                        requestPermissionsOrComplete()
                     }
                 },
                 modifier = Modifier
@@ -116,7 +188,12 @@ fun OnboardingScreen(
 }
 
 @Composable
-private fun OnboardingPage(page: OnboardingPageData) {
+private fun OnboardingPage(
+    page: OnboardingPageData,
+    isPermissionPage: Boolean = false,
+    hasStoragePermission: Boolean = false,
+    onRequestPermission: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -195,6 +272,43 @@ private fun OnboardingPage(page: OnboardingPageData) {
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                         )
                     }
+                }
+            }
+        }
+
+        if (isPermissionPage) {
+            Spacer(modifier = Modifier.height(24.dp))
+            if (!hasStoragePermission) {
+                Button(
+                    onClick = onRequestPermission,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = page.color
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Security,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Grant Storage Access")
+                }
+            } else {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Access granted",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Storage access granted",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
         }

@@ -60,15 +60,38 @@ fun OnboardingScreen(
     val coroutineScope = rememberCoroutineScope()
     val totalMediaItems by viewModel.totalMediaItemsCount.collectAsStateWithLifecycle()
     val isScanDispatched by viewModel.isScanDispatched.collectAsStateWithLifecycle()
+    var permissionsRequested by remember { mutableStateOf(false) }
+    var pendingCompletion by remember { mutableStateOf(false) }
+
+    val handleComplete = {
+        viewModel.completeOnboarding(onComplete)
+    }
 
     val permissionState = rememberPermissionsHandler(
         onAllPermissionsGranted = {
             viewModel.triggerInitialScan()
+            if (pendingCompletion) {
+                handleComplete()
+            }
+        },
+        onPermissionsDenied = {
+            if (pendingCompletion) {
+                handleComplete()
+            }
         }
     )
 
-    val handleComplete = {
-        viewModel.completeOnboarding(onComplete)
+    val requestPermissionsOrComplete = {
+        val hasStorage = PermissionsHandler.hasStoragePermissions(context) ||
+            permissionState.hasStoragePermissions ||
+            permissionState.hasAllPermissions
+        if (!hasStorage && !permissionsRequested) {
+            permissionsRequested = true
+            pendingCompletion = true
+            permissionState.requestPermissions()
+        } else {
+            handleComplete()
+        }
     }
     
     Box(
@@ -90,9 +113,14 @@ fun OnboardingScreen(
         ) { pageIndex ->
             when (pages[pageIndex]) {
                 OnboardingPage.Welcome -> WelcomePage()
-                OnboardingPage.Storage -> StoragePage()
+                OnboardingPage.Storage -> StoragePage(
+                    permissionState = permissionState,
+                    onPermissionRequested = { permissionsRequested = true }
+                )
                 OnboardingPage.Ready -> ReadyPage(
-                    hasStoragePermissions = PermissionsHandler.hasStoragePermissions(context) || permissionState.hasAllPermissions,
+                    hasStoragePermissions = PermissionsHandler.hasStoragePermissions(context) ||
+                        permissionState.hasStoragePermissions ||
+                        permissionState.hasAllPermissions,
                     totalMediaItems = totalMediaItems,
                     isScanDispatched = isScanDispatched,
                     onTriggerScan = { viewModel.triggerInitialScan() }
@@ -148,7 +176,7 @@ fun OnboardingScreen(
                     }
                 } else {
                     TextButton(
-                        onClick = handleComplete
+                        onClick = requestPermissionsOrComplete
                     ) {
                         Text("Skip")
                     }
@@ -158,7 +186,7 @@ fun OnboardingScreen(
                 Button(
                     onClick = {
                         if (pagerState.currentPage == pages.size - 1) {
-                            handleComplete()
+                            requestPermissionsOrComplete()
                         } else {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
@@ -216,7 +244,10 @@ private fun WelcomePage() {
 }
 
 @Composable
-private fun StoragePage() {
+private fun StoragePage(
+    permissionState: PermissionState,
+    onPermissionRequested: () -> Unit
+) {
     val context = LocalContext.current
     var hasTriggeredScan by remember { mutableStateOf(false) }
 
@@ -234,13 +265,9 @@ private fun StoragePage() {
         }
     }
 
-    val permissionState = rememberPermissionsHandler(
-        onAllPermissionsGranted = {
-            triggerScan()
-        }
-    )
-
-    val hasStoragePermission = PermissionsHandler.hasStoragePermissions(context) || permissionState.hasAllPermissions
+    val hasStoragePermission = PermissionsHandler.hasStoragePermissions(context) ||
+        permissionState.hasStoragePermissions ||
+        permissionState.hasAllPermissions
     val scanProgress by MediaScannerService.scanProgress.collectAsStateWithLifecycle()
 
     LaunchedEffect(hasStoragePermission) {
@@ -263,6 +290,7 @@ private fun StoragePage() {
             if (!hasStoragePermission) {
                 Button(
                     onClick = {
+                        onPermissionRequested()
                         permissionState.requestPermissions()
                     },
                     colors = ButtonDefaults.buttonColors(

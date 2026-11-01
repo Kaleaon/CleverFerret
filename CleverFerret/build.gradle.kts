@@ -337,7 +337,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
         exclude("**/CatalogingPipelineEngineTest.kt")
         exclude("**/UnifiedReaderServiceIntegrationTest.kt")
         exclude("**/AccessibleOutlinedTextFieldTest.kt")
-        exclude("**/OnboardingViewModelTest.kt")
         exclude("**/AdaptiveGridWidthTokensTest.kt")
         exclude("**/SettingsViewModelTest.kt")
         exclude("**/PodcastAutoDownloadWorkerTest.kt")
