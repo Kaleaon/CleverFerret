@@ -7,8 +7,11 @@ import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.AppDatabase
+import com.universalmedialibrary.data.local.dao.ExternalMediaEntityDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.entity.ExternalMediaEntity
+import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataBook
 import com.universalmedialibrary.data.local.entity.MetadataCommon
@@ -18,6 +21,11 @@ import com.universalmedialibrary.services.CalibreImportService
 import com.universalmedialibrary.services.RawCalibreBook
 import com.universalmedialibrary.services.integration.calibre.CalibreConnectionResult
 import com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService
+import com.universalmedialibrary.services.opds.OPDSClient
+import com.universalmedialibrary.services.opds.OPDSEntry
+import com.universalmedialibrary.services.opds.OPDSFeed
+import com.universalmedialibrary.services.opds.OPDSLink
+import org.junit.Assert.assertThrows
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -222,6 +230,225 @@ class CalibreSafSyncTest {
         assertThat(slotBook.captured.series).isEqualTo("Dune Chronicles")
         testDb.close()
     }
+
+    @Test
+    fun `Local Calibre sync populates media_items and external_media_entities with valid bidirectional links`() =
+        kotlinx.coroutines.test.runTest {
+            val testDb = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+                .allowMainThreadQueries()
+                .build()
+            val mediaItemDao = testDb.mediaItemDao()
+            val externalEntityDao = testDb.externalMediaEntityDao()
+            val metadataDao = testDb.metadataDao()
+            val libraryDao = testDb.libraryDao()
+            libraryDao.insertLibrary(
+                Library(name = "Test Lib", path = tempDbFile.parentFile!!.absolutePath, type = "BOOK")
+            )
+
+            val importService = CalibreImportService(
+                database = testDb,
+                mediaItemDao = mediaItemDao,
+                metadataDao = metadataDao,
+                calibreReader = calibreReader
+            )
+
+            val service = CalibreIntegrationService(
+                context = context,
+                apiKeyRepository = mockk(relaxed = true),
+                externalMediaEntityDao = externalEntityDao,
+                mediaItemDao = mediaItemDao,
+                database = testDb,
+                calibreImportService = importService,
+                calibreReader = calibreReader
+            )
+
+            service.connectToLocalLibrary("Test Lib", tempDbFile.absolutePath)
+            val syncResult = service.syncLibraries()
+            assertThat(syncResult.successful).isTrue()
+            assertThat(syncResult.itemsProcessed).isEqualTo(3)
+
+            val externalEntities = externalEntityDao.getEntitiesByProvider("calibre")
+            assertThat(externalEntities).hasSize(3)
+
+            for (entity in externalEntities) {
+                assertThat(entity.mediaItemId).isNotNull()
+                val mediaItem = mediaItemDao.getMediaItemById(entity.mediaItemId!!)
+                assertThat(mediaItem).isNotNull()
+                assertThat(mediaItem?.mediaType).isEqualTo("BOOK")
+            }
+
+            testDb.close()
+        }
+
+    @Test
+    fun `Transactional ingestion verifies both MediaItemDao and ExternalMediaEntityDao in Room transaction`() =
+        kotlinx.coroutines.test.runTest {
+            val testDb = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+                .allowMainThreadQueries()
+                .build()
+            val mediaItemDao = testDb.mediaItemDao()
+            val externalEntityDao = testDb.externalMediaEntityDao()
+
+            val service = CalibreIntegrationService(
+                context = context,
+                apiKeyRepository = mockk(relaxed = true),
+                externalMediaEntityDao = externalEntityDao,
+                mediaItemDao = mediaItemDao,
+                database = testDb,
+                calibreReader = calibreReader
+            )
+
+            service.connectToLocalLibrary("Local Lib", tempDbFile.absolutePath)
+            val result = service.syncLibraries()
+            assertThat(result.successful).isTrue()
+
+            val entities = externalEntityDao.getEntitiesByProvider("calibre")
+            assertThat(entities).hasSize(3)
+            val itemsCount = mediaItemDao.getMediaItemCount()
+            assertThat(itemsCount).isEqualTo(3)
+
+            testDb.close()
+        }
+
+    @Test
+    fun `Remote sync retrieves book records from server OPDS endpoint at opds and stores them in Room`() =
+        kotlinx.coroutines.test.runTest {
+            val testDb = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+                .allowMainThreadQueries()
+                .build()
+            val externalEntityDao = testDb.externalMediaEntityDao()
+            val mediaItemDao = testDb.mediaItemDao()
+
+            val mockOpdsClient = mockk<OPDSClient>()
+            val opdsEntries = listOf(
+                OPDSEntry(
+                    id = "urn:calibre:42",
+                    title = "Foundation and Empire",
+                    authors = listOf("Isaac Asimov"),
+                    categories = listOf("Science Fiction", "Classic"),
+                    summary = "Galactic empire struggles",
+                    acquisitionLinks = listOf(
+                        OPDSLink(
+                            href = "http://remote-calibre:8080/get/epub/42.epub",
+                            rel = listOf("http://opds-spec.org/acquisition")
+                        )
+                    ),
+                    coverUrl = "http://remote-calibre:8080/get/cover/42.jpg"
+                )
+            )
+
+            coEvery { mockOpdsClient.fetchFeed("http://remote-calibre:8080/opds", any()) } returns OPDSFeed(
+                title = "Calibre OPDS Root",
+                entries = opdsEntries
+            )
+
+            val service = CalibreIntegrationService(
+                context = context,
+                apiKeyRepository = mockk(relaxed = true),
+                externalMediaEntityDao = externalEntityDao,
+                mediaItemDao = mediaItemDao,
+                database = testDb,
+                opdsClient = mockOpdsClient
+            )
+
+            service.connectToServer("Remote Server", "http://remote-calibre:8080", null, null)
+            val syncResult = service.syncLibraries()
+
+            assertThat(syncResult.successful).isTrue()
+            assertThat(syncResult.itemsProcessed).isEqualTo(1)
+
+            val storedEntities = externalEntityDao.getEntitiesByProvider("calibre")
+            assertThat(storedEntities).hasSize(1)
+            val entity = storedEntities.first()
+            assertThat(entity.externalId).isEqualTo("42")
+            assertThat(entity.title).isEqualTo("Foundation and Empire")
+            assertThat(entity.creator).isEqualTo("Isaac Asimov")
+            assertThat(entity.tags).contains("Science Fiction")
+            assertThat(entity.uri).isEqualTo("http://remote-calibre:8080/get/epub/42.epub")
+            assertThat(entity.coverUrl).isEqualTo("http://remote-calibre:8080/get/cover/42.jpg")
+
+            val mockBook1 = externalEntityDao.getByProviderAndExternalId("calibre", "calibre_1")
+            val mockBook2 = externalEntityDao.getByProviderAndExternalId("calibre", "calibre_2")
+            assertThat(mockBook1).isNull()
+            assertThat(mockBook2).isNull()
+
+            testDb.close()
+        }
+
+    @Test
+    fun `Constructor variants fail fast when DAO or required reference is null`() {
+        val apiKeyRepo = mockk<APIKeyRepository>(relaxed = true)
+        val validDao = mockk<ExternalMediaEntityDao>(relaxed = true)
+        val validMediaDao = mockk<MediaItemDao>(relaxed = true)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            CalibreIntegrationService(
+                context = context,
+                apiKeyRepository = apiKeyRepo,
+                externalMediaEntityDao = null as ExternalMediaEntityDao?,
+                mediaItemDao = validMediaDao
+            )
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            CalibreIntegrationService(
+                context = context,
+                apiKeyRepository = apiKeyRepo,
+                externalMediaEntityDao = validDao,
+                mediaItemDao = null as MediaItemDao?
+            )
+        }
+    }
+
+    @Test
+    fun `OPDS feed parsing errors do not crash overall synchronization`() =
+        kotlinx.coroutines.test.runTest {
+            val testDb = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+                .allowMainThreadQueries()
+                .build()
+            val mockOpdsClient = mockk<OPDSClient>()
+            coEvery { mockOpdsClient.fetchFeed(any(), any()) } throws IllegalStateException("Malformed XML syntax")
+
+            val service = CalibreIntegrationService(
+                context = context,
+                apiKeyRepository = mockk(relaxed = true),
+                externalMediaEntityDao = testDb.externalMediaEntityDao(),
+                mediaItemDao = testDb.mediaItemDao(),
+                database = testDb,
+                opdsClient = mockOpdsClient
+            )
+
+            service.connectToServer("Error Server", "http://error-calibre:8080", null, null)
+            val result = service.syncLibraries()
+            assertThat(result.successful).isTrue()
+            assertThat(result.itemsProcessed).isEqualTo(0)
+            testDb.close()
+        }
+
+    @Test
+    fun `File existence checks verify local book paths before creating file links`() =
+        kotlinx.coroutines.test.runTest {
+            val testDb = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+                .allowMainThreadQueries()
+                .build()
+            val service = CalibreIntegrationService(
+                context = context,
+                apiKeyRepository = mockk(relaxed = true),
+                externalMediaEntityDao = testDb.externalMediaEntityDao(),
+                mediaItemDao = testDb.mediaItemDao(),
+                database = testDb,
+                calibreReader = calibreReader
+            )
+
+            service.connectToLocalLibrary("Local Lib", tempDbFile.absolutePath)
+            service.syncLibraries()
+
+            val entities = testDb.externalMediaEntityDao().getEntitiesByProvider("calibre")
+            for (entity in entities) {
+                assertThat(entity.uri).isNull()
+            }
+            testDb.close()
+        }
 
     private fun calculateFileHash(file: File): String {
         val digest = MessageDigest.getInstance("SHA-256")

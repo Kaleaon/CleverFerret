@@ -25,49 +25,97 @@ class UnifiedIntegrationProviderArchitectureTest {
     private val entityStorage = mutableListOf<ExternalMediaEntity>()
 
     @Before
-    fun setUp() = runBlocking {
-        entityStorage.clear()
-        mockExternalMediaEntityDao = mock()
+    fun setUp() {
+        runBlocking {
+            entityStorage.clear()
+            mockExternalMediaEntityDao = mock()
 
-        whenever(mockExternalMediaEntityDao.insertEntity(any())).doAnswer { invocation ->
-            val entity = invocation.getArgument<ExternalMediaEntity>(0)
-            entityStorage.removeAll { it.providerId == entity.providerId && it.externalId == entity.externalId }
-            entityStorage.add(entity)
-            entityStorage.size.toLong()
-        }
-
-        whenever(mockExternalMediaEntityDao.insertEntities(any())).doAnswer { invocation ->
-            val list = invocation.getArgument<List<ExternalMediaEntity>>(0)
-            list.map { entity ->
+            whenever(mockExternalMediaEntityDao.insertEntity(any())).doAnswer { invocation ->
+                val entity = invocation.getArgument<ExternalMediaEntity>(0)
                 entityStorage.removeAll { it.providerId == entity.providerId && it.externalId == entity.externalId }
                 entityStorage.add(entity)
                 entityStorage.size.toLong()
             }
-        }
 
-        whenever(mockExternalMediaEntityDao.getEntitiesByProvider(any())).doAnswer { invocation ->
-            val provider = invocation.getArgument<String>(0)
-            entityStorage.filter { it.providerId == provider }
-        }
+            whenever(mockExternalMediaEntityDao.insertEntities(any())).doAnswer { invocation ->
+                val list = invocation.getArgument<List<ExternalMediaEntity>>(0)
+                list.map { entity ->
+                    entityStorage.removeAll { it.providerId == entity.providerId && it.externalId == entity.externalId }
+                    entityStorage.add(entity)
+                    entityStorage.size.toLong()
+                }
+            }
 
-        whenever(mockExternalMediaEntityDao.getByProviderAndExternalId(any(), any())).doAnswer { invocation ->
-            val provider = invocation.getArgument<String>(0)
-            val extId = invocation.getArgument<String>(1)
-            entityStorage.firstOrNull { it.providerId == provider && it.externalId == extId }
-        }
+            whenever(mockExternalMediaEntityDao.getEntitiesByProvider(any())).doAnswer { invocation ->
+                val provider = invocation.getArgument<String>(0)
+                entityStorage.filter { it.providerId == provider }
+            }
 
-        whenever(mockExternalMediaEntityDao.searchEntities(any(), any())).doAnswer { invocation ->
-            val q = invocation.getArgument<String>(0)
-            entityStorage.filter {
-                it.title.contains(q, ignoreCase = true) ||
-                (it.creator?.contains(q, ignoreCase = true) == true)
+            whenever(mockExternalMediaEntityDao.getByProviderAndExternalId(any(), any())).doAnswer { invocation ->
+                val provider = invocation.getArgument<String>(0)
+                val extId = invocation.getArgument<String>(1)
+                entityStorage.firstOrNull { it.providerId == provider && it.externalId == extId }
+            }
+
+            whenever(mockExternalMediaEntityDao.searchEntities(any(), any())).doAnswer { invocation ->
+                val q = invocation.getArgument<String>(0)
+                entityStorage.filter {
+                    it.title.contains(q, ignoreCase = true) ||
+                    (it.creator?.contains(q, ignoreCase = true) == true)
+                }
+            }
+
+            whenever(mockExternalMediaEntityDao.updateProgress(any(), any(), any(), any())).doAnswer { invocation ->
+                val provider = invocation.getArgument<String>(0)
+                val extId = invocation.getArgument<String>(1)
+                val progress = invocation.getArgument<Float>(2)
+                val idx = entityStorage.indexOfFirst { it.providerId == provider && it.externalId == extId }
+                if (idx != -1) {
+                    entityStorage[idx] = entityStorage[idx].copy(progress = progress)
+                }
+                Unit
+            }
+
+            whenever(mockExternalMediaEntityDao.updateEntity(any())).doAnswer { invocation ->
+                val entity = invocation.getArgument<ExternalMediaEntity>(0)
+                val idx = entityStorage.indexOfFirst { it.providerId == entity.providerId && it.externalId == entity.externalId }
+                if (idx != -1) {
+                    entityStorage[idx] = entity
+                }
+                Unit
             }
         }
     }
 
     @Test
     fun `test Calibre bi-directional progress and tag sync`() = runBlocking {
-        val calibreService = CalibreIntegrationService(mock(), mock(), mockExternalMediaEntityDao)
+        val mockOpdsClient = mock<com.universalmedialibrary.services.opds.OPDSClient>()
+        whenever(mockOpdsClient.fetchFeed(any(), org.mockito.kotlin.anyOrNull())).thenReturn(
+            com.universalmedialibrary.services.opds.OPDSFeed(
+                title = "Calibre Catalog",
+                entries = listOf(
+                    com.universalmedialibrary.services.opds.OPDSEntry(
+                        id = "calibre_1",
+                        title = "Sample Calibre Book 1",
+                        authors = listOf("Author One"),
+                        categories = listOf("SciFi", "Favorite"),
+                        acquisitionLinks = listOf(
+                            com.universalmedialibrary.services.opds.OPDSLink(
+                                href = "http://192.168.1.100:8080/get/epub/sample_1.epub",
+                                rel = listOf("http://opds-spec.org/acquisition")
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        val calibreService = CalibreIntegrationService(
+            context = mock(),
+            apiKeyRepository = mock(),
+            externalMediaEntityDao = mockExternalMediaEntityDao,
+            mediaItemDao = mock(),
+            opdsClient = mockOpdsClient
+        )
 
         // Connect
         val connected = calibreService.connect(mapOf("serverUrl" to "http://192.168.1.100:8080"))
@@ -123,7 +171,11 @@ class UnifiedIntegrationProviderArchitectureTest {
 
     @Test
     fun `test Poweramp connector fallback behavior when app missing`() = runBlocking {
-        val powerampAdapter = PowerampIntegrationAdapter(mock(), mockExternalMediaEntityDao)
+        val mockContext = mock<android.content.Context>()
+        val mockPm = mock<android.content.pm.PackageManager>()
+        whenever(mockContext.packageManager).thenReturn(mockPm)
+        whenever(mockPm.getPackageInfo(any<String>(), any<Int>())).thenThrow(android.content.pm.PackageManager.NameNotFoundException())
+        val powerampAdapter = PowerampIntegrationAdapter(mockContext, mockExternalMediaEntityDao)
 
         assertEquals("poweramp", powerampAdapter.providerId)
         assertFalse(powerampAdapter.isPowerampInstalled())

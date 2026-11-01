@@ -15,7 +15,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
+import com.cleverferret.core.designsystem.theme.LocalProxyTheme
 import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
+import com.cleverferret.core.designsystem.theme.rememberSnapshotThemeProxy
 import com.universalmedialibrary.ui.media.theme.MediaMotion
 
 
@@ -509,8 +511,13 @@ fun AncientArchitectTheme(
 
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val reduceMotion = remember(configuration) { com.universalmedialibrary.ui.media.theme.MediaMotion.isReducedMotionEnabled() }
+    val snapshotProxy = rememberSnapshotThemeProxy(
+        colorScheme = materialColorScheme,
+        semanticTheme = semanticTheme
+    )
 
     CompositionLocalProvider(
+        LocalProxyTheme provides snapshotProxy.proxyTheme,
         LocalSemanticTheme provides semanticTheme,
         LocalAncientArchitectColors provides ancientColors,
         LocalEnableGeometricPatterns provides enableGeometricPatterns,

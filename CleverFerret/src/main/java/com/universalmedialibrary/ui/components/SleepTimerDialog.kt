@@ -22,11 +22,15 @@ import androidx.compose.ui.unit.dp
  *
  * @param onDismiss Callback when dialog is dismissed
  * @param onSetTimer Callback with selected duration in minutes
+ * @param onSetEndOfChapter Optional callback when end of chapter is selected
+ * @param modifier Optional modifier for the dialog
  */
 @Composable
 fun SleepTimerDialog(
     onDismiss: () -> Unit,
-    onSetTimer: (minutes: Int) -> Unit
+    onSetTimer: (minutes: Int) -> Unit,
+    onSetEndOfChapter: (() -> Unit)? = null,
+    modifier: Modifier = Modifier
 ) {
     val timerOptions = listOf(
         TimerOption(5, "5 minutes"),
@@ -37,11 +41,13 @@ fun SleepTimerDialog(
         TimerOption(45, "45 minutes"),
         TimerOption(60, "1 hour"),
         TimerOption(90, "1.5 hours"),
-        TimerOption(120, "2 hours")
+        TimerOption(120, "2 hours"),
+        TimerOption(-1, "End of chapter / episode", isEndOfChapter = true)
     )
     
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = modifier,
         icon = {
             Icon(
                 Icons.Default.Bedtime,
@@ -74,7 +80,11 @@ fun SleepTimerDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                onSetTimer(option.minutes)
+                                if (option.isEndOfChapter) {
+                                    onSetEndOfChapter?.invoke() ?: onSetTimer(option.minutes)
+                                } else {
+                                    onSetTimer(option.minutes)
+                                }
                                 onDismiss()
                             }
                     )
@@ -104,10 +114,11 @@ fun SleepTimerDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Delegate to simplified dialog for now; full feature restoration can be added later
     SleepTimerDialog(
         onDismiss = onDismiss,
-        onSetTimer = onSetTimer
+        onSetTimer = onSetTimer,
+        onSetEndOfChapter = onSetEndOfChapter,
+        modifier = modifier
     )
 }
 
@@ -116,5 +127,6 @@ fun SleepTimerDialog(
  */
 private data class TimerOption(
     val minutes: Int,
-    val label: String
+    val label: String,
+    val isEndOfChapter: Boolean = false
 )
