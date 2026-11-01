@@ -347,6 +347,12 @@ interface MediaItemDao {
 
     @Query("SELECT * FROM media_items WHERE filePath = :path OR localCachePath = :path LIMIT 1")
     suspend fun getItemByPathOrCachePath(path: String): MediaItem?
+
+    @Query("UPDATE media_items SET thumbnailPath = :thumbnailPath, hasThumbnail = :hasThumbnail WHERE itemId = :itemId")
+    suspend fun updateThumbnail(itemId: Long, thumbnailPath: String?, hasThumbnail: Boolean)
+
+    @Query("SELECT * FROM media_items WHERE filePath LIKE 'plex://' || :machineIdentifier || '/%'")
+    suspend fun getPlexMediaItemsByServer(machineIdentifier: String): List<MediaItem>
 }
 
 data class MediaTypeCount(
