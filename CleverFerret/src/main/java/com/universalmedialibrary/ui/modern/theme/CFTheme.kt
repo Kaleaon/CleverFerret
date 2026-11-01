@@ -14,7 +14,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.cleverferret.core.designsystem.accessibility.rememberLiveRegionManager
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
+import com.cleverferret.core.designsystem.theme.LocalLiveRegionManager
 import com.cleverferret.core.designsystem.theme.LocalLiveRegionPolicy
 import com.cleverferret.core.designsystem.theme.LocalProxyTheme
 import com.cleverferret.core.designsystem.theme.LocalSemanticTheme
@@ -61,6 +63,7 @@ fun CFTheme(
     }
 
     val focusIndication = rememberFocusHighlightIndication(focusColor = palette.scheme.primary)
+    val liveRegionManager = rememberLiveRegionManager()
     val snapshotProxy = rememberSnapshotThemeProxy(
         colorScheme = palette.scheme,
         semanticTheme = semanticTheme
@@ -71,6 +74,7 @@ fun CFTheme(
         LocalCFTokens provides palette.tokens,
         LocalSemanticTheme provides semanticTheme,
         LocalLiveRegionPolicy provides semanticTheme.liveRegion,
+        LocalLiveRegionManager provides liveRegionManager,
         LocalIndication provides focusIndication
     ) {
         MaterialTheme(

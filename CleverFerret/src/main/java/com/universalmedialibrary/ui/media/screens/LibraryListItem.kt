@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.cleverferret.core.designsystem.theme.LocalLiveRegionManager
+import com.universalmedialibrary.ui.components.dynamicStateDescription
 import com.universalmedialibrary.ui.media.components.*
 import com.universalmedialibrary.ui.media.theme.*
 
@@ -33,6 +35,15 @@ internal fun LibraryListItem(
     item: MediaItem,
     onClick: () -> Unit
 ) {
+    val liveRegionManager = LocalLiveRegionManager.current
+
+    if (item.progress > 0) {
+        LaunchedEffect(item.progress) {
+            val percent = (item.progress * 100).toInt()
+            liveRegionManager.announceProgress(percent, item.title)
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,12 +88,14 @@ internal fun LibraryListItem(
                         .padding(MediaSpacing.XS),
                     contentAlignment = Alignment.BottomCenter
                 ) {
+                    val progressPercent = (item.progress * 100).toInt()
                     LinearProgressIndicator(
                         progress = { item.progress },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(3.dp)
-                            .clip(RoundedCornerShape(MediaCorners.Full)),
+                            .clip(RoundedCornerShape(MediaCorners.Full))
+                            .dynamicStateDescription("$progressPercent% completed"),
                         color = MediaColors.AccentPrimary,
                         trackColor = MediaColors.ProgressBackground
                     )

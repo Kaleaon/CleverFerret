@@ -9,13 +9,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cleverferret.core.designsystem.theme.LocalLiveRegionManager
 import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.plex.PlexSyncStatus
 import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
+import com.universalmedialibrary.ui.components.dynamicStateDescription
 import com.universalmedialibrary.ui.components.media.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import com.universalmedialibrary.ui.sync.SyncErrorType
@@ -33,6 +36,7 @@ fun MediaSyncScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val servers by viewModel.servers.collectAsStateWithLifecycle()
     val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
+    val liveRegionManager = LocalLiveRegionManager.current
 
     // Show add server dialog
     if (uiState.showAddServerDialog) {
@@ -44,17 +48,27 @@ fun MediaSyncScreen(
         )
     }
 
+    // Announce sync status transitions to screen readers
+    LaunchedEffect(syncStatus) {
+        when (val status = syncStatus) {
+            is PlexSyncStatus.Idle -> Unit
+            is PlexSyncStatus.Syncing -> liveRegionManager.announcePolite(status.message)
+            is PlexSyncStatus.Success -> liveRegionManager.announcePolite(status.message)
+            is PlexSyncStatus.Error -> liveRegionManager.announceAssertive("Sync error: ${status.message}")
+        }
+    }
+
     // Show messages
     LaunchedEffect(uiState.errorMessage) {
-        uiState.errorMessage?.let {
-            // In a real app, you'd show a snackbar here
+        uiState.errorMessage?.let { errorMsg ->
+            liveRegionManager.announceAssertive("Error: $errorMsg")
             viewModel.clearMessages()
         }
     }
 
     LaunchedEffect(uiState.successMessage) {
-        uiState.successMessage?.let {
-            // In a real app, you'd show a snackbar here
+        uiState.successMessage?.let { successMsg ->
+            liveRegionManager.announcePolite(successMsg)
             viewModel.clearMessages()
         }
     }
@@ -142,50 +156,87 @@ private fun SyncStatusCard(
     onReauthenticate: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Card(modifier = modifier) {
+    val statusDescription = when (syncStatus) {
+        is PlexSyncStatus.Idle -> "Ready to sync"
+        is PlexSyncStatus.Syncing -> syncStatus.message
+        is PlexSyncStatus.Success -> "Sync successful: ${syncStatus.message}"
+        is PlexSyncStatus.Error -> "Sync error: ${syncStatus.message}"
+    }
+    val liveRegionMode = if (syncStatus is PlexSyncStatus.Error) {
+        LiveRegionMode.Assertive
+    } else {
+        LiveRegionMode.Polite
+    }
+
+    val resolvedErrorType = errorType
+        ?: (syncStatus as? PlexSyncStatus.Error)?.let { classifySyncError(it.message) }
+        ?: SyncErrorType.UNKNOWN
+
+    Card(
+        modifier = modifier.dynamicStateDescription(
+            stateDescription = statusDescription,
+            mode = liveRegionMode
+        )
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            when (syncStatus) {
-                is PlexSyncStatus.Idle -> {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Sync ready",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Ready to sync")
-                    }
-                }
-                is PlexSyncStatus.Syncing -> {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(syncStatus.message)
-                    }
-                }
-                is PlexSyncStatus.Success -> {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Sync successful",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(syncStatus.message)
-                    }
-                }
-                is PlexSyncStatus.Error -> {
-                    PlexSyncErrorContent(
-                        message = syncStatus.message,
-                        errorType = errorType ?: classifySyncError(syncStatus.message),
-                        onRetry = onRetry,
-                        onReauthenticate = onReauthenticate
-                    )
-                }
+            PlexSyncStatusContent(
+                syncStatus = syncStatus,
+                errorType = resolvedErrorType,
+                onRetry = onRetry,
+                onReauthenticate = onReauthenticate
+            )
+        }
+    }
+}
+
+@Suppress("FunctionNaming")
+@Composable
+private fun PlexSyncStatusContent(
+    syncStatus: PlexSyncStatus,
+    errorType: SyncErrorType,
+    onRetry: () -> Unit,
+    onReauthenticate: () -> Unit
+) {
+    when (syncStatus) {
+        is PlexSyncStatus.Idle -> {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = "Sync ready",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Ready to sync")
             }
+        }
+        is PlexSyncStatus.Syncing -> {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(syncStatus.message)
+            }
+        }
+        is PlexSyncStatus.Success -> {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = "Sync successful",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(syncStatus.message)
+            }
+        }
+        is PlexSyncStatus.Error -> {
+            PlexSyncErrorContent(
+                message = syncStatus.message,
+                errorType = errorType,
+                onRetry = onRetry,
+                onReauthenticate = onReauthenticate
+            )
         }
     }
 }
