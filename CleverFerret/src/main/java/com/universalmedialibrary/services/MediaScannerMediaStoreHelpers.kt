@@ -263,6 +263,7 @@ internal suspend fun MediaScannerService.processMediaStoreItem(
             ),
             source = "MediaStore"
         )
+        notifyTagIndexingListener(inserted)
         inserted
     } catch (e: Exception) {
         ErrorLogger.logMediaScanError("Error processing MediaStore URI", e)

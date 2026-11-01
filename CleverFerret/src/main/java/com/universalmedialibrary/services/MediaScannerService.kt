@@ -27,7 +27,11 @@ import com.universalmedialibrary.data.repository.MetadataStagingRepository
 import com.universalmedialibrary.data.local.entity.*
 import com.universalmedialibrary.services.audio.WaveformGenerator
 import com.universalmedialibrary.services.pipeline.CatalogingPipelineEngine
+import com.universalmedialibrary.services.tagging.TagIndexingIngestionListener
 import com.universalmedialibrary.utils.ErrorLogger
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import com.universalmedialibrary.utils.media.AudioMetadataUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -38,6 +42,7 @@ import kotlinx.coroutines.flow.update
 import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
+import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -68,10 +73,22 @@ class MediaScannerService : Service() {
     @Inject lateinit var waveformGenerator: WaveformGenerator
     @Inject lateinit var catalogingPipelineEngine: CatalogingPipelineEngine
     @Inject lateinit var unifiedTagDao: UnifiedTagDao
+    @Inject lateinit var tagIndexingListener: TagIndexingIngestionListener
 
     internal val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val scanSettingsCache = mutableMapOf<Long, ResolvedScanSettings>()
     internal var scanJob: Job? = null
+
+    internal fun notifyTagIndexingListener(item: MediaItem) {
+        _ingestionEvents.tryEmit(item)
+        if (::tagIndexingListener.isInitialized) {
+            try {
+                tagIndexingListener.onMediaItemIngested(item)
+            } catch (e: Exception) {
+                ErrorLogger.logMediaScanError("Tag indexing listener failure", e)
+            }
+        }
+    }
 
     companion object {
         const val ACTION_SCAN_ALL = "com.universalmedialibrary.ACTION_SCAN_ALL"
@@ -94,6 +111,9 @@ class MediaScannerService : Service() {
 
         internal val _scanProgress = MutableStateFlow(ScanProgress())
         val scanProgress: StateFlow<ScanProgress> = _scanProgress.asStateFlow()
+
+        internal val _ingestionEvents = MutableSharedFlow<MediaItem>(extraBufferCapacity = 64)
+        val ingestionEvents: SharedFlow<MediaItem> = _ingestionEvents.asSharedFlow()
 
         fun cancelScan(context: Context? = null) {
             _scanProgress.value = ScanProgress(isScanning = false, statusText = "Scan canceled")
@@ -455,12 +475,15 @@ data class ScanProgress(
                     libraryId = library.libraryId
                 )
 
-                val processedItem = pipelineResult.context.mediaItem
+                val processedItem = pipelineResult.context.mediaItem ?: newItem
 
-                if (mediaType == "MUSIC" && processedItem != null) {
+                if (mediaType == "MUSIC") {
                     val musicInfo = extractMusicTrackInfo(file)
                     persistMusicTrackMetadata(processedItem, musicInfo)
                 }
+
+                // Asynchronously index format-specific tags and genres via listener
+                notifyTagIndexingListener(processedItem)
 
                 val currentProgress = _scanProgress.value
                 updateNotificationProgress(
@@ -524,9 +547,13 @@ data class ScanProgress(
 
 
     internal suspend fun indexGenresToCentralStorage(itemId: Long, rawGenre: String) {
-        val genres = rawGenre.split(',', '/', ';')
+        val delimiters = charArrayOf(',', '/', ';', '|', '\n')
+        val genres = rawGenre.split(*delimiters)
             .map { it.trim() }
             .filter { it.isNotEmpty() }
+            .map { if (it.length > 64) it.take(64).trim() else it }
+            .filter { it.isNotEmpty() }
+            .distinctBy { it.lowercase(Locale.getDefault()) }
 
         for (genreName in genres) {
             val tagId = unifiedTagDao.findOrCreateTag(genreName, TagType.AUTO_GENERATED)

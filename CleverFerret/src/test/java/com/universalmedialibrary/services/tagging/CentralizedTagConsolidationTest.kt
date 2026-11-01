@@ -15,6 +15,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -53,7 +54,7 @@ class CentralizedTagConsolidationTest {
                 id
             }
 
-            onBlocking { findOrCreateTag(any(), any(), any()) } doAnswer { invocation ->
+            onBlocking { findOrCreateTag(any(), any(), anyOrNull()) } doAnswer { invocation ->
                 val nameArg = invocation.getArgument<String>(0).trim()
                 val typeArg = invocation.getArgument<TagType>(1)
                 val colorArg = invocation.getArgument<String?>(2)
