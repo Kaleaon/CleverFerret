@@ -226,7 +226,8 @@
     <ID>CyclomaticComplexMethod:OcrOverlay.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OcrOverlay( bitmap: Bitmap?, onRecognizeText: () -&gt; Unit, ocrResult: String?, isProcessing: Boolean, onDismiss: () -&gt; Unit, modifier: Modifier = Modifier, onSpeakText: ((String) -&gt; Unit)? = null, onStopSpeaking: (() -&gt; Unit)? = null, isSpeaking: Boolean = false, currentLanguage: com.universalmedialibrary.services.ocr.OcrLanguage? = null, availableLanguages: List&lt;com.universalmedialibrary.services.ocr.OcrLanguage&gt;? = null, onLanguageChange: ((com.universalmedialibrary.services.ocr.OcrLanguage) -&gt; Unit)? = null )</ID>
     <ID>CyclomaticComplexMethod:OfflineBufferingWorker.kt$OfflineBufferingWorker$override suspend fun doWork(): Result</ID>
     <ID>CyclomaticComplexMethod:OfflineBufferingWorker.kt$OfflineBufferingWorker$private suspend fun buildStreamUrl(db: AppDatabase, filePath: String): String?</ID>
-    <ID>CyclomaticComplexMethod:OnboardingScreen.kt$@Composable private fun StoragePage()</ID>
+    <ID>CyclomaticComplexMethod:OnboardingScreen.kt$@Composable private fun StoragePage( permissionState: PermissionState, onPermissionRequested: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:OnboardingScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun OnboardingScreen( onComplete: () -&gt; Unit, modifier: Modifier = Modifier, viewModel: OnboardingViewModel = hiltViewModel() )</ID>
     <ID>CyclomaticComplexMethod:OpdsServer.kt$OpdsServer$private fun serveLibraryItems(session: IHTTPSession): Response</ID>
     <ID>CyclomaticComplexMethod:ParameterEditorScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParameterEditorScreen( preset: VisualizerPreset? = null, onBack: () -&gt; Unit, onSave: (VisualizerPreset) -&gt; Unit )</ID>
     <ID>CyclomaticComplexMethod:ParentalControlsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentalControlsScreen( navController: NavController, viewModel: ParentalControlsViewModel = hiltViewModel() )</ID>
@@ -1339,13 +1340,13 @@
     <ID>FunctionNaming:OldTimeRadioSeriesDetailScreen.kt$@Composable private fun EpisodeCard( episode: OldTimeRadioEpisode, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:OldTimeRadioSeriesDetailScreen.kt$@Deprecated( message = "Migrated to ModernOldTimeRadioSeriesDetailScreen in ui.modern.radio", replaceWith = ReplaceWith( "ModernOldTimeRadioSeriesDetailScreen(seriesTitle, onNavigateBack, onNavigateToPlayer)", "com.universalmedialibrary.ui.modern.radio.ModernOldTimeRadioSeriesDetailScreen" ) ) @OptIn(ExperimentalMaterial3Api::class) @Composable fun OldTimeRadioSeriesDetailScreen( seriesTitle: String, onNavigateBack: () -&gt; Unit, onNavigateToPlayer: (Long) -&gt; Unit, viewModel: OldTimeRadioSeriesViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:OldTimeRadioShowCard.kt$@Composable internal fun OldTimeRadioShowCard( show: OldTimeRadioShow, onClick: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun OnboardingPage(page: OnboardingPageData)</ID>
+    <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun OnboardingPage( page: OnboardingPageData, isPermissionPage: Boolean = false, hasStoragePermission: Boolean = false, onRequestPermission: () -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun OnboardingPageContent( icon: ImageVector, iconColor: Color, title: String, description: String, content: @Composable () -&gt; Unit )</ID>
     <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun ReadyPage( hasStoragePermissions: Boolean, totalMediaItems: Int, isScanDispatched: Boolean, onTriggerScan: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun StoragePage()</ID>
+    <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun StoragePage( permissionState: PermissionState, onPermissionRequested: () -&gt; Unit )</ID>
     <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun WelcomePage()</ID>
     <ID>FunctionNaming:OnboardingScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun OnboardingScreen( onComplete: () -&gt; Unit, modifier: Modifier = Modifier, viewModel: OnboardingViewModel = hiltViewModel() )</ID>
-    <ID>FunctionNaming:OnboardingScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OnboardingScreen( onComplete: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:OnboardingScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OnboardingScreen( onComplete: () -&gt; Unit, viewModel: OnboardingViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:OpdsSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OpdsSettingsScreen(onBack: () -&gt; Unit, viewModel: OpdsSettingsViewModel = hiltViewModel())</ID>
     <ID>FunctionNaming:PDFAnnotationOverlay.kt$@Composable fun PDFAnnotationOverlay( annotations: List&lt;Annotation&gt;, annotationTool: AnnotationTool, onAnnotationCreated: (Annotation) -&gt; Unit, currentPage: Int )</ID>
     <ID>FunctionNaming:PDFReaderSettingsSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PDFReaderSettingsSheet( currentZoom: Float, zoomMode: ZoomMode, onZoomChange: (Float) -&gt; Unit, onZoomModeChange: (ZoomMode) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
@@ -2443,11 +2444,11 @@
     <ID>LongMethod:OldTimeRadioImportService.kt$OldTimeRadioImportService$suspend fun importFeaturedEpisodes( limit: Int = 40, chunkSize: Int = 250, onProgress: (inserted: Int, total: Int) -&gt; Unit = { _, _ -&gt; } ): ImportResult</ID>
     <ID>LongMethod:OldTimeRadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OldTimeRadioScreen( onNavigateBack: () -&gt; Unit, onNavigateToSeries: (String) -&gt; Unit, onNavigateToEpisode: (Long) -&gt; Unit, viewModel: OldTimeRadioViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:OldTimeRadioSeriesDetailScreen.kt$@Composable private fun EpisodeCard( episode: OldTimeRadioEpisode, onClick: () -&gt; Unit )</ID>
-    <ID>LongMethod:OnboardingScreen.kt$@Composable private fun OnboardingPage(page: OnboardingPageData)</ID>
+    <ID>LongMethod:OnboardingScreen.kt$@Composable private fun OnboardingPage( page: OnboardingPageData, isPermissionPage: Boolean = false, hasStoragePermission: Boolean = false, onRequestPermission: () -&gt; Unit = {} )</ID>
     <ID>LongMethod:OnboardingScreen.kt$@Composable private fun ReadyPage( hasStoragePermissions: Boolean, totalMediaItems: Int, isScanDispatched: Boolean, onTriggerScan: () -&gt; Unit )</ID>
-    <ID>LongMethod:OnboardingScreen.kt$@Composable private fun StoragePage()</ID>
+    <ID>LongMethod:OnboardingScreen.kt$@Composable private fun StoragePage( permissionState: PermissionState, onPermissionRequested: () -&gt; Unit )</ID>
     <ID>LongMethod:OnboardingScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun OnboardingScreen( onComplete: () -&gt; Unit, modifier: Modifier = Modifier, viewModel: OnboardingViewModel = hiltViewModel() )</ID>
-    <ID>LongMethod:OnboardingScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OnboardingScreen( onComplete: () -&gt; Unit )</ID>
+    <ID>LongMethod:OnboardingScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OnboardingScreen( onComplete: () -&gt; Unit, viewModel: OnboardingViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:PDFAnnotationOverlay.kt$@Composable fun PDFAnnotationOverlay( annotations: List&lt;Annotation&gt;, annotationTool: AnnotationTool, onAnnotationCreated: (Annotation) -&gt; Unit, currentPage: Int )</ID>
     <ID>LongMethod:PDFReaderSettingsSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PDFReaderSettingsSheet( currentZoom: Float, zoomMode: ZoomMode, onZoomChange: (Float) -&gt; Unit, onZoomModeChange: (ZoomMode) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>LongMethod:PDFReaderViewModel.kt$PDFReaderViewModel$private fun generateSamplePDFContent(pageNumber: Int): String</ID>
@@ -9953,8 +9954,6 @@
     <ID>WildcardImport:OnboardingScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:OnboardingScreen.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:OnboardingScreen.kt$import com.universalmedialibrary.ui.media.theme.*</ID>
-    <ID>WildcardImport:OnboardingViewModel.kt$import kotlinx.coroutines.flow.*</ID>
-    <ID>WildcardImport:OnboardingViewModelTest.kt$import kotlinx.coroutines.test.*</ID>
     <ID>WildcardImport:OpdsFeedGeneratorTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:OpdsSettingsScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:OpdsSettingsScreen.kt$import androidx.compose.material3.*</ID>
