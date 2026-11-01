@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.audiobook
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.preferences.AudioPlaybackPreferencesStore
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.audiobook.AudiobookBookmark
 import com.universalmedialibrary.services.audiobook.AudiobookService
@@ -41,8 +42,17 @@ class AudiobookPlayerViewModel @Inject constructor(
     private val synchronizedReadingService: SynchronizedReadingService,
     private val exoPlayerService: ExoPlayerService,
     private val mediaRepository: MediaRepository,
-    private val errorMapper: UserFriendlyErrorMapper = UserFriendlyErrorMapper()
+    private val errorMapper: UserFriendlyErrorMapper = UserFriendlyErrorMapper(),
+    private val preferencesStore: AudioPlaybackPreferencesStore? = null
 ) : ViewModel() {
+
+    companion object {
+        const val DEFAULT_FORWARD_SKIP_SEC = 30
+        const val DEFAULT_BACKWARD_SKIP_SEC = 15
+    }
+
+    private var currentSkipForwardIntervalSec: Int = DEFAULT_FORWARD_SKIP_SEC
+    private var currentSkipBackwardIntervalSec: Int = DEFAULT_BACKWARD_SKIP_SEC
 
     // Audiobook state
     val audiobookState: StateFlow<AudiobookState> = audiobookService.audiobookState
@@ -80,6 +90,14 @@ class AudiobookPlayerViewModel @Inject constructor(
                     updateHighlightedText(position, audioState.currentChapterIndex)
                 }
             }.collect { }
+        }
+
+        // Track user preferences updates
+        viewModelScope.launch {
+            preferencesStore?.preferences?.collect { prefs ->
+                currentSkipForwardIntervalSec = prefs.skipForwardIntervalSec
+                currentSkipBackwardIntervalSec = prefs.skipBackwardIntervalSec
+            }
         }
     }
 
@@ -172,17 +190,27 @@ class AudiobookPlayerViewModel @Inject constructor(
     }
 
     /**
-     * Skip forward (default 30 seconds)
+     * Skip forward (uses preferences if seconds not specified)
      */
-    fun seekForward(seconds: Int = 30) {
-        audiobookService.seekForward(seconds)
+    fun seekForward(seconds: Int = currentSkipForwardIntervalSec) {
+        val interval = if (seconds > 0) seconds else currentSkipForwardIntervalSec
+        audiobookService.seekForward(interval)
     }
 
     /**
-     * Skip backward (default 30 seconds)
+     * Skip backward (uses preferences if seconds not specified)
      */
-    fun seekBackward(seconds: Int = 30) {
-        audiobookService.seekBackward(seconds)
+    fun seekBackward(seconds: Int = currentSkipBackwardIntervalSec) {
+        val interval = if (seconds > 0) seconds else currentSkipBackwardIntervalSec
+        audiobookService.seekBackward(interval)
+    }
+
+    fun skipForward() {
+        seekForward(currentSkipForwardIntervalSec)
+    }
+
+    fun skipBackward() {
+        seekBackward(currentSkipBackwardIntervalSec)
     }
 
     /**

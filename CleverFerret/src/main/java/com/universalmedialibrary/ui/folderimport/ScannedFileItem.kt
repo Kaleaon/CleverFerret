@@ -144,14 +144,15 @@ internal fun ScannedFileItem(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     // File type badge
+                    val badgeColor = file.type.color
                     Surface(
                         shape = RoundedCornerShape(4.dp),
-                        color = file.type.color.copy(alpha = 0.2f)
+                        color = badgeColor.copy(alpha = 0.2f)
                     ) {
                         Text(
                             text = file.extension.uppercase(),
                             style = MaterialTheme.typography.labelSmall,
-                            color = file.type.color,
+                            color = badgeColor,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }

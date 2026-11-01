@@ -140,7 +140,10 @@ fun ComicReaderScreen(
         }
     }
 
-    Scaffold(
+    UnifiedReaderScaffold(
+        isModalOrSearchActive = showSettingsSheet,
+        onNextPage = { triggerNextPage() },
+        onPreviousPage = { triggerPrevPage() },
         topBar = {
             TopAppBar(
                 title = { Text(fileName, modifier = Modifier.headingSemantics()) },

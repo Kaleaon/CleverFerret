@@ -6,6 +6,8 @@ import com.universalmedialibrary.data.repository.UnifiedCollectionRepository
 import com.universalmedialibrary.services.collections.SmartCollectionEngine
 import com.universalmedialibrary.services.search.*
 import com.universalmedialibrary.services.suggestions.AutoSuggestionService
+import com.universalmedialibrary.services.tagging.TagIndexingIngestionListener
+import com.universalmedialibrary.services.tagging.UnifiedTagIndexingListener
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -127,5 +129,13 @@ object UniversalTagSearchModule {
             documentSearchEngine,
             searchHistoryManager
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideTagIndexingIngestionListener(
+        listener: UnifiedTagIndexingListener
+    ): TagIndexingIngestionListener {
+        return listener
     }
 }

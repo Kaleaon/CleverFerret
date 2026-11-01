@@ -19,10 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import com.universalmedialibrary.ui.modern.components.CFMetalButton
 import com.universalmedialibrary.ui.modern.components.CFTopBar
 import com.universalmedialibrary.ui.modern.theme.CFSpacing
@@ -95,12 +97,13 @@ fun ModernAuthenticationScreen(
                     ) {
                         val emailField = state.fields.firstOrNull { it.key == "email" }
                             ?: AuthFieldDef(key = "email", label = "Email address", placeholder = "you@example.com")
-                        OutlinedTextField(
+                        AccessibleOutlinedTextField(
                             value = state.values["email"] ?: "",
                             onValueChange = { onChangeField("email", it) },
                             label = { Text(emailField.label) },
                             placeholder = { Text(emailField.placeholder) },
                             singleLine = true,
+                            autofillTypes = listOf(AutofillType.EmailAddress),
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
@@ -124,13 +127,32 @@ fun ModernAuthenticationScreen(
                         verticalArrangement = Arrangement.spacedBy(CFSpacing.sm),
                     ) {
                         state.fields.forEach { field ->
-                            OutlinedTextField(
+                            val autofillTypes = when {
+                                field.secret || field.key.contains("password", ignoreCase = true) -> {
+                                    listOf(AutofillType.Password)
+                                }
+                                field.key.contains("email", ignoreCase = true) -> {
+                                    listOf(AutofillType.EmailAddress)
+                                }
+                                field.key.contains("user", ignoreCase = true) ||
+                                    field.key.contains("login", ignoreCase = true) ||
+                                    field.key.contains("account", ignoreCase = true) -> {
+                                    listOf(AutofillType.Username)
+                                }
+                                else -> emptyList()
+                            }
+                            AccessibleOutlinedTextField(
                                 value = state.values[field.key] ?: "",
                                 onValueChange = { onChangeField(field.key, it) },
                                 label = { Text(field.label) },
                                 placeholder = { Text(field.placeholder) },
                                 singleLine = true,
-                                visualTransformation = if (field.secret) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+                                visualTransformation = if (field.secret) {
+                                    PasswordVisualTransformation()
+                                } else {
+                                    androidx.compose.ui.text.input.VisualTransformation.None
+                                },
+                                autofillTypes = autofillTypes,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }

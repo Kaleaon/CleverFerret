@@ -156,6 +156,7 @@ class PlexSyncService @Inject constructor(
                 },
                 fetchPage = { api, _ ->
                     syncMediaItems(server, api)
+                    normalizeExistingPlexThumbnails(server)
                     api
                 },
                 parse = { api ->
@@ -255,6 +256,7 @@ class PlexSyncService @Inject constructor(
             database.withTransaction {
                 for (metadata in chunk) {
                     val path = "plex://${server.machineIdentifier}/${metadata.ratingKey}"
+                    val thumbUrl = PlexUrlUtils.buildAuthenticatedThumbnailUrl(server, metadata.thumb)
                     if (!existingPathsSet.contains(path)) {
                         val initialAvailable = plexVirtualUriResolver?.isItemAvailable(path) ?: server.isActive
                         val mediaItem = MediaItem(
@@ -268,19 +270,54 @@ class PlexSyncService @Inject constructor(
                             mimeType = null,
                             isAvailable = initialAvailable,
                             hasMetadata = true,
-                            hasThumbnail = !metadata.thumb.isNullOrEmpty(),
-                            thumbnailPath = metadata.thumb
+                            hasThumbnail = !thumbUrl.isNullOrEmpty(),
+                            thumbnailPath = thumbUrl
                         )
                         val insertedId = mediaItemDao.insertMediaItem(mediaItem)
-                        val downloadUrl = "http://${server.host}:${server.port}" +
-                            "/library/metadata/${metadata.ratingKey}?X-Plex-Token=${server.token}"
+                        val downloadUrl = PlexUrlUtils.buildMediaStreamPartUrl(server, metadata.ratingKey)
                         downloadScheduler?.scheduleDownload(
                             itemId = insertedId,
                             remoteUri = path,
                             downloadUrl = downloadUrl,
                             fileName = metadata.title
                         )
+                    } else {
+                        val existingItem = mediaItemDao.getItemByPath(path)
+                        if (existingItem != null && existingItem.thumbnailPath != thumbUrl) {
+                            mediaItemDao.updateThumbnail(
+                                itemId = existingItem.itemId,
+                                thumbnailPath = thumbUrl,
+                                hasThumbnail = !thumbUrl.isNullOrEmpty()
+                            )
+                        }
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * Resolve and build authenticated thumbnail URL for a Plex server
+     */
+    fun buildAuthenticatedThumbnailUrl(server: PlexServer, thumb: String?): String? =
+        PlexUrlUtils.buildAuthenticatedThumbnailUrl(server, thumb)
+
+    /**
+     * Normalize existing Plex thumbnail paths to fully-qualified authenticated URLs
+     */
+    suspend fun normalizeExistingPlexThumbnails(server: PlexServer) {
+        val machineId = server.machineIdentifier ?: return
+        val items = mediaItemDao.getPlexMediaItemsByServer(machineId)
+        for (item in items) {
+            val currentThumb = item.thumbnailPath
+            if (!currentThumb.isNullOrBlank() && (currentThumb.startsWith("/") || !currentThumb.contains("X-Plex-Token="))) {
+                val normalizedThumb = PlexUrlUtils.buildAuthenticatedThumbnailUrl(server, currentThumb)
+                if (normalizedThumb != currentThumb) {
+                    mediaItemDao.updateThumbnail(
+                        itemId = item.itemId,
+                        thumbnailPath = normalizedThumb,
+                        hasThumbnail = !normalizedThumb.isNullOrEmpty()
+                    )
                 }
             }
         }

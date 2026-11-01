@@ -39,7 +39,10 @@ fun EReaderScreen(
         viewModel.loadBook(context, bookFilePath)
     }
 
-    Scaffold(
+    UnifiedReaderScaffold(
+        isModalOrSearchActive = showChapterMenu,
+        onNextPage = { viewModel.nextChapter() },
+        onPreviousPage = { viewModel.previousChapter() },
         topBar = {
             TopAppBar(
                 title = {

@@ -89,4 +89,47 @@ class BillingServiceTest {
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(BillingState.Connected, adapter.billingState.value)
     }
+
+    @Test
+    fun restorePurchases_whenNoPurchases_returnsErrorGracefully() = runTest {
+        val result = adapter.restorePurchases()
+        assertTrue(result is PurchaseResult.Error)
+        assertEquals("No previous purchases found to restore.", (result as PurchaseResult.Error).message)
+        assertFalse(themeHandler.isThemeProUnlocked.value)
+        assertFalse(scannerHandler.isScannerProUnlocked.value)
+        assertFalse(cloudHandler.isCloudProUnlocked.value)
+    }
+
+    @Test
+    fun restorePurchases_withActivePurchases_unlocksDomainEntitlements() = runTest {
+        adapter.addActivePurchase("theme_pro_monthly")
+        adapter.addActivePurchase("scanner_pro_annual")
+        adapter.addActivePurchase("cloud_pro_monthly")
+
+        val result = adapter.restorePurchases()
+        assertTrue(result is PurchaseResult.Success)
+        assertTrue(themeHandler.isThemeProUnlocked.value)
+        assertTrue(scannerHandler.isScannerProUnlocked.value)
+        assertTrue(cloudHandler.isCloudProUnlocked.value)
+    }
+
+    @Test
+    fun restorePurchases_whenOffline_returnsOfflineError() = runTest {
+        adapter.addActivePurchase("theme_pro_monthly")
+        adapter.setOfflineSimulated(true)
+
+        val result = adapter.restorePurchases()
+        assertTrue(result is PurchaseResult.Error)
+        assertEquals("Service unavailable. Device is offline.", (result as PurchaseResult.Error).message)
+        assertFalse(themeHandler.isThemeProUnlocked.value)
+    }
+
+    @Test
+    fun refreshEntitlements_withActivePurchases_syncsDomainEntitlements() = runTest {
+        adapter.addActivePurchase("scanner_pro_monthly")
+        assertFalse(scannerHandler.isScannerProUnlocked.value)
+
+        adapter.refreshEntitlements()
+        assertTrue(scannerHandler.isScannerProUnlocked.value)
+    }
 }

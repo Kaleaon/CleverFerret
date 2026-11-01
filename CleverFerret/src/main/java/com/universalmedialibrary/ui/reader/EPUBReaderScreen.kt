@@ -62,7 +62,10 @@ fun EPUBReaderScreen(
         viewModel.loadBook(bookUri)
     }
 
-    Scaffold(
+    UnifiedReaderScaffold(
+        onNextPage = { viewModel.nextChapter() },
+        onPreviousPage = { viewModel.previousChapter() },
+        isModalOrSearchActive = showToc || showSettings || showSearch,
         topBar = {
             TopAppBar(
                 title = {

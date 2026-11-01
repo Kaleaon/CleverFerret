@@ -42,6 +42,15 @@ class GooglePlayBillingAdapter @Inject constructor(
     override val purchases: SharedFlow<PurchaseResult> = _purchases.asSharedFlow()
 
     private var isSimulatedOffline = false
+    private val activeStorePurchases = mutableSetOf<String>()
+
+    fun addActivePurchase(productId: String) {
+        activeStorePurchases.add(productId)
+    }
+
+    fun clearActivePurchases() {
+        activeStorePurchases.clear()
+    }
 
     private val catalog = mapOf(
         // Theme products
@@ -139,6 +148,8 @@ class GooglePlayBillingAdapter @Inject constructor(
             return result
         }
 
+        activeStorePurchases.add(productId)
+
         val result = PurchaseResult.Success(
             productId = productId,
             purchaseToken = "mock_token_${productId}_${System.currentTimeMillis()}",
@@ -158,6 +169,35 @@ class GooglePlayBillingAdapter @Inject constructor(
             return
         }
         _billingState.value = BillingState.Connected
+        for (productId in activeStorePurchases) {
+            processPurchaseSuccess(productId)
+        }
+    }
+
+    override suspend fun restorePurchases(): PurchaseResult {
+        if (_billingState.value is BillingState.Offline || _billingState.value is BillingState.Disconnected || isSimulatedOffline) {
+            val result = PurchaseResult.Error("Service unavailable. Device is offline.", errorCode = -1)
+            _purchases.emit(result)
+            return result
+        }
+
+        if (activeStorePurchases.isEmpty()) {
+            val result = PurchaseResult.Error("No previous purchases found to restore.", errorCode = 0)
+            _purchases.emit(result)
+            return result
+        }
+
+        for (productId in activeStorePurchases) {
+            processPurchaseSuccess(productId)
+        }
+
+        val result = PurchaseResult.Success(
+            productId = activeStorePurchases.first(),
+            purchaseToken = "mock_restore_token_${System.currentTimeMillis()}",
+            orderId = "GPA.RESTORE-${System.currentTimeMillis()}"
+        )
+        _purchases.emit(result)
+        return result
     }
 
     override fun retryConnection() {

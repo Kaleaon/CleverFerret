@@ -36,6 +36,11 @@ interface BillingService {
     suspend fun refreshEntitlements()
 
     /**
+     * Restore previous purchases and reactivate entitlements for returning users.
+     */
+    suspend fun restorePurchases(): PurchaseResult
+
+    /**
      * Attempt reconnection to billing service when in Disconnected/Offline state.
      */
     fun retryConnection()

@@ -2,9 +2,11 @@ package com.universalmedialibrary.data.repository
 
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.dao.PlexServerDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
+import com.universalmedialibrary.services.plex.PlexUrlUtils
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,7 +18,8 @@ import javax.inject.Singleton
 class MediaRepository @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao,
-    private val extendedMetadataRepository: ExtendedMetadataRepository
+    private val extendedMetadataRepository: ExtendedMetadataRepository,
+    private val plexServerDao: PlexServerDao? = null
 ) {
 
     // Media Item operations
@@ -24,10 +27,10 @@ class MediaRepository @Inject constructor(
         mediaItemDao.getMediaItemsByLibrary(libraryId)
 
     suspend fun getMediaItemById(itemId: Long): MediaItem? =
-        mediaItemDao.getMediaItemById(itemId)
+        mediaItemDao.getMediaItemById(itemId)?.let { normalizePlexThumbnail(it) }
 
     suspend fun getMediaItemByPath(filePath: String): MediaItem? =
-        mediaItemDao.getMediaItemByPath(filePath)
+        mediaItemDao.getMediaItemByPath(filePath)?.let { normalizePlexThumbnail(it) }
 
     fun getMediaItemsByType(mediaType: String): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(mediaType)
@@ -45,7 +48,24 @@ class MediaRepository @Inject constructor(
         mediaItemDao.deleteMediaItem(mediaItem)
 
     suspend fun searchMediaItems(query: String, limit: Int = 50): List<MediaItem> =
-        mediaItemDao.searchMediaItems(query, limit)
+        mediaItemDao.searchMediaItems(query, limit).map { normalizePlexThumbnail(it) }
+
+    private suspend fun normalizePlexThumbnail(item: MediaItem): MediaItem {
+        val serverDao = plexServerDao
+        val thumb = item.thumbnailPath
+        if (serverDao == null || thumb.isNullOrBlank() || !item.filePath.startsWith("plex://")) {
+            return item
+        }
+
+        val machineId = item.filePath.removePrefix("plex://").substringBefore('/')
+        val server = serverDao.getServerByMachineId(machineId) ?: serverDao.getFirstActiveServer()
+        val normalized = server?.let { PlexUrlUtils.buildAuthenticatedThumbnailUrl(it, thumb) }
+        return if (!normalized.isNullOrEmpty()) {
+            item.copy(thumbnailPath = normalized, hasThumbnail = true)
+        } else {
+            item
+        }
+    }
 
     // Metadata operations
     suspend fun getCommonMetadata(itemId: Long): MetadataCommon? =
