@@ -15,9 +15,10 @@ import javax.inject.Singleton
 /**
  * Stage 4 Processor: Staging / Persistence
  *
- * Evaluates composite confidence scores. High-confidence items (>= 0.85f) are persisted
- * directly to primary library tables with `isVerified = true`. Low-confidence items (< 0.85f)
- * are routed to [MetadataStagingRepository] as pending candidates for manual review.
+ * Enforces mandatory candidate staging for all automated metadata ingestions.
+ * Newly generated metadata records are persisted with `isVerified = false` and routed
+ * to [MetadataStagingRepository] as pending candidates for manual user verification.
+ * Direct persistence with `isVerified = true` is prohibited.
  */
 @Singleton
 class StagingPersistenceProcessor @Inject constructor(
@@ -40,11 +41,7 @@ class StagingPersistenceProcessor @Inject constructor(
         val existingMediaItem = context.mediaItem ?: mediaItemDao.getItemByPath(file.absolutePath)
         val mediaItem = existingMediaItem ?: createAndSaveMediaItem(file, context)
 
-        return if (context.confidenceScore >= HIGH_CONFIDENCE_THRESHOLD) {
-            handleHighConfidence(context, mediaItem)
-        } else {
-            handleLowConfidence(context, mediaItem)
-        }
+        return stageCandidate(context, mediaItem)
     }
 
     private suspend fun createAndSaveMediaItem(
@@ -70,42 +67,7 @@ class StagingPersistenceProcessor @Inject constructor(
         return newItem.copy(itemId = newId)
     }
 
-    private suspend fun handleHighConfidence(
-        context: CatalogingPipelineContext,
-        mediaItem: MediaItem
-    ): CatalogingPipelineContext {
-        val itemId = mediaItem.itemId
-        val finalCommon = (context.normalizedCommon ?: MetadataCommon(
-            itemId = itemId,
-            title = context.file.nameWithoutExtension
-        )).copy(
-            itemId = itemId,
-            metadataSource = context.metadataSource,
-            lastUpdated = System.currentTimeMillis(),
-            isVerified = true
-        )
-
-        metadataDao.insertMetadataCommon(finalCommon)
-        context.bookMetadata?.let { metadataDao.insertMetadataBook(it.copy(itemId = itemId)) }
-        context.musicTrackMetadata?.let { metadataDao.insertMetadataMusicTrack(it.copy(itemId = itemId)) }
-        context.movieMetadata?.let { metadataDao.insertMetadataMovie(it.copy(itemId = itemId)) }
-
-        val updatedMediaItem = mediaItem.copy(
-            hasMetadata = true,
-            hasThumbnail = !finalCommon.coverImagePath.isNullOrBlank(),
-            thumbnailPath = finalCommon.coverImagePath ?: mediaItem.thumbnailPath
-        )
-        mediaItemDao.updateMediaItem(updatedMediaItem)
-
-        return context.copy(
-            mediaItem = updatedMediaItem,
-            normalizedCommon = finalCommon,
-            status = PipelineStatus.COMPLETED,
-            isStaged = false
-        )
-    }
-
-    private suspend fun handleLowConfidence(
+    private suspend fun stageCandidate(
         context: CatalogingPipelineContext,
         mediaItem: MediaItem
     ): CatalogingPipelineContext {
