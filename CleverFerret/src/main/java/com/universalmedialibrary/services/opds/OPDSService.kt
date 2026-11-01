@@ -201,7 +201,9 @@ data class OPDSEntry(
     val language: String? = null,
     val coverUrl: String? = null,
     val acquisitionLinks: List<OPDSLink> = emptyList(),
-    val navigationLinks: List<OPDSLink> = emptyList()
+    val navigationLinks: List<OPDSLink> = emptyList(),
+    val id: String? = null,
+    val categories: List<String> = emptyList()
 )
 
 data class OPDSLink(
