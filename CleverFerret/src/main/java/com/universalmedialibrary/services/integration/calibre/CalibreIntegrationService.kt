@@ -39,6 +39,7 @@ import javax.inject.Singleton
  * and entity synchronization.
  */
 @Singleton
+@Suppress("LongParameterList")
 class CalibreIntegrationService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository,
@@ -421,61 +422,8 @@ class CalibreIntegrationService @Inject constructor(
         libraryRootPath: String,
         libraryId: Long
     ) {
-        val chunkEntities = mutableListOf<ExternalMediaEntity>()
-
-        for (rawBook in chunk) {
-            val resolvedPath = calibreImportService?.resolveFullPath(libraryRootPath, rawBook.path)
-                ?: resolveLocalBookPath(libraryRootPath, rawBook.path)
-                ?: File(libraryRootPath, rawBook.path).absolutePath
-
-            val file = File(resolvedPath)
-            val isFileAvailable = file.exists()
-
-            val mediaItemId = if (calibreImportService != null) {
-                mediaItemDao.getItemByPath(resolvedPath)?.itemId
-            } else {
-                val existingItem = mediaItemDao.getItemByPath(resolvedPath)
-                if (existingItem != null) {
-                    existingItem.itemId
-                } else {
-                    val mediaItem = MediaItem(
-                        libraryId = libraryId,
-                        filePath = resolvedPath,
-                        fileName = file.name,
-                        fileExtension = if (file.extension.isNotBlank()) file.extension.lowercase(Locale.ROOT) else "epub",
-                        fileSize = if (isFileAvailable) file.length() else 0L,
-                        fileHash = if (isFileAvailable) file.computeMd5() else "calibre_${rawBook.id}",
-                        dateAdded = System.currentTimeMillis(),
-                        lastScanned = System.currentTimeMillis(),
-                        lastModified = if (isFileAvailable) file.lastModified() else System.currentTimeMillis(),
-                        mediaType = "BOOK",
-                        isAvailable = isFileAvailable,
-                        hasMetadata = true
-                    )
-                    mediaItemDao.insertMediaItem(mediaItem)
-                }
-            }
-
-            val fileUri = if (isFileAvailable) resolvedPath else null
-            val existing = externalMediaEntityDao.getByProviderAndExternalId("calibre", rawBook.id.toString())
-
-            val entity = ExternalMediaEntity(
-                id = existing?.id ?: 0L,
-                providerId = "calibre",
-                externalId = rawBook.id.toString(),
-                mediaItemId = mediaItemId,
-                title = rawBook.title,
-                creator = rawBook.authorNames.joinToString(", ").takeIf { it.isNotBlank() },
-                series = rawBook.seriesName,
-                mediaType = "BOOK",
-                uri = fileUri,
-                coverUrl = null,
-                summary = rawBook.comments,
-                tags = rawBook.tags.joinToString(", ").takeIf { it.isNotBlank() },
-                progress = existing?.progress ?: 0f,
-                lastSyncedAt = System.currentTimeMillis()
-            )
-            chunkEntities.add(entity)
+        val chunkEntities = chunk.map { rawBook ->
+            buildLocalEntity(rawBook, libraryRootPath, libraryId)
         }
 
         val insertedIds = externalMediaEntityDao.insertEntities(chunkEntities)
@@ -488,67 +436,146 @@ class CalibreIntegrationService @Inject constructor(
         }
     }
 
+    private suspend fun buildLocalEntity(
+        rawBook: RawCalibreBook,
+        libraryRootPath: String,
+        libraryId: Long
+    ): ExternalMediaEntity {
+        val resolvedPath = calibreImportService?.resolveFullPath(libraryRootPath, rawBook.path)
+            ?: resolveLocalBookPath(libraryRootPath, rawBook.path)
+            ?: File(libraryRootPath, rawBook.path).absolutePath
+
+        val file = File(resolvedPath)
+        val isFileAvailable = file.exists()
+        val mediaItemId = resolveMediaItemId(resolvedPath, file, isFileAvailable, rawBook.id, libraryId)
+
+        val fileUri = if (isFileAvailable) resolvedPath else null
+        val existing = externalMediaEntityDao.getByProviderAndExternalId("calibre", rawBook.id.toString())
+
+        return ExternalMediaEntity(
+            id = existing?.id ?: 0L,
+            providerId = "calibre",
+            externalId = rawBook.id.toString(),
+            mediaItemId = mediaItemId,
+            title = rawBook.title,
+            creator = rawBook.authorNames.joinToString(", ").takeIf { it.isNotBlank() },
+            series = rawBook.seriesName,
+            mediaType = "BOOK",
+            uri = fileUri,
+            coverUrl = null,
+            summary = rawBook.comments,
+            tags = rawBook.tags.joinToString(", ").takeIf { it.isNotBlank() },
+            progress = existing?.progress ?: 0f,
+            lastSyncedAt = System.currentTimeMillis()
+        )
+    }
+
+    private suspend fun resolveMediaItemId(
+        resolvedPath: String,
+        file: File,
+        isFileAvailable: Boolean,
+        rawBookId: Long,
+        libraryId: Long
+    ): Long? {
+        val existingItem = mediaItemDao.getItemByPath(resolvedPath)
+        if (existingItem != null) {
+            return existingItem.itemId
+        }
+        if (calibreImportService != null) {
+            return null
+        }
+        val mediaItem = MediaItem(
+            libraryId = libraryId,
+            filePath = resolvedPath,
+            fileName = file.name,
+            fileExtension = if (file.extension.isNotBlank()) file.extension.lowercase(Locale.ROOT) else "epub",
+            fileSize = if (isFileAvailable) file.length() else 0L,
+            fileHash = if (isFileAvailable) file.computeMd5() else "calibre_$rawBookId",
+            dateAdded = System.currentTimeMillis(),
+            lastScanned = System.currentTimeMillis(),
+            lastModified = if (isFileAvailable) file.lastModified() else System.currentTimeMillis(),
+            mediaType = "BOOK",
+            isAvailable = isFileAvailable,
+            hasMetadata = true
+        )
+        return mediaItemDao.insertMediaItem(mediaItem)
+    }
+
     private suspend fun syncRemoteServer(connection: CalibreConnection): Int {
         return try {
-            val opdsUrl = if (connection.url.endsWith("/opds") || connection.url.endsWith("/opds/")) {
-                connection.url
-            } else {
-                "${connection.url.trimEnd('/')}/opds"
-            }
-
+            val opdsUrl = normalizeOpdsUrl(connection.url)
             val feed = opdsClient.fetchFeed(opdsUrl, null)
             val remoteEntities = feed.entries.mapIndexed { index, entry ->
-                val entryId = entry.id?.takeIf { it.isNotBlank() } ?: "calibre_${index + 1}"
-                val cleanExternalId = if (entryId.startsWith("urn:calibre:")) {
-                    entryId.removePrefix("urn:calibre:")
-                } else {
-                    entryId
-                }
-
-                val acquisitionLink = entry.acquisitionLinks.firstOrNull { link ->
-                    link.rel.any { it.contains("acquisition") }
-                }?.href ?: entry.acquisitionLinks.firstOrNull()?.href
-
-                val tags = if (entry.categories.isNotEmpty()) {
-                    entry.categories.joinToString(", ")
-                } else {
-                    null
-                }
-
-                val existing = externalMediaEntityDao.getByProviderAndExternalId("calibre", cleanExternalId)
-
-                ExternalMediaEntity(
-                    id = existing?.id ?: 0L,
-                    providerId = "calibre",
-                    externalId = cleanExternalId,
-                    mediaItemId = existing?.mediaItemId,
-                    title = entry.title,
-                    creator = entry.authors.joinToString(", ").takeIf { it.isNotBlank() },
-                    series = existing?.series,
-                    mediaType = "BOOK",
-                    uri = acquisitionLink ?: existing?.uri,
-                    coverUrl = entry.coverUrl ?: existing?.coverUrl,
-                    summary = entry.summary ?: existing?.summary,
-                    tags = tags ?: existing?.tags,
-                    progress = existing?.progress ?: 0f,
-                    lastSyncedAt = System.currentTimeMillis()
-                )
+                buildRemoteEntity(entry, index)
             }
 
             if (remoteEntities.isNotEmpty()) {
-                remoteEntities.chunked(CHUNK_SIZE).forEach { chunk ->
-                    if (database != null) {
-                        database.withTransaction {
-                            externalMediaEntityDao.insertEntities(chunk)
-                        }
-                    } else {
-                        externalMediaEntityDao.insertEntities(chunk)
-                    }
-                }
+                persistRemoteEntities(remoteEntities)
             }
             remoteEntities.size
         } catch (_: Exception) {
             0
+        }
+    }
+
+    private fun normalizeOpdsUrl(url: String): String {
+        return if (url.endsWith("/opds") || url.endsWith("/opds/")) {
+            url
+        } else {
+            "${url.trimEnd('/')}/opds"
+        }
+    }
+
+    private suspend fun buildRemoteEntity(
+        entry: com.universalmedialibrary.services.opds.OPDSEntry,
+        index: Int
+    ): ExternalMediaEntity {
+        val entryId = entry.id?.takeIf { it.isNotBlank() } ?: "calibre_${index + 1}"
+        val cleanExternalId = if (entryId.startsWith("urn:calibre:")) {
+            entryId.removePrefix("urn:calibre:")
+        } else {
+            entryId
+        }
+
+        val acquisitionLink = entry.acquisitionLinks.firstOrNull { link ->
+            link.rel.any { it.contains("acquisition") }
+        }?.href ?: entry.acquisitionLinks.firstOrNull()?.href
+
+        val tags = if (entry.categories.isNotEmpty()) {
+            entry.categories.joinToString(", ")
+        } else {
+            null
+        }
+
+        val existing = externalMediaEntityDao.getByProviderAndExternalId("calibre", cleanExternalId)
+
+        return ExternalMediaEntity(
+            id = existing?.id ?: 0L,
+            providerId = "calibre",
+            externalId = cleanExternalId,
+            mediaItemId = existing?.mediaItemId,
+            title = entry.title,
+            creator = entry.authors.joinToString(", ").takeIf { it.isNotBlank() },
+            series = existing?.series,
+            mediaType = "BOOK",
+            uri = acquisitionLink ?: existing?.uri,
+            coverUrl = entry.coverUrl ?: existing?.coverUrl,
+            summary = entry.summary ?: existing?.summary,
+            tags = tags ?: existing?.tags,
+            progress = existing?.progress ?: 0f,
+            lastSyncedAt = System.currentTimeMillis()
+        )
+    }
+
+    private suspend fun persistRemoteEntities(remoteEntities: List<ExternalMediaEntity>) {
+        remoteEntities.chunked(CHUNK_SIZE).forEach { chunk ->
+            if (database != null) {
+                database.withTransaction {
+                    externalMediaEntityDao.insertEntities(chunk)
+                }
+            } else {
+                externalMediaEntityDao.insertEntities(chunk)
+            }
         }
     }
 
@@ -690,29 +717,12 @@ class CalibreIntegrationService @Inject constructor(
             }
         }
 
-        private fun resolveExternalMediaEntityDao(context: Context?): ExternalMediaEntityDao {
-            val db = resolveDatabase(context)
-            return requireNotNull(db?.externalMediaEntityDao()) {
-                "ExternalMediaEntityDao cannot be resolved from context"
-            }
-        }
-
-        private fun resolveMediaItemDao(context: Context?): MediaItemDao {
-            val db = resolveDatabase(context)
-            return requireNotNull(db?.mediaItemDao()) {
-                "MediaItemDao cannot be resolved from context"
-            }
-        }
-
         private fun resolveCalibreReader(context: Context?): CalibreDatabaseReader {
-            return if (context != null) {
-                try {
-                    CalibreDatabaseReader(context)
-                } catch (_: Exception) {
-                    CalibreDatabaseReader(context.applicationContext)
-                }
-            } else {
-                throw IllegalArgumentException("Context must not be null")
+            val safeContext = requireNotNull(context) { "Context must not be null" }
+            return try {
+                CalibreDatabaseReader(safeContext)
+            } catch (_: Exception) {
+                CalibreDatabaseReader(safeContext.applicationContext)
             }
         }
     }

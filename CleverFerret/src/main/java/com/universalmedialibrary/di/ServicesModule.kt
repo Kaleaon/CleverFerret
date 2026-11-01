@@ -148,6 +148,7 @@ object ServicesModule {
 
     @Provides
     @Singleton
+    @Suppress("LongParameterList")
     fun provideCalibreIntegrationService(
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
         apiKeyRepository: APIKeyRepository,
