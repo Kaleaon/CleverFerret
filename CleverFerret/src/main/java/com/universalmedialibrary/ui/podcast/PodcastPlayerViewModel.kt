@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import com.universalmedialibrary.data.preferences.AudioPlaybackPreferencesStore
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
+import com.universalmedialibrary.services.podcast.AdvancedPodcastPlayerService
 import com.universalmedialibrary.services.podcast.PodcastDownloadManager
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,14 +24,23 @@ import javax.inject.Inject
 class PodcastPlayerViewModel @Inject constructor(
     private val repository: PodcastRepository,
     private val audioPlaybackManager: AudioPlaybackManager,
-    private val downloadManager: PodcastDownloadManager
+    private val downloadManager: PodcastDownloadManager,
+    private val preferencesStore: AudioPlaybackPreferencesStore? = null,
+    private val advancedPlayerService: AdvancedPodcastPlayerService? = null
 ) : ViewModel() {
+
+    companion object {
+        const val DEFAULT_FORWARD_SKIP_SEC = 30
+        const val DEFAULT_BACKWARD_SKIP_SEC = 15
+        private const val MILLIS_PER_SECOND = 1000L
+    }
 
     private val _uiState = MutableStateFlow(PodcastPlayerUiState())
     val uiState: StateFlow<PodcastPlayerUiState> = _uiState.asStateFlow()
 
     private var loadEpisodeJob: Job? = null
     private var positionUpdateJob: Job? = null
+    private var preferencesJob: Job? = null
 
     val playbackState = audioPlaybackManager.state
 
@@ -47,12 +58,27 @@ class PodcastPlayerViewModel @Inject constructor(
                 }
             }
         }
+
+        // Track user preferences updates
+        preferencesJob = viewModelScope.launch {
+            preferencesStore?.preferences?.collect { prefs ->
+                _uiState.value = _uiState.value.copy(
+                    skipForwardIntervalSec = prefs.skipForwardIntervalSec,
+                    skipBackwardIntervalSec = prefs.skipBackwardIntervalSec
+                )
+                advancedPlayerService?.setSkipIntervals(
+                    prefs.skipForwardIntervalSec,
+                    prefs.skipBackwardIntervalSec
+                )
+            }
+        }
     }
 
     override fun onCleared() {
         super.onCleared()
         positionUpdateJob?.cancel()
         loadEpisodeJob?.cancel()
+        preferencesJob?.cancel()
     }
 
     fun loadEpisode(episodeId: Long) {
@@ -129,13 +155,26 @@ class PodcastPlayerViewModel @Inject constructor(
     }
 
     fun skipForward() {
-        val newPosition = _uiState.value.currentPosition + 30000 // 30 seconds
-        seekTo(newPosition.coerceAtMost(_uiState.value.episode?.duration ?: 0))
+        val intervalSec = _uiState.value.skipForwardIntervalSec
+        val intervalMs = intervalSec * MILLIS_PER_SECOND
+        val episodeDuration = _uiState.value.episode?.duration
+        val targetPosition = _uiState.value.currentPosition + intervalMs
+        val newPosition = if (episodeDuration != null && episodeDuration > 0L) {
+            targetPosition.coerceAtMost(episodeDuration)
+        } else {
+            targetPosition
+        }
+        seekTo(newPosition)
+        advancedPlayerService?.skipForward(intervalSec)
     }
 
     fun skipBackward() {
-        val newPosition = _uiState.value.currentPosition - 15000 // 15 seconds
-        seekTo(newPosition.coerceAtLeast(0))
+        val intervalSec = _uiState.value.skipBackwardIntervalSec
+        val intervalMs = intervalSec * MILLIS_PER_SECOND
+        val targetPosition = _uiState.value.currentPosition - intervalMs
+        val newPosition = targetPosition.coerceAtLeast(0L)
+        seekTo(newPosition)
+        advancedPlayerService?.skipBackward(intervalSec)
     }
 
     fun togglePlayPause() {
@@ -168,5 +207,7 @@ data class PodcastPlayerUiState(
     val isLoading: Boolean = false,
     val isPlaying: Boolean = false,
     val currentPosition: Long = 0,
-    val error: String? = null
+    val error: String? = null,
+    val skipForwardIntervalSec: Int = PodcastPlayerViewModel.DEFAULT_FORWARD_SKIP_SEC,
+    val skipBackwardIntervalSec: Int = PodcastPlayerViewModel.DEFAULT_BACKWARD_SKIP_SEC
 )

@@ -57,14 +57,31 @@ class AdvancedPodcastPlayerService @Inject constructor(
         _currentEpisode.value = _episodeQueue.value.getOrNull(currentQueueIndex)
     }
 
-    fun skipForward(seconds: Int) {
-        val current = _currentEpisode.value ?: return
-        _currentEpisode.value = current.copy(positionMs = current.positionMs + seconds * 1000L)
+    companion object {
+        const val DEFAULT_FORWARD_SKIP_SEC = 30
+        const val DEFAULT_BACKWARD_SKIP_SEC = 15
+        private const val MILLIS_PER_SECOND = 1000L
     }
 
-    fun skipBackward(seconds: Int) {
+    fun setSkipIntervals(forwardSec: Int, backwardSec: Int) {
+        val safeForward = if (forwardSec > 0) forwardSec else DEFAULT_FORWARD_SKIP_SEC
+        val safeBackward = if (backwardSec > 0) backwardSec else DEFAULT_BACKWARD_SKIP_SEC
+        _playbackSettings.value = _playbackSettings.value.copy(
+            skipForwardIntervalSec = safeForward,
+            skipBackwardIntervalSec = safeBackward,
+        )
+    }
+
+    fun skipForward(seconds: Int = _playbackSettings.value.skipForwardIntervalSec) {
         val current = _currentEpisode.value ?: return
-        _currentEpisode.value = current.copy(positionMs = (current.positionMs - seconds * 1000L).coerceAtLeast(0L))
+        val forwardSec = if (seconds > 0) seconds else _playbackSettings.value.skipForwardIntervalSec
+        _currentEpisode.value = current.copy(positionMs = current.positionMs + forwardSec * MILLIS_PER_SECOND)
+    }
+
+    fun skipBackward(seconds: Int = _playbackSettings.value.skipBackwardIntervalSec) {
+        val current = _currentEpisode.value ?: return
+        val backwardSec = if (seconds > 0) seconds else _playbackSettings.value.skipBackwardIntervalSec
+        _currentEpisode.value = current.copy(positionMs = (current.positionMs - backwardSec * MILLIS_PER_SECOND).coerceAtLeast(0L))
     }
 
     fun seekTo(positionMs: Long) {
@@ -142,7 +159,14 @@ data class PodcastPlaybackSettings(
     val playbackSpeed: Float = 1.0f,
     val skipSilence: Boolean = false,
     val sleepTimerMinutes: Int = 0,
-)
+    val skipForwardIntervalSec: Int = DEFAULT_FORWARD_SKIP_SEC,
+    val skipBackwardIntervalSec: Int = DEFAULT_BACKWARD_SKIP_SEC,
+) {
+    companion object {
+        const val DEFAULT_FORWARD_SKIP_SEC = 30
+        const val DEFAULT_BACKWARD_SKIP_SEC = 15
+    }
+}
 
 data class PodcastChapter(
     val title: String,

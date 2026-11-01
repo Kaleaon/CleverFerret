@@ -188,13 +188,30 @@ fun PodcastPlayerScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Skip Backward 15s
-                        MetallicIconButton(
-                            onClick = { viewModel.skipBackward() },
-                            icon = {
-                                Icon(Icons.Default.Replay, "Skip Back 15s")
-                            }
-                        )
+                        // Skip Backward
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            MetallicIconButton(
+                                onClick = { viewModel.skipBackward() },
+                                icon = {
+                                    Icon(
+                                        when (uiState.skipBackwardIntervalSec) {
+                                            INTERVAL_10_SEC -> Icons.Default.Replay10
+                                            INTERVAL_30_SEC -> Icons.Default.Replay30
+                                            else -> Icons.Default.Replay
+                                        },
+                                        contentDescription = "Skip Back ${uiState.skipBackwardIntervalSec}s"
+                                    )
+                                }
+                            )
+                            Text(
+                                text = "${uiState.skipBackwardIntervalSec}s",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
 
                         // Play/Pause
                         MetallicFAB(
@@ -208,13 +225,30 @@ fun PodcastPlayerScreen(
                             }
                         )
 
-                        // Skip Forward 30s
-                        MetallicIconButton(
-                            onClick = { viewModel.skipForward() },
-                            icon = {
-                                Icon(Icons.Default.Forward30, "Skip Forward 30s")
-                            }
-                        )
+                        // Skip Forward
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            MetallicIconButton(
+                                onClick = { viewModel.skipForward() },
+                                icon = {
+                                    Icon(
+                                        when (uiState.skipForwardIntervalSec) {
+                                            INTERVAL_10_SEC -> Icons.Default.Forward10
+                                            INTERVAL_30_SEC -> Icons.Default.Forward30
+                                            else -> Icons.Default.FastForward
+                                        },
+                                        contentDescription = "Skip Forward ${uiState.skipForwardIntervalSec}s"
+                                    )
+                                }
+                            )
+                            Text(
+                                text = "${uiState.skipForwardIntervalSec}s",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -272,6 +306,9 @@ fun PodcastPlayerScreen(
             }
         }
     }
+
+private const val INTERVAL_10_SEC = 10
+private const val INTERVAL_30_SEC = 30
 
 private fun formatTime(milliseconds: Long): String {
     val seconds = (milliseconds / 1000).toInt()
