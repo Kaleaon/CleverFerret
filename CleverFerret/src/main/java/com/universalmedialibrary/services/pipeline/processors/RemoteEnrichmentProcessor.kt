@@ -107,8 +107,8 @@ class RemoteEnrichmentProcessor @Inject constructor(
         details: com.universalmedialibrary.api.plugin.MediaMetadata?
     ): com.universalmedialibrary.data.local.entity.MetadataCommon {
         val coverUrl = searchResult.coverUrl
-            ?: details?.coverUrls?.get(CoverSize.LARGE)
-            ?: details?.coverUrls?.get(CoverSize.MEDIUM)
+            ?: details?.coverUrls?.get(com.universalmedialibrary.api.plugin.CoverSize.LARGE)
+            ?: details?.coverUrls?.get(com.universalmedialibrary.api.plugin.CoverSize.MEDIUM)
 
         var updated = common
         if (updated.summary.isNullOrBlank() && !details?.description.isNullOrBlank()) {

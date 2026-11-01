@@ -123,7 +123,7 @@ jobs:
           --tests com.universalmedialibrary.ui.media.navigation.MediaNavDestinationsContractTest
 
     - name: Upload Quality & Lint Results
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       if: always()
       with:
         name: quality-gate-results
@@ -265,7 +265,7 @@ jobs:
 
     - name: Upload compilation log artifact
       if: always() && env.COMPILE_LOG != ''
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: compile-log-${{ github.sha }}-${{ github.run_attempt }}
         path: ${{ env.COMPILE_LOG || 'compile_output.txt' }}
@@ -307,7 +307,7 @@ jobs:
         fi
 
     - name: Upload test reports
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       if: always()
       with:
         name: test-reports
@@ -436,7 +436,7 @@ jobs:
 
     - name: Upload build log artifact
       if: always() && env.BUILD_LOG != ''
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: build-log-${{ github.sha }}-${{ github.run_attempt }}
         path: ${{ env.BUILD_LOG || 'build_output.txt' }}
@@ -535,7 +535,7 @@ jobs:
 
     - name: Upload debug APK
       if: steps.build-debug.outcome == 'success'
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: debug-apk
         path: |
@@ -545,7 +545,7 @@ jobs:
 
     - name: Upload release APK
       if: steps.build-debug.outcome == 'success'
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: release-apk
         path: |
