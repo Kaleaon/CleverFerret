@@ -31,30 +31,50 @@ class SyncViewModel @Inject constructor(
     }
 
     fun startSync(options: SyncOptions = _syncOptions.value) {
+        if (_uiState.value.isSyncing) return
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(
                     isSyncing = true,
                     error = null,
+                    errorType = null,
                     currentConflict = null
                 )
 
                 val result = cloudSyncEngine.sync(options)
 
-                _uiState.value = _uiState.value.copy(
-                    isSyncing = false,
-                    lastSyncResult = result,
-                    showSyncComplete = true
-                )
+                if (!result.success && result.error != null) {
+                    val classified = classifySyncError(result.error)
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        lastSyncResult = result,
+                        error = result.error,
+                        errorType = classified,
+                        showSyncComplete = false
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        lastSyncResult = result,
+                        showSyncComplete = true
+                    )
+                }
 
                 loadLastSyncInfo()
             } catch (e: Exception) {
+                val errorMsg = e.message?.ifBlank { "Sync failed due to an unexpected error" }
+                    ?: "Sync failed due to an unexpected error"
                 _uiState.value = _uiState.value.copy(
                     isSyncing = false,
-                    error = e.message ?: "Sync failed"
+                    error = errorMsg,
+                    errorType = classifySyncError(e)
                 )
             }
         }
+    }
+
+    fun retrySync() {
+        startSync()
     }
 
     fun handleConflict(conflict: SyncConflict, resolution: ConflictResolutionStrategy) {
@@ -64,7 +84,11 @@ class SyncViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(currentConflict = null)
                 if (_uiState.value.isSyncing) startSync()
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = e.message ?: "Failed to resolve conflict")
+                val errorMsg = e.message ?: "Failed to resolve conflict"
+                _uiState.value = _uiState.value.copy(
+                    error = errorMsg,
+                    errorType = classifySyncError(e)
+                )
             }
         }
     }
@@ -87,7 +111,7 @@ class SyncViewModel @Inject constructor(
     }
 
     fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
+        _uiState.value = _uiState.value.copy(error = null, errorType = null)
     }
 
     private fun loadLastSyncInfo() {
@@ -110,8 +134,10 @@ class SyncViewModel @Inject constructor(
                     currentConflict = conflicts.firstOrNull()
                 )
             } catch (e: Exception) {
+                val errorMsg = e.message ?: "Failed to load conflicts"
                 _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Failed to load conflicts"
+                    error = errorMsg,
+                    errorType = classifySyncError(e)
                 )
             }
         }
@@ -156,5 +182,68 @@ data class SyncUiState(
     val currentConflict: SyncConflict? = null,
     val pendingConflicts: List<SyncConflict> = emptyList(),
     val showSyncComplete: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val errorType: SyncErrorType? = null
 )
+
+/**
+ * Structured sync error classification distinguishing auth, network, and server errors.
+ */
+enum class SyncErrorType {
+    AUTH_EXPIRED,
+    NETWORK_OFFLINE,
+    SERVER_ERROR,
+    UNKNOWN
+}
+
+private val AUTH_KEYWORDS = listOf(
+    "401", "403", "auth", "unauthorized", "forbidden", "token", "credential", "expired", "login"
+)
+private val NETWORK_KEYWORDS = listOf(
+    "offline", "network", "connect", "timeout", "unreachable", "no internet", "unknownhost", "socket", "host"
+)
+private val SERVER_KEYWORDS = listOf(
+    "500", "502", "503", "504", "server error", "internal server", "bad gateway", "service unavailable", "internal error"
+)
+
+/**
+ * Classifies a throwable into a structured SyncErrorType.
+ */
+fun classifySyncError(throwable: Throwable?): SyncErrorType {
+    if (throwable == null) return SyncErrorType.UNKNOWN
+    return classifySyncError(throwable.message)
+}
+
+/**
+ * Classifies an error message into a structured SyncErrorType.
+ */
+fun classifySyncError(message: String?): SyncErrorType {
+    if (message.isNullOrBlank()) return SyncErrorType.UNKNOWN
+    val lower = message.lowercase()
+    return when {
+        AUTH_KEYWORDS.any { lower.contains(it) } -> SyncErrorType.AUTH_EXPIRED
+        SERVER_KEYWORDS.any { lower.contains(it) } -> SyncErrorType.SERVER_ERROR
+        NETWORK_KEYWORDS.any { lower.contains(it) } -> SyncErrorType.NETWORK_OFFLINE
+        else -> SyncErrorType.UNKNOWN
+    }
+}
+
+/**
+ * Returns contextual diagnostic advice based on the classified error type.
+ */
+fun getSyncErrorDiagnosticTip(errorType: SyncErrorType, error: String? = null): String {
+    return when (errorType) {
+        SyncErrorType.AUTH_EXPIRED ->
+            "Your session or credentials have expired. Please re-authenticate to continue syncing."
+        SyncErrorType.NETWORK_OFFLINE ->
+            "Unable to connect to the network. Please check your internet connection and try again."
+        SyncErrorType.SERVER_ERROR ->
+            "The remote server is temporarily unavailable or returned an error. Please try again later."
+        SyncErrorType.UNKNOWN ->
+            if (error.isNullOrBlank()) {
+                "An unexpected synchronization error occurred. Please check your settings or try again."
+            } else {
+                "An unexpected error occurred: $error"
+            }
+    }
+}

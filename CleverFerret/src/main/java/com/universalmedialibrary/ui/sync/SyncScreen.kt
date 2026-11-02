@@ -17,20 +17,31 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.sync.*
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import java.text.SimpleDateFormat
 import java.util.*
 
+@Suppress("LongMethod", "FunctionNaming")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SyncScreen(
     navController: NavController,
-    viewModel: SyncViewModel = hiltViewModel()
+    viewModel: SyncViewModel = hiltViewModel(),
+    onNavigateToAuth: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val syncState by viewModel.syncState.collectAsStateWithLifecycle()
     val syncOptions by viewModel.syncOptions.collectAsStateWithLifecycle()
 
     var showOptions by remember { mutableStateOf(false) }
+
+    val handleReauthenticate: () -> Unit = onNavigateToAuth ?: {
+        try {
+            navController.navigate(MediaRoutes.SETTINGS_ACCOUNTS)
+        } catch (_: Exception) {
+            navController.navigate(MediaRoutes.SETTINGS)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -63,10 +74,10 @@ fun SyncScreen(
                 item {
                     SyncStatusCard(
                         syncState = syncState,
-                        lastSyncTime = uiState.lastSyncTime,
-                        lastSyncResult = uiState.lastSyncResult,
-                        isSyncing = uiState.isSyncing,
-                        onStartSync = { viewModel.startSync() }
+                        uiState = uiState,
+                        onStartSync = { viewModel.startSync() },
+                        onRetry = { viewModel.startSync() },
+                        onReauthenticate = handleReauthenticate
                     )
                 }
 
@@ -75,6 +86,10 @@ fun SyncScreen(
                     item {
                         ErrorCard(
                             error = uiState.error!!,
+                            errorType = uiState.errorType ?: classifySyncError(uiState.error),
+                            isSyncing = uiState.isSyncing,
+                            onRetry = { viewModel.startSync() },
+                            onReauthenticate = handleReauthenticate,
                             onDismiss = viewModel::clearError
                         )
                     }
@@ -139,89 +154,209 @@ fun SyncScreen(
     }
 }
 
+@Suppress("FunctionNaming")
 @Composable
 private fun SyncStatusCard(
     syncState: EnhancedSyncState,
-    lastSyncTime: Long?,
-    lastSyncResult: SyncResult?,
-    isSyncing: Boolean,
-    onStartSync: () -> Unit
+    uiState: SyncUiState,
+    onStartSync: () -> Unit,
+    onRetry: () -> Unit = onStartSync,
+    onReauthenticate: () -> Unit = {}
 ) {
+    val hasError = syncState.error != null || syncState.syncStatus == SyncStatus.ERROR || uiState.error != null
+    val effectiveError = uiState.error ?: syncState.error ?: syncState.errorMessage
+    val effectiveErrorType = uiState.errorType ?: classifySyncError(effectiveError)
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Status Icon
-            Icon(
-                if (syncState.isLoading) Icons.Default.Sync else Icons.Default.CloudSync,
-                contentDescription = "Media image",
-                modifier = Modifier.size(64.dp),
-                tint = if (syncState.error != null) {
-                    MaterialTheme.colorScheme.error
-                } else if (syncState.isLoading) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
-            )
-
+            SyncStatusIcon(hasError = hasError, isLoading = syncState.isLoading)
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Status Text
-            Text(
-                text = if (syncState.isLoading) {
-                    syncState.status.ifEmpty { "Syncing..." }
-                } else if (syncState.error != null) {
-                    "Sync Failed"
-                } else if (syncState.lastSyncTime > 0L) {
-                    "Up to Date"
-                } else {
-                    "Ready to Sync"
-                },
-                style = MaterialTheme.typography.titleLarge
+            SyncStatusHeadline(hasError = hasError, syncState = syncState)
+            SyncStatusBody(
+                hasError = hasError,
+                effectiveError = effectiveError,
+                effectiveErrorType = effectiveErrorType,
+                uiState = uiState
             )
-
-            // Last Sync Time
-            if (lastSyncTime != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "Last sync: ${formatSyncTime(lastSyncTime)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+            Spacer(modifier = Modifier.height(16.dp))
+            if (hasError) {
+                SyncErrorActionButtons(
+                    errorType = effectiveErrorType,
+                    isSyncing = uiState.isSyncing,
+                    onRetry = onRetry,
+                    onReauthenticate = onReauthenticate
                 )
+            } else {
+                NormalSyncButton(isSyncing = uiState.isSyncing, onStartSync = onStartSync)
             }
+        }
+    }
+}
 
-            // Last Sync Summary
-            if (lastSyncResult != null && !isSyncing) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    SyncStat("↕", lastSyncResult.itemsSynced, "Synced")
-                    if (lastSyncResult.conflictsDetected > 0) {
-                        SyncStat("⚠", lastSyncResult.conflictsDetected, "Conflicts")
-                    }
+@Suppress("FunctionNaming")
+@Composable
+private fun SyncStatusIcon(hasError: Boolean, isLoading: Boolean) {
+    val icon = if (hasError) {
+        Icons.Default.SyncProblem
+    } else if (isLoading) {
+        Icons.Default.Sync
+    } else {
+        Icons.Default.CloudSync
+    }
+    val tint = if (hasError) {
+        MaterialTheme.colorScheme.error
+    } else if (isLoading) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    Icon(
+        imageVector = icon,
+        contentDescription = "Sync status",
+        modifier = Modifier.size(64.dp),
+        tint = tint
+    )
+}
+
+@Suppress("FunctionNaming")
+@Composable
+private fun SyncStatusHeadline(hasError: Boolean, syncState: EnhancedSyncState) {
+    val headline = if (syncState.isLoading) {
+        syncState.status.ifEmpty { "Syncing..." }
+    } else if (hasError) {
+        "Sync Failed"
+    } else if (syncState.lastSyncTime > 0L) {
+        "Up to Date"
+    } else {
+        "Ready to Sync"
+    }
+    Text(
+        text = headline,
+        style = MaterialTheme.typography.titleLarge
+    )
+}
+
+@Suppress("FunctionNaming")
+@Composable
+private fun SyncStatusBody(
+    hasError: Boolean,
+    effectiveError: String?,
+    effectiveErrorType: SyncErrorType,
+    uiState: SyncUiState
+) {
+    if (hasError) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = effectiveError?.ifBlank { "Synchronization failed due to an error." }
+                ?: "Synchronization failed due to an error.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = getSyncErrorDiagnosticTip(effectiveErrorType, effectiveError),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    } else {
+        if (uiState.lastSyncTime != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Last sync: ${formatSyncTime(uiState.lastSyncTime)}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (uiState.lastSyncResult != null && !uiState.isSyncing) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                SyncStat("↕", uiState.lastSyncResult.itemsSynced, "Synced")
+                if (uiState.lastSyncResult.conflictsDetected > 0) {
+                    SyncStat("⚠", uiState.lastSyncResult.conflictsDetected, "Conflicts")
                 }
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(16.dp))
+@Suppress("FunctionNaming")
+@Composable
+private fun NormalSyncButton(isSyncing: Boolean, onStartSync: () -> Unit) {
+    Button(
+        onClick = onStartSync,
+        enabled = !isSyncing,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        if (isSyncing) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        Text(if (isSyncing) "Syncing..." else "Start Sync")
+    }
+}
 
-            // Sync Button
+@Suppress("FunctionNaming")
+@Composable
+private fun SyncErrorActionButtons(
+    errorType: SyncErrorType,
+    isSyncing: Boolean,
+    onRetry: () -> Unit,
+    onReauthenticate: () -> Unit
+) {
+    if (errorType == SyncErrorType.AUTH_EXPIRED) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Button(
-                onClick = onStartSync,
+                onClick = onReauthenticate,
                 enabled = !isSyncing,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Re-authenticate")
+            }
+            OutlinedButton(
+                onClick = onRetry,
+                enabled = !isSyncing,
+                modifier = Modifier.weight(1f)
             ) {
                 if (isSyncing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(6.dp))
+                } else {
+                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                 }
-                Text(if (isSyncing) "Syncing..." else "Start Sync")
+                Text(if (isSyncing) "Syncing..." else "Retry")
             }
+        }
+    } else {
+        Button(
+            onClick = onRetry,
+            enabled = !isSyncing,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (isSyncing) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            } else {
+                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+            }
+            Text(if (isSyncing) "Syncing..." else "Retry")
         }
     }
 }
@@ -241,40 +376,138 @@ private fun SyncStat(icon: String, count: Int, label: String) {
     }
 }
 
+@Suppress("FunctionNaming", "LongParameterList")
 @Composable
-private fun ErrorCard(error: String, onDismiss: () -> Unit) {
+fun ErrorCard(
+    error: String,
+    errorType: SyncErrorType = SyncErrorType.UNKNOWN,
+    isSyncing: Boolean = false,
+    onRetry: () -> Unit = {},
+    onReauthenticate: () -> Unit = {},
+    onDismiss: () -> Unit = {}
+) {
+    val displayError = error.ifBlank { "Synchronization failed due to an error." }
+    val diagnosticTip = getSyncErrorDiagnosticTip(errorType, displayError)
+
     Card(
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer
         )
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(16.dp)
+        ) {
+            ErrorCardHeader(onDismiss = onDismiss)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = displayError,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = diagnosticTip,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.85f)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ErrorCardActions(
+                errorType = errorType,
+                isSyncing = isSyncing,
+                onRetry = onRetry,
+                onReauthenticate = onReauthenticate
+            )
+        }
+    }
+}
+
+@Suppress("FunctionNaming")
+@Composable
+private fun ErrorCardHeader(onDismiss: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Icon(
-                    Icons.Default.Error,
-                    contentDescription = "Media image",
-                    tint = MaterialTheme.colorScheme.onErrorContainer
+            Icon(
+                Icons.Default.ErrorOutline,
+                contentDescription = "Sync error",
+                tint = MaterialTheme.colorScheme.onErrorContainer
+            )
+            Text(
+                text = "Sync Error",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer
+            )
+        }
+        IconButton(onClick = onDismiss) {
+            Icon(
+                Icons.Default.Close,
+                contentDescription = "Dismiss",
+                tint = MaterialTheme.colorScheme.onErrorContainer
+            )
+        }
+    }
+}
+
+@Suppress("FunctionNaming")
+@Composable
+private fun ErrorCardActions(
+    errorType: SyncErrorType,
+    isSyncing: Boolean,
+    onRetry: () -> Unit,
+    onReauthenticate: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Button(
+            onClick = onRetry,
+            enabled = !isSyncing,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            ),
+            modifier = if (errorType == SyncErrorType.AUTH_EXPIRED) Modifier.weight(1f) else Modifier.fillMaxWidth()
+        ) {
+            if (isSyncing) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    color = MaterialTheme.colorScheme.onError,
+                    strokeWidth = 2.dp
                 )
-                Text(
-                    error,
-                    color = MaterialTheme.colorScheme.onErrorContainer
-                )
+                Spacer(modifier = Modifier.width(6.dp))
+            } else {
+                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
             }
-            IconButton(onClick = onDismiss) {
-                Icon(
-                    Icons.Default.Close,
-                    "Dismiss",
-                    tint = MaterialTheme.colorScheme.onErrorContainer
-                )
+            Text(if (isSyncing) "Syncing..." else "Retry")
+        }
+
+        if (errorType == SyncErrorType.AUTH_EXPIRED) {
+            FilledTonalButton(
+                onClick = onReauthenticate,
+                enabled = !isSyncing,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Re-authenticate")
             }
         }
     }

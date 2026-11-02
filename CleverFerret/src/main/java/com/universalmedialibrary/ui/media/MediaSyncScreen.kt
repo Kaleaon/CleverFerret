@@ -21,6 +21,9 @@ import com.universalmedialibrary.ui.components.AccessibleOutlinedTextField
 import com.universalmedialibrary.ui.components.dynamicStateDescription
 import com.universalmedialibrary.ui.components.media.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import com.universalmedialibrary.ui.sync.SyncErrorType
+import com.universalmedialibrary.ui.sync.classifySyncError
+import com.universalmedialibrary.ui.sync.getSyncErrorDiagnosticTip
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -108,6 +111,9 @@ fun MediaSyncScreen(
         // Sync Status Card
         SyncStatusCard(
             syncStatus = syncStatus,
+            errorType = uiState.errorType ?: (syncStatus as? PlexSyncStatus.Error)?.let { classifySyncError(it.message) },
+            onRetry = { viewModel.syncAllServers() },
+            onReauthenticate = { viewModel.showAddServerDialog() },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -141,9 +147,13 @@ fun MediaSyncScreen(
     }
 }
 
+@Suppress("FunctionNaming")
 @Composable
 private fun SyncStatusCard(
     syncStatus: PlexSyncStatus,
+    errorType: SyncErrorType? = null,
+    onRetry: () -> Unit = {},
+    onReauthenticate: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val statusDescription = when (syncStatus) {
@@ -158,27 +168,38 @@ private fun SyncStatusCard(
         LiveRegionMode.Polite
     }
 
+    val resolvedErrorType = errorType
+        ?: (syncStatus as? PlexSyncStatus.Error)?.let { classifySyncError(it.message) }
+        ?: SyncErrorType.UNKNOWN
+
     Card(
         modifier = modifier.dynamicStateDescription(
             stateDescription = statusDescription,
             mode = liveRegionMode
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            syncStatusContent(syncStatus)
+        Column(modifier = Modifier.padding(16.dp)) {
+            PlexSyncStatusContent(
+                syncStatus = syncStatus,
+                errorType = resolvedErrorType,
+                onRetry = onRetry,
+                onReauthenticate = onReauthenticate
+            )
         }
     }
 }
 
+@Suppress("FunctionNaming")
 @Composable
-private fun syncStatusContent(syncStatus: PlexSyncStatus) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        when (syncStatus) {
-            is PlexSyncStatus.Idle -> {
+private fun PlexSyncStatusContent(
+    syncStatus: PlexSyncStatus,
+    errorType: SyncErrorType,
+    onRetry: () -> Unit,
+    onReauthenticate: () -> Unit
+) {
+    when (syncStatus) {
+        is PlexSyncStatus.Idle -> {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = "Sync ready",
@@ -187,7 +208,9 @@ private fun syncStatusContent(syncStatus: PlexSyncStatus) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Ready to sync")
             }
-            is PlexSyncStatus.Syncing -> {
+        }
+        is PlexSyncStatus.Syncing -> {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
                     strokeWidth = 2.dp
@@ -195,7 +218,9 @@ private fun syncStatusContent(syncStatus: PlexSyncStatus) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(syncStatus.message)
             }
-            is PlexSyncStatus.Success -> {
+        }
+        is PlexSyncStatus.Success -> {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = "Sync successful",
@@ -204,17 +229,102 @@ private fun syncStatusContent(syncStatus: PlexSyncStatus) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(syncStatus.message)
             }
-            is PlexSyncStatus.Error -> {
+        }
+        is PlexSyncStatus.Error -> {
+            PlexSyncErrorContent(
+                message = syncStatus.message,
+                errorType = errorType,
+                onRetry = onRetry,
+                onReauthenticate = onReauthenticate
+            )
+        }
+    }
+}
+
+@Suppress("FunctionNaming")
+@Composable
+private fun PlexSyncErrorContent(
+    message: String,
+    errorType: SyncErrorType,
+    onRetry: () -> Unit,
+    onReauthenticate: () -> Unit
+) {
+    val displayError = message.ifBlank { "Synchronization failed due to an error." }
+    val diagnosticTip = getSyncErrorDiagnosticTip(errorType, displayError)
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = PhosphorIcons.ErrorOutline,
+                contentDescription = "Sync error",
+                tint = MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = displayError,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = diagnosticTip,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        PlexSyncErrorActions(
+            errorType = errorType,
+            onRetry = onRetry,
+            onReauthenticate = onReauthenticate
+        )
+    }
+}
+
+@Suppress("FunctionNaming")
+@Composable
+private fun PlexSyncErrorActions(
+    errorType: SyncErrorType,
+    onRetry: () -> Unit,
+    onReauthenticate: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Button(
+            onClick = onRetry,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            ),
+            modifier = if (errorType == SyncErrorType.AUTH_EXPIRED) Modifier.weight(1f) else Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Refresh,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("Retry")
+        }
+
+        if (errorType == SyncErrorType.AUTH_EXPIRED) {
+            OutlinedButton(
+                onClick = onReauthenticate,
+                modifier = Modifier.weight(1f)
+            ) {
                 Icon(
-                    imageVector = PhosphorIcons.ErrorOutline,
-                    contentDescription = "Sync error",
-                    tint = MaterialTheme.colorScheme.error
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = syncStatus.message,
-                    color = MaterialTheme.colorScheme.error
-                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Re-authenticate")
             }
         }
     }

@@ -1,18 +1,31 @@
 package com.universalmedialibrary.ui.components
 
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.test.junit4.createComposeRule
 import com.cleverferret.core.designsystem.theme.KthemeThemeAdapterV1
+import com.cleverferret.core.designsystem.theme.LocalLiveRegionManager
 import com.ktheme.models.LayoutConfig
 import com.ktheme.models.LiveRegionConfig
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Unit tests verifying accessibility live region modifiers, Ktheme token bridging,
  * dynamic state descriptions, and progress indicator announcements in compliance with WCAG 2.1 AA SC 4.1.3 and SC 4.1.2.
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class, sdk = [33])
 class LiveRegionModifiersTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     @Test
     fun liveRegionPolicy_convertsToComposeLiveRegionModeCorrectly() {
@@ -104,9 +117,11 @@ class LiveRegionModifiersTest {
 
     @Test
     fun localLiveRegionManager_providesDefaultNoOpImplementation() {
-        org.junit.Assert.assertNotNull(com.cleverferret.core.designsystem.theme.LocalLiveRegionManager)
-        val defaultManager = com.cleverferret.core.designsystem.accessibility.NoOpLiveRegionManager
-        org.junit.Assert.assertNotNull(defaultManager)
-        org.junit.Assert.assertFalse(defaultManager.isAccessibilityActive)
+        var defaultManager: com.cleverferret.core.designsystem.accessibility.LiveRegionManager? = null
+        composeTestRule.setContent {
+            defaultManager = LocalLiveRegionManager.current
+        }
+        assertNotNull(defaultManager)
+        assertFalse(defaultManager!!.isAccessibilityActive)
     }
 }

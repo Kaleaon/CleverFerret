@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.entity.PlexServer
 import com.universalmedialibrary.services.plex.PlexSyncService
 import com.universalmedialibrary.services.plex.PlexSyncStatus
+import com.universalmedialibrary.ui.sync.SyncErrorType
+import com.universalmedialibrary.ui.sync.classifySyncError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -39,9 +41,12 @@ class MediaSyncViewModel @Inject constructor(
         // Auto-refresh sync status
         viewModelScope.launch {
             syncStatus.collect { status ->
+                val errorMsg = if (status is PlexSyncStatus.Error) status.message else null
+                val errType = if (errorMsg != null) classifySyncError(errorMsg) else null
                 _uiState.value = _uiState.value.copy(
                     isLoading = status is PlexSyncStatus.Syncing,
-                    errorMessage = if (status is PlexSyncStatus.Error) status.message else null,
+                    errorMessage = errorMsg,
+                    errorType = errType,
                     successMessage = if (status is PlexSyncStatus.Success) status.message else null
                 )
             }
@@ -53,7 +58,7 @@ class MediaSyncViewModel @Inject constructor(
      */
     fun addServer(name: String, host: String, port: Int, token: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null, errorType = null)
 
             plexSyncService.addServer(name, host, port, token)
                 .onSuccess {
@@ -64,9 +69,11 @@ class MediaSyncViewModel @Inject constructor(
                     )
                 }
                 .onFailure { error ->
+                    val errorMsg = "Failed to add server: ${error.message}"
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = "Failed to add server: ${error.message}"
+                        errorMessage = errorMsg,
+                        errorType = classifySyncError(error)
                     )
                 }
         }
@@ -78,6 +85,15 @@ class MediaSyncViewModel @Inject constructor(
     fun syncAllServers() {
         viewModelScope.launch {
             plexSyncService.syncAllServers()
+        }
+    }
+
+    /**
+     * Retry last sync operation
+     */
+    fun retrySync() {
+        if (!_uiState.value.isLoading) {
+            syncAllServers()
         }
     }
 
@@ -108,7 +124,11 @@ class MediaSyncViewModel @Inject constructor(
      * Clear messages
      */
     fun clearMessages() {
-        _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
+        _uiState.value = _uiState.value.copy(
+            errorMessage = null,
+            errorType = null,
+            successMessage = null
+        )
     }
 }
 
@@ -118,6 +138,7 @@ class MediaSyncViewModel @Inject constructor(
 data class PlexSyncUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
+    val errorType: SyncErrorType? = null,
     val successMessage: String? = null,
     val showAddServerDialog: Boolean = false
 )
