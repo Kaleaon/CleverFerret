@@ -61,27 +61,28 @@ object PluginManifestValidator {
         val minHostSemVer = SemVer.parse(manifest.minHostVersion)
             ?: return ManifestValidationResult.Invalid("Plugin minimum host version is invalid: '${manifest.minHostVersion}'")
 
+        val maxHostSemVer = manifest.maxHostVersion?.takeIf { it.isNotBlank() }?.let { maxHostStr ->
+            val parsed = SemVer.parse(maxHostStr)
+                ?: return ManifestValidationResult.Invalid("Plugin maximum host version is invalid: '$maxHostStr'")
+
+            if (minHostSemVer > parsed) {
+                return ManifestValidationResult.Invalid(
+                    "Plugin manifest version range invalid: minHostVersion '${manifest.minHostVersion}' is greater than maxHostVersion '$maxHostStr'"
+                )
+            }
+            parsed
+        }
+
         if (hostSemVer < minHostSemVer) {
             return ManifestValidationResult.Invalid(
                 "Incompatible host API version '$currentHostVersion': minimum required host version is '${manifest.minHostVersion}'"
             )
         }
 
-        manifest.maxHostVersion?.takeIf { it.isNotBlank() }?.let { maxHostStr ->
-            val maxHostSemVer = SemVer.parse(maxHostStr)
-                ?: return ManifestValidationResult.Invalid("Plugin maximum host version is invalid: '$maxHostStr'")
-
-            if (minHostSemVer > maxHostSemVer) {
-                return ManifestValidationResult.Invalid(
-                    "Plugin manifest version range invalid: minHostVersion '${manifest.minHostVersion}' is greater than maxHostVersion '$maxHostStr'"
-                )
-            }
-
-            if (hostSemVer > maxHostSemVer) {
-                return ManifestValidationResult.Invalid(
-                    "Incompatible host API version '$currentHostVersion': maximum supported host version is '$maxHostStr'"
-                )
-            }
+        if (maxHostSemVer != null && hostSemVer > maxHostSemVer) {
+            return ManifestValidationResult.Invalid(
+                "Incompatible host API version '$currentHostVersion': maximum supported host version is '${manifest.maxHostVersion}'"
+            )
         }
 
         return ManifestValidationResult.Valid

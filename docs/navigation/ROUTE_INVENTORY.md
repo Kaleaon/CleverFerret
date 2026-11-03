@@ -183,7 +183,7 @@ These would throw `IllegalArgumentException` at runtime. They are tracked in
 | `settings/accounts` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:82` |
 | `settings/api` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:76` |
 | `settings/appearance` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:88` |
-| `settings/audio-effects` | `ui/settings/AudioEffectsSettingsScreen.kt:42` |
+| `settings/audio-effects` | `ui/settings/AudioEffectsSettingsScreen.kt:43` |
 | `settings/audio_effects` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:208` |
 | `settings/audio_profiles` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:217` |
 | `settings/auto-scan` | `ui/media/navigation/MediaSettingsNavigationGraph.kt:109` |
