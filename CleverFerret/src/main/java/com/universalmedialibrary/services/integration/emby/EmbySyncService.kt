@@ -53,6 +53,33 @@ class EmbySyncService @Inject constructor(
     private val mediaItemDao = database.mediaItemDao()
     private val metadataDao = database.metadataDao()
 
+    val syncAdapter: EmbySyncAdapter = EmbySyncAdapter(database, embyIntegration, remoteSyncMutationDao)
+
+    /**
+     * Reports playback progress to Emby using /Sessions/Playing/Progress
+     */
+    suspend fun reportPlaybackProgress(
+        server: EmbyServer,
+        itemId: String,
+        positionTicks: Long,
+        isPaused: Boolean = false
+    ): Result<Unit> = syncAdapter.reportPlaybackProgress(server, itemId, positionTicks, isPaused)
+
+    /**
+     * Reports playback stopped to Emby using /Sessions/Playing/Stopped
+     */
+    suspend fun reportPlaybackStopped(
+        server: EmbyServer,
+        itemId: String,
+        positionTicks: Long? = null
+    ): Result<Unit> = syncAdapter.reportPlaybackStopped(server, itemId, positionTicks)
+
+    /**
+     * Processes pending journal events sequentially per media item
+     */
+    suspend fun syncProgressJournal(server: EmbyServer): Result<Int> =
+        syncAdapter.processPendingJournal(server)
+
     private val _syncState = MutableStateFlow(EmbySyncState())
     val syncState: StateFlow<EmbySyncState> = _syncState.asStateFlow()
 

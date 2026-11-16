@@ -167,7 +167,9 @@ data class SyncChange(
     val operation: ChangeOperation,
     val timestamp: Long,
     val data: Any? = null,
-    val checksum: String? = null
+    val checksum: String? = null,
+    val sequenceNumber: Long = 0L,
+    val vectorClock: String = "{}"
 )
 
 /**
@@ -180,5 +182,7 @@ data class SyncChangeRecord(
     val operation: ChangeOperation,
     val timestamp: Long,
     val dataJson: String? = null,
-    val checksum: String? = null
+    val checksum: String? = null,
+    val sequenceNumber: Long = 0L,
+    val vectorClock: String = "{}"
 )

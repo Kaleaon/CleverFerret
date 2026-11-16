@@ -424,4 +424,12 @@ object DatabaseModule {
         return database.crdtOperationJournalDao()
     }
 
+    /**
+     * Provides the DAO for progress sync journal entries.
+     */
+    @Provides
+    fun provideProgressSyncJournalDao(database: AppDatabase): com.universalmedialibrary.data.local.dao.ProgressSyncJournalDao {
+        return database.progressSyncJournalDao()
+    }
+
 }

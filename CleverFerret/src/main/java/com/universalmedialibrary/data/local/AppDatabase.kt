@@ -210,10 +210,13 @@ import com.universalmedialibrary.data.crdt.CrdtTypeConverters
         RemoteSyncMutation::class,
 
         // CRDT Operation Journal
-        CrdtOperationRecord::class
+        CrdtOperationRecord::class,
+
+        // Progress Sync Journal
+        ProgressSyncJournal::class
 
     ],
-    version = 49,
+    version = 50,
     exportSchema = false
 )
 @TypeConverters(
@@ -333,6 +336,9 @@ abstract class AppDatabase : RoomDatabase() {
     // CRDT Operation Journal DAO
     abstract fun crdtOperationJournalDao(): CrdtOperationJournalDao
 
+    // Progress Sync Journal DAO
+    abstract fun progressSyncJournalDao(): ProgressSyncJournalDao
+
     // Enhanced Tag System DAOs
     abstract fun tagHierarchyDao(): TagHierarchyDao
     abstract fun smartCollectionDao(): SmartCollectionDao
@@ -385,7 +391,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_45_46,
                         AppDatabaseMigrations.MIGRATION_46_47,
                         AppDatabaseMigrations.MIGRATION_47_48,
-                        AppDatabaseMigrations.MIGRATION_48_49
+                        AppDatabaseMigrations.MIGRATION_48_49,
+                        AppDatabaseMigrations.MIGRATION_49_50
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
