@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -61,7 +63,7 @@ fun ModernComicReaderScreen(
     val extension = remember(fileName) { fileName.substringAfterLast('.', "").lowercase() }
 
     var extractedComic by remember { mutableStateOf(ExtractedComic()) }
-    var pageIndex by remember { mutableStateOf(0) }
+    var pageIndex by rememberSaveable { mutableStateOf(0) }
     var currentBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var translationsJson by remember { mutableStateOf<String?>(null) }
 
@@ -86,12 +88,17 @@ fun ModernComicReaderScreen(
                     else -> ExtractedComic()
                 }
                 extractedComic = extracted
-                pageIndex = 0
+                val validIndex = if (extracted.imageFiles.isNotEmpty()) {
+                    pageIndex.coerceIn(0, extracted.imageFiles.size - 1)
+                } else {
+                    0
+                }
+                pageIndex = validIndex
                 if (extracted.imageFiles.isEmpty()) {
                     uiState = ModernUiState.Empty
                 } else {
                     currentBitmap?.recycle()
-                    currentBitmap = loadBitmap(extracted.imageFiles.getOrNull(pageIndex))
+                    currentBitmap = loadBitmap(extracted.imageFiles.getOrNull(validIndex))
                     uiState = ModernUiState.Success(extracted.imageFiles)
                 }
             } catch (e: Exception) {
@@ -233,9 +240,10 @@ fun ModernComicReaderScreen(
                             .fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        currentBitmap?.let { bmp ->
+                        val bitmap = currentBitmap
+                        if (bitmap != null) {
                             Image(
-                                bitmap = bmp.asImageBitmap(),
+                                bitmap = bitmap.asImageBitmap(),
                                 contentDescription = "Comic Page ${pageIndex + 1}"
                             )
                             val apiSettings = settingsViewModel.apiSettings.collectAsStateWithLifecycle().value
@@ -250,6 +258,17 @@ fun ModernComicReaderScreen(
                                     )
                                 }
                             }
+                        } else {
+                            CFEmptyState(
+                                icon = Icons.Default.Error,
+                                title = "Failed to Load Page",
+                                body = "Page ${pageIndex + 1} could not be decoded.",
+                                actionLabel = "Retry",
+                                onAction = {
+                                    currentBitmap?.recycle()
+                                    currentBitmap = loadBitmap(files.getOrNull(pageIndex))
+                                }
+                            )
                         }
                     }
 

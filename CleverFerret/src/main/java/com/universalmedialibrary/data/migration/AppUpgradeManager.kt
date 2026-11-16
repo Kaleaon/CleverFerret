@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.services.SettingsBackupService
+import com.universalmedialibrary.utils.getPackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -204,13 +205,13 @@ class AppUpgradeManager @Inject constructor(
     /**
      * Get current app version code
      */
-    @Suppress("DEPRECATION")
     private fun getCurrentVersionCode(): Int {
         return try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = context.packageManager.getPackageInfoCompat(context.packageName)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode.toInt()
             } else {
+                @Suppress("DEPRECATION")
                 packageInfo.versionCode
             }
         } catch (e: Exception) {
@@ -224,7 +225,7 @@ class AppUpgradeManager @Inject constructor(
      */
     private fun getCurrentVersionName(): String {
         return try {
-            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0"
+            context.packageManager.getPackageInfoCompat(context.packageName).versionName ?: "1.0"
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get version name: ${e.message}")
             "1.0"
