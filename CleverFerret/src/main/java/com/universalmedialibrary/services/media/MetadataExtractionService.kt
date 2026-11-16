@@ -2,6 +2,9 @@ package com.universalmedialibrary.services.media
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
+import android.util.Log
+import com.universalmedialibrary.api.plugin.PluginRegistry
+import com.universalmedialibrary.api.plugin.PluginRegistryImpl
 import com.universalmedialibrary.data.local.entity.MediaItem as EntityMediaItem
 import com.universalmedialibrary.data.local.entity.MetadataBook
 import com.universalmedialibrary.data.local.entity.MetadataCommon
@@ -29,19 +32,34 @@ import javax.inject.Singleton
 @Singleton
 class MetadataExtractionService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val pluginRegistry: PluginRegistry? = null
 ) {
+
+    constructor(
+        context: Context,
+        mediaRepository: MediaRepository
+    ) : this(context, mediaRepository, null)
 
     /**
      * Extract standardized RawMetadata payload directly from a File and mediaType
      */
-    suspend fun extractRawMetadata(file: File, mediaType: String): com.universalmedialibrary.services.pipeline.RawMetadata = withContext(Dispatchers.IO) {
+    suspend fun extractRawMetadata(
+        file: File,
+        mediaType: String,
+        customPluginRegistry: PluginRegistry? = null
+    ): com.universalmedialibrary.services.pipeline.RawMetadata = withContext(Dispatchers.IO) {
         try {
             val extension = file.extension.lowercase()
             val normalizedType = mediaType.uppercase()
 
             if ((normalizedType == "BOOK" || normalizedType == "DOCUMENT" || normalizedType == "COMIC") && com.universalmedialibrary.parsers.ParserFactory.isSupported(file.name)) {
                 return@withContext com.universalmedialibrary.parsers.ParserFactory.extractRawMetadata(file)
+            }
+
+            val pluginMetadata = extractPluginRawMetadata(file, extension, customPluginRegistry)
+            if (pluginMetadata != null) {
+                return@withContext pluginMetadata
             }
 
             when (normalizedType) {
@@ -61,6 +79,26 @@ class MetadataExtractionService @Inject constructor(
                 format = file.extension.uppercase(),
                 confidenceScore = 0.50f,
                 source = "EXTRACTION_ERROR:${e.message}"
+            )
+        }
+    }
+
+    private suspend fun extractPluginRawMetadata(
+        file: File,
+        extension: String,
+        customPluginRegistry: PluginRegistry?
+    ): com.universalmedialibrary.services.pipeline.RawMetadata? {
+        val registry = customPluginRegistry ?: pluginRegistry ?: PluginRegistryImpl.defaultInstance
+        val pluginExtractor = registry?.getFormatExtractorByExtension(extension) ?: return null
+        return try {
+            pluginExtractor.extractRawMetadata(file)
+        } catch (e: Exception) {
+            Log.w("MetadataExtractionService", "Format extractor plugin failed for ${file.name}", e)
+            com.universalmedialibrary.services.pipeline.RawMetadata(
+                title = file.nameWithoutExtension,
+                format = extension.uppercase(),
+                confidenceScore = 0.50f,
+                source = "PLUGIN_EXTRACTION_ERROR:${e.message ?: "Unknown error"}"
             )
         }
     }

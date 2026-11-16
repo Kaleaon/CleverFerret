@@ -4,7 +4,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import java.io.File
 import java.util.UUID
+import com.universalmedialibrary.services.pipeline.RawMetadata
 
 /**
  * CleverFerret Modular Plugin Architecture
@@ -103,6 +105,7 @@ enum class PluginCategory {
     SOCIAL_INTEGRATION,     // Social features (Goodreads, Last.fm, etc.)
     AI_SERVICE,             // AI/ML services
     FORMAT_CONVERTER,       // Format conversion services
+    FORMAT_EXTRACTOR,       // Format extraction services
     ANALYTICS,              // Analytics and tracking
     NOTIFICATION,           // Notification services
     BACKUP,                 // Backup services
@@ -148,6 +151,9 @@ enum class PluginCapability {
     CONVERT_PDF,
     CONVERT_AUDIO,
     CONVERT_VIDEO,
+    
+    // Extraction capabilities
+    EXTRACT_FORMAT_METADATA,
     
     // Server capabilities
     LIBRARY_SYNC,
@@ -744,6 +750,73 @@ enum class ActivityType {
 }
 
 // =============================================================================
+// FORMAT EXTRACTOR PLUGIN
+// =============================================================================
+
+/**
+ * Interface for format extractor plugins capable of dynamically handling
+ * non-standard file extensions, detecting formats, and extracting raw metadata.
+ */
+interface FormatExtractorPlugin : Plugin {
+    override val category: PluginCategory get() = PluginCategory.FORMAT_EXTRACTOR
+
+    /**
+     * Supported file extensions (without leading dot, case-insensitive).
+     * Example: setOf("cstm", "xyz")
+     */
+    val supportedExtensions: Set<String>
+
+    /**
+     * Supported MIME types (case-insensitive).
+     * Example: setOf("application/x-custom-book")
+     */
+    val supportedMimeTypes: Set<String> get() = emptySet()
+
+    /**
+     * Set of media categories handled by this extractor (e.g., "BOOK", "DOCUMENT", "COMIC", "MUSIC", "MOVIE").
+     */
+    val mediaCategories: Set<String> get() = setOf(mediaCategory)
+
+    /**
+     * Primary media category handled by this extractor (e.g. "BOOK").
+     */
+    val mediaCategory: String get() = mediaCategories.firstOrNull() ?: "DOCUMENT"
+
+    /**
+     * Check if this extractor matches the given file (e.g., by extension or signature).
+     */
+    fun matches(file: File): Boolean {
+        return matchesExtension(file.extension)
+    }
+
+    /**
+     * Check if this extractor supports the given file extension.
+     */
+    fun matchesExtension(extension: String): Boolean {
+        val normalized = extension.lowercase().removePrefix(".")
+        return supportedExtensions.any { it.lowercase().removePrefix(".") == normalized }
+    }
+
+    /**
+     * Check if this extractor supports the given MIME type.
+     */
+    fun matchesMimeType(mimeType: String): Boolean {
+        val normalized = mimeType.lowercase().trim()
+        return supportedMimeTypes.any { it.lowercase().trim() == normalized }
+    }
+
+    /**
+     * Check if the extractor matches file magic bytes or header signature.
+     */
+    fun matchesSignature(headerBytes: ByteArray): Boolean = false
+
+    /**
+     * Extracts standardized RawMetadata payload directly from the file.
+     */
+    suspend fun extractRawMetadata(file: File): RawMetadata
+}
+
+// =============================================================================
 // PLUGIN REGISTRY
 // =============================================================================
 
@@ -771,6 +844,24 @@ interface PluginRegistry {
     
     /** Get all social integrations */
     fun getSocialIntegrations(): List<SocialIntegrationPlugin>
+    
+    /** Get all active format extractor plugins */
+    fun getFormatExtractors(): List<FormatExtractorPlugin> = emptyList()
+
+    /** Get active format extractor for a given file extension */
+    fun getFormatExtractorByExtension(extension: String): FormatExtractorPlugin? = null
+
+    /** Get active format extractor for a given MIME type */
+    fun getFormatExtractorByMimeType(mimeType: String): FormatExtractorPlugin? = null
+
+    /** Get active format extractor matching file signature */
+    fun getFormatExtractorBySignature(signature: ByteArray): FormatExtractorPlugin? = null
+
+    /** Register a format extractor plugin */
+    fun registerFormatExtractor(plugin: FormatExtractorPlugin) {}
+
+    /** Unregister a format extractor plugin */
+    fun unregisterFormatExtractor(id: String) {}
     
     /** Register a plugin */
     fun registerPlugin(plugin: Plugin)
