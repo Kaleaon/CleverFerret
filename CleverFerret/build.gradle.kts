@@ -331,8 +331,6 @@ android {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     if (name.contains("UnitTest")) {
-        exclude("**/MetadataStagingRepositoryTest.kt")
-        exclude("**/IngestionStagingGatewaysTest.kt")
         exclude("**/MediaContentResolverTest.kt")
         exclude("**/CatalogingPipelineEngineTest.kt")
         exclude("**/UnifiedReaderServiceIntegrationTest.kt")

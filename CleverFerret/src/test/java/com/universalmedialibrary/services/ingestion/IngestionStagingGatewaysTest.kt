@@ -4,11 +4,13 @@ import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.StagedMetadataCandidateDao
+import com.universalmedialibrary.data.local.dao.UnifiedTagDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.StagedMetadataCandidate
 import com.universalmedialibrary.data.repository.MetadataStagingRepository
 import com.universalmedialibrary.ui.metadata.review.MetadataReviewQueueViewModel
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -43,7 +45,7 @@ class IngestionStagingGatewaysTest {
         stagedDao = FakeStagedCandidateDao()
         metadataDao = FakeMetadataDao()
         mediaItemDao = FakeMediaItemDao()
-        stagingRepository = MetadataStagingRepository(stagedDao, metadataDao, mediaItemDao, testDispatcher)
+        stagingRepository = MetadataStagingRepository(stagedDao, metadataDao, mediaItemDao, mockk(relaxed = true), testDispatcher)
         healthMonitor = SourceHealthMonitor()
         stateStore = InMemoryIncrementalStateStore()
         pipeline = IngestionPipeline(
@@ -405,8 +407,6 @@ class IngestionStagingGatewaysTest {
         override suspend fun updateAvailableStatus(itemId: Long, isAvailable: Boolean) {
             map[itemId]?.let { map[itemId] = it.copy(isAvailable = isAvailable) }
         }
-        override suspend fun getMediaItemsModifiedSince(sinceTimestamp: Long): List<MediaItem> =
-            map.values.filter { it.lastModified > sinceTimestamp }
 
         override suspend fun updateDownloadInfo(itemId: Long, cachePath: String?, status: String, progress: Float) {
             map[itemId]?.let { map[itemId] = it.copy(localCachePath = cachePath, downloadStatus = status, downloadProgress = progress) }
@@ -472,15 +472,9 @@ class IngestionStagingGatewaysTest {
                 map[item.itemId] = item.copy(isAvailable = isAvailable)
             }
         }
-        override suspend fun updateDownloadInfo(itemId: Long, cachePath: String?, status: String, progress: Float) {
-            map[itemId]?.let { map[itemId] = it.copy(localCachePath = cachePath, downloadStatus = status, downloadProgress = progress) }
+        override suspend fun updateThumbnail(itemId: Long, thumbnailPath: String?, hasThumbnail: Boolean) {
+            map[itemId]?.let { map[itemId] = it.copy(thumbnailPath = thumbnailPath, hasThumbnail = hasThumbnail) }
         }
-        override suspend fun updateDownloadStatus(itemId: Long, status: String, progress: Float) {
-            map[itemId]?.let { map[itemId] = it.copy(downloadStatus = status, downloadProgress = progress) }
-        }
-        override suspend fun getMediaItemsByDownloadStatus(status: String): List<MediaItem> =
-            map.values.filter { it.downloadStatus == status }
-        override suspend fun getItemByPathOrCachePath(path: String): MediaItem? =
-            map.values.find { it.filePath == path || it.localCachePath == path }
+        override suspend fun getPlexMediaItemsByServer(machineIdentifier: String): List<MediaItem> = emptyList()
     }
 }

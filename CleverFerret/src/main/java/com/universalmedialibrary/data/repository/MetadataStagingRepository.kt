@@ -3,8 +3,11 @@ package com.universalmedialibrary.data.repository
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.StagedMetadataCandidateDao
+import com.universalmedialibrary.data.local.dao.UnifiedTagDao
+import com.universalmedialibrary.data.local.entity.ItemTag
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.StagedMetadataCandidate
+import com.universalmedialibrary.data.local.entity.TagType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +20,7 @@ class MetadataStagingRepository @Inject constructor(
     private val stagedMetadataCandidateDao: StagedMetadataCandidateDao,
     private val metadataDao: MetadataDao,
     private val mediaItemDao: MediaItemDao,
+    private val unifiedTagDao: UnifiedTagDao,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
@@ -148,6 +152,23 @@ class MetadataStagingRepository @Inject constructor(
         val mediaItem = mediaItemDao.getMediaItemById(candidate.itemId)
         if (mediaItem != null && !mediaItem.hasMetadata) {
             mediaItemDao.updateMediaItem(mediaItem.copy(hasMetadata = true))
+        }
+
+        // Parse and persist candidate tags
+        if (!candidate.tags.isNullOrBlank()) {
+            val parsedTags = candidate.tags
+                .split(',', ';', '|')
+                .map { it.trim().take(64) }
+                .filter { it.isNotEmpty() }
+                .distinctBy { it.lowercase() }
+
+            for (tagName in parsedTags) {
+                val tagId = unifiedTagDao.findOrCreateTag(tagName, TagType.USER_DEFINED)
+                if (tagId > 0) {
+                    unifiedTagDao.addTagToItem(ItemTag(itemId = candidate.itemId, tagId = tagId))
+                    unifiedTagDao.recalculateUsageCount(tagId)
+                }
+            }
         }
 
         stagedMetadataCandidateDao.deleteCandidate(candidateId)
