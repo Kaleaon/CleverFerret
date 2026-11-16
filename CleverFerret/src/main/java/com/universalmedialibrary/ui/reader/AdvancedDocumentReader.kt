@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
@@ -24,6 +25,7 @@ fun AdvancedDocumentReader(
     fileName: String = "Document",
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,8 +78,7 @@ fun AdvancedDocumentReader(
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
-                    // Would open Android's system picker for PDF/document viewers
-                    // Intent.ACTION_VIEW with document MIME type
+                    launchSystemViewer(context, fileUri, fileName)
                 }
             ) {
                 Icon(Icons.AutoMirrored.Filled.OpenInNew, null, modifier = Modifier.size(18.dp))
