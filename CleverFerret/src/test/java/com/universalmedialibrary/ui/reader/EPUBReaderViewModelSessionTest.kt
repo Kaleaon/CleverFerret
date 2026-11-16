@@ -68,7 +68,7 @@ class EPUBReaderViewModelSessionTest {
         viewModel.currentItemId = TEST_ITEM_ID_A
         viewModel.sessionStartTime = startTime
 
-        viewModel.recordActiveSession(currentTime = currentTime, force = true)
+        viewModel.recordActiveSession(currentTime = currentTime)
         advanceUntilIdle()
 
         coVerify(exactly = 0) {
@@ -85,7 +85,7 @@ class EPUBReaderViewModelSessionTest {
         viewModel.currentItemId = TEST_ITEM_ID_A
         viewModel.sessionStartTime = startTime
 
-        viewModel.recordActiveSession(currentTime = currentTime, force = true)
+        viewModel.recordActiveSession(currentTime = currentTime)
         advanceUntilIdle()
 
         coVerify(atLeast = 1) {
@@ -111,7 +111,7 @@ class EPUBReaderViewModelSessionTest {
         viewModel.currentItemId = TEST_ITEM_ID_B
         viewModel.sessionStartTime = startTime
 
-        viewModel.recordActiveSession(currentTime = currentTime, force = true)
+        viewModel.recordActiveSession(currentTime = currentTime)
         advanceUntilIdle()
 
         val day1Date = (EPOCH_BASE - 1) * DAY_MILLIS

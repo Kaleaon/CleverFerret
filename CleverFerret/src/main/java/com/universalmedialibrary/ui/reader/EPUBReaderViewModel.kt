@@ -106,7 +106,7 @@ class EPUBReaderViewModel @Inject constructor(
     }
 
     fun closeReader() {
-        recordActiveSession(force = true)
+        recordActiveSession()
         sessionStartTime = 0L
         pendingChaptersCompleted = 0
     }
@@ -117,8 +117,7 @@ class EPUBReaderViewModel @Inject constructor(
     }
 
     internal fun recordActiveSession(
-        currentTime: Long = System.currentTimeMillis(),
-        force: Boolean = false
+        currentTime: Long = System.currentTimeMillis()
     ) {
         val startTime = sessionStartTime
         if (startTime <= 0L) return
