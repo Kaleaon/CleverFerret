@@ -16,6 +16,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private const val MILLIS_PER_DAY = 86_400_000L
+
 /**
  * Service for managing annotations, highlights, and search functionality
  */
@@ -241,17 +243,20 @@ class AnnotationService @Inject constructor(
     /**
      * Record reading statistics
      */
+    @Suppress("LongParameterList")
     suspend fun recordReadingSession(
         itemId: Long,
         readingTimeMinutes: Int,
         pagesRead: Int = 0,
         chaptersCompleted: Int = 0,
         wordsRead: Int = 0,
-        startProgress: Float,
-        endProgress: Float
+        startProgress: Float = 0f,
+        endProgress: Float = 0f,
+        date: Long = (System.currentTimeMillis() / MILLIS_PER_DAY) * MILLIS_PER_DAY
     ) = withContext(Dispatchers.IO) {
-        val today = System.currentTimeMillis() / (24 * 60 * 60 * 1000) * (24 * 60 * 60 * 1000)
-        val existing = readingStatisticsDao.getStatisticsForBookAndDate(itemId, today)
+        if (readingTimeMinutes <= 0) return@withContext
+        val dayDate = (date / MILLIS_PER_DAY) * MILLIS_PER_DAY
+        val existing = readingStatisticsDao.getStatisticsForBookAndDate(itemId, dayDate)
 
         if (existing != null) {
             // Update existing statistics
@@ -269,7 +274,7 @@ class AnnotationService @Inject constructor(
             // Create new statistics entry
             val statistics = ReadingStatistics(
                 itemId = itemId,
-                date = today,
+                date = dayDate,
                 readingTimeMinutes = readingTimeMinutes,
                 pagesRead = pagesRead,
                 chaptersCompleted = chaptersCompleted,
@@ -286,6 +291,20 @@ class AnnotationService @Inject constructor(
      */
     fun getReadingStatisticsForBook(itemId: Long): Flow<List<ReadingStatistics>> {
         return readingStatisticsDao.getStatisticsForBook(itemId)
+    }
+
+    /**
+     * Get all reading dates
+     */
+    fun getAllReadingDates(): Flow<List<Long>> {
+        return readingStatisticsDao.getAllReadingDates()
+    }
+
+    /**
+     * Get all reading statistics
+     */
+    fun getAllReadingStatistics(): Flow<List<ReadingStatistics>> {
+        return readingStatisticsDao.getAllStatistics()
     }
 
     /**

@@ -47,6 +47,9 @@ import com.universalmedialibrary.ui.media.screens.LibraryMediaTypeOption
 import com.universalmedialibrary.ui.modern.books.ModernBookshelfScreen
 import com.universalmedialibrary.ui.modern.radio.ModernOldTimeRadioSeriesDetailScreen
 import com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen
+import com.universalmedialibrary.ui.modern.stats.ModernReadingStatsScreen
+import com.universalmedialibrary.ui.reader.ReadingStatisticsViewModel
+import com.universalmedialibrary.ui.reader.toModernReadingStatsUiState
 
 fun NavGraphBuilder.legacyContentRoutes(
     navController: NavHostController,
@@ -210,21 +213,24 @@ fun NavGraphBuilder.legacyContentRoutes(
     }
     
     composable("reading_statistics") {
-        // Reading statistics requires a specific media ID - show a placeholder for now
-        // Users should navigate to this from a specific media detail screen
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Reading Statistics", style = MaterialTheme.typography.titleMedium)
-                Text("Please access statistics from a book's detail page", 
-                     style = MaterialTheme.typography.bodyMedium)
-                Button(onClick = { navController.popBackStack() }) {
-                    Text("Go Back")
-                }
-            }
+        val viewModel: ReadingStatisticsViewModel = hiltViewModel()
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+        LaunchedEffect(Unit) {
+            viewModel.loadStatistics()
         }
+
+        val modernState = remember(uiState) {
+            uiState.toModernReadingStatsUiState()
+        }
+
+        ModernReadingStatsScreen(
+            state = modernState,
+            onBack = { navController.popBackStack() },
+            onShare = {
+                onShowSnackbar("Reading statistics shared")
+            }
+        )
     }
     
     composable("free_audiobooks") {

@@ -83,6 +83,12 @@ interface ReadingStatisticsDao {
     @Query("SELECT SUM(readingTimeMinutes) FROM reading_statistics WHERE date >= :startDate AND date <= :endDate")
     suspend fun getTotalReadingTimeForPeriod(startDate: Long, endDate: Long): Int?
 
+    @Query("SELECT DISTINCT date FROM reading_statistics WHERE readingTimeMinutes > 0 ORDER BY date DESC")
+    fun getAllReadingDates(): Flow<List<Long>>
+
+    @Query("SELECT * FROM reading_statistics ORDER BY date DESC")
+    fun getAllStatistics(): Flow<List<ReadingStatistics>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStatistics(statistics: ReadingStatistics): Long
 

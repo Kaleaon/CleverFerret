@@ -47,6 +47,7 @@ fun EPUBReaderScreen(
     // Clean up WebView to prevent memory leaks
     DisposableEffect(Unit) {
         onDispose {
+            viewModel.closeReader()
             webView?.apply {
                 loadUrl("about:blank")
                 clearHistory()
