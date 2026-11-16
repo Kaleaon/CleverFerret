@@ -1,17 +1,11 @@
 package com.universalmedialibrary.ui.music
 
-import android.content.ContentUris
-import android.content.Context
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.MusicRepository
 import com.universalmedialibrary.services.playlist.MusicPlaylistManager
 import com.universalmedialibrary.services.playlist.PlaylistOverview
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +15,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MusicLibraryViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val musicRepository: MusicRepository,
     private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService,
     private val playlistManager: MusicPlaylistManager
@@ -94,178 +87,6 @@ class MusicLibraryViewModel @Inject constructor(
                     genres = emptyList()
                 )
             }
-        }
-    }
-
-    private fun scanMusicFromMediaStore(): List<Track> {
-        val songs = mutableListOf<Track>()
-        
-        val projection = mutableListOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.ALBUM_ARTIST,
-            MediaStore.Audio.Media.YEAR,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.TRACK,
-            MediaStore.Audio.Media.CD_TRACK_NUMBER,
-            MediaStore.Audio.Media.BITRATE,
-            MediaStore.Audio.Media.DATE_ADDED,
-            MediaStore.Audio.Media.DATE_MODIFIED,
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.MIME_TYPE
-        )
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            projection.add(MediaStore.Audio.Media.GENRE)
-        }
-        
-        val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
-        val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
-        
-        context.contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection.toTypedArray(),
-            selection,
-            null,
-            sortOrder
-        )?.use { cursor ->
-            val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val titleCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-            val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-            val albumCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-            val albumArtistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
-            val genreCol = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
-            } else {
-                -1
-            }
-            val yearCol = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR)
-            val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-            val trackCol = cursor.getColumnIndex(MediaStore.Audio.Media.TRACK)
-            val cdTrackCol = cursor.getColumnIndex(MediaStore.Audio.Media.CD_TRACK_NUMBER)
-            val bitrateCol = cursor.getColumnIndex(MediaStore.Audio.Media.BITRATE)
-            val dateAddedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
-            val dateModifiedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
-            val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-            val mimeCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE)
-            
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idCol)
-                val title = cursor.getString(titleCol)
-                val artist = cursor.getString(artistCol)
-                val album = cursor.getString(albumCol)
-                val albumArtist = if (albumArtistCol >= 0) cursor.getString(albumArtistCol) else null
-                val genre = if (genreCol >= 0) cursor.getString(genreCol) else null
-                val year = if (yearCol >= 0) cursor.getInt(yearCol).takeIf { it > 0 } else null
-                val duration = cursor.getLong(durationCol)
-                val track = if (trackCol >= 0) cursor.getInt(trackCol).takeIf { it > 0 } else null
-                val cdTrack = if (cdTrackCol >= 0) cursor.getInt(cdTrackCol).takeIf { it > 0 } else null
-                val bitrate = if (bitrateCol >= 0) cursor.getInt(bitrateCol).takeIf { it > 0 } else null
-                val dateAdded = cursor.getLong(dateAddedCol)
-                val dateModified = cursor.getLong(dateModifiedCol)
-                val path = cursor.getString(pathCol)
-                val mimeType = cursor.getString(mimeCol)
-                
-                val contentUri: Uri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    id
-                )
-                
-                songs.add(
-                    Track(
-                        id = id,
-                        title = title,
-                        artist = artist,
-                        album = album,
-                        albumArtist = albumArtist ?: artist,
-                        genre = genre,
-                        year = year,
-                        duration = duration,
-                        trackNumber = track ?: cdTrack,
-                        discNumber = null, // DISC_NUMBER not widely supported
-                        bitrate = bitrate,
-                        dateAdded = dateAdded,
-                        dateModified = dateModified,
-                        uri = contentUri,
-                        path = path,
-                        mimeType = mimeType
-                    )
-                )
-            }
-        }
-        
-        return songs
-    }
-
-    private fun aggregateAlbums(tracks: List<Track>): List<Album> {
-        if (tracks.isEmpty()) return emptyList()
-        
-        return try {
-            tracks.groupBy { it.displayAlbum to it.albumArtist }
-                .mapNotNull { (key, albumTracks) ->
-                    if (albumTracks.isEmpty()) return@mapNotNull null
-                    
-                    val (albumName, artist) = key
-                    Album(
-                        name = albumName,
-                        artist = artist,
-                        year = albumTracks.mapNotNull { it.year }.minOrNull(),
-                        trackCount = albumTracks.size,
-                        tracks = albumTracks.sortedBy { it.trackNumber },
-                        artworkUri = getAlbumArtUri(albumTracks.firstOrNull()?.id ?: 0)
-                    )
-                }
-                .sortedBy { it.displayName.lowercase() }
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-
-    private fun aggregateArtists(tracks: List<Track>): List<Artist> {
-        if (tracks.isEmpty()) return emptyList()
-        
-        return try {
-            tracks.groupBy { it.displayArtist }
-                .map { (artistName, artistTracks) ->
-                    Artist(
-                        name = artistName,
-                        trackCount = artistTracks.size,
-                        albumCount = artistTracks.map { it.displayAlbum }.distinct().size,
-                        tracks = artistTracks
-                    )
-                }
-                .sortedBy { it.displayName.lowercase() }
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-
-    private fun aggregateGenres(tracks: List<Track>): List<Genre> {
-        if (tracks.isEmpty()) return emptyList()
-        
-        return try {
-            tracks.groupBy { it.displayGenre }
-                .map { (genreName, genreTracks) ->
-                    Genre(
-                        name = genreName,
-                        trackCount = genreTracks.size,
-                        tracks = genreTracks
-                    )
-                }
-                .sortedBy { it.displayName.lowercase() }
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-
-    private fun getAlbumArtUri(trackId: Long): Uri? {
-        return try {
-            val artworkUri = Uri.parse("content://media/external/audio/albumart")
-            ContentUris.withAppendedId(artworkUri, trackId)
-        } catch (e: Exception) {
-            null
         }
     }
 
