@@ -90,7 +90,11 @@ fun DocumentReaderScreen(
                 "txt" -> TextReaderView(uri)
                 "html", "htm" -> HtmlReaderView(uri)
             "docx" -> DocxReaderView(uri)
-                else -> UnsupportedDocumentView(extension)
+                else -> UnsupportedDocumentView(
+                    extension = extension,
+                    uri = uri,
+                    fileName = fileName
+                )
             }
         }
     }
@@ -150,10 +154,18 @@ private fun HtmlReaderView(uri: Uri) {
     )
 }
 
+@Suppress("FunctionNaming")
 @Composable
-private fun UnsupportedDocumentView(extension: String) {
+private fun UnsupportedDocumentView(
+    extension: String,
+    uri: Uri,
+    fileName: String
+) {
+    val context = LocalContext.current
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -162,6 +174,16 @@ private fun UnsupportedDocumentView(extension: String) {
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                launchSystemViewer(context, uri, fileName)
+            }
+        ) {
+            Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Open with System Viewer")
+        }
     }
 }
 
