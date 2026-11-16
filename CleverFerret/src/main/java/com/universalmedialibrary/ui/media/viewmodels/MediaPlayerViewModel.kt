@@ -184,12 +184,23 @@ class AudioPlayerViewModel @Inject constructor(
     }
     
     fun setSleepTimer(minutes: Int) {
-        sleepTimerManager.startTimer(
-            durationMinutes = minutes,
-            fadeOut = true,
-            onVolumeChange = { vol -> musicPlayerService.setVolume(vol) },
-            onComplete = { musicPlayerService.pause() }
-        )
+        when {
+            minutes == 0 -> cancelSleepTimer()
+            minutes == -1 -> {
+                sleepTimerManager.startEndOfChapterTimer(
+                    onComplete = { musicPlayerService.pause() }
+                )
+            }
+            minutes > 0 -> {
+                sleepTimerManager.startTimer(
+                    durationMinutes = minutes,
+                    fadeOut = true,
+                    onVolumeChange = { vol -> musicPlayerService.setVolume(vol) },
+                    onComplete = { musicPlayerService.pause() }
+                )
+            }
+            else -> cancelSleepTimer()
+        }
     }
     
     fun cancelSleepTimer() {

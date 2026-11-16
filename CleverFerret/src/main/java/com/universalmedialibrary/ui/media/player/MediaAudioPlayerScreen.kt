@@ -59,7 +59,7 @@ fun MediaAudioPlayerScreen(
     onSpeedChange: (Float) -> Unit,
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
-    onSleepTimer: () -> Unit,
+    onSleepTimer: (Int) -> Unit,
     onQueueOpen: () -> Unit,
     onChaptersOpen: () -> Unit,
     onCastClick: () -> Unit,
@@ -479,7 +479,7 @@ fun MediaAudioPlayerScreen(
             currentTimer = state.sleepTimerRemaining,
             isActive = state.sleepTimerActive,
             onSetTimer = { minutes ->
-                onSleepTimer()
+                onSleepTimer(minutes)
                 showSleepTimer = false
             },
             onDismiss = { showSleepTimer = false }
