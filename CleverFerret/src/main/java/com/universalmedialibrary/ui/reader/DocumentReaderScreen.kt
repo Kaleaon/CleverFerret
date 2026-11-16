@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -208,7 +209,7 @@ private fun PdfReaderView(uri: Uri) {
     val context = LocalContext.current
     var renderer by remember { mutableStateOf<PdfRenderer?>(null) }
     var pfd by remember { mutableStateOf<ParcelFileDescriptor?>(null) }
-    var currentPageIndex by remember { mutableStateOf(0) }
+    var currentPageIndex by rememberSaveable { mutableStateOf(0) }
     var pageCount by remember { mutableStateOf(0) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     
@@ -236,9 +237,19 @@ private fun PdfReaderView(uri: Uri) {
         val descriptor: ParcelFileDescriptor? = tryOpenPfd(context, uri)
         pfd = descriptor
         if (descriptor != null) {
-            renderer = PdfRenderer(descriptor)
-            pageCount = renderer?.pageCount ?: 0
-            renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+            val r = PdfRenderer(descriptor)
+            renderer = r
+            val count = r.pageCount
+            pageCount = count
+            if (count > 0) {
+                val coercedIndex = currentPageIndex.coerceIn(0, count - 1)
+                if (coercedIndex != currentPageIndex) {
+                    currentPageIndex = coercedIndex
+                }
+                renderToBitmapHighQuality(r, coercedIndex, renderScale) { bmp -> bitmap = bmp }
+            } else {
+                currentPageIndex = 0
+            }
         }
         onDispose {
             try { renderer?.close() } catch (e: Exception) { 

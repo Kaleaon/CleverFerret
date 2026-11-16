@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -67,7 +68,8 @@ fun ComicReaderScreen(
     val extension = remember(fileName) { fileName.substringAfterLast('.', "").lowercase() }
 
     var extractedComic by remember { mutableStateOf(ExtractedComic()) }
-    var index by remember { mutableStateOf(0) }
+    var index by rememberSaveable { mutableStateOf(0) }
+    var isSessionRestored by rememberSaveable { mutableStateOf(false) }
     var currentBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var translationsJson by remember { mutableStateOf<String?>(null) }
     var showSettingsSheet by remember { mutableStateOf(false) }
@@ -103,20 +105,27 @@ fun ComicReaderScreen(
     }
 
     // Sync current page with session restore once session is loaded
-    LaunchedEffect(uiState.readingSession) {
-        uiState.readingSession?.let { session ->
-            if (session.currentPage in extractedComic.imageFiles.indices) {
-                index = session.currentPage
-            }
+    LaunchedEffect(uiState.readingSession, extractedComic) {
+        val session = uiState.readingSession
+        if (!isSessionRestored && session != null && extractedComic.imageFiles.isNotEmpty()) {
+            val sessionPage = session.currentPage.coerceIn(0, extractedComic.imageFiles.size - 1)
+            index = sessionPage
+            isSessionRestored = true
         }
     }
 
     // Load bitmap when index changes
     LaunchedEffect(index, extractedComic) {
-        if (extractedComic.imageFiles.isNotEmpty() && index in extractedComic.imageFiles.indices) {
+        if (extractedComic.imageFiles.isNotEmpty()) {
+            val validIndex = index.coerceIn(0, extractedComic.imageFiles.size - 1)
+            if (validIndex != index) {
+                index = validIndex
+            }
             currentBitmap?.recycle()
-            currentBitmap = loadBitmap(extractedComic.imageFiles.getOrNull(index))
-            comicReaderViewModel.reportProgress(index)
+            currentBitmap = loadBitmap(extractedComic.imageFiles.getOrNull(validIndex))
+            if (isSessionRestored) {
+                comicReaderViewModel.reportProgress(validIndex)
+            }
         }
     }
 
@@ -268,8 +277,13 @@ fun ComicReaderScreen(
             } else {
                 // Webtoon continuous vertical view
                 val listState = rememberLazyListState(initialFirstVisibleItemIndex = index)
+                LaunchedEffect(index) {
+                    if (isSessionRestored && index in extractedComic.imageFiles.indices && listState.firstVisibleItemIndex != index) {
+                        listState.scrollToItem(index)
+                    }
+                }
                 LaunchedEffect(listState.firstVisibleItemIndex) {
-                    if (extractedComic.imageFiles.isNotEmpty()) {
+                    if (extractedComic.imageFiles.isNotEmpty() && isSessionRestored) {
                         index = listState.firstVisibleItemIndex
                         comicReaderViewModel.reportProgress(index)
                     }
