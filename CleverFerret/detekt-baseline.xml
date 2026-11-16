@@ -1269,12 +1269,6 @@
     <ID>FunctionNaming:MusicPlayerScreen.kt$@Composable private fun SecondaryControlsSection( onVolumeClick: () -&gt; Unit, onEqualizerClick: () -&gt; Unit, onShareClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:MusicPlayerScreen.kt$@Composable private fun TrackInfoSection( track: TrackInfo, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:MusicPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MusicPlayerScreen( onNavigateBack: () -&gt; Unit, onNavigateToQueue: () -&gt; Unit, onNavigateToAlbum: (String) -&gt; Unit, onNavigateToVisualizer: () -&gt; Unit = {}, viewModel: MusicPlayerViewModel = hiltViewModel() )</ID>
-    <ID>FunctionNaming:NetworkExplorerScreen.kt$@Composable private fun ConnectionStatusCard( isConnected: Boolean, connectedDevice: NetworkDevice? )</ID>
-    <ID>FunctionNaming:NetworkExplorerScreen.kt$@Composable private fun DeviceCapabilitiesRow( capabilities: DeviceCapabilities )</ID>
-    <ID>FunctionNaming:NetworkExplorerScreen.kt$@Composable private fun NetworkDeviceCard( device: NetworkDevice, onConnect: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:NetworkExplorerScreen.kt$@Composable private fun NetworkFileBrowser( files: List&lt;NetworkFile&gt;, currentPath: String, onNavigateUp: () -&gt; Unit, onFileClick: (NetworkFile) -&gt; Unit, onDownloadFile: (NetworkFile) -&gt; Unit )</ID>
-    <ID>FunctionNaming:NetworkExplorerScreen.kt$@Composable private fun NetworkFileRow( file: NetworkFile, onClick: () -&gt; Unit, onDownload: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:NetworkExplorerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NetworkExplorerScreen( onNavigateBack: () -&gt; Unit, onOpenMedia: (NetworkFile) -&gt; Unit, viewModel: NetworkExplorerViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:NetworkStorageSettingsScreen.kt$@Composable private fun EmptyStorageCard(message: String)</ID>
     <ID>FunctionNaming:NetworkStorageSettingsScreen.kt$@Composable private fun NetworkStorageCard( storageName: String, storageUrl: String, storageType: String, isConnected: Boolean, onTest: () -&gt; Unit, onBrowse: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
     <ID>FunctionNaming:NetworkStorageSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NetworkStorageSettingsScreen( onBack: () -&gt; Unit, viewModel: NetworkStorageSettingsViewModel = hiltViewModel() )</ID>
@@ -2410,7 +2404,6 @@
     <ID>LongMethod:MusicRepository.kt$MusicRepository$private fun scanMusicFromMediaStore(): List&lt;Track&gt;</ID>
     <ID>LongMethod:MusicTagService.kt$MusicTagService$suspend fun suggestTagsForTrack(track: Track): TagSuggestionResult</ID>
     <ID>LongMethod:NavigationSection.kt$fun LazyListScope.navigationSection( uiState: SettingsUiState, viewModel: SettingsViewModel, navController: androidx.navigation.NavController, availableBottomItems: List&lt;NavigationItem&gt; = NavigationItems.items )</ID>
-    <ID>LongMethod:NetworkExplorerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NetworkExplorerScreen( onNavigateBack: () -&gt; Unit, onOpenMedia: (NetworkFile) -&gt; Unit, viewModel: NetworkExplorerViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:NetworkStorageSettingsScreen.kt$@Composable private fun NetworkStorageCard( storageName: String, storageUrl: String, storageType: String, isConnected: Boolean, onTest: () -&gt; Unit, onBrowse: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
     <ID>LongMethod:NetworkStorageSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NetworkStorageSettingsScreen( onBack: () -&gt; Unit, viewModel: NetworkStorageSettingsViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:NetworkStorageSettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun AddNetworkStorageDialog( storageType: StorageType, onStorageTypeChange: (StorageType) -&gt; Unit, onDismiss: () -&gt; Unit, onAdd: (name: String, server: String, share: String, domain: String, username: String, password: String, port: Int) -&gt; Unit )</ID>
@@ -6470,7 +6463,6 @@
     <ID>NestedBlockDepth:ModernComicReaderScreen.kt$private fun extractCbzImages(context: Context, uri: Uri): ExtractedComic</ID>
     <ID>NestedBlockDepth:MusicMetadataService.kt$MusicMetadataService$private fun parseLastFmTrackResponse(response: String): LastFmTrackInfo?</ID>
     <ID>NestedBlockDepth:MusicTagService.kt$MusicTagService$private fun parseTagSuggestions(responseText: String): TagSuggestionResult</ID>
-    <ID>NestedBlockDepth:NetworkExplorerService.kt$NetworkExplorerService$private fun getLocalIpAddress(): String?</ID>
     <ID>NestedBlockDepth:NewsManager.kt$NewsManager$private fun downloadArticleContent(article: NewsArticle, recipe: NewsRecipe): String?</ID>
     <ID>NestedBlockDepth:NewsManager.kt$NewsManager$private suspend fun fetchFeed(feed: NewsFeed, recipe: NewsRecipe): List&lt;NewsArticle&gt;</ID>
     <ID>NestedBlockDepth:OPDSClient.kt$OPDSClient$private fun parseFeed(stream: InputStream, requestUrl: String): OPDSFeed</ID>
@@ -6538,7 +6530,6 @@
     <ID>NewLineAtEndOfFile:MediaServerSettingsScreen.kt$com.universalmedialibrary.ui.settings.MediaServerSettingsScreen.kt</ID>
     <ID>NewLineAtEndOfFile:MediaServerSettingsViewModel.kt$com.universalmedialibrary.ui.settings.MediaServerSettingsViewModel.kt</ID>
     <ID>NewLineAtEndOfFile:MidiPlaybackService.kt$com.universalmedialibrary.services.midi.MidiPlaybackService.kt</ID>
-    <ID>NewLineAtEndOfFile:NetworkExplorerViewModel.kt$com.universalmedialibrary.ui.network.NetworkExplorerViewModel.kt</ID>
     <ID>NewLineAtEndOfFile:NetworkModule.kt$com.universalmedialibrary.di.NetworkModule.kt</ID>
     <ID>NewLineAtEndOfFile:NetworkStorageRepository.kt$com.universalmedialibrary.data.repository.NetworkStorageRepository.kt</ID>
     <ID>NewLineAtEndOfFile:NetworkStorageSettingsScreen.kt$com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen.kt</ID>
@@ -6751,7 +6742,6 @@
     <ID>SwallowedException:MusicTagService.kt$MusicTagService$e: Exception</ID>
     <ID>SwallowedException:MusicViewModel.kt$MusicViewModel$e: Exception</ID>
     <ID>SwallowedException:MyAnimeListTracker.kt$MyAnimeListTracker$e: Exception</ID>
-    <ID>SwallowedException:NetworkExplorerService.kt$NetworkExplorerService$e: Exception</ID>
     <ID>SwallowedException:NewsToEPUBConverter.kt$NewsToEPUBConverter$e: Exception</ID>
     <ID>SwallowedException:OPDSChallengeAuthenticator.kt$OPDSChallengeAuthenticator$e: Exception</ID>
     <ID>SwallowedException:OPDSClient.kt$OPDSClient$e: Exception</ID>
@@ -7071,7 +7061,6 @@
     <ID>TooGenericExceptionCaught:MusicTagService.kt$MusicTagService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MusicViewModel.kt$MusicViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MyAnimeListTracker.kt$MyAnimeListTracker$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:NetworkExplorerService.kt$NetworkExplorerService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:NetworkStorageRepository.kt$NetworkStorageRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:NewsDownloadService.kt$NewsDownloadService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:NewsManager.kt$NewsManager$e: Exception</ID>
@@ -7415,16 +7404,6 @@
     <ID>UnusedParameter:MusicNotationDisplay.kt$x: Float</ID>
     <ID>UnusedParameter:MusicPlayerScreen.kt$onDragStart: () -&gt; Unit</ID>
     <ID>UnusedParameter:NavigationSection.kt$navController: androidx.navigation.NavController</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$domain: String = ""</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$host: String</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$localPath: String</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$password: String = ""</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$path: String = ""</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$port: Int = 21</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$progressCallback: ((Float) -&gt; Unit)? = null</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$remotePath: String</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$shareName: String</ID>
-    <ID>UnusedParameter:NetworkExplorerService.kt$NetworkExplorerService$username: String = ""</ID>
     <ID>UnusedParameter:NetworkStorageSection.kt$uiState: SettingsUiState</ID>
     <ID>UnusedParameter:NetworkStorageSection.kt$viewModel: SettingsViewModel</ID>
     <ID>UnusedParameter:NetworkStorageService.kt$NetworkStorageService$localUri: Uri</ID>
@@ -7723,7 +7702,6 @@
     <ID>UnusedPrivateProperty:MusicViewModel.kt$MusicViewModel$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:MyAnimeListTracker.kt$MyAnimeListTracker$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:MyAnimeListTracker.kt$MyAnimeListTracker.Companion$private const val CODE_VERIFIER_KEY = "mal_code_verifier"</ID>
-    <ID>UnusedPrivateProperty:NetworkExplorerService.kt$NetworkExplorerService$@ApplicationContext private val context: Context</ID>
     <ID>UnusedPrivateProperty:NetworkStorageSettingsViewModel.kt$NetworkStorageSettingsViewModel$val result = networkStorageRepository.testSmbConnection(config)</ID>
     <ID>UnusedPrivateProperty:NetworkStorageSettingsViewModel.kt$NetworkStorageSettingsViewModel$val result = networkStorageRepository.testWebDavConnection(config)</ID>
     <ID>UnusedPrivateProperty:NewsToEPUBConverter.kt$NewsToEPUBConverter$// Predefined news sources with their selectors private val newsSources = listOf( NewsSource( name = "BBC News", url = "https://www.bbc.com/news", selector = "article[role='main']", titleSelector = "h1", authorSelector = ".ssrcss-68pt20-Text-TextContributorName", dateSelector = "time" ), NewsSource( name = "Reuters", url = "https://www.reuters.com", selector = "div[class*='article-body']", titleSelector = "h1", authorSelector = "a[class*='author']", dateSelector = "time" ), NewsSource( name = "TechCrunch", url = "https://techcrunch.com", selector = "div.content", titleSelector = "h1.article__title", authorSelector = "a.article__byline__author", dateSelector = "time.article__byline__date" ) )</ID>
@@ -9803,13 +9781,6 @@
     <ID>WildcardImport:NavigationSection.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:NavigationSection.kt$import com.universalmedialibrary.ui.settings.*</ID>
     <ID>WildcardImport:NavigationSection.kt$import com.universalmedialibrary.ui.theme.*</ID>
-    <ID>WildcardImport:NetworkExplorerScreen.kt$import androidx.compose.animation.*</ID>
-    <ID>WildcardImport:NetworkExplorerScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:NetworkExplorerScreen.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:NetworkExplorerScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:NetworkExplorerScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:NetworkExplorerScreen.kt$import com.universalmedialibrary.services.network.*</ID>
-    <ID>WildcardImport:NetworkExplorerViewModel.kt$import com.universalmedialibrary.services.network.*</ID>
     <ID>WildcardImport:NetworkStorageSection.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:NetworkStorageSection.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:NetworkStorageSection.kt$import androidx.compose.material3.*</ID>
