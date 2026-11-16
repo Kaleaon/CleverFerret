@@ -16,6 +16,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +34,12 @@ import com.universalmedialibrary.utils.ErrorLogger
 @HiltViewModel
 @OptIn(UnstableApi::class)
 class AudioPlayerViewModel @Inject constructor() : ViewModel() {
+
+    internal var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+
+    constructor(ioDispatcher: CoroutineDispatcher) : this() {
+        this.ioDispatcher = ioDispatcher
+    }
 
     private val _uiState = MutableStateFlow(AudioPlayerUiState())
     val uiState: StateFlow<AudioPlayerUiState> = _uiState.asStateFlow()
@@ -431,7 +438,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         val coverArtUri: String?
     )
 
-    private suspend fun extractFileMetadata(context: Context, filePath: String): ExtractedMeta = withContext(Dispatchers.IO) {
+    private suspend fun extractFileMetadata(context: Context, filePath: String): ExtractedMeta = withContext(ioDispatcher) {
         val retriever = MediaMetadataRetriever()
         try {
             retriever.setDataSource(filePath)
@@ -450,7 +457,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    private suspend fun saveCoverToCache(context: Context, bytes: ByteArray): String? = withContext(Dispatchers.IO) {
+    private suspend fun saveCoverToCache(context: Context, bytes: ByteArray): String? = withContext(ioDispatcher) {
         try {
             val file = File(context.cacheDir, "cover_${System.currentTimeMillis()}.jpg")
             FileOutputStream(file).use { it.write(bytes) }

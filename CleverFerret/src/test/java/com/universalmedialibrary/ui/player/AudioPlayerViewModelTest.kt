@@ -17,7 +17,7 @@ import java.io.File
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-@Config(application = android.app.Application::class, manifest = Config.NONE, sdk = [34])
+@Config(application = android.app.Application::class, manifest = Config.NONE, sdk = [28])
 class AudioPlayerViewModelTest {
 
     @get:Rule
@@ -29,7 +29,7 @@ class AudioPlayerViewModelTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        viewModel = AudioPlayerViewModel()
+        viewModel = AudioPlayerViewModel(mainDispatcherRule.testDispatcher)
     }
 
     @Test
