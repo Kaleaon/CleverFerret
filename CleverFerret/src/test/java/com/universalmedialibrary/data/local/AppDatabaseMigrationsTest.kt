@@ -118,7 +118,7 @@ class AppDatabaseMigrationsTest {
 
         AppDatabaseMigrations.MIGRATION_48_49.migrate(database)
 
-        assertThat(executedSql).hasSize(29)
+        assertThat(executedSql).hasSize(30)
         assertThat(executedSql.any { it.contains("index_collaborative_sessions_status_createdAt") }).isTrue()
         assertThat(executedSql.any { it.contains("index_collaborative_sessions_hostDeviceId_createdAt") }).isTrue()
         assertThat(executedSql.any { it.contains("index_session_clients_sessionId_isConnected") }).isTrue()
@@ -142,5 +142,20 @@ class AppDatabaseMigrationsTest {
         assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `remote_sync_mutations`") }).isTrue()
         assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `crdt_operation_journal`") }).isTrue()
         assertThat(executedSql.any { it.contains("index_crdt_operation_journal_entityId_fieldPath") }).isTrue()
+    }
+
+    @Test
+    fun `migration 49_50 creates progress_sync_journal table and adds reading_progress columns`() {
+        val database = mockk<SupportSQLiteDatabase>()
+        val executedSql = mutableListOf<String>()
+        every { database.execSQL(capture(executedSql)) } just runs
+
+        AppDatabaseMigrations.MIGRATION_49_50.migrate(database)
+
+        assertThat(executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS `progress_sync_journal`") }).isTrue()
+        assertThat(executedSql.any { it.contains("index_progress_sync_journal_itemId") }).isTrue()
+        assertThat(executedSql.any { it.contains("index_progress_sync_journal_itemId_sequenceNumber") }).isTrue()
+        assertThat(executedSql.any { it.contains("ALTER TABLE `reading_progress` ADD COLUMN `sequenceNumber`") }).isTrue()
+        assertThat(executedSql.any { it.contains("ALTER TABLE `reading_progress` ADD COLUMN `vectorClock`") }).isTrue()
     }
 }

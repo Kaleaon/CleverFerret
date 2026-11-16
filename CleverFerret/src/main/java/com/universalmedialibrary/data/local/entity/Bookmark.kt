@@ -101,7 +101,11 @@ data class ReadingProgress(
     // Locator for precise position tracking (JSON string)
     val locator: String? = null,
 
-    val notes: String? = null
+    val notes: String? = null,
+
+    // Causal tracking & vector clock conflict resolution
+    val sequenceNumber: Long = 0L,
+    val vectorClock: String = "{}"
 ) {
     // Computed properties for compatibility with UI
     val progress: Float get() = percentage

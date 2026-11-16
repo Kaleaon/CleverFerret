@@ -36,6 +36,21 @@ interface EmbyApi {
         @Query("positionTicks") positionTicks: Long
     ): Response<Unit>
 
+    @POST("/Sessions/Playing/Progress")
+    suspend fun reportPlaybackProgress(
+        @Header("X-Emby-Token") token: String,
+        @Query("ItemId") itemId: String,
+        @Query("PositionTicks") positionTicks: Long,
+        @Query("IsPaused") isPaused: Boolean = false
+    ): Response<Unit>
+
+    @POST("/Sessions/Playing/Stopped")
+    suspend fun reportPlaybackStopped(
+        @Header("X-Emby-Token") token: String,
+        @Query("ItemId") itemId: String,
+        @Query("PositionTicks") positionTicks: Long? = null
+    ): Response<Unit>
+
     @POST("/Users/{userId}/Items/{itemId}/Rating")
     suspend fun updateRating(
         @Path("userId") userId: String,

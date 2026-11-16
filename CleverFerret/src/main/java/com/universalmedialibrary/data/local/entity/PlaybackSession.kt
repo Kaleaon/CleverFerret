@@ -72,4 +72,27 @@ data class PlaybackSession(
     // Platform integration
     val mediaSessionToken: String? = null,
     val notificationId: Int? = null
-)
+) {
+    /**
+     * Emits an immutable journal event for this session's state transition.
+     */
+    fun createJournalEntry(
+        actionType: String,
+        sequenceNumber: Long,
+        vectorClock: String = "{}",
+        positionMs: Long = currentPositionMs,
+        targetItemId: String? = null
+    ): ProgressSyncJournal {
+        val resolvedItemId = targetItemId
+            ?: currentQueueItemId?.toString()
+            ?: sessionId.toString()
+        return ProgressSyncJournal(
+            itemId = resolvedItemId,
+            position = positionMs,
+            actionType = actionType,
+            sequenceNumber = sequenceNumber,
+            vectorClock = vectorClock,
+            createdAt = System.currentTimeMillis()
+        )
+    }
+}

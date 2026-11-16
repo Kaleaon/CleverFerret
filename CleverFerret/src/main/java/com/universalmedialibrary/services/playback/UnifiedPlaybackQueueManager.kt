@@ -1,15 +1,19 @@
 package com.universalmedialibrary.services.playback
 
 import android.content.Context
+import android.util.Log
 import androidx.media3.common.MediaItem as ExoMediaItem
+import com.universalmedialibrary.data.crdt.VectorClock
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.PlaybackQueueDao
 import com.universalmedialibrary.data.local.dao.QueueItemDao
 import com.universalmedialibrary.data.local.dao.PlaybackSessionDao
+import com.universalmedialibrary.data.local.dao.ProgressSyncJournalDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.PlaybackQueue
 import com.universalmedialibrary.data.local.entity.QueueItem
 import com.universalmedialibrary.data.local.entity.PlaybackSession
+import com.universalmedialibrary.data.local.entity.ProgressSyncJournal
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,6 +53,20 @@ class UnifiedPlaybackQueueManager @Inject constructor(
     private val queueDao: PlaybackQueueDao = database.playbackQueueDao()
     private val queueItemDao: QueueItemDao = database.queueItemDao()
     private val sessionDao: PlaybackSessionDao = database.playbackSessionDao()
+    private val progressJournalDao: ProgressSyncJournalDao = database.progressSyncJournalDao()
+
+    private val nodeId: String by lazy {
+        val prefs = context.getSharedPreferences("playback_journal_prefs", Context.MODE_PRIVATE)
+        val existing = prefs.getString("node_id", null)
+        if (!existing.isNullOrEmpty()) {
+            existing
+        } else {
+            val newId = UUID.randomUUID().toString()
+            prefs.edit().putString("node_id", newId).apply()
+            newId
+        }
+    }
+    private val vectorClockState = MutableStateFlow(VectorClock())
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -269,19 +288,27 @@ class UnifiedPlaybackQueueManager @Inject constructor(
     }
 
     fun pause() {
+        val currentPosition = exoPlayerService.getCurrentPosition()
         exoPlayerService.pause()
         updatePlaybackSessionState(isPlaying = false, isPaused = true)
+        serviceScope.launch {
+            recordJournalEntry("PAUSE", currentPosition)
+        }
     }
 
     fun stop() {
+        val currentPosition = exoPlayerService.getCurrentPosition()
         exoPlayerService.stop()
         updatePlaybackSessionState(isPlaying = false, isPaused = false)
+        serviceScope.launch {
+            recordJournalEntry("STOP", currentPosition)
+        }
     }
 
     fun seekTo(positionMs: Long) {
         exoPlayerService.seekTo(positionMs)
         serviceScope.launch {
-            saveCurrentPosition(positionMs)
+            saveCurrentPosition(positionMs, actionType = "SEEK")
         }
     }
 
@@ -535,13 +562,52 @@ class UnifiedPlaybackQueueManager @Inject constructor(
         }
     }
 
-    private suspend fun saveCurrentPosition(positionMs: Long) {
+    private suspend fun saveCurrentPosition(positionMs: Long, actionType: String = "PROGRESS") {
         _currentItem.value?.let { currentItem ->
             queueItemDao.updatePlaybackPosition(currentItem.queueItemId, positionMs)
         }
 
         _currentSession.value?.let { session ->
             sessionDao.updateCurrentPosition(session.sessionId, positionMs)
+        }
+
+        recordJournalEntry(actionType, positionMs)
+    }
+
+    /**
+     * Emits an immutable progress sync journal entry on playback events or position updates.
+     */
+    suspend fun recordJournalEntry(actionType: String, positionMs: Long) {
+        try {
+            val session = _currentSession.value
+            val currentItem = _currentItem.value
+            val itemId = currentItem?.mediaItemId?.toString()
+                ?: session?.currentQueueItemId?.toString()
+                ?: session?.sessionId?.toString()
+                ?: return
+
+            val nextSeq = (progressJournalDao.getLatestSequenceNumber(itemId) ?: 0L) + 1L
+            val nextClock = vectorClockState.value.increment(nodeId)
+            vectorClockState.value = nextClock
+
+            val entry = session?.createJournalEntry(
+                actionType = actionType,
+                sequenceNumber = nextSeq,
+                vectorClock = nextClock.toJson(),
+                positionMs = positionMs,
+                targetItemId = itemId
+            ) ?: ProgressSyncJournal(
+                itemId = itemId,
+                position = positionMs,
+                actionType = actionType,
+                sequenceNumber = nextSeq,
+                vectorClock = nextClock.toJson(),
+                createdAt = System.currentTimeMillis()
+            )
+
+            progressJournalDao.insert(entry)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error recording journal entry: $actionType at $positionMs", e)
         }
     }
 
@@ -596,6 +662,10 @@ class UnifiedPlaybackQueueManager @Inject constructor(
         serviceScope.launch {
             saveCurrentState()
         }
+    }
+
+    companion object {
+        private const val TAG = "UnifiedPlaybackQueueManager"
     }
 }
 

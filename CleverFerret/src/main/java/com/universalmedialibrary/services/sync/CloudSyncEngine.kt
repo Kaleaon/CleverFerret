@@ -11,6 +11,7 @@ import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.ReadingProgress
 import com.universalmedialibrary.data.crdt.DeltaJournalSyncEngine
 import com.universalmedialibrary.data.crdt.CrdtCompactionEngine
+import com.universalmedialibrary.data.crdt.VectorClock
 import com.universalmedialibrary.jobs.JobContractType
 import com.universalmedialibrary.jobs.JobExecutionState
 import com.universalmedialibrary.jobs.JobStatusBus
@@ -391,16 +392,36 @@ class CloudSyncEngine @Inject constructor(
         }
     }
 
-    private suspend fun mergeReadingProgress(conflict: SyncConflict) {
-        val localProgress = (conflict.localData as? SyncChange)?.data as? ReadingProgress
-        val remoteProgress = (conflict.remoteData as? SyncChange)?.data as? ReadingProgress
+    internal suspend fun mergeReadingProgress(conflict: SyncConflict) {
+        val localChange = conflict.localData as? SyncChange
+        val remoteChange = conflict.remoteData as? SyncChange
+
+        val localProgress = (localChange?.data as? ReadingProgress) ?: (conflict.localData as? ReadingProgress)
+        val remoteProgress = (remoteChange?.data as? ReadingProgress) ?: (conflict.remoteData as? ReadingProgress)
 
         if (localProgress != null && remoteProgress != null) {
-            val merged = if (localProgress.currentPage > remoteProgress.currentPage) {
-                localProgress
-            } else {
-                remoteProgress
+            val localSeq = localChange?.sequenceNumber?.takeIf { it > 0 } ?: localProgress.sequenceNumber
+            val remoteSeq = remoteChange?.sequenceNumber?.takeIf { it > 0 } ?: remoteProgress.sequenceNumber
+
+            val localClockStr = localChange?.vectorClock?.takeIf { it.isNotBlank() && it != "{}" } ?: localProgress.vectorClock
+            val remoteClockStr = remoteChange?.vectorClock?.takeIf { it.isNotBlank() && it != "{}" } ?: remoteProgress.vectorClock
+
+            val localVectorClock = VectorClock.fromJson(localClockStr)
+            val remoteVectorClock = VectorClock.fromJson(remoteClockStr)
+
+            val localWins = when {
+                localVectorClock.dominates(remoteVectorClock) -> true
+                remoteVectorClock.dominates(localVectorClock) -> false
+                localSeq > remoteSeq -> true
+                remoteSeq > localSeq -> false
+                else -> {
+                    val localTs = maxOf(conflict.localTimestamp, localProgress.lastUpdate)
+                    val remoteTs = maxOf(conflict.remoteTimestamp, remoteProgress.lastUpdate)
+                    localTs >= remoteTs
+                }
             }
+
+            val merged = if (localWins) localProgress else remoteProgress
             try {
                 readingProgressDao.insertProgress(merged)
             } catch (e: SQLiteConstraintException) {

@@ -1,0 +1,674 @@
+package com.universalmedialibrary.services.plex
+
+import android.content.Context
+import android.util.Log
+import androidx.room.withTransaction
+import com.universalmedialibrary.data.local.AppDatabase
+import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.PlexMediaItemDao
+import com.universalmedialibrary.data.local.dao.PlexServerDao
+import com.universalmedialibrary.data.local.dao.PlexSyncDao
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.PlexCollection
+import com.universalmedialibrary.data.local.entity.PlexCollectionItem
+import com.universalmedialibrary.data.local.entity.PlexMediaItem
+import com.universalmedialibrary.data.local.entity.PlexProgress
+import com.universalmedialibrary.data.local.entity.PlexRating
+import com.universalmedialibrary.data.local.entity.PlexServer
+import com.universalmedialibrary.services.plex.PlexLibrary
+import com.universalmedialibrary.services.plex.PlexMetadata
+import com.universalmedialibrary.services.ingestion.IngestionPipeline
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.coroutines.flow.first
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * Service for syncing progress, ratings, collections and tags with Plex Media Server
+ * Also handles mapping Plex items to the unified MediaItem model
+ */
+@Singleton
+open class PlexSyncAdapter @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val database: AppDatabase,
+    private val plexServerDao: PlexServerDao,
+    private val plexMediaItemDao: PlexMediaItemDao,
+    private val plexSyncDao: PlexSyncDao,
+    private val mediaItemDao: MediaItemDao,
+    private val libraryDao: LibraryDao,
+    private val authService: PlexAuthService,
+    private val ingestionPipeline: IngestionPipeline,
+    private val plexVirtualUriResolver: PlexVirtualUriResolver? = null,
+    private val downloadScheduler: com.universalmedialibrary.services.cache.MediaDownloadScheduler? = null,
+    private val remoteSyncMutationDao: com.universalmedialibrary.data.local.dao.RemoteSyncMutationDao? = null,
+    private val credentialManager: com.universalmedialibrary.services.sync.ServerCredentialManager? = null,
+    private val progressSyncJournalDao: com.universalmedialibrary.data.local.dao.ProgressSyncJournalDao = database.progressSyncJournalDao()
+) {
+
+    companion object {
+        private const val TAG = "PlexSyncAdapter"
+    }
+
+    private val _syncStatus = MutableStateFlow<PlexSyncStatus>(PlexSyncStatus.Idle)
+    val syncStatus: Flow<PlexSyncStatus> = _syncStatus.asStateFlow()
+
+    private val retrofitInstances = mutableMapOf<String, PlexApi>()
+
+    /**
+     * Add a new Plex server
+     */
+    suspend fun addServer(
+        name: String,
+        host: String,
+        port: Int = 32400,
+        token: String
+    ): Result<PlexServer> {
+        return try {
+            val api = getPlexApi(host, port)
+            val serverInfo = api.getServerInfo(token)
+
+            if (serverInfo.isSuccessful && serverInfo.body() != null) {
+                val info = serverInfo.body()!!
+                val server = PlexServer(
+                    name = name,
+                    host = host,
+                    port = port,
+                    token = token,
+                    machineIdentifier = info.machineIdentifier,
+                    version = info.version,
+                    lastConnected = System.currentTimeMillis()
+                )
+
+                val serverId = plexServerDao.insertServer(server)
+                credentialManager?.saveCredentials("PLEX", serverId, host, port, token = token)
+                Result.success(server.copy(serverId = serverId))
+            } else {
+                Result.failure(Exception("Failed to connect to Plex server: ${serverInfo.message()}"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding server", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Sync all active servers
+     */
+    suspend fun syncAllServers(): Result<Unit> {
+        return try {
+            _syncStatus.value = PlexSyncStatus.Syncing("Starting sync...")
+
+            val servers = plexServerDao.getActiveServers().first()
+            var failureCount = 0
+            val errorMessages = mutableListOf<String>()
+
+            for (server in servers) {
+                val result = syncServer(server)
+                if (result.isFailure) {
+                    failureCount++
+                    val msg = result.exceptionOrNull()?.message ?: "Server unreachable"
+                    errorMessages.add("${server.name}: $msg")
+                }
+            }
+
+            if (servers.isNotEmpty() && failureCount == servers.size) {
+                val summary = "Sync failed for all servers: ${errorMessages.joinToString("; ")}"
+                _syncStatus.value = PlexSyncStatus.Error(summary)
+                Result.failure(Exception(summary))
+            } else if (errorMessages.isNotEmpty()) {
+                val summary = "Sync completed with server warnings: ${errorMessages.joinToString("; ")}"
+                _syncStatus.value = PlexSyncStatus.Success(summary)
+                Result.success(Unit)
+            } else {
+                _syncStatus.value = PlexSyncStatus.Success("Sync completed successfully")
+                Result.success(Unit)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error during sync", e)
+            _syncStatus.value = PlexSyncStatus.Error("Sync failed: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Sync a specific server
+     */
+    suspend fun syncServer(server: PlexServer): Result<Unit> {
+        return try {
+            _syncStatus.value = PlexSyncStatus.Syncing("Syncing ${server.name}...")
+
+            ingestionPipeline.execute(
+                sourceId = "plex:${server.machineIdentifier}",
+                authenticate = {
+                    val api = getPlexApi(server.host, server.port)
+                    val serverInfo = api.getServerInfo(server.token)
+                    if (!serverInfo.isSuccessful) {
+                        throw Exception("Cannot connect to ${server.name}")
+                    }
+                    plexServerDao.updateLastConnected(server.serverId, System.currentTimeMillis())
+                    api
+                },
+                fetchPage = { api, _ ->
+                    syncMediaItems(server, api)
+                    normalizeExistingPlexThumbnails(server)
+                    api
+                },
+                parse = { api ->
+                    syncProgress(server, api)
+                    api
+                },
+                deduplicate = { api ->
+                    syncRatings(server, api)
+                    api
+                },
+                enrichMetadata = { api ->
+                    syncCollections(server, api)
+                    api
+                },
+                persist = {
+                    plexServerDao.updateLastSynced(server.serverId, System.currentTimeMillis())
+                },
+                nextIncrementalToken = { System.currentTimeMillis().toString() }
+            )
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error syncing server ${server.name}", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Sync media items from Plex and map to unified model
+     */
+    private suspend fun syncMediaItems(server: PlexServer, api: PlexApi) {
+        val libraries = api.getLibraries(server.token)
+        val librariesBody = libraries.body()
+        if (!libraries.isSuccessful || librariesBody?.mediaContainer?.directories == null) return
+
+        for (library in librariesBody.mediaContainer.directories) {
+            // Create or get a unified library for this Plex library
+            val unifiedLibrary = getOrCreateUnifiedLibrary(server, library)
+
+            val items = api.getLibraryItems(library.key, server.token)
+            val itemsBody = items.body()
+            if (items.isSuccessful && itemsBody?.mediaContainer?.metadata != null) {
+                val plexItems = itemsBody.mediaContainer.metadata.map { metadata ->
+                    PlexMediaItem(
+                        serverId = server.serverId,
+                        plexRatingKey = metadata.ratingKey,
+                        title = metadata.title,
+                        type = metadata.type,
+                        year = metadata.year,
+                        duration = metadata.duration,
+                        libraryName = library.title,
+                        librarySectionId = library.key
+                    )
+                }
+                plexMediaItemDao.insertMediaItems(plexItems)
+
+                // Map to unified MediaItem model (stub entries)
+                mapPlexItemsToUnifiedModel(itemsBody.mediaContainer.metadata, unifiedLibrary.libraryId, server)
+            }
+        }
+    }
+
+    /**
+     * Get or create a unified library for a Plex library section
+     */
+    private suspend fun getOrCreateUnifiedLibrary(server: PlexServer, plexLibrary: PlexLibrary): Library {
+        val libraryName = "${server.name} - ${plexLibrary.title}"
+        val existingLibrary = libraryDao.getLibraryByName(libraryName)
+
+        return if (existingLibrary != null) {
+            existingLibrary
+        } else {
+            val mediaType = mapPlexTypeToMediaType(plexLibrary.type)
+            val library = Library(
+                name = libraryName,
+                path = "plex://${server.machineIdentifier}/${plexLibrary.key}",
+                type = mediaType
+            )
+            val libraryId = libraryDao.insertLibrary(library)
+            library.copy(libraryId = libraryId)
+        }
+    }
+
+    /**
+     * Map Plex items to unified MediaItem model (stub entries)
+     */
+    private suspend fun mapPlexItemsToUnifiedModel(
+        plexMetadata: List<PlexMetadata>,
+        libraryId: Long,
+        server: PlexServer,
+        chunkSize: Int = 250
+    ) {
+        for (chunk in plexMetadata.chunked(chunkSize.coerceAtLeast(1))) {
+            val chunkPaths = chunk.map { "plex://${server.machineIdentifier}/${it.ratingKey}" }
+            val existingPathsSet = mediaItemDao.getExistingFilePaths(chunkPaths).toSet()
+
+            database.withTransaction {
+                for (metadata in chunk) {
+                    val path = "plex://${server.machineIdentifier}/${metadata.ratingKey}"
+                    val thumbUrl = PlexUrlUtils.buildAuthenticatedThumbnailUrl(server, metadata.thumb)
+                    if (!existingPathsSet.contains(path)) {
+                        val initialAvailable = plexVirtualUriResolver?.isItemAvailable(path) ?: server.isActive
+                        val mediaItem = MediaItem(
+                            libraryId = libraryId,
+                            filePath = path,
+                            fileName = metadata.title,
+                            fileExtension = "", // Plex items don't have extensions
+                            fileSize = 0L, // Size not available from Plex metadata
+                            fileHash = metadata.ratingKey, // Use rating key as unique identifier
+                            mediaType = mapPlexTypeToMediaType(metadata.type),
+                            mimeType = null,
+                            isAvailable = initialAvailable,
+                            hasMetadata = true,
+                            hasThumbnail = !thumbUrl.isNullOrEmpty(),
+                            thumbnailPath = thumbUrl
+                        )
+                        val insertedId = mediaItemDao.insertMediaItem(mediaItem)
+                        val downloadUrl = PlexUrlUtils.buildMediaStreamPartUrl(server, metadata.ratingKey)
+                        downloadScheduler?.scheduleDownload(
+                            itemId = insertedId,
+                            remoteUri = path,
+                            downloadUrl = downloadUrl,
+                            fileName = metadata.title
+                        )
+                    } else {
+                        val existingItem = mediaItemDao.getItemByPath(path)
+                        if (existingItem != null && existingItem.thumbnailPath != thumbUrl) {
+                            mediaItemDao.updateThumbnail(
+                                itemId = existingItem.itemId,
+                                thumbnailPath = thumbUrl,
+                                hasThumbnail = !thumbUrl.isNullOrEmpty()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Resolve and build authenticated thumbnail URL for a Plex server
+     */
+    fun buildAuthenticatedThumbnailUrl(server: PlexServer, thumb: String?): String? =
+        PlexUrlUtils.buildAuthenticatedThumbnailUrl(server, thumb)
+
+    /**
+     * Normalize existing Plex thumbnail paths to fully-qualified authenticated URLs
+     */
+    suspend fun normalizeExistingPlexThumbnails(server: PlexServer) {
+        val machineId = server.machineIdentifier ?: return
+        val items = mediaItemDao.getPlexMediaItemsByServer(machineId)
+        for (item in items) {
+            val currentThumb = item.thumbnailPath
+            if (!currentThumb.isNullOrBlank() && (currentThumb.startsWith("/") || !currentThumb.contains("X-Plex-Token="))) {
+                val normalizedThumb = PlexUrlUtils.buildAuthenticatedThumbnailUrl(server, currentThumb)
+                if (normalizedThumb != currentThumb) {
+                    mediaItemDao.updateThumbnail(
+                        itemId = item.itemId,
+                        thumbnailPath = normalizedThumb,
+                        hasThumbnail = !normalizedThumb.isNullOrEmpty()
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Map Plex media type to unified media type
+     */
+    private fun mapPlexTypeToMediaType(plexType: String): String {
+        return when (plexType.lowercase()) {
+            "movie" -> "MOVIE"
+            "show", "season", "episode" -> "TV_SHOW"
+            "artist", "album", "track" -> "MUSIC_TRACK"
+            else -> "OTHER"
+        }
+    }
+
+    /**
+     * Sync playback progress using both progress journal events and legacy sync queue.
+     * Guaranteed to process rewinds and execute sequentially per media item.
+     */
+    suspend fun syncProgress(server: PlexServer, api: PlexApi) {
+        // 1. Process pending progress journal entries
+        processPendingJournal(server, api)
+
+        // 2. Process legacy progress queue
+        val progressItems = plexSyncDao.getProgressNeedingSync()
+
+        for (progressItem in progressItems) {
+            try {
+                val plexItem = plexMediaItemDao.getMediaItemByRatingKey(progressItem.plexMediaItemId.toString())
+                if (plexItem != null) {
+                    // Update Plex regardless of position direction (supports rewinds)
+                    val response = api.updateProgress(
+                        token = server.token,
+                        time = progressItem.localProgress,
+                        state = "paused",
+                        ratingKey = plexItem.plexRatingKey,
+                        key = "/library/metadata/${plexItem.plexRatingKey}"
+                    )
+
+                    if (response.isSuccessful && response.code() == 200) {
+                        plexSyncDao.markProgressSynced(progressItem.id, System.currentTimeMillis())
+                    } else {
+                        enqueueMutation(
+                            serverType = "PLEX",
+                            serverId = server.serverId,
+                            targetItemId = plexItem.plexRatingKey,
+                            mutationType = "PROGRESS",
+                            payloadJson = "{\"time\":${progressItem.localProgress},\"state\":\"paused\",\"ratingKey\":\"${plexItem.plexRatingKey}\"}"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error syncing progress for item ${progressItem.id}", e)
+                val plexItem = plexMediaItemDao.getMediaItemByRatingKey(progressItem.plexMediaItemId.toString())
+                if (plexItem != null) {
+                    enqueueMutation(
+                        serverType = "PLEX",
+                        serverId = server.serverId,
+                        targetItemId = plexItem.plexRatingKey,
+                        mutationType = "PROGRESS",
+                        payloadJson = "{\"time\":${progressItem.localProgress},\"state\":\"paused\",\"ratingKey\":\"${plexItem.plexRatingKey}\"}"
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Consumes pending progress journal entries sequentially per media item and reports them to Plex.
+     * Enforces Guardrail 3 (sequential per media item replay) and marks processed only upon HTTP 200.
+     */
+    suspend fun processPendingJournal(server: PlexServer, api: PlexApi): Result<Int> {
+        val pendingEvents = progressSyncJournalDao.getPendingEvents()
+        if (pendingEvents.isEmpty()) return Result.success(0)
+
+        var processedCount = 0
+
+        // Guardrail 3: Execute sequentially per media item to guarantee strict ordered replay
+        val groupedByItem = pendingEvents.groupBy { it.itemId }
+
+        for ((itemId, events) in groupedByItem) {
+            val sortedEvents = events.sortedBy { it.sequenceNumber }
+
+            for (entry in sortedEvents) {
+                try {
+                    val localId = entry.itemId.toLongOrNull()
+                    val plexItem = plexMediaItemDao.getMediaItemByRatingKey(entry.itemId)
+                        ?: (if (localId != null) plexMediaItemDao.getMediaItemByLocalId(localId) else null)
+
+                    if (plexItem != null) {
+                        val state = when (entry.actionType.uppercase()) {
+                            "STOP" -> "stopped"
+                            "PLAY" -> "playing"
+                            else -> "paused"
+                        }
+
+                        // Post update to Plex regardless of position direction (supports offline rewinds)
+                        val response = api.updateProgress(
+                            token = server.token,
+                            time = entry.position,
+                            state = state,
+                            ratingKey = plexItem.plexRatingKey,
+                            key = "/library/metadata/${plexItem.plexRatingKey}"
+                        )
+
+                        // Mark individual journal entry as processed ONLY upon HTTP 200 response
+                        if (response.isSuccessful && response.code() == 200) {
+                            progressSyncJournalDao.markProcessed(entry.id, System.currentTimeMillis())
+                            processedCount++
+                        } else {
+                            // Non-200 response: do not mark processed; fallback enqueue mutation
+                            enqueueMutation(
+                                serverType = "PLEX",
+                                serverId = server.serverId,
+                                targetItemId = plexItem.plexRatingKey,
+                                mutationType = "PROGRESS",
+                                payloadJson = "{\"time\":${entry.position},\"state\":\"$state\",\"ratingKey\":\"${plexItem.plexRatingKey}\"}"
+                            )
+                            // Stop sequential processing for this item on non-200 to guarantee strict order
+                            break
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error syncing journal progress for item ${entry.itemId}", e)
+                    val localId = entry.itemId.toLongOrNull()
+                    val plexItem = plexMediaItemDao.getMediaItemByRatingKey(entry.itemId)
+                        ?: (if (localId != null) plexMediaItemDao.getMediaItemByLocalId(localId) else null)
+                    if (plexItem != null) {
+                        enqueueMutation(
+                            serverType = "PLEX",
+                            serverId = server.serverId,
+                            targetItemId = plexItem.plexRatingKey,
+                            mutationType = "PROGRESS",
+                            payloadJson = "{\"time\":${entry.position},\"state\":\"paused\",\"ratingKey\":\"${plexItem.plexRatingKey}\"}"
+                        )
+                    }
+                    break
+                }
+            }
+        }
+
+        return Result.success(processedCount)
+    }
+
+    /**
+     * Sync ratings
+     */
+    private suspend fun syncRatings(server: PlexServer, api: PlexApi) {
+        val ratingItems = plexSyncDao.getRatingsNeedingSync()
+
+        for (ratingItem in ratingItems) {
+            try {
+                val plexItem = plexMediaItemDao.getMediaItemByRatingKey(ratingItem.plexMediaItemId.toString())
+                if (plexItem != null && ratingItem.localRating != null) {
+                    val response = api.updateMediaItem(
+                        ratingKey = plexItem.plexRatingKey,
+                        token = server.token,
+                        rating = ratingItem.localRating
+                    )
+
+                    if (response.isSuccessful) {
+                        plexSyncDao.markRatingSynced(ratingItem.id, System.currentTimeMillis())
+                    } else {
+                        enqueueMutation(
+                            serverType = "PLEX",
+                            serverId = server.serverId,
+                            targetItemId = plexItem.plexRatingKey,
+                            mutationType = "RATING",
+                            payloadJson = "{\"rating\":${ratingItem.localRating}}"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error syncing rating for item ${ratingItem.id}", e)
+                val plexItem = plexMediaItemDao.getMediaItemByRatingKey(ratingItem.plexMediaItemId.toString())
+                if (plexItem != null && ratingItem.localRating != null) {
+                    enqueueMutation(
+                        serverType = "PLEX",
+                        serverId = server.serverId,
+                        targetItemId = plexItem.plexRatingKey,
+                        mutationType = "RATING",
+                        payloadJson = "{\"rating\":${ratingItem.localRating}}"
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun enqueueMutation(
+        serverType: String,
+        serverId: Long,
+        targetItemId: String,
+        mutationType: String,
+        payloadJson: String
+    ) {
+        try {
+            remoteSyncMutationDao?.insert(
+                com.universalmedialibrary.data.local.entity.RemoteSyncMutation(
+                    serverType = serverType,
+                    serverId = serverId,
+                    targetItemId = targetItemId,
+                    mutationType = mutationType,
+                    payloadJson = payloadJson,
+                    status = "PENDING",
+                    createdAt = System.currentTimeMillis()
+                )
+            )
+            com.universalmedialibrary.jobs.WorkScheduler.scheduleRemoteSyncWorker(context)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to enqueue remote sync mutation", e)
+        }
+    }
+
+    /**
+     * Sync collections
+     */
+    private suspend fun syncCollections(server: PlexServer, api: PlexApi) {
+        val collections = api.getCollections(server.token)
+        val collectionsBody = collections.body()
+        if (collections.isSuccessful && collectionsBody?.mediaContainer?.metadata != null) {
+            for (collectionData in collectionsBody.mediaContainer.metadata) {
+                val collection = PlexCollection(
+                    serverId = server.serverId,
+                    plexRatingKey = collectionData.ratingKey,
+                    title = collectionData.title,
+                    type = collectionData.type,
+                    summary = collectionData.summary,
+                    itemCount = collectionData.childCount
+                )
+
+                val collectionId = plexSyncDao.insertCollection(collection)
+
+                // Get collection items
+                val collectionItems = api.getCollectionItems(collectionData.ratingKey, server.token)
+                val collectionItemsBody = collectionItems.body()
+                if (collectionItems.isSuccessful && collectionItemsBody?.mediaContainer?.metadata != null) {
+                    // Clear existing items
+                    plexSyncDao.deleteCollectionItems(collectionId)
+
+                    // Add new items
+                    val items = collectionItemsBody.mediaContainer.metadata.mapIndexedNotNull { index, metadata ->
+                        val plexItem = plexMediaItemDao.getMediaItemByRatingKey(metadata.ratingKey)
+                        plexItem?.let {
+                            PlexCollectionItem(
+                                collectionId = collectionId,
+                                plexMediaItemId = it.id,
+                                sortOrder = index
+                            )
+                        }
+                    }
+                    plexSyncDao.insertCollectionItems(items)
+                }
+            }
+        }
+    }
+
+    /**
+     * Update local progress and mark for sync
+     */
+    suspend fun updateLocalProgress(plexMediaItemId: Long, progress: Long): Result<Unit> {
+        return try {
+            val existingProgress = plexSyncDao.getProgressByItemId(plexMediaItemId)
+            if (existingProgress != null) {
+                val updated = existingProgress.copy(
+                    localProgress = progress,
+                    needsSync = true,
+                    updatedAt = System.currentTimeMillis()
+                )
+                plexSyncDao.updateProgress(updated)
+            } else {
+                val newProgress = PlexProgress(
+                    plexMediaItemId = plexMediaItemId,
+                    localProgress = progress,
+                    needsSync = true
+                )
+                plexSyncDao.insertProgress(newProgress)
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating local progress", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Update local rating and mark for sync
+     */
+    suspend fun updateLocalRating(plexMediaItemId: Long, rating: Float): Result<Unit> {
+        return try {
+            val existingRating = plexSyncDao.getRatingByItemId(plexMediaItemId)
+            if (existingRating != null) {
+                val updated = existingRating.copy(
+                    localRating = rating,
+                    needsSync = true,
+                    updatedAt = System.currentTimeMillis()
+                )
+                plexSyncDao.updateRating(updated)
+            } else {
+                val newRating = PlexRating(
+                    plexMediaItemId = plexMediaItemId,
+                    localRating = rating,
+                    needsSync = true
+                )
+                plexSyncDao.insertRating(newRating)
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating local rating", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Get all active servers
+     */
+    fun getAllServers(): Flow<List<PlexServer>> {
+        return plexServerDao.getAllServers()
+    }
+
+    /**
+     * Get Plex API instance for server
+     */
+    private fun getPlexApi(host: String, port: Int): PlexApi {
+        val baseUrl = "http://$host:$port"
+        val key = "$host:$port"
+
+        return retrofitInstances.getOrPut(key) {
+            val okHttpClient = okhttp3.OkHttpClient.Builder()
+                .connectTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .build()
+
+            Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(PlexApi::class.java)
+        }
+    }
+}
+
+/**
+ * Sync status sealed class
+ */
+sealed class PlexSyncStatus {
+    object Idle : PlexSyncStatus()
+    data class Syncing(val message: String) : PlexSyncStatus()
+    data class Success(val message: String) : PlexSyncStatus()
+    data class Error(val message: String) : PlexSyncStatus()
+}
