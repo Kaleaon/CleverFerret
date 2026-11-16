@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -301,7 +302,7 @@ internal fun PdfReaderView(uri: Uri) {
     val context = LocalContext.current
     var renderer by remember { mutableStateOf<PdfRenderer?>(null) }
     var pfd by remember { mutableStateOf<ParcelFileDescriptor?>(null) }
-    var currentPageIndex by remember { mutableStateOf(0) }
+    var currentPageIndex by rememberSaveable { mutableStateOf(0) }
     var pageCount by remember { mutableStateOf(0) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var isRendering by remember { mutableStateOf(true) }
@@ -368,13 +369,24 @@ internal fun PdfReaderView(uri: Uri) {
             try {
                 val newRenderer = PdfRenderer(descriptor)
                 renderer = newRenderer
-                pageCount = newRenderer.pageCount
+                val count = newRenderer.pageCount
+                pageCount = count
                 isRendering = true
                 renderFailed = false
-                renderToBitmapHighQuality(newRenderer, currentPageIndex, renderScale) { bmp ->
-                    bitmap = bmp
+                if (count > 0) {
+                    val coercedIndex = currentPageIndex.coerceIn(0, count - 1)
+                    if (coercedIndex != currentPageIndex) {
+                        currentPageIndex = coercedIndex
+                    }
+                    renderToBitmapHighQuality(newRenderer, coercedIndex, renderScale) { bmp ->
+                        bitmap = bmp
+                        isRendering = false
+                        renderFailed = (bmp == null)
+                    }
+                } else {
+                    currentPageIndex = 0
                     isRendering = false
-                    renderFailed = (bmp == null)
+                    renderFailed = true
                 }
             } catch (e: Exception) {
                 android.util.Log.w("PdfReader", "Error opening PdfRenderer", e)
