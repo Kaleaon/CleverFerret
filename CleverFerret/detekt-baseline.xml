@@ -2397,7 +2397,6 @@
     <ID>LongMethod:MultiRoomAudioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MultiRoomAudioScreen( onBack: () -&gt; Unit, onOpenRoomChat: (String) -&gt; Unit = {}, viewModel: MultiRoomAudioViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:MusicLibraryScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MusicLibraryScreen( navController: NavController, viewModel: MusicLibraryViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:MusicLibraryScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun MusicLibraryScreen( state: MusicLibraryState, onArtistClick: (MusicArtist) -&gt; Unit, onAlbumClick: (MusicAlbum) -&gt; Unit, onTrackClick: (MusicTrack) -&gt; Unit, onPlaylistClick: (MusicPlaylist) -&gt; Unit, onShuffleAll: () -&gt; Unit, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onPlayPause: () -&gt; Unit = {}, onSkipPrevious: () -&gt; Unit = {}, onSkipNext: () -&gt; Unit = {}, onOpenNowPlaying: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
-    <ID>LongMethod:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun scanMusicFromMediaStore(): List&lt;Track&gt;</ID>
     <ID>LongMethod:MusicNotationDisplay.kt$@Composable private fun StaffDisplay( notes: List&lt;MidiNote&gt;, timeSignature: String, keySignature: String?, zoomLevel: Float, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:MusicNotationDisplay.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MusicNotationDisplay( midiFile: MidiFile, notes: List&lt;MidiNote&gt;, onBack: () -&gt; Unit )</ID>
     <ID>LongMethod:MusicPlayerScreen.kt$@Composable private fun ControlButtonsSection( isPlaying: Boolean, playlistMode: PlaylistMode, canSkipPrevious: Boolean, canSkipNext: Boolean, onPlayPause: () -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onToggleMode: () -&gt; Unit, isFavorite: Boolean = false, onToggleFavorite: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
@@ -7554,10 +7553,6 @@
     <ID>UnusedPrivateMember:MediaNavigation.kt$private fun applyBottomBarPreferencesToMediaDestinations( destinations: List&lt;MediaNavDestination&gt;, bottomBarPreferences: BottomBarPreferences ): List&lt;MediaNavDestination&gt;</ID>
     <ID>UnusedPrivateMember:MetadataApiService.kt$MetadataApiService$private fun createDemoTVShowResults(query: String): List&lt;UnifiedMetadataSearchResult&gt;</ID>
     <ID>UnusedPrivateMember:MidiParserService.kt$MidiParserService$private fun formatKeySignature(sharpsFlats: Int, majorMinor: Int): String</ID>
-    <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun aggregateAlbums(tracks: List&lt;Track&gt;): List&lt;Album&gt;</ID>
-    <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun aggregateArtists(tracks: List&lt;Track&gt;): List&lt;Artist&gt;</ID>
-    <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun aggregateGenres(tracks: List&lt;Track&gt;): List&lt;Genre&gt;</ID>
-    <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun scanMusicFromMediaStore(): List&lt;Track&gt;</ID>
     <ID>UnusedPrivateMember:MusicMetadataService.kt$MusicMetadataService$private fun parseMusicBrainzTrackResponse(response: String): MusicBrainzTrackInfo?</ID>
     <ID>UnusedPrivateMember:OPDSCatalogBrowserScreen.kt$@Composable private fun LoadingView()</ID>
     <ID>UnusedPrivateMember:OPDSCatalogBrowserScreen.kt$@Preview(showBackground = true) @Composable private fun OPDSCatalogShimmerLoadingPreview()</ID>
