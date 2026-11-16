@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.media.viewmodels
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.search.EnhancedSearchService
@@ -27,7 +28,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val searchService: EnhancedSearchService
+    private val searchService: EnhancedSearchService,
+    private val savedStateHandle: SavedStateHandle = SavedStateHandle()
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(SearchScreenState())
@@ -39,7 +41,27 @@ class SearchViewModel @Inject constructor(
     private var searchJob: Job? = null
     
     init {
+        val restoredQuery: String = savedStateHandle.get<String>(KEY_QUERY) ?: ""
+        val restoredCategory: SearchCategory? = parseSearchCategory(savedStateHandle.get<Any>(KEY_CATEGORY))
+        val restoredMediaType: MediaType? = parseMediaType(
+            savedStateHandle.get<Any>(KEY_MEDIA_TYPE) ?: savedStateHandle.get<Any>("mediaType")
+        )
+
+        if (restoredQuery.isNotEmpty() || restoredCategory != null || restoredMediaType != null) {
+            _uiState.update {
+                it.copy(
+                    query = restoredQuery,
+                    selectedCategory = restoredCategory,
+                    selectedMediaType = restoredMediaType
+                )
+            }
+        }
+
         loadRecentSearches()
+
+        if (restoredQuery.isNotBlank()) {
+            search(restoredQuery)
+        }
     }
     
     private fun loadRecentSearches() {
@@ -54,6 +76,7 @@ class SearchViewModel @Inject constructor(
     }
     
     fun updateQuery(query: String) {
+        savedStateHandle[KEY_QUERY] = query
         _uiState.update { it.copy(query = query) }
         
         // Debounce search
@@ -70,6 +93,8 @@ class SearchViewModel @Inject constructor(
     
     fun search(query: String) {
         if (query.isBlank()) return
+        savedStateHandle[KEY_QUERY] = query
+        _uiState.update { it.copy(query = query) }
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             performSearch(query)
@@ -77,10 +102,17 @@ class SearchViewModel @Inject constructor(
     }
     
     fun clearSearch() {
+        searchJob?.cancel()
+        savedStateHandle.remove<String>(KEY_QUERY)
         _uiState.update { it.copy(query = "", results = emptyList(), groupedResults = emptyMap(), allResults = emptyList()) }
     }
     
     fun setCategory(category: SearchCategory?) {
+        if (category != null) {
+            savedStateHandle[KEY_CATEGORY] = category.name
+        } else {
+            savedStateHandle.remove<String>(KEY_CATEGORY)
+        }
         _uiState.update { it.copy(selectedCategory = category) }
         
         // Re-filter results if we have any
@@ -90,6 +122,11 @@ class SearchViewModel @Inject constructor(
     }
 
     fun setMediaType(mediaType: MediaType?) {
+        if (mediaType != null) {
+            savedStateHandle[KEY_MEDIA_TYPE] = mediaType.name
+        } else {
+            savedStateHandle.remove<String>(KEY_MEDIA_TYPE)
+        }
         _uiState.update { it.copy(selectedMediaType = mediaType) }
 
         if (_uiState.value.query.isNotBlank()) {
@@ -109,6 +146,7 @@ class SearchViewModel @Inject constructor(
     }
     
     fun useRecentSearch(query: String) {
+        savedStateHandle[KEY_QUERY] = query
         _uiState.update { it.copy(query = query) }
         search(query)
     }
@@ -231,6 +269,24 @@ class SearchViewModel @Inject constructor(
             categoryFiltered
         }
         _uiState.update { it.copy(results = filtered) }
+    }
+
+    companion object {
+        const val KEY_QUERY = "query"
+        const val KEY_CATEGORY = "category"
+        const val KEY_MEDIA_TYPE = "media_type"
+
+        private fun parseSearchCategory(raw: Any?): SearchCategory? = when (raw) {
+            is SearchCategory -> raw
+            is String -> SearchCategory.entries.firstOrNull { it.name.equals(raw.trim(), ignoreCase = true) }
+            else -> null
+        }
+
+        private fun parseMediaType(raw: Any?): MediaType? = when (raw) {
+            is MediaType -> raw
+            is String -> MediaType.entries.firstOrNull { it.name.equals(raw.trim(), ignoreCase = true) }
+            else -> null
+        }
     }
 }
 
