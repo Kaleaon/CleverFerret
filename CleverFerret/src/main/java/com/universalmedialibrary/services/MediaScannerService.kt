@@ -16,6 +16,7 @@ import android.os.Environment
 import android.os.IBinder
 import android.provider.MediaStore
 import androidx.core.app.NotificationCompat
+import com.universalmedialibrary.api.plugin.PluginRegistry
 import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.LibraryScanSettingsDao
@@ -74,6 +75,7 @@ class MediaScannerService : Service() {
     @Inject lateinit var catalogingPipelineEngine: CatalogingPipelineEngine
     @Inject lateinit var unifiedTagDao: UnifiedTagDao
     @Inject lateinit var tagIndexingListener: TagIndexingIngestionListener
+    @Inject lateinit var pluginRegistry: PluginRegistry
 
     internal val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val scanSettingsCache = mutableMapOf<Long, ResolvedScanSettings>()
@@ -147,6 +149,9 @@ data class ScanProgress(
 
     override fun onCreate() {
         super.onCreate()
+        if (::pluginRegistry.isInitialized) {
+            setPluginRegistry(pluginRegistry)
+        }
         createNotificationChannel()
     }
 
@@ -233,7 +238,7 @@ data class ScanProgress(
 
                         // Pass 1: Quick non-blocking file count bounded by 1500ms timeout
                         val totalEstimated = withTimeoutOrNull(1500L) {
-                            countEligibleFiles(dir, settings)
+                            countEligibleFiles(dir, settings, if (::pluginRegistry.isInitialized) pluginRegistry else null)
                         }
 
                         val isIndeterminate = totalEstimated == null || totalEstimated == 0

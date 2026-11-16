@@ -3,6 +3,8 @@ package com.universalmedialibrary.services
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.util.Log
+import com.universalmedialibrary.api.plugin.PluginRegistry
+import com.universalmedialibrary.api.plugin.PluginRegistryImpl
 import com.universalmedialibrary.data.local.entity.LibraryScanSettings
 import com.universalmedialibrary.services.MediaScannerService.MusicTrackInfo
 import com.universalmedialibrary.utils.media.AudioMetadataUtils
@@ -15,9 +17,19 @@ import com.universalmedialibrary.utils.computeSha1
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-internal fun determineMediaType(file: File): String? {
+@Volatile
+internal var activePluginRegistry: PluginRegistry? = null
+
+internal fun setPluginRegistry(registry: PluginRegistry?) {
+    activePluginRegistry = registry
+}
+
+internal fun determineMediaType(
+    file: File,
+    pluginRegistry: PluginRegistry? = null
+): String? {
     val extension = file.extension.lowercase()
-    return when {
+    val builtInType = when {
         extension in MediaScannerService.BOOK_EXTENSIONS -> "BOOK"
         extension in MediaScannerService.AUDIO_EXTENSIONS -> "MUSIC"
         extension in MediaScannerService.VIDEO_EXTENSIONS -> "MOVIE"
@@ -25,6 +37,13 @@ internal fun determineMediaType(file: File): String? {
         extension in MediaScannerService.IMAGE_EXTENSIONS && file.length() > 100000 -> "DOCUMENT"
         else -> null
     }
+    if (builtInType != null) {
+        return builtInType
+    }
+
+    val registry = pluginRegistry ?: activePluginRegistry ?: PluginRegistryImpl.defaultInstance
+    val extractor = registry?.getFormatExtractorByExtension(extension)
+    return extractor?.mediaCategory
 }
 
 internal fun extractAudioDuration(file: File): Long? {
@@ -108,9 +127,37 @@ internal fun ResolvedScanSettings.allowsFile(file: File): Boolean {
     return true
 }
 
+private fun isCandidateEligible(
+    file: File,
+    settings: ResolvedScanSettings?,
+    pluginRegistry: PluginRegistry?
+): Boolean {
+    if (determineMediaType(file, pluginRegistry) == null) return false
+    return settings == null || settings.allowsFile(file)
+}
+
+private fun processCandidateFile(
+    file: File,
+    settings: ResolvedScanSettings?,
+    pluginRegistry: PluginRegistry?,
+    stack: java.util.ArrayDeque<File>
+): Int {
+    if (file.isDirectory && !file.name.startsWith(".")) {
+        if (settings == null || !settings.shouldSkipDirectory(file)) {
+            stack.push(file)
+        }
+        return 0
+    }
+    if (file.isFile && isCandidateEligible(file, settings, pluginRegistry)) {
+        return 1
+    }
+    return 0
+}
+
 internal fun countEligibleFiles(
     directory: File,
-    settings: ResolvedScanSettings?
+    settings: ResolvedScanSettings?,
+    pluginRegistry: PluginRegistry? = null
 ): Int {
     var count = 0
     val stack = java.util.ArrayDeque<File>()
@@ -119,18 +166,7 @@ internal fun countEligibleFiles(
         val current = stack.pop()
         val files = current.listFiles() ?: continue
         for (f in files) {
-            if (f.isDirectory && !f.name.startsWith(".")) {
-                if (settings == null || !settings.shouldSkipDirectory(f)) {
-                    stack.push(f)
-                }
-            } else if (f.isFile) {
-                val mediaType = determineMediaType(f)
-                if (mediaType != null) {
-                    if (settings == null || settings.allowsFile(f)) {
-                        count++
-                    }
-                }
-            }
+            count += processCandidateFile(f, settings, pluginRegistry, stack)
         }
     }
     return count

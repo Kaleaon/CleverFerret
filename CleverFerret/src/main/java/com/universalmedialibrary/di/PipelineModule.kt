@@ -1,5 +1,7 @@
 package com.universalmedialibrary.di
 
+import com.universalmedialibrary.api.plugin.PluginRegistry
+import com.universalmedialibrary.api.plugin.PluginRegistryImpl
 import com.universalmedialibrary.services.pipeline.CatalogingPipelineEngine
 import com.universalmedialibrary.services.pipeline.CatalogingPipelineEngineImpl
 import com.universalmedialibrary.services.pipeline.MetadataPipelineProcessor
@@ -16,6 +18,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object PipelineModule {
+
+    @Provides
+    @Singleton
+    fun providePluginRegistry(impl: PluginRegistryImpl): PluginRegistry = impl
 
     @Provides
     @Singleton

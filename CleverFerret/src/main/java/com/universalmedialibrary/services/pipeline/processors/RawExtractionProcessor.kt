@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.pipeline.processors
 
+import com.universalmedialibrary.api.plugin.PluginRegistry
 import com.universalmedialibrary.services.media.MetadataExtractionService
 import com.universalmedialibrary.services.pipeline.CatalogingPipelineContext
 import com.universalmedialibrary.services.pipeline.MetadataPipelineProcessor
@@ -10,13 +11,16 @@ import javax.inject.Singleton
 /**
  * Stage 1 Processor: Raw Extraction
  *
- * Extracts raw file metadata attributes and tags using [MetadataExtractionService] and
- * parser infrastructure.
+ * Extracts raw file metadata attributes and tags using [MetadataExtractionService],
+ * active [PluginRegistry] format extractors, and parser infrastructure.
  */
 @Singleton
 class RawExtractionProcessor @Inject constructor(
-    private val metadataExtractionService: MetadataExtractionService
+    private val metadataExtractionService: MetadataExtractionService,
+    private val pluginRegistry: PluginRegistry? = null
 ) : MetadataPipelineProcessor {
+
+    constructor(metadataExtractionService: MetadataExtractionService) : this(metadataExtractionService, null)
 
     override val stage: PipelineStage = PipelineStage.RAW_EXTRACTION
     override val name: String = "RawExtractionProcessor"
@@ -25,7 +29,7 @@ class RawExtractionProcessor @Inject constructor(
         val file = context.file
         val mediaType = context.mediaType
 
-        val rawMetadata = metadataExtractionService.extractRawMetadata(file, mediaType)
+        val rawMetadata = metadataExtractionService.extractRawMetadata(file, mediaType, pluginRegistry)
 
         return context.copy(
             rawMetadata = rawMetadata,

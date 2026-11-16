@@ -23,6 +23,12 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
     
     companion object {
         const val DEFAULT_HOST_API_VERSION = "1.0.0"
+        @Volatile
+        var defaultInstance: PluginRegistry? = null
+    }
+
+    init {
+        defaultInstance = this
     }
 
     var hostApiVersion: String = DEFAULT_HOST_API_VERSION
@@ -30,6 +36,62 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
     private val plugins = ConcurrentHashMap<String, Plugin>()
     private val pluginConfigs = ConcurrentHashMap<String, MutableMap<String, Any>>()
     private val lifecycleCallbacks = java.util.concurrent.CopyOnWriteArrayList<PluginLifecycleCallback>()
+    private val formatExtractorsByExtension = ConcurrentHashMap<String, java.util.concurrent.CopyOnWriteArrayList<FormatExtractorPlugin>>()
+    private val formatExtractorsByMimeType = ConcurrentHashMap<String, java.util.concurrent.CopyOnWriteArrayList<FormatExtractorPlugin>>()
+    private val formatExtractors = java.util.concurrent.CopyOnWriteArrayList<FormatExtractorPlugin>()
+
+    private fun normalizeExtension(ext: String): String = ext.lowercase().removePrefix(".").trim()
+
+    private fun addExtractorToMap(
+        map: ConcurrentHashMap<String, java.util.concurrent.CopyOnWriteArrayList<FormatExtractorPlugin>>,
+        key: String,
+        extractor: FormatExtractorPlugin
+    ) {
+        val list = map.computeIfAbsent(key) { java.util.concurrent.CopyOnWriteArrayList() }
+        if (!list.contains(extractor)) {
+            list.add(extractor)
+        }
+    }
+
+    private fun indexFormatExtractor(extractor: FormatExtractorPlugin) {
+        if (!formatExtractors.contains(extractor)) {
+            formatExtractors.add(extractor)
+        }
+        for (ext in extractor.supportedExtensions) {
+            val key = normalizeExtension(ext)
+            if (key.isNotEmpty()) {
+                addExtractorToMap(formatExtractorsByExtension, key, extractor)
+            }
+        }
+        for (mime in extractor.supportedMimeTypes) {
+            val key = mime.lowercase().trim()
+            if (key.isNotEmpty()) {
+                addExtractorToMap(formatExtractorsByMimeType, key, extractor)
+            }
+        }
+    }
+
+    private fun deindexFormatExtractor(extractor: FormatExtractorPlugin) {
+        formatExtractors.remove(extractor)
+        extractor.supportedExtensions.forEach { ext ->
+            val key = normalizeExtension(ext)
+            formatExtractorsByExtension[key]?.remove(extractor)
+        }
+        extractor.supportedMimeTypes.forEach { mime ->
+            val key = mime.lowercase().trim()
+            formatExtractorsByMimeType[key]?.remove(extractor)
+        }
+    }
+
+    private fun handleExtractorStateChange(plugin: Plugin, enabled: Boolean, wasEnabled: Boolean) {
+        if (plugin is FormatExtractorPlugin) {
+            if (enabled && !wasEnabled) {
+                indexFormatExtractor(plugin)
+            } else if (!enabled && wasEnabled) {
+                deindexFormatExtractor(plugin)
+            }
+        }
+    }
     
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     
@@ -101,6 +163,32 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
             .filterIsInstance<SocialIntegrationPlugin>()
             .filter { it.isEnabled }
     }
+
+    override fun getFormatExtractors(): List<FormatExtractorPlugin> {
+        return formatExtractors.filter { it.isEnabled }
+    }
+
+    override fun getFormatExtractorByExtension(extension: String): FormatExtractorPlugin? {
+        val key = normalizeExtension(extension)
+        return formatExtractorsByExtension[key]?.firstOrNull { it.isEnabled }
+    }
+
+    override fun getFormatExtractorByMimeType(mimeType: String): FormatExtractorPlugin? {
+        val key = mimeType.lowercase().trim()
+        return formatExtractorsByMimeType[key]?.firstOrNull { it.isEnabled }
+    }
+
+    override fun getFormatExtractorBySignature(signature: ByteArray): FormatExtractorPlugin? {
+        return formatExtractors.firstOrNull { it.isEnabled && it.matchesSignature(signature) }
+    }
+
+    override fun registerFormatExtractor(plugin: FormatExtractorPlugin) {
+        registerPlugin(plugin)
+    }
+
+    override fun unregisterFormatExtractor(id: String) {
+        unregisterPlugin(id)
+    }
     
     override fun registerPlugin(plugin: Plugin) {
         val validationResult = PluginManifestValidator.validate(plugin.manifest, hostApiVersion)
@@ -121,6 +209,9 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
         }
 
         plugins[plugin.id] = plugin
+        if (plugin is FormatExtractorPlugin && plugin.isEnabled) {
+            indexFormatExtractor(plugin)
+        }
         
         // Initialize default config
         val defaultConfig = mutableMapOf<String, Any>()
@@ -154,6 +245,9 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
     
     override fun unregisterPlugin(id: String) {
         plugins.remove(id)?.let { plugin ->
+            if (plugin is FormatExtractorPlugin) {
+                deindexFormatExtractor(plugin)
+            }
             scope.launch {
                 try {
                     plugin.shutdown()
@@ -171,6 +265,7 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
         plugins[id]?.let { plugin ->
             val wasEnabled = plugin.isEnabled
             plugin.isEnabled = enabled
+            handleExtractorStateChange(plugin, enabled, wasEnabled)
             
             if (enabled && !wasEnabled) {
                 scope.launch {
@@ -180,6 +275,7 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
                         _events.emit(PluginEvent.PluginEnabled(id))
                     } catch (e: Exception) {
                         plugin.isEnabled = false
+                        handleExtractorStateChange(plugin, enabled = false, wasEnabled = true)
                         _events.emit(PluginEvent.PluginError(id, e))
                     }
                 }
