@@ -1,7 +1,6 @@
 package com.universalmedialibrary.ui.media.screens
 
 import android.content.Intent
-import android.os.Build
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -257,11 +256,7 @@ private fun StoragePage(
             val intent = Intent(context, MediaScannerService::class.java).apply {
                 action = MediaScannerService.ACTION_SCAN_ALL
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startForegroundService(intent)
         }
     }
 

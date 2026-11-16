@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.universalmedialibrary.R
@@ -183,17 +182,15 @@ class MangaUpdateService @Inject constructor(
     // Private methods
     
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                "Manga Updates",
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "Notifications for new manga chapters"
-                enableVibration(true)
-            }
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID,
+            "Manga Updates",
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = "Notifications for new manga chapters"
+            enableVibration(true)
         }
+        notificationManager.createNotificationChannel(channel)
     }
     
     private fun showUpdateNotifications(updates: List<MangaUpdate>) {
