@@ -42,8 +42,105 @@ class ExoPlayerService @Inject constructor(
     private val trackSelector = DefaultTrackSelector(context)
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    internal var currentMediaUri: String? = null
+    internal var reconnectAttempts = 0
+    internal var lastPlaybackPosition: Long = 0L
+    internal var reconnectRunnable: Runnable? = null
+    internal var isReconnecting: Boolean = false
+
     private val _playerState = MutableStateFlow(ExoPlayerState())
     val playerState: StateFlow<ExoPlayerState> = _playerState.asStateFlow()
+
+    companion object {
+        const val MAX_RECONNECT_ATTEMPTS = 3
+        const val INITIAL_RECONNECT_DELAY_MS = 1000L
+
+        fun getReconnectDelayMs(attempt: Int): Long {
+            if (attempt <= 0) return 0L
+            val exponent = (attempt - 1).coerceAtMost(30)
+            return INITIAL_RECONNECT_DELAY_MS * (1L shl exponent)
+        }
+
+        fun isNetworkUri(uriString: String?): Boolean {
+            if (uriString.isNullOrBlank()) return false
+            val lower = uriString.lowercase()
+            return lower.startsWith("http://") || lower.startsWith("https://") ||
+                   lower.startsWith("rtsp://") || lower.startsWith("rtmp://")
+        }
+
+        fun isTransientNetworkError(error: androidx.media3.common.PlaybackException, isStream: Boolean): Boolean {
+            if (!isStream) return false
+            return when (error.errorCode) {
+                androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+                androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
+                androidx.media3.common.PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS -> true
+                androidx.media3.common.PlaybackException.ERROR_CODE_IO_UNSPECIFIED -> {
+                    val cause = error.cause
+                    cause is java.io.IOException && cause !is java.io.FileNotFoundException
+                }
+                else -> false
+            }
+        }
+    }
+
+    fun isNetworkStream(): Boolean {
+        val uriString = exoPlayer?.currentMediaItem?.localConfiguration?.uri?.toString() ?: currentMediaUri
+        return isNetworkUri(uriString)
+    }
+
+    fun cancelScheduledReconnect() {
+        reconnectRunnable?.let {
+            mainHandler.removeCallbacks(it)
+            reconnectRunnable = null
+        }
+        isReconnecting = false
+    }
+
+    internal fun handlePlayerError(error: androidx.media3.common.PlaybackException) {
+        val isStream = isNetworkStream()
+        if (isTransientNetworkError(error, isStream) && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            reconnectAttempts++
+            val retryDelay = getReconnectDelayMs(reconnectAttempts)
+
+            val currentPos = exoPlayer?.currentPosition ?: 0L
+            if (currentPos > 0) {
+                lastPlaybackPosition = currentPos
+            }
+
+            cancelScheduledReconnect()
+            isReconnecting = true
+
+            updatePlayerState(
+                isBuffering = true,
+                isPlaying = false,
+                isReconnecting = true,
+                error = null
+            )
+
+            val runnable = Runnable {
+                runOnMainThread {
+                    if (!isReconnecting) return@runOnMainThread
+                    exoPlayer?.let { player ->
+                        player.seekTo(lastPlaybackPosition)
+                        player.prepare()
+                        player.play()
+                    }
+                }
+            }
+            reconnectRunnable = runnable
+            mainHandler.postDelayed(runnable, retryDelay)
+        } else {
+            cancelScheduledReconnect()
+            reconnectAttempts = 0
+            isReconnecting = false
+            updatePlayerState(
+                isBuffering = false,
+                isPlaying = false,
+                isReconnecting = false,
+                error = error.message ?: "Playback error: ${error.errorCode}"
+            )
+        }
+    }
 
     /**
      * Initialize ExoPlayer
@@ -66,11 +163,16 @@ class ExoPlayerService @Inject constructor(
                     .build().apply {
                     addListener(object : Player.Listener {
                         override fun onPlaybackStateChanged(playbackState: Int) {
+                            if (playbackState == Player.STATE_READY) {
+                                cancelScheduledReconnect()
+                                reconnectAttempts = 0
+                            }
                             val isPlaying = playbackState == Player.STATE_READY && playWhenReady
                             updatePlayerState(
                                 isPlaying = isPlaying,
-                                isBuffering = playbackState == Player.STATE_BUFFERING,
-                                hasEnded = playbackState == Player.STATE_ENDED
+                                isBuffering = playbackState == Player.STATE_BUFFERING || isReconnecting,
+                                hasEnded = playbackState == Player.STATE_ENDED,
+                                isReconnecting = isReconnecting
                             )
 
                             // Update MediaController state
@@ -82,7 +184,7 @@ class ExoPlayerService @Inject constructor(
                         }
 
                         override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                            updatePlayerState(error = error.message)
+                            handlePlayerError(error)
                         }
 
                         override fun onPositionDiscontinuity(
@@ -90,6 +192,9 @@ class ExoPlayerService @Inject constructor(
                             newPosition: Player.PositionInfo,
                             reason: Int
                         ) {
+                            if (newPosition.positionMs > 0) {
+                                lastPlaybackPosition = newPosition.positionMs
+                            }
                             updatePlayerState(
                                 currentPosition = newPosition.positionMs,
                                 duration = duration.takeIf { it != androidx.media3.common.C.TIME_UNSET } ?: 0
@@ -118,6 +223,11 @@ class ExoPlayerService @Inject constructor(
             updatePlayerState(error = "ExoPlayer is disabled")
             return
         }
+
+        cancelScheduledReconnect()
+        reconnectAttempts = 0
+        lastPlaybackPosition = 0L
+        currentMediaUri = mediaPath
 
         initialize()
 
@@ -156,6 +266,11 @@ class ExoPlayerService @Inject constructor(
             return
         }
 
+        cancelScheduledReconnect()
+        reconnectAttempts = 0
+        lastPlaybackPosition = 0L
+        currentMediaUri = mediaPath
+
         initialize()
 
         runOnMainThread {
@@ -182,6 +297,11 @@ class ExoPlayerService @Inject constructor(
             updatePlayerState(error = "ExoPlayer is disabled")
             return false
         }
+
+        cancelScheduledReconnect()
+        reconnectAttempts = 0
+        lastPlaybackPosition = 0L
+        currentMediaUri = mediaItem.localConfiguration?.uri?.toString()
 
         initialize()
 
@@ -216,6 +336,11 @@ class ExoPlayerService @Inject constructor(
             updatePlayerState(error = "ExoPlayer is disabled")
             return false
         }
+
+        cancelScheduledReconnect()
+        reconnectAttempts = 0
+        lastPlaybackPosition = 0L
+        currentMediaUri = mediaItems.getOrNull(startIndex)?.localConfiguration?.uri?.toString()
 
         initialize()
 
@@ -335,6 +460,7 @@ class ExoPlayerService @Inject constructor(
      * Ensures execution on main thread
      */
     fun pause() {
+        cancelScheduledReconnect()
         runOnMainThread {
             exoPlayer?.pause()
         }
@@ -345,10 +471,14 @@ class ExoPlayerService @Inject constructor(
      * Ensures execution on main thread
      */
     fun stop() {
+        cancelScheduledReconnect()
+        reconnectAttempts = 0
         runOnMainThread {
             exoPlayer?.stop()
             updatePlayerState(
                 isPlaying = false,
+                isBuffering = false,
+                isReconnecting = false,
                 currentPosition = 0,
                 duration = 0
             )
@@ -363,6 +493,7 @@ class ExoPlayerService @Inject constructor(
      * Ensures execution on main thread
      */
     fun seekTo(positionMs: Long) {
+        lastPlaybackPosition = positionMs
         runOnMainThread {
             exoPlayer?.seekTo(positionMs)
         }
@@ -419,6 +550,8 @@ class ExoPlayerService @Inject constructor(
      * Ensures execution on main thread
      */
     fun release() {
+        cancelScheduledReconnect()
+        reconnectAttempts = 0
         runOnMainThread {
             exoPlayer?.release()
             exoPlayer = null
@@ -443,6 +576,7 @@ class ExoPlayerService @Inject constructor(
     private fun updatePlayerState(
         isPlaying: Boolean = _playerState.value.isPlaying,
         isBuffering: Boolean = _playerState.value.isBuffering,
+        isReconnecting: Boolean = _playerState.value.isReconnecting,
         hasEnded: Boolean = _playerState.value.hasEnded,
         currentPosition: Long = _playerState.value.currentPosition,
         duration: Long = _playerState.value.duration,
@@ -453,6 +587,7 @@ class ExoPlayerService @Inject constructor(
         _playerState.value = ExoPlayerState(
             isPlaying = isPlaying,
             isBuffering = isBuffering,
+            isReconnecting = isReconnecting,
             hasEnded = hasEnded,
             currentPosition = currentPosition,
             duration = duration,
@@ -469,6 +604,7 @@ class ExoPlayerService @Inject constructor(
 data class ExoPlayerState(
     val isPlaying: Boolean = false,
     val isBuffering: Boolean = false,
+    val isReconnecting: Boolean = false,
     val hasEnded: Boolean = false,
     val currentPosition: Long = 0,
     val duration: Long = 0,

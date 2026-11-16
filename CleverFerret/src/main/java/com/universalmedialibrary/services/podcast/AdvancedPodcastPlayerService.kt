@@ -41,7 +41,15 @@ class AdvancedPodcastPlayerService @Inject constructor(
         _playbackState.value = _playbackState.value.copy(
             isPlaying = !_playbackState.value.isPlaying,
             isLoading = false,
+            isReconnecting = false,
             error = null,
+        )
+    }
+
+    fun setReconnecting(reconnecting: Boolean) {
+        _playbackState.value = _playbackState.value.copy(
+            isReconnecting = reconnecting,
+            isLoading = if (reconnecting) true else _playbackState.value.isLoading
         )
     }
 
@@ -151,6 +159,7 @@ class AdvancedPodcastPlayerService @Inject constructor(
 data class PodcastPlaybackState(
     val isPlaying: Boolean = false,
     val isLoading: Boolean = false,
+    val isReconnecting: Boolean = false,
     val hasError: Boolean = false,
     val error: String? = null,
 )

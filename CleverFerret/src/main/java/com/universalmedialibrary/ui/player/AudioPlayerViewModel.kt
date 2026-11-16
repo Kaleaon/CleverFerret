@@ -16,6 +16,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,8 +35,45 @@ import com.universalmedialibrary.utils.ErrorLogger
 @OptIn(UnstableApi::class)
 class AudioPlayerViewModel @Inject constructor() : ViewModel() {
 
+    internal var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+
+    constructor(ioDispatcher: CoroutineDispatcher) : this() {
+        this.ioDispatcher = ioDispatcher
+    }
+
     private val _uiState = MutableStateFlow(AudioPlayerUiState())
     val uiState: StateFlow<AudioPlayerUiState> = _uiState.asStateFlow()
+
+    companion object {
+        const val MAX_RECONNECT_ATTEMPTS = 3
+        const val INITIAL_RECONNECT_DELAY_MS = 1000L
+
+        fun getReconnectDelayMs(attempt: Int): Long {
+            if (attempt <= 0) return 0L
+            val exponent = (attempt - 1).coerceAtMost(30)
+            return INITIAL_RECONNECT_DELAY_MS * (1L shl exponent)
+        }
+
+        fun isNetworkUri(uri: Uri?): Boolean {
+            if (uri == null) return false
+            val scheme = uri.scheme?.lowercase() ?: return false
+            return scheme == "http" || scheme == "https" || scheme == "rtsp" || scheme == "rtmp"
+        }
+
+        fun isTransientNetworkError(error: PlaybackException?, isStream: Boolean): Boolean {
+            if (error == null || !isStream) return false
+            return when (error.errorCode) {
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
+                PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS -> true
+                PlaybackException.ERROR_CODE_IO_UNSPECIFIED -> {
+                    val cause = error.cause
+                    cause is java.io.IOException && cause !is java.io.FileNotFoundException
+                }
+                else -> false
+            }
+        }
+    }
 
     private var exoPlayer: ExoPlayer? = null
     private var updatePositionJob: kotlinx.coroutines.Job? = null
@@ -46,6 +84,72 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
     // Configurable position update interval (in milliseconds)
     private var positionUpdateIntervalMs: Long = 250L
 
+    internal var currentMediaUri: Uri? = null
+    internal var reconnectAttempts = 0
+    internal var lastPlaybackPosition: Long = 0L
+    internal var reconnectJob: kotlinx.coroutines.Job? = null
+    internal var isReconnecting: Boolean = false
+    private var lastHandledError: PlaybackException? = null
+
+    fun isCurrentMediaStream(): Boolean {
+        val uri = exoPlayer?.currentMediaItem?.localConfiguration?.uri ?: currentMediaUri
+        return isNetworkUri(uri)
+    }
+
+    fun cancelScheduledReconnect() {
+        reconnectJob?.cancel()
+        reconnectJob = null
+        isReconnecting = false
+    }
+
+    internal fun handlePlayerError(error: PlaybackException) {
+        if (lastHandledError === error) return
+        lastHandledError = error
+
+        val isStream = isCurrentMediaStream()
+        if (isTransientNetworkError(error, isStream) && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            reconnectAttempts++
+            val retryDelay = getReconnectDelayMs(reconnectAttempts)
+
+            val currentPos = exoPlayer?.currentPosition ?: 0L
+            if (currentPos > 0) {
+                lastPlaybackPosition = currentPos
+            }
+
+            cancelScheduledReconnect()
+            isReconnecting = true
+
+            // Maintain buffering state during active retries
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                isPlaying = false,
+                isReconnecting = true,
+                error = null
+            )
+
+            reconnectJob = viewModelScope.launch {
+                kotlinx.coroutines.delay(retryDelay)
+                if (!isReconnecting) return@launch
+                exoPlayer?.let { player ->
+                    player.seekTo(lastPlaybackPosition)
+                    player.prepare()
+                    player.play()
+                }
+            }
+        } else {
+            cancelScheduledReconnect()
+            reconnectAttempts = 0
+            isReconnecting = false
+            ErrorLogger.logExoPlayerError("Audio playback error", error)
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                isPlaying = false,
+                isReconnecting = false,
+                error = "Playback error: ${error.message}"
+            )
+        }
+    }
+
     private val exceptionHandler = ErrorLogger.createCoroutineExceptionHandler("AudioPlayerViewModel") {
         _uiState.value = _uiState.value.copy(
             isLoading = false,
@@ -53,19 +157,24 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         )
     }
 
-    private val playerListener = object : Player.Listener {
+    internal val playerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
             when (playbackState) {
                 Player.STATE_IDLE -> { /* No action needed */ }
                 Player.STATE_READY -> {
+                    cancelScheduledReconnect()
+                    reconnectAttempts = 0
+                    lastHandledError = null
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
+                        isReconnecting = false,
                         duration = exoPlayer?.duration ?: 0L
                     )
                     startPositionUpdates()
                 }
                 Player.STATE_ENDED -> {
-                    _uiState.value = _uiState.value.copy(isPlaying = false)
+                    cancelScheduledReconnect()
+                    _uiState.value = _uiState.value.copy(isPlaying = false, isReconnecting = false)
                     stopPositionUpdates()
                 }
                 Player.STATE_BUFFERING -> {
@@ -79,13 +188,13 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
             if (isPlaying) startPositionUpdates() else stopPositionUpdates()
         }
 
+        override fun onPlayerError(error: PlaybackException) {
+            handlePlayerError(error)
+        }
+
         override fun onPlayerErrorChanged(error: PlaybackException?) {
             error?.let {
-                ErrorLogger.logExoPlayerError("Audio playback error", it)
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = "Playback error: ${it.message}"
-                )
+                handlePlayerError(it)
             }
         }
 
@@ -127,6 +236,16 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
                 // Release any existing player
                 releasePlayerInternal()
 
+                val uri = if (filePath.startsWith("http://") || filePath.startsWith("https://") || filePath.startsWith("rtsp://")) {
+                    Uri.parse(filePath)
+                } else {
+                    Uri.fromFile(File(filePath))
+                }
+                currentMediaUri = uri
+                cancelScheduledReconnect()
+                reconnectAttempts = 0
+                lastPlaybackPosition = 0L
+
                 // Initialize player with FFmpeg extension preferred for FLAC
                 val renderersFactory = DefaultRenderersFactory(context)
                     .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
@@ -135,7 +254,6 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
                 }
 
                 // Build queue with single item
-                val uri = Uri.fromFile(File(filePath))
                 val mediaItem = MediaItem.fromUri(uri)
                 mediaQueue.clear()
                 mediaQueue.add(mediaItem)
@@ -169,6 +287,17 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch(exceptionHandler) {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+                cancelScheduledReconnect()
+                reconnectAttempts = 0
+                lastPlaybackPosition = 0L
+                val currentPath = filePaths.getOrNull(startIndex)
+                if (currentPath != null) {
+                    currentMediaUri = if (currentPath.startsWith("http://") || currentPath.startsWith("https://") || currentPath.startsWith("rtsp://")) {
+                        Uri.parse(currentPath)
+                    } else {
+                        Uri.fromFile(File(currentPath))
+                    }
+                }
                 if (exoPlayer == null) {
                     val renderersFactory = DefaultRenderersFactory(context)
                         .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
@@ -176,7 +305,14 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
                         addListener(playerListener)
                     }
                 }
-                val items = filePaths.map { path -> MediaItem.fromUri(Uri.fromFile(File(path))) }
+                val items = filePaths.map { path ->
+                    val uri = if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("rtsp://")) {
+                        Uri.parse(path)
+                    } else {
+                        Uri.fromFile(File(path))
+                    }
+                    MediaItem.fromUri(uri)
+                }
                 mediaQueue.clear()
                 mediaQueue.addAll(items)
                 exoPlayer?.setMediaItems(items, startIndex, C.TIME_UNSET)
@@ -184,7 +320,6 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
                 exoPlayer?.playWhenReady = playWhenReady
 
                 // Extract metadata for current item
-                val currentPath = filePaths.getOrNull(startIndex)
                 if (currentPath != null) {
                     val meta = extractFileMetadata(context, currentPath)
                     _uiState.value = _uiState.value.copy(
@@ -203,7 +338,12 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     fun addToQueue(filePath: String) {
-        val item = MediaItem.fromUri(Uri.fromFile(File(filePath)))
+        val uri = if (filePath.startsWith("http://") || filePath.startsWith("https://") || filePath.startsWith("rtsp://")) {
+            Uri.parse(filePath)
+        } else {
+            Uri.fromFile(File(filePath))
+        }
+        val item = MediaItem.fromUri(uri)
         mediaQueue.add(item)
         exoPlayer?.addMediaItem(item)
     }
@@ -212,12 +352,16 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
     fun skipToPrevious() { exoPlayer?.seekToPrevious() }
 
     fun togglePlayPause() {
+        cancelScheduledReconnect()
         exoPlayer?.let { player ->
             if (player.isPlaying) player.pause() else player.play()
         }
     }
 
-    fun seekTo(positionMs: Long) { exoPlayer?.seekTo(positionMs) }
+    fun seekTo(positionMs: Long) {
+        lastPlaybackPosition = positionMs
+        exoPlayer?.seekTo(positionMs)
+    }
 
     fun setPositionUpdateInterval(intervalMs: Long) {
         positionUpdateIntervalMs = intervalMs.coerceIn(50L, 2000L)
@@ -267,6 +411,10 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun releasePlayerInternal() {
+        cancelScheduledReconnect()
+        reconnectAttempts = 0
+        lastPlaybackPosition = 0L
+        currentMediaUri = null
         stopPositionUpdates()
         exoPlayer?.removeListener(playerListener)
         // Ensure ExoPlayer is released on the main thread
@@ -290,7 +438,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         val coverArtUri: String?
     )
 
-    private suspend fun extractFileMetadata(context: Context, filePath: String): ExtractedMeta = withContext(Dispatchers.IO) {
+    private suspend fun extractFileMetadata(context: Context, filePath: String): ExtractedMeta = withContext(ioDispatcher) {
         val retriever = MediaMetadataRetriever()
         try {
             retriever.setDataSource(filePath)
@@ -309,7 +457,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    private suspend fun saveCoverToCache(context: Context, bytes: ByteArray): String? = withContext(Dispatchers.IO) {
+    private suspend fun saveCoverToCache(context: Context, bytes: ByteArray): String? = withContext(ioDispatcher) {
         try {
             val file = File(context.cacheDir, "cover_${System.currentTimeMillis()}.jpg")
             FileOutputStream(file).use { it.write(bytes) }
@@ -328,6 +476,7 @@ data class AudioPlayerUiState(
     val isLoading: Boolean = false,
     val isLoaded: Boolean = false,
     val isPlaying: Boolean = false,
+    val isReconnecting: Boolean = false,
     val title: String = "Unknown Track",
     val artist: String? = null,
     val album: String? = null,
