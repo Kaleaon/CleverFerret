@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -233,9 +234,10 @@ fun ModernComicReaderScreen(
                             .fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        currentBitmap?.let { bmp ->
+                        val bitmap = currentBitmap
+                        if (bitmap != null) {
                             Image(
-                                bitmap = bmp.asImageBitmap(),
+                                bitmap = bitmap.asImageBitmap(),
                                 contentDescription = "Comic Page ${pageIndex + 1}"
                             )
                             val apiSettings = settingsViewModel.apiSettings.collectAsStateWithLifecycle().value
@@ -250,6 +252,17 @@ fun ModernComicReaderScreen(
                                     )
                                 }
                             }
+                        } else {
+                            CFEmptyState(
+                                icon = Icons.Default.Error,
+                                title = "Failed to Load Page",
+                                body = "Page ${pageIndex + 1} could not be decoded.",
+                                actionLabel = "Retry",
+                                onAction = {
+                                    currentBitmap?.recycle()
+                                    currentBitmap = loadBitmap(files.getOrNull(pageIndex))
+                                }
+                            )
                         }
                     }
 
