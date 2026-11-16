@@ -174,7 +174,14 @@ class UnifiedIntegrationProviderArchitectureTest {
         val mockContext = mock<android.content.Context>()
         val mockPm = mock<android.content.pm.PackageManager>()
         whenever(mockContext.packageManager).thenReturn(mockPm)
-        whenever(mockPm.getPackageInfo(any<String>(), any<Int>())).thenThrow(android.content.pm.PackageManager.NameNotFoundException())
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            whenever(mockPm.getPackageInfo(any<String>(), any<android.content.pm.PackageManager.PackageInfoFlags>()))
+                .thenThrow(android.content.pm.PackageManager.NameNotFoundException())
+        } else {
+            @Suppress("DEPRECATION")
+            whenever(mockPm.getPackageInfo(any<String>(), any<Int>()))
+                .thenThrow(android.content.pm.PackageManager.NameNotFoundException())
+        }
         val powerampAdapter = PowerampIntegrationAdapter(mockContext, mockExternalMediaEntityDao)
 
         assertEquals("poweramp", powerampAdapter.providerId)
