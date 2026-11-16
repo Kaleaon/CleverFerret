@@ -17,7 +17,7 @@ import java.io.File
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(application = android.app.Application::class, manifest = Config.NONE, sdk = [34])
 class AudioPlayerViewModelTest {
 
     @get:Rule
@@ -73,5 +73,92 @@ class AudioPlayerViewModelTest {
 
         viewModel.toggleRepeat()
         assertThat(viewModel.uiState.value.repeatMode).isEqualTo(RepeatMode.ALL)
+    }
+
+    @Test
+    fun getReconnectDelayMs_exponentialProgression() {
+        assertThat(AudioPlayerViewModel.getReconnectDelayMs(1)).isEqualTo(1000L)
+        assertThat(AudioPlayerViewModel.getReconnectDelayMs(2)).isEqualTo(2000L)
+        assertThat(AudioPlayerViewModel.getReconnectDelayMs(3)).isEqualTo(4000L)
+    }
+
+    @Test
+    fun handlePlayerError_transientNetworkError_maintainsBufferingAndRetainsPosition() = runTest {
+        viewModel.currentMediaUri = android.net.Uri.parse("https://stream.example.com/live.mp3")
+        viewModel.lastPlaybackPosition = 15000L
+
+        val error = androidx.media3.common.PlaybackException(
+            "Connection reset",
+            null,
+            androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
+        )
+        viewModel.handlePlayerError(error)
+
+        assertThat(viewModel.reconnectAttempts).isEqualTo(1)
+        assertThat(viewModel.lastPlaybackPosition).isEqualTo(15000L)
+        assertThat(viewModel.isReconnecting).isTrue()
+
+        val state = viewModel.uiState.value
+        assertThat(state.isLoading).isTrue()
+        assertThat(state.isReconnecting).isTrue()
+        assertThat(state.error).isNull()
+    }
+
+    @Test
+    fun handlePlayerError_localFile_bypassesRetryAndPropagatesError() = runTest {
+        viewModel.currentMediaUri = android.net.Uri.parse("file:///data/local/sample.mp3")
+        viewModel.lastPlaybackPosition = 5000L
+
+        val error = androidx.media3.common.PlaybackException(
+            "File read error",
+            null,
+            androidx.media3.common.PlaybackException.ERROR_CODE_IO_UNSPECIFIED
+        )
+        viewModel.handlePlayerError(error)
+
+        assertThat(viewModel.reconnectAttempts).isEqualTo(0)
+        assertThat(viewModel.isReconnecting).isFalse()
+
+        val state = viewModel.uiState.value
+        assertThat(state.isLoading).isFalse()
+        assertThat(state.isReconnecting).isFalse()
+        assertThat(state.error).isEqualTo("Playback error: File read error")
+    }
+
+    @Test
+    fun handlePlayerError_exhaustedRetries_propagatesFinalError() = runTest {
+        viewModel.currentMediaUri = android.net.Uri.parse("https://stream.example.com/live.mp3")
+        viewModel.reconnectAttempts = 3
+
+        val error = androidx.media3.common.PlaybackException(
+            "Host unreachable",
+            null,
+            androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED
+        )
+        viewModel.handlePlayerError(error)
+
+        assertThat(viewModel.reconnectAttempts).isEqualTo(0)
+        assertThat(viewModel.isReconnecting).isFalse()
+
+        val state = viewModel.uiState.value
+        assertThat(state.isLoading).isFalse()
+        assertThat(state.isReconnecting).isFalse()
+        assertThat(state.error).isEqualTo("Playback error: Host unreachable")
+    }
+
+    @Test
+    fun togglePlayPause_cancelsActiveReconnect() = runTest {
+        viewModel.currentMediaUri = android.net.Uri.parse("https://stream.example.com/live.mp3")
+        val error = androidx.media3.common.PlaybackException(
+            "Timeout",
+            null,
+            androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
+        )
+        viewModel.handlePlayerError(error)
+        assertThat(viewModel.isReconnecting).isTrue()
+
+        viewModel.togglePlayPause()
+        assertThat(viewModel.isReconnecting).isFalse()
+        assertThat(viewModel.reconnectJob).isNull()
     }
 }

@@ -57,6 +57,28 @@ class AudioPlaybackManager @Inject constructor(
         private const val DEFAULT_CROSSFADE_MS = 4000
         private const val MAX_CROSSFADE_MS = 12000
         private const val SLEEP_TIMER_TICK_MS = 1000L
+        const val MAX_RECONNECT_ATTEMPTS = 3
+        const val INITIAL_RECONNECT_DELAY_MS = 1000L
+
+        fun getReconnectDelayMs(attempt: Int): Long {
+            if (attempt <= 0) return 0L
+            val exponent = (attempt - 1).coerceAtMost(30)
+            return INITIAL_RECONNECT_DELAY_MS * (1L shl exponent)
+        }
+
+        fun isTransientNetworkError(error: androidx.media3.common.PlaybackException, isStream: Boolean): Boolean {
+            if (!isStream) return false
+            return when (error.errorCode) {
+                androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+                androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
+                androidx.media3.common.PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS -> true
+                androidx.media3.common.PlaybackException.ERROR_CODE_IO_UNSPECIFIED -> {
+                    val cause = error.cause
+                    cause is java.io.IOException && cause !is java.io.FileNotFoundException
+                }
+                else -> false
+            }
+        }
     }
 
     private val _state = MutableStateFlow(AudioState())
@@ -70,6 +92,52 @@ class AudioPlaybackManager @Inject constructor(
     private var sleepTimerJob: Job? = null
     private var cachedPreferences: AudioPlaybackPreferences = AudioPlaybackPreferences()
     private var crossfadeJob: Job? = null
+    private var reconnectJob: Job? = null
+    internal var reconnectAttempts = 0
+    internal var lastPlaybackPosition: Long = 0L
+    internal var isReconnecting: Boolean = false
+
+    fun isCurrentMediaStream(): Boolean {
+        val uri = exoPlayer.currentMediaItem?.localConfiguration?.uri ?: return false
+        val scheme = uri.scheme?.lowercase() ?: return false
+        return scheme == "http" || scheme == "https" || scheme == "rtsp" || scheme == "rtmp"
+    }
+
+    fun cancelScheduledReconnect() {
+        reconnectJob?.cancel()
+        reconnectJob = null
+        isReconnecting = false
+    }
+
+    internal fun handlePlayerError(error: androidx.media3.common.PlaybackException) {
+        val isStream = isCurrentMediaStream()
+        if (isTransientNetworkError(error, isStream) && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            reconnectAttempts++
+            val retryDelay = getReconnectDelayMs(reconnectAttempts)
+
+            val currentPos = exoPlayer.currentPosition
+            if (currentPos > 0) {
+                lastPlaybackPosition = currentPos
+            }
+
+            cancelScheduledReconnect()
+            isReconnecting = true
+            updateState(isLoading = true, isReconnecting = true)
+
+            reconnectJob = mainScope.launch {
+                delay(retryDelay)
+                if (!isReconnecting) return@launch
+                exoPlayer.seekTo(lastPlaybackPosition)
+                exoPlayer.prepare()
+                exoPlayer.play()
+            }
+        } else {
+            cancelScheduledReconnect()
+            reconnectAttempts = 0
+            isReconnecting = false
+            updateState(isLoading = false, isPlaying = false, isReconnecting = false)
+        }
+    }
 
     val exoPlayer: ExoPlayer by lazy {
         val renderersFactory = DefaultRenderersFactory(context)
@@ -93,17 +161,23 @@ class AudioPlaybackManager @Inject constructor(
                                   clearHistoryCandidate()
                               }
                               Player.STATE_READY -> {
+                                  cancelScheduledReconnect()
+                                  reconnectAttempts = 0
                                   updateHistoryDuration(duration)
-                                  updateState(isLoading = false, duration = duration)
+                                  updateState(isLoading = false, isReconnecting = false, duration = duration)
                                 MediaNotificationService.start(context)
                             }
                             Player.STATE_BUFFERING -> updateState(isLoading = true)
                               Player.STATE_ENDED -> {
+                                  cancelScheduledReconnect()
                                   finalizeHistoryCandidate()
-                                  updateState(isPlaying = false)
+                                  updateState(isPlaying = false, isReconnecting = false)
                                   sleepTimerManager.notifyChapterOrTrackEnded()
                               }
                         }
+                    }
+                    override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                        handlePlayerError(error)
                     }
                     override fun onIsPlayingChanged(isPlaying: Boolean) { updateState(isPlaying = isPlaying) }
                     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
@@ -176,6 +250,9 @@ class AudioPlaybackManager @Inject constructor(
     }
 
     fun loadSingle(mediaItem: MediaItem, playWhenReady: Boolean = true) {
+        cancelScheduledReconnect()
+        reconnectAttempts = 0
+        lastPlaybackPosition = 0L
         finalizeHistoryCandidate(exoPlayer.currentPosition)
         queue.clear()
         queue.add(mediaItem)
@@ -198,6 +275,9 @@ class AudioPlaybackManager @Inject constructor(
         playWhenReady: Boolean = true
     ) {
         if (items.isEmpty()) return
+        cancelScheduledReconnect()
+        reconnectAttempts = 0
+        lastPlaybackPosition = 0L
         finalizeHistoryCandidate(exoPlayer.currentPosition)
         queue.clear()
         queue.addAll(items)
@@ -213,8 +293,16 @@ class AudioPlaybackManager @Inject constructor(
     fun removeFromQueue(index: Int) { if (index in queue.indices) { queue.removeAt(index); exoPlayer.removeMediaItem(index); publishQueue() } }
     fun moveQueueItem(from: Int, to: Int) { if (from in queue.indices && to in queue.indices) { val item = queue.removeAt(from); queue.add(to, item); exoPlayer.moveMediaItem(from, to); publishQueue() } }
 
-    fun togglePlayPause() { if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play() }
+    fun togglePlayPause() {
+        if (exoPlayer.isPlaying) {
+            cancelScheduledReconnect()
+            exoPlayer.pause()
+        } else {
+            exoPlayer.play()
+        }
+    }
     fun seekTo(positionMs: Long) {
+        lastPlaybackPosition = positionMs
         sleepTimerManager.resetEndOfChapterState()
         exoPlayer.seekTo(positionMs)
     }
@@ -393,6 +481,7 @@ class AudioPlaybackManager @Inject constructor(
     private fun updateState(
         isLoading: Boolean? = null,
         isPlaying: Boolean? = null,
+        isReconnecting: Boolean? = null,
         duration: Long? = null,
         title: String? = null,
         artist: String? = null,
@@ -411,6 +500,7 @@ class AudioPlaybackManager @Inject constructor(
         val newState = s.copy(
             isLoading = isLoading ?: s.isLoading,
             isPlaying = isPlaying ?: s.isPlaying,
+            isReconnecting = isReconnecting ?: s.isReconnecting,
             duration = duration ?: s.duration,
             title = title ?: s.title,
             artist = artist ?: s.artist,
@@ -606,6 +696,7 @@ class AudioPlaybackManager @Inject constructor(
     data class AudioState(
         val isLoading: Boolean = false,
         val isPlaying: Boolean = false,
+        val isReconnecting: Boolean = false,
         val title: String? = null,
         val artist: String? = null,
         val album: String? = null,
