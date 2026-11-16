@@ -1,7 +1,6 @@
 package com.universalmedialibrary.ui.media.screens
 
 import android.content.Intent
-import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -136,11 +135,7 @@ internal fun StoragePermissionCard(
             val intent = Intent(context, MediaScannerService::class.java).apply {
                 action = MediaScannerService.ACTION_SCAN_ALL
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startForegroundService(intent)
             onPermissionGranted()
         }
     }
