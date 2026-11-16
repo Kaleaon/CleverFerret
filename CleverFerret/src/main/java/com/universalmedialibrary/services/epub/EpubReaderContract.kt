@@ -1,9 +1,5 @@
 package com.universalmedialibrary.services.epub
 
-import com.universalmedialibrary.services.media.DocumentContent
-import com.universalmedialibrary.services.media.DocumentPage
-import com.universalmedialibrary.services.media.DocumentType
-
 data class EpubReaderState(
     val isLoading: Boolean = false,
     val isLoaded: Boolean = false,
@@ -62,18 +58,6 @@ data class SimpleEpubMetadata(
     val publishDate: String,
     val isbn: String,
     val coverImageData: ByteArray?
-)
-
-fun EpubReaderState.toDocumentContent(): DocumentContent = DocumentContent(
-    type = DocumentType.EPUB,
-    pages = chapters.mapIndexed { index, chapter ->
-        DocumentPage(
-            pageNumber = index + 1,
-            content = chapter.content,
-            title = chapter.title
-        )
-    },
-    title = bookTitle
 )
 
 object EpubChapterNavigator {
