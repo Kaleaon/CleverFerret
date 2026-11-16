@@ -2,7 +2,6 @@ package com.universalmedialibrary.services.epub
 
 import android.content.Context
 import android.net.Uri
-import com.universalmedialibrary.services.media.DocumentContent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -175,9 +174,6 @@ class EpubReaderService @Inject constructor(
 
         return chapters
     }
-
-    fun getDocumentContent(): DocumentContent? =
-        if (_readerState.value.isLoaded) _readerState.value.toDocumentContent() else null
 
     fun nextChapter(): Boolean {
         val state = _readerState.value
