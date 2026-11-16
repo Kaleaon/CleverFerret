@@ -14,6 +14,7 @@ import com.universalmedialibrary.data.local.dao.SecuritySettingsDao
 import com.universalmedialibrary.data.local.entity.ApiSettingsEntity
 import com.universalmedialibrary.data.local.entity.GeneralSettingsEntity
 import com.universalmedialibrary.data.local.entity.SecuritySettingsEntity
+import com.universalmedialibrary.utils.getPackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -341,7 +342,7 @@ class SettingsBackupService @Inject constructor(
 
     private fun getAppVersion(): String {
         return try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = context.packageManager.getPackageInfoCompat(context.packageName)
             packageInfo.versionName ?: "unknown"
         } catch (e: Exception) {
             "unknown"
