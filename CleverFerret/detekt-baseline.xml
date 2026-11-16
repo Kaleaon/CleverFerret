@@ -123,7 +123,6 @@
     <ID>CyclomaticComplexMethod:ComicMetadataService.kt$ComicMetadataService$private fun parseComicInfoXml(xmlContent: String): ComicMetadata</ID>
     <ID>CyclomaticComplexMethod:ComicReaderEngine.kt$ComicReaderEngine$override suspend fun open(context: Context, source: BookSource): Result&lt;Unit&gt;</ID>
     <ID>CyclomaticComplexMethod:ComicReaderEngine.kt$ComicReaderEngine$suspend fun getPageBitmap(pageIndex: Int): Bitmap?</ID>
-    <ID>CyclomaticComplexMethod:ComicReaderScreen.kt$@Deprecated( message = "Migrated to ModernComicReaderScreen in ui.modern.reader", replaceWith = ReplaceWith( "ModernComicReaderScreen(uriString, fileName, onBack)", "com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen" ) ) @OptIn(ExperimentalMaterial3Api::class) @Composable fun ComicReaderScreen( uriString: String, fileName: String, onBack: () -&gt; Unit, settingsViewModel: SettingsViewModel = hiltViewModel(), comicReaderViewModel: ComicReaderViewModel = hiltViewModel() )</ID>
     <ID>CyclomaticComplexMethod:DictionaryTranslation.kt$@Composable fun QuickLookupPopup( selectedText: String, onDismiss: () -&gt; Unit, service: DictionaryService, modifier: Modifier = Modifier )</ID>
     <ID>CyclomaticComplexMethod:DocumentReaderScreen.kt$@Composable private fun PdfReaderView(uri: Uri)</ID>
     <ID>CyclomaticComplexMethod:EPUBReaderScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EPUBReaderScreen( navController: NavController, bookUri: String, viewModel: EPUBReaderViewModel = hiltViewModel() )</ID>
@@ -516,7 +515,6 @@
     <ID>FunctionNaming:CollectionsScreen.kt$@Composable private fun CreateCollectionDialog( onDismiss: () -&gt; Unit, onConfirm: (String, CollectionType, String?) -&gt; Unit )</ID>
     <ID>FunctionNaming:CollectionsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CollectionsScreen( viewModel: CollectionsViewModel = hiltViewModel(), onOpenCollection: (Long) -&gt; Unit )</ID>
     <ID>FunctionNaming:CollectionsSection.kt$@Composable internal fun CollectionsSection( collections: List&lt;HomeCollection&gt;, onCollectionClick: (HomeCollection) -&gt; Unit )</ID>
-    <ID>FunctionNaming:ComicReaderScreen.kt$@Deprecated( message = "Migrated to ModernComicReaderScreen in ui.modern.reader", replaceWith = ReplaceWith( "ModernComicReaderScreen(uriString, fileName, onBack)", "com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen" ) ) @OptIn(ExperimentalMaterial3Api::class) @Composable fun ComicReaderScreen( uriString: String, fileName: String, onBack: () -&gt; Unit, settingsViewModel: SettingsViewModel = hiltViewModel(), comicReaderViewModel: ComicReaderViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:ComicReaderSettingsSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun ComicReaderSettingsSheet( settings: ViewerSettings, comicSettings: ComicSettings, onDismiss: () -&gt; Unit, onSettingsChanged: (ViewerSettings) -&gt; Unit, onComicSettingsChanged: (ComicSettings) -&gt; Unit )</ID>
     <ID>FunctionNaming:ComicReaderTranslationOverlay.kt$@Composable fun ComicReaderTranslationControls( viewModel: ComicReaderTranslationViewModel = hiltViewModel(), onOpenSettings: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionNaming:ComicReaderTranslationOverlay.kt$@Composable fun TranslationStatusBadge( isEnabled: Boolean, isLoading: Boolean, hasData: Boolean, modifier: Modifier = Modifier )</ID>
@@ -1325,8 +1323,6 @@
     <ID>FunctionNaming:OldTimeRadioScreen.kt$@Composable private fun OTRSeriesCard( series: OTRSeries, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:OldTimeRadioScreen.kt$@Composable private fun SeriesTab( series: List&lt;OTRSeries&gt;, onNavigateToSeries: (String) -&gt; Unit )</ID>
     <ID>FunctionNaming:OldTimeRadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OldTimeRadioScreen( onNavigateBack: () -&gt; Unit, onNavigateToSeries: (String) -&gt; Unit, onNavigateToEpisode: (Long) -&gt; Unit, viewModel: OldTimeRadioViewModel = hiltViewModel() )</ID>
-    <ID>FunctionNaming:OldTimeRadioSeriesDetailScreen.kt$@Composable private fun EpisodeCard( episode: OldTimeRadioEpisode, onClick: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:OldTimeRadioSeriesDetailScreen.kt$@Deprecated( message = "Migrated to ModernOldTimeRadioSeriesDetailScreen in ui.modern.radio", replaceWith = ReplaceWith( "ModernOldTimeRadioSeriesDetailScreen(seriesTitle, onNavigateBack, onNavigateToPlayer)", "com.universalmedialibrary.ui.modern.radio.ModernOldTimeRadioSeriesDetailScreen" ) ) @OptIn(ExperimentalMaterial3Api::class) @Composable fun OldTimeRadioSeriesDetailScreen( seriesTitle: String, onNavigateBack: () -&gt; Unit, onNavigateToPlayer: (Long) -&gt; Unit, viewModel: OldTimeRadioSeriesViewModel = hiltViewModel() )</ID>
     <ID>FunctionNaming:OldTimeRadioShowCard.kt$@Composable internal fun OldTimeRadioShowCard( show: OldTimeRadioShow, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun OnboardingPage( page: OnboardingPageData, isPermissionPage: Boolean = false, hasStoragePermission: Boolean = false, onRequestPermission: () -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:OnboardingScreen.kt$@Composable private fun OnboardingPageContent( icon: ImageVector, iconColor: Color, title: String, description: String, content: @Composable () -&gt; Unit )</ID>
@@ -2064,7 +2060,6 @@
     <ID>LongMethod:ComicInfoParser.kt$ComicInfoParser$fun parse(inputStream: InputStream): ComicInfo</ID>
     <ID>LongMethod:ComicMetadataService.kt$ComicMetadataService$private fun parseComicInfoXml(xmlContent: String): ComicMetadata</ID>
     <ID>LongMethod:ComicReaderEngine.kt$ComicReaderEngine$override suspend fun open(context: Context, source: BookSource): Result&lt;Unit&gt;</ID>
-    <ID>LongMethod:ComicReaderScreen.kt$@Deprecated( message = "Migrated to ModernComicReaderScreen in ui.modern.reader", replaceWith = ReplaceWith( "ModernComicReaderScreen(uriString, fileName, onBack)", "com.universalmedialibrary.ui.modern.reader.ModernComicReaderScreen" ) ) @OptIn(ExperimentalMaterial3Api::class) @Composable fun ComicReaderScreen( uriString: String, fileName: String, onBack: () -&gt; Unit, settingsViewModel: SettingsViewModel = hiltViewModel(), comicReaderViewModel: ComicReaderViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:ComicReaderSettingsSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun ComicReaderSettingsSheet( settings: ViewerSettings, comicSettings: ComicSettings, onDismiss: () -&gt; Unit, onSettingsChanged: (ViewerSettings) -&gt; Unit, onComicSettingsChanged: (ComicSettings) -&gt; Unit )</ID>
     <ID>LongMethod:ComicReaderTranslationOverlay.kt$@Composable fun ComicReaderTranslationControls( viewModel: ComicReaderTranslationViewModel = hiltViewModel(), onOpenSettings: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:ComicReaderViewModel.kt$ComicReaderViewModel$fun loadComic(context: Context, comicPath: String, comicId: Long, geminiApiKey: String? = null)</ID>
@@ -2396,7 +2391,6 @@
     <ID>LongMethod:MultiRoomAudioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MultiRoomAudioScreen( onBack: () -&gt; Unit, onOpenRoomChat: (String) -&gt; Unit = {}, viewModel: MultiRoomAudioViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:MusicLibraryScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MusicLibraryScreen( navController: NavController, viewModel: MusicLibraryViewModel = hiltViewModel() )</ID>
     <ID>LongMethod:MusicLibraryScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun MusicLibraryScreen( state: MusicLibraryState, onArtistClick: (MusicArtist) -&gt; Unit, onAlbumClick: (MusicAlbum) -&gt; Unit, onTrackClick: (MusicTrack) -&gt; Unit, onPlaylistClick: (MusicPlaylist) -&gt; Unit, onShuffleAll: () -&gt; Unit, onBackClick: () -&gt; Unit, onSearchClick: () -&gt; Unit, onPlayPause: () -&gt; Unit = {}, onSkipPrevious: () -&gt; Unit = {}, onSkipNext: () -&gt; Unit = {}, onOpenNowPlaying: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
-    <ID>LongMethod:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun scanMusicFromMediaStore(): List&lt;Track&gt;</ID>
     <ID>LongMethod:MusicNotationDisplay.kt$@Composable private fun StaffDisplay( notes: List&lt;MidiNote&gt;, timeSignature: String, keySignature: String?, zoomLevel: Float, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:MusicNotationDisplay.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MusicNotationDisplay( midiFile: MidiFile, notes: List&lt;MidiNote&gt;, onBack: () -&gt; Unit )</ID>
     <ID>LongMethod:MusicPlayerScreen.kt$@Composable private fun ControlButtonsSection( isPlaying: Boolean, playlistMode: PlaylistMode, canSkipPrevious: Boolean, canSkipNext: Boolean, onPlayPause: () -&gt; Unit, onSkipPrevious: () -&gt; Unit, onSkipNext: () -&gt; Unit, onToggleMode: () -&gt; Unit, isFavorite: Boolean = false, onToggleFavorite: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
@@ -2430,7 +2424,6 @@
     <ID>LongMethod:OfflineBufferingWorker.kt$OfflineBufferingWorker$override suspend fun doWork(): Result</ID>
     <ID>LongMethod:OldTimeRadioImportService.kt$OldTimeRadioImportService$suspend fun importFeaturedEpisodes( limit: Int = 40, chunkSize: Int = 250, onProgress: (inserted: Int, total: Int) -&gt; Unit = { _, _ -&gt; } ): ImportResult</ID>
     <ID>LongMethod:OldTimeRadioScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun OldTimeRadioScreen( onNavigateBack: () -&gt; Unit, onNavigateToSeries: (String) -&gt; Unit, onNavigateToEpisode: (Long) -&gt; Unit, viewModel: OldTimeRadioViewModel = hiltViewModel() )</ID>
-    <ID>LongMethod:OldTimeRadioSeriesDetailScreen.kt$@Composable private fun EpisodeCard( episode: OldTimeRadioEpisode, onClick: () -&gt; Unit )</ID>
     <ID>LongMethod:OnboardingScreen.kt$@Composable private fun OnboardingPage( page: OnboardingPageData, isPermissionPage: Boolean = false, hasStoragePermission: Boolean = false, onRequestPermission: () -&gt; Unit = {} )</ID>
     <ID>LongMethod:OnboardingScreen.kt$@Composable private fun ReadyPage( hasStoragePermissions: Boolean, totalMediaItems: Int, isScanDispatched: Boolean, onTriggerScan: () -&gt; Unit )</ID>
     <ID>LongMethod:OnboardingScreen.kt$@Composable private fun StoragePage( permissionState: PermissionState, onPermissionRequested: () -&gt; Unit )</ID>
@@ -3662,8 +3655,6 @@
     <ID>MagicNumber:ComicArchiveUtils.kt$ComicArchiveUtils$5</ID>
     <ID>MagicNumber:ComicArchiveUtils.kt$ComicArchiveUtils$60</ID>
     <ID>MagicNumber:ComicMetadataService.kt$ComicMetadataService$3</ID>
-    <ID>MagicNumber:ComicReaderScreen.kt$0.35f</ID>
-    <ID>MagicNumber:ComicReaderScreen.kt$0.65f</ID>
     <ID>MagicNumber:ComicReaderWidget.kt$ComicReaderWidget.Companion$62</ID>
     <ID>MagicNumber:ComicTranslationApiKeyManager.kt$ComicTranslationApiKeyManager$10</ID>
     <ID>MagicNumber:ComicTranslationOverlayCanvas.kt$0.4f</ID>
@@ -6016,7 +6007,6 @@
     <ID>MaxLineLength:ComicDataServiceTest.kt$ComicDataServiceTest$ComicTranslation(id = 1L, panelId = 101L, comicId = comicId, pageNumber = 1, bubbleX = 10f, bubbleY = 10f, bubbleWidth = 30f, bubbleHeight = 20f, originalText = "Hello", detectedLanguage = "en", translatedText = "Hola")</ID>
     <ID>MaxLineLength:ComicDataServiceTest.kt$ComicDataServiceTest$ComicTranslation(id = 2L, panelId = 102L, comicId = comicId, pageNumber = 1, bubbleX = 110f, bubbleY = 10f, bubbleWidth = 30f, bubbleHeight = 20f, originalText = "World", detectedLanguage = "en", translatedText = "Mundo")</ID>
     <ID>MaxLineLength:ComicDataServiceTest.kt$ComicDataServiceTest$ComicTranslation(id = 3L, panelId = 201L, comicId = comicId, pageNumber = 2, bubbleX = 10f, bubbleY = 10f, bubbleWidth = 40f, bubbleHeight = 30f, originalText = "End", detectedLanguage = "en", translatedText = "Fin")</ID>
-    <ID>MaxLineLength:ComicReaderScreen.kt$val entries = zip.entries().toList().filter { !it.isDirectory &amp;&amp; it.name.matches(Regex(".*\\.(png|jpe?g|webp|bmp)", RegexOption.IGNORE_CASE)) }</ID>
     <ID>MaxLineLength:ComicReaderViewModel.kt$ComicReaderViewModel$.</ID>
     <ID>MaxLineLength:ComicTranslationCacheDao.kt$ComicTranslationCacheDao$@Query("DELETE FROM comic_translation_cache WHERE pageId IN (SELECT pageId FROM comic_translation_cache ORDER BY cachedAt ASC LIMIT :count)")</ID>
     <ID>MaxLineLength:ComicTranslationSettingsScreen.kt$"Configure your Gemini API key to enable AI-powered comic translation. Translation runs on-device using Google ML Kit - no additional API key needed!"</ID>
@@ -6439,7 +6429,6 @@
     <ID>NestedBlockDepth:ComicInfoHandler.kt$ComicInfoHandler$fun writeToCBZ(cbzPath: String, comicInfo: ComicInfo)</ID>
     <ID>NestedBlockDepth:ComicInfoHandler.kt$ComicInfoHandler$private fun parseComicInfo(xml: String): ComicInfo</ID>
     <ID>NestedBlockDepth:ComicInfoParser.kt$ComicInfoParser$fun parse(inputStream: InputStream): ComicInfo</ID>
-    <ID>NestedBlockDepth:ComicReaderScreen.kt$private fun extractCbzImages(context: android.content.Context, uri: Uri): ExtractedComic</ID>
     <ID>NestedBlockDepth:DocParser.kt$DocParser$private fun extractStructure(document: HWPFDocument, content: String): DocumentStructure</ID>
     <ID>NestedBlockDepth:DragGesture.kt$internal suspend fun AwaitPointerEventScope.awaitPointerSlopOrCancellation( pointerId: PointerId, pointerType: PointerType, onPointerSlopReached: (change: PointerInputChange, overSlop: Offset) -&gt; Unit ): PointerInputChange?</ID>
     <ID>NestedBlockDepth:EmbySyncService.kt$EmbySyncService$suspend fun authenticateServer( serverUrl: String, username: String, password: String ): Result&lt;EmbyServer&gt;</ID>
@@ -6899,7 +6888,6 @@
     <ID>TooGenericExceptionCaught:ComicMetadataService.kt$ComicMetadataService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ComicProcessorRepository.kt$ComicProcessorRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ComicReaderEngine.kt$ComicReaderEngine$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ComicReaderScreen.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ComicReaderViewModel.kt$ComicReaderViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ComicTranslationSettingsScreen.kt$ComicTranslationSettingsViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ComicvineMetadataSource.kt$ComicvineMetadataSource$e: Exception</ID>
@@ -7544,10 +7532,6 @@
     <ID>UnusedPrivateMember:MediaNavigation.kt$private fun applyBottomBarPreferencesToMediaDestinations( destinations: List&lt;MediaNavDestination&gt;, bottomBarPreferences: BottomBarPreferences ): List&lt;MediaNavDestination&gt;</ID>
     <ID>UnusedPrivateMember:MetadataApiService.kt$MetadataApiService$private fun createDemoTVShowResults(query: String): List&lt;UnifiedMetadataSearchResult&gt;</ID>
     <ID>UnusedPrivateMember:MidiParserService.kt$MidiParserService$private fun formatKeySignature(sharpsFlats: Int, majorMinor: Int): String</ID>
-    <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun aggregateAlbums(tracks: List&lt;Track&gt;): List&lt;Album&gt;</ID>
-    <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun aggregateArtists(tracks: List&lt;Track&gt;): List&lt;Artist&gt;</ID>
-    <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun aggregateGenres(tracks: List&lt;Track&gt;): List&lt;Genre&gt;</ID>
-    <ID>UnusedPrivateMember:MusicLibraryViewModel.kt$MusicLibraryViewModel$private fun scanMusicFromMediaStore(): List&lt;Track&gt;</ID>
     <ID>UnusedPrivateMember:MusicMetadataService.kt$MusicMetadataService$private fun parseMusicBrainzTrackResponse(response: String): MusicBrainzTrackInfo?</ID>
     <ID>UnusedPrivateMember:OPDSCatalogBrowserScreen.kt$@Composable private fun LoadingView()</ID>
     <ID>UnusedPrivateMember:OPDSCatalogBrowserScreen.kt$@Preview(showBackground = true) @Composable private fun OPDSCatalogShimmerLoadingPreview()</ID>
@@ -8387,9 +8371,6 @@
     <ID>WildcardImport:CollectionsSection.kt$import com.universalmedialibrary.ui.media.theme.*</ID>
     <ID>WildcardImport:ComicPanelDao.kt$import androidx.room.*</ID>
     <ID>WildcardImport:ComicReaderRtlWebtoonTest.kt$import org.junit.Assert.*</ID>
-    <ID>WildcardImport:ComicReaderScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:ComicReaderScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:ComicReaderScreen.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ComicReaderSettingsSheet.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:ComicReaderSettingsSheet.kt$import androidx.compose.animation.core.*</ID>
     <ID>WildcardImport:ComicReaderSettingsSheet.kt$import androidx.compose.foundation.gestures.*</ID>
@@ -9854,10 +9835,6 @@
     <ID>WildcardImport:OldTimeRadioScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:OldTimeRadioScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:OldTimeRadioScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:OldTimeRadioSeriesDetailScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:OldTimeRadioSeriesDetailScreen.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:OldTimeRadioSeriesDetailScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:OldTimeRadioSeriesDetailScreen.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:OldTimeRadioShowCard.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:OldTimeRadioShowCard.kt$import androidx.compose.foundation.*</ID>
     <ID>WildcardImport:OldTimeRadioShowCard.kt$import androidx.compose.foundation.layout.*</ID>
