@@ -4,9 +4,14 @@ import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.StagedMetadataCandidateDao
+import com.universalmedialibrary.data.local.dao.UnifiedTagDao
+import com.universalmedialibrary.data.local.dao.UnifiedTagWithUsage
+import com.universalmedialibrary.data.local.entity.ItemTag
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.StagedMetadataCandidate
+import com.universalmedialibrary.data.local.entity.TagType
+import com.universalmedialibrary.data.local.entity.UnifiedTag
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +25,7 @@ class MetadataStagingRepositoryTest {
     private lateinit var stagedDao: FakeStagedMetadataCandidateDao
     private lateinit var metadataDao: MetadataDao
     private lateinit var mediaItemDao: MediaItemDao
+    private lateinit var tagDao: FakeUnifiedTagDao
     private lateinit var repository: MetadataStagingRepository
 
     private val itemMap = mutableMapOf<Long, MediaItem>()
@@ -30,7 +36,14 @@ class MetadataStagingRepositoryTest {
         stagedDao = FakeStagedMetadataCandidateDao()
         metadataDao = FakeMetadataDao()
         mediaItemDao = FakeMediaItemDao()
-        repository = MetadataStagingRepository(stagedDao, metadataDao, mediaItemDao, kotlinx.coroutines.test.UnconfinedTestDispatcher())
+        tagDao = FakeUnifiedTagDao()
+        repository = MetadataStagingRepository(
+            stagedDao,
+            metadataDao,
+            mediaItemDao,
+            tagDao,
+            kotlinx.coroutines.test.UnconfinedTestDispatcher()
+        )
     }
 
     @Test
@@ -94,6 +107,107 @@ class MetadataStagingRepositoryTest {
         // Verify candidate was deleted from staging
         val remainingPending = repository.getPendingCandidates()
         assertThat(remainingPending).isEmpty()
+    }
+
+    @Test
+    fun `approveCandidate persists delimited tags to UnifiedTagDao and links to item`() = runTest {
+        val item = MediaItem(itemId = 300L, libraryId = 1L, filePath = "/path/book3.epub", fileName = "book3.epub", fileExtension = "epub", fileSize = 1024L, mediaType = "BOOK", hasMetadata = false)
+        mediaItemDao.insertMediaItem(item)
+
+        val candidateId = stagedDao.insertCandidate(
+            StagedMetadataCandidate(
+                itemId = 300L,
+                title = "Tagged Book",
+                tags = "Sci-Fi, Cyberpunk; Dystopian | Artificial Intelligence",
+                confidenceScore = 0.90f
+            )
+        )
+
+        val success = repository.approveCandidate(candidateId)
+        assertThat(success).isTrue()
+
+        // Verify tags created with TagType.USER_DEFINED and usageCount recalculated
+        val allTags = tagDao.tags.values.toList()
+        assertThat(allTags.map { it.name }).containsExactly(
+            "Sci-Fi", "Cyberpunk", "Dystopian", "Artificial Intelligence"
+        )
+        assertThat(allTags.all { it.type == TagType.USER_DEFINED }).isTrue()
+        assertThat(allTags.all { it.usageCount == 1 }).isTrue()
+
+        // Verify item-tag associations
+        val itemTags = tagDao.itemTags.filter { it.itemId == 300L }
+        assertThat(itemTags).hasSize(4)
+        assertThat(itemTags.map { it.tagId }).containsExactlyElementsIn(allTags.map { it.tagId })
+    }
+
+    @Test
+    fun `approveCandidate deduplicates tags case-insensitively`() = runTest {
+        val item = MediaItem(itemId = 301L, libraryId = 1L, filePath = "/path/book4.epub", fileName = "book4.epub", fileExtension = "epub", fileSize = 1024L, mediaType = "BOOK", hasMetadata = false)
+        mediaItemDao.insertMediaItem(item)
+
+        val candidateId = stagedDao.insertCandidate(
+            StagedMetadataCandidate(
+                itemId = 301L,
+                title = "Duplicate Tags Book",
+                tags = "Fantasy, fantasy, FANTASY; Magic | magic",
+                confidenceScore = 0.90f
+            )
+        )
+
+        val success = repository.approveCandidate(candidateId)
+        assertThat(success).isTrue()
+
+        val allTags = tagDao.tags.values.toList()
+        assertThat(allTags).hasSize(2)
+        assertThat(allTags.map { it.name.lowercase() }).containsExactly("fantasy", "magic")
+        assertThat(allTags.all { it.usageCount == 1 }).isTrue()
+
+        val itemTags = tagDao.itemTags.filter { it.itemId == 301L }
+        assertThat(itemTags).hasSize(2)
+    }
+
+    @Test
+    fun `approveCandidate caps tag length at 64 characters`() = runTest {
+        val item = MediaItem(itemId = 302L, libraryId = 1L, filePath = "/path/book5.epub", fileName = "book5.epub", fileExtension = "epub", fileSize = 1024L, mediaType = "BOOK", hasMetadata = false)
+        mediaItemDao.insertMediaItem(item)
+
+        val longTag = "A".repeat(80)
+        val candidateId = stagedDao.insertCandidate(
+            StagedMetadataCandidate(
+                itemId = 302L,
+                title = "Long Tag Book",
+                tags = longTag,
+                confidenceScore = 0.90f
+            )
+        )
+
+        val success = repository.approveCandidate(candidateId)
+        assertThat(success).isTrue()
+
+        val allTags = tagDao.tags.values.toList()
+        assertThat(allTags).hasSize(1)
+        val createdTag = allTags.first()
+        assertThat(createdTag.name).isEqualTo("A".repeat(64))
+        assertThat(createdTag.name.length).isEqualTo(64)
+    }
+
+    @Test
+    fun `approveCandidate safely ignores null, empty, and blank candidate tags`() = runTest {
+        val item1 = MediaItem(itemId = 303L, libraryId = 1L, filePath = "/path/book6.epub", fileName = "book6.epub", fileExtension = "epub", fileSize = 1024L, mediaType = "BOOK", hasMetadata = false)
+        val item2 = MediaItem(itemId = 304L, libraryId = 1L, filePath = "/path/book7.epub", fileName = "book7.epub", fileExtension = "epub", fileSize = 1024L, mediaType = "BOOK", hasMetadata = false)
+        val item3 = MediaItem(itemId = 305L, libraryId = 1L, filePath = "/path/book8.epub", fileName = "book8.epub", fileExtension = "epub", fileSize = 1024L, mediaType = "BOOK", hasMetadata = false)
+        mediaItemDao.insertMediaItems(listOf(item1, item2, item3))
+
+        val c1 = stagedDao.insertCandidate(StagedMetadataCandidate(itemId = 303L, title = "Null Tags", tags = null))
+        val c2 = stagedDao.insertCandidate(StagedMetadataCandidate(itemId = 304L, title = "Empty Tags", tags = ""))
+        val c3 = stagedDao.insertCandidate(StagedMetadataCandidate(itemId = 305L, title = "Blank Delimiters", tags = "  , ; |   "))
+
+        assertThat(repository.approveCandidate(c1)).isTrue()
+        assertThat(repository.approveCandidate(c2)).isTrue()
+        assertThat(repository.approveCandidate(c3)).isTrue()
+
+        assertThat(tagDao.tags).isEmpty()
+        assertThat(tagDao.itemTags).isEmpty()
     }
 
     @Test
@@ -341,9 +455,6 @@ class MetadataStagingRepositoryTest {
         override suspend fun getItemByPathOrCachePath(path: String): MediaItem? =
             map.values.find { it.filePath == path || it.localCachePath == path }
 
-        override suspend fun getMediaItemsModifiedSince(sinceTimestamp: Long): List<MediaItem> =
-            map.values.filter { it.lastModified > sinceTimestamp }
-
         override suspend fun deleteMediaItem(mediaItem: MediaItem) {
             map.remove(mediaItem.itemId)
         }
@@ -398,16 +509,130 @@ class MetadataStagingRepositoryTest {
         override suspend fun getByGenre(genre: String, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getHighlyRated(mediaType: String?, limit: Int, offset: Int): List<MediaItem> = emptyList()
         override suspend fun getBySeries(seriesId: Long, limit: Int, offset: Int): List<MediaItem> = emptyList()
-        override suspend fun updateDownloadInfo(itemId: Long, cachePath: String?, status: String, progress: Float) {
-            map[itemId]?.let { map[itemId] = it.copy(localCachePath = cachePath, downloadStatus = status, downloadProgress = progress) }
+        override suspend fun updateThumbnail(itemId: Long, thumbnailPath: String?, hasThumbnail: Boolean) {
+            map[itemId]?.let { map[itemId] = it.copy(thumbnailPath = thumbnailPath, hasThumbnail = hasThumbnail) }
         }
-        override suspend fun updateDownloadStatus(itemId: Long, status: String, progress: Float) {
-            map[itemId]?.let { map[itemId] = it.copy(downloadStatus = status, downloadProgress = progress) }
+        override suspend fun getPlexMediaItemsByServer(machineIdentifier: String): List<MediaItem> = emptyList()
+    }
+
+    private class FakeUnifiedTagDao : UnifiedTagDao {
+        val tags = mutableMapOf<Long, UnifiedTag>()
+        val itemTags = mutableListOf<ItemTag>()
+        private var nextTagId = 1L
+        private var nextItemTagId = 1L
+
+        override suspend fun insertTag(tag: UnifiedTag): Long {
+            val id = if (tag.tagId == 0L) nextTagId++ else tag.tagId
+            val copy = tag.copy(tagId = id)
+            tags[id] = copy
+            return id
         }
-        override suspend fun getMediaItemsByDownloadStatus(status: String): List<MediaItem> =
-            map.values.filter { it.downloadStatus == status }
-        override suspend fun getItemByPathOrCachePath(path: String): MediaItem? =
-            map.values.find { it.filePath == path || it.localCachePath == path }
-        override suspend fun getAllMediaItems(): List<MediaItem> = map.values.toList()
+
+        override suspend fun insertTags(tagsList: List<UnifiedTag>): List<Long> {
+            return tagsList.map { insertTag(it) }
+        }
+
+        override suspend fun updateTag(tag: UnifiedTag) {
+            tags[tag.tagId] = tag
+        }
+
+        override suspend fun deleteTag(tag: UnifiedTag) {
+            tags.remove(tag.tagId)
+            itemTags.removeAll { it.tagId == tag.tagId }
+        }
+
+        override suspend fun deleteTagById(tagId: Long) {
+            tags.remove(tagId)
+            itemTags.removeAll { it.tagId == tagId }
+        }
+
+        override suspend fun deleteTag(tagId: Long) {
+            deleteTagById(tagId)
+        }
+
+        override suspend fun updateTagName(tagId: Long, newName: String) {
+            tags[tagId]?.let { tags[tagId] = it.copy(name = newName) }
+        }
+
+        override suspend fun getTagById(tagId: Long): UnifiedTag? = tags[tagId]
+
+        override suspend fun getTagByName(name: String): UnifiedTag? =
+            tags.values.find { it.name.equals(name.trim(), ignoreCase = true) }
+
+        override fun getAllTags(): Flow<List<UnifiedTag>> = MutableStateFlow(tags.values.toList())
+
+        override fun getTagsByType(type: TagType): Flow<List<UnifiedTag>> =
+            MutableStateFlow(tags.values.filter { it.type == type })
+
+        override fun getRecentlyUsedTags(limit: Int): Flow<List<UnifiedTag>> =
+            MutableStateFlow(tags.values.sortedByDescending { it.lastUsed }.take(limit))
+
+        override fun getMostUsedTags(limit: Int): Flow<List<UnifiedTag>> =
+            MutableStateFlow(tags.values.sortedByDescending { it.usageCount }.take(limit))
+
+        override fun searchTags(query: String): Flow<List<UnifiedTag>> =
+            MutableStateFlow(tags.values.filter { it.name.contains(query, ignoreCase = true) })
+
+        override suspend fun addTagToItem(itemTag: ItemTag) {
+            itemTags.removeAll { it.itemId == itemTag.itemId && it.tagId == itemTag.tagId }
+            val id = if (itemTag.id == 0L) nextItemTagId++ else itemTag.id
+            itemTags.add(itemTag.copy(id = id))
+        }
+
+        override suspend fun addTagsToItem(itemTagsList: List<ItemTag>) {
+            itemTagsList.forEach { addTagToItem(it) }
+        }
+
+        override suspend fun removeTagFromItem(itemId: Long, tagId: Long) {
+            itemTags.removeAll { it.itemId == itemId && it.tagId == tagId }
+        }
+
+        override suspend fun removeAllTagsFromItem(itemId: Long) {
+            itemTags.removeAll { it.itemId == itemId }
+        }
+
+        override suspend fun removeTagFromAllItems(tagId: Long) {
+            itemTags.removeAll { it.tagId == tagId }
+        }
+
+        override fun getTagsForItem(itemId: Long): Flow<List<UnifiedTag>> {
+            val tagIds = itemTags.filter { it.itemId == itemId }.map { it.tagId }.toSet()
+            return MutableStateFlow(tags.values.filter { it.tagId in tagIds })
+        }
+
+        override suspend fun getTagsForItemSync(itemId: Long): List<UnifiedTag> {
+            val tagIds = itemTags.filter { it.itemId == itemId }.map { it.tagId }.toSet()
+            return tags.values.filter { it.tagId in tagIds }
+        }
+
+        override suspend fun getItemIdsForTag(tagId: Long): List<Long> {
+            return itemTags.filter { it.tagId == tagId }.map { it.itemId }
+        }
+
+        override suspend fun incrementUsageCount(tagId: Long, timestamp: Long) {
+            tags[tagId]?.let {
+                tags[tagId] = it.copy(usageCount = it.usageCount + 1, lastUsed = timestamp)
+            }
+        }
+
+        override suspend fun recalculateUsageCount(tagId: Long) {
+            val count = itemTags.count { it.tagId == tagId }
+            tags[tagId]?.let {
+                tags[tagId] = it.copy(usageCount = count)
+            }
+        }
+
+        override suspend fun recalculateAllUsageCounts() {
+            tags.keys.forEach { recalculateUsageCount(it) }
+        }
+
+        override fun getTagSuggestions(query: String, limit: Int): Flow<List<UnifiedTag>> =
+            MutableStateFlow(emptyList())
+
+        override suspend fun getPopularTagsForMediaType(mediaType: String, limit: Int): List<UnifiedTag> =
+            emptyList()
+
+        override fun observeTagUsage(mediaType: String?): Flow<List<UnifiedTagWithUsage>> =
+            MutableStateFlow(emptyList())
     }
 }
