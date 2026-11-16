@@ -11,6 +11,7 @@ import com.universalmedialibrary.services.integration.IntegrationProvider
 import com.universalmedialibrary.services.integration.ProviderStatus
 import com.universalmedialibrary.services.integration.ProviderSyncResult
 import com.universalmedialibrary.services.integration.ProviderType
+import com.universalmedialibrary.utils.getPackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -94,7 +95,7 @@ class PowerampIntegrationAdapter @Inject constructor(
      */
     fun isPowerampInstalled(): Boolean {
         return try {
-            context.packageManager.getPackageInfo(POWERAMP_PACKAGE, 0)
+            context.packageManager.getPackageInfoCompat(POWERAMP_PACKAGE)
             true
         } catch (e: PackageManager.NameNotFoundException) {
             false
