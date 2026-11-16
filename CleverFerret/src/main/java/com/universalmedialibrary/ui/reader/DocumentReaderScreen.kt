@@ -154,6 +154,7 @@ private fun HtmlReaderView(uri: Uri) {
     )
 }
 
+@Suppress("FunctionNaming")
 @Composable
 private fun UnsupportedDocumentView(
     extension: String,

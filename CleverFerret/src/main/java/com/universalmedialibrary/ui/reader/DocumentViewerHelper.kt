@@ -16,6 +16,36 @@ object DocumentViewerHelper {
 
     const val DEFAULT_MIME_TYPE = "application/octet-stream"
 
+    private val FALLBACK_MIME_TYPES: Map<String, String> = mapOf(
+        "epub" to "application/epub+zip",
+        "pdf" to "application/pdf",
+        "txt" to "text/plain",
+        "text" to "text/plain",
+        "log" to "text/plain",
+        "html" to "text/html",
+        "htm" to "text/html",
+        "docx" to "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "doc" to "application/msword",
+        "xlsx" to "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "xls" to "application/vnd.ms-excel",
+        "pptx" to "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "ppt" to "application/vnd.ms-powerpoint",
+        "mobi" to "application/x-mobipocket-ebook",
+        "azw" to "application/vnd.amazon.ebook",
+        "azw3" to "application/vnd.amazon.ebook",
+        "fb2" to "application/x-fictionbook+xml",
+        "cbz" to "application/x-cbz",
+        "cbr" to "application/x-cbr",
+        "djvu" to "image/vnd.djvu",
+        "djv" to "image/vnd.djvu",
+        "rtf" to "application/rtf",
+        "odt" to "application/vnd.oasis.opendocument.text",
+        "json" to "application/json",
+        "xml" to "application/xml",
+        "csv" to "text/csv",
+        "md" to "text/markdown"
+    )
+
     /**
      * Resolves the normalized file extension from a fileName or Uri.
      */
@@ -49,7 +79,9 @@ object DocumentViewerHelper {
             } else {
                 null
             }
-        } catch (_: Exception) {
+        } catch (_: SecurityException) {
+            null
+        } catch (_: IllegalArgumentException) {
             null
         }
 
@@ -58,54 +90,24 @@ object DocumentViewerHelper {
         }
 
         val extension = getFileExtension(uri, fileName)
-        if (extension.isNotEmpty()) {
+        val resolvedType = if (extension.isNotEmpty()) {
             val mimeFromMap = try {
                 MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-            } catch (_: Exception) {
+            } catch (_: IllegalArgumentException) {
                 null
             }
-
-            if (!mimeFromMap.isNullOrBlank()) {
-                return mimeFromMap
-            }
-
-            val fallback = when (extension) {
-                "epub" -> "application/epub+zip"
-                "pdf" -> "application/pdf"
-                "txt", "text", "log" -> "text/plain"
-                "html", "htm" -> "text/html"
-                "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                "doc" -> "application/msword"
-                "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                "xls" -> "application/vnd.ms-excel"
-                "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-                "ppt" -> "application/vnd.ms-powerpoint"
-                "mobi" -> "application/x-mobipocket-ebook"
-                "azw", "azw3" -> "application/vnd.amazon.ebook"
-                "fb2" -> "application/x-fictionbook+xml"
-                "cbz" -> "application/x-cbz"
-                "cbr" -> "application/x-cbr"
-                "djvu", "djv" -> "image/vnd.djvu"
-                "rtf" -> "application/rtf"
-                "odt" -> "application/vnd.oasis.opendocument.text"
-                "json" -> "application/json"
-                "xml" -> "application/xml"
-                "csv" -> "text/csv"
-                "md" -> "text/markdown"
-                else -> null
-            }
-
-            if (fallback != null) {
-                return fallback
-            }
+            mimeFromMap?.takeIf { it.isNotBlank() } ?: FALLBACK_MIME_TYPES[extension]
+        } else {
+            null
         }
 
-        return contentResolverType ?: DEFAULT_MIME_TYPE
+        return resolvedType ?: contentResolverType ?: DEFAULT_MIME_TYPE
     }
 
     /**
      * Converts file:// scheme URIs to content URIs using FileProvider to avoid FileUriExposedException.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun resolveContentUri(context: Context, uri: Uri): Uri {
         if (uri.scheme == "file") {
             val path = uri.path
@@ -159,6 +161,7 @@ object DocumentViewerHelper {
     /**
      * Launches the system viewer chooser with error handling.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun launchSystemViewer(context: Context, uri: Uri, fileName: String = "") {
         try {
             val chooserIntent = createChooserIntent(context, uri, fileName)
