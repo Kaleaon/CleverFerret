@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.content.FileProvider
+import com.universalmedialibrary.utils.getPackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -393,7 +394,7 @@ class DebugReportingService @Inject constructor(
     
     private fun getAppInfo(): AppInfo {
         return try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = context.packageManager.getPackageInfoCompat(context.packageName)
             AppInfo(
                 packageName = context.packageName,
                 versionName = packageInfo.versionName ?: "unknown",

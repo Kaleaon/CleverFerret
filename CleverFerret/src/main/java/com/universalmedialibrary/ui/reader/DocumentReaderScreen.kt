@@ -1,9 +1,12 @@
 package com.universalmedialibrary.ui.reader
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,12 +26,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.CenterFocusWeak
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FitScreen
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -42,6 +49,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -203,14 +211,102 @@ private fun copyToTempFile(context: android.content.Context, uri: Uri, suffix: S
     return tmp
 }
 
+internal fun createPdfSystemViewerIntent(uri: Uri): Intent {
+    return Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, "application/pdf")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+}
+
+@Suppress("FunctionNaming", "LongMethod")
 @Composable
-private fun PdfReaderView(uri: Uri) {
+internal fun PdfErrorRecoveryCard(
+    onRetry: () -> Unit,
+    onOpenExternal: () -> Unit,
+    modifier: Modifier = Modifier,
+    message: String = "Failed to render PDF page"
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Error,
+                contentDescription = "Error",
+                modifier = Modifier.size(56.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = "Unable to Display Page",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onRetry,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Retry",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Retry")
+                }
+                OutlinedButton(
+                    onClick = onOpenExternal,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                        contentDescription = "Open with System Viewer",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Open with System Viewer")
+                }
+            }
+        }
+    }
+}
+
+@Suppress("FunctionNaming", "LongMethod", "CyclomaticComplexMethod")
+@Composable
+internal fun PdfReaderView(uri: Uri) {
     val context = LocalContext.current
     var renderer by remember { mutableStateOf<PdfRenderer?>(null) }
     var pfd by remember { mutableStateOf<ParcelFileDescriptor?>(null) }
-    var currentPageIndex by remember { mutableStateOf(0) }
+    var currentPageIndex by rememberSaveable { mutableStateOf(0) }
     var pageCount by remember { mutableStateOf(0) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var isRendering by remember { mutableStateOf(true) }
+    var renderFailed by remember { mutableStateOf(false) }
     
     // Zoom and pan state
     var scale by remember { mutableFloatStateOf(1f) }
@@ -232,13 +328,75 @@ private fun PdfReaderView(uri: Uri) {
         offsetY += panChange.y
     }
 
+    val renderPage: (Int, Float) -> Unit = { targetIndex, targetScale ->
+        val currentRenderer = renderer
+        if (currentRenderer != null) {
+            isRendering = true
+            renderFailed = false
+            renderToBitmapHighQuality(currentRenderer, targetIndex, targetScale) { bmp ->
+                bitmap = bmp
+                isRendering = false
+                renderFailed = (bmp == null)
+            }
+        } else {
+            isRendering = false
+            renderFailed = true
+        }
+    }
+
+    val retryRender: () -> Unit = {
+        if (renderer == null) {
+            val descriptor: ParcelFileDescriptor? = tryOpenPfd(context, uri)
+            pfd = descriptor
+            if (descriptor != null) {
+                try {
+                    val newRenderer = PdfRenderer(descriptor)
+                    renderer = newRenderer
+                    pageCount = newRenderer.pageCount
+                } catch (e: Exception) {
+                    android.util.Log.w("PdfReader", "Failed to recreate PdfRenderer on retry", e)
+                    renderer = null
+                }
+            }
+        }
+        renderPage(currentPageIndex, renderScale)
+    }
+
     DisposableEffect(uri) {
         val descriptor: ParcelFileDescriptor? = tryOpenPfd(context, uri)
         pfd = descriptor
         if (descriptor != null) {
-            renderer = PdfRenderer(descriptor)
-            pageCount = renderer?.pageCount ?: 0
-            renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+            try {
+                val newRenderer = PdfRenderer(descriptor)
+                renderer = newRenderer
+                val count = newRenderer.pageCount
+                pageCount = count
+                isRendering = true
+                renderFailed = false
+                if (count > 0) {
+                    val coercedIndex = currentPageIndex.coerceIn(0, count - 1)
+                    if (coercedIndex != currentPageIndex) {
+                        currentPageIndex = coercedIndex
+                    }
+                    renderToBitmapHighQuality(newRenderer, coercedIndex, renderScale) { bmp ->
+                        bitmap = bmp
+                        isRendering = false
+                        renderFailed = (bmp == null)
+                    }
+                } else {
+                    currentPageIndex = 0
+                    isRendering = false
+                    renderFailed = true
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("PdfReader", "Error opening PdfRenderer", e)
+                renderer = null
+                isRendering = false
+                renderFailed = true
+            }
+        } else {
+            isRendering = false
+            renderFailed = true
         }
         onDispose {
             try { renderer?.close() } catch (e: Exception) { 
@@ -260,7 +418,7 @@ private fun PdfReaderView(uri: Uri) {
         }
         if (newRenderScale != renderScale) {
             renderScale = newRenderScale
-            renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+            renderPage(currentPageIndex, newRenderScale)
         }
     }
 
@@ -291,7 +449,7 @@ private fun PdfReaderView(uri: Uri) {
                                 scale = 1f
                                 offsetX = 0f
                                 offsetY = 0f
-                                renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+                                renderPage(currentPageIndex, renderScale)
                             }
                         },
                         enabled = currentPageIndex > 0
@@ -323,7 +481,7 @@ private fun PdfReaderView(uri: Uri) {
                                 scale = 1f
                                 offsetX = 0f
                                 offsetY = 0f
-                                renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+                                renderPage(currentPageIndex, renderScale)
                             }
                         },
                         enabled = currentPageIndex < pageCount - 1
@@ -351,7 +509,7 @@ private fun PdfReaderView(uri: Uri) {
                             scale = 1f
                             offsetX = 0f
                             offsetY = 0f
-                            renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+                            renderPage(currentPageIndex, renderScale)
                             true
                         } else false
                     },
@@ -361,7 +519,7 @@ private fun PdfReaderView(uri: Uri) {
                             scale = 1f
                             offsetX = 0f
                             offsetY = 0f
-                            renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+                            renderPage(currentPageIndex, renderScale)
                             true
                         } else false
                     },
@@ -386,9 +544,10 @@ private fun PdfReaderView(uri: Uri) {
                 .transformable(state = transformableState),
             contentAlignment = Alignment.Center
         ) {
-            bitmap?.let { bmp ->
+            val currentBitmap = bitmap
+            if (currentBitmap != null) {
                 Image(
-                    bitmap = bmp.asImageBitmap(), 
+                    bitmap = currentBitmap.asImageBitmap(), 
                     contentDescription = "PDF page ${currentPageIndex + 1}",
                     modifier = Modifier
                         .fillMaxSize()
@@ -400,8 +559,25 @@ private fun PdfReaderView(uri: Uri) {
                         ),
                     contentScale = ContentScale.Fit
                 )
-            } ?: run {
+            } else if (isRendering) {
                 CircularProgressIndicator()
+            } else {
+                PdfErrorRecoveryCard(
+                    onRetry = retryRender,
+                    onOpenExternal = {
+                        val intent = createPdfSystemViewerIntent(uri)
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: ActivityNotFoundException) {
+                            android.util.Log.w("PdfReader", "No external PDF application found", e)
+                            Toast.makeText(
+                                context,
+                                "No external PDF application found",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                )
             }
         }
         
@@ -440,7 +616,7 @@ private fun PdfReaderView(uri: Uri) {
                                         scale = 1f
                                         offsetX = 0f
                                         offsetY = 0f
-                                        renderToBitmapHighQuality(renderer, currentPageIndex, renderScale) { bmp -> bitmap = bmp }
+                                        renderPage(currentPageIndex, renderScale)
                                     }
                                 },
                                 valueRange = 1f..pageCount.coerceAtLeast(1).toFloat(),
